@@ -21,20 +21,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../src/contexts/AuthContext';
 import { apiService } from '../src/services/api';
 import { socketService } from '../src/services/socket';
-
-// Conditional import for maps
-let MapView: any = null;
-let Marker: any = null;
-let PROVIDER_GOOGLE: any = null;
-
-try {
-  const maps = require('react-native-maps');
-  MapView = maps.default;
-  Marker = maps.Marker;
-  PROVIDER_GOOGLE = maps.PROVIDER_GOOGLE;
-} catch (e) {
-  console.log('Maps not available on this platform');
-}
+import NativeMap, { isMapAvailable } from '../src/components/NativeMap';
 
 interface Signal {
   id: string;
@@ -328,41 +315,14 @@ export default function MapScreen() {
   return (
     <View style={styles.container}>
       {/* Full Screen Map */}
-      {MapView && Platform.OS !== 'web' ? (
-        <MapView
-          ref={mapRef}
-          style={styles.map}
-          provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
-          initialRegion={{
-            latitude: location?.coords.latitude || 48.8566,
-            longitude: location?.coords.longitude || 2.3522,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-          showsUserLocation
-          showsMyLocationButton={false}
-          userInterfaceStyle={isDark ? 'dark' : 'light'}
-          onMapReady={() => setMapReady(true)}
-        >
-          {signals.map((signal) => (
-            <Marker
-              key={signal.id}
-              coordinate={{ latitude: signal.lat, longitude: signal.lng }}
-              onPress={() => setSelectedSignal(signal)}
-            >
-              <View style={[styles.markerContainer, { backgroundColor: getMarkerColor(signal.type) }]}>
-                <Ionicons
-                  name={SIGNAL_TYPES[signal.type]?.icon as any || 'warning'}
-                  size={18}
-                  color="#fff"
-                />
-              </View>
-            </Marker>
-          ))}
-        </MapView>
-      ) : (
-        renderMapFallback()
-      )}
+      <NativeMap
+        ref={mapRef}
+        initialLatitude={location?.coords.latitude || 48.8566}
+        initialLongitude={location?.coords.longitude || 2.3522}
+        signals={signals}
+        onSignalPress={(signal) => setSelectedSignal(signal)}
+        onMapReady={() => setMapReady(true)}
+      />
 
       {/* Header Overlay */}
       <SafeAreaView style={styles.headerOverlay} edges={['top']}>
