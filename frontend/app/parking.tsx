@@ -239,7 +239,7 @@ export default function ParkingScreen() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {parkings.length === 0 ? (
           <View style={[styles.emptyCard, { backgroundColor: colors.card }]}>
-            <Ionicons name="car" size={48} color={colors.textSecondary} />
+            <Ionicons name="navigate" size={48} color={colors.textSecondary} />
             <Text style={[styles.emptyText, { color: colors.text }]}>
               Aucun parking trouvé
             </Text>
@@ -259,7 +259,7 @@ export default function ParkingScreen() {
             <View key={parking.id} style={[styles.parkingCard, { backgroundColor: colors.card }]}>
               <View style={styles.parkingHeader}>
                 <View style={[styles.parkingIcon, { backgroundColor: getTypeColor(parking.type) + '20' }]}>
-                  <Ionicons name="car" size={24} color={getTypeColor(parking.type)} />
+                  <Ionicons name="navigate" size={24} color={getTypeColor(parking.type)} />
                 </View>
                 <View style={styles.parkingInfo}>
                   <Text style={[styles.parkingName, { color: colors.text }]}>{parking.name}</Text>

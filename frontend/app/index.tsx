@@ -323,7 +323,7 @@ export default function MapScreen() {
             style={[styles.parkingButton, { backgroundColor: colors.success }]}
             onPress={() => router.push('/parking')}
           >
-            <Ionicons name="car" size={20} color="#fff" />
+            <Ionicons name="navigate" size={20} color="#fff" />
           </TouchableOpacity>
           {user ? (
             <TouchableOpacity
