@@ -136,6 +136,24 @@ class ApiService {
   async getMaintenanceLogs(token: string, limit: number = 20) {
     return this.request(`/vehicles/maintenance-log?limit=${limit}`, {}, token);
   }
+
+  // Insurance endpoints
+  async getInsuranceProviders() {
+    return this.request('/insurance/providers');
+  }
+
+  async getInsuranceEstimate(data: {
+    driver_age: number;
+    experience_years: number;
+    vehicle_value: number;
+    brand: string;
+    postal_code: string;
+  }) {
+    return this.request('/insurance/estimate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
 }
 
 export const apiService = new ApiService();

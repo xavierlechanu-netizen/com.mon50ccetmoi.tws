@@ -71,6 +71,7 @@ export default function MapScreen() {
     danger: '#ef4444',
     tunnel: '#8b5cf6',
     speed_limit: '#f97316',
+    info: '#3b82f6',
   };
 
   // Request location permissions and start tracking
@@ -311,6 +312,12 @@ export default function MapScreen() {
             onPress={() => router.push('/garage')}
           >
             <Ionicons name="construct" size={20} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.insuranceButton, { backgroundColor: colors.info }]}
+            onPress={() => router.push('/insurance')}
+          >
+            <Ionicons name="shield-checkmark" size={20} color="#fff" />
           </TouchableOpacity>
           {user ? (
             <TouchableOpacity
@@ -675,6 +682,14 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   garageButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  insuranceButton: {
     width: 40,
     height: 40,
     borderRadius: 20,

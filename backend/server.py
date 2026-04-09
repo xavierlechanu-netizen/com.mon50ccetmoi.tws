@@ -148,7 +148,16 @@ class VoteCreate(BaseModel):
 
 # ============ VEHICLE MODELS ============
 
-SCOOTER_BRANDS = ["Peugeot", "MBK", "Piaggio", "Kymco", "Sym", "Honda", "Yamaha", "Aprilia", "Vespa", "Derbi", "Gilera", "Malaguti", "Autre"]
+SCOOTER_BRANDS = [
+    # Marques classiques
+    "Peugeot", "MBK", "Piaggio", "Kymco", "Sym", "Honda", "Yamaha", "Aprilia", "Vespa", "Derbi", "Gilera", "Malaguti",
+    # Groupe Baotian France
+    "Baotian", "Jiajue", "Znen", "Generic", "Keeway", "CPI", "Sachs", "Rex", "Jinlun", "Qingqi",
+    # Maxiscoot / Import
+    "TNT Motor", "Rieju", "Beta", "Fantic", "Sherco", "Gas Gas", "TGB", "Daelim", "Hyosung", "Benelli",
+    # Autres
+    "Autre"
+]
 
 class VehicleCreate(BaseModel):
     brand: str
@@ -810,6 +819,305 @@ async def get_maintenance_logs(request: Request, limit: int = 20):
         })
     
     return {"logs": result}
+
+# ============ INSURANCE COMPARISON ============
+
+# Insurance data for 50cc scooters in France
+INSURANCE_PROVIDERS = [
+    {
+        "id": "april",
+        "name": "April Moto",
+        "logo": "shield-checkmark",
+        "color": "#e74c3c",
+        "description": "Spécialiste 2 roues depuis 1988",
+        "rating": 4.2,
+        "formulas": [
+            {
+                "name": "Tiers",
+                "price_min": 8,
+                "price_max": 15,
+                "coverages": ["Responsabilité civile", "Défense pénale", "Recours suite accident"],
+                "excluded": ["Vol", "Incendie", "Dommages"]
+            },
+            {
+                "name": "Tiers+",
+                "price_min": 12,
+                "price_max": 22,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Catastrophes naturelles", "Assistance 0km"],
+                "excluded": ["Dommages tous accidents"]
+            },
+            {
+                "name": "Tous Risques",
+                "price_min": 18,
+                "price_max": 35,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Dommages tous accidents", "Équipements", "Assistance 0km"],
+                "excluded": []
+            }
+        ],
+        "pros": ["Devis rapide en ligne", "Spécialiste 2 roues", "Assistance 24h/24"],
+        "cons": ["Franchise élevée", "Tarifs jeunes conducteurs"]
+    },
+    {
+        "id": "amv",
+        "name": "AMV Assurances",
+        "logo": "bicycle",
+        "color": "#3498db",
+        "description": "N°1 de l'assurance moto en France",
+        "rating": 4.0,
+        "formulas": [
+            {
+                "name": "Essentiel",
+                "price_min": 7,
+                "price_max": 14,
+                "coverages": ["Responsabilité civile", "Défense recours", "Protection juridique"],
+                "excluded": ["Vol", "Incendie", "Dommages"]
+            },
+            {
+                "name": "Confort",
+                "price_min": 11,
+                "price_max": 20,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Assistance", "Accessoires 300€"],
+                "excluded": ["Dommages collision"]
+            },
+            {
+                "name": "Intégral",
+                "price_min": 16,
+                "price_max": 32,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Dommages tous accidents", "Accessoires 800€", "Assistance 0km", "Prêt de véhicule"],
+                "excluded": []
+            }
+        ],
+        "pros": ["Leader du marché", "Nombreuses agences", "Application mobile"],
+        "cons": ["Délais de remboursement", "Service client perfectible"]
+    },
+    {
+        "id": "macif",
+        "name": "Macif",
+        "logo": "people",
+        "color": "#27ae60",
+        "description": "Mutuelle d'assurance",
+        "rating": 4.3,
+        "formulas": [
+            {
+                "name": "Tiers Simple",
+                "price_min": 6,
+                "price_max": 12,
+                "coverages": ["Responsabilité civile", "Défense recours"],
+                "excluded": ["Vol", "Incendie", "Dommages", "Assistance"]
+            },
+            {
+                "name": "Tiers Étendu",
+                "price_min": 10,
+                "price_max": 18,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Bris de glace", "Assistance 25km"],
+                "excluded": ["Dommages collision"]
+            },
+            {
+                "name": "Tous Risques",
+                "price_min": 15,
+                "price_max": 30,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Dommages tous accidents", "Assistance 0km", "Équipement pilote"],
+                "excluded": []
+            }
+        ],
+        "pros": ["Tarifs compétitifs", "Bonne réputation", "Réseau d'agences"],
+        "cons": ["Moins spécialisé 2 roues"]
+    },
+    {
+        "id": "maaf",
+        "name": "MAAF",
+        "logo": "car",
+        "color": "#9b59b6",
+        "description": "Assureur généraliste",
+        "rating": 4.1,
+        "formulas": [
+            {
+                "name": "Tiers",
+                "price_min": 7,
+                "price_max": 13,
+                "coverages": ["Responsabilité civile", "Protection juridique"],
+                "excluded": ["Vol", "Incendie", "Dommages"]
+            },
+            {
+                "name": "Tiers Confort",
+                "price_min": 11,
+                "price_max": 19,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Catastrophes naturelles", "Assistance"],
+                "excluded": ["Dommages collision"]
+            },
+            {
+                "name": "Tous Risques",
+                "price_min": 17,
+                "price_max": 33,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Dommages tous accidents", "Équipements 500€", "Assistance 0km"],
+                "excluded": []
+            }
+        ],
+        "pros": ["Multi-contrats avantageux", "Service client réactif"],
+        "cons": ["Franchise parfois élevée"]
+    },
+    {
+        "id": "assurland",
+        "name": "Assurland",
+        "logo": "search",
+        "color": "#f39c12",
+        "description": "Comparateur + assureur",
+        "rating": 3.9,
+        "formulas": [
+            {
+                "name": "Éco",
+                "price_min": 5,
+                "price_max": 11,
+                "coverages": ["Responsabilité civile", "Défense recours"],
+                "excluded": ["Vol", "Incendie", "Dommages", "Assistance"]
+            },
+            {
+                "name": "Médium",
+                "price_min": 9,
+                "price_max": 17,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Assistance dépannage"],
+                "excluded": ["Dommages tous accidents"]
+            },
+            {
+                "name": "Premium",
+                "price_min": 14,
+                "price_max": 28,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Dommages", "Assistance 0km", "Valeur à neuf 1 an"],
+                "excluded": []
+            }
+        ],
+        "pros": ["Prix très compétitifs", "Souscription 100% en ligne"],
+        "cons": ["Service client limité", "Peu d'agences"]
+    },
+    {
+        "id": "leocare",
+        "name": "Leocare",
+        "logo": "phone-portrait",
+        "color": "#1abc9c",
+        "description": "Assurance 100% mobile",
+        "rating": 4.4,
+        "formulas": [
+            {
+                "name": "Tiers",
+                "price_min": 6,
+                "price_max": 12,
+                "coverages": ["Responsabilité civile", "Protection juridique", "Assistance téléphone"],
+                "excluded": ["Vol", "Incendie", "Dommages"]
+            },
+            {
+                "name": "Intermédiaire",
+                "price_min": 10,
+                "price_max": 18,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Assistance 0km", "Casque et gants inclus"],
+                "excluded": ["Dommages collision"]
+            },
+            {
+                "name": "Tous Risques",
+                "price_min": 15,
+                "price_max": 29,
+                "coverages": ["Responsabilité civile", "Vol", "Incendie", "Dommages tous accidents", "Équipement 1000€", "Assistance 0km"],
+                "excluded": []
+            }
+        ],
+        "pros": ["100% digital", "Gestion via app", "Prix attractifs", "Jeunes conducteurs acceptés"],
+        "cons": ["Pas d'agence physique", "Nouveau sur le marché"]
+    }
+]
+
+@api_router.get("/insurance/providers")
+async def get_insurance_providers():
+    """Get list of insurance providers with their formulas"""
+    return {"providers": INSURANCE_PROVIDERS, "brands": SCOOTER_BRANDS}
+
+@api_router.post("/insurance/estimate")
+async def get_insurance_estimate(request: Request):
+    """Get personalized insurance estimates"""
+    body = await request.json()
+    
+    age = body.get("driver_age", 18)
+    experience = body.get("experience_years", 0)
+    vehicle_value = body.get("vehicle_value", 1500)
+    brand = body.get("brand", "")
+    postal_code = body.get("postal_code", "75000")
+    
+    # Calculate risk factor based on inputs
+    risk_factor = 1.0
+    
+    # Age factor
+    if age < 21:
+        risk_factor *= 1.5
+    elif age < 25:
+        risk_factor *= 1.2
+    elif age > 40:
+        risk_factor *= 0.9
+    
+    # Experience factor
+    if experience == 0:
+        risk_factor *= 1.3
+    elif experience >= 3:
+        risk_factor *= 0.85
+    
+    # Location factor (simplified - Paris and big cities more expensive)
+    if postal_code.startswith("75") or postal_code.startswith("13") or postal_code.startswith("69"):
+        risk_factor *= 1.2
+    elif postal_code.startswith("97"):  # DOM-TOM
+        risk_factor *= 1.4
+    
+    # Vehicle value factor
+    if vehicle_value > 3000:
+        risk_factor *= 1.15
+    elif vehicle_value < 1000:
+        risk_factor *= 0.9
+    
+    # Premium brands slightly cheaper (better anti-theft)
+    premium_brands = ["Honda", "Yamaha", "Piaggio", "Vespa", "Peugeot"]
+    if brand in premium_brands:
+        risk_factor *= 0.95
+    
+    # Budget brands slightly more expensive
+    budget_brands = ["Baotian", "Jiajue", "Znen", "Generic", "Jinlun", "Qingqi"]
+    if brand in budget_brands:
+        risk_factor *= 1.05
+    
+    estimates = []
+    for provider in INSURANCE_PROVIDERS:
+        provider_estimate = {
+            "id": provider["id"],
+            "name": provider["name"],
+            "logo": provider["logo"],
+            "color": provider["color"],
+            "rating": provider["rating"],
+            "formulas": []
+        }
+        
+        for formula in provider["formulas"]:
+            estimated_price = (formula["price_min"] + formula["price_max"]) / 2 * risk_factor
+            estimated_price = round(estimated_price, 2)
+            
+            provider_estimate["formulas"].append({
+                "name": formula["name"],
+                "price_monthly": estimated_price,
+                "price_yearly": round(estimated_price * 12 * 0.95, 2),  # 5% discount annual
+                "coverages": formula["coverages"],
+                "excluded": formula["excluded"]
+            })
+        
+        estimates.append(provider_estimate)
+    
+    # Sort by cheapest tiers option
+    estimates.sort(key=lambda x: x["formulas"][0]["price_monthly"])
+    
+    return {
+        "estimates": estimates,
+        "risk_factor": round(risk_factor, 2),
+        "profile": {
+            "age": age,
+            "experience": experience,
+            "vehicle_value": vehicle_value,
+            "brand": brand,
+            "postal_code": postal_code
+        }
+    }
 
 # ============ HEALTH CHECK ============
 
