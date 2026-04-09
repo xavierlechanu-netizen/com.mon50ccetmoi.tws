@@ -319,6 +319,12 @@ export default function MapScreen() {
           >
             <Ionicons name="shield-checkmark" size={20} color="#fff" />
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.parkingButton, { backgroundColor: colors.success }]}
+            onPress={() => router.push('/parking')}
+          >
+            <Ionicons name="car" size={20} color="#fff" />
+          </TouchableOpacity>
           {user ? (
             <TouchableOpacity
               style={styles.profileButton}
@@ -690,6 +696,14 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   insuranceButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  parkingButton: {
     width: 40,
     height: 40,
     borderRadius: 20,

@@ -823,6 +823,16 @@ async def get_maintenance_logs(request: Request, limit: int = 20):
 # ============ INSURANCE COMPARISON ============
 
 # Insurance data for 50cc scooters in France
+INSURANCE_BROKER = {
+    "name": "Robert GUILLUY",
+    "title": "Courtier National du Courtage",
+    "phone_mobile": "07 84 88 51 12",
+    "phone_fixed": "09 81 13 27 63",
+    "description": "Courtier spécialisé 50cc - Tarifs préférentiels avec suivi GPS",
+    "special_offer": "Réduction si vous prouvez éviter autoroutes et voies rapides via GPS",
+    "color": "#10b981"
+}
+
 INSURANCE_PROVIDERS = [
     {
         "id": "april",
@@ -1027,7 +1037,188 @@ INSURANCE_PROVIDERS = [
 @api_router.get("/insurance/providers")
 async def get_insurance_providers():
     """Get list of insurance providers with their formulas"""
-    return {"providers": INSURANCE_PROVIDERS, "brands": SCOOTER_BRANDS}
+    return {
+        "providers": INSURANCE_PROVIDERS, 
+        "brands": SCOOTER_BRANDS,
+        "broker": INSURANCE_BROKER
+    }
+
+# ============ PARKING ENDPOINTS ============
+
+@api_router.get("/parking/nearby")
+async def get_nearby_parking(lat: float, lng: float, radius: float = 2000):
+    """Get parking spots for 50cc near a location"""
+    # Get user-reported parking spots
+    user_parkings = await db.parkings.find({
+        "location": {
+            "$near": {
+                "$geometry": {
+                    "type": "Point",
+                    "coordinates": [lng, lat]
+                },
+                "$maxDistance": radius
+            }
+        }
+    }).to_list(50)
+    
+    # Add some default known free parking areas for 50cc in major cities
+    default_parkings = [
+        {
+            "id": "default_1",
+            "name": "Parking 2 roues gratuit",
+            "type": "free",
+            "lat": lat + 0.002,
+            "lng": lng + 0.001,
+            "description": "Zone de stationnement 2 roues",
+            "is_default": True
+        }
+    ]
+    
+    result = []
+    for parking in user_parkings:
+        result.append({
+            "id": str(parking["_id"]),
+            "name": parking.get("name", "Parking 50cc"),
+            "type": parking.get("type", "free"),
+            "lat": parking["lat"],
+            "lng": parking["lng"],
+            "description": parking.get("description"),
+            "upvotes": parking.get("upvotes", 0),
+            "downvotes": parking.get("downvotes", 0),
+            "created_at": parking.get("created_at", datetime.now(timezone.utc)).isoformat()
+        })
+    
+    return {"parkings": result}
+
+@api_router.post("/parking")
+async def create_parking(request: Request):
+    """Report a free parking spot for 50cc"""
+    user = await get_current_user(request)
+    body = await request.json()
+    
+    parking_doc = {
+        "name": body.get("name", "Parking 50cc gratuit"),
+        "type": body.get("type", "free"),  # "free", "paid", "limited"
+        "lat": body["lat"],
+        "lng": body["lng"],
+        "location": {
+            "type": "Point",
+            "coordinates": [body["lng"], body["lat"]]
+        },
+        "description": body.get("description"),
+        "upvotes": 0,
+        "downvotes": 0,
+        "voters": [],
+        "user_id": user["_id"],
+        "created_at": datetime.now(timezone.utc)
+    }
+    
+    result = await db.parkings.insert_one(parking_doc)
+    
+    return {
+        "id": str(result.inserted_id),
+        "name": parking_doc["name"],
+        "type": parking_doc["type"],
+        "lat": parking_doc["lat"],
+        "lng": parking_doc["lng"],
+        "description": parking_doc.get("description")
+    }
+
+@api_router.post("/parking/{parking_id}/vote")
+async def vote_parking(parking_id: str, request: Request):
+    """Vote on a parking spot"""
+    user = await get_current_user(request)
+    body = await request.json()
+    vote_type = body.get("vote_type", "up")
+    
+    try:
+        parking = await db.parkings.find_one({"_id": ObjectId(parking_id)})
+    except:
+        raise HTTPException(status_code=404, detail="Parking non trouvé")
+    
+    if not parking:
+        raise HTTPException(status_code=404, detail="Parking non trouvé")
+    
+    voters = parking.get("voters", [])
+    if user["_id"] in voters:
+        raise HTTPException(status_code=400, detail="Vous avez déjà voté")
+    
+    update_field = "upvotes" if vote_type == "up" else "downvotes"
+    await db.parkings.update_one(
+        {"_id": ObjectId(parking_id)},
+        {
+            "$inc": {update_field: 1},
+            "$push": {"voters": user["_id"]}
+        }
+    )
+    
+    return {"message": "Vote enregistré"}
+
+# ============ GPS TRACKING FOR INSURANCE ============
+
+@api_router.post("/gps/track")
+async def save_gps_track(request: Request):
+    """Save GPS track point for insurance proof"""
+    user = await get_current_user(request)
+    body = await request.json()
+    
+    track_point = {
+        "user_id": user["_id"],
+        "lat": body["lat"],
+        "lng": body["lng"],
+        "speed": body.get("speed", 0),
+        "timestamp": datetime.now(timezone.utc)
+    }
+    
+    await db.gps_tracks.insert_one(track_point)
+    
+    return {"status": "saved"}
+
+@api_router.get("/gps/stats")
+async def get_gps_stats(request: Request):
+    """Get GPS statistics for insurance (no highways, no fast roads)"""
+    user = await get_current_user(request)
+    
+    # Get last 30 days of tracks
+    thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
+    
+    tracks = await db.gps_tracks.find({
+        "user_id": user["_id"],
+        "timestamp": {"$gte": thirty_days_ago}
+    }).to_list(10000)
+    
+    total_points = len(tracks)
+    max_speed = 0
+    avg_speed = 0
+    highway_violations = 0
+    
+    if tracks:
+        speeds = [t.get("speed", 0) for t in tracks]
+        max_speed = max(speeds)
+        avg_speed = sum(speeds) / len(speeds)
+        
+        # Count highway violations (speed > 50 km/h for 50cc is suspicious)
+        highway_violations = len([s for s in speeds if s > 50])
+    
+    # Calculate compliance score
+    compliance_score = 100
+    if highway_violations > 0:
+        compliance_score -= min(50, highway_violations * 2)
+    if max_speed > 60:
+        compliance_score -= 20
+    
+    compliance_score = max(0, compliance_score)
+    
+    return {
+        "total_points": total_points,
+        "max_speed_kmh": round(max_speed, 1),
+        "avg_speed_kmh": round(avg_speed, 1),
+        "highway_violations": highway_violations,
+        "compliance_score": compliance_score,
+        "period_days": 30,
+        "eligible_for_discount": compliance_score >= 80,
+        "message": "Excellent ! Vous êtes éligible à une réduction" if compliance_score >= 80 else "Continuez à éviter les voies rapides pour obtenir une réduction"
+    }
 
 @api_router.post("/insurance/estimate")
 async def get_insurance_estimate(request: Request):
@@ -1167,6 +1358,8 @@ async def seed_admin():
     await db.users.create_index("email", unique=True)
     await db.signals.create_index("created_at")
     await db.signals.create_index([("lat", 1), ("lng", 1)])
+    await db.parkings.create_index([("location", "2dsphere")])
+    await db.gps_tracks.create_index([("user_id", 1), ("timestamp", -1)])
     
     # Write test credentials
     credentials_path = Path("/app/memory/test_credentials.md")

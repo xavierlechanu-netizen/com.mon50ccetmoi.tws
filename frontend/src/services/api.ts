@@ -154,6 +154,37 @@ class ApiService {
       body: JSON.stringify(data),
     });
   }
+
+  // Parking endpoints
+  async getNearbyParking(lat: number, lng: number, radius: number = 2000) {
+    return this.request(`/parking/nearby?lat=${lat}&lng=${lng}&radius=${radius}`);
+  }
+
+  async createParking(data: { name: string; type: string; lat: number; lng: number; description?: string }, token: string) {
+    return this.request('/parking', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }, token);
+  }
+
+  async voteParking(parkingId: string, voteType: 'up' | 'down', token: string) {
+    return this.request(`/parking/${parkingId}/vote`, {
+      method: 'POST',
+      body: JSON.stringify({ vote_type: voteType }),
+    }, token);
+  }
+
+  // GPS tracking for insurance
+  async saveGpsTrack(lat: number, lng: number, speed: number, token: string) {
+    return this.request('/gps/track', {
+      method: 'POST',
+      body: JSON.stringify({ lat, lng, speed }),
+    }, token);
+  }
+
+  async getGpsStats(token: string) {
+    return this.request('/gps/stats', {}, token);
+  }
 }
 
 export const apiService = new ApiService();

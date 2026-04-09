@@ -10,6 +10,7 @@ import {
   Alert,
   ActivityIndicator,
   Modal,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -42,6 +43,16 @@ interface Estimate {
   formulas: Formula[];
 }
 
+interface Broker {
+  name: string;
+  title: string;
+  phone_mobile: string;
+  phone_fixed: string;
+  description: string;
+  special_offer: string;
+  color: string;
+}
+
 const BRANDS = [
   "Peugeot", "MBK", "Piaggio", "Kymco", "Sym", "Honda", "Yamaha", "Aprilia", "Vespa", "Derbi", "Gilera", "Malaguti",
   "Baotian", "Jiajue", "Znen", "Generic", "Keeway", "CPI", "Sachs", "Rex", "Jinlun", "Qingqi",
@@ -57,6 +68,7 @@ export default function InsuranceScreen() {
   const [estimates, setEstimates] = useState<Estimate[]>([]);
   const [selectedProvider, setSelectedProvider] = useState<Estimate | null>(null);
   const [showForm, setShowForm] = useState(true);
+  const [broker, setBroker] = useState<Broker | null>(null);
   
   // Form state
   const [age, setAge] = useState('18');
@@ -75,6 +87,26 @@ export default function InsuranceScreen() {
     success: '#4ade80',
     warning: '#fbbf24',
     info: '#3b82f6',
+    broker: '#10b981',
+  };
+
+  useEffect(() => {
+    loadBroker();
+  }, []);
+
+  const loadBroker = async () => {
+    try {
+      const response = await apiService.getInsuranceProviders();
+      if (response.broker) {
+        setBroker(response.broker);
+      }
+    } catch (error) {
+      console.log('Error loading broker:', error);
+    }
+  };
+
+  const callBroker = (phoneNumber: string) => {
+    Linking.openURL(`tel:${phoneNumber.replace(/\s/g, '')}`);
   };
 
   const getEstimates = async () => {
@@ -136,6 +168,42 @@ export default function InsuranceScreen() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {showForm ? (
           <>
+            {/* Broker Card - Special Offer */}
+            {broker && (
+              <View style={[styles.brokerCard, { backgroundColor: colors.broker + '15', borderColor: colors.broker }]}>
+                <View style={styles.brokerHeader}>
+                  <View style={[styles.brokerIcon, { backgroundColor: colors.broker }]}>
+                    <Ionicons name="star" size={24} color="#fff" />
+                  </View>
+                  <View style={styles.brokerInfo}>
+                    <Text style={[styles.brokerName, { color: colors.text }]}>{broker.name}</Text>
+                    <Text style={[styles.brokerTitle, { color: colors.broker }]}>{broker.title}</Text>
+                  </View>
+                </View>
+                <Text style={[styles.brokerDescription, { color: colors.text }]}>{broker.description}</Text>
+                <View style={[styles.brokerOffer, { backgroundColor: colors.broker + '20' }]}>
+                  <Ionicons name="gift" size={18} color={colors.broker} />
+                  <Text style={[styles.brokerOfferText, { color: colors.broker }]}>{broker.special_offer}</Text>
+                </View>
+                <View style={styles.brokerPhones}>
+                  <TouchableOpacity
+                    style={[styles.phoneButton, { backgroundColor: colors.broker }]}
+                    onPress={() => callBroker(broker.phone_mobile)}
+                  >
+                    <Ionicons name="call" size={18} color="#fff" />
+                    <Text style={styles.phoneButtonText}>{broker.phone_mobile}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.phoneButton, { backgroundColor: colors.info }]}
+                    onPress={() => callBroker(broker.phone_fixed)}
+                  >
+                    <Ionicons name="call" size={18} color="#fff" />
+                    <Text style={styles.phoneButtonText}>{broker.phone_fixed}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
             {/* Info Card */}
             <View style={[styles.infoCard, { backgroundColor: colors.info + '20', borderColor: colors.info }]}>
               <Ionicons name="information-circle" size={24} color={colors.info} />
@@ -437,6 +505,18 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, margin: 16, borderRadius: 16 },
   headerTitle: { fontSize: 18, fontWeight: 'bold' },
   content: { flex: 1, paddingHorizontal: 16 },
+  brokerCard: { padding: 16, borderRadius: 16, borderWidth: 2, marginBottom: 16 },
+  brokerHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  brokerIcon: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center' },
+  brokerInfo: { flex: 1, marginLeft: 12 },
+  brokerName: { fontSize: 18, fontWeight: 'bold' },
+  brokerTitle: { fontSize: 14, fontWeight: '600' },
+  brokerDescription: { fontSize: 14, marginBottom: 12, lineHeight: 20 },
+  brokerOffer: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 12, marginBottom: 12, gap: 8 },
+  brokerOfferText: { flex: 1, fontSize: 13, fontWeight: '600' },
+  brokerPhones: { flexDirection: 'row', gap: 8 },
+  phoneButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 12, borderRadius: 12, gap: 8 },
+  phoneButtonText: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
   infoCard: { flexDirection: 'row', padding: 16, borderRadius: 12, borderLeftWidth: 4, marginBottom: 16, gap: 12, alignItems: 'flex-start' },
   infoText: { flex: 1, fontSize: 14, lineHeight: 20 },
   formCard: { padding: 20, borderRadius: 16, marginBottom: 16 },
