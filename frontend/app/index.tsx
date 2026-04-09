@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   useColorScheme,
   Alert,
-  Platform,
   ActivityIndicator,
-  Dimensions,
   ScrollView,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -25,13 +25,20 @@ interface Signal {
   lat: number;
   lng: number;
   type: string;
+  description?: string;
   upvotes: number;
   downvotes: number;
   user_id: string;
   created_at: string;
 }
 
-const { width, height } = Dimensions.get('window');
+// Types de signalements
+const SIGNAL_TYPES = {
+  police: { icon: 'shield', label: 'Police', color: '#3b82f6', emoji: '🚓' },
+  danger: { icon: 'warning', label: 'Danger', color: '#ef4444', emoji: '⚠️' },
+  tunnel: { icon: 'remove-circle', label: 'Tunnel interdit', color: '#8b5cf6', emoji: '🚧' },
+  speed_limit: { icon: 'speedometer', label: 'Vitesse > 50km/h', color: '#f97316', emoji: '🚫' },
+};
 
 export default function MapScreen() {
   const colorScheme = useColorScheme();
@@ -46,6 +53,11 @@ export default function MapScreen() {
   const [lastSignalTime, setLastSignalTime] = useState<number>(0);
   const [lastAlertTime, setLastAlertTime] = useState<number>(0);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [newSignalType, setNewSignalType] = useState<string | null>(null);
+  const [newSignalDescription, setNewSignalDescription] = useState('');
+  const [activeTab, setActiveTab] = useState<'alerts' | 'forbidden'>('alerts');
 
   const colors = {
     background: isDark ? '#1a1a2e' : '#f5f5f5',
@@ -57,6 +69,8 @@ export default function MapScreen() {
     warning: '#fbbf24',
     police: '#3b82f6',
     danger: '#ef4444',
+    tunnel: '#8b5cf6',
+    speed_limit: '#f97316',
   };
 
   // Request location permissions and start tracking
@@ -72,14 +86,12 @@ export default function MapScreen() {
           return;
         }
 
-        // Get initial location
         const currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High,
         });
         setLocation(currentLocation);
         setIsLoading(false);
 
-        // Start watching location
         locationSubscription = await Location.watchPositionAsync(
           {
             accuracy: Location.Accuracy.High,
@@ -99,10 +111,7 @@ export default function MapScreen() {
     };
 
     startLocationTracking();
-
-    return () => {
-      locationSubscription?.remove();
-    };
+    return () => { locationSubscription?.remove(); };
   }, []);
 
   // Fetch signals and setup socket
@@ -147,9 +156,12 @@ export default function MapScreen() {
       const distance = getDistance(lat, lng, signal.lat, signal.lng);
       if (distance < 500) {
         setLastAlertTime(now);
+        const signalInfo = SIGNAL_TYPES[signal.type as keyof typeof SIGNAL_TYPES];
+        const isForbidden = signal.type === 'tunnel' || signal.type === 'speed_limit';
+        
         Alert.alert(
-          '⚠️ Attention !',
-          `${signal.type === 'police' ? '🚓 Police' : '⚠️ Danger'} signalé à ${Math.round(distance)}m`,
+          isForbidden ? '🚫 ROUTE INTERDITE AUX 50cc !' : '⚠️ Attention !',
+          `${signalInfo?.emoji || '⚠️'} ${signalInfo?.label || signal.type} à ${Math.round(distance)}m${signal.description ? `\n${signal.description}` : ''}`,
           [{ text: 'OK' }]
         );
         break;
@@ -159,7 +171,6 @@ export default function MapScreen() {
 
   const checkAntivol = useCallback((lat: number, lng: number) => {
     if (!antivol) return;
-
     if (lastPos) {
       const distance = getDistance(lat, lng, lastPos.lat, lastPos.lng);
       if (distance > 20) {
@@ -170,7 +181,7 @@ export default function MapScreen() {
   }, [antivol, lastPos]);
 
   const getDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
-    const R = 6371000; // Earth radius in meters
+    const R = 6371000;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -180,7 +191,7 @@ export default function MapScreen() {
     return R * c;
   };
 
-  const addSignal = async (type: string) => {
+  const addSignal = async (type: string, description?: string) => {
     if (!user) {
       Alert.alert('Connexion requise', 'Connectez-vous pour signaler', [
         { text: 'Annuler' },
@@ -208,9 +219,13 @@ export default function MapScreen() {
         location.coords.latitude,
         location.coords.longitude,
         type,
-        token
+        token,
+        description
       );
       setLastSignalTime(now);
+      setShowAddModal(false);
+      setNewSignalType(null);
+      setNewSignalDescription('');
       Alert.alert('Merci !', 'Signalement ajouté');
     } catch (error: any) {
       Alert.alert('Erreur', error.message);
@@ -248,8 +263,8 @@ export default function MapScreen() {
     );
   };
 
-  const getMarkerColor = (type: string) => {
-    return type === 'police' ? colors.police : colors.danger;
+  const getSignalColor = (type: string) => {
+    return SIGNAL_TYPES[type as keyof typeof SIGNAL_TYPES]?.color || colors.danger;
   };
 
   const getRelativeTime = (dateStr: string) => {
@@ -263,6 +278,10 @@ export default function MapScreen() {
     const diffHours = Math.floor(diffMins / 60);
     return `Il y a ${diffHours}h`;
   };
+
+  // Filtrer les signalements par catégorie
+  const alertSignals = signals.filter(s => s.type === 'police' || s.type === 'danger');
+  const forbiddenSignals = signals.filter(s => s.type === 'tunnel' || s.type === 'speed_limit');
 
   if (authLoading || isLoading) {
     return (
@@ -324,29 +343,43 @@ export default function MapScreen() {
             </Text>
           )}
         </View>
-        {antivol && (
-          <View style={[styles.antivolBadge, { backgroundColor: colors.success }]}>
-            <Ionicons name="lock-closed" size={16} color="#fff" />
-          </View>
-        )}
+        <TouchableOpacity onPress={() => setShowInfoModal(true)}>
+          <Ionicons name="information-circle" size={28} color={colors.primary} />
+        </TouchableOpacity>
       </View>
 
       {/* Signal Buttons */}
-      <View style={styles.signalButtons}>
-        <TouchableOpacity
-          style={[styles.signalButton, { backgroundColor: colors.police }]}
-          onPress={() => addSignal('police')}
-        >
-          <Ionicons name="shield" size={32} color="#fff" />
-          <Text style={styles.signalButtonText}>Signaler Police</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.signalButton, { backgroundColor: colors.danger }]}
-          onPress={() => addSignal('danger')}
-        >
-          <Ionicons name="warning" size={32} color="#fff" />
-          <Text style={styles.signalButtonText}>Signaler Danger</Text>
-        </TouchableOpacity>
+      <View style={styles.signalButtonsContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.signalButtons}>
+          <TouchableOpacity
+            style={[styles.signalButton, { backgroundColor: colors.police }]}
+            onPress={() => addSignal('police')}
+          >
+            <Ionicons name="shield" size={24} color="#fff" />
+            <Text style={styles.signalButtonText}>Police</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.signalButton, { backgroundColor: colors.danger }]}
+            onPress={() => addSignal('danger')}
+          >
+            <Ionicons name="warning" size={24} color="#fff" />
+            <Text style={styles.signalButtonText}>Danger</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.signalButton, { backgroundColor: colors.tunnel }]}
+            onPress={() => { setNewSignalType('tunnel'); setShowAddModal(true); }}
+          >
+            <Ionicons name="remove-circle" size={24} color="#fff" />
+            <Text style={styles.signalButtonText}>Tunnel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.signalButton, { backgroundColor: colors.speed_limit }]}
+            onPress={() => { setNewSignalType('speed_limit'); setShowAddModal(true); }}
+          >
+            <Ionicons name="speedometer" size={24} color="#fff" />
+            <Text style={styles.signalButtonText}>Vitesse</Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
 
       {/* Antivol Toggle */}
@@ -367,75 +400,181 @@ export default function MapScreen() {
         </Text>
       </TouchableOpacity>
 
-      {/* Signals List */}
-      <View style={styles.signalsSection}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          Signalements à proximité ({signals.length})
-        </Text>
-        <ScrollView style={styles.signalsList} showsVerticalScrollIndicator={false}>
-          {signals.length === 0 ? (
-            <View style={[styles.emptyCard, { backgroundColor: colors.card }]}>
-              <Ionicons name="checkmark-circle" size={48} color={colors.success} />
-              <Text style={[styles.emptyText, { color: colors.text }]}>
-                Aucun signalement actif
-              </Text>
-              <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>
-                La route est dégagée !
-              </Text>
-            </View>
-          ) : (
-            signals.map((signal) => (
-              <TouchableOpacity
-                key={signal.id}
-                style={[styles.signalCard, { backgroundColor: colors.card }]}
-                onPress={() => setSelectedSignal(signal)}
-              >
-                <View style={[styles.signalIcon, { backgroundColor: getMarkerColor(signal.type) }]}>
-                  <Ionicons
-                    name={signal.type === 'police' ? 'shield' : 'warning'}
-                    size={24}
-                    color="#fff"
-                  />
-                </View>
-                <View style={styles.signalInfo}>
-                  <Text style={[styles.signalType, { color: colors.text }]}>
-                    {signal.type === 'police' ? '🚓 Police' : '⚠️ Danger'}
-                  </Text>
-                  <Text style={[styles.signalTime, { color: colors.textSecondary }]}>
-                    {getRelativeTime(signal.created_at)}
-                  </Text>
-                </View>
-                <View style={styles.voteInfo}>
-                  <View style={styles.voteItem}>
-                    <Ionicons name="thumbs-up" size={16} color={colors.success} />
-                    <Text style={[styles.voteCount, { color: colors.text }]}>{signal.upvotes}</Text>
-                  </View>
-                  <View style={styles.voteItem}>
-                    <Ionicons name="thumbs-down" size={16} color={colors.danger} />
-                    <Text style={[styles.voteCount, { color: colors.text }]}>{signal.downvotes}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))
-          )}
-        </ScrollView>
+      {/* Tabs */}
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'alerts' && { backgroundColor: colors.primary }]}
+          onPress={() => setActiveTab('alerts')}
+        >
+          <Text style={[styles.tabText, { color: activeTab === 'alerts' ? '#fff' : colors.text }]}>
+            🚨 Alertes ({alertSignals.length})
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'forbidden' && { backgroundColor: colors.primary }]}
+          onPress={() => setActiveTab('forbidden')}
+        >
+          <Text style={[styles.tabText, { color: activeTab === 'forbidden' ? '#fff' : colors.text }]}>
+            🚫 Interdits 50cc ({forbiddenSignals.length})
+          </Text>
+        </TouchableOpacity>
       </View>
+
+      {/* Signals List */}
+      <ScrollView style={styles.signalsList} showsVerticalScrollIndicator={false}>
+        {(activeTab === 'alerts' ? alertSignals : forbiddenSignals).length === 0 ? (
+          <View style={[styles.emptyCard, { backgroundColor: colors.card }]}>
+            <Ionicons name="checkmark-circle" size={48} color={colors.success} />
+            <Text style={[styles.emptyText, { color: colors.text }]}>
+              {activeTab === 'alerts' ? 'Aucune alerte active' : 'Aucune route interdite signalée'}
+            </Text>
+            <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>
+              {activeTab === 'alerts' ? 'La route est dégagée !' : 'Signalez les routes interdites aux 50cc'}
+            </Text>
+          </View>
+        ) : (
+          (activeTab === 'alerts' ? alertSignals : forbiddenSignals).map((signal) => (
+            <TouchableOpacity
+              key={signal.id}
+              style={[styles.signalCard, { backgroundColor: colors.card }]}
+              onPress={() => setSelectedSignal(signal)}
+            >
+              <View style={[styles.signalIcon, { backgroundColor: getSignalColor(signal.type) }]}>
+                <Ionicons
+                  name={SIGNAL_TYPES[signal.type as keyof typeof SIGNAL_TYPES]?.icon as any || 'warning'}
+                  size={24}
+                  color="#fff"
+                />
+              </View>
+              <View style={styles.signalInfo}>
+                <Text style={[styles.signalType, { color: colors.text }]}>
+                  {SIGNAL_TYPES[signal.type as keyof typeof SIGNAL_TYPES]?.emoji || '⚠️'}{' '}
+                  {SIGNAL_TYPES[signal.type as keyof typeof SIGNAL_TYPES]?.label || signal.type}
+                </Text>
+                {signal.description && (
+                  <Text style={[styles.signalDescription, { color: colors.textSecondary }]} numberOfLines={1}>
+                    {signal.description}
+                  </Text>
+                )}
+                <Text style={[styles.signalTime, { color: colors.textSecondary }]}>
+                  {getRelativeTime(signal.created_at)}
+                </Text>
+              </View>
+              <View style={styles.voteInfo}>
+                <View style={styles.voteItem}>
+                  <Ionicons name="thumbs-up" size={16} color={colors.success} />
+                  <Text style={[styles.voteCount, { color: colors.text }]}>{signal.upvotes}</Text>
+                </View>
+                <View style={styles.voteItem}>
+                  <Ionicons name="thumbs-down" size={16} color={colors.danger} />
+                  <Text style={[styles.voteCount, { color: colors.text }]}>{signal.downvotes}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+      </ScrollView>
+
+      {/* Add Signal Modal */}
+      <Modal visible={showAddModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: colors.card }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                {newSignalType === 'tunnel' ? '🚧 Tunnel interdit' : '🚫 Route vitesse > 50km/h'}
+              </Text>
+              <TouchableOpacity onPress={() => { setShowAddModal(false); setNewSignalType(null); setNewSignalDescription(''); }}>
+                <Ionicons name="close" size={28} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={[styles.modalLabel, { color: colors.textSecondary }]}>
+              Description (optionnel)
+            </Text>
+            <TextInput
+              style={[styles.modalInput, { backgroundColor: colors.background, color: colors.text, borderColor: colors.textSecondary }]}
+              placeholder="Ex: Tunnel de la Croix-Rousse..."
+              placeholderTextColor={colors.textSecondary}
+              value={newSignalDescription}
+              onChangeText={setNewSignalDescription}
+              multiline
+            />
+            
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: getSignalColor(newSignalType || '') }]}
+              onPress={() => newSignalType && addSignal(newSignalType, newSignalDescription || undefined)}
+            >
+              <Text style={styles.modalButtonText}>Signaler cette route</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Info Modal */}
+      <Modal visible={showInfoModal} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: colors.card }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                📋 Règles pour les 50cc
+              </Text>
+              <TouchableOpacity onPress={() => setShowInfoModal(false)}>
+                <Ionicons name="close" size={28} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.infoContent}>
+              <View style={[styles.infoItem, { borderColor: colors.tunnel }]}>
+                <View style={[styles.infoIcon, { backgroundColor: colors.tunnel }]}>
+                  <Ionicons name="remove-circle" size={24} color="#fff" />
+                </View>
+                <View style={styles.infoText}>
+                  <Text style={[styles.infoTitle, { color: colors.text }]}>🚧 Tunnels interdits</Text>
+                  <Text style={[styles.infoDescription, { color: colors.textSecondary }]}>
+                    Certains tunnels sont interdits aux cyclomoteurs et scooters 50cc pour des raisons de sécurité.
+                  </Text>
+                </View>
+              </View>
+              
+              <View style={[styles.infoItem, { borderColor: colors.speed_limit }]}>
+                <View style={[styles.infoIcon, { backgroundColor: colors.speed_limit }]}>
+                  <Ionicons name="speedometer" size={24} color="#fff" />
+                </View>
+                <View style={styles.infoText}>
+                  <Text style={[styles.infoTitle, { color: colors.text }]}>🚫 Routes à vitesse min. > 50 km/h</Text>
+                  <Text style={[styles.infoDescription, { color: colors.textSecondary }]}>
+                    Les voies rapides, périphériques et routes avec vitesse minimale supérieure à 50 km/h sont interdites aux 50cc.
+                  </Text>
+                </View>
+              </View>
+              
+              <View style={[styles.warningBox, { backgroundColor: colors.warning + '20', borderColor: colors.warning }]}>
+                <Ionicons name="alert-circle" size={24} color={colors.warning} />
+                <Text style={[styles.warningText, { color: colors.text }]}>
+                  Les autoroutes et voies express sont TOUJOURS interdites aux 50cc !
+                </Text>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
 
       {/* Signal Detail Modal */}
       {selectedSignal && (
         <View style={styles.modalOverlay}>
           <View style={[styles.modalCard, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <View style={[styles.modalIcon, { backgroundColor: getMarkerColor(selectedSignal.type) }]}>
+              <View style={[styles.modalIcon, { backgroundColor: getSignalColor(selectedSignal.type) }]}>
                 <Ionicons
-                  name={selectedSignal.type === 'police' ? 'shield' : 'warning'}
+                  name={SIGNAL_TYPES[selectedSignal.type as keyof typeof SIGNAL_TYPES]?.icon as any || 'warning'}
                   size={32}
                   color="#fff"
                 />
               </View>
               <View style={styles.modalInfo}>
                 <Text style={[styles.modalType, { color: colors.text }]}>
-                  {selectedSignal.type === 'police' ? '🚓 Police' : '⚠️ Danger'}
+                  {SIGNAL_TYPES[selectedSignal.type as keyof typeof SIGNAL_TYPES]?.emoji || '⚠️'}{' '}
+                  {SIGNAL_TYPES[selectedSignal.type as keyof typeof SIGNAL_TYPES]?.label || selectedSignal.type}
                 </Text>
                 <Text style={[styles.modalTime, { color: colors.textSecondary }]}>
                   {getRelativeTime(selectedSignal.created_at)}
@@ -445,6 +584,12 @@ export default function MapScreen() {
                 <Ionicons name="close" size={28} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
+            
+            {selectedSignal.description && (
+              <Text style={[styles.detailDescription, { color: colors.text }]}>
+                {selectedSignal.description}
+              </Text>
+            )}
             
             <Text style={[styles.modalQuestion, { color: colors.text }]}>
               Ce signalement est-il toujours valide ?
@@ -547,7 +692,7 @@ const styles = StyleSheet.create({
   },
   locationCard: {
     marginHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 12,
     padding: 16,
     borderRadius: 16,
     flexDirection: 'row',
@@ -578,24 +723,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
   },
-  antivolBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  signalButtons: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    gap: 12,
+  signalButtonsContainer: {
     marginBottom: 12,
   },
+  signalButtons: {
+    paddingHorizontal: 16,
+    gap: 10,
+  },
   signalButton: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -605,14 +746,13 @@ const styles = StyleSheet.create({
   signalButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-    marginTop: 8,
     fontSize: 14,
   },
   antivolButton: {
     marginHorizontal: 16,
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 16,
+    marginBottom: 12,
+    padding: 14,
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -627,17 +767,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  signalsSection: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  tabsContainer: {
+    flexDirection: 'row',
+    marginHorizontal: 16,
     marginBottom: 12,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(0,0,0,0.1)',
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 12,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   signalsList: {
     flex: 1,
+    paddingHorizontal: 16,
   },
   emptyCard: {
     padding: 32,
@@ -652,6 +802,7 @@ const styles = StyleSheet.create({
   emptySubtext: {
     fontSize: 14,
     marginTop: 4,
+    textAlign: 'center',
   },
   signalCard: {
     flexDirection: 'row',
@@ -677,8 +828,12 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   signalType: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
+  },
+  signalDescription: {
+    fontSize: 12,
+    marginTop: 2,
   },
   signalTime: {
     fontSize: 12,
@@ -706,6 +861,7 @@ const styles = StyleSheet.create({
   },
   modalCard: {
     width: '100%',
+    maxHeight: '80%',
     padding: 24,
     borderRadius: 24,
     shadowColor: '#000',
@@ -719,6 +875,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
+  modalTitle: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
   modalIcon: {
     width: 56,
     height: 56,
@@ -731,12 +892,42 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   modalType: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   modalTime: {
     fontSize: 14,
     marginTop: 4,
+  },
+  modalLabel: {
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    minHeight: 80,
+    textAlignVertical: 'top',
+    marginBottom: 16,
+  },
+  modalButton: {
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  detailDescription: {
+    fontSize: 14,
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 8,
   },
   modalQuestion: {
     fontSize: 16,
@@ -760,5 +951,50 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  infoContent: {
+    maxHeight: 400,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    padding: 12,
+    borderLeftWidth: 4,
+    borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.03)',
+  },
+  infoIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoText: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  infoDescription: {
+    fontSize: 14,
+    marginTop: 4,
+    lineHeight: 20,
+  },
+  warningBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 12,
+    marginTop: 8,
+  },
+  warningText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

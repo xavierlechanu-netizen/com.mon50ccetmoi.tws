@@ -129,13 +129,15 @@ class UserResponse(BaseModel):
 class SignalCreate(BaseModel):
     lat: float
     lng: float
-    type: str  # "police" or "danger"
+    type: str  # "police", "danger", "tunnel", "speed_limit"
+    description: Optional[str] = None  # Optional description for forbidden routes
 
 class SignalResponse(BaseModel):
     id: str
     lat: float
     lng: float
     type: str
+    description: Optional[str] = None
     upvotes: int
     downvotes: int
     user_id: str
@@ -238,6 +240,7 @@ async def get_signals():
             "lat": signal["lat"],
             "lng": signal["lng"],
             "type": signal["type"],
+            "description": signal.get("description"),
             "upvotes": signal.get("upvotes", 0),
             "downvotes": signal.get("downvotes", 0),
             "user_id": signal["user_id"],
@@ -264,6 +267,7 @@ async def create_signal(signal_data: SignalCreate, request: Request):
         "lat": signal_data.lat,
         "lng": signal_data.lng,
         "type": signal_data.type,
+        "description": signal_data.description,
         "upvotes": 0,
         "downvotes": 0,
         "voters": [],
@@ -280,6 +284,7 @@ async def create_signal(signal_data: SignalCreate, request: Request):
         "lat": signal_data.lat,
         "lng": signal_data.lng,
         "type": signal_data.type,
+        "description": signal_data.description,
         "upvotes": 0,
         "downvotes": 0,
         "user_id": user["_id"],
@@ -325,6 +330,7 @@ async def vote_signal(signal_id: str, vote_data: VoteCreate, request: Request):
         "lat": updated_signal["lat"],
         "lng": updated_signal["lng"],
         "type": updated_signal["type"],
+        "description": updated_signal.get("description"),
         "upvotes": updated_signal.get("upvotes", 0),
         "downvotes": updated_signal.get("downvotes", 0),
         "user_id": updated_signal["user_id"],

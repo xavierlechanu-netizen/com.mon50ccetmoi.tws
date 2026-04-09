@@ -64,10 +64,10 @@ class ApiService {
     return this.request('/signals');
   }
 
-  async createSignal(lat: number, lng: number, type: string, token: string) {
+  async createSignal(lat: number, lng: number, type: string, token: string, description?: string) {
     return this.request('/signals', {
       method: 'POST',
-      body: JSON.stringify({ lat, lng, type }),
+      body: JSON.stringify({ lat, lng, type, description }),
     }, token);
   }
 
