@@ -1,22 +1,31 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "Mon 50cc et moi",
+    "slug": "mon50cc",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "mon50cc",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Pour afficher votre position sur la carte",
+        "NSLocationAlwaysUsageDescription": "Pour le mode antivol en arrière-plan"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000"
+        "backgroundColor": "#1a1a2e"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "FOREGROUND_SERVICE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -31,7 +40,13 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#000"
+          "backgroundColor": "#1a1a2e"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Pour afficher votre position et le mode antivol"
         }
       ]
     ],

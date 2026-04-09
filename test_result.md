@@ -101,3 +101,170 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Test the Mon 50cc et moi API backend with comprehensive authentication and signals functionality testing"
+
+backend:
+  - task: "Health Check Endpoints"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "GET /api/ and GET /api/health endpoints working correctly, returning proper status messages"
+
+  - task: "User Registration"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "POST /api/auth/register working correctly. Returns user info with token, sets httpOnly cookies, prevents duplicate registrations"
+
+  - task: "User Authentication/Login"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "POST /api/auth/login working correctly. Validates credentials, returns token, sets httpOnly cookies, rejects invalid credentials"
+
+  - task: "Get Current User Info"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "GET /api/auth/me working correctly. Returns user info when authenticated, blocks unauthorized access with 401"
+
+  - task: "Get All Signals"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "GET /api/signals working correctly. Returns array of signals with proper structure (id, lat, lng, type, upvotes, downvotes, user_id, created_at)"
+
+  - task: "Create Signal"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "POST /api/signals working correctly. Creates signals with authentication, validates required fields, broadcasts via Socket.IO"
+
+  - task: "Anti-Spam Protection"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Anti-spam protection working correctly. Blocks signal creation within 20 seconds with 429 status code"
+
+  - task: "Vote on Signals"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "POST /api/signals/{id}/vote working correctly. Increments upvotes/downvotes, prevents duplicate voting, broadcasts updates via Socket.IO"
+
+  - task: "Authorization Protection"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Authorization protection working correctly. Protected endpoints return 401 for unauthorized access, Bearer token authentication working"
+
+  - task: "Logout Functionality"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "POST /api/auth/logout working correctly. Clears httpOnly cookies properly"
+
+  - task: "CORS Configuration"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "CORS headers properly configured. Allow-Origin, Allow-Methods, Allow-Headers present"
+
+  - task: "Password Security"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Password hashing using bcrypt working correctly. Passwords not returned in API responses"
+
+frontend:
+  # Frontend testing not performed as per instructions
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "All backend API endpoints tested and working"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "testing"
+    message: "Comprehensive backend API testing completed successfully. All 12 core API endpoints tested and working correctly. Security features including authentication, authorization, anti-spam, and CORS are properly implemented. HttpOnly cookies are set correctly. No critical issues found."
