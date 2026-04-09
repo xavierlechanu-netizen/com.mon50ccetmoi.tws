@@ -101,10 +101,10 @@ app = FastAPI(title="Mon 50cc et moi API")
 sio = socketio.AsyncServer(
     async_mode='asgi',
     cors_allowed_origins='*',
-    logger=True,
-    engineio_logger=True
+    logger=False,
+    engineio_logger=False
 )
-socket_app = socketio.ASGIApp(sio, app)
+socket_app = socketio.ASGIApp(sio, app, socketio_path='/api/socket.io')
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
