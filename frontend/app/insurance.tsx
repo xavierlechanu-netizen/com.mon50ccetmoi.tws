@@ -50,6 +50,8 @@ interface Broker {
   phone_fixed: string;
   description: string;
   special_offer: string;
+  promo_code?: string;
+  promo_description?: string;
   color: string;
 }
 
@@ -185,6 +187,18 @@ export default function InsuranceScreen() {
                   <Ionicons name="gift" size={18} color={colors.broker} />
                   <Text style={[styles.brokerOfferText, { color: colors.broker }]}>{broker.special_offer}</Text>
                 </View>
+                {broker.promo_code && (
+                  <View style={[styles.promoCodeBox, { backgroundColor: colors.warning + '20', borderColor: colors.warning }]}>
+                    <Ionicons name="pricetag" size={20} color={colors.warning} />
+                    <View style={styles.promoCodeContent}>
+                      <Text style={[styles.promoCodeLabel, { color: colors.text }]}>Code promo à mentionner :</Text>
+                      <Text style={[styles.promoCode, { color: colors.warning }]}>{broker.promo_code}</Text>
+                      {broker.promo_description && (
+                        <Text style={[styles.promoCodeDesc, { color: colors.textSecondary }]}>{broker.promo_description}</Text>
+                      )}
+                    </View>
+                  </View>
+                )}
                 <View style={styles.brokerPhones}>
                   <TouchableOpacity
                     style={[styles.phoneButton, { backgroundColor: colors.broker }]}
@@ -517,6 +531,11 @@ const styles = StyleSheet.create({
   brokerPhones: { flexDirection: 'row', gap: 8 },
   phoneButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 12, borderRadius: 12, gap: 8 },
   phoneButtonText: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
+  promoCodeBox: { flexDirection: 'row', padding: 16, borderRadius: 12, borderWidth: 2, marginBottom: 12, gap: 12, alignItems: 'flex-start' },
+  promoCodeContent: { flex: 1 },
+  promoCodeLabel: { fontSize: 13, marginBottom: 4 },
+  promoCode: { fontSize: 24, fontWeight: 'bold', letterSpacing: 1 },
+  promoCodeDesc: { fontSize: 12, marginTop: 4, fontStyle: 'italic' },
   infoCard: { flexDirection: 'row', padding: 16, borderRadius: 12, borderLeftWidth: 4, marginBottom: 16, gap: 12, alignItems: 'flex-start' },
   infoText: { flex: 1, fontSize: 14, lineHeight: 20 },
   formCard: { padding: 20, borderRadius: 16, marginBottom: 16 },

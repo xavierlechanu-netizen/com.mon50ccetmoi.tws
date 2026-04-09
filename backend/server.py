@@ -830,6 +830,8 @@ INSURANCE_BROKER = {
     "phone_fixed": "09 81 13 27 63",
     "description": "Courtier spécialisé 50cc - Tarifs préférentiels avec suivi GPS",
     "special_offer": "Réduction si vous prouvez éviter autoroutes et voies rapides via GPS",
+    "promo_code": "chezbigbooo",
+    "promo_description": "Code promo à mentionner lors de la souscription pour bénéficier de la réduction GPS",
     "color": "#10b981"
 }
 
