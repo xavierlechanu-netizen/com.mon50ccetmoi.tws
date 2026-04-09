@@ -9,10 +9,10 @@ import {
   Platform,
   ActivityIndicator,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -38,7 +38,6 @@ export default function MapScreen() {
   const isDark = colorScheme === 'dark';
   const { user, isLoading: authLoading } = useAuth();
   
-  const mapRef = useRef<MapView>(null);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [signals, setSignals] = useState<Signal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -56,6 +55,8 @@ export default function MapScreen() {
     primary: '#e94560',
     success: '#4ade80',
     warning: '#fbbf24',
+    police: '#3b82f6',
+    danger: '#ef4444',
   };
 
   // Request location permissions and start tracking
@@ -247,19 +248,20 @@ export default function MapScreen() {
     );
   };
 
-  const centerOnUser = () => {
-    if (location && mapRef.current) {
-      mapRef.current.animateToRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      });
-    }
+  const getMarkerColor = (type: string) => {
+    return type === 'police' ? colors.police : colors.danger;
   };
 
-  const getMarkerColor = (type: string) => {
-    return type === 'police' ? '#3b82f6' : '#ef4444';
+  const getRelativeTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'À l\'instant';
+    if (diffMins < 60) return `Il y a ${diffMins} min`;
+    const diffHours = Math.floor(diffMins / 60);
+    return `Il y a ${diffHours}h`;
   };
 
   if (authLoading || isLoading) {
@@ -272,53 +274,27 @@ export default function MapScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Map */}
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
-        initialRegion={{
-          latitude: location?.coords.latitude || 48.8566,
-          longitude: location?.coords.longitude || 2.3522,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-        showsUserLocation
-        showsMyLocationButton={false}
-        userInterfaceStyle={isDark ? 'dark' : 'light'}
-      >
-        {signals.map((signal) => (
-          <Marker
-            key={signal.id}
-            coordinate={{ latitude: signal.lat, longitude: signal.lng }}
-            onPress={() => setSelectedSignal(signal)}
-          >
-            <View style={[styles.markerContainer, { backgroundColor: getMarkerColor(signal.type) }]}>
-              <Ionicons
-                name={signal.type === 'police' ? 'shield' : 'warning'}
-                size={20}
-                color="#fff"
-              />
-            </View>
-          </Marker>
-        ))}
-      </MapView>
-
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <SafeAreaView style={styles.headerContainer}>
-        <View style={[styles.header, { backgroundColor: colors.card }]}>
-          <Text style={[styles.title, { color: colors.text }]}>Mon 50cc et moi</Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Ton GPS intelligent pour scooter
-          </Text>
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
+        <View style={styles.headerContent}>
+          <View style={[styles.logoIcon, { backgroundColor: colors.primary }]}>
+            <Ionicons name="bicycle" size={24} color="#fff" />
+          </View>
+          <View style={styles.headerText}>
+            <Text style={[styles.title, { color: colors.text }]}>Mon 50cc et moi</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              Ton GPS intelligent pour scooter
+            </Text>
+          </View>
           {user ? (
             <TouchableOpacity
-              style={styles.userBadge}
+              style={styles.profileButton}
               onPress={() => router.push('/(auth)/profile')}
             >
-              <Ionicons name="person-circle" size={20} color={colors.primary} />
-              <Text style={[styles.userName, { color: colors.primary }]}>{user.name}</Text>
+              <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+                <Text style={styles.avatarText}>{user.name.charAt(0).toUpperCase()}</Text>
+              </View>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -329,99 +305,171 @@ export default function MapScreen() {
             </TouchableOpacity>
           )}
         </View>
-      </SafeAreaView>
+      </View>
 
-      {/* Signal Info Card */}
-      {selectedSignal && (
-        <View style={[styles.signalCard, { backgroundColor: colors.card }]}>
-          <View style={styles.signalHeader}>
-            <View style={[styles.signalTypeIcon, { backgroundColor: getMarkerColor(selectedSignal.type) }]}>
-              <Ionicons
-                name={selectedSignal.type === 'police' ? 'shield' : 'warning'}
-                size={24}
-                color="#fff"
-              />
-            </View>
-            <View style={styles.signalInfo}>
-              <Text style={[styles.signalType, { color: colors.text }]}>
-                {selectedSignal.type === 'police' ? '🚓 Police' : '⚠️ Danger'}
-              </Text>
-              <Text style={[styles.signalTime, { color: colors.textSecondary }]}>
-                {new Date(selectedSignal.created_at).toLocaleTimeString('fr-FR', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </Text>
-            </View>
-            <TouchableOpacity onPress={() => setSelectedSignal(null)}>
-              <Ionicons name="close" size={24} color={colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.voteContainer}>
-            <TouchableOpacity
-              style={[styles.voteButton, { backgroundColor: colors.success }]}
-              onPress={() => voteOnSignal(selectedSignal.id, 'up')}
-            >
-              <Ionicons name="thumbs-up" size={20} color="#fff" />
-              <Text style={styles.voteText}>{selectedSignal.upvotes}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.voteButton, { backgroundColor: colors.primary }]}
-              onPress={() => voteOnSignal(selectedSignal.id, 'down')}
-            >
-              <Ionicons name="thumbs-down" size={20} color="#fff" />
-              <Text style={styles.voteText}>{selectedSignal.downvotes}</Text>
-            </TouchableOpacity>
-          </View>
+      {/* Location Status */}
+      <View style={[styles.locationCard, { backgroundColor: colors.card }]}>
+        <View style={styles.locationIcon}>
+          <Ionicons name="location" size={24} color={colors.primary} />
         </View>
-      )}
+        <View style={styles.locationInfo}>
+          <Text style={[styles.locationTitle, { color: colors.text }]}>Votre position</Text>
+          {location ? (
+            <Text style={[styles.locationCoords, { color: colors.textSecondary }]}>
+              {location.coords.latitude.toFixed(4)}, {location.coords.longitude.toFixed(4)}
+            </Text>
+          ) : (
+            <Text style={[styles.locationCoords, { color: colors.textSecondary }]}>
+              Recherche en cours...
+            </Text>
+          )}
+        </View>
+        {antivol && (
+          <View style={[styles.antivolBadge, { backgroundColor: colors.success }]}>
+            <Ionicons name="lock-closed" size={16} color="#fff" />
+          </View>
+        )}
+      </View>
 
-      {/* FAB Buttons */}
-      <View style={styles.fabContainer}>
+      {/* Signal Buttons */}
+      <View style={styles.signalButtons}>
         <TouchableOpacity
-          style={[styles.fab, { backgroundColor: colors.card }]}
-          onPress={centerOnUser}
-        >
-          <Ionicons name="locate" size={24} color={colors.primary} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.fab, styles.fabLarge, { backgroundColor: '#3b82f6' }]}
+          style={[styles.signalButton, { backgroundColor: colors.police }]}
           onPress={() => addSignal('police')}
         >
-          <Ionicons name="shield" size={28} color="#fff" />
+          <Ionicons name="shield" size={32} color="#fff" />
+          <Text style={styles.signalButtonText}>Signaler Police</Text>
         </TouchableOpacity>
-
         <TouchableOpacity
-          style={[styles.fab, styles.fabLarge, { backgroundColor: '#ef4444' }]}
+          style={[styles.signalButton, { backgroundColor: colors.danger }]}
           onPress={() => addSignal('danger')}
         >
-          <Ionicons name="warning" size={28} color="#fff" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.fab,
-            { backgroundColor: antivol ? colors.success : colors.card },
-          ]}
-          onPress={toggleAntivol}
-        >
-          <Ionicons
-            name={antivol ? 'lock-closed' : 'lock-open'}
-            size={24}
-            color={antivol ? '#fff' : colors.primary}
-          />
+          <Ionicons name="warning" size={32} color="#fff" />
+          <Text style={styles.signalButtonText}>Signaler Danger</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Antivol Status */}
-      {antivol && (
-        <View style={[styles.antivolBadge, { backgroundColor: colors.success }]}>
-          <Ionicons name="lock-closed" size={16} color="#fff" />
-          <Text style={styles.antivolText}>Mode antivol actif</Text>
+      {/* Antivol Toggle */}
+      <TouchableOpacity
+        style={[
+          styles.antivolButton,
+          { backgroundColor: antivol ? colors.success : colors.card },
+        ]}
+        onPress={toggleAntivol}
+      >
+        <Ionicons
+          name={antivol ? 'lock-closed' : 'lock-open'}
+          size={24}
+          color={antivol ? '#fff' : colors.text}
+        />
+        <Text style={[styles.antivolButtonText, { color: antivol ? '#fff' : colors.text }]}>
+          {antivol ? 'Antivol activé' : 'Activer l\'antivol'}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Signals List */}
+      <View style={styles.signalsSection}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          Signalements à proximité ({signals.length})
+        </Text>
+        <ScrollView style={styles.signalsList} showsVerticalScrollIndicator={false}>
+          {signals.length === 0 ? (
+            <View style={[styles.emptyCard, { backgroundColor: colors.card }]}>
+              <Ionicons name="checkmark-circle" size={48} color={colors.success} />
+              <Text style={[styles.emptyText, { color: colors.text }]}>
+                Aucun signalement actif
+              </Text>
+              <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>
+                La route est dégagée !
+              </Text>
+            </View>
+          ) : (
+            signals.map((signal) => (
+              <TouchableOpacity
+                key={signal.id}
+                style={[styles.signalCard, { backgroundColor: colors.card }]}
+                onPress={() => setSelectedSignal(signal)}
+              >
+                <View style={[styles.signalIcon, { backgroundColor: getMarkerColor(signal.type) }]}>
+                  <Ionicons
+                    name={signal.type === 'police' ? 'shield' : 'warning'}
+                    size={24}
+                    color="#fff"
+                  />
+                </View>
+                <View style={styles.signalInfo}>
+                  <Text style={[styles.signalType, { color: colors.text }]}>
+                    {signal.type === 'police' ? '🚓 Police' : '⚠️ Danger'}
+                  </Text>
+                  <Text style={[styles.signalTime, { color: colors.textSecondary }]}>
+                    {getRelativeTime(signal.created_at)}
+                  </Text>
+                </View>
+                <View style={styles.voteInfo}>
+                  <View style={styles.voteItem}>
+                    <Ionicons name="thumbs-up" size={16} color={colors.success} />
+                    <Text style={[styles.voteCount, { color: colors.text }]}>{signal.upvotes}</Text>
+                  </View>
+                  <View style={styles.voteItem}>
+                    <Ionicons name="thumbs-down" size={16} color={colors.danger} />
+                    <Text style={[styles.voteCount, { color: colors.text }]}>{signal.downvotes}</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
+        </ScrollView>
+      </View>
+
+      {/* Signal Detail Modal */}
+      {selectedSignal && (
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { backgroundColor: colors.card }]}>
+            <View style={styles.modalHeader}>
+              <View style={[styles.modalIcon, { backgroundColor: getMarkerColor(selectedSignal.type) }]}>
+                <Ionicons
+                  name={selectedSignal.type === 'police' ? 'shield' : 'warning'}
+                  size={32}
+                  color="#fff"
+                />
+              </View>
+              <View style={styles.modalInfo}>
+                <Text style={[styles.modalType, { color: colors.text }]}>
+                  {selectedSignal.type === 'police' ? '🚓 Police' : '⚠️ Danger'}
+                </Text>
+                <Text style={[styles.modalTime, { color: colors.textSecondary }]}>
+                  {getRelativeTime(selectedSignal.created_at)}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={() => setSelectedSignal(null)}>
+                <Ionicons name="close" size={28} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={[styles.modalQuestion, { color: colors.text }]}>
+              Ce signalement est-il toujours valide ?
+            </Text>
+            
+            <View style={styles.voteButtons}>
+              <TouchableOpacity
+                style={[styles.voteButton, { backgroundColor: colors.success }]}
+                onPress={() => voteOnSignal(selectedSignal.id, 'up')}
+              >
+                <Ionicons name="thumbs-up" size={24} color="#fff" />
+                <Text style={styles.voteButtonText}>Oui ({selectedSignal.upvotes})</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.voteButton, { backgroundColor: colors.danger }]}
+                onPress={() => voteOnSignal(selectedSignal.id, 'down')}
+              >
+                <Ionicons name="thumbs-down" size={24} color="#fff" />
+                <Text style={styles.voteButtonText}>Non ({selectedSignal.downvotes})</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -438,17 +486,9 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
   },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  headerContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-  },
   header: {
     margin: 16,
+    marginBottom: 8,
     padding: 16,
     borderRadius: 16,
     shadowColor: '#000',
@@ -457,70 +497,175 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  userBadge: {
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 12,
   },
-  userName: {
-    marginLeft: 8,
-    fontSize: 14,
-    fontWeight: '600',
+  logoIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerText: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  profileButton: {
+    padding: 4,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   loginButton: {
-    marginTop: 12,
     paddingVertical: 8,
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     borderRadius: 20,
-    alignSelf: 'center',
   },
   loginButtonText: {
     color: '#fff',
     fontWeight: '600',
+    fontSize: 14,
   },
-  markerContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  signalCard: {
-    position: 'absolute',
-    bottom: 120,
-    left: 16,
-    right: 16,
+  locationCard: {
+    marginHorizontal: 16,
+    marginBottom: 16,
     padding: 16,
     borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
   },
-  signalHeader: {
-    flexDirection: 'row',
+  locationIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(233, 69, 96, 0.1)',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  signalTypeIcon: {
+  locationInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  locationTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  locationCoords: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  antivolBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  signalButtons: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: 12,
+    marginBottom: 12,
+  },
+  signalButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  signalButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    marginTop: 8,
+    fontSize: 14,
+  },
+  antivolButton: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  antivolButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  signalsSection: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  signalsList: {
+    flex: 1,
+  },
+  emptyCard: {
+    padding: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 12,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    marginTop: 4,
+  },
+  signalCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  signalIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
@@ -532,16 +677,74 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   signalType: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
   },
   signalTime: {
-    fontSize: 14,
+    fontSize: 12,
     marginTop: 2,
   },
-  voteContainer: {
+  voteInfo: {
     flexDirection: 'row',
-    marginTop: 16,
+    gap: 12,
+  },
+  voteItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  voteCount: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalCard: {
+    width: '100%',
+    padding: 24,
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  modalType: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  modalTime: {
+    fontSize: 14,
+    marginTop: 4,
+  },
+  modalQuestion: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  voteButtons: {
+    flexDirection: 'row',
     gap: 12,
   },
   voteButton: {
@@ -549,51 +752,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 12,
+    padding: 16,
+    borderRadius: 16,
     gap: 8,
   },
-  voteText: {
+  voteButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  fabContainer: {
-    position: 'absolute',
-    bottom: 32,
-    right: 16,
-    gap: 12,
-  },
-  fab: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  fabLarge: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-  },
-  antivolBadge: {
-    position: 'absolute',
-    bottom: 32,
-    left: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    gap: 8,
-  },
-  antivolText: {
-    color: '#fff',
-    fontWeight: '600',
   },
 });
