@@ -83,6 +83,59 @@ class ApiService {
       method: 'DELETE',
     }, token);
   }
+
+  // Vehicle endpoints
+  async getBrands() {
+    return this.request('/vehicles/brands');
+  }
+
+  async getMyVehicle(token: string) {
+    return this.request('/vehicles/my', {}, token);
+  }
+
+  async createVehicle(vehicleData: any, token: string) {
+    return this.request('/vehicles', {
+      method: 'POST',
+      body: JSON.stringify(vehicleData),
+    }, token);
+  }
+
+  async updateVehicle(vehicleData: any, token: string) {
+    return this.request('/vehicles', {
+      method: 'PATCH',
+      body: JSON.stringify(vehicleData),
+    }, token);
+  }
+
+  async getMaintenanceTips(token: string) {
+    return this.request('/vehicles/maintenance-tips', {}, token);
+  }
+
+  async getCommonProblems(token: string) {
+    return this.request('/vehicles/common-problems', {}, token);
+  }
+
+  async askMechanic(question: string, category: string | null, token: string) {
+    return this.request('/vehicles/ask-mechanic', {
+      method: 'POST',
+      body: JSON.stringify({ question, category }),
+    }, token);
+  }
+
+  async getChatHistory(token: string, limit: number = 10) {
+    return this.request(`/vehicles/chat-history?limit=${limit}`, {}, token);
+  }
+
+  async addMaintenanceLog(logData: any, token: string) {
+    return this.request('/vehicles/maintenance-log', {
+      method: 'POST',
+      body: JSON.stringify(logData),
+    }, token);
+  }
+
+  async getMaintenanceLogs(token: string, limit: number = 20) {
+    return this.request(`/vehicles/maintenance-log?limit=${limit}`, {}, token);
+  }
 }
 
 export const apiService = new ApiService();

@@ -306,6 +306,12 @@ export default function MapScreen() {
               Ton GPS intelligent pour scooter
             </Text>
           </View>
+          <TouchableOpacity
+            style={[styles.garageButton, { backgroundColor: colors.warning }]}
+            onPress={() => router.push('/garage')}
+          >
+            <Ionicons name="construct" size={20} color="#fff" />
+          </TouchableOpacity>
           {user ? (
             <TouchableOpacity
               style={styles.profileButton}
@@ -667,6 +673,14 @@ const styles = StyleSheet.create({
   },
   profileButton: {
     padding: 4,
+  },
+  garageButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
   },
   avatar: {
     width: 40,

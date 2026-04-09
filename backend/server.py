@@ -146,6 +146,40 @@ class SignalResponse(BaseModel):
 class VoteCreate(BaseModel):
     vote_type: str  # "up" or "down"
 
+# ============ VEHICLE MODELS ============
+
+SCOOTER_BRANDS = ["Peugeot", "MBK", "Piaggio", "Kymco", "Sym", "Honda", "Yamaha", "Aprilia", "Vespa", "Derbi", "Gilera", "Malaguti", "Autre"]
+
+class VehicleCreate(BaseModel):
+    brand: str
+    model: str
+    year: int
+    engine_type: str  # "2T" or "4T"
+    mileage: int  # in km
+    last_oil_change_km: Optional[int] = None
+    last_oil_change_date: Optional[str] = None
+    last_belt_change_km: Optional[int] = None
+    last_spark_plug_change_km: Optional[int] = None
+    notes: Optional[str] = None
+
+class VehicleUpdate(BaseModel):
+    mileage: Optional[int] = None
+    last_oil_change_km: Optional[int] = None
+    last_oil_change_date: Optional[str] = None
+    last_belt_change_km: Optional[int] = None
+    last_spark_plug_change_km: Optional[int] = None
+    notes: Optional[str] = None
+
+class MaintenanceLogCreate(BaseModel):
+    type: str  # "oil_change", "belt", "spark_plug", "brake", "tire", "other"
+    mileage: int
+    description: Optional[str] = None
+    cost: Optional[float] = None
+
+class AskMechanicRequest(BaseModel):
+    question: str
+    category: Optional[str] = None  # "maintenance", "diagnostic", "fuel", "repair"
+
 # ============ AUTH ENDPOINTS ============
 
 @api_router.post("/auth/register")
@@ -379,6 +413,403 @@ async def disconnect(sid):
 async def join_map(sid, data):
     await sio.enter_room(sid, 'map_room')
     logger.info(f"Client {sid} joined map room")
+
+# ============ VEHICLE ENDPOINTS ============
+
+@api_router.get("/vehicles/brands")
+async def get_brands():
+    """Get list of supported scooter brands"""
+    return {"brands": SCOOTER_BRANDS}
+
+@api_router.get("/vehicles/my")
+async def get_my_vehicle(request: Request):
+    """Get current user's vehicle"""
+    user = await get_current_user(request)
+    vehicle = await db.vehicles.find_one({"user_id": user["_id"]})
+    if not vehicle:
+        return None
+    vehicle["_id"] = str(vehicle["_id"])
+    return vehicle
+
+@api_router.post("/vehicles")
+async def create_vehicle(vehicle_data: VehicleCreate, request: Request):
+    """Create or update user's vehicle"""
+    user = await get_current_user(request)
+    
+    # Check if user already has a vehicle
+    existing = await db.vehicles.find_one({"user_id": user["_id"]})
+    
+    vehicle_doc = {
+        "user_id": user["_id"],
+        "brand": vehicle_data.brand,
+        "model": vehicle_data.model,
+        "year": vehicle_data.year,
+        "engine_type": vehicle_data.engine_type,
+        "mileage": vehicle_data.mileage,
+        "last_oil_change_km": vehicle_data.last_oil_change_km,
+        "last_oil_change_date": vehicle_data.last_oil_change_date,
+        "last_belt_change_km": vehicle_data.last_belt_change_km,
+        "last_spark_plug_change_km": vehicle_data.last_spark_plug_change_km,
+        "notes": vehicle_data.notes,
+        "updated_at": datetime.now(timezone.utc)
+    }
+    
+    if existing:
+        await db.vehicles.update_one(
+            {"_id": existing["_id"]},
+            {"$set": vehicle_doc}
+        )
+        vehicle_doc["_id"] = str(existing["_id"])
+    else:
+        vehicle_doc["created_at"] = datetime.now(timezone.utc)
+        result = await db.vehicles.insert_one(vehicle_doc)
+        vehicle_doc["_id"] = str(result.inserted_id)
+    
+    return vehicle_doc
+
+@api_router.patch("/vehicles")
+async def update_vehicle(vehicle_data: VehicleUpdate, request: Request):
+    """Update vehicle mileage and maintenance info"""
+    user = await get_current_user(request)
+    
+    vehicle = await db.vehicles.find_one({"user_id": user["_id"]})
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Véhicule non trouvé")
+    
+    update_data = {k: v for k, v in vehicle_data.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.now(timezone.utc)
+    
+    await db.vehicles.update_one(
+        {"_id": vehicle["_id"]},
+        {"$set": update_data}
+    )
+    
+    updated = await db.vehicles.find_one({"_id": vehicle["_id"]})
+    updated["_id"] = str(updated["_id"])
+    return updated
+
+@api_router.get("/vehicles/maintenance-tips")
+async def get_maintenance_tips(request: Request):
+    """Get maintenance tips based on vehicle"""
+    user = await get_current_user(request)
+    vehicle = await db.vehicles.find_one({"user_id": user["_id"]})
+    
+    tips = []
+    
+    if vehicle:
+        mileage = vehicle.get("mileage", 0)
+        engine_type = vehicle.get("engine_type", "4T")
+        
+        # Oil change tips
+        last_oil_km = vehicle.get("last_oil_change_km", 0)
+        oil_interval = 1500 if engine_type == "2T" else 3000
+        km_since_oil = mileage - last_oil_km
+        
+        if km_since_oil >= oil_interval:
+            tips.append({
+                "type": "oil_change",
+                "priority": "high",
+                "icon": "water",
+                "title": "Vidange à faire !",
+                "description": f"Vous avez parcouru {km_since_oil} km depuis la dernière vidange. Recommandé tous les {oil_interval} km pour un moteur {engine_type}.",
+                "action": "Changer l'huile moteur"
+            })
+        elif km_since_oil >= oil_interval * 0.8:
+            tips.append({
+                "type": "oil_change",
+                "priority": "medium",
+                "icon": "water",
+                "title": "Vidange à prévoir",
+                "description": f"Plus que {oil_interval - km_since_oil} km avant la prochaine vidange.",
+                "action": "Planifier une vidange"
+            })
+        
+        # Belt tips (variator belt)
+        last_belt_km = vehicle.get("last_belt_change_km", 0)
+        belt_interval = 8000
+        km_since_belt = mileage - last_belt_km
+        
+        if km_since_belt >= belt_interval:
+            tips.append({
+                "type": "belt",
+                "priority": "high",
+                "icon": "sync-circle",
+                "title": "Courroie à vérifier !",
+                "description": f"La courroie de variateur devrait être contrôlée après {km_since_belt} km.",
+                "action": "Faire vérifier la courroie"
+            })
+        
+        # Spark plug tips
+        last_spark_km = vehicle.get("last_spark_plug_change_km", 0)
+        spark_interval = 5000
+        km_since_spark = mileage - last_spark_km
+        
+        if km_since_spark >= spark_interval:
+            tips.append({
+                "type": "spark_plug",
+                "priority": "medium",
+                "icon": "flash",
+                "title": "Bougie à vérifier",
+                "description": f"Il est recommandé de vérifier/remplacer la bougie tous les {spark_interval} km.",
+                "action": "Vérifier l'état de la bougie"
+            })
+        
+        # 2T specific tips
+        if engine_type == "2T":
+            tips.append({
+                "type": "2t_mix",
+                "priority": "info",
+                "icon": "beaker",
+                "title": "Huile 2 temps",
+                "description": "Vérifiez régulièrement le niveau d'huile 2 temps dans le réservoir séparé.",
+                "action": "Contrôler le niveau"
+            })
+    
+    # General tips
+    tips.append({
+        "type": "pressure",
+        "priority": "info",
+        "icon": "speedometer",
+        "title": "Pression des pneus",
+        "description": "Vérifiez la pression des pneus chaque semaine. Avant: 1.5-1.8 bar, Arrière: 2.0-2.5 bar.",
+        "action": "Vérifier la pression"
+    })
+    
+    tips.append({
+        "type": "fuel",
+        "priority": "info",
+        "icon": "leaf",
+        "title": "Économie de carburant",
+        "description": "Évitez les accélérations brusques et maintenez une vitesse constante pour économiser du carburant.",
+        "action": "Adopter une conduite souple"
+    })
+    
+    return {"tips": tips, "vehicle": vehicle}
+
+@api_router.get("/vehicles/common-problems")
+async def get_common_problems(request: Request):
+    """Get common problems and diagnostics for the vehicle"""
+    user = await get_current_user(request)
+    vehicle = await db.vehicles.find_one({"user_id": user["_id"]})
+    
+    problems = []
+    
+    # Common problems for all scooters
+    problems.append({
+        "symptom": "Le scooter ne démarre pas",
+        "icon": "close-circle",
+        "causes": [
+            {"cause": "Batterie déchargée", "solution": "Recharger ou remplacer la batterie", "difficulty": "facile"},
+            {"cause": "Bougie encrassée", "solution": "Nettoyer ou remplacer la bougie", "difficulty": "facile"},
+            {"cause": "Essence coupée", "solution": "Vérifier le robinet d'essence et le filtre", "difficulty": "facile"},
+            {"cause": "Problème d'allumage", "solution": "Faire vérifier par un professionnel", "difficulty": "difficile"}
+        ]
+    })
+    
+    problems.append({
+        "symptom": "Le scooter cale au ralenti",
+        "icon": "pause-circle",
+        "causes": [
+            {"cause": "Ralenti mal réglé", "solution": "Ajuster la vis de ralenti", "difficulty": "moyen"},
+            {"cause": "Filtre à air encrassé", "solution": "Nettoyer ou remplacer le filtre à air", "difficulty": "facile"},
+            {"cause": "Carburateur encrassé", "solution": "Nettoyer le carburateur", "difficulty": "moyen"}
+        ]
+    })
+    
+    problems.append({
+        "symptom": "Manque de puissance",
+        "icon": "trending-down",
+        "causes": [
+            {"cause": "Filtre à air bouché", "solution": "Remplacer le filtre à air", "difficulty": "facile"},
+            {"cause": "Pot d'échappement obstrué", "solution": "Nettoyer ou remplacer le pot", "difficulty": "moyen"},
+            {"cause": "Courroie usée", "solution": "Remplacer la courroie de variateur", "difficulty": "moyen"},
+            {"cause": "Galets variateur usés", "solution": "Remplacer les galets", "difficulty": "moyen"}
+        ]
+    })
+    
+    problems.append({
+        "symptom": "Consommation excessive",
+        "icon": "water",
+        "causes": [
+            {"cause": "Pneus sous-gonflés", "solution": "Vérifier et ajuster la pression", "difficulty": "facile"},
+            {"cause": "Filtre à air encrassé", "solution": "Remplacer le filtre", "difficulty": "facile"},
+            {"cause": "Carburateur déréglé", "solution": "Faire régler le carburateur", "difficulty": "moyen"}
+        ]
+    })
+    
+    problems.append({
+        "symptom": "Freins inefficaces",
+        "icon": "hand-left",
+        "causes": [
+            {"cause": "Plaquettes usées", "solution": "Remplacer les plaquettes de frein", "difficulty": "moyen"},
+            {"cause": "Disque usé", "solution": "Remplacer le disque de frein", "difficulty": "difficile"},
+            {"cause": "Air dans le circuit", "solution": "Purger le circuit de frein", "difficulty": "moyen"}
+        ]
+    })
+    
+    if vehicle and vehicle.get("engine_type") == "2T":
+        problems.append({
+            "symptom": "Fumée blanche excessive (2T)",
+            "icon": "cloud",
+            "causes": [
+                {"cause": "Trop d'huile dans le mélange", "solution": "Ajuster le dosage d'huile", "difficulty": "facile"},
+                {"cause": "Pompe à huile déréglée", "solution": "Faire vérifier la pompe à huile", "difficulty": "moyen"}
+            ]
+        })
+    
+    return {"problems": problems, "vehicle": vehicle}
+
+# ============ AI MECHANIC ADVICE ============
+
+@api_router.post("/vehicles/ask-mechanic")
+async def ask_mechanic(ask_data: AskMechanicRequest, request: Request):
+    """Get AI-powered mechanic advice"""
+    user = await get_current_user(request)
+    vehicle = await db.vehicles.find_one({"user_id": user["_id"]})
+    
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        
+        # Build context about the vehicle
+        vehicle_context = ""
+        if vehicle:
+            vehicle_context = f"""
+Informations sur le scooter de l'utilisateur:
+- Marque: {vehicle.get('brand', 'Non spécifié')}
+- Modèle: {vehicle.get('model', 'Non spécifié')}
+- Année: {vehicle.get('year', 'Non spécifié')}
+- Type moteur: {vehicle.get('engine_type', 'Non spécifié')}
+- Kilométrage actuel: {vehicle.get('mileage', 'Non spécifié')} km
+- Dernière vidange: {vehicle.get('last_oil_change_km', 'Non spécifié')} km
+- Dernière courroie: {vehicle.get('last_belt_change_km', 'Non spécifié')} km
+"""
+        
+        system_message = f"""Tu es un mécanicien expert en scooters et cyclomoteurs 50cc. Tu donnes des conseils pratiques, 
+clairs et adaptés aux débutants. Tu réponds TOUJOURS en français.
+
+IMPORTANT: Tu ne parles QUE des scooters et cyclomoteurs 50cc. Les motos sont INTERDITES dans cette application.
+Si on te pose une question sur les motos, rappelle que cette app est uniquement pour les 50cc.
+
+{vehicle_context}
+
+Donne des conseils concis, pratiques et sécuritaires. Mentionne toujours quand il vaut mieux consulter un professionnel.
+Format ta réponse de manière claire avec des points si nécessaire."""
+
+        chat = LlmChat(
+            api_key=os.environ.get("EMERGENT_LLM_KEY"),
+            session_id=f"mechanic_{user['_id']}_{datetime.now().timestamp()}",
+            system_message=system_message
+        ).with_model("openai", "gpt-4.1-mini")
+        
+        user_message = UserMessage(text=ask_data.question)
+        response = await chat.send_message(user_message)
+        
+        # Save to history
+        await db.mechanic_chats.insert_one({
+            "user_id": user["_id"],
+            "question": ask_data.question,
+            "answer": response,
+            "category": ask_data.category,
+            "created_at": datetime.now(timezone.utc)
+        })
+        
+        return {
+            "answer": response,
+            "vehicle": vehicle
+        }
+        
+    except Exception as e:
+        logger.error(f"AI Mechanic error: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors de la génération du conseil. Réessayez plus tard.")
+
+@api_router.get("/vehicles/chat-history")
+async def get_chat_history(request: Request, limit: int = 10):
+    """Get user's mechanic chat history"""
+    user = await get_current_user(request)
+    
+    chats = await db.mechanic_chats.find(
+        {"user_id": user["_id"]}
+    ).sort("created_at", -1).limit(limit).to_list(limit)
+    
+    result = []
+    for chat in chats:
+        result.append({
+            "id": str(chat["_id"]),
+            "question": chat["question"],
+            "answer": chat["answer"],
+            "category": chat.get("category"),
+            "created_at": chat["created_at"].isoformat()
+        })
+    
+    return {"history": result}
+
+# ============ MAINTENANCE LOG ============
+
+@api_router.post("/vehicles/maintenance-log")
+async def add_maintenance_log(log_data: MaintenanceLogCreate, request: Request):
+    """Add a maintenance log entry"""
+    user = await get_current_user(request)
+    vehicle = await db.vehicles.find_one({"user_id": user["_id"]})
+    
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Ajoutez d'abord votre véhicule")
+    
+    log_doc = {
+        "user_id": user["_id"],
+        "vehicle_id": vehicle["_id"],
+        "type": log_data.type,
+        "mileage": log_data.mileage,
+        "description": log_data.description,
+        "cost": log_data.cost,
+        "created_at": datetime.now(timezone.utc)
+    }
+    
+    result = await db.maintenance_logs.insert_one(log_doc)
+    
+    # Update vehicle last maintenance km based on type
+    update_field = None
+    if log_data.type == "oil_change":
+        update_field = "last_oil_change_km"
+    elif log_data.type == "belt":
+        update_field = "last_belt_change_km"
+    elif log_data.type == "spark_plug":
+        update_field = "last_spark_plug_change_km"
+    
+    if update_field:
+        await db.vehicles.update_one(
+            {"_id": vehicle["_id"]},
+            {"$set": {
+                update_field: log_data.mileage,
+                "mileage": max(vehicle.get("mileage", 0), log_data.mileage),
+                "updated_at": datetime.now(timezone.utc)
+            }}
+        )
+    
+    log_doc["_id"] = str(result.inserted_id)
+    log_doc["vehicle_id"] = str(log_doc["vehicle_id"])
+    return log_doc
+
+@api_router.get("/vehicles/maintenance-log")
+async def get_maintenance_logs(request: Request, limit: int = 20):
+    """Get maintenance log history"""
+    user = await get_current_user(request)
+    
+    logs = await db.maintenance_logs.find(
+        {"user_id": user["_id"]}
+    ).sort("created_at", -1).limit(limit).to_list(limit)
+    
+    result = []
+    for log in logs:
+        result.append({
+            "id": str(log["_id"]),
+            "type": log["type"],
+            "mileage": log["mileage"],
+            "description": log.get("description"),
+            "cost": log.get("cost"),
+            "created_at": log["created_at"].isoformat()
+        })
+    
+    return {"logs": result}
 
 # ============ HEALTH CHECK ============
 
