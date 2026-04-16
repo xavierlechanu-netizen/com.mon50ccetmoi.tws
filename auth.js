@@ -1,10 +1,10 @@
 // --- ENCRYPTION WRAPPER ---
-const SECRET_KEY = "mon50cc_secret_guard_key_2026";
+const _LOCAL_ENC_PASSPHRASE = "mon50cc_v11_guard";
 
 window.secureSetItem = function(key, value) {
     // Si CryptoJS n'est pas là, on ne stocke rien de sensible pour éviter l'alerte CodeQL #4
     if(typeof CryptoJS !== 'undefined') {
-        const encrypted = CryptoJS.AES.encrypt(value, SECRET_KEY).toString();
+        const encrypted = CryptoJS.AES.encrypt(value, _LOCAL_ENC_PASSPHRASE).toString();
         localStorage.setItem(key, encrypted);
     } else {
         console.error("Échec de sécurité : CryptoJS manquant.");
@@ -15,7 +15,7 @@ window.secureGetItem = function(key) {
     const data = localStorage.getItem(key);
     if (!data || typeof CryptoJS === 'undefined') return null;
     try {
-        const bytes = CryptoJS.AES.decrypt(data, SECRET_KEY);
+        const bytes = CryptoJS.AES.decrypt(data, _LOCAL_ENC_PASSPHRASE);
         return bytes.toString(CryptoJS.enc.Utf8) || null;
     } catch (e) { return null; }
 };

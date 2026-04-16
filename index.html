@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr-FR" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -9,7 +9,7 @@
     
     <!-- Android Retrocompatibility & PWA -->
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#0a0a0a">
+    <meta name="theme-color" content="#cca000">
     <link rel="apple-touch-icon" href="icon-192x192.png">
     
     <!-- SEO & Social Sharing (Open Graph) -->
@@ -51,20 +51,65 @@
     <!-- HUD Overlay -->
     <div id="hud" class="glassmorphism">
         <div class="hud-item title">mon50cc 🛵</div>
-        <div class="hud-item speed-disp" id="speed-meter">
-            <span id="speed">0</span>
-            <small>km/h</small>
+        
+        <div class="speed-container">
+            <div class="hud-item speed-disp" id="speed-meter">
+                <span id="speed">0</span>
+                <small>km/h</small>
+            </div>
         </div>
-        <div class="hud-item weather" id="weather-hud">
-            <i class="fa-solid fa-cloud-sun"></i> --°C
+
+        <div class="hud-right">
+            <div class="hud-item weather" id="weather-hud">
+                <i class="fa-solid fa-cloud-sun"></i> --°C
+            </div>
+            <div id="compass-box">
+                <i class="fa-solid fa-location-arrow" id="compass-needle"></i>
+                <span id="compass-dir">N</span>
+            </div>
         </div>
-        <div class="hud-item timer" id="trip-timer">00:00:00</div>
     </div>
 
-    <!-- Odometer & Eco (Bottom Right) -->
-    <div id="odometer-container" class="glassmorphism">
-        <div id="display-odometer">Odomètre: 0.00 km</div>
-        <div id="display-eco" style="font-size:0.7rem; color:#2ecc71; margin-top:5px;"><i class="fa-solid fa-leaf"></i> -0.0 kg CO2</div>
+    <!-- Navigation Prompt (Floating) -->
+    <div id="nav-instruction" class="glassmorphism hidden">
+        <div class="nav-icon"><i class="fa-solid fa-arrow-turn-up"></i></div>
+        <div class="nav-text">
+            <span id="next-step-name">Calibrage GPS...</span>
+            <span id="next-step-dist">--- m</span>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Info Bar -->
+    <div id="nav-info-bar" class="glassmorphism hidden">
+        <div class="info-group">
+            <label>ETA</label>
+            <span id="nav-eta">--:--</span>
+        </div>
+        <div class="info-group">
+            <label>Distance</label>
+            <span id="nav-dist">-- km</span>
+        </div>
+        <div class="info-group">
+            <label>Temps</label>
+            <span id="nav-time">-- min</span>
+        </div>
+    </div>
+
+    <!-- Premium Control Row -->
+    <div id="control-row">
+        <button id="btn-stop-nav" class="btn-circular btn-red hidden" onclick="cancelRoute()">
+            <i class="fa-solid fa-stop"></i>
+            <span>STOP</span>
+        </button>
+        
+        <button id="btn-reroute" class="btn-circular btn-neon hidden" onclick="searchDestination()">
+            <i class="fa-solid fa-route"></i>
+            <span>RE-ROUTE</span>
+        </button>
+
+        <button id="btn-settings-quick" class="btn-circular btn-dark" onclick="toggleMenu()">
+            <i class="fa-solid fa-gear"></i>
+        </button>
     </div>
 
     <!-- Performance Display (Top Right) -->
@@ -100,6 +145,7 @@
 
     <!-- Menu Hamburger -->
     <button id="btn-menu-toggle" class="glassmorphism" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+    
     <div id="sidebar" class="sidebar-hidden glassmorphism">
         <div class="sidebar-header">
             <h2>mon50ccetmoi</h2>

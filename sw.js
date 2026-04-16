@@ -6,14 +6,14 @@ const ASSETS = [
   './style.css',
   './app_v7.js',
   './auth.js',
+  './crypto-js.min.js',
   './manifest.json',
   './icon-192x192.png',
   './icon-512x512.png',
   './screenshot_gps.jpg',
   './screenshot_garage.jpg',
   './screenshot_wide.jpg',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js'
+  'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'
 ];
 
 self.addEventListener('install', event => {

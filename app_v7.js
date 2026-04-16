@@ -77,7 +77,7 @@ function initMap() {
         map: map,
         suppressMarkers: true,
         polylineOptions: {
-            strokeColor: "#ffb703",
+            strokeColor: "#cca000",
             strokeOpacity: 0.9,
             strokeWeight: 8
         }
@@ -87,7 +87,7 @@ function initMap() {
     trafficLayer = new google.maps.TrafficLayer();
     trafficLayer.setMap(map);
 
-    console.log("Moteur Premium v9.5-ULTRA : Initialisé.");
+    console.log("Moteur Premium v11.0-ULTRA-PRO : Initialisé.");
 }
 
 window.toggleTilt = function() {
@@ -140,11 +140,20 @@ function updatePosition(position) {
         // Effet de vitesse sur le HUD
         if(speedKmh > 40) {
             speedEl.parentElement.classList.add('fast');
-            vibrate(50); // Petite pulsation de vitesse
+            vibrate(50); 
         } else {
             speedEl.parentElement.classList.remove('fast');
         }
         
+        // --- NEW: Compass Logic ---
+        const heading = position.coords.heading;
+        if (heading !== null) {
+            document.getElementById('compass-needle').style.transform = `rotate(${heading}deg)`;
+            const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO', 'N'];
+            const dirIdx = Math.round(heading / 45);
+            document.getElementById('compass-dir').textContent = dirs[dirIdx];
+        }
+
         handlePerfTracking(speedKmh);
     }
     
@@ -157,7 +166,7 @@ function updatePosition(position) {
     // Rendu Map
     if (!userMarker) {
         const iconContent = document.createElement("div");
-        iconContent.innerHTML = `<div style="background-color: #1a1a1a; color: #ffb703; font-size: 16px; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 15px rgba(255, 183, 3, 0.9);"><i class="fa-solid fa-motorcycle"></i></div>`;
+        iconContent.innerHTML = `<div style="background-color: #1a1a1a; color: #cca000; font-size: 16px; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 15px rgba(204, 160, 0, 0.9);"><i class="fa-solid fa-motorcycle"></i></div>`;
         
         // Tentative d'utilisation de AdvancedMarkerElement si disponible (v9.0+)
         try {
@@ -173,7 +182,7 @@ function updatePosition(position) {
                     map: map,
                     position: currentPosition,
                     title: "Votre Position",
-                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#ffb703', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }
+                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#cca000', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }
                 });
             }
         } catch(e) { console.error("Marker init fail", e); }
@@ -299,6 +308,25 @@ function calculateRouteSansAutoroute(start, end) {
     directionsService.route(request, (result, status) => {
         if (status === 'OK') {
             directionsRenderer.setDirections(result);
+            
+            // --- NEW: Advanced HUD Integration ---
+            const leg = result.routes[0].legs[0];
+            const nextStep = leg.steps[0];
+            
+            document.getElementById('nav-instruction').classList.remove('hidden');
+            document.getElementById('nav-info-bar').classList.remove('hidden');
+            document.getElementById('btn-stop-nav').classList.remove('hidden');
+            document.getElementById('btn-reroute').classList.remove('hidden');
+            
+            document.getElementById('next-step-name').innerHTML = nextStep.instructions;
+            document.getElementById('next-step-dist').textContent = nextStep.distance.text;
+            
+            document.getElementById('nav-eta').textContent = new Date(Date.now() + leg.duration.value * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('nav-dist').textContent = leg.distance.text;
+            document.getElementById('nav-time').textContent = leg.duration.text;
+
+            speak(`Itinéraire calculé. Arrivée prévue à ${document.getElementById('nav-eta').textContent}.`);
+
             if(destinationMarker) destinationMarker.setMap(null);
             destinationMarker = new google.maps.Marker({
                 position: end,
@@ -311,7 +339,6 @@ function calculateRouteSansAutoroute(start, end) {
                     strokeWeight: 2
                 }
             });
-            document.getElementById('btn-cancel-route').classList.remove('hidden');
         } else { alert("Routage impossible: " + status); }
     });
 }
@@ -319,7 +346,12 @@ function calculateRouteSansAutoroute(start, end) {
 window.cancelRoute = function() {
     if (directionsRenderer) directionsRenderer.setDirections({routes: []});
     if(destinationMarker) { destinationMarker.setMap(null); destinationMarker = null; }
-    document.getElementById('btn-cancel-route').classList.add('hidden');
+    
+    document.getElementById('nav-instruction').classList.add('hidden');
+    document.getElementById('nav-info-bar').classList.add('hidden');
+    document.getElementById('btn-stop-nav').classList.add('hidden');
+    document.getElementById('btn-reroute').classList.add('hidden');
+    
     document.getElementById('route-search').value = "";
 }
 
@@ -379,7 +411,7 @@ function loadHazards() {
         const marker = new google.maps.Marker({
             position: { lat: h.lat, lng: h.lon },
             map: map,
-            icon: { path: google.maps.SymbolPath.CIRCLE, fillColor: '#ffb703', fillOpacity: 0.9, scale: 9, strokeColor: 'white', strokeWeight: 2 }
+            icon: { path: google.maps.SymbolPath.CIRCLE, fillColor: '#cca000', fillOpacity: 0.9, scale: 9, strokeColor: 'white', strokeWeight: 2 }
         });
         const info = new google.maps.InfoWindow({ content: `<b>${h.type}</b><br><small>${h.author}</small>` });
         marker.addListener("click", () => info.open(map, marker));
@@ -404,7 +436,7 @@ function loadHazards() {
 
 // --- 5. SONAR RADAR (POI SCAN) ---
 const poiConfig = {
-    'fuel': { icon: 'fa-gas-pump', label: 'Essence', color: '#ffb703', radius: 5000 },
+    'fuel': { icon: 'fa-gas-pump', label: 'Essence', color: '#cca000', radius: 5000 },
     'doctors': { icon: 'fa-stethoscope', label: 'Urgences', color: '#e74c3c', radius: 10000 },
     'atm': { icon: 'fa-money-bill-1', label: 'DAB', color: '#2ecc71', radius: 3000 }
 };
@@ -558,11 +590,42 @@ document.addEventListener('DOMContentLoaded', () => {
     renderRoadbooks();
     updatePosition({ coords: { latitude: 48.8566, longitude: 2.3522, speed: 0, accuracy: 10 } });
     
+    // --- GESTION DES PARAMÈTRES (Shortcuts, Share, Protocols) ---
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Raccourcis (Shortcuts)
+    if (urlParams.has('shortcut')) {
+        const sc = urlParams.get('shortcut');
+        setTimeout(() => {
+            if (sc === 'garage') showPage('garage');
+            if (sc === 'danger') toggleHazardMenu();
+        }, 2000);
+    }
+
+    // Partage (Share Target)
+    if (urlParams.has('share')) {
+        const text = urlParams.get('text') || '';
+        const title = urlParams.get('title') || '';
+        const url = urlParams.get('url') || '';
+        setTimeout(() => {
+            alert(`Partage reçu : ${title} \n ${text} \n ${url}`);
+            // Ici on pourrait traiter un fichier GPX partagé par exemple
+        }, 2500);
+    }
+
+    // Protocole (Protocol Handler)
+    if (urlParams.has('uri')) {
+        const uri = decodeURIComponent(urlParams.get('uri'));
+        setTimeout(() => {
+            speak(`Ouverture du tracé mon50cc : ${uri}`);
+        }, 3000);
+    }
+
     // Simulate loader
     setTimeout(() => {
         const loader = document.getElementById('app-loader');
         if(loader) { loader.style.opacity = '0'; setTimeout(() => loader.style.visibility = 'hidden', 800); }
-        simulateCommunityLive(); // Activer la simulation communautaire au lancement
+        simulateCommunityLive(); 
     }, 1500);
 });
 
@@ -625,12 +688,17 @@ window.showPage = function(page) {
             <button class="btn-insurance" onclick="submitMecaV3()" style="margin-top:15px; width:100%;">Scanner mon 50cc</button>
             <div id="meca-response" style="margin-top:20px; font-size:0.9rem; line-height:1.4;"></div>`;
     } else if(page === 'privacy') {
-        content.innerHTML = `<h3>Confidentialité</h3>
+        content.innerHTML = `<h3>Mentions Légales & Confidentialité</h3>
             <div style="font-size:0.8rem; line-height:1.4; color:#ccc;">
+                <p><strong>Éditeur :</strong> mon50ccetmoi (Engineering Unit)</p>
+                <p><strong>Responsable :</strong> mon50ccetmoi Admin (US)</p>
+                <p><strong>Contact :</strong> via l'application</p>
+                <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
                 <p><strong>Données GPS :</strong> Vos coordonnées sont traitées localement pour la navigation et la détection de chute.</p>
                 <p><strong>Partage :</strong> Les signalements de dangers sont partagés de manière anonyme avec la communauté.</p>
                 <p><strong>Stockage :</strong> Vos préférences sont enregistrées dans votre navigateur (LocalStorage).</p>
-                <p><strong>Version :</strong> v9.5-ULTRA Build 2026</p>
+                <p><strong>Version :</strong> v11.0-ULTRA-PRO Build 2026</p>
+                <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
     }
     toggleMenu();
@@ -709,7 +777,11 @@ window.closeMood = function() { document.getElementById('mood-overlay').classLis
 setTimeout(() => document.getElementById('mood-overlay')?.classList.remove('hidden'), 30000); 
 
 window.logout = function() {
-    secureSetItem('session', null);
+    if (typeof secureRemoveItem === 'function') {
+        secureRemoveItem('session');
+    } else {
+        localStorage.removeItem('session');
+    }
     window.location.href = 'login.html';
 }
 
