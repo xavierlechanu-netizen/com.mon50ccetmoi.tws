@@ -16,8 +16,8 @@
   "maskableIconUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/icon-512x512.png",
   "splashscreenFadeOutDuration": 300,
   "signingKey": {
-    "path": "./signing.keystore",
-    "alias": "mon50ccetmoi"
+    "path": "./signing_release_official.keystore",
+    "alias": "my-key-alias"
   },
   "appVersion": "11.0",
   "appVersionCode": 11,
@@ -35,7 +35,7 @@
   "enableSiteSettingsShortcut": true,
   "isRtl": false,
   "orientation": "portrait",
-  "fingerprint": "8139A250D42B89328E6F26BAA4FA6B9D117500A73673BD87717BEDEB84A52D89",
+  "fingerprint": "0E546FA55CAC0B8BC1C325E5FF11B173EA848524AC93896A56F5D834DAA44B81",
   "additionalTrustedOrigins": [
     "https://xavierlechanu-netizen.github.io"
   ]
