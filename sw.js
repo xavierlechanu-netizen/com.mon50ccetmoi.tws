@@ -10,6 +10,7 @@ const ASSETS = [
   './manifest.json',
   './icon-192x192.png',
   './icon-512x512.png',
+  './play_store_feature_graphic_1776365906325.jpg',
   './screenshot_gps.jpg',
   './screenshot_garage.jpg',
   './screenshot_wide.jpg',

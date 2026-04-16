@@ -1,0 +1,42 @@
+{
+  "packageId": "com.mon50ccetmoi.twa",
+  "host": "xavierlechanu-netizen.github.io",
+  "name": "mon50ccetmoi | Navigation & Sécurité Scooter",
+  "launcherName": "mon50ccetmoi",
+  "display": "standalone",
+  "themeColor": "#cca000",
+  "navigationColor": "#0a0a0a",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#0a0a0a",
+  "enableNotifications": true,
+  "startUrl": "/com.mon50ccetmoi.tws/",
+  "iconUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/icon-512x512.png",
+  "maskableIconUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/icon-512x512.png",
+  "splashscreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./signing.keystore",
+    "alias": "mon50ccetmoi"
+  },
+  "appVersion": "11.0",
+  "appVersionCode": 11,
+  "shortcuts": [
+    {
+      "name": "Mon Garage",
+      "short_name": "Garage",
+      "url": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/index.html?shortcut=garage",
+      "icon": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/icon-192x192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/manifest.json",
+  "fallbackType": "customtabs",
+  "enableSiteSettingsShortcut": true,
+  "isRtl": false,
+  "orientation": "portrait",
+  "fingerprint": "8139A250D42B89328E6F26BAA4FA6B9D117500A73673BD87717BEDEB84A52D89",
+  "additionalTrustedOrigins": [
+    "https://xavierlechanu-netizen.github.io"
+  ]
+}
