@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://xavierlechanu-netizen.github.io/mon50ccetmoi/sitemap.xml
+Sitemap: https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/sitemap.xml

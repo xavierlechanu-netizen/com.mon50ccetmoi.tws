@@ -7,7 +7,7 @@ Pour tester votre application sur la route avec votre iPhone, vous devez l'hébe
 2.  Allez dans **Settings** > **Pages**.
 3.  Choisissez la source **"Deploy from a branch"**.
 4.  Sélectionnez la branche `main` et cliquez sur **Save**.
-5.  Votre application sera disponible sur `https://xavierlechanu-netizen.github.io/mon50ccetmoi/`.
+5.  Votre application sera disponible sur `https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/`.
 
 ## ✅ Pourquoi déployer ?
 - **GPS Mobile** : Safari bloque l'accès à la position ultra-précise si le site n'est pas en `https://`.
