@@ -2,27 +2,22 @@
 const SECRET_KEY = "mon50cc_secret_guard_key_2026";
 
 window.secureSetItem = function(key, value) {
-    if(typeof CryptoJS === 'undefined') {
-        console.warn("CryptoJS non chargé : Utilisation du mode non-sécurisé temporaire.");
-        localStorage.setItem(key, value);
-        return;
+    // Si CryptoJS n'est pas là, on ne stocke rien de sensible pour éviter l'alerte CodeQL #4
+    if(typeof CryptoJS !== 'undefined') {
+        const encrypted = CryptoJS.AES.encrypt(value, SECRET_KEY).toString();
+        localStorage.setItem(key, encrypted);
+    } else {
+        console.error("Échec de sécurité : CryptoJS manquant.");
     }
-    const encrypted = CryptoJS.AES.encrypt(value, SECRET_KEY).toString();
-    localStorage.setItem(key, encrypted);
 };
 
 window.secureGetItem = function(key) {
     const data = localStorage.getItem(key);
-    if (!data) return null;
-    if(typeof CryptoJS === 'undefined') return data;
+    if (!data || typeof CryptoJS === 'undefined') return null;
     try {
         const bytes = CryptoJS.AES.decrypt(data, SECRET_KEY);
-        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-        // Si le décryptage échoue (ex: donnée en clair pre-encryption), ça renvoie vide
-        return decrypted || null;
-    } catch (e) {
-        return null;
-    }
+        return bytes.toString(CryptoJS.enc.Utf8) || null;
+    } catch (e) { return null; }
 };
 
 window.secureRemoveItem = function(key) {

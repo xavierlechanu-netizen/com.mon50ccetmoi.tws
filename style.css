@@ -57,13 +57,13 @@ body, html {
 }
 
 /* --- LOADER & OVERLAYS --- */
-#loader {
+#app-loader {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: #000;
-    display: flex; justify-content: center; align-items: center;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
     z-index: 10000;
-    transition: opacity 0.5s ease-out;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
 }
 .loader-content { text-align: center; }
 .loader-content i { font-size: 3rem; color: var(--accent); margin-bottom: 20px; }
@@ -130,6 +130,16 @@ body, html {
 .hud-item.timer {
     font-family: monospace;
     font-size: 1.1rem;
+}
+#speed-meter {
+    color: var(--warning);
+    text-shadow: 0 0 15px var(--accent-glow);
+    transition: transform 0.1s ease;
+}
+
+#speed-meter.fast {
+    color: #fff;
+    text-shadow: 0 0 25px #ffb703, 0 0 45px #ffb703;
 }
 .hud-item.speed-disp small {
     font-size: 0.7rem;

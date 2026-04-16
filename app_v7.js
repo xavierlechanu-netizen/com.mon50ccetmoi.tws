@@ -137,7 +137,14 @@ function updatePosition(position) {
         speedKmh = Math.round(speed * 3.6);
         speedEl.textContent = speedKmh;
         
-        // --- NEW: Performance Timer (0-45 km/h) ---
+        // Effet de vitesse sur le HUD
+        if(speedKmh > 40) {
+            speedEl.parentElement.classList.add('fast');
+            vibrate(50); // Petite pulsation de vitesse
+        } else {
+            speedEl.parentElement.classList.remove('fast');
+        }
+        
         handlePerfTracking(speedKmh);
     }
     
@@ -243,15 +250,21 @@ window.confirmHazard = function(index, exists) {
     }
     const toast = document.querySelector('.hazard-toast');
     if(toast) toast.remove();
+    vibrate(30);
 }
 
-// --- NEW: Voice Synthesis ---
+// --- NEW: Voice Synthesis & Haptics ---
+function vibrate(ms) {
+    if ('vibrate' in navigator) navigator.vibrate(ms);
+}
+
 function speak(text) {
     if ('speechSynthesis' in window) {
         const ut = new SpeechSynthesisUtterance(text);
         ut.lang = 'fr-FR';
         ut.rate = 1.1;
         window.speechSynthesis.speak(ut);
+        vibrate([100, 50, 100]); // Vibration d'attention lors du message vocal
     }
 }
 
@@ -663,6 +676,7 @@ window.addEventListener('devicemotion', (e) => {
 });
 
 function triggerFallAlert() {
+    vibrate([500, 200, 500, 200, 500]); // SOS vibration pattern
     if(document.getElementById('fall-screen')) return; 
     const div = document.createElement('div');
     div.id = 'fall-screen';
