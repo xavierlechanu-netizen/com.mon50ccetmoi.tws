@@ -42,12 +42,13 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Ignorer les requêtes vers les API (Météo, Nominatim, Overpass) pour ne pas mettre en cache des erreurs ou des données périmées
-  if (event.request.url.includes('api.open-meteo.com') || 
-      event.request.url.includes('nominatim.openstreetmap.org') ||
-      event.request.url.includes('overpass-api.de')) {
-    return;
-  }
+  // Sanitize and check hostname for external APIs
+  try {
+      const url = new URL(event.request.url);
+      if (['api.open-meteo.com', 'nominatim.openstreetmap.org', 'overpass-api.de'].includes(url.hostname)) {
+          return;
+      }
+  } catch(e) { /* Invalid URL */ }
 
   event.respondWith(
     caches.match(event.request)

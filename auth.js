@@ -3,6 +3,7 @@ const SECRET_KEY = "mon50cc_secret_guard_key_2026";
 
 window.secureSetItem = function(key, value) {
     if(typeof CryptoJS === 'undefined') {
+        console.warn("CryptoJS non chargé : Utilisation du mode non-sécurisé temporaire.");
         localStorage.setItem(key, value);
         return;
     }
@@ -59,7 +60,9 @@ function login(username, password) {
 }
 
 window.loginAsGuest = function() {
-    const guestUser = { username: "Pilote_" + Math.floor(Math.random()*1000), brand: "Incognito", role: "guest", isGuest: true };
+    const array = new Uint32Array(1);
+    window.crypto.getRandomValues(array);
+    const guestUser = { username: "Pilote_" + (array[0] % 1000), brand: "Incognito", role: "guest", isGuest: true };
     secureSetItem('session', JSON.stringify(guestUser));
     // Redirection directe pour les tests et la fluidité
     window.location.href = 'index.html';
@@ -100,7 +103,7 @@ window.googleLogin = function(name, email) {
         user = {
             username: email || name,
             displayName: name,
-            password: CryptoJS.SHA256(Math.random().toString()).toString(), // Random secure pass
+            password: CryptoJS.SHA256(window.crypto.getRandomValues(new Uint32Array(1))[0].toString()).toString(), // Random secure pass
             role: 'user',
             brand: "Google Pilot",
             points: 50,
