@@ -1,0 +1,13 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.mon50ccetmoi.twa",
+    "sha256_cert_fingerprints": [
+      "81:39:A2:50:D4:2B:89:32:8E:6F:26:BA:A4:FA:6B:9D:11:75:00:A7:36:73:BD:87:71:7B:ED:EB:84:A5:2D:89",
+      "75:0F:BF:70:C4:72:AE:34:72:CD:2D:FE:CE:4A:00:39:F3:42:09:2F:66:54:B0:3F:D5:98:22:71:74:90:58:80",
+      "88:3E:F4:30:15:F9:FC:DD:20:51:B4:5E:CF:B3:26:0C:98:5D:10:97:53:C1:4B:F0:FE:A3:53:E6:CA:1F:89:5A",
+      "30:17:66:46:35:49:EE:50:05:D5:9E:CC:EC:24:8E:7C:4A:9E:27:9E:38:35:3B:44:7A:C8:6E:DE:89:36:37:BD"
+    ]
+  }
+}]
