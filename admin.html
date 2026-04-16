@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - mon50ccetmoi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- CryptoJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <!-- Auth Guard: Exécuté immédiatement pour bloquer l'affichage -->
+    <script src="auth.js"></script>
+    <script>
+        const session = checkAuth(true); // Requiert admin
+    </script>
+</head>
+<body class="admin-body">
+    <div class="admin-header">
+        <h1><i class="fa-solid fa-user-shield"></i> Administration Système</h1>
+        <div>
+            <a href="index.html" class="btn-admin-link">Aller sur la Carte</a>
+            <button onclick="logout()" class="btn-admin-logout"><i class="fa-solid fa-power-off"></i></button>
+        </div>
+    </div>
+    
+    <div class="admin-dashboard">
+        <div class="admin-panel">
+            <h2>Membres Isolés (<span id="user-count">0</span>)</h2>
+            <div class="admin-list-container">
+                <ul id="user-list" class="admin-list"></ul>
+            </div>
+        </div>
+        
+        <div class="admin-panel">
+            <h2>Signalements Dangers sur Carte (<span id="hazard-count">0</span>)</h2>
+            <div class="admin-list-container">
+                <ul id="hazard-list" class="admin-list"></ul>
+            </div>
+            <button onclick="clearAllHazards()" class="btn-clear-all"><i class="fa-solid fa-broom"></i> Effacer tous les signalements</button>
+        </div>
+        
+        <div class="admin-panel">
+            <h2>Fil d'Actualités / Humeurs (<span id="mood-count">0</span>)</h2>
+            <div class="admin-list-container">
+                <ul id="mood-list" class="admin-list"></ul>
+            </div>
+            <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">Gérez les débordements sur la messagerie réseau.</p>
+        </div>
+
+        <div class="admin-panel">
+            <h2>Boîte à Idées (<span id="suggestion-count">0</span>)</h2>
+            <div class="admin-list-container">
+                <ul id="suggestion-list" class="admin-list"></ul>
+            </div>
+            <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">Suggestions de membres pour l'amélioration.</p>
+        </div>
+    </div>
+
+    <script>
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, function (match) {
+                const escape = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+                return escape[match];
+            });
+        }
+
+        function loadData() {
+            const users = JSON.parse(secureGetItem('users') || '[]');
+            document.getElementById('user-count').textContent = users.length;
+            const ul = document.getElementById('user-list');
+            ul.innerHTML = '';
+            users.forEach((u) => {
+                const safeName = escapeHTML(u.username);
+                const safeRole = escapeHTML(u.role);
+                ul.innerHTML += `<li>
+                    <span><i class="fa-solid fa-user${safeRole==='admin'?'-tie':''}"></i> <strong>${safeName}</strong> <span class="role-badge">${safeRole}</span></span>
+                    ${safeRole !== 'admin' ? `<button onclick="deleteUser('${safeName}')" class="btn-delete"><i class="fa-solid fa-trash"></i></button>` : ''}
+                </li>`;
+            });
+
+            const hazards = JSON.parse(secureGetItem('hazards') || '[]');
+            document.getElementById('hazard-count').textContent = hazards.length;
+            const hl = document.getElementById('hazard-list');
+            hl.innerHTML = '';
+            hazards.forEach((h, index) => {
+                const safeAuthor = escapeHTML(h.author);
+                const badgeStr = h.type === 'police' ? 'Police' : (h.type === 'accident' ? 'Accident' : 'Danger');
+                hl.innerHTML += `<li>
+                    <span><i class="fa-solid fa-triangle-exclamation" style="color:var(--warning)"></i> <strong>${safeAuthor}</strong> : ${badgeStr}</span>
+                    <button onclick="deleteHazard(${index})" class="btn-delete"><i class="fa-solid fa-trash"></i></button>
+                </li>`;
+            });
+
+            const moods = JSON.parse(secureGetItem('moods') || '[]');
+            const ml = document.getElementById('mood-list');
+            if(ml) {
+                document.getElementById('mood-count').textContent = moods.length;
+                ml.innerHTML = '';
+                moods.forEach((m, index) => {
+                    const safeAuthor = escapeHTML(m.author);
+                    const safeText = escapeHTML(m.text ? m.text : m.label);
+                    ml.innerHTML += `<li>
+                        <span style="font-size:0.9rem;"><strong>${safeAuthor}</strong>: "${safeText}"</span>
+                        <button onclick="deleteMood(${index})" class="btn-delete"><i class="fa-solid fa-trash"></i></button>
+                    </li>`;
+                });
+            }
+
+            const suggestions = JSON.parse(secureGetItem('suggestions') || '[]');
+            const sl = document.getElementById('suggestion-list');
+            if(sl) {
+                document.getElementById('suggestion-count').textContent = suggestions.length;
+                sl.innerHTML = '';
+                suggestions.forEach((s, index) => {
+                    const safeAuthor = escapeHTML(s.author);
+                    const safeText = escapeHTML(s.text);
+                    const safeDate = escapeHTML(s.date);
+                    sl.innerHTML += `<li>
+                        <span style="font-size:0.9rem; line-height: 1.4;"><strong>${safeAuthor}</strong> (${safeDate}):<br/><i>"${safeText}"</i></span>
+                        <button onclick="deleteSuggestion(${index})" class="btn-delete" title="Archiver / Supprimer"><i class="fa-solid fa-check"></i></button>
+                    </li>`;
+                });
+            }
+        }
+
+        function deleteMood(i) {
+            let moods = JSON.parse(secureGetItem('moods') || '[]');
+            moods.splice(i, 1);
+            secureSetItem('moods', JSON.stringify(moods));
+            loadData();
+        }
+
+        function deleteSuggestion(i) {
+            let suggestions = JSON.parse(secureGetItem('suggestions') || '[]');
+            suggestions.splice(i, 1);
+            secureSetItem('suggestions', JSON.stringify(suggestions));
+            loadData();
+        }
+
+        function deleteUser(uName) {
+            if(confirm(`ATTENTION : Bannir le compte ${uName} et supprimer instantanément tous ses signalements et anciens messages ?`)) {
+                // Delete user
+                let users = JSON.parse(secureGetItem('users') || '[]');
+                secureSetItem('users', JSON.stringify(users.filter(u => u.username !== uName)));
+                
+                // Purge all user's hazards
+                let hazards = JSON.parse(secureGetItem('hazards') || '[]');
+                secureSetItem('hazards', JSON.stringify(hazards.filter(h => h.author !== uName)));
+                
+                // Purge all user's moods
+                let moods = JSON.parse(secureGetItem('moods') || '[]');
+                secureSetItem('moods', JSON.stringify(moods.filter(m => m.author !== uName)));
+
+                loadData();
+                alert(`Nettoyage terminé : L'utilisateur ${uName} et tout son passif ont été éradiqués de l'application.`);
+            }
+        }
+
+        function deleteHazard(i) {
+            let hazards = JSON.parse(secureGetItem('hazards'));
+            hazards.splice(i, 1);
+            secureSetItem('hazards', JSON.stringify(hazards));
+            loadData();
+        }
+
+        function clearAllHazards() {
+            if(confirm('Supprimer tous les signalements mondiaux de la carte ?')) {
+                secureSetItem('hazards', '[]');
+                loadData();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
