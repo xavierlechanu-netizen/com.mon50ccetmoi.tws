@@ -1,14 +1,19 @@
-# RÉCAPITULATIF DES EMPREINTES DE SIGNATURE - mon50ccetmoi
+# RÉCAPITULATIF FINAL DE DÉPLOIEMENT - mon50ccetmoi
 
-## 1. Clé Originale (Google Play bloque dessus)
-- SHA-1 : B0:21:3F:30:6B:8C:06:AD:1C:AE:12:6E:D4:34:50:7D:9F:A0:4C:C2
-- SHA-256 : 30:17:66:46:35:49:EE:50:05:D5:9E:CC:EC:24:8E:7C:4A:9E:27:9E:38:35:3B:44:7A:C8:6E:DE:89:36:37:BD
-
-## 2. Nouvelle Clé de Réinitialisation 2026 (Proposée)
-- Fichier : android/signing_reset_2026.keystore
+## 🔑 1. VOTRE NOUVELLE CLÉ (À utiliser maintenant)
+- Fichier : android/upload-keystore.jks
 - Mot de passe : Mon50cc-2026!
-- SHA-1 : 52:7A:34:4A:9F:41:D6:28:65:6E:E7:71:5B:D2:87:08:46:C3:A0:C1
-- SHA-256 : EB:29:BE:37:63:F2:A9:55:42:7D:1D:8A:4C:EB:BE:B1:FF:29:F7:08:50:F5:4D:03:B3:9E:9E:92:41:DD:55:14
+- Alias : upload
+- Statut : PRÊTE
 
-## 3. Empreinte fournie par l'utilisateur (à identifier)
-- Code : 75:0F:BF:70:C4:72:AE:34:72:CD:2D:FE:CE:4A:00:39:F3:42:09:2F:66:54:B0:3F:D5:98:22:71:74:90:58:80
+## 📄 2. FICHIER POUR GOOGLE (Action requise)
+- Fichier : android/upload_certificate.pem
+- Action : À envoyer à Google via le bouton "Réinitialiser la clé d'importation".
+
+## 📦 3. APPLICATION À PUBLIER (Après validation 48h)
+- Fichier : mon50ccetmoi_UPLOAD_V17.aab
+- Version : 13.0 (Code 17)
+
+## ⚠️ 4. ANCIENNE CLÉ (Perdue)
+- SHA-1 : B0:21:3F:30:6B:8C:06:AD:1C:AE:12:6E:D4:34:50:7D:9F:A0:4C:C2
+- (Cette clé est désormais obsolète une fois la procédure terminée).
