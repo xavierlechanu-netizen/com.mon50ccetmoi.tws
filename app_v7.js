@@ -1,5 +1,26 @@
 // --- BOOT ---
-console.log("mon50ccetmoi v12.0-ULTRA-PRO: Démarrage.");
+console.log("mon50ccetmoi v12.1-ULTRA-PRO: Démarrage.");
+
+// PWA Installation Logic
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btnInstall = document.getElementById('btn-install-pwa');
+    if(btnInstall) btnInstall.classList.remove('hidden');
+});
+
+window.installPWA = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`PWA Installation outcome: ${outcome}`);
+    if (outcome === 'accepted') {
+        const btnInstall = document.getElementById('btn-install-pwa');
+        if(btnInstall) btnInstall.classList.add('hidden');
+    }
+    deferredPrompt = null;
+};
 
 // Gestion de la touche "Retour" sur Android (PWA)
 window.addEventListener('popstate', (e) => {
@@ -87,7 +108,7 @@ function initMap() {
     trafficLayer = new google.maps.TrafficLayer();
     trafficLayer.setMap(map);
 
-    console.log("Moteur Premium v11.0-ULTRA-PRO : Initialisé.");
+    console.log("Moteur Premium v12.1-ULTRA-PRO : Initialisé.");
 }
 
 window.toggleTilt = function() {
@@ -697,7 +718,7 @@ window.showPage = function(page) {
                 <p><strong>Données GPS :</strong> Vos coordonnées sont traitées localement pour la navigation et la détection de chute.</p>
                 <p><strong>Partage :</strong> Les signalements de dangers sont partagés de manière anonyme avec la communauté.</p>
                 <p><strong>Stockage :</strong> Vos préférences sont enregistrées dans votre navigateur (LocalStorage).</p>
-                <p><strong>Version :</strong> v11.0-ULTRA-PRO Build 2026</p>
+                <p><strong>Version :</strong> v12.1-ULTRA-PRO Build 2026</p>
                 <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
     }
@@ -787,7 +808,7 @@ window.logout = function() {
 
 window.updateTicker = function() {
     const t = document.getElementById('ticker-text');
-    if(t) t.innerHTML = "Bonne balade sur mon50ccetmoi v11.0-ULTRA-PRO ! Prudence sur la route. 🛵💨";
+    if(t) t.innerHTML = "Bonne balade sur mon50ccetmoi v12.1-ULTRA-PRO ! Prudence sur la route. 🛵💨";
 }
 updateTicker();
 setInterval(updateTicker, 60000);
@@ -869,5 +890,29 @@ function handlePerfTracking(speedKmh) {
         speak(`Performance réalisée : ${time} secondes.`);
         isPerfTracking = false;
         setTimeout(() => perfHud.classList.add('hidden'), 10000);
+    }
+}
+
+// --- OFFLINE MANAGEMENT ---
+window.addEventListener('online',  updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+function updateOnlineStatus() {
+    const condition = navigator.onLine ? "online" : "offline";
+    if(condition === 'offline') {
+        const toast = document.createElement('div');
+        toast.id = 'offline-toast';
+        toast.style = "position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:rgba(231,76,60,0.9); color:white; padding:10px 20px; border-radius:30px; z-index:10000; font-size:0.8rem; display:flex; align-items:center; gap:10px; box-shadow:0 4px 15px rgba(0,0,0,0.5);";
+        toast.innerHTML = '<i class="fa-solid fa-plane"></i> Mode hors-ligne - Navigation limitée';
+        document.body.appendChild(toast);
+        speak("Mode hors-ligne activé.");
+    } else {
+        const toast = document.getElementById('offline-toast');
+        if(toast) {
+            toast.style.background = "rgba(46,204,113,0.9)";
+            toast.innerHTML = '<i class="fa-solid fa-wifi"></i> Connexion rétablie';
+            setTimeout(() => toast.remove(), 3000);
+            speak("Connexion rétablie.");
+        }
     }
 }

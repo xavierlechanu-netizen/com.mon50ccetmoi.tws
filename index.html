@@ -10,6 +10,7 @@
     <!-- Android Retrocompatibility & PWA -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#cca000">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192x192.png">
     
     <!-- SEO & Social Sharing (Open Graph) -->
@@ -41,7 +42,7 @@
 
     <!-- UI/UX Dependencies -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcXtkzj2xw=" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css?v=12.0">
+    <link rel="stylesheet" href="style.css?v=12.1">
     <link rel="icon" type="image/png" href="icon-192x192.png">
     <script src="crypto-js.min.js"></script>
     <script src="auth.js?v=12.0"></script>
@@ -55,7 +56,7 @@
         <div style="font-size:4rem; color:#ffb703; margin-bottom:20px; filter: drop-shadow(0 0 15px rgba(255,183,3,0.5));">
             <i class="fa-solid fa-motorcycle fa-bounce"></i>
         </div>
-        <h1 style="color:white; font-size:1.5rem; letter-spacing:4px; text-transform:uppercase; margin-bottom:10px;">mon50ccetmoi <small style="color:#ffb703; font-size: 0.5rem;">(v12.0-ULTRA-PRO)</small></h1>
+        <h1 style="color:white; font-size:1.5rem; letter-spacing:4px; text-transform:uppercase; margin-bottom:10px;">mon50ccetmoi <small style="color:#ffb703; font-size: 0.5rem;">(v12.1-ULTRA-PRO)</small></h1>
         <p style="color:#555; font-size:0.9rem;">Migration Google Maps - Mode Expert</p>
         <div class="loader-track"><div id="loader-bar"></div></div>
     </div>
@@ -177,6 +178,7 @@
                 <li onclick="showPage('group')" style="color:#00d2ff;"><i class="fa-solid fa-people-group"></i> Mode Groupe <span class="badge unlocked" style="font-size:0.5rem; padding: 2px 5px;">NEW</span></li>
                 <li onclick="testFallDetection()" style="color:#f1c40f;"><i class="fa-solid fa-vial"></i> Tester Détecteur Chute</li>
                 <li id="btn-parking-toggle" onclick="toggleParkingMode()"><i class="fa-solid fa-shield-halved"></i> Mode Parking : OFF</li>
+                <li id="btn-install-pwa" class="hidden" onclick="installPWA()"><i class="fa-solid fa-download"></i> Installer l'App <span class="badge" style="background:#2ecc71;">PRO</span></li>
                 <li onclick="shareApp()"><i class="fa-solid fa-share-nodes"></i> Partager</li>
             </ul>
             
@@ -221,11 +223,11 @@
         <div id="ticker-text">Bonne route sur mon50ccetmoi v11.0-ULTRA-PRO ! Prudence.</div>
     </div>
 
-    <script src="app_v7.js?v=11.0"></script>
+    <script src="app_v7.js?v=12.1"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=11.0').catch(e => console.error(e));
+                navigator.serviceWorker.register('./sw.js?v=12.1').catch(e => console.error(e));
             });
         }
     </script>
