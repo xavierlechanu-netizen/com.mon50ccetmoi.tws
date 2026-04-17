@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://xavierlechanu-netizen.github.io/mon50ccetmoi/sitemap.xml

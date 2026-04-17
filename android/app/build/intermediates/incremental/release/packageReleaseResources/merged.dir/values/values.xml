@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="additional_trusted_origins">
+    
+      <item>https://https://xavierlechanu-netizen.github.io</item>
+    
+    </string-array>
+    <bool name="enableNotification">true</bool>
+    <bool name="enableSiteSettingsShortcut">true</bool>
+    <color name="backgroundColor">#0A0A0A</color>
+    <color name="colorPrimary">#CCA000</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="navigationColor">#0A0A0A</color>
+    <color name="navigationColorDark">#000000</color>
+    <color name="navigationDividerColor">#000000</color>
+    <color name="navigationDividerColorDark">#000000</color>
+    <color name="shortcut_background">#F5F5F5</color>
+    <integer name="splashScreenFadeOutDuration">0</integer>
+    <string name="appName" translatable="false">mon50ccetmoi | Navigation &amp; Sécurité Scooter</string>
+    <string name="assetStatements">
+    [{
+        \"relation\": [\"delegate_permission/common.handle_all_urls\"],
+        \"target\": {
+            \"namespace\": \"web\",
+            \"site\": \"https://xavierlechanu-netizen.github.io\"
+        }
+    }]
+    
+      ,[{
+          \"relation\": [\"delegate_permission/common.handle_all_urls\"],
+          \"target\": {
+              \"namespace\": \"web\",
+              \"site\": \"https://https://xavierlechanu-netizen.github.io\"
+          }
+      }]        
+    
+  </string>
+    <string name="fallbackType" translatable="false">customtabs</string>
+    <string name="generatorApp" translatable="false">bubblewrap-cli</string>
+    <string name="hostName" translatable="false">xavierlechanu-netizen.github.io</string>
+    <string name="launchUrl" translatable="false">https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/</string>
+    <string name="launcherName" translatable="false">mon50ccetmoi</string>
+    <string name="orientation" translatable="false">portrait</string>
+    <string name="providerAuthority" translatable="false">com.mon50ccetmoi.twa.fileprovider</string>
+    <string name="webManifestUrl" translatable="false">https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/manifest.json</string>
+</resources>

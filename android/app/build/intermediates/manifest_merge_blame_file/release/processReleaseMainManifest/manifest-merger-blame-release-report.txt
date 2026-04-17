@@ -1,0 +1,412 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<!--
+3    Copyright 2019 Google Inc. All Rights Reserved.
+4
+5     Licensed under the Apache License, Version 2.0 (the "License");
+6     you may not use this file except in compliance with the License.
+7     You may obtain a copy of the License at
+8
+9         http://www.apache.org/licenses/LICENSE-2.0
+10
+11     Unless required by applicable law or agreed to in writing, software
+12     distributed under the License is distributed on an "AS IS" BASIS,
+13     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+14     See the License for the specific language governing permissions and
+15     limitations under the License.
+16-->
+17<!--
+18 The "package" attribute is rewritten by the Gradle build with the value of applicationId.
+19     It is still required here, as it is used to derive paths, for instance when referring
+20     to an Activity by ".MyActivity" instead of the full name. If more Activities are added to the
+21     application, the package attribute will need to reflect the correct path in order to use
+22     the abbreviated format.
+23-->
+24<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+25    package="com.mon50ccetmoi.twa"
+26    android:versionCode="17"
+27    android:versionName="13.0" >
+28
+29    <uses-sdk
+30        android:minSdkVersion="21"
+31        android:targetSdkVersion="35" />
+32
+33    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+33-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:26:9-80
+33-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:26:26-78
+34
+35    <queries>
+35-->[com.google.androidbrowserhelper:androidbrowserhelper:2.6.2] C:\Users\xavie\.gradle\caches\8.11.1\transforms\5053e02be90783e54992393be394bb70\transformed\androidbrowserhelper-2.6.2\AndroidManifest.xml:22:5-30:15
+36        <intent>
+36-->[com.google.androidbrowserhelper:androidbrowserhelper:2.6.2] C:\Users\xavie\.gradle\caches\8.11.1\transforms\5053e02be90783e54992393be394bb70\transformed\androidbrowserhelper-2.6.2\AndroidManifest.xml:23:9-29:18
+37            <action android:name="android.intent.action.VIEW" />
+37-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:152:17-68
+37-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:152:25-66
+38
+39            <category android:name="android.intent.category.BROWSABLE" />
+39-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:154:17-77
+39-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:154:27-75
+40
+41            <data android:scheme="https" />
+41-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:155:17-158:19
+41-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:155:23-45
+42        </intent>
+43    </queries>
+44
+45    <permission
+45-->[androidx.core:core:1.13.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:22:5-24:47
+46        android:name="com.mon50ccetmoi.twa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+46-->[androidx.core:core:1.13.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:23:9-81
+47        android:protectionLevel="signature" />
+47-->[androidx.core:core:1.13.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:24:9-44
+48
+49    <uses-permission android:name="com.mon50ccetmoi.twa.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+49-->[androidx.core:core:1.13.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:26:5-97
+49-->[androidx.core:core:1.13.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:26:22-94
+50
+51    <application
+51-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:35:5-211:19
+52        android:name="com.mon50ccetmoi.twa.Application"
+52-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:36:9-35
+53        android:allowBackup="true"
+53-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:37:9-35
+54        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+54-->[androidx.core:core:1.13.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:28:18-86
+55        android:extractNativeLibs="true"
+56        android:icon="@mipmap/ic_launcher"
+56-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:38:9-43
+57        android:label="@string/appName"
+57-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:39:9-40
+58        android:manageSpaceActivity="com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity"
+58-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:41:9-105
+59        android:supportsRtl="true"
+59-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:43:9-35
+60        android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+60-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:44:9-68
+61        <meta-data
+61-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:46:9-48:58
+62            android:name="asset_statements"
+62-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:47:13-44
+63            android:resource="@string/assetStatements" />
+63-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:48:13-55
+64        <meta-data
+64-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:51:13-53:58
+65            android:name="web_manifest_url"
+65-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:52:17-48
+66            android:value="@string/webManifestUrl" />
+66-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:53:17-55
+67        <meta-data
+67-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:56:9-58:52
+68            android:name="twa_generator"
+68-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:57:13-41
+69            android:value="@string/generatorApp" />
+69-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:58:13-49
+70
+71        <activity
+71-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:65:13-76:24
+72            android:name="com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity"
+72-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:65:23-104
+73            android:enabled="true"
+73-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:67:17-39
+74            android:excludeFromRecents="true"
+74-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:68:17-50
+75            android:exported="false" >
+75-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:66:17-41
+76            <meta-data
+76-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:69:17-71:57
+77                android:name="android.support.customtabs.trusted.MANAGE_SPACE_URL"
+77-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:70:21-87
+78                android:value="@string/launchUrl" />
+78-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:71:21-54
+79
+80            <intent-filter>
+80-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:72:17-75:33
+81                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+81-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:73:21-92
+81-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:73:29-89
+82
+83                <category android:name="android.intent.category.DEFAULT" />
+83-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:74:21-80
+83-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:74:31-77
+84            </intent-filter>
+85        </activity>
+86        <activity
+86-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:79:9-172:20
+87            android:name="com.mon50ccetmoi.twa.LauncherActivity"
+87-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:79:19-50
+88            android:alwaysRetainTaskState="true"
+88-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:80:13-49
+89            android:exported="true"
+89-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:82:13-36
+90            android:label="@string/launcherName" >
+90-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:81:13-49
+91            <meta-data
+91-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:83:13-84:53
+92                android:name="android.support.customtabs.trusted.DEFAULT_URL"
+92-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:83:24-85
+93                android:value="@string/launchUrl" />
+93-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:84:17-50
+94            <meta-data
+94-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:86:13-88:58
+95                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR"
+95-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:87:17-83
+96                android:resource="@color/colorPrimary" />
+96-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:88:17-55
+97            <meta-data
+97-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:92:13-94:62
+98                android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR_DARK"
+98-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:93:17-88
+99                android:resource="@color/colorPrimaryDark" />
+99-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:94:17-59
+100            <meta-data
+100-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:96:13-98:61
+101                android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR"
+101-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:97:17-87
+102                android:resource="@color/navigationColor" />
+102-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:98:17-58
+103            <meta-data
+103-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:100:13-102:65
+104                android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR_DARK"
+104-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:101:17-92
+105                android:resource="@color/navigationColorDark" />
+105-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:102:17-62
+106            <meta-data
+106-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:104:13-106:68
+107                android:name="androix.browser.trusted.NAVIGATION_BAR_DIVIDER_COLOR"
+107-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:105:17-84
+108                android:resource="@color/navigationDividerColor" />
+108-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:106:17-65
+109            <meta-data
+109-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:108:13-110:72
+110                android:name="androix.browser.trusted.NAVIGATION_BAR_DIVIDER_COLOR_DARK"
+110-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:109:17-89
+111                android:resource="@color/navigationDividerColorDark" />
+111-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:110:17-69
+112            <meta-data
+112-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:112:13-113:54
+113                android:name="android.support.customtabs.trusted.SPLASH_IMAGE_DRAWABLE"
+113-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:112:24-95
+114                android:resource="@drawable/splash" />
+114-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:113:17-52
+115            <meta-data
+115-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:115:13-116:60
+116                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR"
+116-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:115:24-104
+117                android:resource="@color/backgroundColor" />
+117-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:116:17-58
+118            <meta-data
+118-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:118:13-119:71
+119                android:name="android.support.customtabs.trusted.SPLASH_SCREEN_FADE_OUT_DURATION"
+119-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:118:24-105
+120                android:value="@integer/splashScreenFadeOutDuration" />
+120-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:119:17-69
+121            <meta-data
+121-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:121:13-122:60
+122                android:name="android.support.customtabs.trusted.FILE_PROVIDER_AUTHORITY"
+122-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:121:24-97
+123                android:value="@string/providerAuthority" />
+123-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:122:17-58
+124            <meta-data
+124-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:124:13-97
+125                android:name="android.app.shortcuts"
+125-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:124:24-60
+126                android:resource="@xml/shortcuts" />
+126-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:124:61-94
+127            <meta-data
+127-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:126:13-127:56
+128                android:name="android.support.customtabs.trusted.FALLBACK_STRATEGY"
+128-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:126:24-91
+129                android:value="@string/fallbackType" />
+129-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:127:17-53
+130            <meta-data
+130-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:133:13-134:54
+131                android:name="android.support.customtabs.trusted.SCREEN_ORIENTATION"
+131-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:133:24-92
+132                android:value="@string/orientation" />
+132-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:134:17-52
+133            <meta-data
+133-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:137:17-139:76
+134                android:name="android.support.customtabs.trusted.ADDITIONAL_TRUSTED_ORIGINS"
+134-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:138:21-97
+135                android:resource="@array/additional_trusted_origins" />
+135-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:139:21-73
+136
+137            <intent-filter>
+137-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:146:13-149:29
+138                <action android:name="android.intent.action.MAIN" />
+138-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:147:17-69
+138-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:147:25-66
+139
+140                <category android:name="android.intent.category.LAUNCHER" />
+140-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:148:17-77
+140-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:148:27-74
+141            </intent-filter>
+142            <intent-filter android:autoVerify="true" >
+142-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:151:13-159:29
+142-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:151:28-53
+143                <action android:name="android.intent.action.VIEW" />
+143-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:152:17-68
+143-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:152:25-66
+144
+145                <category android:name="android.intent.category.DEFAULT" />
+145-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:74:21-80
+145-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:74:31-77
+146                <category android:name="android.intent.category.BROWSABLE" />
+146-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:154:17-77
+146-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:154:27-75
+147
+148                <data
+148-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:155:17-158:19
+149                    android:host="@string/hostName"
+149-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:156:21-52
+150                    android:scheme="https" />
+150-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:155:23-45
+151            </intent-filter>
+152            <intent-filter android:autoVerify="true" >
+152-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:162:17-168:33
+152-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:162:32-57
+153                <action android:name="android.intent.action.VIEW" />
+153-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:152:17-68
+153-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:152:25-66
+154
+155                <category android:name="android.intent.category.DEFAULT" />
+155-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:74:21-80
+155-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:74:31-77
+156                <category android:name="android.intent.category.BROWSABLE" />
+156-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:154:17-77
+156-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:154:27-75
+157
+158                <data
+158-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:155:17-158:19
+159                    android:host="https://xavierlechanu-netizen.github.io"
+159-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:156:21-52
+160                    android:scheme="https" />
+160-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:155:23-45
+161            </intent-filter>
+162        </activity>
+163        <activity android:name="com.google.androidbrowserhelper.trusted.FocusActivity" />
+163-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:174:9-90
+163-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:174:19-87
+164        <activity
+164-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:176:9-177:62
+165            android:name="com.google.androidbrowserhelper.trusted.WebViewFallbackActivity"
+165-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:176:19-97
+166            android:configChanges="orientation|screenSize" />
+166-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:177:13-59
+167
+168        <provider
+168-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:179:9-187:20
+169            android:name="androidx.core.content.FileProvider"
+169-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:180:13-62
+170            android:authorities="@string/providerAuthority"
+170-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:181:13-60
+171            android:exported="false"
+171-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:183:13-37
+172            android:grantUriPermissions="true" >
+172-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:182:13-47
+173            <meta-data
+173-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:184:13-186:53
+174                android:name="android.support.FILE_PROVIDER_PATHS"
+174-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:185:17-67
+175                android:resource="@xml/filepaths" />
+175-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:186:17-50
+176        </provider>
+177
+178        <service
+178-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:189:9-204:19
+179            android:name="com.mon50ccetmoi.twa.DelegationService"
+179-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:190:13-46
+180            android:enabled="@bool/enableNotification"
+180-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:191:13-55
+181            android:exported="@bool/enableNotification" >
+181-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:192:13-56
+182            <meta-data
+182-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:195:17-197:73
+183                android:name="android.support.customtabs.trusted.SMALL_ICON"
+183-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:196:21-81
+184                android:resource="@drawable/ic_notification_icon" />
+184-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:197:21-70
+185
+186            <intent-filter>
+186-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:200:13-203:29
+187                <action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE" />
+187-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:201:17-105
+187-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:201:25-103
+188
+189                <category android:name="android.intent.category.DEFAULT" />
+189-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:74:21-80
+189-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:74:31-77
+190            </intent-filter>
+191        </service>
+192
+193        <activity android:name="com.google.androidbrowserhelper.trusted.NotificationPermissionRequestActivity" />
+193-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:207:13-118
+193-->C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:207:23-115
+194
+195        <provider
+195-->[androidx.emoji2:emoji2:1.3.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\5cb7738f5242d8c4e38c8ffa2b265b31\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+196            android:name="androidx.startup.InitializationProvider"
+196-->[androidx.emoji2:emoji2:1.3.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\5cb7738f5242d8c4e38c8ffa2b265b31\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+197            android:authorities="com.mon50ccetmoi.twa.androidx-startup"
+197-->[androidx.emoji2:emoji2:1.3.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\5cb7738f5242d8c4e38c8ffa2b265b31\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+198            android:exported="false" >
+198-->[androidx.emoji2:emoji2:1.3.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\5cb7738f5242d8c4e38c8ffa2b265b31\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+199            <meta-data
+199-->[androidx.emoji2:emoji2:1.3.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\5cb7738f5242d8c4e38c8ffa2b265b31\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+200                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+200-->[androidx.emoji2:emoji2:1.3.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\5cb7738f5242d8c4e38c8ffa2b265b31\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+201                android:value="androidx.startup" />
+201-->[androidx.emoji2:emoji2:1.3.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\5cb7738f5242d8c4e38c8ffa2b265b31\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+202            <meta-data
+202-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\xavie\.gradle\caches\8.11.1\transforms\4bc52031417e9743197e36b704fe409f\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
+203                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+203-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\xavie\.gradle\caches\8.11.1\transforms\4bc52031417e9743197e36b704fe409f\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
+204                android:value="androidx.startup" />
+204-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\xavie\.gradle\caches\8.11.1\transforms\4bc52031417e9743197e36b704fe409f\transformed\lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
+205            <meta-data
+205-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+206                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+206-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+207                android:value="androidx.startup" />
+207-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+208        </provider>
+209
+210        <receiver
+210-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+211            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+211-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+212            android:directBootAware="false"
+212-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+213            android:enabled="true"
+213-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+214            android:exported="true"
+214-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+215            android:permission="android.permission.DUMP" >
+215-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+216            <intent-filter>
+216-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+217                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+217-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+217-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+218            </intent-filter>
+219            <intent-filter>
+219-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+220                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+220-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+220-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+221            </intent-filter>
+222            <intent-filter>
+222-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+223                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+223-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+223-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+224            </intent-filter>
+225            <intent-filter>
+225-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+226                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+226-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+226-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\xavie\.gradle\caches\8.11.1\transforms\bb4a0d32d1b17a1dcea0cf71d2bde5e0\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+227            </intent-filter>
+228        </receiver>
+229    </application>
+230
+231</manifest>
