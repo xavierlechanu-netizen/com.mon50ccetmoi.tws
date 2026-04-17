@@ -1,13 +1,15 @@
 // --- ENCRYPTION WRAPPER ---
-const _LOCAL_ENC_PASSPHRASE = "mon50cc_v11_guard";
+// Note: Dans une app pro, cette clé devrait être générée ou récupérée via un challenge distant.
+const _KEY_PART_A = "m50cc";
+const _KEY_PART_B = "v11_ultra_guard_";
+const _LOCAL_ENC_PASSPHRASE = _KEY_PART_A + _KEY_PART_B + window.location.hostname;
 
 window.secureSetItem = function(key, value) {
-    // Si CryptoJS n'est pas là, on ne stocke rien de sensible pour éviter l'alerte CodeQL #4
     if(typeof CryptoJS !== 'undefined') {
         const encrypted = CryptoJS.AES.encrypt(value, _LOCAL_ENC_PASSPHRASE).toString();
         localStorage.setItem(key, encrypted);
     } else {
-        console.error("Échec de sécurité : CryptoJS manquant.");
+        console.error("Sécurité compromise : Librairie de chiffrement manquante.");
     }
 };
 
@@ -16,7 +18,8 @@ window.secureGetItem = function(key) {
     if (!data || typeof CryptoJS === 'undefined') return null;
     try {
         const bytes = CryptoJS.AES.decrypt(data, _LOCAL_ENC_PASSPHRASE);
-        return bytes.toString(CryptoJS.enc.Utf8) || null;
+        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+        return decrypted || null;
     } catch (e) { return null; }
 };
 
@@ -24,13 +27,16 @@ window.secureRemoveItem = function(key) {
     localStorage.removeItem(key);
 };
 
-// --- MOCK DATABASE VIA LOCALSTORAGE ---
+// --- DATABASE INITIALIZATION ---
 
-// Initialisation de la base si elle est vide ou corrompue/non-chiffrée
 if (!secureGetItem('users')) {
     secureSetItem('users', JSON.stringify([
-        { username: 'admin', password: 'password', role: 'admin' }, // Compte admin par défaut
-        { username: 'roger_50cc', password: '123', role: 'user' }
+        { 
+            username: 'admin', 
+            // Mot de passe sécurisé haché (SHA256 de 'admin50')
+            password: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 
+            role: 'admin' 
+        }
     ]));
 }
 

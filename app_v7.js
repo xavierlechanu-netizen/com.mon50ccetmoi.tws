@@ -1,5 +1,5 @@
 // --- BOOT ---
-console.log("mon50ccetmoi v11.0-ULTRA-PRO: Démarrage.");
+console.log("mon50ccetmoi v12.0-ULTRA-PRO: Démarrage.");
 
 // Gestion de la touche "Retour" sur Android (PWA)
 window.addEventListener('popstate', (e) => {
@@ -382,11 +382,11 @@ window.toggleHazardMenu = function() {
 
 window.saveHazard = function(type) {
     if(!currentPosition) return;
-    const h = { lat: currentPosition.lat, lon: currentPosition.lng, type, author: window.session ? window.session.username : 'Anonyme' };
+    const h = { lat: currentPosition.lat, lon: currentPosition.lng, type: type, author: window.session ? window.session.username : 'Anonyme' };
     let db = JSON.parse(secureGetItem('hazards') || '[]');
     db.push(h);
     secureSetItem('hazards', JSON.stringify(db));
-    alert(`Signalement: ${type} enregistré ! Merci à vous.`);
+    alert(`Signalement: ${escapeHTML(type)} enregistré ! Merci à vous.`);
     toggleHazardMenu();
     loadHazards();
 };
@@ -413,7 +413,7 @@ function loadHazards() {
             map: map,
             icon: { path: google.maps.SymbolPath.CIRCLE, fillColor: '#cca000', fillOpacity: 0.9, scale: 9, strokeColor: 'white', strokeWeight: 2 }
         });
-        const info = new google.maps.InfoWindow({ content: `<b>${h.type}</b><br><small>${h.author}</small>` });
+        const info = new google.maps.InfoWindow({ content: `<b>${escapeHTML(h.type)}</b><br><small>${escapeHTML(h.author)}</small>` });
         marker.addListener("click", () => info.open(map, marker));
         hazardMarkers.push(marker);
 
@@ -422,7 +422,7 @@ function loadHazards() {
             const div = document.createElement('div');
             div.className = 'hazard-alert';
             div.style.cursor = 'pointer';
-            div.innerHTML = `<div><i class="fa-solid fa-triangle-exclamation"></i> <strong>${h.type}</strong><br><span>Par ${h.author}</span></div><i class="fa-solid fa-chevron-right" style="font-size:0.6rem; color:#444;"></i>`;
+            div.innerHTML = `<div><i class="fa-solid fa-triangle-exclamation"></i> <strong>${escapeHTML(h.type)}</strong><br><span>Par ${escapeHTML(h.author)}</span></div><i class="fa-solid fa-chevron-right" style="font-size:0.6rem; color:#444;"></i>`;
             div.onclick = () => {
                 map.setCenter({ lat: h.lat, lng: h.lon });
                 map.setZoom(17);
