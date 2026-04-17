@@ -23,15 +23,12 @@
 
     <link rel="manifest" href="manifest.json" />
     <title>mon50ccetmoi | Navigation & Sécurité 50cc</title>
-
-    <!-- Chargeur dynamique Google Maps (Sélection Auto Clé Android / PC) -->
+    <script src="config.js?v=12.1"></script>
+    <!-- Chargeur dynamique Google Maps -->
     <script>
-        const KEY_PC = "AIzaSyB88btJZWU8EqjISntxJVsVltrQSPIi95A";
-        const KEY_ANDROID = "AIzaSyCH6560cVZlfeuqITse5ZmQKF-ilrm-w4w";
-        
         // Détection de la plateforme
         const isAndroid = /Android/i.test(navigator.userAgent);
-        const selectedKey = isAndroid ? KEY_ANDROID : KEY_PC;
+        const selectedKey = isAndroid ? CONFIG.MAPS.ANDROID : CONFIG.MAPS.PC;
         
         const script = document.createElement('script');
         script.src = `https://maps.googleapis.com/maps/api/js?key=${selectedKey}&libraries=geometry,places,marker&v=beta`;
@@ -39,7 +36,7 @@
         script.defer = true;
         document.head.appendChild(script);
         
-        console.log("mon50cc Maps Loader : Mode " + (isAndroid ? "Android" : "PC") + " activé.");
+        console.log("mon50cc Maps Loader : Mode " + (isAndroid ? "Android" : "PC") + " activé. v" + CONFIG.VERSION);
     </script>
 
     <!-- UI/UX Dependencies -->

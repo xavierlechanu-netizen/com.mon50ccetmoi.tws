@@ -1,9 +1,10 @@
-const CACHE_NAME = 'mon50ccetmoi-v12.0-ULTRA-PRO';
+const CACHE_NAME = 'mon50ccetmoi-v12.1-ULTRA-PRO';
 const ASSETS = [
   './',
   './index.html',
   './login.html',
   './style.css',
+  './config.js',
   './app_v7.js',
   './auth.js',
   './crypto-js.min.js',
