@@ -4,10 +4,8 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.mon50ccetmoi.twa",
-      "sha256_cert_fingerprints": [
-        "0E:54:6F:A5:5C:AC:0B:8B:C1:C3:25:E5:FF:11:B1:73:EA:84:85:24:AC:93:89:6A:56:F5:D8:34:DA:A4:4B:81",
-        "88:3E:F4:30:15:F9:FC:DD:20:51:B4:5E:CF:B3:26:0C:98:5D:10:97:53:C1:4B:F0:FE:A3:53:E6:CA:1F:89:5A"
-      ]
+      "sha256_cert_fingerprints":
+        ["0E:54:6F:A5:5C:AC:0B:8B:C1:C3:25:E5:FF:11:B1:73:EA:84:85:24:AC:93:89:6A:56:F5:D8:34:DA:A4:4B:81", "88:3E:F4:30:15:F9:FC:DD:20:51:B4:5E:CF:B3:26:0C:98:5D:10:97:53:C1:4B:F0:FE:A3:53:E6:CA:1F:89:5A"]
     }
   }
 ]
