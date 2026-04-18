@@ -18,6 +18,20 @@ window.setLanguage = function(lang) {
 // --- BOOT ---
 console.log("mon50ccetmoi v20.0-ULTRA-PRO-ELITE: Démarrage.");
 
+function checkUserBadges() {
+    const totalKm = parseFloat(secureGetItem('total_km') || '0');
+    const badgeContainer = document.getElementById('user-badges');
+    if(!badgeContainer) return;
+
+    if(totalKm >= 5000) {
+        badgeContainer.innerHTML = `<div class="badge-elite" title="5000km parcourus">
+            <i class="fa-solid fa-crown" style="color:#00d2ff;"></i> Rider d'Élite
+        </div>`;
+    } else {
+        badgeContainer.innerHTML = `<small style="color:#444;">${(5000 - totalKm).toFixed(0)} km restants pour le badge Elite</small>`;
+    }
+}
+
     // Sidebar Menu
     const mGarage = document.getElementById('menu-garage'); if(mGarage) mGarage.innerHTML = `<i class="fa-solid fa-warehouse"></i> ${t('garage')}`;
     const mRoadbooks = document.getElementById('menu-roadbooks'); if(mRoadbooks) mRoadbooks.innerHTML = `<i class="fa-solid fa-map-location-dot"></i> Roadbooks`;
@@ -831,6 +845,25 @@ function saveSessionAndCheckBadges() {
     if(ecoEl) {
         const co2Saved = window.session.totalDistance * 0.12; // 120g CO2 saved per km vs car
         ecoEl.innerHTML = `<i class="fa-solid fa-leaf"></i> -${co2Saved.toFixed(1)} kg CO2`;
+    }
+
+    // --- Badge Check ---
+    checkUserBadges();
+}
+
+function checkUserBadges() {
+    if(!window.session) return;
+    const badgeContainer = document.getElementById('user-badges');
+    if(!badgeContainer) return;
+
+    const total = window.session.totalDistance || 0;
+    if(total >= 5000) {
+        badgeContainer.innerHTML = `<div class="badge-pro" title="Badge Elite: 5000km" style="background:#00d2ff; color:black; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block;">
+            <i class="fa-solid fa-crown"></i> Rider d'Élite (5000 km)
+        </div>`;
+    } else {
+        const remaining = 5000 - total;
+        badgeContainer.innerHTML = `<small style="color:#666; font-size:0.6rem;">En route : ${remaining.toFixed(0)} km pour le Badge Élite</small>`;
     }
 }
 
