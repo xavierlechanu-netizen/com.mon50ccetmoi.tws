@@ -526,10 +526,11 @@ function loadHazards() {
     }
 
     hazards.forEach((h, index) => {
+        const hColor = h.type === 'Police' ? '#00d2ff' : (h.type === 'Route Dégradée' ? '#f1c40f' : '#ff4d4d');
         const marker = new google.maps.Marker({
             position: { lat: h.lat, lng: h.lon },
             map: map,
-            icon: { path: google.maps.SymbolPath.CIRCLE, fillColor: '#cca000', fillOpacity: 0.9, scale: 9, strokeColor: 'white', strokeWeight: 2 }
+            icon: { path: google.maps.SymbolPath.CIRCLE, fillColor: hColor, fillOpacity: 0.9, scale: 9, strokeColor: 'white', strokeWeight: 2 }
         });
         const info = new google.maps.InfoWindow({ content: `<b>${escapeHTML(h.type)}</b><br><small>${escapeHTML(h.author)}</small>` });
         marker.addListener("click", () => info.open(map, marker));

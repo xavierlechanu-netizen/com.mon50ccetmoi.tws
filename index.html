@@ -160,10 +160,11 @@
     <!-- Action Buttons -->
     <button id="btn-hazard-main" class="glassmorphism" onclick="toggleHazardMenu()"><i class="fa-solid fa-triangle-exclamation"></i></button>
     <div id="hazard-options" class="hidden">
-        <button class="glassmorphism" onclick="saveHazard('Travaux')">🚧</button>
-        <button class="glassmorphism" onclick="saveHazard('Accident')">💥</button>
-        <button class="glassmorphism" onclick="saveHazard('Police')">👮</button>
-        <button class="glassmorphism" onclick="saveHazard('Danger')">⚠️</button>
+        <button class="glassmorphism" onclick="saveHazard('Travaux')" title="Travaux en cours">🚧</button>
+        <button class="glassmorphism" onclick="saveHazard('Accident')" title="Accident">💥</button>
+        <button class="glassmorphism" onclick="saveHazard('Police')" title="Contrôle de police">👮</button>
+        <button class="glassmorphism" onclick="saveHazard('Route Dégradée')" title="Route dégradée / Nid-de-poule">🕳️</button>
+        <button class="glassmorphism" onclick="saveHazard('Danger')" title="Autre danger">⚠️</button>
     </div>
 
     <button id="btn-radar-main" class="glassmorphism" onclick="toggleRadarMenu()"><i class="fa-solid fa-tower-broadcast"></i></button>
