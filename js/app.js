@@ -857,14 +857,29 @@ function checkUserBadges() {
     if(!badgeContainer) return;
 
     const total = window.session.totalDistance || 0;
+    const co2Saved = total * 0.12;
+    let badgesHtml = "";
+
+    // Badge Elite (5000km)
     if(total >= 5000) {
-        badgeContainer.innerHTML = `<div class="badge-pro" title="Badge Elite: 5000km" style="background:#00d2ff; color:black; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block;">
-            <i class="fa-solid fa-crown"></i> Rider d'Élite (5000 km)
+        badgesHtml += `<div class="badge-pro" title="Badge Elite: 5000km" style="background:#00d2ff; color:black; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-right:5px;">
+            <i class="fa-solid fa-crown"></i> Elite
         </div>`;
-    } else {
-        const remaining = 5000 - total;
-        badgeContainer.innerHTML = `<small style="color:#666; font-size:0.6rem;">En route : ${remaining.toFixed(0)} km pour le Badge Élite</small>`;
     }
+
+    // Badge Ecolo (100kg CO2)
+    if(co2Saved >= 100) {
+        badgesHtml += `<div class="badge-eco" title="Badge Écolo: 100kg CO2 sauvés" style="background:#2ecc71; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block;">
+            <i class="fa-solid fa-leaf"></i> Écolo
+        </div>`;
+    }
+
+    if(badgesHtml === "") {
+        const remainingEl = 5000 - total;
+        badgesHtml = `<small style="color:#666; font-size:0.6rem;">En route pour les badges...</small>`;
+    }
+
+    badgeContainer.innerHTML = badgesHtml;
 }
 
 // --- 9. ROADBOOKS ---
