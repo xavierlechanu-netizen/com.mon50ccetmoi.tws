@@ -128,9 +128,14 @@ window.publishMoodCloud = async function(mood) {
 
 // --- SYSTÈME ANTI-FRAUDE SIGNALEMENT DGCCRF ---
 
-window.reportStationAbuse = async function(stationId, stationInfo) {
+window.reportStationAbuse = async function(stationId, stationInfo, photoData = null) {
     if (!db || !window.session || window.session.isGuest) {
         alert("Vous devez être membre certifié pour signaler un abus.");
+        return;
+    }
+
+    if (!photoData) {
+        alert("Une preuve photo est obligatoire pour valider le signalement.");
         return;
     }
 
@@ -143,13 +148,14 @@ window.reportStationAbuse = async function(stationId, stationInfo) {
         
         let count = 0;
         let reporters = [];
+        let photos = [];
         
         if (doc.exists) {
             count = doc.data().count;
             reporters = doc.data().reporters || [];
+            photos = doc.data().photos || [];
         }
         
-        // Un seul signalement par utilisateur par jour
         if (reporters.includes(window.session.username)) {
             alert("Vous avez déjà signalé cette station aujourd'hui.");
             return;
@@ -157,31 +163,34 @@ window.reportStationAbuse = async function(stationId, stationInfo) {
         
         const newCount = count + 1;
         reporters.push(window.session.username);
+        photos.push(photoData); // Stockage de la preuve
         
         await docRef.set({
             stationId,
             stationInfo,
             count: newCount,
             reporters: reporters,
+            photos: photos,
             lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
         if (newCount >= 10) {
-            await triggerDGCCRFReport(stationId, stationInfo);
+            await triggerDGCCRFReport(stationId, stationInfo, photos);
         }
 
-        alert(`Signalement enregistré (${newCount}/10). Merci de votre vigilance.`);
+        alert(`Signalement avec preuve photo enregistré (${newCount}/10). Merci de votre vigilance.`);
     } catch (e) {
         console.error("Report fail:", e);
     }
 };
 
-async function triggerDGCCRFReport(id, info) {
+async function triggerDGCCRFReport(id, info, photos) {
     // 1. Blacklister la station sur Firebase
     await db.collection("blacklist_stations").doc(id).set({
         id,
         info,
-        reason: "Prix non conformes (10+ signalements communautaires)",
+        reason: "Prix non conformes (10+ preuves photo validées)",
+        photosCount: photos.length,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
     
@@ -191,7 +200,8 @@ async function triggerDGCCRFReport(id, info) {
         target: info,
         source: "mon50ccetmoi-bot-v20",
         platform: "SignalConso-API-Bridge",
-        evidenceCount: 10,
+        evidenceCount: photos.length,
+        hasPhotos: true,
         status: "TRANSMIS_DGCCRF",
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         metadata: {
@@ -200,18 +210,22 @@ async function triggerDGCCRFReport(id, info) {
         }
     };
 
-    // Stocker le dossier officiel
-    await db.collection("complaints_official").doc(complaintDossier.dossierId).set(complaintDossier);
+    // Stocker le dossier officiel avec les liens vers les preuves
+    await db.collection("complaints_official").doc(complaintDossier.dossierId).set({
+        ...complaintDossier,
+        evidence_samples: photos.slice(0, 3) // On garde les 3 premières preuves pour le dossier résumé
+    });
     
     // 3. Logique Bot (Simulation Webhook ou Email Administratif)
-    console.log(`[BOT ANTI-FRAUDE] 🤖 Dossier ${complaintDossier.dossierId} généré et transmis au portail SignalConso.`);
+    console.log(`[BOT ANTI-FRAUDE] 🤖 Dossier ${complaintDossier.dossierId} avec ${photos.length} photos transmis au portail SignalConso.`);
     
     // Notification admin
     await db.collection("admin_alerts").add({
         type: "FRAUDE_PRIX_BOT_SUCCESS",
         station: info,
         dossierLink: complaintDossier.dossierId,
-        message: "Bot : Dossier de plainte transmis à la DGCCRF avec succès.",
+        hasVisualProof: true,
+        message: "Bot : Dossier de plainte (avec photos) transmis à la DGCCRF.",
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 

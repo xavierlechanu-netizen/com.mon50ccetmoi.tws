@@ -603,9 +603,9 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
                 // Bouton de signalement pour les membres
                 const isGuest = !window.session || window.session.isGuest;
                 const reportBtn = isGuest ? "" : `
-                    <button onclick="reportStationAbuse('${stationId}', '${fields.vile || fields.adresse}')" 
+                    <button onclick="triggerPhotoReport('${stationId}', '${fields.vile || fields.adresse}')" 
                         style="width:100%; margin-top:5px; background:#ff4d4d; color:white; border:none; padding:5px; border-radius:5px; font-size:0.7rem; cursor:pointer;">
-                        🚨 Signaler Abus Prix
+                        🚨 Signaler Abus Prix (+Photo)
                     </button>`;
 
                 const info = new google.maps.InfoWindow({
@@ -619,12 +619,28 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
                     </div>`
                 });
                 
-                marker.addListener("click", () => info.open(map, marker));
-                officialPoiMarkers.push(marker);
-            });
-            alert(`${data.records.length} stations trouvées avec les prix du gouvernement.`);
-        }
-    } catch(e) { 
+// --- NEW: PHOTO EVIDENCE HANDLER ---
+window.triggerPhotoReport = function(id, name) {
+    const input = document.getElementById('abuse-photo-input');
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if(!file) return;
+        
+        // Notification
+        alert("Traitement de la preuve photo en cours...");
+        
+        // Lecture en base64 pour le stockage Firestore (ou upload Storage si configuré)
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const photoData = event.target.result;
+            if (typeof reportStationAbuse === "function") {
+                reportStationAbuse(id, name, photoData);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+    input.click(); // Ouvrir l'appareil photo
+};
         console.error("Gov API fail", e); 
         alert("Erreur lors de la récupération des prix. Repli sur les données standards.");
     } finally {
