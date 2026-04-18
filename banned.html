@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Accès Refusé - mon50ccetmoi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+        }
+        .ban-card {
+            padding: 30px;
+            background: rgba(231, 76, 60, 0.05);
+            border: 1px solid #e74c3c;
+            border-radius: 20px;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { color: #e74c3c; margin-top: 20px; }
+        p { color: #aaa; line-height: 1.6; }
+        .btn-exit {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            margin-top: 30px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="ban-card">
+        <i class="fa-solid fa-user-slash" style="font-size: 5rem; color: #e74c3c;"></i>
+        <h1>ACCÈS BLOQUÉ</h1>
+        <p>Votre compte a été définitivement banni par le <strong>Guardian Bot</strong> pour violations répétées des règles de la communauté.</p>
+        <p style="font-size: 0.8rem; color: #666;">Cette sanction s'applique à votre matériel et à votre connexion réseau.</p>
+        <button class="btn-exit" onclick="localStorage.clear(); window.location.href='login.html'">Retour au menu</button>
+    </div>
+</body>
+</html>

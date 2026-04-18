@@ -211,6 +211,11 @@ function checkAuth(requireAdmin = false) {
         window.location.href = 'index.html';
         return null;
     }
+    if (session.isPermanentlyBanned) {
+        window.location.href = 'banned.html';
+        return null;
+    }
+
     updateActivity(); // Refresh heartbeat
     return session;
 }
