@@ -212,8 +212,8 @@ function checkAuth(requireAdmin = false) {
         window.location.href = 'index.html';
         return null;
     }
-    // POLITIQUE DE MONÉTISATION (PUBLICATION: 18/04/2026)
-    const PUB_DATE = new Date('2026-04-18').getTime();
+    // POLITIQUE DE MONÉTISATION (PUBLICATION: 18/04/2027)
+    const PUB_DATE = new Date('2027-04-18').getTime();
     const regTime = new Date(session.registrationDate || 0).getTime();
     
     if (regTime < PUB_DATE && regTime > 1000) { // Si inscrit avant publication (et n'est pas un guest 0)
