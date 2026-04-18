@@ -16,8 +16,7 @@ function initDatabase() {
         syncHazards();
         // Démarrer l'écoute des autres pilotes
         syncCommunityPositions();
-        // Démarrer l'écoute des humeurs
-        syncSocialTicker();
+        // syncSocialTicker(); // Désactivé (Interaction via Roadbook uniquement)
     } catch (e) {
         console.warn("Database init fail (Probablement clés non configurées) :", e);
     }
