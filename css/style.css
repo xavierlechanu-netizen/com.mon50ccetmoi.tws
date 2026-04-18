@@ -56,7 +56,7 @@ body, html {
     visibility: visible !important;
 }
 
-/* --- LOADER & OVERLAYS --- */
+/* --- PREMIUM LOADER SYSTEM --- */
 #app-loader {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -65,11 +65,58 @@ body, html {
     z-index: 10000;
     transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
 }
-.loader-content { text-align: center; }
-.loader-content i { font-size: 3rem; color: var(--accent); margin-bottom: 20px; }
-.loader-content p { font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
-.progress-bar { width: 200px; height: 4px; background: #222; border-radius: 2px; margin: 20px auto; overflow: hidden; }
-.progress-fill { width: 0%; height: 100%; background: var(--accent); transition: width 0.3s; }
+.loader-content { 
+    text-align: center; 
+    max-width: 80%;
+}
+.loader-logo {
+    font-size: 5rem;
+    color: var(--accent);
+    margin-bottom: 25px;
+    filter: drop-shadow(0 0 25px var(--accent-glow));
+}
+.loader-title {
+    color: white;
+    font-size: 1.6rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 900;
+}
+.v-tag {
+    color: var(--accent);
+    font-size: 0.6rem;
+    vertical-align: middle;
+    letter-spacing: normal;
+}
+.loader-status {
+    color: #666;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    margin-bottom: 30px;
+    font-weight: 500;
+}
+.loader-track {
+    width: 220px;
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+#loader-bar {
+    width: 100%;
+    height: 100%;
+    background: var(--accent);
+    box-shadow: 0 0 15px var(--accent-glow);
+    animation: loader-pulse 2s infinite ease-in-out;
+    transform-origin: left;
+}
+@keyframes loader-pulse {
+    0% { transform: scaleX(0); opacity: 0.5; }
+    50% { transform: scaleX(0.7); opacity: 1; }
+    100% { transform: scaleX(1); opacity: 0; }
+}
 
 /* Google Maps specific UI overrides can go here */
 

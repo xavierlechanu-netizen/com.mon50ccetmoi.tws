@@ -1,5 +1,5 @@
 // --- BOOT ---
-console.log("mon50ccetmoi v12.1-ULTRA-PRO: Démarrage.");
+console.log("mon50ccetmoi v13.0-ULTRA-PRO: Démarrage.");
 
 // PWA Installation Logic
 let deferredPrompt;
@@ -108,7 +108,7 @@ function initMap() {
     trafficLayer = new google.maps.TrafficLayer();
     trafficLayer.setMap(map);
 
-    console.log("Moteur Premium v12.1-ULTRA-PRO : Initialisé.");
+    console.log("Moteur Premium v13.0-ULTRA-PRO : Initialisé.");
 }
 
 window.toggleTilt = function() {
@@ -604,50 +604,57 @@ window.loadRoadbook = function(i) {
     calculateRouteSansAutoroute(currentPosition, rb.waypoints[rb.waypoints.length-1]);
 }
 
-// --- INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', () => {
-    initMap();
+// --- SYSTEM STARTUP ---
+window.startApp = function() {
+    console.log("mon50cc Master Controller : Démarrage de la séquence d'initialisation...");
+    const statusEl = document.getElementById('loader-status');
+    if(statusEl) statusEl.textContent = "Liaison satellite établie...";
+
+    try {
+        initMap();
+        if(statusEl) statusEl.textContent = "Calibration du HUD GPS...";
+    } catch(e) {
+        console.error("Critical Error during initMap:", e);
+    }
+    
     loadHazards();
     renderRoadbooks();
     updatePosition({ coords: { latitude: 48.8566, longitude: 2.3522, speed: 0, accuracy: 10 } });
     
-    // --- GESTION DES PARAMÈTRES (Shortcuts, Share, Protocols) ---
+    // Check Parameters
     const urlParams = new URLSearchParams(window.location.search);
-    
-    // Raccourcis (Shortcuts)
     if (urlParams.has('shortcut')) {
         const sc = urlParams.get('shortcut');
         setTimeout(() => {
             if (sc === 'garage') showPage('garage');
             if (sc === 'danger') toggleHazardMenu();
-        }, 2000);
+        }, 1000);
     }
 
-    // Partage (Share Target)
-    if (urlParams.has('share')) {
-        const text = urlParams.get('text') || '';
-        const title = urlParams.get('title') || '';
-        const url = urlParams.get('url') || '';
-        setTimeout(() => {
-            alert(`Partage reçu : ${title} \n ${text} \n ${url}`);
-            // Ici on pourrait traiter un fichier GPX partagé par exemple
-        }, 2500);
-    }
-
-    // Protocole (Protocol Handler)
-    if (urlParams.has('uri')) {
-        const uri = decodeURIComponent(urlParams.get('uri'));
-        setTimeout(() => {
-            speak(`Ouverture du tracé mon50cc : ${uri}`);
-        }, 3000);
-    }
-
-    // Simulate loader
+    // Hide Loader gracefully
     setTimeout(() => {
         const loader = document.getElementById('app-loader');
-        if(loader) { loader.style.opacity = '0'; setTimeout(() => loader.style.visibility = 'hidden', 800); }
+        if(loader) { 
+            loader.style.opacity = '0'; 
+            setTimeout(() => loader.style.visibility = 'hidden', 800); 
+        }
         simulateCommunityLive(); 
-    }, 1500);
+        console.log("mon50cc : Système prêt.");
+    }, 1000);
+};
+
+// Fail-safe Loader removal (after 5s)
+setTimeout(() => {
+    const loader = document.getElementById('app-loader');
+    if(loader && loader.style.visibility !== 'hidden') {
+        console.warn("Fail-safe: Force hiding loader after timeout.");
+        loader.style.opacity = '0';
+        setTimeout(() => loader.style.visibility = 'hidden', 800);
+    }
+}, 5000);
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM Prêt. En attente du SDK Maps...");
 });
 
 window.toggleMenu = function() {
@@ -718,7 +725,7 @@ window.showPage = function(page) {
                 <p><strong>Données GPS :</strong> Vos coordonnées sont traitées localement pour la navigation et la détection de chute.</p>
                 <p><strong>Partage :</strong> Les signalements de dangers sont partagés de manière anonyme avec la communauté.</p>
                 <p><strong>Stockage :</strong> Vos préférences sont enregistrées dans votre navigateur (LocalStorage).</p>
-                <p><strong>Version :</strong> v12.1-ULTRA-PRO Build 2026</p>
+                <p><strong>Version :</strong> v13.0-ULTRA-PRO Build 2026</p>
                 <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
     }

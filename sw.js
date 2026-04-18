@@ -1,20 +1,20 @@
-const CACHE_NAME = 'mon50ccetmoi-v12.1-ULTRA-PRO';
+const CACHE_NAME = 'mon50ccetmoi-v13.0-ULTRA-PRO';
 const ASSETS = [
   './',
   './index.html',
   './login.html',
-  './style.css',
-  './config.js',
-  './app_v7.js',
-  './auth.js',
-  './crypto-js.min.js',
+  './css/style.css',
+  './js/config.js',
+  './js/app.js',
+  './js/auth.js',
+  './js/crypto-js.min.js',
   './manifest.json',
-  './icon-192x192.png',
-  './icon-512x512.png',
-  './play_store_feature_graphic_1776365906325.jpg',
-  './screenshot_gps.jpg',
-  './screenshot_garage.jpg',
-  './screenshot_wide.jpg',
+  './assets/icons/icon-192x192.png',
+  './assets/icons/icon-512x512.png',
+  './assets/ui/play_store_feature_graphic_1776365906325.jpg',
+  './assets/ui/screenshot_gps.jpg',
+  './assets/ui/screenshot_garage.jpg',
+  './assets/ui/screenshot_wide.jpg',
   'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'
 ];
 

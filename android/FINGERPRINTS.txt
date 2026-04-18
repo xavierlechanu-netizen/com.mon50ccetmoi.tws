@@ -4,6 +4,7 @@
 - Fichier : android/upload-keystore.jks
 - Mot de passe : Mon50cc-2026!
 - Alias : upload
+- SHA-256 : EB:29:BE:37:63:F2:A9:55:42:7D:1D:8A:4C:EB:BE:B1:FF:29:F7:08:50:F5:4D:03:B3:9E:9E:92:41:DD:55:14
 - Statut : PRÊTE
 
 ## 📄 2. FICHIER POUR GOOGLE (Action requise)

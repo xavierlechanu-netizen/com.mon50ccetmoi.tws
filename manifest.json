@@ -35,14 +35,14 @@
       "short_name": "Garage",
       "description": "Suivi de maintenance et garage virtuel",
       "url": "./index.html?shortcut=garage",
-      "icons": [{ "src": "icon-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "assets/icons/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Signaler un Danger",
       "short_name": "Danger",
       "description": "Signaler un obstacle ou un contrôle sur la route",
       "url": "./index.html?shortcut=danger",
-      "icons": [{ "src": "icon-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "assets/icons/icon-192x192.png", "sizes": "192x192" }]
     }
   ],
   "share_target": {
@@ -86,7 +86,7 @@
       "type": "application/json",
       "screenshots": [
         {
-          "src": "screenshot_gps.jpg",
+          "src": "assets/ui/screenshot_gps.jpg",
           "sizes": "1024x1024",
           "type": "image/jpeg"
         }
@@ -96,17 +96,17 @@
   "handle_links": "preferred",
   "icons": [
     {
-      "src": "icon-192x192.png",
+      "src": "assets/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512x512.png",
+      "src": "assets/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "icon-512x512.png",
+      "src": "assets/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -114,28 +114,28 @@
   ],
   "screenshots": [
     {
-      "src": "screenshot_gps.jpg",
+      "src": "assets/ui/screenshot_gps.jpg",
       "sizes": "1024x1024",
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Interface GPS mon50ccetmoi"
     },
     {
-      "src": "screenshot_garage.jpg",
+      "src": "assets/ui/screenshot_garage.jpg",
       "sizes": "1024x1024",
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Gestion du Garage et Maintenance"
     },
     {
-      "src": "screenshot_wide.jpg",
+      "src": "assets/ui/screenshot_wide.jpg",
       "sizes": "1024x1024",
       "type": "image/jpeg",
       "form_factor": "wide",
       "label": "Tableau de bord Communautaire"
     },
     {
-      "src": "play_store_feature_graphic_1776365906325.jpg",
+      "src": "assets/ui/play_store_feature_graphic_1776365906325.jpg",
       "sizes": "1024x500",
       "type": "image/jpeg",
       "form_factor": "wide",

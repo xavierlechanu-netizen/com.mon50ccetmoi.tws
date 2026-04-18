@@ -11,54 +11,62 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#cca000">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     
     <!-- SEO & Social Sharing (Open Graph) -->
     <meta name="description" content="La première communauté de scooters 50cc. Navigation sans autoroute, alertes radars et détection de chute.">
     <meta property="og:title" content="mon50ccetmoi | GPS & Sécurité Scooter">
     <meta property="og:description" content="L'application indispensable pour rouler en 50cc en toute sécurité.">
-    <meta property="og:image" content="https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/screenshot_wide.jpg">
+    <meta property="og:image" content="https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/assets/ui/screenshot_wide.jpg">
     <meta property="og:url" content="https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="manifest" href="manifest.json" />
     <title>mon50ccetmoi | Navigation & Sécurité 50cc</title>
-    <script src="config.js?v=12.1"></script>
-    <!-- Chargeur dynamique Google Maps -->
+    <script src="js/config.js?v=13.0"></script>
+    <!-- Chargeur Dynamique Google Maps avec Callback -->
     <script>
-        // Détection de la plateforme
+        window.initMap = function() {
+            console.log("mon50cc Maps : SDK Chargé. Initialisation du moteur...");
+            if (typeof window.startApp === "function") {
+                window.startApp();
+            }
+        };
+
         const isAndroid = /Android/i.test(navigator.userAgent);
         const selectedKey = isAndroid ? CONFIG.MAPS.ANDROID : CONFIG.MAPS.PC;
         
         const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${selectedKey}&libraries=geometry,places,marker&v=beta`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${selectedKey}&libraries=geometry,places,marker&v=beta&callback=initMap`;
         script.async = true;
         script.defer = true;
         document.head.appendChild(script);
         
-        console.log("mon50cc Maps Loader : Mode " + (isAndroid ? "Android" : "PC") + " activé. v" + CONFIG.VERSION);
+        console.log("mon50cc Loader Setup : Mode " + (isAndroid ? "Android" : "PC") + " activé. v" + CONFIG.VERSION);
     </script>
 
     <!-- UI/UX Dependencies -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcXtkzj2xw=" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css?v=12.1">
-    <link rel="icon" type="image/png" href="icon-192x192.png">
-    <script src="crypto-js.min.js"></script>
-    <script src="auth.js?v=12.0"></script>
+    <link rel="stylesheet" href="css/style.css?v=13.0">
+    <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
+    <script src="js/crypto-js.min.js"></script>
+    <script src="js/auth.js?v=13.0"></script>
     <script>const session = checkAuth(false);</script>
 </head>
 <body style="margin:0; padding:0; background:#000; overflow:hidden;">
     <div id="map"></div>
     
-    <!-- Premium Loader -->
+    <!-- Premium Loader (HUD Startup) -->
     <div id="app-loader">
-        <div style="font-size:4rem; color:#ffb703; margin-bottom:20px; filter: drop-shadow(0 0 15px rgba(255,183,3,0.5));">
-            <i class="fa-solid fa-motorcycle fa-bounce"></i>
+        <div class="loader-content">
+            <div class="loader-logo">
+                <i class="fa-solid fa-motorcycle fa-bounce"></i>
+            </div>
+            <h1 class="loader-title">mon50ccetmoi <small class="v-tag">(v13.0-ULTRA-PRO)</small></h1>
+            <p class="loader-status" id="loader-status">Démarrage des systèmes de bord...</p>
+            <div class="loader-track"><div id="loader-bar"></div></div>
         </div>
-        <h1 style="color:white; font-size:1.5rem; letter-spacing:4px; text-transform:uppercase; margin-bottom:10px;">mon50ccetmoi <small style="color:#ffb703; font-size: 0.5rem;">(v12.1-ULTRA-PRO)</small></h1>
-        <p style="color:#555; font-size:0.9rem;">Migration Google Maps - Mode Expert</p>
-        <div class="loader-track"><div id="loader-bar"></div></div>
     </div>
 
     <!-- HUD Overlay -->
@@ -223,11 +231,11 @@
         <div id="ticker-text">Bonne route sur mon50ccetmoi v11.0-ULTRA-PRO ! Prudence.</div>
     </div>
 
-    <script src="app_v7.js?v=12.1"></script>
+    <script src="js/app.js?v=13.0"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=12.1').catch(e => console.error(e));
+                navigator.serviceWorker.register('./sw.js?v=13.0').catch(e => console.error(e));
             });
         }
     </script>
