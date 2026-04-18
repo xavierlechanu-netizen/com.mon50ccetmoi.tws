@@ -250,3 +250,56 @@ window.getBlacklist = async function() {
         return snap.docs.map(doc => doc.id);
     } catch(e) { return []; }
 };
+
+// --- SYSTÈME ÉVALUATION GARAGES (COMMUNAUTÉ) ---
+
+window.evaluateGarage = async function(placeId, name, score) {
+    if (!db || !window.session || window.session.isGuest) {
+        alert("Vous devez être membre pour évaluer un garage.");
+        return;
+    }
+
+    try {
+        const docRef = db.collection("garage_evaluations").doc(placeId);
+        const doc = await docRef.get();
+        
+        let totalScore = 0;
+        let count = 0;
+        let voters = [];
+
+        if (doc.exists) {
+            totalScore = doc.data().totalScore || 0;
+            count = doc.data().count || 0;
+            voters = doc.data().voters || [];
+        }
+
+        if (voters.includes(window.session.username)) {
+            alert("Vous avez déjà noté ce garage.");
+            return;
+        }
+
+        voters.push(window.session.username);
+        const newCount = count + 1;
+        const newTotalScore = totalScore + score;
+
+        await docRef.set({
+            placeId,
+            name,
+            count: newCount,
+            totalScore: newTotalScore,
+            avgRating: (newTotalScore / newCount).toFixed(1),
+            voters: voters,
+            lastVote: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        alert(`Merci ! Votre évaluation a été prise en compte (${newCount}/1000 pour le Badge Pro).`);
+    } catch(e) { console.error("Eval fail", e); }
+};
+
+window.getGarageInternalInfo = async function(placeId) {
+    if (!db) return null;
+    try {
+        const doc = await db.collection("garage_evaluations").doc(placeId).get();
+        return doc.exists ? doc.data() : null;
+    } catch(e) { return null; }
+};

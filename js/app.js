@@ -646,17 +646,37 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
             // FILTRAGE : Uniquement ceux avec note >= 3.3
             const filtered = results.filter(r => (r.rating || 0) >= 3.3);
             
-            filtered.forEach(place => {
+            filtered.forEach(async (place) => {
+                // DONNEES COMMUNAUTAIRES
+                const internalInfo = typeof getGarageInternalInfo === "function" ? await getGarageInternalInfo(place.place_id) : null;
+                const isPro = (internalInfo?.count || 0) >= 1000;
+                const proBadge = isPro ? `<div style="background:#ffd700; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-trophy"></i> BADGE PRO CERTIFIÉ</div>` : "";
+                const communityRating = internalInfo ? `<div style="font-size:0.7rem; color:#00d2ff; margin-top:3px;">Label Scooter : ⭐ ${internalInfo.avgRating}/5 (${internalInfo.count} avis)</div>` : "";
+
                 const marker = new google.maps.Marker({
                     position: place.geometry.location,
                     map: map,
-                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: config.color, fillOpacity: 1, strokeColor: 'white' }
+                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: isPro ? "#ffd700" : config.color, fillOpacity: 1, strokeColor: 'white' }
                 });
 
+                // Étoiles de notation
+                const isGuest = !window.session || window.session.isGuest;
+                const starBtns = isGuest ? "" : `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:5px;">
+                    <small>Évaluer ce garage :</small><br>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', 1)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', 2)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', 3)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', 4)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', 5)">⭐</span>
+                </div>`;
+
                 const info = new google.maps.InfoWindow({
-                    content: `<div style="color:black;">
-                        <b>${place.name}</b><br>
-                        ⭐ ${place.rating || "N/A"}/5 (${place.user_ratings_total || 0} avis)
+                    content: `<div style="color:black; min-width:180px;">
+                        <b style="font-size:1rem;">${place.name}</b><br>
+                        ⭐ Google: ${place.rating || "N/A"}/5 (${place.user_ratings_total || 0})
+                        ${communityRating}
+                        ${proBadge}
+                        ${starBtns}
                     </div>`
                 });
 
