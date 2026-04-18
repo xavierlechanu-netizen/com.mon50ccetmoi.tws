@@ -568,6 +568,9 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
                 try {
                     const priceList = JSON.parse(fields.prix || "[]");
                     priceList.forEach(p => {
+                        // Ignorer le gazole (pas pour les 50cc)
+                        if (p["@nom"] === "Gazole") return;
+                        
                         pricesHtml += `<div style="display:flex; justify-content:space-between; gap:10px;">
                             <strong>${p["@nom"]}</strong> <span>${parseFloat(p["@valeur"]).toFixed(3)}€</span>
                         </div>`;
