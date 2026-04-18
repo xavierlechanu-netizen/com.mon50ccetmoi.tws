@@ -834,12 +834,21 @@ let lastPositionForOdometer = null;
 function calculateDistanceAndBadges(lat, lng) {
     if(!window.session) return;
     window.session.totalDistance = window.session.totalDistance || 0;
+    window.session.rodageKm = window.session.rodageKm || 0;
+
     if(lastPositionForOdometer) {
         const p1 = new google.maps.LatLng(lastPositionForOdometer.lat, lastPositionForOdometer.lng);
         const p2 = new google.maps.LatLng(lat, lng);
         const d = google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000;
+        
         if(d > 0.005 && d < 0.2) {
             window.session.totalDistance += d;
+            
+            // CUMUL MODE RODAGE
+            if (window.isRodageActive) {
+                window.session.rodageKm += d;
+            }
+
             saveSessionAndCheckBadges();
         }
     }
@@ -881,8 +890,16 @@ function checkUserBadges() {
 
     // Badge Ecolo (100kg CO2)
     if(co2Saved >= 100) {
-        badgesHtml += `<div class="badge-eco" title="Badge Écolo: 100kg CO2 sauvés" style="background:#2ecc71; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block;">
+        badgesHtml += `<div class="badge-eco" title="Badge Écolo: 100kg CO2 sauvés" style="background:#2ecc71; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-right:5px;">
             <i class="fa-solid fa-leaf"></i> Écolo
+        </div>`;
+    }
+
+    // Badge Pro du Rodage (500km rodage)
+    const rodageTotal = window.session.rodageKm || 0;
+    if(rodageTotal >= 500) {
+        badgesHtml += `<div class="badge-rodage" title="Pro du Rodage: 500km zen" style="background:#f39c12; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block;">
+            <i class="fa-solid fa-wrench"></i> Pro Rodage
         </div>`;
     }
 
@@ -1098,7 +1115,9 @@ function triggerFallAlert() {
 }
 
 window.startRodage = function(name) {
-    alert(`Mode Rodage Activé: ${name}. Vitesse max conseillée: 45km/h.`);
+    window.isRodageActive = true;
+    alert(`Mode Rodage Activé: ${name}. Vitesse max conseillée: 45km/h. Distance cumulée comptabilisée.`);
+    speak("Mode rodage activé. Ménagez votre moteur.");
     closeScreen();
     // Simulation d'un point de destination rodage
     if(currentPosition) {
