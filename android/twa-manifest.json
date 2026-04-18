@@ -16,11 +16,11 @@
   "iconUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/icon-512x512.png",
   "maskableIconUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/icon-512x512.png",
   "signingKey": {
-    "path": "./signing_release_official.keystore",
-    "alias": "my-key-alias"
+    "path": "./upload-keystore.jks",
+    "alias": "upload"
   },
-  "appVersionName": "12.0",
-  "appVersionCode": 13,
+  "appVersionName": "13.0",
+  "appVersionCode": 17,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/manifest.json",
@@ -40,5 +40,5 @@
   ],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "12.0"
+  "appVersion": "13.0"
 }

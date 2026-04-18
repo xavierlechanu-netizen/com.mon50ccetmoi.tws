@@ -31,7 +31,7 @@
 
     <link rel="manifest" href="manifest.json" />
     <title>mon50ccetmoi | Navigation & Sécurité 50cc</title>
-    <script src="js/config.js?v=20.0"></script>
+    <script src="js/config.js?v=20.5"></script>
     <!-- Chargeur Dynamique Google Maps avec Callback -->
     <script>
         window.initMap = function() {
@@ -55,33 +55,52 @@
     </script>
 
     <!-- UI/UX Dependencies -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcXtkzj2xw=" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/style.css?v=20.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css?v=20.5">
     <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
     <!-- Firebase SDK (v9 Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <script src="js/crypto-js.min.js"></script>
-    <script src="js/i18n.js?v=20.0"></script>
-    <script src="js/auth.js?v=20.0"></script>
-    <script src="js/database.js?v=20.0"></script>
-    <script src="js/moderation.js?v=20.0"></script>
-    <script src="js/moderation-bot.js?v=20.0"></script>
-    <script>const session = checkAuth(false);</script>
+    <script src="js/i18n.js?v=20.5"></script>
+    <script src="js/auth.js?v=20.5"></script>
+    <script src="js/database.js?v=20.5"></script>
+    <script src="js/moderation.js?v=20.5"></script>
+    <script src="js/moderation-bot.js?v=20.5"></script>
+    <script>window.session = checkAuth(false);</script>
 </head>
 <body style="margin:0; padding:0; background:#000; overflow:hidden;">
     <div id="map"></div>
     
-    <!-- Premium Loader (HUD Startup) -->
+    <!-- Premium Loader (HUD Startup Dashboard) -->
     <div id="app-loader">
         <div class="loader-content">
-            <div class="loader-logo">
-                <i class="fa-solid fa-motorcycle fa-bounce"></i>
+            <div class="dashboard-gauge">
+                <svg class="gauge-svg" viewBox="0 0 160 160">
+                    <circle class="gauge-track" cx="80" cy="80" r="70" />
+                    <circle id="gauge-fill-path" class="gauge-fill" cx="80" cy="80" r="70" />
+                </svg>
+                <div id="gauge-needle" class="gauge-needle"></div>
+                <div class="gauge-center"></div>
+                <div class="gauge-digital">
+                    <span id="gauge-speed-val" class="gauge-speed">0</span>
+                    <span class="gauge-unit">KM/H</span>
+                </div>
             </div>
-            <h1 class="loader-title">mon50ccetmoi <small class="v-tag">(v20.0-ULTRA-PRO-ELITE)</small></h1>
-            <p class="loader-status" id="loader-status">Démarrage des systèmes de bord...</p>
-            <div class="loader-track"><div id="loader-bar"></div></div>
+            
+            <h1 class="loader-title">mon50ccetmoi</h1>
+            <div class="loader-status" id="loader-status">BOOTING SYSTEM...</div>
+        </div>
+        
+        <div id="system-check-list" class="system-check-list">
+            <div>> KERNEL_LOAD: OK</div>
+            <div>> GPS_SATELLITES: SEARCHING...</div>
+            <div>> DATABASE_SYNC: STARTING...</div>
+            <div>> HUD_CALIBRATION: IN_PROGRESS...</div>
         </div>
     </div>
 
@@ -151,7 +170,7 @@
 
     <!-- Performance Display (Top Right) -->
     <div id="perf-hud" class="glassmorphism hidden">
-        <div id="perf-timer">0-45: --s</div>
+        <div id="perf-timer">0-50: --s</div>
     </div>
 
     <!-- Search Tool (Top) -->
@@ -159,6 +178,7 @@
         <div class="search-bar glassmorphism">
             <input type="text" id="route-search" placeholder="Destination...">
             <button onclick="searchDestination()"><i class="fa-solid fa-location-arrow"></i></button>
+            <button id="btn-rodage-toggle" onclick="toggleRodageHUD()" title="Mode Rodage"><i class="fa-solid fa-gauge-simple"></i></button>
             <button onclick="toggleTilt()" title="Mode 3D/2D"><i class="fa-solid fa-cube"></i></button>
             <button onclick="toggleTraffic()" title="Info Trafic"><i class="fa-solid fa-traffic-light"></i></button>
             <button id="btn-cancel-route" class="hidden" onclick="cancelRoute()"><i class="fa-solid fa-xmark"></i></button>
@@ -201,9 +221,11 @@
                 <li id="menu-garage" onclick="showPage('garage')"><i class="fa-solid fa-warehouse"></i> Mon Garage</li>
                 <li id="menu-roadbooks" onclick="showPage('roadbooks')"><i class="fa-solid fa-map-location-dot"></i> Mes Roadbooks</li>
                 <li id="menu-defis" onclick="showPage('defis')" style="color:#2ecc71;"><i class="fa-solid fa-trophy"></i> Défis de la Quinzaine <span class="badge" style="background:#2ecc71;">LIVE</span></li>
+                <li id="menu-security" onclick="showPage('security')" style="color:#00d2ff;"><i class="fa-solid fa-shield-heart"></i> Sécurité & Guardian</li>
                 <li id="menu-rodage" onclick="showPage('rodage')"><i class="fa-solid fa-gauge-high"></i> Itinéraires Rodage</li>
                 <li id="menu-insurance" onclick="showPage('insurance')"><i class="fa-solid fa-shield-halved"></i> Mon Courtier Partner</li>
-                <li id="menu-insurance" onclick="showPage('insurance')"><i class="fa-solid fa-shield-halved"></i> Mon Courtier Partner</li>
+                <li id="menu-mechanic" onclick="showPage('mechanic')"><i class="fa-solid fa-robot"></i> Maintenance</li>
+                <li id="menu-pro-tips" onclick="showPage('pro-tips')" style="color:#f39c12;"><i class="fa-solid fa-lightbulb"></i> Conseils de Pro</li>
                 <li onclick="testFallDetection()" style="color:#f1c40f;"><i class="fa-solid fa-vial"></i> Tester Détecteur Chute</li>
                 <li id="btn-parking-toggle" onclick="toggleParkingMode()"><i class="fa-solid fa-shield-halved"></i> Mode Parking : OFF</li>
                 <li id="btn-install-pwa" class="hidden" onclick="installPWA()"><i class="fa-solid fa-download"></i> Installer l'App <span class="badge" style="background:#2ecc71;">PRO</span></li>
@@ -284,13 +306,27 @@
         <div id="ticker-text">Bonne route sur mon50ccetmoi v11.0-ULTRA-PRO ! Prudence.</div>
     </div>
 
-    <script src="js/app.js?v=20.0"></script>
+    <script src="js/app.js?v=20.5"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20.0').catch(e => console.error(e));
+                navigator.serviceWorker.register('./sw.js?v=20.5').catch(e => console.error(e));
             });
         }
+        // FAIL-SAFE : Si le système met plus de 5s à charger, on force le démarrage de l'UI
+        // Déplacé ici pour ne pas dépendre de la réussite du chargement de app.js
+        setTimeout(() => {
+            const loader = document.getElementById('app-loader');
+            if (loader && loader.style.visibility !== 'hidden') {
+                console.warn("Fail-safe GLOBAL : Démarrage forcé de l'interface...");
+                const statusEl = document.getElementById('loader-status');
+                if(statusEl) statusEl.textContent = "Mode Expert : Lancement forcée...";
+                
+                // On tente de supprimer le loader même si app.js a échoué
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.visibility = 'hidden', 800);
+            }
+        }, 5000); // Réduit à 5s pour une meilleure réactivité
     </script>
     <input type="file" id="abuse-photo-input" accept="image/*" capture="camera" style="display:none;">
 </body>

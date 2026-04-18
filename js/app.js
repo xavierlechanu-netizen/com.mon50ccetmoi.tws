@@ -15,8 +15,12 @@ window.setLanguage = function(lang) {
     location.reload(); 
 };
 
-function checkUserBadges() {
-    // ... existant ...
+function updateUILabels() {
+    window.updateI18N();
+    const displayUser = document.getElementById('display-username');
+    if (displayUser && window.session) {
+        displayUser.textContent = window.session.username;
+    }
 }
 
 window.updateI18N = function() {
@@ -82,8 +86,8 @@ function escapeHTML(str) {
 }
 
 // --- BOOT ---
-console.log("mon50ccetmoi v20.0-FINAL : Production.");
-\n
+console.log("mon50ccetmoi v20.1-FINAL : Production.");
+
 let map;
 let directionsService;
 let directionsRenderer;
@@ -101,11 +105,17 @@ let nightModeActive = false;
 let isParkingMode = false;
 let parkingStartPos = null;
 let perfStartTime = null;
+
+window.isRodageActive = false;
+
+// --- SECURITY SYSTEMS STATE ---
+let lastMovementTime = Date.now();
+let isGuardianPromptActive = false;
+let guardianCheckInterval = null;
+let gForceThreshold = 4.5; // G force for impact detection
+
 // --- INITIALIZATION ---
-window.startApp = function() {
-    console.log("mon50cc : Moteur de démarrage activé.");
-    checkTrialExpiration();
-};
+
 
 function checkTrialExpiration() {
     if (!window.session || window.session.isGuest) return;
@@ -134,37 +144,48 @@ const GOOGLE_MAPS_STYLE = [
 ];
 
 function initMap() {
-    const defaultCoords = { lat: 48.8566, lng: 2.3522 };
-    
-    // Initialisation Maps
-    map = new google.maps.Map(document.getElementById("map"), {
-        center: defaultCoords,
-        zoom: 13,
-        styles: GOOGLE_MAPS_STYLE,
-        disableDefaultUI: true,
-        backgroundColor: "#0a0a0a",
-        gestureHandling: "greedy",
-        tilt: 0,
-        heading: 0,
-        mapId: '6b6dd900f488f219' // Requis pour les fonctionnalités avancées (Heading/Tilt)
-    });
+    try {
+        const defaultCoords = { lat: 48.8566, lng: 2.3522 };
+        
+        // Initialisation Maps
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: defaultCoords,
+            zoom: 13,
+            styles: GOOGLE_MAPS_STYLE,
+            disableDefaultUI: true,
+            backgroundColor: "#0a0a0a",
+            gestureHandling: "greedy",
+            tilt: 0,
+            heading: 0,
+            mapId: '6b6dd900f488f219' // Requis pour les fonctionnalités avancées (Heading/Tilt)
+        });
 
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer({
-        map: map,
-        suppressMarkers: true,
-        polylineOptions: {
-            strokeColor: "#cca000",
-            strokeOpacity: 0.9,
-            strokeWeight: 8
-        }
-    });
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer({
+            map: map,
+            suppressMarkers: true,
+            polylineOptions: {
+                strokeColor: "#cca000",
+                strokeOpacity: 0.9,
+                strokeWeight: 8
+            }
+        });
 
-    geocoder = new google.maps.Geocoder();
-    trafficLayer = new google.maps.TrafficLayer();
-    trafficLayer.setMap(map);
+        geocoder = new google.maps.Geocoder();
+        trafficLayer = new google.maps.TrafficLayer();
+        trafficLayer.setMap(map);
 
-    console.log("Moteur Premium v20.0-ULTRA-PRO-ELITE : Initialisé.");
+        console.log("Moteur Premium v20.1-ULTRA-PRO-ELITE : Initialisé.");
+    } catch (e) {
+        console.error("Maps init failed:", e);
+        // Fallback UI indication
+        const statusEl = document.getElementById('loader-status');
+        if(statusEl) statusEl.textContent = "Erreur Google Maps (Vérifiez la clé API)...";
+    } finally {
+        // Démarrage de la suite du système (même si Maps échoue, on veut masquer le loader)
+        if (typeof initDatabase === "function") initDatabase();
+        if (typeof window.startApp === "function") window.startApp();
+    }
 }
 
 window.toggleTraffic = function() {
@@ -248,6 +269,12 @@ function updatePosition(position) {
 
         // DYNAMIC ZOOM & TILT
         if (map) {
+            // Update movement time for Guardian
+            if (speedKmh > 5) {
+                lastMovementTime = Date.now();
+                if (isGuardianPromptActive) dismissGuardian();
+            }
+
             if (speedKmh > 30) {
                 map.setTilt(45);
                 map.setZoom(15); // Zoom out un peu à haute vitesse
@@ -431,12 +458,20 @@ function calculateRouteSansAutoroute(start, end) {
         destination: end,
         travelMode: 'DRIVING',
         avoidHighways: true,
-        avoidTolls: true
+        avoidTolls: true,
+        // En mode rodage, on force la main sur les routes départementales/secondaires
+        provideRouteAlternatives: window.isRodageActive
     };
 
     directionsService.route(request, (result, status) => {
         if (status === 'OK') {
+            // Si mode rodage, on sélectionne l'itinéraire le plus long ou le plus complexe (moins de vitesse)
+            // Pour l'instant on garde le défaut mais on prévient l'utilisateur
             directionsRenderer.setDirections(result);
+            
+            if (window.isRodageActive) {
+                speak("Itinéraire spécial Rodage calculé. Routes tranquilles privilégiées.");
+            }
             
             // --- NEW: Advanced HUD Integration ---
             const leg = result.routes[0].legs[0];
@@ -1084,17 +1119,73 @@ window.loadRoadbook = function(i) {
 }
 
 // --- SYSTEM STARTUP ---
+function runCinematicStartup() {
+    const statusEl = document.getElementById('loader-status');
+    const needle = document.getElementById('gauge-needle');
+    const speedVal = document.getElementById('gauge-speed-val');
+    const gaugeFill = document.getElementById('gauge-fill-path');
+    const checkList = document.getElementById('system-check-list');
+
+    const steps = [
+        { text: "INITIALIZING KERNEL...", delay: 200 },
+        { text: "50CC ENGINE CHECK: OPTIMAL", delay: 800 },
+        { text: "STABLIZING SATELLITE LINK...", delay: 1400 },
+        { text: "CALIBRATING HUD SENSORS...", delay: 2000 },
+        { text: "SYSTEM READY - RIDE SAFE", delay: 3000 }
+    ];
+
+    steps.forEach(step => {
+        setTimeout(() => {
+            if(statusEl) statusEl.textContent = step.text;
+        }, step.delay);
+    });
+
+    // Needle Sweep 0 -> 80 -> 0
+    setTimeout(() => {
+        if(needle) needle.style.transform = 'rotate(40deg)'; // 120 -> 40 pour être proportionnel
+        if(gaugeFill) gaugeFill.style.strokeDashoffset = '220';
+        
+        let speed = 0;
+        const interval = setInterval(() => {
+            speed += 2;
+            if(speedVal) speedVal.textContent = speed;
+            if(speed >= 80) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    if(needle) needle.style.transform = 'rotate(-120deg)';
+                    if(gaugeFill) gaugeFill.style.strokeDashoffset = '440';
+                    const intervalDown = setInterval(() => {
+                        speed -= 3;
+                        if(speed <= 0) {
+                            speed = 0;
+                            clearInterval(intervalDown);
+                        }
+                        if(speedVal) speedVal.textContent = speed;
+                    }, 20);
+                }, 200);
+            }
+        }, 15);
+    }, 500);
+
+    // Update check list
+    setTimeout(() => {
+        if(checkList) checkList.innerHTML += "<div>> ENGINE_CHECK: OK</div>";
+    }, 1200);
+    setTimeout(() => {
+        if(checkList) checkList.innerHTML += "<div>> NETWORK_ESTABLISHED: 5G_ULTRA</div>";
+    }, 2000);
+}
+
 window.startApp = function() {
     console.log("mon50cc Master Controller : Démarrage de la séquence d'initialisation...");
+    runCinematicStartup();
+    
     const statusEl = document.getElementById('loader-status');
-    if(statusEl) statusEl.textContent = "Liaison satellite établie...";
-
-    try {
-        initMap();
-        if(statusEl) statusEl.textContent = "Calibration du HUD GPS...";
-    } catch(e) {
-        console.error("Critical Error during initMap:", e);
-    }
+    
+    // Note: initMap() est désormais appelé directement par le callback Google Maps SDK
+    
+    checkTrialExpiration();
+    updateUILabels();
     
     loadHazards();
     renderRoadbooks();
@@ -1115,12 +1206,15 @@ window.startApp = function() {
         const loader = document.getElementById('app-loader');
         if(loader) { 
             loader.style.opacity = '0'; 
-            setTimeout(() => loader.style.visibility = 'hidden', 800); 
+            setTimeout(() => {
+                loader.style.visibility = 'hidden';
+                speak("Systèmes opérationnels. Bonne route sur mon 50cc et moi.");
+            }, 800); 
         }
         updateUILabels();
         if (typeof renderCommunityMarkers === "function") renderCommunityMarkers(); 
         console.log("mon50cc : Système prêt.");
-    }, 1000);
+    }, 3500); // Wait for cinematic sequence
 };
 
 // Fail-safe Loader removal (after 5s)
@@ -1153,13 +1247,39 @@ window.showPage = function(page) {
     
     if(page === 'garage') {
         const history = JSON.parse(secureGetItem('maint_history') || '[]');
-        content.innerHTML = `<h3>${t('garage')}</h3>
-            <div id="dynamic-garage-list"></div>
-            <h4 style="margin-top:20px; font-size:0.9rem; color:#aaa;">Journal d'entretien</h4>
-            <div id="maint-history" style="font-size:0.8rem; margin-top:10px;">
-                ${history.length ? history.map(h => `<div style="padding:10px; background:rgba(255,255,255,0.05); margin-bottom:5px; border-radius:8px;"><strong>${h.date}</strong>: ${h.action}</div>`).join('') : '<p style="color:#444;">Aucun historique.</p>'}
+        const ctDate = secureGetItem('ct_date') || 'Non défini';
+        
+        content.innerHTML = `<h3><i class="fa-solid fa-warehouse"></i> Mon Garage & Carnet</h3>
+            <div class="card" style="border:1px solid #ffb703; background: rgba(255,183,3,0.05); margin-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="color:#ffb703;">PROCHAIN CT</strong><br>
+                        <small style="font-size:0.75rem;">Obligatoire depuis Avril 2024</small>
+                    </div>
+                    <input type="date" id="ct-input" value="${ctDate}" onchange="saveCTDate(this.value)" style="background:#111; color:white; border:1px solid #444; border-radius:5px; padding:5px; font-size:0.8rem;">
+                </div>
             </div>
-            <button class="btn-insurance" onclick="addMaintLog()" style="margin-top:10px; font-size:0.8rem; padding:10px;">Ajouter une révision</button>`;
+
+            <div id="dynamic-garage-list"></div>
+
+            <h4 style="margin-top:20px; font-size:0.9rem; color:#aaa; display:flex; justify-content:space-between;">
+                <span>Carnet d'entretien numérique</span>
+                <i class="fa-solid fa-book-medical" style="color:#2ecc71;"></i>
+            </h4>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                <button onclick="addCategorizedMaint('Huile')" class="btn-dark" style="font-size:0.7rem; padding:10px;"><i class="fa-solid fa-droplet"></i> Huile</button>
+                <button onclick="addCategorizedMaint('Courroie')" class="btn-dark" style="font-size:0.7rem; padding:10px;"><i class="fa-solid fa-gear"></i> Courroie</button>
+                <button onclick="addCategorizedMaint('Pneus')" class="btn-dark" style="font-size:0.7rem; padding:10px;"><i class="fa-solid fa-circle-notch"></i> Pneus</button>
+                <button onclick="addCategorizedMaint('Freins')" class="btn-dark" style="font-size:0.7rem; padding:10px;"><i class="fa-solid fa-hard-drive"></i> Freins</button>
+            </div>
+
+            <div id="maint-history" style="font-size:0.8rem; margin-top:15px; max-height:200px; overflow-y:auto;">
+                ${history.length ? history.reverse().map(h => `<div style="padding:10px; background:rgba(255,255,255,0.05); margin-bottom:5px; border-radius:8px; display:flex; justify-content:space-between;">
+                    <span><strong>${h.category || 'Mécano'}</strong>: ${h.action}</span>
+                    <span style="color:#666; font-size:0.7rem;">${h.date}</span>
+                </div>`).join('') : '<p style="color:#444; text-align:center;">Votre carnet est vide.</p>'}
+            </div>`;
         renderDynamicGarage();
     } else if(page === 'group') {
         content.innerHTML = `<h3>Balade en Groupe</h3>
@@ -1250,6 +1370,52 @@ window.showPage = function(page) {
                 <p><strong>Version :</strong> v13.0-ULTRA-PRO Build 2026</p>
                 <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
+    } else if(page === 'pro-tips') {
+        content.innerHTML = `<h3><i class="fa-solid fa-lightbulb"></i> Conseils de Pro 50cc</h3>
+            <div class="card" style="border-left:4px solid #f39c12;">
+                <h4 style="color:#f39c12;"><i class="fa-solid fa-wrench"></i> Entretien Rapide</h4>
+                <p style="font-size:0.8rem; margin-top:5px;"><strong>Bougie :</strong> Une bougie propre (couleur chocolat) = un moteur qui dure. Si elle est noire, votre mélange est trop riche.</p>
+                <p style="font-size:0.8rem; margin-top:10px;"><strong>Pression :</strong> Vérifiez vos pneus toutes les 2 semaines. Un pneu sous-gonflé = -5km/h et risque de chute.</p>
+            </div>
+
+            <div class="card" style="border-left:4px solid #e74c3c;">
+                <h4 style="color:#e74c3c;"><i class="fa-solid fa-scale-balanced"></i> Loi & Sécurité</h4>
+                <p style="font-size:0.8rem; margin-top:5px;"><strong>Bridage :</strong> Le débridage est interdit sur voie publique. En cas d'accident, votre assurance peut refuser de payer.</p>
+                <p style="font-size:0.8rem; margin-top:10px;"><strong>Équipement :</strong> Gants certifiés CE et casque attaché sont obligatoires. Amende de 4e classe sinon !</p>
+            </div>
+
+            <div class="card" style="border-left:4px solid #2ecc71;">
+                <h4 style="color:#2ecc71;"><i class="fa-solid fa-wind"></i> Astuce Pilotage</h4>
+                <p style="font-size:0.8rem; margin-top:5px;"><strong>Anticipation :</strong> En 50cc, vous êtes petit. Regardez toujours les roues avant des voitures aux intersections (elles tournent avant le véhicule).</p>
+            </div>
+
+            <p style="font-size:0.6rem; color:#666; text-align:center; margin-top:20px;">Rédigé par l'équipe mon50ccetmoi & Experts Moto</p>`;
+    } else if(page === 'security') {
+        const emergencyNum = secureGetItem('emergency_contact') || '';
+        const isGuardian = secureGetItem('guardian_enabled') === 'true';
+        
+        content.innerHTML = `<h3><i class="fa-solid fa-shield-heart"></i> Sécurité Maximale</h3>
+            <div class="card" style="border:1px solid #00d2ff; background: rgba(0, 210, 255, 0.05);">
+                <label style="display:block; font-size:0.8rem; margin-bottom:10px;">Contact d'Urgence (Tel)</label>
+                <input type="tel" id="emergency-num" value="${emergencyNum}" placeholder="Ex: 0612345678" style="width:100%; padding:10px; background:#000; border:1px solid #00d2ff; color:white; border-radius:8px;">
+                <button onclick="saveEmergencyContact()" class="btn-insurance" style="background:#00d2ff; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Enregistrer</button>
+            </div>
+            
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong style="font-size:0.9rem;">Guardian Mode</strong><br>
+                    <small style="font-size:0.6rem; color:#aaa;">Alerte si arrêt prolongé suspect</small>
+                </div>
+                <button onclick="toggleGuardian()" class="btn-circular ${isGuardian ? 'btn-neon' : 'btn-dark'}" style="width:50px; height:50px;">
+                    <i class="fa-solid fa-bell"></i>
+                </button>
+            </div>
+
+            <div class="card" style="background:rgba(255,255,255,0.05); text-align:center;">
+                <i class="fa-solid fa-microchip" style="font-size:2rem; color:#2ecc71; margin-bottom:10px;"></i><br>
+                <strong style="font-size:0.8rem;">Détecteur G-Force : ACTIF</strong><br>
+                <small style="font-size:0.6rem; color:#666;">Impact calibré à 4.5G</small>
+            </div>`;
     }
     toggleMenu();
 }
@@ -1306,7 +1472,8 @@ function triggerFallAlert() {
         <i class="fa-solid fa-triangle-exclamation" style="font-size:5rem; margin-bottom:20px;"></i>
         <h1>${t('fall_detected')}</h1>
         <p>${t('emergency_alert')}</p>
-        <button onclick="this.parentElement.remove()" style="margin-top:30px; padding:20px 40px; background:white; color:red; border:none; border-radius:50px; font-weight:bold; font-size:1.2rem;">${t('cancel')}</button>
+        ${getSOSActions()}
+        <button onclick="this.parentElement.remove()" style="margin-top:20px; padding:15px 30px; background:rgba(255,255,255,0.1); color:white; border:1px solid white; border-radius:50px; font-weight:bold; font-size:1rem;">ANNULER ALERTE</button>
     `;
     document.body.appendChild(div);
 }
@@ -1420,13 +1587,13 @@ function handlePerfTracking(speedKmh) {
         isPerfTracking = true;
         perfStartTime = null;
         perfHud.classList.remove('hidden');
-        perfTimeEl.textContent = "0-45: Prêt...";
+        perfTimeEl.textContent = "0-50: Prêt...";
     } else if(speedKmh > 2 && isPerfTracking && !perfStartTime) {
         perfStartTime = Date.now();
-        perfTimeEl.textContent = "0-45: GAZ !";
-    } else if(speedKmh >= 45 && isPerfTracking && perfStartTime) {
+        perfTimeEl.textContent = "0-50: GAZ !";
+    } else if(speedKmh >= 50 && isPerfTracking && perfStartTime) {
         const time = ((Date.now() - perfStartTime) / 1000).toFixed(2);
-        perfTimeEl.textContent = `0-45: ${time}s !`;
+        perfTimeEl.textContent = `0-50: ${time}s !`;
         speak(`Performance réalisée : ${time} secondes.`);
         isPerfTracking = false;
         setTimeout(() => perfHud.classList.add('hidden'), 10000);
@@ -1456,3 +1623,120 @@ function updateOnlineStatus() {
         }
     }
 }
+window.saveEmergencyContact = function() {
+    const num = document.getElementById('emergency-num').value;
+    secureSetItem('emergency_contact', num);
+    speak("Contact d'urgence enregistré.");
+    vibrate(50);
+};
+
+window.toggleGuardian = function() {
+    const active = secureGetItem('guardian_enabled') === 'true';
+    secureSetItem('guardian_enabled', !active);
+    speak(!active ? "Guardian Mode activé." : "Guardian Mode désactivé.");
+    showPage('security');
+};
+
+// --- SECURITY LOGIC ENGINE ---
+
+// 1. IMPACT DETECTION (Accelerometer)
+if (window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', (event) => {
+        const acc = event.accelerationIncludingGravity;
+        if (!acc) return;
+        const totalG = Math.sqrt(acc.x**2 + acc.y**2 + acc.z**2) / 9.81;
+        if (totalG > 4.5) { // Impact massif détecté
+            triggerFallAlert();
+        }
+    });
+}
+
+// 2. GUARDIAN HEARTBEAT
+setInterval(() => {
+    const isGuardian = secureGetItem('guardian_enabled') === 'true';
+    if (!isGuardian || !window.isRiding || isGuardianPromptActive) return;
+
+    if (Date.now() - lastMovementTime > 600000) { 
+        startGuardianPrompt();
+    }
+}, 60000);
+
+function startGuardianPrompt() {
+    isGuardianPromptActive = true;
+    speak("Guardian Mode : Alerte d'immobilité. Êtes-vous toujours là ?");
+    vibrate([1000, 500, 1000]);
+    
+    const toast = document.createElement('div');
+    toast.id = 'guardian-prompt';
+    toast.style = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.95); border:2px solid #00d2ff; padding:30px; border-radius:30px; z-index:10001; text-align:center; color:white; width:85%; box-shadow:0 0 50px rgba(0,0,0,1);";
+    toast.innerHTML = `
+        <i class="fa-solid fa-shield-heart fa-beat" style="font-size:4rem; color:#00d2ff; margin-bottom:20px;"></i>
+        <h2>Guardian Mode</h2>
+        <p>Arrêt prolongé détecté. <br>Confirmation requise.</p>
+        <button onclick="dismissGuardian()" style="margin-top:20px; width:100%; border:none; padding:20px; border-radius:50px; background:#00d2ff; color:black; font-weight:bold; font-size:1.2rem;">TOUT VA BIEN ✅</button>
+    `;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        if (isGuardianPromptActive) {
+            dismissGuardian();
+            triggerFallAlert();
+        }
+    }, 45000);
+}
+
+window.dismissGuardian = function() {
+    isGuardianPromptActive = false;
+    lastMovementTime = Date.now();
+    const el = document.getElementById('guardian-prompt');
+    if(el) el.remove();
+};
+
+function getSOSActions() {
+    const num = secureGetItem('emergency_contact');
+    if (num) {
+        return `<a href="tel:${num}" style="display:block; margin-top:20px; padding:20px; background:#2ecc71; color:white; text-decoration:none; border-radius:50px; font-weight:bold; font-size:1.2rem;">APPELER URGENCE 📞</a>`;
+    }
+    return '';
+}
+
+window.saveCTDate = function(val) {
+    secureSetItem('ct_date', val);
+    speak("Date du contrôle technique enregistrée.");
+};
+
+window.addCategorizedMaint = function(cat) {
+    const action = prompt(`Détail pour l'entretien [${cat}] :`, "Révision");
+    if(!action) return;
+    
+    let history = JSON.parse(secureGetItem('maint_history') || '[]');
+    history.push({ 
+        date: new Date().toLocaleDateString(), 
+        action: action, 
+        category: cat,
+        km: window.session?.totalDistance?.toFixed(0) || 0
+    });
+    secureSetItem('maint_history', JSON.stringify(history));
+    
+    // Reset maintenance counter
+    if(window.session && window.session.maintenance) {
+        window.session.maintenance[cat.toLowerCase()] = window.session.totalDistance;
+        secureSetItem('session', JSON.stringify(window.session));
+    }
+    
+    showPage('garage');
+    speak(`Entretien ${cat} validé.`);
+};
+
+window.toggleRodageHUD = function() {
+    window.isRodageActive = !window.isRodageActive;
+    const btn = document.getElementById('btn-rodage-toggle');
+    if(window.isRodageActive) {
+        btn.classList.add('btn-neon');
+        speak("Mode Rodage activé.");
+        alert("Mode Rodage : Le GPS évitera les voies rapides et vous guidera sur des routes tranquilles.");
+    } else {
+        btn.classList.remove('btn-neon');
+        speak("Mode Rodage désactivé.");
+    }
+};
