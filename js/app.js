@@ -126,7 +126,10 @@ function initMap() {
         styles: GOOGLE_MAPS_STYLE,
         disableDefaultUI: true,
         backgroundColor: "#0a0a0a",
-        gestureHandling: "greedy"
+        gestureHandling: "greedy",
+        tilt: 0,
+        heading: 0,
+        mapId: '6b6dd900f488f219' // Requis pour les fonctionnalités avancées (Heading/Tilt)
     });
 
     directionsService = new google.maps.DirectionsService();
@@ -202,13 +205,32 @@ function updatePosition(position) {
             speedEl.parentElement.classList.remove('fast');
         }
         
-        // --- NEW: Compass Logic ---
+        // --- NEW: Compass & 3D Navigation Logic ---
         const heading = position.coords.heading;
         if (heading !== null) {
             document.getElementById('compass-needle').style.transform = `rotate(${heading}deg)`;
             const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO', 'N'];
             const dirIdx = Math.round(heading / 45);
             document.getElementById('compass-dir').textContent = dirs[dirIdx];
+            
+            // AUTO-ROTATE MAP (Navigation Mode)
+            if (window.isRiding && map) {
+                map.setHeading(heading);
+            }
+        }
+
+        // DYNAMIC ZOOM & TILT
+        if (map) {
+            if (speedKmh > 30) {
+                map.setTilt(45);
+                map.setZoom(15); // Zoom out un peu à haute vitesse
+            } else if (speedKmh > 5) {
+                map.setTilt(20);
+                map.setZoom(17);
+            } else {
+                map.setTilt(0);
+                map.setZoom(18); // Zoom max à l'arrêt
+            }
         }
 
         handlePerfTracking(speedKmh);
