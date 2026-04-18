@@ -338,3 +338,30 @@ window.publishRoadbookCloud = async function(roadbook) {
         return false;
     }
 };
+
+// --- SYSTEME DE BAN (SANCTIONS ÉCHELONNÉES) ---
+async function applyAbuseSanction(userId) {
+    if (!userId || userId === 'Anonyme') return;
+    const userRef = db.collection("users").doc(userId);
+    const snap = await userRef.get();
+    const data = snap.data() || {};
+    const abuseLevel = (data.abuseLevel || 0) + 1;
+    let banDurationMs = 0;
+    if (abuseLevel === 1) banDurationMs = 1 * 60 * 60 * 1000; // 1h
+    else if (abuseLevel === 2) banDurationMs = 2 * 60 * 60 * 1000; // 2h
+    else banDurationMs = 24 * 60 * 60 * 1000; // 24h
+    const banUntil = Date.now() + banDurationMs;
+    await userRef.update({ abuseLevel: abuseLevel, bannedUntil: banUntil });
+    if (window.session && window.session.username === userId) {
+        window.session.bannedUntil = banUntil;
+        secureSetItem('session', JSON.stringify(window.session));
+    }
+    await db.collection("mod_logs").add({
+        userId, type: "BAN_TEMPORAIRE", level: abuseLevel, until: new Date(banUntil).toLocaleString(), timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+}
+window.isUserBanned = function() {
+    if (!window.session || window.session.isGuest) return false;
+    const bannedUntil = window.session.bannedUntil || 0;
+    return Date.now() < bannedUntil;
+};

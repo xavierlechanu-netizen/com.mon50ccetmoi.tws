@@ -484,6 +484,14 @@ window.toggleHazardMenu = function() {
 
 window.saveHazard = function(type) {
     if(!currentPosition) return;
+
+    // VERIFICATION DU BAN
+    if (typeof isUserBanned === "function" && isUserBanned()) {
+        const remaining = Math.ceil((window.session.bannedUntil - Date.now()) / 60000);
+        alert(`🚨 Action Interdite : Votre compte est suspendu pour faux signalements répétés. Fin de la sanction dans ${remaining} minutes.`);
+        return;
+    }
+
     const h = { 
         lat: currentPosition.lat, 
         lon: currentPosition.lng, 
