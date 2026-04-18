@@ -233,24 +233,27 @@ function updatePosition(position) {
 
     // Rendu Map
     if (!userMarker) {
+        const totalKm = window.session?.totalDistance || 0;
+        const color = totalKm >= 10000 ? '#B9F2FF' : '#cca000'; // DIAMANT SI 10000KM
+        const shadow = totalKm >= 10000 ? '0 0 20px #B9F2FF' : '0 0 15px rgba(204, 160, 0, 0.9)';
+
         const iconContent = document.createElement("div");
-        iconContent.innerHTML = `<div style="background-color: #1a1a1a; color: #cca000; font-size: 16px; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 15px rgba(204, 160, 0, 0.9);"><i class="fa-solid fa-motorcycle"></i></div>`;
+        iconContent.innerHTML = `<div style="background-color: #1a1a1a; color: ${color}; font-size: 16px; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; border: 2px solid white; box-shadow: ${shadow}; transition: all 0.5s ease;"><i class="fa-solid fa-motorcycle"></i></div>`;
         
-        // Tentative d'utilisation de AdvancedMarkerElement si disponible (v9.0+)
         try {
             if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
                 userMarker = new google.maps.marker.AdvancedMarkerElement({
                     map: map,
                     position: currentPosition,
                     content: iconContent,
-                    title: "Votre Position"
+                    title: "Votre Position Certifiée"
                 });
             } else {
                 userMarker = new google.maps.Marker({
                     map: map,
                     position: currentPosition,
                     title: "Votre Position",
-                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#cca000', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }
+                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: color, fillOpacity: 1, strokeColor: 'white', strokeWeight: 2 }
                 });
             }
         } catch(e) { console.error("Marker init fail", e); }
@@ -268,6 +271,15 @@ function updatePosition(position) {
         map.setCenter(currentPosition);
         map.setZoom(16);
     } else {
+        const totalKm = window.session?.totalDistance || 0;
+        const color = totalKm >= 10000 ? '#B9F2FF' : '#cca000';
+        
+        // Mise à jour visuelle si nécessaire
+        if (userMarker.content) {
+            userMarker.content.querySelector('div').style.color = color;
+            userMarker.content.querySelector('div').style.boxShadow = totalKm >= 10000 ? '0 0 20px #B9F2FF' : '0 0 15px rgba(204, 160, 0, 0.9)';
+        }
+
         userMarker.position = currentPosition;
         accuracyCircle.setCenter(currentPosition);
         accuracyCircle.setRadius(accuracy / 2);
@@ -871,6 +883,13 @@ function checkUserBadges() {
     if(co2Saved >= 100) {
         badgesHtml += `<div class="badge-eco" title="Badge Écolo: 100kg CO2 sauvés" style="background:#2ecc71; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block;">
             <i class="fa-solid fa-leaf"></i> Écolo
+        </div>`;
+    }
+
+    // Badge Diamant (10000km)
+    if(total >= 10000) {
+        badgesHtml += `<div class="badge-diamant" title="Légende: 10000km" style="background:linear-gradient(135deg, #B9F2FF, #ffffff); color:#005c75; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; box-shadow:0 0 10px #B9F2FF;">
+            <i class="fa-solid fa-gem"></i> Diamant
         </div>`;
     }
 
