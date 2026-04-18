@@ -926,24 +926,62 @@ function checkUserBadges() {
 
 // --- 9. ROADBOOKS ---
 let savedRoadbooks = JSON.parse(secureGetItem('roadbooks')) || [];
-window.renderRoadbooks = function() {
+window.renderRoadbooks = function(filter = 'all') {
     const list = document.getElementById('roadbook-list');
     if(!list) return;
-    list.innerHTML = savedRoadbooks.map((rb, i) => `
-        <li style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:10px; margin-bottom:5px; border-radius:8px;">
-            <span>${rb.name}</span>
-            <div>
-                <button onclick="loadRoadbook(${i})" style="background:#2ecc71; color:white; border:none; padding:5px; border-radius:5px;">Charger</button>
-                <button onclick="shareRoadbook(${i})" style="background:#00d2ff; color:black; border:none; padding:5px; border-radius:5px;"><i class="fa-solid fa-share"></i> Partager</button>
-            </div>
-        </li>`).join('');
+    
+    const favorites = JSON.parse(secureGetItem('favorite_roadbooks') || '[]');
+    let items = filter === 'favorites' 
+        ? savedRoadbooks.filter((rb, idx) => favorites.includes(idx))
+        : savedRoadbooks;
+
+    if(items.length === 0) {
+        list.innerHTML = `<p style="text-align:center; color:#666; margin-top:20px;">Aucun roadbook ${filter === 'favorites' ? 'favori' : 'enregistré'}.</p>`;
+        return;
+    }
+
+    list.innerHTML = items.map((rb, i) => {
+        const globalIdx = savedRoadbooks.indexOf(rb);
+        const isFav = favorites.includes(globalIdx);
+        return `
+            <li style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:10px; margin-bottom:5px; border-radius:8px;">
+                <div style="flex:1;">
+                    <div style="font-weight:bold;">${rb.name}</div>
+                    <small style="color:#888;">${rb.waypoints?.length || 0} étapes</small>
+                </div>
+                <div style="display:flex; gap:5px;">
+                    <button onclick="toggleFavoriteRoadbook(${globalIdx})" style="background:transparent; color:${isFav ? '#f1c40f' : '#444'}; border:none; font-size:1.2rem; cursor:pointer;" title="Ajouter aux favoris">
+                        <i class="fa-${isFav ? 'solid' : 'regular'} fa-star"></i>
+                    </button>
+                    <button onclick="loadRoadbook(${globalIdx})" style="background:#2ecc71; color:white; border:none; padding:5px 10px; border-radius:5px; font-size:0.7rem;">Go</button>
+                    <button onclick="shareRoadbook(${globalIdx})" style="background:#00d2ff; color:black; border:none; padding:5px 10px; border-radius:5px; font-size:0.7rem;"><i class="fa-solid fa-share"></i></button>
+                </div>
+            </li>`;
+    }).join('');
+}
+
+window.toggleFavoriteRoadbook = function(idx) {
+    let favorites = JSON.parse(secureGetItem('favorite_roadbooks') || '[]');
+    const favIdx = favorites.indexOf(idx);
+    
+    if (favIdx > -1) {
+        favorites.splice(favIdx, 1);
+        speak("Retiré des favoris.");
+    } else {
+        favorites.push(idx);
+        speak("Ajouté aux favoris !");
+        vibrate(50);
+    }
+    
+    secureSetItem('favorite_roadbooks', JSON.stringify(favorites));
+    renderRoadbooks(document.querySelector('[style*="background: rgb(241, 196, 15)"]') ? 'favorites' : 'all');
 }
 
 window.shareRoadbook = async function(i) {
     const rb = savedRoadbooks[i];
     
     // MODÉRATION : Vérification de la grossièreté
-    if (Moderation.isProfane(rb.name) || Moderation.isProfane(rb.description)) {
+    if (Moderation.isProfane(rb.name) || (rb.description && Moderation.isProfane(rb.description))) {
         alert("Action bloquée : Le titre ou la description contient un langage inapproprié.");
         return;
     }
@@ -1075,8 +1113,13 @@ window.showPage = function(page) {
             <p>Bénéficiez de -15% sur votre assurance scooter en tant que membre.</p>
         </div>`;
     } else if(page === 'roadbooks') {
-        content.innerHTML = `<h3>Mes Roadbooks</h3><ul id="roadbook-list" style="list-style:none;"></ul>`;
-        renderRoadbooks();
+        content.innerHTML = `<h3>Roadbooks</h3>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <button onclick="renderRoadbooks('all')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem;">Mes Créations</button>
+                <button onclick="renderRoadbooks('favorites')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem; background:#f1c40f; color:black;"><i class="fa-solid fa-star"></i> Mes Favoris</button>
+            </div>
+            <ul id="roadbook-list" style="list-style:none; padding:0;"></ul>`;
+        renderRoadbooks('all');
     } else if(page === 'mechanic') {
         content.innerHTML = `<h3><i class="fa-solid fa-robot"></i> Assistant Méca V3</h3>
             <p style="font-size:0.8rem; color:#aaa;">Décrivez le symptôme (bruit, fumée, panne...)</p>
