@@ -2,7 +2,7 @@
 window.currentLang = localStorage.getItem('app_lang');
 if (!window.currentLang) {
     const browserLang = navigator.language.split('-')[0]; // ex: 'fr-FR' -> 'fr'
-    window.currentLang = ['fr', 'en', 'es', 'it', 'nl'].includes(browserLang) ? browserLang : 'fr';
+    window.currentLang = ['fr', 'en', 'es', 'it', 'nl', 'pl'].includes(browserLang) ? browserLang : 'fr';
 }
 window.t = function(key) {
     if (typeof I18N === 'undefined') return key;
