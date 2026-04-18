@@ -532,28 +532,92 @@ window.scanRadar = function(type) {
     const oldHtml = radarBtn.innerHTML;
     radarBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
     
-    const lat = currentPosition.lat;
-    const lon = currentPosition.lng;
-    const query = `[out:json][timeout:15];(nwr["amenity"="${type === 'doctors' ? 'clinic|hospital|doctors' : type}"](around:${config.radius},${lat},${lon}););out center;`;
-    const url = `https://lz4.overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+    if (type === 'fuel') {
+        // --- NEW: Government Data Integration ---
+        fetchFuelPricesUsingGovAPI(currentPosition.lat, currentPosition.lng, config, radarBtn, oldHtml);
+    } else {
+        // Standard Overpass Search for other POIs
+        const lat = currentPosition.lat;
+        const lon = currentPosition.lng;
+        const query = `[out:json][timeout:15];(nwr["amenity"="${type === 'doctors' ? 'clinic|hospital|doctors' : type}"](around:${config.radius},${lat},${lon}););out center;`;
+        const url = `https://lz4.overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+        
+        fetch(url).then(r => r.json()).then(data => {
+            renderPoiMarkers(data.elements, config);
+        }).finally(() => { radarBtn.innerHTML = oldHtml; });
+    }
+}
+
+async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
+    // API OpenData Gouv: Prix des carburants
+    const url = `https://data.economie.gouv.fr/api/records/1.0/search/?dataset=prix-des-carburants-en-france-flux-instantane-v2&q=&geofilter.distance=${lat},${lng},5000&rows=20`;
     
-    fetch(url).then(r => r.json()).then(data => {
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
         officialPoiMarkers.forEach(m => m.setMap(null));
         officialPoiMarkers = [];
-        if(data.elements?.length > 0) {
-            data.elements.forEach(item => {
+
+        if (data.records) {
+            data.records.forEach(record => {
+                const fields = record.fields;
+                const coords = record.geometry.coordinates;
+                
+                // Extraction des prix
+                let pricesHtml = "";
+                try {
+                    const priceList = JSON.parse(fields.prix || "[]");
+                    priceList.forEach(p => {
+                        pricesHtml += `<div style="display:flex; justify-content:space-between; gap:10px;">
+                            <strong>${p["@nom"]}</strong> <span>${parseFloat(p["@valeur"]).toFixed(3)}€</span>
+                        </div>`;
+                    });
+                } catch(e) { pricesHtml = "Prix non disponibles"; }
+
                 const marker = new google.maps.Marker({
-                    position: { lat: item.lat || item.center.lat, lng: item.lon || item.center.lon },
+                    position: { lat: coords[1], lng: coords[0] },
                     map: map,
-                    icon: { path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, fillColor: config.color, fillOpacity: 1, scale: 5, strokeColor: 'white' }
+                    icon: { path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, fillColor: "#cca000", fillOpacity: 1, scale: 6, strokeColor: 'white' }
                 });
-                const info = new google.maps.InfoWindow({ content: `<b>${item.tags?.name || config.label}</b>` });
+
+                const info = new google.maps.InfoWindow({
+                    content: `<div style="color:black; min-width:150px;">
+                        <b style="font-size:1rem;">${escapeHTML(fields.vile || "Station")}</b><br>
+                        <small>${escapeHTML(fields.adresse)}</small>
+                        <hr style="border:0; border-top:1px solid #eee; margin:5px 0;">
+                        ${pricesHtml}
+                    </div>`
+                });
+                
                 marker.addListener("click", () => info.open(map, marker));
                 officialPoiMarkers.push(marker);
             });
+            alert(`${data.records.length} stations trouvées avec les prix du gouvernement.`);
         }
-        alert(`${data.elements?.length || 0} résultat(s) trouvés.`);
-    }).finally(() => { radarBtn.innerHTML = oldHtml; });
+    } catch(e) { 
+        console.error("Gov API fail", e); 
+        alert("Erreur lors de la récupération des prix. Repli sur les données standards.");
+    } finally {
+        btn.innerHTML = oldHtml;
+    }
+}
+
+function renderPoiMarkers(elements, config) {
+    officialPoiMarkers.forEach(m => m.setMap(null));
+    officialPoiMarkers = [];
+    if(elements?.length > 0) {
+        elements.forEach(item => {
+            const marker = new google.maps.Marker({
+                position: { lat: item.lat || item.center.lat, lng: item.lon || item.center.lon },
+                map: map,
+                icon: { path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, fillColor: config.color, fillOpacity: 1, scale: 5, strokeColor: 'white' }
+            });
+            const info = new google.maps.InfoWindow({ content: `<b>${item.tags?.name || config.label}</b>` });
+            marker.addListener("click", () => info.open(map, marker));
+            officialPoiMarkers.push(marker);
+        });
+    }
+    alert(`${elements?.length || 0} résultat(s) trouvés.`);
 }
 
 // --- 6. SIMULATIONS ET CHRONO ---
