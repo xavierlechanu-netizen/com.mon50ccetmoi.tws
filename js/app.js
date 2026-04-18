@@ -553,6 +553,7 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
     const url = `https://data.economie.gouv.fr/api/records/1.0/search/?dataset=prix-des-carburants-en-france-flux-instantane-v2&q=&geofilter.distance=${lat},${lng},5000&rows=20`;
     
     try {
+        const blacklist = typeof getBlacklist === "function" ? await getBlacklist() : [];
         const res = await fetch(url);
         const data = await res.json();
         officialPoiMarkers.forEach(m => m.setMap(null));
@@ -562,6 +563,13 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
             data.records.forEach(record => {
                 const fields = record.fields;
                 const coords = record.geometry.coordinates;
+                const stationId = record.recordid;
+
+                // Masquer si blacklistée
+                if (blacklist.includes(stationId)) {
+                    console.log("Station ignorée (Blacklistée par la communauté) :", fields.vile);
+                    return;
+                }
                 
                 // Extraction des prix
                 let pricesHtml = "";
@@ -583,12 +591,21 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
                     icon: { path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, fillColor: "#cca000", fillOpacity: 1, scale: 6, strokeColor: 'white' }
                 });
 
+                // Bouton de signalement pour les membres
+                const isGuest = !window.session || window.session.isGuest;
+                const reportBtn = isGuest ? "" : `
+                    <button onclick="reportStationAbuse('${stationId}', '${fields.vile || fields.adresse}')" 
+                        style="width:100%; margin-top:10px; background:#ff4d4d; color:white; border:none; padding:5px; border-radius:5px; font-size:0.7rem; cursor:pointer;">
+                        🚨 Signaler Abus Prix
+                    </button>`;
+
                 const info = new google.maps.InfoWindow({
                     content: `<div style="color:black; min-width:150px;">
                         <b style="font-size:1rem;">${escapeHTML(fields.vile || "Station")}</b><br>
                         <small>${escapeHTML(fields.adresse)}</small>
                         <hr style="border:0; border-top:1px solid #eee; margin:5px 0;">
                         ${pricesHtml}
+                        ${reportBtn}
                     </div>`
                 });
                 
