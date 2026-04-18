@@ -541,7 +541,7 @@ function loadHazards() {
 // --- 5. SONAR RADAR (POI SCAN) ---
 const poiConfig = {
     'fuel': { icon: 'fa-gas-pump', label: 'Essence', color: '#cca000', radius: 5000 },
-    'doctors': { icon: 'fa-stethoscope', label: 'Urgences', color: '#e74c3c', radius: 10000 },
+    'doctors': { icon: 'fa-briefcase-medical', label: 'Santé & Pharmacie', color: '#e74c3c', radius: 3000 },
     'atm': { icon: 'fa-money-bill-1', label: 'DAB', color: '#2ecc71', radius: 3000 },
     'mechanic': { icon: 'fa-wrench', label: 'Garages', color: '#ffa500', radius: 8000 }
 };
@@ -569,7 +569,9 @@ window.scanRadar = function(type) {
         // Standard Overpass Search for other POIs
         const lat = currentPosition.lat;
         const lon = currentPosition.lng;
-        const query = `[out:json][timeout:15];(nwr["amenity"="${type === 'doctors' ? 'clinic|hospital|doctors' : type}"](around:${config.radius},${lat},${lon}););out center;`;
+        // MEDICAL includes doctors, clinics, hospitals AND pharmacy
+        const medicalTags = 'clinic|hospital|doctors|pharmacy';
+        const query = `[out:json][timeout:15];(nwr["amenity"~"${type === 'doctors' ? medicalTags : type}"](around:${config.radius},${lat},${lon}););out center;`;
         const url = `https://lz4.overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
         
         fetch(url).then(r => r.json()).then(data => {
