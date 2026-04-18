@@ -554,6 +554,11 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
     
     try {
         const blacklist = typeof getBlacklist === "function" ? await getBlacklist() : [];
+        const today = new Date().toISOString().split('T')[0];
+        const reportsSnap = await db.collection("reports_abuse").where("lastUpdate", ">=", new Date(today)).get();
+        const reportCounts = {};
+        reportsSnap.forEach(doc => { reportCounts[doc.data().stationId] = doc.data().count; });
+
         const res = await fetch(url);
         const data = await res.json();
         officialPoiMarkers.forEach(m => m.setMap(null));
@@ -591,11 +596,15 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
                     icon: { path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, fillColor: "#cca000", fillOpacity: 1, scale: 6, strokeColor: 'white' }
                 });
 
+                // Compteur de signalements
+                const currentReports = reportCounts[stationId] || 0;
+                const reportBadge = currentReports > 0 ? `<div style="color:#ff4d4d; font-size:0.7rem; font-weight:bold; margin-top:5px;"><i class="fa-solid fa-triangle-exclamation"></i> ${currentReports}/10 signalements</div>` : "";
+
                 // Bouton de signalement pour les membres
                 const isGuest = !window.session || window.session.isGuest;
                 const reportBtn = isGuest ? "" : `
                     <button onclick="reportStationAbuse('${stationId}', '${fields.vile || fields.adresse}')" 
-                        style="width:100%; margin-top:10px; background:#ff4d4d; color:white; border:none; padding:5px; border-radius:5px; font-size:0.7rem; cursor:pointer;">
+                        style="width:100%; margin-top:5px; background:#ff4d4d; color:white; border:none; padding:5px; border-radius:5px; font-size:0.7rem; cursor:pointer;">
                         🚨 Signaler Abus Prix
                     </button>`;
 
@@ -605,6 +614,7 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
                         <small>${escapeHTML(fields.adresse)}</small>
                         <hr style="border:0; border-top:1px solid #eee; margin:5px 0;">
                         ${pricesHtml}
+                        ${reportBadge}
                         ${reportBtn}
                     </div>`
                 });
