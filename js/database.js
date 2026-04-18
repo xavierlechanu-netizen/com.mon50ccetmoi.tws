@@ -365,6 +365,20 @@ async function applyAbuseSanction(userId) {
         bannedUntil: banUntil, 
         isPermanentlyBanned: isDefinitive 
     });
+
+    // BLOCAGE IP GLOBAL (Si ban définitif)
+    if (isDefinitive) {
+        try {
+            const ipRes = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipRes.json();
+            const currentIp = ipData.ip;
+            await db.collection("banned_ips").doc(currentIp).set({
+                userId,
+                reason: "Bannissement définitif - Abus cumulés",
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch(e) {}
+    }
     if (window.session && window.session.username === userId) {
         window.session.bannedUntil = banUntil;
         secureSetItem('session', JSON.stringify(window.session));

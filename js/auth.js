@@ -126,12 +126,34 @@ function register(username, password, brand, model) {
         alert("Ce pseudo est déjà utilisé. Choisissez-en un autre.");
         return;
     }
-    
-    const newUser = { username, password, role: 'user', brand, model, points: 0, lastSeen: Date.now() };
+
+    // Capture IP/Fingerprint
+    loginAndCaptureInfo(username, password, brand, model); // Utilitaire interne
+}
+
+async function loginAndCaptureInfo(username, password, brand, model) {
+    let users = JSON.parse(secureGetItem('users') || '[]');
+    let userIp = "0.0.0.0";
+    try {
+        const ipRes = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipRes.json();
+        userIp = ipData.ip;
+    } catch(e) {}
+
+    const newUser = { 
+        username, 
+        password, 
+        role: 'user', 
+        brand, 
+        model, 
+        points: 0, 
+        lastSeen: Date.now(),
+        lastIp: userIp,
+        deviceFingerprint: btoa(navigator.userAgent + screen.width + screen.height)
+    };
     users.push(newUser);
     secureSetItem('users', JSON.stringify(users));
     
-    // Auto-connexion après inscription réussie
     secureSetItem('session', JSON.stringify(newUser));
     window.location.href = 'index.html';
 }
@@ -141,12 +163,20 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-window.googleLogin = function(name, email) {
+window.googleLogin = async function(name, email) {
     let users = JSON.parse(secureGetItem('users') || '[]');
     let user = users.find(u => u.username === email || u.username === name);
 
     if (!user) {
         // Create auto-account for Google user
+        // Capture de l'IP et Fingerprint pour la sécurité (Anti-Ban bypass)
+        let userIp = "0.0.0.0";
+        try {
+            const ipRes = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipRes.json();
+            userIp = ipData.ip;
+        } catch(e) {}
+
         user = {
             username: email || name,
             displayName: name,
@@ -154,7 +184,9 @@ window.googleLogin = function(name, email) {
             role: 'user',
             brand: "Google Pilot",
             points: 50,
-            badges: ["Nouveau"]
+            badges: ["Nouveau"],
+            lastIp: userIp,
+            deviceFingerprint: btoa(navigator.userAgent + screen.width + screen.height)
         };
         users.push(user);
         secureSetItem('users', JSON.stringify(users));
