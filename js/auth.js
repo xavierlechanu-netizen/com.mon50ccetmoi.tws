@@ -212,13 +212,22 @@ function checkAuth(requireAdmin = false) {
         window.location.href = 'index.html';
         return null;
     }
-    // Verification de l'abonnement (1 an gratuit)
-    const regDate = new Date(session.registrationDate || Date.now());
-    const oneYearLater = new Date(regDate);
-    oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+    // POLITIQUE DE MONÉTISATION (PUBLICATION: 18/04/2026)
+    const PUB_DATE = new Date('2026-04-18').getTime();
+    const regTime = new Date(session.registrationDate || 0).getTime();
     
-    session.trialEndsAt = oneYearLater.getTime();
-    session.isTrialExpired = Date.now() > oneYearLater.getTime();
+    if (regTime < PUB_DATE && regTime > 1000) { // Si inscrit avant publication (et n'est pas un guest 0)
+        session.isTrialExpired = false;
+        session.isFoundingMember = true; // Gratuité à VIE
+    } else {
+        // Pour les nouveaux (ou guests sans date) : 1 an gratuit
+        const regDate = new Date(session.registrationDate || Date.now());
+        const oneYearLater = new Date(regDate);
+        oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+        
+        session.trialEndsAt = oneYearLater.getTime();
+        session.isTrialExpired = Date.now() > oneYearLater.getTime();
+    }
 
     if (session.isPermanentlyBanned) {
         window.location.href = 'banned.html';
