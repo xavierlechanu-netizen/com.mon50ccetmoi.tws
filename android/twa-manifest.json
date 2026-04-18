@@ -13,8 +13,8 @@
   "backgroundColor": "#0A0A0A",
   "enableNotifications": true,
   "startUrl": "/com.mon50ccetmoi.tws/",
-  "iconUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/icon-512x512.png",
-  "maskableIconUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/icon-512x512.png",
+  "iconUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/assets/icons/icon-512x512.png",
+  "maskableIconUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/assets/icons/icon-512x512.png",
   "signingKey": {
     "path": "./upload-keystore.jks",
     "alias": "upload"

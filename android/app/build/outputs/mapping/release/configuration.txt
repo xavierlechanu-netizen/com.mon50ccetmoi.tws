@@ -250,10 +250,10 @@
 }
 
 # End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\22a8ec787f47654381fd448fc0dedaa1\transformed\lifecycle-viewmodel-2.6.2\proguard.txt
-# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\4bc52031417e9743197e36b704fe409f\transformed\lifecycle-process-2.6.2\proguard.txt
+# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\3dc3f1600ada8cd59e8f9c6f0910098a\transformed\jetified-lifecycle-process-2.6.2\proguard.txt
 # this rule is need to work properly when app is compiled with api 28, see b/142778206
 -keepclassmembers class * extends androidx.lifecycle.EmptyActivityLifecycleCallbacks { *; }
-# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\4bc52031417e9743197e36b704fe409f\transformed\lifecycle-process-2.6.2\proguard.txt
+# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\3dc3f1600ada8cd59e8f9c6f0910098a\transformed\jetified-lifecycle-process-2.6.2\proguard.txt
 # The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\39199f8ba8b037a40395507dbae61e10\transformed\lifecycle-runtime-2.6.2\proguard.txt
 -keepattributes AnnotationDefault,
                 RuntimeVisibleAnnotations,
@@ -279,7 +279,7 @@
 # Also this rule prevents registerIn from being inlined.
 -keepclassmembers class androidx.lifecycle.ReportFragment$LifecycleCallbacks { *; }
 # End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\39199f8ba8b037a40395507dbae61e10\transformed\lifecycle-runtime-2.6.2\proguard.txt
-# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\97fbeb2fc45778cc7a5715346a800094\transformed\lifecycle-viewmodel-savedstate-2.6.2\proguard.txt
+# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\9c5769d36f2beda9b6300d22643aeb4f\transformed\jetified-lifecycle-viewmodel-savedstate-2.6.2\proguard.txt
 -keepclassmembers,allowobfuscation class * extends androidx.lifecycle.ViewModel {
     <init>(androidx.lifecycle.SavedStateHandle);
 }
@@ -288,8 +288,8 @@
     <init>(android.app.Application,androidx.lifecycle.SavedStateHandle);
 }
 
-# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\97fbeb2fc45778cc7a5715346a800094\transformed\lifecycle-viewmodel-savedstate-2.6.2\proguard.txt
-# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\2d883c2f9b398e3ed01a138584927eec\transformed\savedstate-1.2.1\proguard.txt
+# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\9c5769d36f2beda9b6300d22643aeb4f\transformed\jetified-lifecycle-viewmodel-savedstate-2.6.2\proguard.txt
+# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\5a5acbeb50e23a4e26555066b47e8e5a\transformed\jetified-savedstate-1.2.1\proguard.txt
 # Copyright (C) 2019 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -308,8 +308,8 @@
     <init>();
 }
 
-# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\2d883c2f9b398e3ed01a138584927eec\transformed\savedstate-1.2.1\proguard.txt
-# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\6adcf68e2ce0cd3fec7be9587d70dc49\transformed\rules\lib\META-INF\com.android.tools\r8-from-1.6.0\coroutines.pro
+# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\5a5acbeb50e23a4e26555066b47e8e5a\transformed\jetified-savedstate-1.2.1\proguard.txt
+# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\9e1f0626b80a0754266be15c9f98c198\transformed\rules\lib\META-INF\com.android.tools\r8-from-1.6.0\coroutines.pro
 # Allow R8 to optimize away the FastServiceLoader.
 # Together with ServiceLoader optimization in R8
 # this results in direct instantiation when loading Dispatchers.Main
@@ -333,8 +333,8 @@
     boolean getRECOVER_STACK_TRACES() return false;
 }
 
-# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\6adcf68e2ce0cd3fec7be9587d70dc49\transformed\rules\lib\META-INF\com.android.tools\r8-from-1.6.0\coroutines.pro
-# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\72914f9f3b720127a3f2c45793002a9f\transformed\rules\lib\META-INF\com.android.tools\r8\coroutines.pro
+# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\9e1f0626b80a0754266be15c9f98c198\transformed\rules\lib\META-INF\com.android.tools\r8-from-1.6.0\coroutines.pro
+# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\dd99e3c224b3b162343ac7db50731439\transformed\rules\lib\META-INF\com.android.tools\r8\coroutines.pro
 # When editing this file, update the following files as well:
 # - META-INF/proguard/coroutines.pro
 # - META-INF/com.android.tools/proguard/coroutines.pro
@@ -362,7 +362,7 @@
 
 # An annotation used for build tooling, won't be directly accessed.
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
-# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\72914f9f3b720127a3f2c45793002a9f\transformed\rules\lib\META-INF\com.android.tools\r8\coroutines.pro
+# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\dd99e3c224b3b162343ac7db50731439\transformed\rules\lib\META-INF\com.android.tools\r8\coroutines.pro
 # The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\80cbc4dba6c47357d96551e666b341e2\transformed\versionedparcelable-1.1.1\proguard.txt
 -keep class * implements androidx.versionedparcelable.VersionedParcelable
 -keep public class android.support.**Parcelizer { *; }
@@ -370,7 +370,7 @@
 -keep public class androidx.versionedparcelable.ParcelImpl
 
 # End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\80cbc4dba6c47357d96551e666b341e2\transformed\versionedparcelable-1.1.1\proguard.txt
-# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\5bcdf0f09e194a9e523c6304a596bf94\transformed\startup-runtime-1.1.1\proguard.txt
+# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\a0ec65df7716ba7e8224c513bc808ebf\transformed\jetified-startup-runtime-1.1.1\proguard.txt
 # It's important that we preserve initializer names, given they are used in the AndroidManifest.xml.
 -keepnames class * extends androidx.startup.Initializer
 
@@ -384,8 +384,8 @@
 
 -assumenosideeffects class androidx.startup.StartupLogger { public static <methods>; }
 
-# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\5bcdf0f09e194a9e523c6304a596bf94\transformed\startup-runtime-1.1.1\proguard.txt
-# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\9cac8bddc36a30251efe77066ef5f0e2\transformed\rules\lib\META-INF\proguard\androidx-annotations.pro
+# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\a0ec65df7716ba7e8224c513bc808ebf\transformed\jetified-startup-runtime-1.1.1\proguard.txt
+# The proguard configuration file for the following section is C:\Users\xavie\.gradle\caches\8.11.1\transforms\a82adda49a2f938ac50d59622ed88948\transformed\rules\lib\META-INF\proguard\androidx-annotations.pro
 -keep,allowobfuscation @interface androidx.annotation.Keep
 -keep @androidx.annotation.Keep class * {*;}
 
@@ -405,7 +405,7 @@
   @androidx.annotation.DoNotInline <methods>;
 }
 
-# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\9cac8bddc36a30251efe77066ef5f0e2\transformed\rules\lib\META-INF\proguard\androidx-annotations.pro
+# End of content from C:\Users\xavie\.gradle\caches\8.11.1\transforms\a82adda49a2f938ac50d59622ed88948\transformed\rules\lib\META-INF\proguard\androidx-annotations.pro
 # The proguard configuration file for the following section is <unknown>
 
 # End of content from <unknown>
