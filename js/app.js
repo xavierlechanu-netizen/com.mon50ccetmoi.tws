@@ -1043,6 +1043,32 @@ window.showPage = function(page) {
             <textarea id="meca-query" placeholder="Ex: Mon scoot broute à l'accélération..." style="width:100%; height:80px; margin-top:10px; background:#111; color:white; border:1px solid #ffb703; border-radius:8px; padding:10px;"></textarea>
             <button class="btn-insurance" onclick="submitMecaV3()" style="margin-top:15px; width:100%;">Scanner mon 50cc</button>
             <div id="meca-response" style="margin-top:20px; font-size:0.9rem; line-height:1.4;"></div>`;
+    } else if(page === 'defis') {
+        const challenge = { name: "Le Grand Raid", goal: 200, durationDays: 14 };
+        const totalKm = window.session?.totalDistance || 0;
+        // Simulation de calcul sur 14j (à coupler avec date_debut_defi plus tard)
+        const progress = Math.min((totalKm / challenge.goal) * 100, 100);
+        
+        content.innerHTML = `<div class="card" style="border:1px solid #2ecc71;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="color:#2ecc71; margin:0;">🏆 ${challenge.name}</h3>
+                <span style="font-size:0.7rem; background:#2ecc71; color:black; padding:2px 6px; border-radius:10px;">En cours</span>
+            </div>
+            <p style="font-size:0.8rem; margin-top:10px;">Objectif : Parcourir <strong>${challenge.goal} km</strong> en 14 jours.</p>
+            
+            <div style="background:rgba(255,255,255,0.05); border-radius:10px; padding:15px; margin-top:15px;">
+                <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;">
+                    <span>Votre progression</span>
+                    <span>${totalKm.toFixed(1)} / ${challenge.goal} km</span>
+                </div>
+                <div class="garage-bar-bg" style="height:12px;">
+                    <div class="garage-bar-fill" style="width:${progress}%; background:#2ecc71;"></div>
+                </div>
+                <p style="font-size:0.7rem; color:#888; margin-top:10px; text-align:center;">⏳ Fin du défi dans 9 jours</p>
+            </div>
+
+            <button class="btn-insurance" style="margin-top:20px; width:100%; background:#2ecc71; color:black;" onclick="toggleMenu()">CONTINUER À ROULER</button>
+        </div>`;
     } else if(page === 'privacy') {
         content.innerHTML = `<h3>Mentions Légales & Confidentialité</h3>
             <div style="font-size:0.8rem; line-height:1.4; color:#ccc;">
