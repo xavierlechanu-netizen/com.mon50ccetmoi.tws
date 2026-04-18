@@ -115,9 +115,9 @@ window.loginAsGuest = function() {
     window.location.href = 'index.html';
 };
 
-function register(username, password, brand) {
-    if(!username || !password || !brand) {
-        alert("Veuillez remplir tous les champs et choisir votre marque de 50cc.");
+function register(username, password, brand, model) {
+    if(!username || !password || !brand || !model) {
+        alert("Veuillez remplir tous les champs (Pseudo, Mot de passe, Marque et Modèle).");
         return;
     }
     
@@ -127,7 +127,7 @@ function register(username, password, brand) {
         return;
     }
     
-    const newUser = { username, password, role: 'user', brand, points: 0, lastSeen: Date.now() };
+    const newUser = { username, password, role: 'user', brand, model, points: 0, lastSeen: Date.now() };
     users.push(newUser);
     secureSetItem('users', JSON.stringify(users));
     

@@ -66,6 +66,7 @@
                     <option value="Sym">Sym</option>
                     <option value="Autre">Autre</option>
                 </select>
+                <input type="text" id="reg-model" placeholder="Modèle (Ex: Kisbee, Booster, Zip...)" />
                 <button onclick="doRegister()" class="btn-auth btn-auth-alt">CRÉER MON COMPTE</button>
                 <p class="switch-link" onclick="toggleForm('login')">Déjà inscrit ? <strong>Se connecter</strong></p>
             </div>
@@ -86,7 +87,12 @@
             login(document.getElementById('login-user').value, document.getElementById('login-pass').value);
         }
         function doRegister() {
-            register(document.getElementById('reg-user').value, document.getElementById('reg-pass').value, document.getElementById('reg-brand').value);
+            register(
+                document.getElementById('reg-user').value, 
+                document.getElementById('reg-pass').value, 
+                document.getElementById('reg-brand').value,
+                document.getElementById('reg-model').value
+            );
         }
 
         // --- NEW: Google Login Callback ---
