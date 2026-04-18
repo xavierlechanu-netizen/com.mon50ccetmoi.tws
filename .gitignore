@@ -9,3 +9,4 @@ upload-keystore.jks
 .vscode/
 *.log
 archives/mon50ccetmoi_CLEAN_REPACK.aab
+js/secrets.js

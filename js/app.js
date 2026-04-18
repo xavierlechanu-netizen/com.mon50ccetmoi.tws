@@ -1434,11 +1434,29 @@ window.showPage = function(page) {
             </div>
 
             ${!isCertified ? `
-            <div class="card" style="text-align:center; background:rgba(255,255,255,0.02);">
-                <i class="fa-solid fa-certificate" style="font-size:2rem; color:#aaa;"></i><br>
-                <small>Vous n'êtes pas encore certifié.</small><br>
-                <button onclick="requestCertification()" class="btn-insurance" style="margin-top:10px; font-size:0.7rem;">Demander la Certification</button>
-            </div>` : ''}
+            <div class="card" style="text-align:center; background:rgba(52, 152, 219, 0.05); border:1px solid #3498db;">
+                <i class="fa-solid fa-certificate" style="font-size:2rem; color:#f1c40f;"></i><br>
+                <h4 style="margin:10px 0; color:#fff;">Droit d'Entrée & Certification</h4>
+                <p style="font-size:0.7rem; color:#aaa; margin-bottom:10px;">Devenez <strong>Garage Certifié</strong> pour seulement <strong>50€ TTC</strong> (Paiement unique).</p>
+                <ul style="font-size:0.65rem; color:#ccc; list-style:none; padding:0; text-align:left; margin-bottom:15px;">
+                    <li>✅ Badge <strong>Certifié mon50ccetmoi</strong></li>
+                    <li>🚀 <strong>Boost de visibilité</strong> sur la carte</li>
+                    <li>🛠️ Accès illimité aux fiches techniques</li>
+                    <li>👔 Priorité dans les résultats de recherche</li>
+                </ul>
+                <button onclick="payGarageEntryFee()" class="btn-insurance" style="background:#f1c40f; color:black; font-weight:bold;">S'acquitter du droit d'entrée (50€)</button>
+                
+                <div style="margin-top:15px; padding-top:15px; border-top:1px solid #444;">
+                    <p style="font-size:0.7rem; color:#2ecc71;"><strong>🎁 OPTION GRATUITE :</strong></p>
+                    <p style="font-size:0.6rem; color:#aaa;">Offrez <strong>-10% de réduction</strong> aux membres mon50ccetmoi sur présentation de l'app et soyez <strong>exonéré</strong> des 50€ !</p>
+                    <button onclick="applyPartnerExemption()" class="btn-insurance" style="background:transparent; border:1px solid #2ecc71; color:#2ecc71; margin-top:5px; font-size:0.75rem;">Devenir Partenaire (-10% membres)</button>
+                </div>
+            </div>` : `
+            <div class="card" style="text-align:center; background:rgba(46, 204, 113, 0.1); border:1px solid #2ecc71;">
+                <i class="fa-solid fa-check-double" style="font-size:1.5rem; color:#2ecc71;"></i>
+                <p style="font-size:0.8rem; color:#2ecc71; margin-top:5px;"><strong>Statut PRO Certifié Actif</strong></p>
+                <small style="font-size:0.6rem; color:#aaa;">Votre visibilité est boostée au maximum.</small>
+            </div>`}
 
             <div class="card" style="border:1px solid #2ecc71;">
                 <h4 style="color:#2ecc71; margin-bottom:10px;"><i class="fa-solid fa-graduation-cap"></i> Partager un Conseil d'Expert</h4>
@@ -1843,6 +1861,31 @@ window.publishFlashOffer = function() {
 window.requestCertification = function() {
     alert("Demande de certification envoyée !");
     speak("Demande enregistrée.");
+};
+
+window.payGarageEntryFee = function() {
+    const ok = confirm("Confirmez-vous le paiement du droit d'entrée de 50€ TTC pour devenir Garage Certifié ?");
+    if(ok) {
+        speak("Paiement validé. Félicitations, vous êtes maintenant un Garage Certifié mon 50 cm3 et moi !");
+        if(window.session) {
+            window.session.isCertifiedGarage = true;
+            secureSetItem('session', JSON.stringify(window.session));
+        }
+        showPage('pro-space');
+    }
+};
+
+window.applyPartnerExemption = function() {
+    const ok = confirm("En choisissant cette option, vous vous engagez à offrir une remise de 10% sur vos prestations aux membres présentant l'application. En échange, votre certification et votre boost sont OFFERTS. Valider ?");
+    if(ok) {
+        speak("Félicitations ! Vous êtes désormais Partenaire Officiel mon 50 cm3 et moi. Votre générosité envers la communauté est récompensée.");
+        if(window.session) {
+            window.session.isCertifiedGarage = true;
+            window.session.isGaragePartner = true;
+            secureSetItem('session', JSON.stringify(window.session));
+        }
+        showPage('pro-space');
+    }
 };
 
 window.publishProTip = function() {

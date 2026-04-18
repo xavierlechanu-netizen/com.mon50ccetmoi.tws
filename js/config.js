@@ -5,8 +5,8 @@
 const CONFIG = {
     // Google Maps API Keys
     MAPS: {
-        PC: "AIzaSyBufZ5hmzEoDoOZ9YofpHvL3HJDbuEOc7I",
-        ANDROID: "AIzaSyCH6560cVZlfeuqITse5ZmQKF-ilrm-w4w"
+        PC: (typeof SECRETS !== 'undefined') ? SECRETS.MAPS_PC : "REPLACE_WITH_YOUR_KEY",
+        ANDROID: (typeof SECRETS !== 'undefined') ? SECRETS.MAPS_ANDROID : "REPLACE_WITH_YOUR_KEY"
     },
     
     // Auth Configuration
