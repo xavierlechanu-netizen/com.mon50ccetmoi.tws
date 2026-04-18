@@ -347,11 +347,16 @@ async function applyAbuseSanction(userId) {
     const data = snap.data() || {};
     const abuseLevel = (data.abuseLevel || 0) + 1;
     let banDurationMs = 0;
+    let isDefinitive = false;
     if (abuseLevel === 1) banDurationMs = 1 * 60 * 60 * 1000; // 1h
     else if (abuseLevel === 2) banDurationMs = 2 * 60 * 60 * 1000; // 2h
-    else banDurationMs = 24 * 60 * 60 * 1000; // 24h
+    else if (abuseLevel === 3 || abuseLevel === 4) banDurationMs = 24 * 60 * 60 * 1000; // 24h
+    else {
+        isDefinitive = true;
+        banDurationMs = 99 * 365 * 24 * 60 * 60 * 1000; // Permanent
+    }
     const banUntil = Date.now() + banDurationMs;
-    await userRef.update({ abuseLevel: abuseLevel, bannedUntil: banUntil });
+    await userRef.update({ abuseLevel, bannedUntil: banUntil, isPermanentlyBanned: isDefinitive });
     if (window.session && window.session.username === userId) {
         window.session.bannedUntil = banUntil;
         secureSetItem('session', JSON.stringify(window.session));

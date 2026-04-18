@@ -150,6 +150,16 @@ function initMap() {
     console.log("Moteur Premium v20.0-ULTRA-PRO-ELITE : Initialisé.");
 }
 
+window.toggleTraffic = function() {
+    if (trafficLayer.getMap()) {
+        trafficLayer.setMap(null);
+        speak("Info trafic désactivée.");
+    } else {
+        trafficLayer.setMap(map);
+        speak("Info trafic activée.");
+    }
+}
+
 window.toggleTilt = function() {
     const currentTilt = map.getTilt();
     map.setTilt(currentTilt === 45 ? 0 : 45);
