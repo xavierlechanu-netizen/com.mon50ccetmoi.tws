@@ -346,17 +346,25 @@ async function applyAbuseSanction(userId) {
     const snap = await userRef.get();
     const data = snap.data() || {};
     const abuseLevel = (data.abuseLevel || 0) + 1;
+    const totalFakeReports = (data.totalFakeReports || 0) + 1;
     let banDurationMs = 0;
     let isDefinitive = false;
-    if (abuseLevel === 1) banDurationMs = 1 * 60 * 60 * 1000; // 1h
-    else if (abuseLevel === 2) banDurationMs = 2 * 60 * 60 * 1000; // 2h
-    else if (abuseLevel === 3 || abuseLevel === 4) banDurationMs = 24 * 60 * 60 * 1000; // 24h
-    else {
+
+    // REGLE SPECIALE : 25 FAUX SIGNALEMENTS CUMULÉS = BAN FINAL DIRECT
+    if (totalFakeReports >= 25 || abuseLevel >= 5) {
         isDefinitive = true;
-        banDurationMs = 99 * 365 * 24 * 60 * 60 * 1000; // Permanent
-    }
+        banDurationMs = 99 * 365 * 24 * 60 * 60 * 1000;
+    } else if (abuseLevel === 1) banDurationMs = 1 * 60 * 60 * 1000;
+    else if (abuseLevel === 2) banDurationMs = 2 * 60 * 60 * 1000;
+    else banDurationMs = 24 * 60 * 60 * 1000;
+
     const banUntil = Date.now() + banDurationMs;
-    await userRef.update({ abuseLevel, bannedUntil: banUntil, isPermanentlyBanned: isDefinitive });
+    await userRef.update({ 
+        abuseLevel: isDefinitive ? 5 : abuseLevel, 
+        totalFakeReports: totalFakeReports,
+        bannedUntil: banUntil, 
+        isPermanentlyBanned: isDefinitive 
+    });
     if (window.session && window.session.username === userId) {
         window.session.bannedUntil = banUntil;
         secureSetItem('session', JSON.stringify(window.session));
