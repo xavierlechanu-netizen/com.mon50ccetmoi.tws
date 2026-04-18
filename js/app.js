@@ -99,7 +99,22 @@ let nightModeActive = false;
 let isParkingMode = false;
 let parkingStartPos = null;
 let perfStartTime = null;
-let isPerfTracking = false;
+// --- INITIALIZATION ---
+window.startApp = function() {
+    console.log("mon50cc : Moteur de démarrage activé.");
+    checkTrialExpiration();
+};
+
+function checkTrialExpiration() {
+    if (!window.session || window.session.isGuest) return;
+    
+    // On récupère les infos calculées par auth.js
+    if (window.session.isTrialExpired) {
+        const overlay = document.getElementById('sub-overlay');
+        if (overlay) overlay.classList.remove('hidden');
+        speak("Alerte abonnement : Votre période d'essai gratuite est terminée.");
+    }
+}
 
 // Style Premium Dark "Gold & Black" pour Google Maps
 const GOOGLE_MAPS_STYLE = [

@@ -253,6 +253,18 @@
         </div>
     </div>
 
+    <!-- Subscription Overlay -->
+    <div id="sub-overlay" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:9000; background:rgba(0,0,0,0.95); display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; padding:30px; backdrop-filter: blur(15px);">
+        <i class="fa-solid fa-gem" style="font-size:4rem; color:#00d2ff; margin-bottom:20px;"></i>
+        <h2>Fin de votre année gratuite !</h2>
+        <p style="margin-top:10px;">Votre essai de 12 mois est terminé. Pour continuer à profiter du GPS 50cc, des alertes radars et du Guardian Bot :</p>
+        <div style="background:#1a1a1a; padding:20px; border-radius:15px; margin-top:20px; border:1px solid #00d2ff;">
+            <span style="font-size:2rem; font-weight:bold;">0.99€</span> <span style="color:#666;">/ an</span>
+        </div>
+        <button onclick="alert('Lien vers Google Play Store...')" style="margin-top:30px; background:#00d2ff; color:black; border:none; padding:15px 40px; border-radius:30px; font-weight:bold; width:100%;">Devenir Membre Premium</button>
+        <button onclick="logout()" style="margin-top:10px; background:transparent; color:#666; border:none; text-decoration:underline;">Plus tard</button>
+    </div>
+
     <!-- Mood/Opinion Overlay (V1.7 Feature) -->
     <div id="mood-overlay" class="hidden">
         <div class="mood-card glassmorphism">

@@ -185,6 +185,7 @@ window.googleLogin = async function(name, email) {
             brand: "Google Pilot",
             points: 50,
             badges: ["Nouveau"],
+            registrationDate: Date.now(),
             lastIp: userIp,
             deviceFingerprint: btoa(navigator.userAgent + screen.width + screen.height)
         };
@@ -211,6 +212,14 @@ function checkAuth(requireAdmin = false) {
         window.location.href = 'index.html';
         return null;
     }
+    // Verification de l'abonnement (1 an gratuit)
+    const regDate = new Date(session.registrationDate || Date.now());
+    const oneYearLater = new Date(regDate);
+    oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+    
+    session.trialEndsAt = oneYearLater.getTime();
+    session.isTrialExpired = Date.now() > oneYearLater.getTime();
+
     if (session.isPermanentlyBanned) {
         window.location.href = 'banned.html';
         return null;
