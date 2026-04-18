@@ -56,6 +56,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <script src="js/crypto-js.min.js"></script>
+    <script src="js/i18n.js?v=13.0"></script>
     <script src="js/auth.js?v=13.0"></script>
     <script src="js/database.js?v=13.0"></script>
     <script>const session = checkAuth(false);</script>
@@ -193,7 +194,17 @@
                 <li onclick="testFallDetection()" style="color:#f1c40f;"><i class="fa-solid fa-vial"></i> Tester Détecteur Chute</li>
                 <li id="btn-parking-toggle" onclick="toggleParkingMode()"><i class="fa-solid fa-shield-halved"></i> Mode Parking : OFF</li>
                 <li id="btn-install-pwa" class="hidden" onclick="installPWA()"><i class="fa-solid fa-download"></i> Installer l'App <span class="badge" style="background:#2ecc71;">PRO</span></li>
-                <li onclick="shareApp()"><i class="fa-solid fa-share-nodes"></i> Partager</li>
+                <li onclick="shareApp()"><i class="fa-solid fa-share-nodes"></i> Partager / Share</li>
+                <li style="padding: 15px 10px;">
+                    <i class="fa-solid fa-language"></i>
+                    <select onchange="window.setLanguage(this.value)" class="scooter-brand-select" style="margin-top:5px; width: 100%; height: 35px; background: rgba(255,183,3,0.1);">
+                        <option value="fr" ${window.currentLang==='fr'?'selected':''}>🇫🇷 Français</option>
+                        <option value="en" ${window.currentLang==='en'?'selected':''}>🇬🇧 English</option>
+                        <option value="es" ${window.currentLang==='es'?'selected':''}>🇪🇸 Español</option>
+                        <option value="it" ${window.currentLang==='it'?'selected':''}>🇮🇹 Italiano</option>
+                        <option value="nl" ${window.currentLang==='nl'?'selected':''}>🇳🇱 Nederlands</option>
+                    </select>
+                </li>
             </ul>
             
             <div class="card card-hazards">

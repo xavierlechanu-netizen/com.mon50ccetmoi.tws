@@ -1,5 +1,33 @@
+// --- I18N SYSTEM ---
+window.currentLang = localStorage.getItem('app_lang') || 'fr';
+window.t = function(key) {
+    if (typeof I18N === 'undefined') return key;
+    return (I18N[window.currentLang] && I18N[window.currentLang][key]) || (I18N['fr'][key]) || key;
+};
+window.setLanguage = function(lang) {
+    window.currentLang = lang;
+    localStorage.setItem('app_lang', lang);
+    location.reload(); // Recharger pour appliquer partout
+};
+
 // --- BOOT ---
 console.log("mon50ccetmoi v13.0-ULTRA-PRO: Démarrage.");
+
+    // Sidebar Menu
+    const mGarage = document.getElementById('menu-garage'); if(mGarage) mGarage.innerHTML = `<i class="fa-solid fa-warehouse"></i> ${t('garage')}`;
+    const mRoadbooks = document.getElementById('menu-roadbooks'); if(mRoadbooks) mRoadbooks.innerHTML = `<i class="fa-solid fa-map-location-dot"></i> Roadbooks`;
+    const mSafety = document.getElementById('menu-rodage'); if(mSafety) mSafety.innerHTML = `<i class="fa-solid fa-gauge-high"></i> ${t('safety')}`;
+    const mInsurance = document.getElementById('menu-insurance'); if(mInsurance) mInsurance.innerHTML = `<i class="fa-solid fa-shield-halved"></i> ${t('insurance')}`;
+    const mMechanic = document.getElementById('menu-mechanic'); if(mMechanic) mMechanic.innerHTML = `<i class="fa-solid fa-robot"></i> ${t('maintenance')}`;
+
+    // Map Radar Options
+    const gasLabel = document.querySelector('[onclick="scanRadar(\'fuel\')"] span') || document.querySelector('[onclick="scanRadar(\'fuel\')"]');
+    if(gasLabel) gasLabel.innerHTML = `<i class="fa-solid fa-gas-pump"></i> ${t('gas')}`;
+    const emergencyLabel = document.querySelector('[onclick="scanRadar(\'doctors\')"] span') || document.querySelector('[onclick="scanRadar(\'doctors\')"]');
+    if(emergencyLabel) emergencyLabel.innerHTML = `<i class="fa-solid fa-hospital"></i> ${t('emergency')}`;
+    const bankLabel = document.querySelector('[onclick="scanRadar(\'atm\')"] span') || document.querySelector('[onclick="scanRadar(\'atm\')"]');
+    if(bankLabel) bankLabel.innerHTML = `<i class="fa-solid fa-money-bill-1"></i> ${t('bank')}`;
+};
 
 // PWA Installation Logic
 let deferredPrompt;
@@ -669,6 +697,7 @@ window.startApp = function() {
             loader.style.opacity = '0'; 
             setTimeout(() => loader.style.visibility = 'hidden', 800); 
         }
+        updateUILabels();
         if (typeof renderCommunityMarkers === "function") renderCommunityMarkers(); 
         console.log("mon50cc : Système prêt.");
     }, 1000);
@@ -704,7 +733,7 @@ window.showPage = function(page) {
     
     if(page === 'garage') {
         const history = JSON.parse(secureGetItem('maint_history') || '[]');
-        content.innerHTML = `<h3>Mon Garage</h3>
+        content.innerHTML = `<h3>${t('garage')}</h3>
             <div id="dynamic-garage-list"></div>
             <h4 style="margin-top:20px; font-size:0.9rem; color:#aaa;">Journal d'entretien</h4>
             <div id="maint-history" style="font-size:0.8rem; margin-top:10px;">
@@ -810,9 +839,9 @@ function triggerFallAlert() {
     div.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(180,0,0,0.95); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; padding:20px;";
     div.innerHTML = `
         <i class="fa-solid fa-triangle-exclamation" style="font-size:5rem; margin-bottom:20px;"></i>
-        <h1>CHUTE DÉTECTÉE !</h1>
-        <p>Êtes-vous en sécurité ? Une alerte va être envoyée à vos contacts d'urgence dans 30 secondes.</p>
-        <button onclick="this.parentElement.remove()" style="margin-top:30px; padding:20px 40px; background:white; color:red; border:none; border-radius:50px; font-weight:bold; font-size:1.2rem;">JE VAIS BIEN</button>
+        <h1>${t('fall_detected')}</h1>
+        <p>${t('emergency_alert')}</p>
+        <button onclick="this.parentElement.remove()" style="margin-top:30px; padding:20px 40px; background:white; color:red; border:none; border-radius:50px; font-weight:bold; font-size:1.2rem;">${t('cancel')}</button>
     `;
     document.body.appendChild(div);
 }
