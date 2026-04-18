@@ -931,7 +931,41 @@ let savedRoadbooks = JSON.parse(secureGetItem('roadbooks')) || [];
 window.renderRoadbooks = function() {
     const list = document.getElementById('roadbook-list');
     if(!list) return;
-    list.innerHTML = savedRoadbooks.map((rb, i) => `<li>${rb.name} <button onclick="loadRoadbook(${i})">Charger</button></li>`).join('');
+    list.innerHTML = savedRoadbooks.map((rb, i) => `
+        <li style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:10px; margin-bottom:5px; border-radius:8px;">
+            <span>${rb.name}</span>
+            <div>
+                <button onclick="loadRoadbook(${i})" style="background:#2ecc71; color:white; border:none; padding:5px; border-radius:5px;">Charger</button>
+                <button onclick="shareRoadbook(${i})" style="background:#00d2ff; color:black; border:none; padding:5px; border-radius:5px;"><i class="fa-solid fa-share"></i> Partager</button>
+            </div>
+        </li>`).join('');
+}
+
+window.shareRoadbook = async function(i) {
+    const rb = savedRoadbooks[i];
+    
+    // MODÉRATION : Vérification de la grossièreté
+    if (Moderation.isProfane(rb.name) || Moderation.isProfane(rb.description)) {
+        alert("Action bloquée : Le titre ou la description contient un langage inapproprié.");
+        return;
+    }
+
+    // MODÉRATION : Vérification des images (si présentes)
+    if (rb.photo) {
+        const scan = await Moderation.scanImage(rb.photo);
+        if (!scan.safe) {
+            alert("Action bloquée : L'image jointe n'est pas conforme aux règles communautaires.");
+            return;
+        }
+    }
+
+    // Publication Cloud (Si DB ok)
+    if (typeof publishRoadbookCloud === "function") {
+        const success = await publishRoadbookCloud(rb);
+        if (success) alert("Roadbook partagé avec succès à la communauté !");
+    } else {
+        alert("Partage impossible : Serveur Cloud non disponible.");
+    }
 }
 
 window.loadRoadbook = function(i) {

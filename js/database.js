@@ -303,3 +303,21 @@ window.getGarageInternalInfo = async function(placeId) {
         return doc.exists ? doc.data() : null;
     } catch(e) { return null; }
 };
+
+// --- ROADBOOKS CLOUD SHARING ---
+
+window.publishRoadbookCloud = async function(roadbook) {
+    if (!db || !window.session) return false;
+    try {
+        await db.collection("community_roadbooks").add({
+            ...roadbook,
+            author: window.session.username,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            reports: 0
+        });
+        return true;
+    } catch (e) {
+        console.error("Roadbook cloud fail:", e);
+        return false;
+    }
+};
