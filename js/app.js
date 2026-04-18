@@ -235,6 +235,14 @@ function updatePosition(position) {
 
     // --- NEW: Hazard Proximity Verification ---
     checkHazardProximity(lat, lng);
+
+    // --- CLOUD SYNC: Publish Position (Throttle to 15s) ---
+    if (!window.lastCloudSync || Date.now() - window.lastCloudSync > 15000) {
+        if (typeof publishUserLocation === "function") {
+            publishUserLocation(lat, lng, window.isRiding ? "Sur la route" : "En pause");
+            window.lastCloudSync = Date.now();
+        }
+    }
 }
 
 function checkHazardProximity(lat, lng) {
@@ -526,31 +534,38 @@ setInterval(() => {
     }
 }, 1000);
 
-// Simu Communauté
+// --- COMMUNITY LIVE RENDERING (MOBILE HUD ENGINE) ---
 let communityMarkers = [];
-function simulateCommunityLive() {
-    if(!currentPosition) return;
-    const names = ["Scoot75", "Nitro50", "PeugeotSpeed", "BikerFou"];
+window.renderCommunityMarkers = function() {
+    if(!map || !window.communityMembers) return;
     
     // Clear old markers
     communityMarkers.forEach(m => m.setMap(null));
     communityMarkers = [];
 
-    names.forEach(name => {
-        if(!window.session || name === window.session.username) return;
-        const latOffset = (Math.random()-0.5)*0.01;
-        const lngOffset = (Math.random()-0.5)*0.01;
+    window.communityMembers.forEach(member => {
         const m = new google.maps.Marker({
-            position: { lat: currentPosition.lat + latOffset, lng: currentPosition.lng + lngOffset },
+            position: { lat: member.lat, lng: member.lng },
             map: map,
-            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 5, fillColor: '#00d2ff', fillOpacity: 0.7, strokeColor: 'white', strokeWeight: 1 },
-            title: name
+            icon: { 
+                path: google.maps.SymbolPath.CIRCLE, 
+                scale: 6, 
+                fillColor: '#00d2ff', 
+                fillOpacity: 0.8, 
+                strokeColor: 'white', 
+                strokeWeight: 2,
+                labelOrigin: new google.maps.Point(0, -2)
+            },
+            title: member.username
         });
+
+        const info = new google.maps.InfoWindow({ 
+            content: `<div style="color:black"><b>${escapeHTML(member.username)}</b><br><small>${escapeHTML(member.brand)} - ${escapeHTML(member.status)}</small></div>` 
+        });
+        m.addListener("click", () => info.open(map, m));
         communityMarkers.push(m);
     });
 }
-// Mise à jour périodique de la communauté (toutes les 15s)
-setInterval(simulateCommunityLive, 15000);
 
 // --- 7. SERVICES (Météo, Boussole, Garage) ---
 window.fetchWeather = async function(lat, lon) {
@@ -654,7 +669,7 @@ window.startApp = function() {
             loader.style.opacity = '0'; 
             setTimeout(() => loader.style.visibility = 'hidden', 800); 
         }
-        simulateCommunityLive(); 
+        if (typeof renderCommunityMarkers === "function") renderCommunityMarkers(); 
         console.log("mon50cc : Système prêt.");
     }, 1000);
 };
@@ -813,7 +828,13 @@ window.startRodage = function(name) {
 
 window.submitMood = function(emoji) {
     const comment = document.getElementById('mood-comment').value;
-    console.log("Feedback:", emoji, comment);
+    const mood = { label: emoji, text: comment };
+    
+    // Publication Cloud (Social Ticker)
+    if (typeof publishMoodCloud === "function") {
+        publishMoodCloud(mood);
+    }
+
     alert("Merci pour votre retour !");
     closeMood();
 }
