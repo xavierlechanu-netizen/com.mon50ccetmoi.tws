@@ -403,10 +403,26 @@ window.toggleHazardMenu = function() {
 
 window.saveHazard = function(type) {
     if(!currentPosition) return;
-    const h = { lat: currentPosition.lat, lon: currentPosition.lng, type: type, author: window.session ? window.session.username : 'Anonyme' };
-    let db = JSON.parse(secureGetItem('hazards') || '[]');
-    db.push(h);
-    secureSetItem('hazards', JSON.stringify(db));
+    const h = { 
+        lat: currentPosition.lat, 
+        lon: currentPosition.lng, 
+        type: type, 
+        author: window.session ? window.session.username : 'Anonyme',
+        date: new Date().toISOString()
+    };
+    
+    // 1. Sauvegarde Locale (Fallback)
+    let dbLocal = JSON.parse(secureGetItem('hazards') || '[]');
+    dbLocal.push(h);
+    secureSetItem('hazards', JSON.stringify(dbLocal));
+    
+    // 2. Publication Cloud (Temps réel pour la communauté)
+    if (typeof publishHazardCloud === "function") {
+        publishHazardCloud(h).then(success => {
+            if(success) console.log("Signalement synchronisé sur le Cloud.");
+        });
+    }
+
     alert(`Signalement: ${escapeHTML(type)} enregistré ! Merci à vous.`);
     toggleHazardMenu();
     loadHazards();

@@ -91,6 +91,11 @@ function login(username, password) {
         secureSetItem('users', JSON.stringify(users));
         secureSetItem('session', JSON.stringify(users[userIndex]));
 
+        // Synchronisation Cloud
+        if (typeof syncUserToCloud === "function") {
+            syncUserToCloud(users[userIndex]);
+        }
+
         if (users[userIndex].role === 'admin') {
             window.location.href = 'admin.html';
         } else {

@@ -15,5 +15,15 @@ const CONFIG = {
     },
     
     // App Versioning
-    VERSION: "13.0-ULTRA-PRO"
+    VERSION: "13.0-ULTRA-PRO",
+
+    // Firebase Cloud Database (Firestore)
+    FIREBASE: {
+        apiKey: "AIzaSy_PLACEHOLDER_KEY",
+        authDomain: "mon50ccetmoi.firebaseapp.com",
+        projectId: "mon50ccetmoi",
+        storageBucket: "mon50ccetmoi.appspot.com",
+        messagingSenderId: "618915667828",
+        appId: "1:618915667828:web:7f6d4e21a3b5c0d9e1f2"
+    }
 };
