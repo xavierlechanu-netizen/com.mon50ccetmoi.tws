@@ -47,6 +47,12 @@ function syncHazards() {
 
 window.publishHazardCloud = async function(hazard) {
     if (!db) return false;
+    
+    // BOT MODERATION
+    if (window.GuardianBot && !window.GuardianBot.analyzeContent("Signalement", hazard, hazard.author)) {
+        return false;
+    }
+
     try {
         await db.collection("hazards").add({
             ...hazard,
@@ -117,6 +123,12 @@ function syncSocialTicker() {
 
 window.publishMoodCloud = async function(mood) {
     if (!db || !window.session) return;
+
+    // BOT MODERATION
+    if (window.GuardianBot && !window.GuardianBot.analyzeContent("Humeur", mood, window.session.username)) {
+        return;
+    }
+
     try {
         await db.collection("moods").add({
             ...mood,
@@ -308,6 +320,12 @@ window.getGarageInternalInfo = async function(placeId) {
 
 window.publishRoadbookCloud = async function(roadbook) {
     if (!db || !window.session) return false;
+    
+    // BOT MODERATION
+    if (window.GuardianBot && !window.GuardianBot.analyzeContent("Roadbook", roadbook, window.session.username)) {
+        return false;
+    }
+
     try {
         await db.collection("community_roadbooks").add({
             ...roadbook,
