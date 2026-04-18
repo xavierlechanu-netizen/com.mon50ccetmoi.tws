@@ -107,6 +107,8 @@ let parkingStartPos = null;
 let perfStartTime = null;
 
 window.isRodageActive = false;
+window.isGarageVisible = false;
+window.garageStatus = "dispo";
 
 // --- SECURITY SYSTEMS STATE ---
 let lastMovementTime = Date.now();
@@ -1025,6 +1027,13 @@ function checkUserBadges() {
         </div>`;
     }
 
+    // Badge Mécène (Donateur)
+    if(window.session?.isDonator) {
+        badgesHtml += `<div class="badge-mecene" title="Mécène: Soutien du projet" style="background:#e91e63; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-right:5px; box-shadow:0 0 5px #e91e63;">
+            <i class="fa-solid fa-heart"></i> Mécène
+        </div>`;
+    }
+
     if(badgesHtml === "") {
         const remainingEl = 5000 - total;
         badgesHtml = `<small style="color:#666; font-size:0.6rem;">En route pour les badges...</small>`;
@@ -1371,25 +1380,88 @@ window.showPage = function(page) {
                 <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
     } else if(page === 'pro-tips') {
+        const communityTips = JSON.parse(secureGetItem('community_pro_tips') || '[]');
         content.innerHTML = `<h3><i class="fa-solid fa-lightbulb"></i> Conseils de Pro 50cc</h3>
-            <div class="card" style="border-left:4px solid #f39c12;">
-                <h4 style="color:#f39c12;"><i class="fa-solid fa-wrench"></i> Entretien Rapide</h4>
-                <p style="font-size:0.8rem; margin-top:5px;"><strong>Bougie :</strong> Une bougie propre (couleur chocolat) = un moteur qui dure. Si elle est noire, votre mélange est trop riche.</p>
-                <p style="font-size:0.8rem; margin-top:10px;"><strong>Pression :</strong> Vérifiez vos pneus toutes les 2 semaines. Un pneu sous-gonflé = -5km/h et risque de chute.</p>
+            <p style="font-size:0.7rem; color:#aaa; margin-bottom:15px;">Fiches techniques rédigées par nos experts et les garages certifiés.</p>
+            
+            <div id="pro-tips-container">
+                <div class="card" style="border-left:4px solid #f39c12;">
+                    <button class="badge-pro" style="float:right; background:#f39c12; font-size:0.5rem; border:none; color:black; border-radius:5px; padding:2px 5px;">OFFICIEL</button>
+                    <h4 style="color:#f39c12;"><i class="fa-solid fa-wrench"></i> Entretien Rapide</h4>
+                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bougie :</strong> Une bougie propre (couleur chocolat) = un moteur qui dure. Si elle est noire, votre mélange est trop riche.</p>
+                </div>
+
+                ${communityTips.map(tip => `
+                    <div class="card" style="border-left:4px solid #2ecc71;">
+                        <button class="badge-pro" style="float:right; background:#2ecc71; font-size:0.5rem; border:none; color:white; border-radius:5px; padding:2px 5px;">EXPERT : ${tip.author}</button>
+                        <h4 style="color:#2ecc71;"><i class="fa-solid fa-graduation-cap"></i> ${tip.title}</h4>
+                        <p style="font-size:0.8rem; margin-top:5px;">${tip.body}</p>
+                    </div>
+                `).join('')}
+
+                <div class="card" style="border-left:4px solid #e74c3c;">
+                    <button class="badge-pro" style="float:right; background:#e74c3c; font-size:0.5rem; border:none; color:white; border-radius:5px; padding:2px 5px;">OFFICIEL</button>
+                    <h4 style="color:#e74c3c;"><i class="fa-solid fa-scale-balanced"></i> Loi & Sécurité</h4>
+                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bridage :</strong> Le débridage est interdit sur voie publique. En cas d'accident, votre assurance peut refuser de payer.</p>
+                </div>
+            </div>`;
+    } else if(page === 'pro-space') {
+        const isCertified = window.session?.isCertifiedGarage || false;
+        content.innerHTML = `<h3><i class="fa-solid fa-briefcase"></i> Espace Garage Pro</h3>
+            <div class="card" style="border:1px solid #3498db; background: rgba(52, 152, 219, 0.05);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong>Visibilité Mobile</strong>
+                    <button onclick="toggleGarageVisibility()" class="btn-circular ${window.isGarageVisible ? 'btn-neon' : 'btn-dark'}" style="width:40px; height:40px;">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <small style="font-size:0.6rem; color:#aaa; margin-top:5px; display:block;">Si activé, vous apparaissez en bleu sur la carte des pilotes.</small>
             </div>
 
-            <div class="card" style="border-left:4px solid #e74c3c;">
-                <h4 style="color:#e74c3c;"><i class="fa-solid fa-scale-balanced"></i> Loi & Sécurité</h4>
-                <p style="font-size:0.8rem; margin-top:5px;"><strong>Bridage :</strong> Le débridage est interdit sur voie publique. En cas d'accident, votre assurance peut refuser de payer.</p>
-                <p style="font-size:0.8rem; margin-top:10px;"><strong>Équipement :</strong> Gants certifiés CE et casque attaché sont obligatoires. Amende de 4e classe sinon !</p>
+            <div class="card">
+                <label style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immédiat de l'atelier</label>
+                <select id="garage-status-select" onchange="updateGarageStatus(this.value)" class="scooter-brand-select" style="width:100%; background:#111;">
+                    <option value="dispo" selected>✅ Prise en charge immédiate</option>
+                    <option value="busy">⏳ RDV nécessaire (>48h)</option>
+                    <option value="full">🚫 Atelier Complet</option>
+                </select>
             </div>
 
-            <div class="card" style="border-left:4px solid #2ecc71;">
-                <h4 style="color:#2ecc71;"><i class="fa-solid fa-wind"></i> Astuce Pilotage</h4>
-                <p style="font-size:0.8rem; margin-top:5px;"><strong>Anticipation :</strong> En 50cc, vous êtes petit. Regardez toujours les roues avant des voitures aux intersections (elles tournent avant le véhicule).</p>
+            <div class="card" style="border:1px solid #f1c40f;">
+                <h4 style="color:#f1c40f; margin-bottom:10px;"><i class="fa-solid fa-bolt"></i> Offre Flash (Promo)</h4>
+                <textarea id="flash-offer-text" placeholder="Ex: -20% sur les pneus Michelin ce weekend !" style="width:100%; height:60px; background:#000; color:white; border:1px solid #444; border-radius:8px; padding:10px; font-size:0.8rem;"></textarea>
+                <button onclick="publishFlashOffer()" class="btn-insurance" style="background:#f1c40f; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Diffuser à la communauté</button>
             </div>
 
-            <p style="font-size:0.6rem; color:#666; text-align:center; margin-top:20px;">Rédigé par l'équipe mon50ccetmoi & Experts Moto</p>`;
+            ${!isCertified ? `
+            <div class="card" style="text-align:center; background:rgba(255,255,255,0.02);">
+                <i class="fa-solid fa-certificate" style="font-size:2rem; color:#aaa;"></i><br>
+                <small>Vous n'êtes pas encore certifié.</small><br>
+                <button onclick="requestCertification()" class="btn-insurance" style="margin-top:10px; font-size:0.7rem;">Demander la Certification</button>
+            </div>` : ''}
+
+            <div class="card" style="border:1px solid #2ecc71;">
+                <h4 style="color:#2ecc71; margin-bottom:10px;"><i class="fa-solid fa-graduation-cap"></i> Partager un Conseil d'Expert</h4>
+                <input type="text" id="pro-tip-title" placeholder="Titre (ex: Nettoyer son carbu)" style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:white; border:1px solid #444; border-radius:8px; font-size:0.8rem;">
+                <textarea id="pro-tip-body" placeholder="Votre explication technique..." style="width:100%; height:80px; background:#000; color:white; border:1px solid #444; border-radius:8px; padding:10px; font-size:0.8rem;"></textarea>
+                <button onclick="publishProTip()" class="btn-insurance" style="background:#2ecc71; color:white; margin-top:10px; width:100%; font-size:0.8rem;">Publier la Fiche Technique</button>
+            </div>
+        `;
+    } else if(page === 'donate') {
+        content.innerHTML = `<h3><i class="fa-solid fa-heart"></i> Soutenir le Projet</h3>
+            <div class="card" style="text-align:center; background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(0,0,0,0)); border: 1px solid #e91e63;">
+                <i class="fa-solid fa-mug-hot fa-bounce" style="font-size:3rem; color:#e91e63; margin-bottom:15px;"></i>
+                <p style="font-size:0.9rem; line-height:1.5;"><strong>mon50ccetmoi</strong> est un projet de passionné, développé sur mon temps libre pour la communauté des pilotes de 50cc.</p>
+                <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">L'application restera 100% gratuite, mais les dons aident à payer les serveurs (Google Maps API, Firebase) et à financer les futures mises à jour.</p>
+                
+                <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+                    <a href="https://www.buymeacoffee.com/mon50cc" target="_blank" class="btn-insurance" style="background:#ffdd00; color:black; text-decoration:none;">☕ Offrir un café (Badge Mécène 💖)</a>
+                    <a href="https://paypal.me/mon50cc" target="_blank" class="btn-insurance" style="background:#0070ba; color:white; text-decoration:none;">💙 Faire un don libre (PayPal)</a>
+                </div>
+                
+                <p style="font-size:0.7rem; color:#666; margin-top:15px;">🎁 Chaque don débloque le badge exclusif **"Mécène"** sur votre profil et sur la carte communautaire !</p>
+            </div>
+        `;
     } else if(page === 'security') {
         const emergencyNum = secureGetItem('emergency_contact') || '';
         const isGuardian = secureGetItem('guardian_enabled') === 'true';
@@ -1739,4 +1811,57 @@ window.toggleRodageHUD = function() {
         btn.classList.remove('btn-neon');
         speak("Mode Rodage désactivé.");
     }
+};
+
+window.toggleGarageVisibility = function() {
+    window.isGarageVisible = !window.isGarageVisible;
+    speak(window.isGarageVisible ? "Votre garage est maintenant visible des pilotes." : "Visibilité désactivée.");
+    showPage('pro-space');
+    if(currentPosition) {
+        publishUserLocation(currentPosition.lat, currentPosition.lng, window.isGarageVisible ? `Pro: ${window.garageStatus}` : "Offline");
+    }
+};
+
+window.updateGarageStatus = function(val) {
+    window.garageStatus = val;
+    speak("Disponibilité de l'atelier mise à jour.");
+    if(window.isGarageVisible && currentPosition) {
+        publishUserLocation(currentPosition.lat, currentPosition.lng, `Pro: ${window.garageStatus}`);
+    }
+};
+
+window.publishFlashOffer = function() {
+    const text = document.getElementById('flash-offer-text').value;
+    if(!text) return;
+    speak("Offre Flash publiée.");
+    alert("Votre offre de promotion a été diffusée !");
+    if (typeof publishMoodCloud === "function") {
+        publishMoodCloud({ label: '⚡ PROMO', text: text });
+    }
+};
+
+window.requestCertification = function() {
+    alert("Demande de certification envoyée !");
+    speak("Demande enregistrée.");
+};
+
+window.publishProTip = function() {
+    const title = document.getElementById('pro-tip-title').value;
+    const body = document.getElementById('pro-tip-body').value;
+    if(!title || !body) return;
+
+    const tip = {
+        title,
+        body,
+        author: window.session?.username || "Expert Garage",
+        timestamp: Date.now()
+    };
+
+    let communityTips = JSON.parse(secureGetItem('community_pro_tips') || '[]');
+    communityTips.unshift(tip);
+    secureSetItem('community_pro_tips', JSON.stringify(communityTips));
+
+    speak("Votre fiche technique a été publiée avec succès ! Elle est maintenant visible par tous les pilotes.");
+    alert("Félicitations ! Votre conseil d'expert est en ligne.");
+    showPage('pro-space');
 };
