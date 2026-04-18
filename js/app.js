@@ -905,8 +905,16 @@ function checkUserBadges() {
 
     // Badge Diamant (10000km)
     if(total >= 10000) {
-        badgesHtml += `<div class="badge-diamant" title="Légende: 10000km" style="background:linear-gradient(135deg, #B9F2FF, #ffffff); color:#005c75; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; box-shadow:0 0 10px #B9F2FF;">
+        badgesHtml += `<div class="badge-diamant" title="Légende: 10000km" style="background:linear-gradient(135deg, #B9F2FF, #ffffff); color:#005c75; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; box-shadow:0 0 10px #B9F2FF; margin-right:5px;">
             <i class="fa-solid fa-gem"></i> Diamant
+        </div>`;
+    }
+
+    // Badge Pro des Défis (150 victoires)
+    const challengeWins = window.session?.completedChallengesCount || 0;
+    if(challengeWins >= 150) {
+        badgesHtml += `<div class="badge-master-defi" title="Master Défis: 150 victoires" style="background:#9b59b6; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; border:1px solid #fff;">
+            <i class="fa-solid fa-trophy"></i> Pro des Défis
         </div>`;
     }
 
@@ -1044,30 +1052,41 @@ window.showPage = function(page) {
             <button class="btn-insurance" onclick="submitMecaV3()" style="margin-top:15px; width:100%;">Scanner mon 50cc</button>
             <div id="meca-response" style="margin-top:20px; font-size:0.9rem; line-height:1.4;"></div>`;
     } else if(page === 'defis') {
-        const challenge = { name: "Le Grand Raid", goal: 200, durationDays: 14 };
-        const totalKm = window.session?.totalDistance || 0;
-        // Simulation de calcul sur 14j (à coupler avec date_debut_defi plus tard)
-        const progress = Math.min((totalKm / challenge.goal) * 100, 100);
+        const availableChallenges = [
+            { name: "Le Grand Raid", goal: 200, unit: "km" },
+            { name: "L'Urbain Zen", goal: 100, unit: "km" },
+            { name: "L'Explorateur", goal: 300, unit: "km" },
+            { name: "Le Vélomoteur", goal: 50, unit: "km" }
+        ];
+
+        // Rotation tous les 14 jours basée sur l'Unix Time
+        const fortressPeriod = 14 * 24 * 60 * 60 * 1000;
+        const currentPeriodIdx = Math.floor(Date.now() / fortressPeriod) % availableChallenges.length;
+        const challenge = availableChallenges[currentPeriodIdx];
         
-        content.innerHTML = `<div class="card" style="border:1px solid #2ecc71;">
+        const totalKm = window.session?.totalDistance || 0;
+        const progress = Math.min((totalKm / challenge.goal) * 100, 100);
+        const wins = window.session?.completedChallengesCount || 0;
+
+        content.innerHTML = `<div class="card" style="border:1px solid #9b59b6;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="color:#2ecc71; margin:0;">🏆 ${challenge.name}</h3>
-                <span style="font-size:0.7rem; background:#2ecc71; color:black; padding:2px 6px; border-radius:10px;">En cours</span>
+                <h3 style="color:#9b59b6; margin:0;">🏆 Défis : ${challenge.name}</h3>
+                <span style="font-size:0.7rem; background:#9b59b6; color:white; padding:2px 6px; border-radius:10px;">CYCLE LIVE</span>
             </div>
-            <p style="font-size:0.8rem; margin-top:10px;">Objectif : Parcourir <strong>${challenge.goal} km</strong> en 14 jours.</p>
+            <p style="font-size:0.8rem; margin-top:10px;">Objectif : ${challenge.goal} ${challenge.unit} par quinzaine.</p>
             
             <div style="background:rgba(255,255,255,0.05); border-radius:10px; padding:15px; margin-top:15px;">
                 <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;">
-                    <span>Votre progression</span>
+                    <span>Progression actuelle</span>
                     <span>${totalKm.toFixed(1)} / ${challenge.goal} km</span>
                 </div>
                 <div class="garage-bar-bg" style="height:12px;">
-                    <div class="garage-bar-fill" style="width:${progress}%; background:#2ecc71;"></div>
+                    <div class="garage-bar-fill" style="width:${progress}%; background:#9b59b6;"></div>
                 </div>
-                <p style="font-size:0.7rem; color:#888; margin-top:10px; text-align:center;">⏳ Fin du défi dans 9 jours</p>
+                <p style="font-size:0.8rem; color:#888; margin-top:10px; text-align:center;">🎖️ Vous avez réussi <strong>${wins}/150</strong> défis pour le Badge Pro</p>
             </div>
 
-            <button class="btn-insurance" style="margin-top:20px; width:100%; background:#2ecc71; color:black;" onclick="toggleMenu()">CONTINUER À ROULER</button>
+            <button class="btn-insurance" style="margin-top:20px; width:100%; background:#9b59b6; color:white;" onclick="toggleMenu()">CONTINUER L'ASCENSION</button>
         </div>`;
     } else if(page === 'privacy') {
         content.innerHTML = `<h3>Mentions Légales & Confidentialité</h3>
