@@ -24,7 +24,7 @@
 
     <link rel="manifest" href="manifest.json" />
     <title>mon50ccetmoi | Navigation & Sécurité 50cc</title>
-    <script src="js/config.js?v=13.0"></script>
+    <script src="js/config.js?v=20.0"></script>
     <!-- Chargeur Dynamique Google Maps avec Callback -->
     <script>
         window.initMap = function() {
@@ -49,16 +49,16 @@
 
     <!-- UI/UX Dependencies -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcXtkzj2xw=" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/style.css?v=13.0">
+    <link rel="stylesheet" href="css/style.css?v=20.0">
     <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
     <!-- Firebase SDK (v9 Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <script src="js/crypto-js.min.js"></script>
-    <script src="js/i18n.js?v=13.0"></script>
-    <script src="js/auth.js?v=13.0"></script>
-    <script src="js/database.js?v=13.0"></script>
+    <script src="js/i18n.js?v=20.0"></script>
+    <script src="js/auth.js?v=20.0"></script>
+    <script src="js/database.js?v=20.0"></script>
     <script>const session = checkAuth(false);</script>
 </head>
 <body style="margin:0; padding:0; background:#000; overflow:hidden;">
@@ -70,7 +70,7 @@
             <div class="loader-logo">
                 <i class="fa-solid fa-motorcycle fa-bounce"></i>
             </div>
-            <h1 class="loader-title">mon50ccetmoi <small class="v-tag">(v13.0-ULTRA-PRO)</small></h1>
+            <h1 class="loader-title">mon50ccetmoi <small class="v-tag">(v20.0-ULTRA-PRO-ELITE)</small></h1>
             <p class="loader-status" id="loader-status">Démarrage des systèmes de bord...</p>
             <div class="loader-track"><div id="loader-bar"></div></div>
         </div>
@@ -248,11 +248,11 @@
         <div id="ticker-text">Bonne route sur mon50ccetmoi v11.0-ULTRA-PRO ! Prudence.</div>
     </div>
 
-    <script src="js/app.js?v=13.0"></script>
+    <script src="js/app.js?v=20.0"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=13.0').catch(e => console.error(e));
+                navigator.serviceWorker.register('./sw.js?v=20.0').catch(e => console.error(e));
             });
         }
     </script>

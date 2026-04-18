@@ -15,7 +15,7 @@ const CONFIG = {
     },
     
     // App Versioning
-    VERSION: "13.0-ULTRA-PRO",
+    VERSION: "20.0-ULTRA-PRO-ELITE",,
 
     // Firebase Cloud Database (Firestore)
     FIREBASE: {

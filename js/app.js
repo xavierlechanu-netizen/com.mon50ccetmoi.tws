@@ -1,5 +1,9 @@
 // --- I18N SYSTEM ---
-window.currentLang = localStorage.getItem('app_lang') || 'fr';
+window.currentLang = localStorage.getItem('app_lang');
+if (!window.currentLang) {
+    const browserLang = navigator.language.split('-')[0]; // ex: 'fr-FR' -> 'fr'
+    window.currentLang = ['fr', 'en', 'es', 'it', 'nl'].includes(browserLang) ? browserLang : 'fr';
+}
 window.t = function(key) {
     if (typeof I18N === 'undefined') return key;
     return (I18N[window.currentLang] && I18N[window.currentLang][key]) || (I18N['fr'][key]) || key;
@@ -7,11 +11,11 @@ window.t = function(key) {
 window.setLanguage = function(lang) {
     window.currentLang = lang;
     localStorage.setItem('app_lang', lang);
-    location.reload(); // Recharger pour appliquer partout
+    location.reload(); 
 };
 
 // --- BOOT ---
-console.log("mon50ccetmoi v13.0-ULTRA-PRO: Démarrage.");
+console.log("mon50ccetmoi v20.0-ULTRA-PRO-ELITE: Démarrage.");
 
     // Sidebar Menu
     const mGarage = document.getElementById('menu-garage'); if(mGarage) mGarage.innerHTML = `<i class="fa-solid fa-warehouse"></i> ${t('garage')}`;
@@ -136,7 +140,7 @@ function initMap() {
     trafficLayer = new google.maps.TrafficLayer();
     trafficLayer.setMap(map);
 
-    console.log("Moteur Premium v13.0-ULTRA-PRO : Initialisé.");
+    console.log("Moteur Premium v20.0-ULTRA-PRO-ELITE : Initialisé.");
 }
 
 window.toggleTilt = function() {
@@ -881,7 +885,7 @@ window.logout = function() {
 
 window.updateTicker = function() {
     const t = document.getElementById('ticker-text');
-    if(t) t.innerHTML = "Bonne balade sur mon50ccetmoi v12.1-ULTRA-PRO ! Prudence sur la route. 🛵💨";
+    if(t) t.innerHTML = "Bonne balade sur mon50ccetmoi v20.0-ULTRA-PRO-ELITE ! Prudence sur la route. 🛵💨";
 }
 updateTicker();
 setInterval(updateTicker, 60000);
