@@ -831,7 +831,23 @@ window.fetchWeather = async function(lat, lon) {
         const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
         const data = await res.json();
         const temp = Math.round(data.current_weather.temperature);
-        document.getElementById('weather-hud').innerHTML = `<i class="fa-solid fa-cloud-sun"></i> ${temp}°C`;
+        const code = data.current_weather.weathercode;
+        
+        let icon = '<i class="fa-solid fa-cloud-sun"></i>';
+        let alertMsg = "";
+
+        if (code >= 95) { alertMsg = "Alerte Orage : Prudence maximale conseillée."; icon = '<i class="fa-solid fa-cloud-bolt" style="color:#f1c40f;"></i>'; }
+        else if (code >= 80) { alertMsg = "Averses détectées : Route potentiellement glissante."; icon = '<i class="fa-solid fa-cloud-showers-heavy"></i>'; }
+        else if (code >= 61) { alertMsg = "Pluie signalée par satellite. Équipez-vous."; icon = '<i class="fa-solid fa-cloud-rain"></i>'; }
+        else if (code >= 71) { alertMsg = "Alerte Neige : Conditions de circulation difficiles."; icon = '<i class="fa-solid fa-snowflake"></i>'; }
+
+        document.getElementById('weather-hud').innerHTML = `${icon} ${temp}°C`;
+
+        if (alertMsg && !window.lastWeatherAlert) {
+            speak(alertMsg);
+            window.lastWeatherAlert = true;
+            setTimeout(() => window.lastWeatherAlert = false, 3600000); // Reset alerte toutes les heures
+        }
     } catch(e) { console.warn("Météo fail"); }
 }
 
