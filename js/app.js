@@ -2,7 +2,8 @@
 window.currentLang = localStorage.getItem('app_lang');
 if (!window.currentLang) {
     const browserLang = navigator.language.split('-')[0]; // ex: 'fr-FR' -> 'fr'
-    window.currentLang = ['fr', 'en', 'es', 'it', 'nl', 'pl', 'pt', 'de'].includes(browserLang) ? browserLang : 'fr';
+    const supported = ['fr', 'en', 'es', 'it', 'nl', 'pl', 'pt', 'de', 'sv', 'da', 'fi', 'no', 'el', 'cs', 'hu', 'ro'];
+    window.currentLang = supported.includes(browserLang) ? browserLang : 'fr';
 }
 window.t = function(key) {
     if (typeof I18N === 'undefined') return key;
