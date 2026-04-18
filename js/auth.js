@@ -27,6 +27,40 @@ window.secureRemoveItem = function(key) {
     localStorage.removeItem(key);
 };
 
+// --- AUTO-PURGE SYSTEM (RGPD) ---
+function purgeInactiveUsers() {
+    const INACTIVITY_LIMIT_MS = 90 * 24 * 60 * 60 * 1000; // 90 jours
+    const now = Date.now();
+    let users = JSON.parse(secureGetItem('users') || '[]');
+    const initialCount = users.length;
+
+    users = users.filter(u => {
+        if (u.role === 'admin') return true; // L'admin est permanent
+        const lastSeen = u.lastSeen || now; 
+        return (now - lastSeen) <= INACTIVITY_LIMIT_MS;
+    });
+
+    if (users.length < initialCount) {
+        secureSetItem('users', JSON.stringify(users));
+        console.warn(`[RGPD] ${initialCount - users.length} compte(s) inactif(s) (>90 jours) supprimé(s).`);
+    }
+}
+
+function updateActivity() {
+    const raw = secureGetItem('session');
+    if (!raw) return;
+    const session = JSON.parse(raw);
+    if (session.isGuest) return;
+
+    let users = JSON.parse(secureGetItem('users') || '[]');
+    const userIndex = users.findIndex(u => u.username === session.username);
+    
+    if (userIndex !== -1) {
+        users[userIndex].lastSeen = Date.now();
+        secureSetItem('users', JSON.stringify(users));
+    }
+}
+
 // --- DATABASE INITIALIZATION ---
 
 if (!secureGetItem('users')) {
@@ -45,12 +79,19 @@ if (!secureGetItem('hazards')) {
     secureSetItem('hazards', JSON.stringify([]));
 }
 
+// Nettoyage au démarrage
+purgeInactiveUsers();
+
 function login(username, password) {
     const users = JSON.parse(secureGetItem('users'));
-    const user = users.find(u => u.username === username && u.password === password);
-    if (user) {
-        secureSetItem('session', JSON.stringify(user));
-        if (user.role === 'admin') {
+    const userIndex = users.findIndex(u => u.username === username && u.password === password);
+    
+    if (userIndex !== -1) {
+        users[userIndex].lastSeen = Date.now(); // Update last activity
+        secureSetItem('users', JSON.stringify(users));
+        secureSetItem('session', JSON.stringify(users[userIndex]));
+
+        if (users[userIndex].role === 'admin') {
             window.location.href = 'admin.html';
         } else {
             window.location.href = 'index.html';
@@ -81,7 +122,7 @@ function register(username, password, brand) {
         return;
     }
     
-    const newUser = { username, password, role: 'user', brand, points: 0 };
+    const newUser = { username, password, role: 'user', brand, points: 0, lastSeen: Date.now() };
     users.push(newUser);
     secureSetItem('users', JSON.stringify(users));
     
@@ -133,5 +174,6 @@ function checkAuth(requireAdmin = false) {
         window.location.href = 'index.html';
         return null;
     }
+    updateActivity(); // Refresh heartbeat
     return session;
 }
