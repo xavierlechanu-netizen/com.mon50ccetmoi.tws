@@ -516,7 +516,8 @@ function loadHazards() {
 const poiConfig = {
     'fuel': { icon: 'fa-gas-pump', label: 'Essence', color: '#cca000', radius: 5000 },
     'doctors': { icon: 'fa-stethoscope', label: 'Urgences', color: '#e74c3c', radius: 10000 },
-    'atm': { icon: 'fa-money-bill-1', label: 'DAB', color: '#2ecc71', radius: 3000 }
+    'atm': { icon: 'fa-money-bill-1', label: 'DAB', color: '#2ecc71', radius: 3000 },
+    'mechanic': { icon: 'fa-wrench', label: 'Garages', color: '#ffa500', radius: 8000 }
 };
 
 window.toggleRadarMenu = function() {
@@ -535,6 +536,9 @@ window.scanRadar = function(type) {
     if (type === 'fuel') {
         // --- NEW: Government Data Integration ---
         fetchFuelPricesUsingGovAPI(currentPosition.lat, currentPosition.lng, config, radarBtn, oldHtml);
+    } else if (type === 'mechanic') {
+        // --- NEW: Google Places Garage Integration ---
+        fetchGaragesUsingPlacesAPI(currentPosition.lat, currentPosition.lng, config, radarBtn, oldHtml);
     } else {
         // Standard Overpass Search for other POIs
         const lat = currentPosition.lat;
@@ -619,7 +623,52 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
                     </div>`
                 });
                 
-// --- NEW: PHOTO EVIDENCE HANDLER ---
+async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
+    if(!google.maps.places) {
+        alert("Services de lieux non disponibles.");
+        btn.innerHTML = oldHtml;
+        return;
+    }
+    
+    const service = new google.maps.places.PlacesService(map);
+    const request = {
+        location: new google.maps.LatLng(lat, lng),
+        radius: config.radius,
+        keyword: 'garage scooter 50cc moto'
+    };
+
+    service.nearbySearch(request, (results, status) => {
+        btn.innerHTML = oldHtml;
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            officialPoiMarkers.forEach(m => m.setMap(null));
+            officialPoiMarkers = [];
+            
+            // FILTRAGE : Uniquement ceux avec note >= 3.3
+            const filtered = results.filter(r => (r.rating || 0) >= 3.3);
+            
+            filtered.forEach(place => {
+                const marker = new google.maps.Marker({
+                    position: place.geometry.location,
+                    map: map,
+                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: config.color, fillOpacity: 1, strokeColor: 'white' }
+                });
+
+                const info = new google.maps.InfoWindow({
+                    content: `<div style="color:black;">
+                        <b>${place.name}</b><br>
+                        ⭐ ${place.rating || "N/A"}/5 (${place.user_ratings_total || 0} avis)
+                    </div>`
+                });
+
+                marker.addListener("click", () => info.open(map, marker));
+                officialPoiMarkers.push(marker);
+            });
+            alert(`${filtered.length} garages certifiés (Note > 3.3) trouvés.`);
+        } else {
+            alert("Aucun garage trouvé dans cette zone.");
+        }
+    });
+}
 window.triggerPhotoReport = function(id, name) {
     const input = document.getElementById('abuse-photo-input');
     input.onchange = async (e) => {
