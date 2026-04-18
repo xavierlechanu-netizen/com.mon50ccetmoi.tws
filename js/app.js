@@ -81,7 +81,9 @@ function escapeHTML(str) {
     });
 }
 
-// --- 1. CONFIG & GLOBALS ---
+// --- BOOT ---
+console.log("mon50ccetmoi v20.0-FINAL : Production.");
+\n
 let map;
 let directionsService;
 let directionsRenderer;
@@ -1254,6 +1256,9 @@ window.showPage = function(page) {
 
 window.shareApp = async function() {
     const shareData = {
+        "version": "20.0",
+        "id": "com.mon50ccetmoi.twa",
+        "lang": "fr-FR",
         title: 'mon50ccetmoi',
         text: 'Rejoins la communauté des scooters 50cc ! Navigation GPS, radars et sécurité.',
         url: window.location.origin
@@ -1343,7 +1348,7 @@ window.logout = function() {
 
 window.updateTicker = function() {
     const t = document.getElementById('ticker-text');
-    if(t) t.innerHTML = "Bonne balade sur mon50ccetmoi v20.0-ULTRA-PRO-ELITE ! Prudence sur la route. 🛵💨";
+    if(t) t.innerHTML = "Bienvenue sur la version officielle de mon50ccetmoi v20.0-FINAL ! Prudence sur la route. 🛵💨";
 }
 updateTicker();
 setInterval(updateTicker, 60000);
