@@ -15,23 +15,11 @@ window.setLanguage = function(lang) {
     location.reload(); 
 };
 
-// --- BOOT ---
-console.log("mon50ccetmoi v20.0-ULTRA-PRO-ELITE: Démarrage.");
-
 function checkUserBadges() {
-    const totalKm = parseFloat(secureGetItem('total_km') || '0');
-    const badgeContainer = document.getElementById('user-badges');
-    if(!badgeContainer) return;
-
-    if(totalKm >= 5000) {
-        badgeContainer.innerHTML = `<div class="badge-elite" title="5000km parcourus">
-            <i class="fa-solid fa-crown" style="color:#00d2ff;"></i> Rider d'Élite
-        </div>`;
-    } else {
-        badgeContainer.innerHTML = `<small style="color:#444;">${(5000 - totalKm).toFixed(0)} km restants pour le badge Elite</small>`;
-    }
+    // ... existant ...
 }
 
+window.updateI18N = function() {
     // Sidebar Menu
     const mGarage = document.getElementById('menu-garage'); if(mGarage) mGarage.innerHTML = `<i class="fa-solid fa-warehouse"></i> ${t('garage')}`;
     const mRoadbooks = document.getElementById('menu-roadbooks'); if(mRoadbooks) mRoadbooks.innerHTML = `<i class="fa-solid fa-map-location-dot"></i> Roadbooks`;
@@ -47,6 +35,7 @@ function checkUserBadges() {
     const bankLabel = document.querySelector('[onclick="scanRadar(\'atm\')"] span') || document.querySelector('[onclick="scanRadar(\'atm\')"]');
     if(bankLabel) bankLabel.innerHTML = `<i class="fa-solid fa-money-bill-1"></i> ${t('bank')}`;
 };
+window.updateI18N(); // Run now
 
 // PWA Installation Logic
 let deferredPrompt;
@@ -274,10 +263,13 @@ function updatePosition(position) {
         const totalKm = window.session?.totalDistance || 0;
         const color = totalKm >= 10000 ? '#B9F2FF' : '#cca000';
         
-        // Mise à jour visuelle si nécessaire
+        // Mise à jour visuelle si nécessaire (Marqueur Avancé seulement)
         if (userMarker.content) {
-            userMarker.content.querySelector('div').style.color = color;
-            userMarker.content.querySelector('div').style.boxShadow = totalKm >= 10000 ? '0 0 20px #B9F2FF' : '0 0 15px rgba(204, 160, 0, 0.9)';
+            const innerDiv = userMarker.content.querySelector('div');
+            if (innerDiv) {
+                innerDiv.style.color = color;
+                innerDiv.style.boxShadow = totalKm >= 10000 ? '0 0 20px #B9F2FF' : '0 0 15px rgba(204, 160, 0, 0.9)';
+            }
         }
 
         userMarker.position = currentPosition;
@@ -650,7 +642,17 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
                         ${reportBtn}
                     </div>`
                 });
-                
+                marker.addListener("click", () => info.open(map, marker));
+                officialPoiMarkers.push(marker);
+            });
+        }
+    } catch (e) {
+        console.error("Gov API fail", e);
+        alert("Erreur lors de la récupération des prix.");
+    } finally {
+        btn.innerHTML = oldHtml;
+    }
+}
 async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
     if(!google.maps.places) {
         alert("Services de lieux non disponibles.");
@@ -738,12 +740,6 @@ window.triggerPhotoReport = function(id, name) {
     };
     input.click(); // Ouvrir l'appareil photo
 };
-        console.error("Gov API fail", e); 
-        alert("Erreur lors de la récupération des prix. Repli sur les données standards.");
-    } finally {
-        btn.innerHTML = oldHtml;
-    }
-}
 
 function renderPoiMarkers(elements, config) {
     officialPoiMarkers.forEach(m => m.setMap(null));
