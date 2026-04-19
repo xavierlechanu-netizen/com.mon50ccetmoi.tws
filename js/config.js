@@ -5,8 +5,8 @@
 const CONFIG = {
     // Google Maps API Keys
     MAPS: {
-        PC: (typeof SECRETS !== 'undefined') ? SECRETS.MAPS_PC : "REPLACE_WITH_YOUR_KEY",
-        ANDROID: (typeof SECRETS !== 'undefined') ? SECRETS.MAPS_ANDROID : "REPLACE_WITH_YOUR_KEY"
+        PC: "AIzaSyCH6560cVZlfeuqITse5ZmQKF-ilrm-w4w",
+        ANDROID: "AIzaSyCH6560cVZlfeuqITse5ZmQKF-ilrm-w4w"
     },
     
     // Auth Configuration
@@ -19,7 +19,7 @@ const CONFIG = {
 
     // Firebase Cloud Database (Firestore)
     FIREBASE: {
-        apiKey: (typeof SECRETS !== 'undefined' && SECRETS.FIREBASE_API_KEY) ? SECRETS.FIREBASE_API_KEY : "AIzaSy_PLACEHOLDER_KEY",
+        apiKey: "AIzaSyBufZ5hmzEoDoOZ9YofpHvL3HJDbuEOc7I",
         authDomain: "mon50ccetmoi.firebaseapp.com",
         projectId: "mon50ccetmoi",
         storageBucket: "mon50ccetmoi.appspot.com",
