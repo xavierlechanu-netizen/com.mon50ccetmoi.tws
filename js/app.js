@@ -322,15 +322,15 @@ function updatePosition(position) {
                 if (isGuardianPromptActive) dismissGuardian();
             }
 
-            if (speedKmh > 30) {
+            if (speedKmh > 40) {
                 map.setTilt(45);
-                map.setZoom(15); // Zoom out un peu à haute vitesse
+                map.setZoom(15.5); // Vision lointaine pour radars
             } else if (speedKmh > 5) {
-                map.setTilt(20);
-                map.setZoom(17);
+                map.setTilt(30);
+                map.setZoom(16.5); // Vision urbaine stable
             } else {
                 map.setTilt(0);
-                map.setZoom(18); // Zoom max à l'arrêt
+                map.setZoom(17.5); // Vue arrêt confortable
             }
         }
 
@@ -381,12 +381,11 @@ function updatePosition(position) {
         });
 
         map.setCenter(currentPosition);
-        map.setZoom(16);
+        map.panBy(0, -100); 
     } else {
         const totalKm = window.session?.totalDistance || 0;
         const color = totalKm >= 10000 ? '#B9F2FF' : '#cca000';
         
-        // Mise à jour visuelle si nécessaire (Marqueur Avancé seulement)
         if (userMarker.content) {
             const innerDiv = userMarker.content.querySelector('div');
             if (innerDiv) {
@@ -398,7 +397,10 @@ function updatePosition(position) {
         userMarker.position = currentPosition;
         accuracyCircle.setCenter(currentPosition);
         accuracyCircle.setRadius(accuracy / 2);
+        
+        // On recentre et on décale pour la visibilité
         map.panTo(currentPosition);
+        map.panBy(0, -100);
     }
 
     // Météo Auto
