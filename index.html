@@ -9,6 +9,8 @@
         }
     </script>
     <meta charset="UTF-8">
+    <!-- Sécurité Maximale : Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com; object-src 'none';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -94,7 +96,7 @@
             </div>
             
             <h1 class="loader-title">mon50ccetmoi</h1>
-            <div style="font-size: 0.7rem; color: #666; font-family: 'JetBrains Mono'; text-align: center; letter-spacing: 2px;">v20.4-FINAL</div>
+            <div style="font-size: 0.7rem; color: #666; font-family: 'JetBrains Mono'; text-align: center; letter-spacing: 2px;">v20.5-FINAL</div>
             <div class="loader-status" id="loader-status">BOOTING SYSTEM...</div>
         </div>
         
@@ -308,7 +310,7 @@
 
     <!-- Social Ticker -->
     <div id="social-ticker" class="hidden">
-        <div id="ticker-text">Bonne route sur mon50ccetmoi v20.1-FINAL ! Prudence.</div>
+        <div id="ticker-text" style="font-weight: 500;">Initialisation sécurisée...</div>
     </div>
 
     <script src="js/app.js?v=20.4"></script>

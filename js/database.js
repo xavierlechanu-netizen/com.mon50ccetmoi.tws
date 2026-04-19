@@ -113,7 +113,7 @@ function syncSocialTicker() {
         snapshot.forEach(doc => latest.push(doc.data()));
         if(latest.length > 0) {
             const m = latest[0];
-            const text = `${m.username} : ${m.text || m.label || "Bonne route !"}`;
+            const text = `${escapeHTML(m.username)} : ${escapeHTML(m.text || m.label || "Bonne route !")}`;
             const ticker = document.getElementById('ticker-text');
             if(ticker) ticker.textContent = text;
         }

@@ -844,7 +844,7 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
 
                 const info = new google.maps.InfoWindow({
                     content: `<div style="color:black; min-width:180px;">
-                        <b style="font-size:1rem;">${place.name}</b><br>
+                        <b style="font-size:1rem;">${escapeHTML(place.name)}</b><br>
                         ⭐ Google: ${place.rating || "N/A"}/5 (${place.user_ratings_total || 0})
                         ${communityRating}
                         ${proBadge}
@@ -893,7 +893,7 @@ function renderPoiMarkers(elements, config) {
                 map: map,
                 icon: { path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, fillColor: config.color, fillOpacity: 1, scale: 5, strokeColor: 'white' }
             });
-            const info = new google.maps.InfoWindow({ content: `<b>${item.tags?.name || config.label}</b>` });
+            const info = new google.maps.InfoWindow({ content: `<div style="color:black"><b>${escapeHTML(item.tags?.name || config.label)}</b></div>` });
             marker.addListener("click", () => info.open(map, marker));
             officialPoiMarkers.push(marker);
         });
