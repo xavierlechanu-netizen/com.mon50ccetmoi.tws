@@ -5,8 +5,8 @@
 const CONFIG = {
     // Google Maps API Keys
     MAPS: {
-        PC: "AIzaSyCH6560cVZlfeuqITse5ZmQKF-ilrm-w4w",
-        ANDROID: "AIzaSyCH6560cVZlfeuqITse5ZmQKF-ilrm-w4w"
+        PC: "AIzaSyCN_fevTiG8AvWPuDS2Kc_WpwlYfDy4k4M",
+        ANDROID: "AIzaSyCN_fevTiG8AvWPuDS2Kc_WpwlYfDy4k4M"
     },
     
     // Auth Configuration
