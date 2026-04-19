@@ -8,5 +8,12 @@ upload-keystore.jks
 .idea/
 .vscode/
 *.log
-archives/mon50ccetmoi_CLEAN_REPACK.aab
 js/secrets.js
+archives/
+build/
+android/build/
+temp_v11_deploy/
+.gradle/
+*.aab
+*.jks
+*.keystore

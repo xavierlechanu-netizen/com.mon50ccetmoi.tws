@@ -19,7 +19,7 @@
     "path": "./upload-keystore.jks",
     "alias": "upload"
   },
-  "appVersionName": "20.7",
+  "appVersionName": "20.1",
   "appVersionCode": 21,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",

@@ -23,8 +23,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mon50ccetmoi.twa"
-    android:versionCode="17"
-    android:versionName="13.0" >
+    android:versionCode="21"
+    android:versionName="20.1-FINAL" >
 
     <uses-sdk
         android:minSdkVersion="21"

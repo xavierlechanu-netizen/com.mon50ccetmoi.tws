@@ -18,7 +18,7 @@
   
     <string-array name="additional_trusted_origins">
     
-      <item>https://https://xavierlechanu-netizen.github.io</item>
+      <item>https://xavierlechanu-netizen.github.io</item>
     
     </string-array>
   
@@ -48,7 +48,7 @@
           \"relation\": [\"delegate_permission/common.handle_all_urls\"],
           \"target\": {
               \"namespace\": \"web\",
-              \"site\": \"https://https://xavierlechanu-netizen.github.io\"
+              \"site\": \"https://xavierlechanu-netizen.github.io\"
           }
       }]        
     

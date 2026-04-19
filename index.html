@@ -32,7 +32,7 @@
     <link rel="manifest" href="manifest.json" />
     <title>mon50ccetmoi | Navigation & Sécurité 50cc</title>
     <script src="js/secrets.js"></script>
-    <script src="js/config.js?v=20.7"></script>
+    <script src="js/config.js?v=20.1"></script>
     <!-- Chargeur Dynamique Google Maps avec Callback -->
     <script>
         window.initMap = function() {
@@ -60,7 +60,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/style.css?v=20.7">
+    <link rel="stylesheet" href="css/style.css?v=20.1">
     <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
     <!-- Firebase SDK (v9 Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -94,6 +94,7 @@
             </div>
             
             <h1 class="loader-title">mon50ccetmoi</h1>
+            <div style="font-size: 0.7rem; color: #666; font-family: 'JetBrains Mono'; text-align: center; letter-spacing: 2px;">v20.1-FINAL</div>
             <div class="loader-status" id="loader-status">BOOTING SYSTEM...</div>
         </div>
         
@@ -265,6 +266,7 @@
 
             <ul class="menu-list">
                 <li onclick="window.open('privacy.html', '_blank')" style="font-size:0.7rem; margin-top:10px; color:#666;"><i class="fa-solid fa-lock"></i> Confidentialité</li>
+                <li onclick="requestAccountDeletion()" style="color:#666; font-size:0.7rem;"><i class="fa-solid fa-user-xmark"></i> Supprimer mon compte</li>
                 <li onclick="logout()" style="color:#e74c3c;"><i class="fa-solid fa-power-off"></i> Déconnexion</li>
             </ul>
         </div>
@@ -306,14 +308,14 @@
 
     <!-- Social Ticker -->
     <div id="social-ticker" class="hidden">
-        <div id="ticker-text">Bonne route sur mon50ccetmoi VERSION: "20.6-ULTRA-PREMIUM", ! Prudence.</div>
+        <div id="ticker-text">Bonne route sur mon50ccetmoi v20.1-FINAL ! Prudence.</div>
     </div>
 
-    <script src="js/app.js?v=20.7"></script>
+    <script src="js/app.js?v=20.1"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20.5').catch(e => console.error(e));
+                navigator.serviceWorker.register('./sw.js?v=20.1').catch(e => console.error(e));
             });
         }
         // FAIL-SAFE : Si le système met plus de 5s à charger, on force le démarrage de l'UI

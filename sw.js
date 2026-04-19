@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon50ccetmoi-v20.7-LAUNCH-EDITION';
+const CACHE_NAME = 'mon50ccetmoi-v20.1-FINAL';
 const ASSETS = [
   './',
   './index.html',

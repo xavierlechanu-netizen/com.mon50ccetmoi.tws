@@ -83,8 +83,9 @@ if (!secureGetItem('hazards')) {
 purgeInactiveUsers();
 
 function login(username, password) {
+    const hashedPass = CryptoJS.SHA256(password).toString();
     const users = JSON.parse(secureGetItem('users'));
-    const userIndex = users.findIndex(u => u.username === username && u.password === password);
+    const userIndex = users.findIndex(u => u.username === username && u.password === hashedPass);
     
     if (userIndex !== -1) {
         users[userIndex].lastSeen = Date.now(); // Update last activity
@@ -142,7 +143,7 @@ async function loginAndCaptureInfo(username, password, brand, model) {
 
     const newUser = { 
         username, 
-        password, 
+        password: CryptoJS.SHA256(password).toString(), 
         role: 'user', 
         brand, 
         model, 

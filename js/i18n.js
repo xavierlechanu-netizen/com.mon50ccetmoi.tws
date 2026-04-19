@@ -37,7 +37,14 @@ const I18N = {
         maintenance: "Maintenance",
         insurance: "Assurance",
         share: "Partager",
-        legal: "Mentions Légales"
+        legal: "Mentions Légales",
+        garage_title: "Mon Garage & Carnet",
+        pro_space_title: "Espace Garage Pro",
+        maint_history_title: "Carnet d'entretien numérique",
+        expert_meca_title: "Assistant Méca V3",
+        challenges_title: "Défis de la Quinzaine",
+        donate_title: "Soutenir le Projet",
+        security_title: "Sécurité & Guardian"
     },
     en: {
         welcome: "Welcome to mon50ccetmoi",
@@ -72,7 +79,14 @@ const I18N = {
         maintenance: "Maintenance",
         insurance: "Insurance",
         share: "Share",
-        legal: "Legal"
+        legal: "Legal",
+        garage_title: "My Garage & Logbook",
+        pro_space_title: "Pro Garage Space",
+        maint_history_title: "Digital Maintenance Log",
+        expert_meca_title: "Meca Assistant V3",
+        challenges_title: "Fortnightly Challenges",
+        donate_title: "Support the Project",
+        security_title: "Security & Guardian"
     },
     es: {
         welcome: "Bienvenido a mon50ccetmoi",

@@ -23,8 +23,8 @@
 23-->
 24<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 25    package="com.mon50ccetmoi.twa"
-26    android:versionCode="17"
-27    android:versionName="13.0" >
+26    android:versionCode="21"
+27    android:versionName="20.1-FINAL" >
 28
 29    <uses-sdk
 30        android:minSdkVersion="21"

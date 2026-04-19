@@ -15,11 +15,11 @@ const CONFIG = {
     },
     
     // App Versioning
-    VERSION: "20.7-LAUNCH-EDITION",
+    VERSION: "20.1-FINAL",
 
     // Firebase Cloud Database (Firestore)
     FIREBASE: {
-        apiKey: "AIzaSy_PLACEHOLDER_KEY",
+        apiKey: (typeof SECRETS !== 'undefined' && SECRETS.FIREBASE_API_KEY) ? SECRETS.FIREBASE_API_KEY : "AIzaSy_PLACEHOLDER_KEY",
         authDomain: "mon50ccetmoi.firebaseapp.com",
         projectId: "mon50ccetmoi",
         storageBucket: "mon50ccetmoi.appspot.com",

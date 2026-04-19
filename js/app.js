@@ -177,7 +177,7 @@ function initMap() {
         trafficLayer = new google.maps.TrafficLayer();
         trafficLayer.setMap(map);
 
-        console.log("Moteur Premium v20.1-ULTRA-PRO-ELITE : Initialisé.");
+        console.log("Moteur v20.1-FINAL : Initialisé.");
     } catch (e) {
         console.error("Maps init failed:", e);
         // Fallback UI indication
@@ -215,9 +215,54 @@ async function requestWakeLock() {
     } catch (err) { console.warn(err); }
 }
 
-if ('geolocation' in navigator) {
-    navigator.geolocation.watchPosition(updatePosition, (e) => console.warn(e), { enableHighAccuracy: true });
+async function checkLegalConsent() {
+    const consent = localStorage.getItem('legal_consent_accepted');
+    if (consent === 'true') {
+        startGeolocation();
+        return;
+    }
+
+    // Création du modal de divulgation (Prominent Disclosure)
+    const modal = document.createElement('div');
+    modal.id = 'legal-modal';
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; z-index:20000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; padding:30px; text-align:center; overflow-y:auto;";
+    modal.innerHTML = `
+        <i class="fa-solid fa-shield-halved" style="font-size:3rem; color:#ffb703; margin-bottom:20px;"></i>
+        <h2 style="margin-bottom:15px;">Respect de votre Vie Privée</h2>
+        <p style="font-size:0.9rem; line-height:1.4; margin-bottom:15px;">
+            Pour fonctionner, <strong>mon50ccetmoi</strong> collecte les données de <strong>localisation précise</strong>.
+        </p>
+        <div style="background:#1a1a1a; padding:15px; border-radius:10px; text-align:left; font-size:0.8rem; margin-bottom:15px; border-left:4px solid #ffb703;">
+            <p><strong>Utilisation en arrière-plan :</strong> Votre position est accédée même lorsque l'application est fermée ou en arrière-plan pour :</p>
+            <ul style="margin-top:5px; padding-left:15px;">
+                <li>Vous alerter en cas de <strong>chute détectée</strong>.</li>
+                <li>Garder la <strong>navigation active</strong> écran éteint.</li>
+                <li>Signaler les <strong>dangers</strong> à la communauté.</li>
+            </ul>
+        </div>
+        <p style="font-size:0.75rem; color:#888; margin-bottom:20px;">
+            Les données sont chiffrées et vous pouvez supprimer votre compte à tout moment. En continuant, vous acceptez notre <a href="privacy.html" target="_blank" style="color:#ffb703;">politique de confidentialité</a>.
+        </p>
+        <button id="btn-accept-legal" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1rem; margin-bottom:10px;">ACCEPTER ET CONTINUER</button>
+        <button onclick="window.close()" style="background:transparent; border:none; color:#666; font-size:0.8rem; text-decoration:underline;">Quitter l'application</button>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('btn-accept-legal').onclick = () => {
+        localStorage.setItem('legal_consent_accepted', 'true');
+        modal.remove();
+        startGeolocation();
+    };
 }
+
+function startGeolocation() {
+    if ('geolocation' in navigator) {
+        navigator.geolocation.watchPosition(updatePosition, (e) => console.warn(e), { enableHighAccuracy: true });
+    }
+}
+
+// Remplacement du démarrage automatique par la vérification légale
+checkLegalConsent();
 
 function updatePosition(position) {
     if(!map) return; 
@@ -1258,7 +1303,7 @@ window.showPage = function(page) {
         const history = JSON.parse(secureGetItem('maint_history') || '[]');
         const ctDate = secureGetItem('ct_date') || 'Non défini';
         
-        content.innerHTML = `<h3><i class="fa-solid fa-warehouse"></i> Mon Garage & Carnet</h3>
+        content.innerHTML = `<h3><i class="fa-solid fa-warehouse"></i> ${t('garage_title')}</h3>
             <div class="card" style="border:1px solid #ffb703; background: rgba(255,183,3,0.05); margin-bottom:15px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
@@ -1272,7 +1317,7 @@ window.showPage = function(page) {
             <div id="dynamic-garage-list"></div>
 
             <h4 style="margin-top:20px; font-size:0.9rem; color:#aaa; display:flex; justify-content:space-between;">
-                <span>Carnet d'entretien numérique</span>
+                <span>${t('maint_history_title')}</span>
                 <i class="fa-solid fa-book-medical" style="color:#2ecc71;"></i>
             </h4>
             
@@ -1324,7 +1369,7 @@ window.showPage = function(page) {
             <ul id="roadbook-list" style="list-style:none; padding:0;"></ul>`;
         renderRoadbooks('all');
     } else if(page === 'mechanic') {
-        content.innerHTML = `<h3><i class="fa-solid fa-robot"></i> Assistant Méca V3</h3>
+        content.innerHTML = `<h3><i class="fa-solid fa-robot"></i> ${t('expert_meca_title')}</h3>
             <p style="font-size:0.8rem; color:#aaa;">Décrivez le symptôme (bruit, fumée, panne...)</p>
             <textarea id="meca-query" placeholder="Ex: Mon scoot broute à l'accélération..." style="width:100%; height:80px; margin-top:10px; background:#111; color:white; border:1px solid #ffb703; border-radius:8px; padding:10px;"></textarea>
             <button class="btn-insurance" onclick="submitMecaV3()" style="margin-top:15px; width:100%;">Scanner mon 50cc</button>
@@ -1348,7 +1393,7 @@ window.showPage = function(page) {
 
         content.innerHTML = `<div class="card" style="border:1px solid #9b59b6;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="color:#9b59b6; margin:0;">🏆 Défis : ${challenge.name}</h3>
+                <h3 style="color:#9b59b6; margin:0;">🏆 ${t('challenges_title')} : ${challenge.name}</h3>
                 <span style="font-size:0.7rem; background:#9b59b6; color:white; padding:2px 6px; border-radius:10px;">CYCLE LIVE</span>
             </div>
             <p style="font-size:0.8rem; margin-top:10px;">Objectif : ${challenge.goal} ${challenge.unit} par quinzaine.</p>
@@ -1407,7 +1452,7 @@ window.showPage = function(page) {
             </div>`;
     } else if(page === 'pro-space') {
         const isCertified = window.session?.isCertifiedGarage || false;
-        content.innerHTML = `<h3><i class="fa-solid fa-briefcase"></i> Espace Garage Pro</h3>
+        content.innerHTML = `<h3><i class="fa-solid fa-briefcase"></i> ${t('pro_space_title')}</h3>
             <div class="card" style="border:1px solid #3498db; background: rgba(52, 152, 219, 0.05);">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <strong>Visibilité Mobile</strong>
@@ -1466,7 +1511,7 @@ window.showPage = function(page) {
             </div>
         `;
     } else if(page === 'donate') {
-        content.innerHTML = `<h3><i class="fa-solid fa-heart"></i> Soutenir le Projet</h3>
+        content.innerHTML = `<h3><i class="fa-solid fa-heart"></i> ${t('donate_title')}</h3>
             <div class="card" style="text-align:center; background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(0,0,0,0)); border: 1px solid #e91e63;">
                 <i class="fa-solid fa-mug-hot fa-bounce" style="font-size:3rem; color:#e91e63; margin-bottom:15px;"></i>
                 <p style="font-size:0.9rem; line-height:1.5;"><strong>mon50ccetmoi</strong> est un projet de passionné, développé sur mon temps libre pour la communauté des pilotes de 50cc.</p>
@@ -1484,7 +1529,7 @@ window.showPage = function(page) {
         const emergencyNum = secureGetItem('emergency_contact') || '';
         const isGuardian = secureGetItem('guardian_enabled') === 'true';
         
-        content.innerHTML = `<h3><i class="fa-solid fa-shield-heart"></i> Sécurité Maximale</h3>
+        content.innerHTML = `<h3><i class="fa-solid fa-shield-heart"></i> ${t('security_title')}</h3>
             <div class="card" style="border:1px solid #00d2ff; background: rgba(0, 210, 255, 0.05);">
                 <label style="display:block; font-size:0.8rem; margin-bottom:10px;">Contact d'Urgence (Tel)</label>
                 <input type="tel" id="emergency-num" value="${emergencyNum}" placeholder="Ex: 0612345678" style="width:100%; padding:10px; background:#000; border:1px solid #00d2ff; color:white; border-radius:8px;">
@@ -1594,6 +1639,26 @@ window.submitMood = function(emoji) {
 window.closeMood = function() { document.getElementById('mood-overlay').classList.add('hidden'); }
 setTimeout(() => document.getElementById('mood-overlay')?.classList.remove('hidden'), 30000); 
 
+window.requestAccountDeletion = function() {
+    const confirm1 = confirm("⚠️ ATTENTION : Voulez-vous vraiment supprimer définitivement votre compte et TOUTES vos données (garage, points, historique) ?");
+    if (confirm1) {
+        const confirm2 = prompt("Pour confirmer, tapez 'SUPPRIMER' en majuscules :");
+        if (confirm2 === "SUPPRIMER") {
+            // Logique de suppression
+            let users = JSON.parse(secureGetItem('users') || '[]');
+            const username = window.session.username;
+            users = users.filter(u => u.username !== username);
+            secureSetItem('users', JSON.stringify(users));
+            
+            // Suppression session locale
+            logout();
+            alert("Votre compte a été supprimé avec succès. Vos données ont été purgées conformément au RGPD.");
+        } else {
+            alert("Suppression annulée.");
+        }
+    }
+};
+
 window.logout = function() {
     if (typeof secureRemoveItem === 'function') {
         secureRemoveItem('session');
@@ -1605,7 +1670,7 @@ window.logout = function() {
 
 window.updateTicker = function() {
     const t = document.getElementById('ticker-text');
-    if(t) t.innerHTML = "Bienvenue sur la version officielle de mon50ccetmoi v20.0-FINAL ! Prudence sur la route. 🛵💨";
+    if(t) t.innerHTML = `Bienvenue sur la version officielle de mon50ccetmoi v${CONFIG.VERSION} ! Prudence sur la route. 🛵💨`;
 }
 updateTicker();
 setInterval(updateTicker, 60000);
