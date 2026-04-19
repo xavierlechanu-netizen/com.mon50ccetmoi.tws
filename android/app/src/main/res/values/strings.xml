@@ -37,20 +37,11 @@
   -->
   <string name="assetStatements">
     [{
-        \"relation\": [\"delegate_permission/common.handle_all_urls\"],
-        \"target\": {
-            \"namespace\": \"web\",
-            \"site\": \"https://xavierlechanu-netizen.github.io\"
-        }
+      \"relation\": [\"delegate_permission/common.handle_all_urls\"],
+      \"target\": {
+        \"namespace\": \"web\",
+        \"site\": \"https://xavierlechanu-netizen.github.io\"
+      }
     }]
-    
-      ,[{
-          \"relation\": [\"delegate_permission/common.handle_all_urls\"],
-          \"target\": {
-              \"namespace\": \"web\",
-              \"site\": \"https://xavierlechanu-netizen.github.io\"
-          }
-      }]        
-    
   </string>  
 </resources>
