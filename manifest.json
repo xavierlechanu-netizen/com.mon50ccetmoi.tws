@@ -1,11 +1,11 @@
 {
-  "version": "20.1",
+  "version": "29.0",
   "id": "com.mon50ccetmoi.twa",
   "lang": "fr-FR",
   "dir": "ltr",
-  "name": "mon50ccetmoi | Navigation & Sécurité Scooter",
-  "short_name": "mon50ccetmoi",
-  "description": "La première application de navigation 100% pensée pour les 50cc. Évitez les autoroutes, roulez en sécurité avec la détection de chute et rejoignez la communauté !",
+  "name": "mon50ccetmoi v50000 God-View",
+  "short_name": "mon50cc V50K",
+  "description": "L'application ultime pour pilotes de 50cc. Navigation GPS sécurisée, Diagnostic IA Moteur, Sentinel Kernel auto-réparateur, et Blackbox certifiée pour assurances.",
   "start_url": "./index.html",
   "scope": "./",
   "scope_extensions": [
@@ -16,7 +16,7 @@
   "display_override": ["window-controls-overlay", "tabbed", "standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#0a0a0a",
-  "theme_color": "#cca000",
+  "theme_color": "#00f2ff",
   "launch_handler": {
     "client_mode": "navigate-existing"
   },

@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- FONCTIONS DE SÉCURITÉ ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // --- RÈGLES PAR COLLECTION ---
+
+    // Profils Utilisateurs : Seul l'utilisateur peut voir/modifier son profil
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+      allow create: if isSignedIn();
+    }
+
+    // Blackbox : Stockage ultra-privé. Lecture réservée au proprio ou expert vérifié
+    match /blackbox_reports/{reportId} {
+      allow create: if isSignedIn();
+      allow read: if isOwner(resource.data.userId) || isAdmin() || (resource.data.isUnlocked == true);
+      allow update: if false; // Un rapport Blackbox est IMMUABLE (non modifiable) une fois créé
+    }
+
+    // Coffre-fort ANTS : Sanctuaire absolu
+    match /ants_wallet/{walletId} {
+      allow read, write: if isOwner(walletId);
+    }
+
+    // Guardian Angel Sessions : Partage public via lien unique, mais écriture privée
+    match /guardian_sessions/{sessionId} {
+      allow read: if true; // Pour le partage aux proches
+      allow create, update: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+
+    // Alertes Communautaires (Hazards) : Validation des types
+    match /hazards/{hazardId} {
+      allow read: if true;
+      allow create: if isSignedIn() 
+                    && request.resource.data.pos.lat is number 
+                    && request.resource.data.pos.lng is number;
+      allow delete: if isAdmin() || isOwner(resource.data.userId);
+    }
+
+    // Sessions de Balades
+    match /balades/{baladeId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data.userId);
+    }
+  }
+}

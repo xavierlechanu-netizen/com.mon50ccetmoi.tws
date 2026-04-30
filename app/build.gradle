@@ -24,15 +24,15 @@ def twaManifest = [
     applicationId: 'com.mon50ccetmoi.twa',
     hostName: 'xavierlechanu-netizen.github.io', // The domain being opened in the TWA.
     launchUrl: '/com.mon50ccetmoi.tws/', // The start path for the TWA. Must be relative to the domain.
-    name: 'mon50ccetmoi | Navigation & Sécurité Scooter', // The application name.
-    launcherName: 'mon50ccetmoi', // The name shown on the Android Launcher.
-    themeColor: '#CCA000', // The color used for the status bar.
+    name: 'mon50ccetmoi v50000 God-View', // The application name.
+    launcherName: 'mon50cc V50K', // The name shown on the Android Launcher.
+    themeColor: '#00f2ff', // The color used for the status bar.
     themeColorDark: '#000000', // The color used for the dark status bar.
-    navigationColor: '#0A0A0A', // The color used for the navigation bar.
+    navigationColor: '#000000', // The color used for the navigation bar.
     navigationColorDark: '#000000', // The color used for the dark navbar.
     navigationDividerColor: '#000000', // The navbar divider color.
     navigationDividerColorDark: '#000000', // The dark navbar divider color.
-    backgroundColor: '#0A0A0A', // The color used for the splash screen background.
+    backgroundColor: '#000000', // The color used for the splash screen background.
     enableNotifications: true, // Set to true to enable notification delegation.
     // Every shortcut must include the following fields:
     // - name: String that will show up in the shortcut.
@@ -41,13 +41,13 @@ def twaManifest = [
     // - icon: Name of the resource in the drawable folder to use as an icon.
     shortcuts: [],
     // The duration of fade out animation in milliseconds to be played when removing splash screen.
-    splashScreenFadeOutDuration: ,
+    splashScreenFadeOutDuration: 0,
     generatorApp: 'bubblewrap-cli', // Application that generated the Android Project
     // The fallback strategy for when Trusted Web Activity is not available. Possible values are
     // 'customtabs' and 'webview'.
     fallbackType: 'customtabs',
     enableSiteSettingsShortcut: 'true',
-    orientation: 'portrait',
+    orientation: 'any',
 ]
 
 android {
@@ -57,8 +57,8 @@ android {
         applicationId "com.mon50ccetmoi.twa"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 21
-        versionName "20.7"
+        versionCode 50000
+        versionName "50000.0"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -147,9 +147,18 @@ android {
 
         
     }
+    signingConfigs {
+        release {
+            storeFile file(RELEASE_STORE_FILE)
+            storePassword RELEASE_STORE_PASSWORD
+            keyAlias RELEASE_KEY_ALIAS
+            keyPassword RELEASE_KEY_PASSWORD
+        }
+    }
     buildTypes {
         release {
             minifyEnabled true
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -204,7 +213,6 @@ repositories {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    
-        implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.6.2'
-    
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.6.2'
+    implementation 'androidx.activity:activity:1.9.3'
 }

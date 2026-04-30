@@ -7,19 +7,38 @@ let db;
 
 function initDatabase() {
     try {
-        // Initialisation Firebase
-        firebase.initializeApp(CONFIG.FIREBASE);
+        // Initialisation Firebase (si pas déjà fait par auth.js)
+        if (!firebase.apps.length) {
+            firebase.initializeApp(CONFIG.FIREBASE);
+        }
         db = firebase.firestore();
-        console.log("mon50cc Database : Connexion Cloud établie.");
+        console.log("mon50cc Database : Connecté via Firebase Auth (E2EE Actif).");
         
         // Démarrer l'écoute temps réel des dangers
         syncHazards();
         // Démarrer l'écoute des autres pilotes
         syncCommunityPositions();
-        // syncSocialTicker(); // Désactivé (Interaction via Roadbook uniquement)
     } catch (e) {
-        console.warn("Database init fail (Probablement clés non configurées) :", e);
+        console.warn("Database init fail :", e);
     }
+}
+
+// --- E2EE HELPERS ---
+function cloudEncrypt(data) {
+    if (typeof CryptoJS === 'undefined' || !data) return data;
+    const key = window.getSyncKey();
+    const str = typeof data === 'string' ? data : JSON.stringify(data);
+    return CryptoJS.AES.encrypt(str, key).toString();
+}
+
+function cloudDecrypt(encryptedData) {
+    if (typeof CryptoJS === 'undefined' || !encryptedData) return null;
+    const key = window.getSyncKey();
+    try {
+        const bytes = CryptoJS.AES.decrypt(encryptedData, key);
+        const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+        return JSON.parse(decrypted);
+    } catch (e) { return null; }
 }
 
 // --- SYNCHRONISATION DES DANGERS (COMMUNAUTÉ) ---
@@ -27,34 +46,37 @@ function initDatabase() {
 function syncHazards() {
     if (!db) return;
     
-    // Écouter les changements sur la collection "hazards"
     db.collection("hazards").onSnapshot((snapshot) => {
         let hazards = [];
         snapshot.forEach((doc) => {
-            hazards.push(doc.data());
+            const data = doc.data();
+            // Si la donnée est chiffrée (E2EE), on la déchiffre
+            if (data.payload) {
+                const decrypted = cloudDecrypt(data.payload);
+                if (decrypted) hazards.push(decrypted);
+            } else {
+                hazards.push(data); // Legacy (Plaintext)
+            }
         });
         
-        // Sauvegarde locale pour le mode hors-ligne
         secureSetItem('hazards', JSON.stringify(hazards));
-        
-        // Rafraîchir les marqueurs sur la carte si l'app est lancée
-        if (typeof loadHazards === "function") {
-            loadHazards();
-        }
+        if (typeof loadHazards === "function") loadHazards();
     });
 }
 
 window.publishHazardCloud = async function(hazard) {
     if (!db) return false;
     
-    // BOT MODERATION
     if (window.GuardianBot && !window.GuardianBot.analyzeContent("Signalement", hazard, hazard.author)) {
         return false;
     }
 
     try {
+        // Chiffrement de bout en bout avant envoi
+        const encryptedPayload = cloudEncrypt(hazard);
         await db.collection("hazards").add({
-            ...hazard,
+            payload: encryptedPayload,
+            author: hazard.author, // Gardé en clair pour la modération par l'Oracle
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         return true;
@@ -71,12 +93,12 @@ window.publishHazardCloud = async function(hazard) {
 window.publishUserLocation = async function(lat, lng, status = "Riding") {
     if (!db || !window.session || window.session.isGuest) return;
     try {
+        const payload = { lat, lng, status, brand: window.session.brand || "Scooter" };
+        const encryptedPayload = cloudEncrypt(payload);
+        
         await db.collection("presence").doc(window.session.username).set({
-            lat,
-            lng,
+            payload: encryptedPayload,
             username: window.session.username,
-            brand: window.session.brand || "Scooter",
-            status: status,
             lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
         });
     } catch (e) { console.warn("Presence sync fail"); }
@@ -84,23 +106,24 @@ window.publishUserLocation = async function(lat, lng, status = "Riding") {
 
 function syncCommunityPositions() {
     if (!db) return;
-    // On écoute les positions actives depuis moins de 5 minutes
     db.collection("presence").onSnapshot((snapshot) => {
         let members = [];
         snapshot.forEach((doc) => {
             const data = doc.data();
-            // Filtrer l'utilisateur actuel et les positions obsolètes
             if (data.username !== window.session?.username) {
-                members.push(data);
+                if (data.payload) {
+                    const decrypted = cloudDecrypt(data.payload);
+                    if (decrypted) {
+                        members.push({ ...decrypted, username: data.username });
+                    }
+                } else {
+                    members.push(data); // Legacy
+                }
             }
         });
         
-        // Stockage tempo pour le rendu
         window.communityMembers = members;
-        
-        if (typeof renderCommunityMarkers === "function") {
-            renderCommunityMarkers();
-        }
+        if (typeof renderCommunityMarkers === "function") renderCommunityMarkers();
     });
 }
 
@@ -342,8 +365,19 @@ window.publishRoadbookCloud = async function(roadbook) {
 // --- SYSTEME DE BAN (SANCTIONS ÉCHELONNÉES) ---
 async function applyAbuseSanction(userId) {
     if (!userId || userId === 'Anonyme') return;
-    const userRef = db.collection("users").doc(userId);
-    const snap = await userRef.get();
+    // On cherche par UID si possible, sinon par pseudo (legacy)
+    let userRef = db.collection("users").doc(userId);
+    let snap = await userRef.get();
+    
+    if (!snap.exists) {
+        // Fallback: Recherche par pseudo
+        const q = await db.collection("users").where("username", "==", userId).limit(1).get();
+        if (!q.empty) {
+            userRef = q.docs[0].ref;
+            snap = q.docs[0];
+        } else return;
+    }
+    
     const data = snap.data() || {};
     const abuseLevel = (data.abuseLevel || 0) + 1;
     const totalFakeReports = (data.totalFakeReports || 0) + 1;

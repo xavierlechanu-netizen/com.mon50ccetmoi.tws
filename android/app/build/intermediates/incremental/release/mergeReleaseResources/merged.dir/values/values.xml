@@ -323,21 +323,12 @@
     <string name="app_name">Android Browser Helper</string>
     <string name="assetStatements">
     [{
-        \"relation\": [\"delegate_permission/common.handle_all_urls\"],
-        \"target\": {
-            \"namespace\": \"web\",
-            \"site\": \"https://xavierlechanu-netizen.github.io\"
-        }
+      \"relation\": [\"delegate_permission/common.handle_all_urls\"],
+      \"target\": {
+        \"namespace\": \"web\",
+        \"site\": \"https://xavierlechanu-netizen.github.io\"
+      }
     }]
-    
-      ,[{
-          \"relation\": [\"delegate_permission/common.handle_all_urls\"],
-          \"target\": {
-              \"namespace\": \"web\",
-              \"site\": \"https://xavierlechanu-netizen.github.io\"
-          }
-      }]        
-    
   </string>
     <string name="call_notification_answer_action">Answer</string>
     <string name="call_notification_answer_video_action">Video</string>

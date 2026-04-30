@@ -11,7 +11,7 @@
     <meta charset="UTF-8">
     <!-- Sécurité Maximale : Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com; object-src 'none';">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="mon50ccetmoi">
@@ -34,13 +34,15 @@
     <link rel="manifest" href="manifest.json" />
     <title>mon50ccetmoi | Navigation & Sécurité 50cc</title>
     <!-- <script src="js/secrets.js"></script> Remplacé par config.js intégré -->
-    <script src="js/config.js?v=20.3"></script>
+    <script src="js/config.js?v=26.1"></script>
     <!-- Chargeur Dynamique Google Maps avec Callback -->
     <script>
+        // Le callback initMap est maintenant géré par app.js pour éviter les conflits de redéfinition
         window.initMap = function() {
-            console.log("mon50cc Maps : SDK Chargé. Initialisation du moteur...");
-            initDatabase(); // Initialize Cloud DB
+            console.log("mon50cc Maps : SDK Chargé. En attente du contrôleur principal...");
             if (typeof window.startApp === "function") {
+                // Si app.js est déjà chargé, on lance
+                if (typeof window.initMapController === "function") window.initMapController();
                 window.startApp();
             }
         };
@@ -62,22 +64,54 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/style.css?v=20.1">
+    <link rel="stylesheet" href="css/style.css?v=26.1">
     <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
     <!-- Firebase SDK (v9 Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <script src="js/crypto-js.min.js"></script>
-    <script src="js/i18n.js?v=20.7"></script>
-    <script src="js/auth.js?v=20.7"></script>
-    <script src="js/database.js?v=20.7"></script>
-    <script src="js/moderation.js?v=20.7"></script>
-    <script src="js/moderation-bot.js?v=20.7"></script>
+    <script src="js/i18n.js?v=50000.0"></script>
+    <script src="js/auth.js?v=50000.0"></script>
+    <script src="js/database.js?v=50000.0"></script>
+    <script src="js/moderation.js?v=50000.0"></script>
+    <script src="js/moderation-bot.js?v=50000.0"></script>
+    <script src="js/sentinel.js?v=50000.0"></script>
+    <script src="js/arbitre-bot.js?v=50000.0"></script>
+    <script src="js/guardian-angel.js?v=50000.0"></script>
+    <script src="js/blackbox.js?v=50000.0"></script>
+    <script src="js/ghost-rider.js?v=50000.0"></script>
+    <script src="js/hardware.js?v=50000.0"></script>
+    <script src="js/habits.js?v=50000.0"></script>
+    <script src="js/insurance-portal.js?v=50000.0"></script>
+    <script src="js/engine-pulse.js?v=50000.0"></script>
+    <script src="js/neural-hud.js?v=50000.0"></script>
+    <script src="js/intercom.js?v=50000.0"></script>
+    <script src="js/neural-sync.js?v=50000.0"></script>
+    <script src="js/wallet.js?v=50000.0"></script>
+    <script src="js/certificate.js?v=50000.0"></script>
+    <script src="js/predictive-meca.js?v=50000.0"></script>
+    <script src="js/meca-wizard.js?v=50000.0"></script>
+    <script src="js/anti-theft.js?v=50000.0"></script>
+    <script src="js/chronos.js?v=50000.0"></script>
     <script>window.session = checkAuth(false);</script>
 </head>
 <body style="margin:0; padding:0; background:#000; overflow:hidden;">
+    <div class="space-time-grid"></div>
+    <!-- Cyber Grid Background -->
+    <div class="cyber-grid-overlay"></div>
+    <div class="scanline-overlay"></div>
+
+    <!-- Neural Core Centerpiece -->
+    <div id="neural-core" class="neural-core">
+        <div class="core-ring"></div>
+        <div class="core-inner"></div>
+    </div>
+
+    <video id="ar-overlay" autoplay playsinline></video>
     <div id="map"></div>
+    <div id="radar-sweep" class="radar-sweep"></div>
     
     <!-- Premium Loader (HUD Startup Dashboard) -->
     <div id="app-loader">
@@ -95,8 +129,11 @@
                 </div>
             </div>
             
+            <div id="sentinel-pulse" style="width:150px; height:2px; background:rgba(0,210,255,0.2); margin:10px auto 30px; position:relative; overflow:hidden;">
+                <div style="position:absolute; width:30%; height:100%; background:var(--neon-blue); animation: sentinel-scan 1.5s infinite linear;"></div>
+            </div>
             <h1 class="loader-title">mon50ccetmoi</h1>
-            <div style="font-size: 0.7rem; color: #666; font-family: 'JetBrains Mono'; text-align: center; letter-spacing: 2px;">v24.00-FINAL</div>
+            <div class="gold-edition" style="font-size: 0.7rem; color: #ffb703; font-family: 'JetBrains Mono'; text-align: center; letter-spacing: 2px; font-weight:bold;">v29.0 QUANTUM SHIELD</div>
             <div class="loader-status" id="loader-status">BOOTING SYSTEM...</div>
         </div>
         
@@ -108,15 +145,42 @@
         </div>
     </div>
 
+    <!-- Safety Notification Banner -->
+    <div id="safety-banner" class="hidden glassmorphism">
+        <i class="fa-solid fa-ghost"></i> GHOST RIDER : Analyse de la route...
+    </div>
+
     <!-- HUD Overlay -->
     <div id="hud" class="glassmorphism">
-        <div class="hud-item title">mon50cc 🛵</div>
+        <div class="hud-item title">
+            mon50cc TACTICAL <span style="color:var(--neon-blue); font-size:0.6rem; vertical-align:middle; margin-left:5px; border:1px solid var(--neon-blue); padding:1px 4px; border-radius:3px;">v50000.0 GOD-VIEW</span>
+            <div id="pilot-rank" class="xp-rank-badge">RANK: INTERCEPTOR</div>
+            <div id="wallet-tokens" class="xp-rank-badge" style="color:var(--accent);">
+                <i class="fa-solid fa-coins"></i> <span id="token-balance">0.00</span> $MON50
+            </div>
+            <div id="grid-status" class="grid-status-active">GRID_SYNC: ACTIVE</div>
+        </div>
         
         <div class="speed-container">
             <div class="hud-item speed-disp" id="speed-meter">
                 <span id="speed">0</span>
                 <small>km/h</small>
             </div>
+            <!-- Lean Angle Meter (NEW v25) -->
+            <div id="lean-meter" class="lean-meter hidden">
+                <div class="lean-bar-bg">
+                    <div id="lean-fill-L" class="lean-fill"></div>
+                    <div id="lean-fill-R" class="lean-fill"></div>
+                </div>
+                <span id="lean-angle-val" class="lean-angle-val">0°</span>
+            </div>
+            <!-- G-FORCE METER (NEW v29) -->
+            <div id="g-force-meter" class="g-force-meter hidden">
+                <span class="g-force-val" id="g-force-val">1.0G</span>
+                <span class="g-force-label">G-FORCE</span>
+            </div>
+            <!-- PILOT LEVEL -->
+            <div id="pilot-level-tag" class="pilot-level-tag">LVL 01</div>
         </div>
 
         <div class="hud-right">
@@ -124,8 +188,50 @@
                 <i class="fa-solid fa-cloud-sun"></i> --°C
             </div>
             <div id="compass-box">
-                <i class="fa-solid fa-location-arrow" id="compass-needle"></i>
+                <div id="compass-container">
+                    <i class="fa-solid fa-location-arrow" id="compass-needle"></i>
+                </div>
                 <span id="compass-dir">N</span>
+            </div>
+            <div id="chronos-widget" class="glassmorphism hidden" style="position:absolute; top:20px; left:20px; padding:10px; border-left:3px solid var(--accent); font-size:0.7rem; z-index:10;">
+                <i class="fa-solid fa-clock"></i> DÉPART DANS : <span id="chronos-countdown">--</span> MIN
+            </div>
+
+            <!-- SQUAD LINK (PHASE SINGULARITY) -->
+            <div id="squad-container" class="glassmorphism" style="position:absolute; bottom:20px; right:20px; padding:10px; border-right:3px solid var(--accent); min-width:140px;">
+                <div style="font-size:0.6rem; color:var(--accent); letter-spacing:2px; margin-bottom:5px;">SQUAD_TACTICAL</div>
+                <div id="squad-list">
+                    <div class="squad-member active"><i class="fa-solid fa-microphone"></i> VOUS (PILOTE)</div>
+                </div>
+                <button onclick="window.Intercom.toggleSquad()" id="btn-squad-toggle" class="btn-micro" style="width:100%; margin-top:8px; font-size:0.6rem; background:rgba(0,0,0,0.3); color:white; border:1px solid var(--accent); border-radius:5px;">SQUAD_LINK: OFF</button>
+            </div>
+            <!-- Neural HUD Particles -->
+            <div id="neural-particles"></div>
+            <!-- Digital Horizon Line (Neural HUD) -->
+            <div id="digital-horizon">
+                <div class="horizon-line"></div>
+            </div>
+            <!-- Guardian Angel Status Halo -->
+            <div id="guardian-halo" class="hidden">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+
+            <!-- Oracle Tactical Console -->
+            <div id="oracle-console" class="glassmorphism">
+                <div class="console-header">ORACLE_OS v2.0</div>
+                <div id="console-logs">
+                    <div class="log">> SYSTEM_BOOT: SUCCESS</div>
+                    <div class="log">> NEURAL_CORE: ACTIVE</div>
+                </div>
+            </div>
+
+            <!-- Biometric Scanner -->
+            <div id="biometric-scanner" class="glassmorphism">
+                <div class="scan-line"></div>
+                <div class="bio-data">
+                    <div class="bio-item">BPM: <span id="bio-bpm">--</span></div>
+                    <div class="bio-item">FOCUS: <span id="bio-focus">--%</span></div>
+                </div>
             </div>
         </div>
     </div>
@@ -159,16 +265,37 @@
     <div id="control-row">
         <button id="btn-stop-nav" class="btn-circular btn-red hidden" onclick="cancelRoute()">
             <i class="fa-solid fa-stop"></i>
-            <span>STOP</span>
+            <span id="label-stop-nav">STOP</span>
         </button>
         
         <button id="btn-reroute" class="btn-circular btn-neon hidden" onclick="searchDestination()">
             <i class="fa-solid fa-route"></i>
-            <span>RE-ROUTE</span>
+            <span id="label-reroute">RE-ROUTE</span>
+        </button>
+
+        <button id="btn-holographic" class="btn-circular btn-dark" onclick="toggleHolographicMode()">
+            <i class="fa-solid fa-clone"></i>
+            <span>HUD</span>
+        </button>
+
+        <!-- NEW: INTERCOM PTT BUTTON -->
+        <button id="btn-ptt" class="btn-circular" 
+                onmousedown="Intercom.startTalking()" 
+                onmouseup="Intercom.stopTalking()" 
+                ontouchstart="Intercom.startTalking()" 
+                ontouchend="Intercom.stopTalking()"
+                onclick="if(event.detail === 1) Intercom.toggleChannel()">
+            <i class="fa-solid fa-walkie-talkie"></i>
+            <span>PTT</span>
         </button>
 
         <button id="btn-settings-quick" class="btn-circular btn-dark" onclick="toggleMenu()">
             <i class="fa-solid fa-gear"></i>
+        </button>
+
+        <button id="btn-guardian-toggle" class="btn-circular btn-guardian" onclick="toggleGuardianAngel()">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>GUARDIAN</span>
         </button>
     </div>
 
@@ -223,12 +350,20 @@
             </div>
             <ul class="menu-list">
                 <li id="menu-garage" onclick="showPage('garage')"><i class="fa-solid fa-warehouse"></i> Mon Garage</li>
-                <li id="menu-roadbooks" onclick="showPage('roadbooks')"><i class="fa-solid fa-map-location-dot"></i> Mes Roadbooks</li>
+                <li id="menu-roadbooks" onclick="showPage('roadbooks')"><i class="fa-solid fa-map-location-dot"></i> Mes Roadbooks <span class="badge" style="background:#3498db; font-size:0.5rem;">MEMBRE</span></li>
+                <li id="menu-about" onclick="showPage('about')"><i class="fa-solid fa-circle-info"></i> À Propos</li>
                 <li id="menu-defis" onclick="showPage('defis')" style="color:#2ecc71;"><i class="fa-solid fa-trophy"></i> Défis de la Quinzaine <span class="badge" style="background:#2ecc71;">LIVE</span></li>
-                <li id="menu-security" onclick="showPage('security')" style="color:#00d2ff;"><i class="fa-solid fa-shield-heart"></i> Sécurité & Guardian</li>
+                <li id="menu-guardian" onclick="toggleGuardianAngel()" style="color:#00d2ff;"><i class="fa-solid fa-shield-halved"></i> Ange Gardien <span class="badge" style="background:#3498db; font-size:0.5rem;">MEMBRE</span> : <span id="guardian-status">OFF</span></li>
+                <li id="menu-security" onclick="showPage('security')" style="color:#00d2ff;"><i class="fa-solid fa-shield-heart"></i> Sécurité & Guardian <span class="badge" style="background:#3498db; font-size:0.5rem;">MEMBRE</span></li>
                 <li id="menu-rodage" onclick="showPage('rodage')"><i class="fa-solid fa-gauge-high"></i> Itinéraires Rodage</li>
                 <li id="menu-insurance" onclick="showPage('insurance')"><i class="fa-solid fa-shield-halved"></i> Mon Courtier Partner</li>
+                <li id="menu-expert" onclick="showPage('insurance_expert')" style="color:#bdc3c7; font-size:0.75rem; margin-top:20px; opacity:0.6;"><i class="fa-solid fa-lock"></i> PORTAIL EXPERT ASSURANCES</li>
+                <li id="menu-pulse" onclick="showPage('pulse')" style="color:#ffb703; font-weight:bold;"><i class="fa-solid fa-microscope"></i> Labo Méca IA <span class="badge" style="background:#ff4d4d;">PRO</span></li>
+                <li id="menu-meca-wizard" onclick="showPage('meca_lab')" style="color:#2ecc71;"><i class="fa-solid fa-oil-can"></i> Sorcier de la Méca <span class="badge" style="background:#3498db; font-size:0.5rem;">MEMBRE</span></li>
+                <li id="menu-anti-theft" onclick="AntiTheft.reportTheft()" style="color:#ff4d4d; border:1px solid #ff4d4d; border-radius:10px; margin-top:10px;"><i class="fa-solid fa-land-mine-on"></i> SIGNALER UN VOL <span class="badge" style="background:#ff4d4d; font-size:0.5rem;">MEMBRE</span></li>
+                <li id="menu-wallet" onclick="showPage('ants_wallet')" style="color:#3498db;"><i class="fa-solid fa-building-columns"></i> Mes Titres (ANTS)</li>
                 <li id="menu-mechanic" onclick="showPage('mechanic')"><i class="fa-solid fa-robot"></i> Maintenance</li>
+                <li id="menu-arbitre" onclick="showPage('arbitre')" style="color:#ffb703;"><i class="fa-solid fa-scale-balanced"></i> L'Arbitre de la Route <span class="badge" style="background:#ffb703; color:black; font-size:0.5rem; margin-left:5px;">MEMBRE</span></li>
                 <li id="menu-pro-tips" onclick="showPage('pro-tips')" style="color:#f39c12;"><i class="fa-solid fa-lightbulb"></i> Conseils de Pro</li>
                 <li id="menu-pro-space" onclick="showPage('pro-space')" style="color:#3498db;"><i class="fa-solid fa-briefcase"></i> Espace Garage Pro</li>
                 <li id="menu-donate" onclick="showPage('donate')" style="color:#e91e63;"><i class="fa-solid fa-heart"></i> Soutenir l'App (Don)</li>
@@ -236,6 +371,11 @@
                 <li id="btn-parking-toggle" onclick="toggleParkingMode()"><i class="fa-solid fa-shield-halved"></i> Mode Parking : OFF</li>
                 <li id="btn-install-pwa" class="hidden" onclick="installPWA()"><i class="fa-solid fa-download"></i> Installer l'App <span class="badge" style="background:#2ecc71;">PRO</span></li>
                 <li onclick="shareApp()"><i class="fa-solid fa-share-nodes"></i> Partager / Share</li>
+                <div style="margin-top:20px; padding:15px; text-align:center; opacity:0.5; font-size:0.6rem; letter-spacing:2px; border-top:1px solid rgba(255,255,255,0.05); color:white;">
+                    <div id="sentinel-status" style="margin-bottom:5px; color:#2ecc71;"><i class="fa-solid fa-microchip fa-pulse"></i> SENTINEL ACTIVE : OPTIMAL</div>
+                    <i class="fa-solid fa-microchip"></i> SECURED BY NETIZEN-OS<br>
+                    <span style="font-size:0.5rem; color:var(--accent);">© 2026 CHEZBIGBOO - TOUS DROITS RÉSERVÉS</span>
+                </div>
                 <li style="padding: 15px 10px;">
                     <i class="fa-solid fa-language"></i>
                     <select onchange="window.setLanguage(this.value)" class="scooter-brand-select" style="margin-top:5px; width: 100%; height: 35px; background: rgba(255,183,3,0.1);">
@@ -313,27 +453,30 @@
         <div id="ticker-text" style="font-weight: 500;">Initialisation sécurisée...</div>
     </div>
 
-    <script src="js/app.js?v=20.4"></script>
+    <script src="js/app.js?v=26.0"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20.4').catch(e => console.error(e));
+                navigator.serviceWorker.register('./sw.js?v=26.0').catch(e => console.error(e));
             });
         }
         // FAIL-SAFE : Si le système met plus de 5s à charger, on force le démarrage de l'UI
-        // Déplacé ici pour ne pas dépendre de la réussite du chargement de app.js
         setTimeout(() => {
             const loader = document.getElementById('app-loader');
             if (loader && loader.style.visibility !== 'hidden') {
                 console.warn("Fail-safe GLOBAL : Démarrage forcé de l'interface...");
                 const statusEl = document.getElementById('loader-status');
-                if(statusEl) statusEl.textContent = "Mode Expert : Lancement forcée...";
+                if(statusEl) statusEl.textContent = "Mode Expert : Lancement forcé...";
                 
-                // On tente de supprimer le loader même si app.js a échoué
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.visibility = 'hidden', 800);
+                // Tentative de récupération
+                if (typeof window.startApp === "function") {
+                    window.startApp();
+                } else {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.visibility = 'hidden', 800);
+                }
             }
-        }, 5000); // Réduit à 5s pour une meilleure réactivité
+        }, 6000);
     </script>
     <input type="file" id="abuse-photo-input" accept="image/*" capture="camera" style="display:none;">
 </body>

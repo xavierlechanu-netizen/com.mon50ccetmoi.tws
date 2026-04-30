@@ -30,6 +30,9 @@ window.updateI18N = function() {
     const mSafety = document.getElementById('menu-rodage'); if(mSafety) mSafety.innerHTML = `<i class="fa-solid fa-gauge-high"></i> ${t('safety')}`;
     const mInsurance = document.getElementById('menu-insurance'); if(mInsurance) mInsurance.innerHTML = `<i class="fa-solid fa-shield-halved"></i> ${t('insurance')}`;
     const mMechanic = document.getElementById('menu-mechanic'); if(mMechanic) mMechanic.innerHTML = `<i class="fa-solid fa-robot"></i> ${t('maintenance')}`;
+    const mArbitre = document.getElementById('menu-arbitre'); if(mArbitre) mArbitre.innerHTML = `<i class="fa-solid fa-scale-balanced"></i> ${t('arbitre')}`;
+    const lStop = document.getElementById('label-stop-nav'); if(lStop) lStop.textContent = t('stop');
+    const lReroute = document.getElementById('label-reroute'); if(lReroute) lReroute.textContent = t('reroute');
 
     // Map Radar Options
     const gasLabel = document.querySelector('[onclick="scanRadar(\'fuel\')"] span') || document.querySelector('[onclick="scanRadar(\'fuel\')"]');
@@ -76,17 +79,10 @@ window.addEventListener('popstate', (e) => {
 });
 history.pushState(null, null, window.location.pathname);
 
-// --- SECURITY HELPER ---
-function escapeHTML(str) {
-    if (!str) return '';
-    return String(str).replace(/[&<>"']/g, function (match) {
-        const escape = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-        return escape[match];
-    });
-}
+// escapeHTML est maintenant défini dans auth.js (global)
 
 // --- BOOT ---
-console.log("mon50ccetmoi v20.1-FINAL : Production.");
+console.log("mon50ccetmoi v29.0-QUANTUM : Autonomous AI HUD Active.");
 
 let map;
 let directionsService;
@@ -115,6 +111,9 @@ let lastMovementTime = Date.now();
 let isGuardianPromptActive = false;
 let guardianCheckInterval = null;
 let gForceThreshold = 4.5; // G force for impact detection
+let currentLeanAngle = 0;
+let maxLeanAngle = 0;
+let isTelemetryActive = false;
 
 // --- INITIALIZATION ---
 
@@ -145,50 +144,75 @@ const GOOGLE_MAPS_STYLE = [
     { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#000000" }] }
 ];
 
-function initMap() {
+window.initMapController = function() {
+    if (map) return; 
+    console.log("mon50cc Maps : Initialisation du contrôleur...");
+    
+    const mapElement = document.getElementById('map');
+    const statusEl = document.getElementById('loader-status');
+    if (!mapElement) return;
+
     try {
-        const defaultCoords = { lat: 48.8566, lng: 2.3522 };
-        
-        // Initialisation Maps
-        map = new google.maps.Map(document.getElementById("map"), {
-            center: defaultCoords,
-            zoom: 13,
+        if (typeof google === 'undefined' || !google.maps) {
+            throw new Error("SDK_NOT_LOADED");
+        }
+
+        map = new google.maps.Map(mapElement, {
+            center: { lat: 48.8566, lng: 2.3522 },
+            zoom: 15,
             styles: GOOGLE_MAPS_STYLE,
             disableDefaultUI: true,
             backgroundColor: "#0a0a0a",
-            gestureHandling: "greedy",
-            tilt: 0,
-            heading: 0,
-            mapId: '6b6dd900f488f219' // Requis pour les fonctionnalités avancées (Heading/Tilt)
+            gestureHandling: "greedy"
         });
 
         directionsService = new google.maps.DirectionsService();
-        directionsRenderer = new google.maps.DirectionsRenderer({
-            map: map,
-            suppressMarkers: true,
-            polylineOptions: {
-                strokeColor: "#cca000",
-                strokeOpacity: 0.9,
-                strokeWeight: 8
-            }
-        });
-
+        directionsRenderer = new google.maps.DirectionsRenderer({ map: map, suppressMarkers: true });
         geocoder = new google.maps.Geocoder();
         trafficLayer = new google.maps.TrafficLayer();
         trafficLayer.setMap(map);
 
-        console.log("Moteur v20.1-FINAL : Initialisé.");
+        if (statusEl) statusEl.textContent = "Systèmes opérationnels.";
     } catch (e) {
         console.error("Maps init failed:", e);
-        // Fallback UI indication
-        const statusEl = document.getElementById('loader-status');
-        if(statusEl) statusEl.textContent = "Erreur Google Maps (Vérifiez la clé API)...";
+        // FALLBACK: TACTICAL RADAR MODE
+        mapElement.innerHTML = `
+            <div class="radar-fallback" style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#050505; color:var(--neon-blue);">
+                <i class="fa-solid fa-satellite-dish fa-spin" style="font-size:3rem; margin-bottom:20px;"></i>
+                <div style="font-family:'JetBrains Mono'; font-weight:900;">RADAR_TACTIQUE_ACTIF</div>
+                <div style="font-size:0.7rem; opacity:0.6; margin-top:10px;">SDK_FAILOVER: SENSOR_LIAISON_ESTABLISHED</div>
+            </div>
+        `;
+        if (statusEl) statusEl.textContent = "Mode Radar (Maps Error)...";
+        if (window.NeuralHUD) window.NeuralHUD.logToConsole("MAP_FAILOVER: RADAR_MODE_ENGAGED");
     } finally {
-        // Démarrage de la suite du système (même si Maps échoue, on veut masquer le loader)
         if (typeof initDatabase === "function") initDatabase();
-        if (typeof window.startApp === "function") window.startApp();
+        setTimeout(() => window.startApp(), 1000);
     }
 }
+
+window.startApp = function() {
+    try {
+        // Initialisation sécurisée des modules
+        if (window.NeuralHUD && typeof window.NeuralHUD.init === "function") window.NeuralHUD.init();
+        if (window.GuardianAngel && typeof window.GuardianAngel.init === "function") window.GuardianAngel.init();
+        if (window.NeuralSync && typeof window.NeuralSync.init === "function") window.NeuralSync.init();
+        if (window.Wallet && typeof window.Wallet.init === "function") window.Wallet.init();
+        
+        const loader = document.getElementById('app-loader');
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.visibility = 'hidden', 800);
+        }
+    } catch (e) {
+        console.error("App startup bug prevented:", e);
+    }
+};
+
+window.initMap = function() {
+    window.initMapController();
+};
+
 
 window.toggleTraffic = function() {
     if (trafficLayer.getMap()) {
@@ -274,14 +298,14 @@ function updatePosition(position) {
     currentPosition = { lat, lng };
     
     // --- GUEST MODE LOCKS (Initial logic check) ---
-    if (session && session.isGuest) {
+    if (window.session && window.session.isGuest) {
         document.getElementById('menu-insurance')?.classList.add('locked-feature');
         document.getElementById('menu-mechanic')?.classList.add('locked-feature');
         document.getElementById('menu-garage')?.classList.add('locked-feature');
         // On rend aussi le clic inactif ou redirige vers login
-        ['menu-insurance', 'menu-mechanic', 'menu-garage'].forEach(id => {
+        ['menu-insurance', 'menu-mechanic', 'menu-garage', 'menu-arbitre'].forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.onclick = () => alert("Veuillez créer un compte pour accéder à cette fonctionnalité premium ! 🛵");
+            if (el) el.onclick = () => alert("Veuillez créer un compte pour accéder à l'Arbitre de la Route ! ⚖️🛵");
         });
     }
 
@@ -295,9 +319,14 @@ function updatePosition(position) {
         // Effet de vitesse sur le HUD
         if(speedKmh > 40) {
             speedEl.parentElement.classList.add('fast');
+            speedEl.style.color = 'var(--danger)';
             vibrate(50); 
+        } else if(speedKmh > 25) {
+            speedEl.parentElement.classList.remove('fast');
+            speedEl.style.color = 'var(--accent)';
         } else {
             speedEl.parentElement.classList.remove('fast');
+            speedEl.style.color = 'var(--neon-blue)';
         }
         
         // --- NEW: Compass & 3D Navigation Logic ---
@@ -334,10 +363,18 @@ function updatePosition(position) {
             }
         }
 
-        handlePerfTracking(speedKmh);
+        // vMax Tracking (NEW v25)
+        if(!window.session.vMax || speedKmh > window.session.vMax) {
+            window.session.vMax = speedKmh;
+            secureSetItem('session', JSON.stringify(window.session));
+        }
     }
     
+    const wasRiding = window.isRiding;
     window.isRiding = speedKmh > 2;
+    if (wasRiding && !window.isRiding) {
+        if (typeof Habits !== "undefined" && currentPosition) Habits.recordEnd(currentPosition);
+    }
     calculateDistanceAndBadges(lat, lng);
 
     // --- NEW: Parking Mode Security ---
@@ -495,6 +532,46 @@ function checkNightMode() {
         nightModeActive = false;
     }
 }
+// --- NEW v25: TELEMETRY & LEAN ANGLE ---
+window.addEventListener('deviceorientation', (e) => {
+    if(!window.isRiding) return;
+    
+    const lean = Math.round(e.gamma); // Tilt left/right
+    currentLeanAngle = Math.abs(lean);
+    if(currentLeanAngle > maxLeanAngle) maxLeanAngle = currentLeanAngle;
+    const horizon = document.querySelector('.horizon-line');
+    if (horizon) {
+        horizon.style.transform = `rotate(${-lean}deg)`;
+    }
+
+    const leanMeter = document.getElementById('lean-meter');
+    const leanVal = document.getElementById('lean-angle-val');
+    const fillL = document.getElementById('lean-fill-L');
+    const fillR = document.getElementById('lean-fill-R');
+
+    if(leanMeter && currentLeanAngle > 5) {
+        leanMeter.classList.remove('hidden');
+        leanVal.textContent = `${currentLeanAngle}°`;
+        
+        if(lean < 0) {
+            fillL.style.width = `${Math.min(currentLeanAngle * 2, 100)}%`;
+            fillR.style.width = '0%';
+        } else {
+            fillR.style.width = `${Math.min(currentLeanAngle * 2, 100)}%`;
+            fillL.style.width = '0%';
+        }
+
+        if(currentLeanAngle > 35) {
+            leanVal.style.color = 'var(--danger)';
+            if(currentLeanAngle > 45) vibrate(100);
+        } else {
+            leanVal.style.color = 'var(--accent)';
+        }
+    } else if(leanMeter) {
+        leanMeter.classList.add('hidden');
+    }
+});
+
 setInterval(checkNightMode, 60000);
 checkNightMode();
 
@@ -537,8 +614,13 @@ function calculateRouteSansAutoroute(start, end) {
             document.getElementById('nav-eta').textContent = new Date(Date.now() + leg.duration.value * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             document.getElementById('nav-dist').textContent = leg.distance.text;
             document.getElementById('nav-time').textContent = leg.duration.text;
+            
+            // AUTO-ACTIVATE GUARDIAN ANGEL ON NAVIGATION START
+            if (!window.isGuardianActive && typeof toggleGuardianAngel === "function") {
+                toggleGuardianAngel();
+            }
 
-            speak(`Itinéraire calculé. Arrivée prévue à ${document.getElementById('nav-eta').textContent}.`);
+            speak(`Itinéraire calculé. Arrivée prévue à ${document.getElementById('nav-eta').textContent}. Protection Ange Gardien activée.`);
 
             if(destinationMarker) destinationMarker.setMap(null);
             destinationMarker = new google.maps.Marker({
@@ -823,12 +905,20 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
                 const internalInfo = typeof getGarageInternalInfo === "function" ? await getGarageInternalInfo(place.place_id) : null;
                 const isPro = (internalInfo?.count || 0) >= 1000;
                 const proBadge = isPro ? `<div style="background:#ffd700; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-trophy"></i> BADGE PRO CERTIFIÉ</div>` : "";
+                const qualityBadge = (place.rating > 3.9) ? `<div style="background:#f1c40f; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-certificate"></i> QUALITÉ CERTIFIÉE (>3.9)</div>` : "";
                 const communityRating = internalInfo ? `<div style="font-size:0.7rem; color:#00d2ff; margin-top:3px;">Label Scooter : ⭐ ${internalInfo.avgRating}/5 (${internalInfo.count} avis)</div>` : "";
 
                 const marker = new google.maps.Marker({
                     position: place.geometry.location,
                     map: map,
-                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: isPro ? "#ffd700" : config.color, fillOpacity: 1, strokeColor: 'white' }
+                    icon: { 
+                        path: google.maps.SymbolPath.CIRCLE, 
+                        scale: 10, 
+                        fillColor: (place.rating > 3.9) ? "#f1c40f" : (isPro ? "#ffd700" : config.color), 
+                        fillOpacity: 1, 
+                        strokeColor: 'white',
+                        strokeWeight: (place.rating > 3.9) ? 3 : 1
+                    }
                 });
 
                 // Étoiles de notation
@@ -845,7 +935,8 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
                 const info = new google.maps.InfoWindow({
                     content: `<div style="color:black; min-width:180px;">
                         <b style="font-size:1rem;">${escapeHTML(place.name)}</b><br>
-                        ⭐ Google: ${place.rating || "N/A"}/5 (${place.user_ratings_total || 0})
+                        ⭐ Google: ${place.rating || "N/A"}/5 (${place.user_ratings_total || 0})<br>
+                        ${qualityBadge}
                         ${communityRating}
                         ${proBadge}
                         ${starBtns}
@@ -945,6 +1036,39 @@ window.renderCommunityMarkers = function() {
     });
 }
 
+window.simulateLiveFleet = function() {
+    if(!currentPosition || !map) return;
+    const ghostNames = ["Rider_Z", "Nitro50", "BoostPowa", "StuntMan", "RoadRunner"];
+    const ghostBrands = ["Yamaha Bw's", "MBK Booster", "Piaggio Zip", "Peugeot Speedfight", "Derbi Senda"];
+    
+    ghostNames.forEach((name, i) => {
+        const offsetLat = (Math.random() - 0.5) * 0.01;
+        const offsetLng = (Math.random() - 0.5) * 0.01;
+        const ghostPos = { lat: currentPosition.lat + offsetLat, lng: currentPosition.lng + offsetLng };
+        
+        const m = new google.maps.Marker({
+            position: ghostPos,
+            map: map,
+            icon: { 
+                path: google.maps.SymbolPath.CIRCLE, 
+                scale: 5, 
+                fillColor: '#666', 
+                fillOpacity: 0.5, 
+                strokeColor: 'white', 
+                strokeWeight: 1 
+            },
+            title: name
+        });
+        
+        const info = new google.maps.InfoWindow({ 
+            content: `<div style="color:black"><b>${name} [IA]</b><br><small>${ghostBrands[i]}</small></div>` 
+        });
+        m.addListener("click", () => info.open(map, m));
+        communityMarkers.push(m);
+    });
+    console.log("mon50cc Fleet : Ghost riders deployed.");
+}
+
 // --- 7. SERVICES (Météo, Boussole, Garage) ---
 window.fetchWeather = async function(lat, lon) {
     try {
@@ -961,7 +1085,12 @@ window.fetchWeather = async function(lat, lon) {
         else if (code >= 61) { alertMsg = "Pluie signalée par satellite. Équipez-vous."; icon = '<i class="fa-solid fa-cloud-rain"></i>'; }
         else if (code >= 71) { alertMsg = "Alerte Neige : Conditions de circulation difficiles."; icon = '<i class="fa-solid fa-snowflake"></i>'; }
 
-        document.getElementById('weather-hud').innerHTML = `${icon} ${temp}°C`;
+        const wHud = document.getElementById('weather-hud');
+        if(wHud) {
+            wHud.innerHTML = `${icon} ${temp}°C`;
+            if (alertMsg) wHud.classList.add('weather-alert');
+            else wHud.classList.remove('weather-alert');
+        }
 
         if (alertMsg && !window.lastWeatherAlert) {
             speak(alertMsg);
@@ -1233,7 +1362,9 @@ function runCinematicStartup() {
 }
 
 window.startApp = function() {
-    console.log("mon50cc Master Controller : Démarrage de la séquence d'initialisation...");
+    if (window.appStarted) return;
+    window.appStarted = true;
+    console.log("mon50cc Master Controller : Démarrage de la séquence d'initialisation v26.1...");
     runCinematicStartup();
     
     const statusEl = document.getElementById('loader-status');
@@ -1269,7 +1400,17 @@ window.startApp = function() {
         }
         updateUILabels();
         if (typeof renderCommunityMarkers === "function") renderCommunityMarkers(); 
+        if (typeof simulateLiveFleet === "function") simulateLiveFleet();
         console.log("mon50cc : Système prêt.");
+        
+        // Notification de Mise à Jour v25.01
+        if(!localStorage.getItem('v25_01_notified')) {
+            setTimeout(() => {
+                speak("Mise à jour Silver Edition installée. Découvrez le nouveau Sentinel Météo et le HUD optimisé.");
+                alert("🥈 MON50CC SILVER EDITION 🥈\n\n- Sentinel Météo : Alertes vocales en cas de pluie.\n- HUD Silver : Interface optimisée pour la vision nocturne.\n- Sécurité : Détecteur de chute 2.0 calibré.");
+                localStorage.setItem('v25_01_notified', 'true');
+            }, 5000);
+        }
     }, 3500); // Wait for cinematic sequence
 };
 
@@ -1301,7 +1442,22 @@ window.showPage = function(page) {
     const content = document.getElementById('screen-content');
     overlay.classList.remove('hidden');
     
-    if(page === 'garage') {
+    if(page === 'stats') {
+        content.innerHTML = `<h3><i class="fa-solid fa-chart-line"></i> ${t('stats_title')}</h3>
+            <div class="stats-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px;">
+                <div class="glassmorphism" style="padding:15px; text-align:center;">
+                    <span style="font-size:0.7rem; color:#aaa;">DISTANCE TOTALE</span>
+                    <div style="font-size:1.4rem; font-weight:900;">${window.session?.totalDistance || 0} km</div>
+                </div>
+                <div class="glassmorphism" style="padding:15px; text-align:center;">
+                    <span style="font-size:0.7rem; color:#aaa;">VITESSE MAX</span>
+                    <div style="font-size:1.4rem; font-weight:900; color:var(--neon-blue);">${window.session?.vMax || 0} km/h</div>
+                </div>
+            </div>
+            <button onclick="generateRideCard()" class="btn-insurance" style="width:100%; margin-top:20px; background:linear-gradient(45deg, #ffb703, #ff4d4d); color:black;">
+                <i class="fa-solid fa-share-nodes"></i> GÉNÉRER MA CARTE RIDE (VIRAL)
+            </button>`;
+    } else if(page === 'garage') {
         const history = JSON.parse(secureGetItem('maint_history') || '[]');
         const ctDate = secureGetItem('ct_date') || 'Non défini';
         
@@ -1318,6 +1474,21 @@ window.showPage = function(page) {
 
             <div id="dynamic-garage-list"></div>
 
+            <div class="card" style="border: 1px solid var(--neon-blue); background: rgba(0, 210, 255, 0.05);">
+                <h4 style="color:var(--neon-blue); margin-bottom:10px;"><i class="fa-solid fa-chart-line"></i> TÉLÉMÉTRIE DE RIDE</h4>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; text-align:center;">
+                    <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;">
+                        <small>ANGLE MAX</small><br>
+                        <strong style="font-size:1.2rem; color:var(--accent);">${maxLeanAngle}°</strong>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;">
+                        <small>VITESSE MAX</small><br>
+                        <strong style="font-size:1.2rem; color:var(--danger);">${window.session?.vMax || 0} km/h</strong>
+                    </div>
+                </div>
+                <button onclick="resetTelemetry()" style="width:100%; height:25px; margin-top:10px; background:transparent; border:1px solid #444; color:#666; font-size:0.6rem; border-radius:15px;">RÉINITIALISER LES STATS</button>
+            </div>
+
             <h4 style="margin-top:20px; font-size:0.9rem; color:#aaa; display:flex; justify-content:space-between;">
                 <span>${t('maint_history_title')}</span>
                 <i class="fa-solid fa-book-medical" style="color:#2ecc71;"></i>
@@ -1331,9 +1502,13 @@ window.showPage = function(page) {
             </div>
 
             <div id="maint-history" style="font-size:0.8rem; margin-top:15px; max-height:200px; overflow-y:auto;">
-                ${history.length ? history.reverse().map(h => `<div style="padding:10px; background:rgba(255,255,255,0.05); margin-bottom:5px; border-radius:8px; display:flex; justify-content:space-between;">
-                    <span><strong>${h.category || 'Mécano'}</strong>: ${h.action}</span>
-                    <span style="color:#666; font-size:0.7rem;">${h.date}</span>
+                ${history.length ? history.reverse().map(h => `<div style="padding:10px; background:rgba(255,255,255,0.05); margin-bottom:5px; border-radius:8px; border-left:3px solid ${h.certified ? '#2ecc71' : '#444'};">
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong>${h.category}</strong>
+                        <span style="color:#666; font-size:0.7rem;">${h.date}</span>
+                    </div>
+                    <div style="font-size:0.75rem; margin-top:3px; color:#ccc;">${h.action}</div>
+                    ${h.certified ? `<div style="font-size:0.6rem; color:#2ecc71; margin-top:5px;"><i class="fa-solid fa-certificate"></i> CERTIFIÉ PAR : ${h.garage}</div>` : ''}
                 </div>`).join('') : '<p style="color:#444; text-align:center;">Votre carnet est vide.</p>'}
             </div>`;
         renderDynamicGarage();
@@ -1376,6 +1551,104 @@ window.showPage = function(page) {
             <textarea id="meca-query" placeholder="Ex: Mon scoot broute à l'accélération..." style="width:100%; height:80px; margin-top:10px; background:#111; color:white; border:1px solid #ffb703; border-radius:8px; padding:10px;"></textarea>
             <button class="btn-insurance" onclick="submitMecaV3()" style="margin-top:15px; width:100%;">Scanner mon 50cc</button>
             <div id="meca-response" style="margin-top:20px; font-size:0.9rem; line-height:1.4;"></div>`;
+    } else if(page === 'arbitre') {
+        if (window.session && window.session.isGuest) {
+            alert("Accès réservé aux membres inscrits ! 🛵");
+            return;
+        }
+        content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> ${t('arbitre_title')}</h3>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Posez votre question sur la réglementation 50cc (débridage, équipement, contrôles...).</p>
+            
+            <div id="arbitre-chat" style="background:rgba(0,0,0,0.3); border-radius:15px; padding:15px; min-height:150px; max-height:300px; overflow-y:auto; margin-bottom:15px; border:1px solid rgba(255,183,3,0.2);">
+                <div class="bot-msg" style="background:rgba(255,183,3,0.1); padding:10px; border-radius:10px 10px 10px 0; margin-bottom:10px; font-size:0.9rem; border-left:3px solid #ffb703;">
+                    Bonjour ! Je suis l'Arbitre. Quel est votre litige ou votre question sur le Code de la Route ?
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="arbitre-query" placeholder="Ex: Mon pot est-il homologué ?" style="flex:1; background:#111; color:white; border:1px solid #444; border-radius:20px; padding:10px 15px; font-size:0.9rem;">
+                <button onclick="submitArbitre()" style="background:#ffb703; color:black; border:none; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>`;
+    } else if(page === 'insurance_expert') {
+        content.innerHTML = `<h3><i class="fa-solid fa-building-shield"></i> Portail Expert Assurance</h3>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Accès sécurisé pour les compagnies d'assurance et experts judiciaires.</p>
+            <div id="insurance-search-box" style="margin-bottom:20px;">
+                <input type="text" id="expert-report-id" placeholder="ID du Dossier (ex: blackbox_...)" style="width:100%; padding:15px; background:rgba(255,255,255,0.05); border:1px solid #444; border-radius:10px; color:white; margin-bottom:10px;">
+                <button class="btn-insurance" onclick="InsurancePortal.searchReport(document.getElementById('expert-report-id').value)" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:10px; font-weight:bold;">RECHERCHER LE DOSSIER</button>
+            </div>
+            <div id="insurance-content"></div>`;
+    } else if(page === 'pulse') {
+        content.innerHTML = `<h3><i class="fa-solid fa-microscope"></i> Labo Méca : Stéthoscope IA</h3>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Analyse biométrique de la santé de votre moteur via les capteurs du smartphone.</p>
+            
+            <div class="glassmorphism" style="padding:20px; text-align:center;">
+                <div id="scan-visual" style="height:100px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; background:rgba(0,0,0,0.3); border-radius:15px; position:relative; overflow:hidden;">
+                    <div id="scan-progress-bar" style="position:absolute; left:0; top:0; height:100%; width:0%; background:linear-gradient(90deg, #ffb703, #ff4d4d); transition: width 0.1s linear; opacity:0.5;"></div>
+                    <i class="fa-solid fa-gear" style="font-size:3rem; color:#ffb703; z-index:1;"></i>
+                </div>
+                <button class="btn-insurance" onclick="EnginePulse.startScan()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:10px; font-weight:bold; font-size:1.1rem;">LANCER LE DIAGNOSTIC</button>
+                <p style="font-size:0.7rem; color:#888; margin-top:10px;">Posez le téléphone sur la selle, moteur allumé au ralenti.</p>
+            </div>
+            <div id="pulse-result"></div>`;
+    } else if(page === 'ants_wallet') {
+        const passport = Wallet.getSafetyPassport();
+        content.innerHTML = `<h3><i class="fa-solid fa-building-columns"></i> Mon Coffre-Fort ANTS</h3>
+            <p style="font-size:0.75rem; color:#aaa; margin-bottom:20px;">Titres sécurisés et Passeport Sécurité certifié par mon50ccetmoi.</p>
+            
+            <div class="glassmorphism" style="padding:15px; margin-bottom:15px; border-left:4px solid #2ecc71;">
+                <h4 style="font-size:0.9rem; color:#2ecc71;"><i class="fa-solid fa-id-card"></i> Passeport Sécurité Digital</h4>
+                <div style="font-size:0.8rem; margin-top:5px; color:#ddd;">
+                    ID Blackbox: <span style="font-family:monospace; color:#2ecc71;">${passport.blackbox_id}</span><br>
+                    Maintenance: <span style="color:#2ecc71;">${passport.maintenance_count} interventions</span><br>
+                    Santé Moteur: <span style="color:#2ecc71;">${passport.engine_health}</span>
+                </div>
+            </div>
+
+            <div class="menu-list" style="margin-top:20px;">
+                <li onclick="alert('Fonction Scan en cours de déploiement...')"><i class="fa-solid fa-camera"></i> Numériser Carte Grise</li>
+                <li onclick="alert('Fonction Scan en cours de déploiement...')"><i class="fa-solid fa-address-card"></i> Numériser Permis AM</li>
+                <li onclick="alert('Fonction Scan en cours de déploiement...')"><i class="fa-solid fa-shield-check"></i> Attestation Assurance</li>
+            </div>
+            
+            <button onclick="Certificate.generate()" class="btn-insurance" style="width:100%; margin-top:25px; background:linear-gradient(45deg, #2ecc71, #3498db); color:white;">
+                <i class="fa-solid fa-file-shield"></i> GÉNÉRER MON CERTIFICAT OFFICIEL
+            </button>
+            
+            <p style="font-size:0.65rem; color:#666; text-align:center; margin-top:20px;">Note : Ce coffre-fort facilite les contrôles mais ne remplace pas les documents originaux selon la législation en vigueur.</p>`;
+    } else if(page === 'meca_lab') {
+        content.innerHTML = `<h3><i class="fa-solid fa-oil-can"></i> Le Sorcier de la Méca</h3>
+            <div class="glassmorphism" style="padding:20px; margin-bottom:20px;">
+                <h4 style="color:var(--accent);">CALCULATEUR DE MÉLANGE</h4>
+                <div style="margin-top:15px;">
+                    <input type="number" id="mix-liters" placeholder="Litres d'essence" class="scooter-brand-select" style="width:100%; margin-bottom:10px;">
+                    <input type="number" id="mix-percent" placeholder="% d'huile (ex: 2)" class="scooter-brand-select" style="width:100%; margin-bottom:10px;">
+                    <button onclick="const vol = MecaWizard.calculateMix(document.getElementById('mix-liters').value, document.getElementById('mix-percent').value); document.getElementById('mix-res').innerHTML = vol + ' ml d\'huile à ajouter';" 
+                            class="btn-insurance" style="width:100%; background:var(--accent); color:black;">CALCULER</button>
+                    <div id="mix-res" style="margin-top:15px; font-weight:bold; text-align:center; color:var(--neon-blue);"></div>
+                </div>
+            </div>
+
+            <div class="glassmorphism" style="padding:20px;">
+                <h4 style="color:#2ecc71;">DIAGNOSTIC CARBU (IA SONORE)</h4>
+                <p style="font-size:0.75rem; color:#aaa; margin-top:10px;">L'IA analyse le son de votre moteur pour ajuster votre richesse.</p>
+                <button onclick="MecaWizard.startAcousticAnalysis()" class="btn-insurance" style="width:100%; margin-top:15px; background:#2ecc71; color:white;">LANCER L'ANALYSE SONORE</button>
+                <div id="meca-result" style="margin-top:20px;"></div>
+            </div>`;
+    } else if(page === 'about') {
+        content.innerHTML = `<h3><i class="fa-solid fa-circle-info"></i> À Propos</h3>
+            <div style="text-align:center; padding:20px;">
+                <div class="login-logo" style="font-size:3rem; color:var(--accent); margin-bottom:10px;">50</div>
+                <h2 style="color:var(--accent);">mon50ccetmoi</h2>
+                <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Version 26.0 - GOLD EDITION</p>
+                
+                <div class="glassmorphism" style="padding:20px; border:1px solid var(--accent); margin-bottom:30px; text-align:left;">
+                    <p style="font-size:0.9rem; font-weight:bold; text-align:center;">SIGNATURE CORPORATE</p>
+                    <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriété exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
+                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">Protégé par les lois internationales sur la propriété intellectuelle. Télémétrie certifiée conforme aux standards ANTS v1.0.</p>
+                </div>
+                
+                <button onclick="document.getElementById('screen-overlay').classList.add('hidden')" class="btn-cancel" style="background:#333; color:white;">FERMER</button>
+            </div>`;
     } else if(page === 'defis') {
         const availableChallenges = [
             { name: "Le Grand Raid", goal: 200, unit: "km" },
@@ -1413,6 +1686,27 @@ window.showPage = function(page) {
 
             <button class="btn-insurance" style="margin-top:20px; width:100%; background:#9b59b6; color:white;" onclick="toggleMenu()">CONTINUER L'ASCENSION</button>
         </div>`;
+    } else if(page === 'roadbooks') {
+        content.innerHTML = `<h3><i class="fa-solid fa-map-location-dot"></i> Navigation & Roadbooks</h3>
+            <div class="glassmorphism" style="padding:20px; border-left:4px solid #f1c40f; margin-bottom:20px;">
+                <h4 style="color:#f1c40f;"><i class="fa-solid fa-stopwatch"></i> CHRONOS GUARD (Zéro Retard)</h4>
+                <p style="font-size:0.75rem; margin-top:5px; color:#aaa;">Réglez votre heure d'arrivée cible. L'app inclut votre temps d'équipement (5 min).</p>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <input type="time" id="target-time" class="scooter-brand-select" style="flex:1;">
+                    <button onclick="Chronos.setTarget(document.getElementById('target-time').value)" class="btn-insurance" style="flex:1; background:#f1c40f; color:black;">ACTIVER</button>
+                </div>
+                <button onclick="Chronos.syncCalendar()" class="btn-insurance" style="width:100%; margin-top:10px; background:transparent; border:1px solid #f1c40f; color:#f1c40f;">
+                    <i class="fa-solid fa-calendar-days"></i> SYNCHRONISER MON CALENDRIER
+                </button>
+            </div>
+            
+            <p style="text-align:center; padding:40px; color:#666;">Liste de vos roadbooks sauvegardés...</p>`;
+    } else if(page === 'arbitre') {
+        if (window.Blackbox && typeof window.Blackbox.showLitigationInfo === "function") {
+            window.Blackbox.showLitigationInfo();
+        } else {
+            content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> Arbitre de la Route</h3><p>Service Blackbox momentanément indisponible.</p>`;
+        }
     } else if(page === 'privacy') {
         content.innerHTML = `<h3>Mentions Légales & Confidentialité</h3>
             <div style="font-size:0.8rem; line-height:1.4; color:#ccc;">
@@ -1494,9 +1788,9 @@ window.showPage = function(page) {
                 <button onclick="payGarageEntryFee()" class="btn-insurance" style="background:#f1c40f; color:black; font-weight:bold;">S'acquitter du droit d'entrée (50€)</button>
                 
                 <div style="margin-top:15px; padding-top:15px; border-top:1px solid #444;">
-                    <p style="font-size:0.7rem; color:#2ecc71;"><strong>🎁 OPTION GRATUITE :</strong></p>
-                    <p style="font-size:0.6rem; color:#aaa;">Offrez <strong>-10% de réduction</strong> aux membres mon50ccetmoi sur présentation de l'app et soyez <strong>exonéré</strong> des 50€ !</p>
-                    <button onclick="applyPartnerExemption()" class="btn-insurance" style="background:transparent; border:1px solid #2ecc71; color:#2ecc71; margin-top:5px; font-size:0.75rem;">Devenir Partenaire (-10% membres)</button>
+                    <p style="font-size:0.7rem; color:#2ecc71;"><strong>🎁 OPTION "CROISSANCE" GRATUITE :</strong></p>
+                    <p style="font-size:0.6rem; color:#aaa;">Offrez <strong>-10% de réduction</strong> aux membres sur présentation de l'app et soyez <strong>exonéré</strong> des 50€ !</p>
+                    <button onclick="applyPartnerExemption()" class="btn-insurance fa-beat" style="background:transparent; border:1px solid #2ecc71; color:#2ecc71; margin-top:5px; font-size:0.8rem; font-weight:bold;">REJOINDRE LE RÉSEAU GRATUITEMENT (-10%)</button>
                 </div>
             </div>` : `
             <div class="card" style="text-align:center; background:rgba(46, 204, 113, 0.1); border:1px solid #2ecc71;">
@@ -1596,11 +1890,17 @@ window.addEventListener('devicemotion', (e) => {
     const force = Math.sqrt(acc.x**2 + acc.y**2 + acc.z**2);
     if(force > 45) { // Seuil d'impact (G-force importante)
         triggerFallAlert();
+        if (window.isGuardianActive && typeof triggerEmergencySOS === "function") {
+            triggerEmergencySOS("Chute brutale détectée par l'accéléromètre.");
+        }
     }
 });
 
 function triggerFallAlert() {
-    vibrate([500, 200, 500, 200, 500]); // SOS vibration pattern
+    if (typeof Hardware !== "undefined") {
+        Hardware.vibratePattern('sos');
+        Hardware.toggleFlashlightSOS(true);
+    }
     if(document.getElementById('fall-screen')) return; 
     const div = document.createElement('div');
     div.id = 'fall-screen';
@@ -1617,6 +1917,7 @@ function triggerFallAlert() {
 
 window.startRodage = function(name) {
     window.isRodageActive = true;
+    refreshRodageUI();
     alert(`Mode Rodage Activé: ${name}. Vitesse max conseillée: 45km/h. Distance cumulée comptabilisée.`);
     speak("Mode rodage activé. Ménagez votre moteur.");
     closeScreen();
@@ -1672,7 +1973,7 @@ window.logout = function() {
 
 window.updateTicker = function() {
     const t = document.getElementById('ticker-text');
-    if(t) t.innerHTML = `Bienvenue sur la version officielle de mon50ccetmoi v${CONFIG.VERSION} ! Prudence sur la route. 🛵💨`;
+    if(t) t.innerHTML = `Bienvenue sur mon50ccetmoi v25.01 SILVER EDITION ! Prudence sur la route. 🛵💨`;
 }
 updateTicker();
 setInterval(updateTicker, 60000);
@@ -1849,6 +2150,39 @@ window.dismissGuardian = function() {
     if(el) el.remove();
 };
 
+window.addCategorizedMaint = function(category) {
+    if (window.session && window.session.isGuest) {
+        alert("🔒 Le Carnet Certifié est réservé aux membres.");
+        return;
+    }
+
+    const proCode = prompt(`🔑 VALIDATION PRO REQUISE\nPour certifier l'entretien "${category}", le garage doit entrer son code partenaire :`);
+    
+    // Simulation de validation (En prod, on vérifie contre la base des garages certifiés)
+    if (proCode === "PRO50" || (window.session.isCertifiedGarage && proCode === "ME")) {
+        const action = prompt(`Description de l'intervention ${category} :`, `Révision standard ${category}`);
+        if (!action) return;
+
+        const entry = {
+            category: category,
+            action: action,
+            date: new Date().toLocaleDateString(),
+            certified: true,
+            garage: window.session.isCertifiedGarage ? window.session.username : "Garage Partenaire Certifié"
+        };
+
+        let history = JSON.parse(secureGetItem('maint_history') || '[]');
+        history.push(entry);
+        secureSetItem('maint_history', JSON.stringify(history));
+        
+        speak("Intervention certifiée et enregistrée dans votre passeport entretien.");
+        showPage('garage');
+    } else {
+        alert("❌ Code invalide. Seul un garage certifié peut valider cette intervention.");
+        speak("Échec de la certification.");
+    }
+};
+
 function getSOSActions() {
     const num = secureGetItem('emergency_contact');
     if (num) {
@@ -1885,15 +2219,25 @@ window.addCategorizedMaint = function(cat) {
     speak(`Entretien ${cat} validé.`);
 };
 
+window.refreshRodageUI = function() {
+    const btn = document.getElementById('btn-rodage-toggle');
+    const badge = document.getElementById('rodage-badge');
+    if(window.isRodageActive) {
+        if(btn) btn.classList.add('rodage-active-btn');
+        if(badge) badge.classList.remove('hidden');
+    } else {
+        if(btn) btn.classList.remove('rodage-active-btn');
+        if(badge) badge.classList.add('hidden');
+    }
+};
+
 window.toggleRodageHUD = function() {
     window.isRodageActive = !window.isRodageActive;
-    const btn = document.getElementById('btn-rodage-toggle');
+    refreshRodageUI();
     if(window.isRodageActive) {
-        btn.classList.add('btn-neon');
         speak("Mode Rodage activé.");
         alert("Mode Rodage : Le GPS évitera les voies rapides et vous guidera sur des routes tranquilles.");
     } else {
-        btn.classList.remove('btn-neon');
         speak("Mode Rodage désactivé.");
     }
 };
@@ -1975,3 +2319,86 @@ window.publishProTip = function() {
     alert("Félicitations ! Votre conseil d'expert est en ligne.");
     showPage('pro-space');
 };
+window.resetTelemetry = function() {
+    maxLeanAngle = 0;
+    if(window.session) {
+        window.session.vMax = 0;
+        secureSetItem('session', JSON.stringify(window.session));
+    }
+    speak("Données de télémétrie réinitialisées.");
+    showPage('garage');
+}
+// --- AUTO-BOOT ---
+// Si le SDK Maps est déjà là, on lance manuellement
+if (typeof google !== 'undefined' && google.maps) {
+    console.log("SDK Maps déjà présent au chargement de app.js. Démarrage immédiat.");
+    window.initMap();
+}
+window.submitArbitre = function() {
+    const q = document.getElementById('arbitre-query');
+    const chat = document.getElementById('arbitre-chat');
+    if(!q.value.trim()) return;
+
+    // Add user message
+    const userDiv = document.createElement('div');
+    userDiv.style = "background:rgba(255,255,255,0.05); padding:10px; border-radius:10px 10px 0 10px; margin-bottom:10px; font-size:0.9rem; text-align:right; align-self:flex-end; border-right:3px solid #666;";
+    userDiv.textContent = q.value;
+    chat.appendChild(userDiv);
+
+    const query = q.value;
+    q.value = "";
+    chat.scrollTop = chat.scrollHeight;
+
+    // Bot response
+    const botDiv = document.createElement('div');
+    botDiv.className = "bot-msg";
+    botDiv.style = "background:rgba(255,183,3,0.1); padding:10px; border-radius:10px 10px 10px 0; margin-bottom:10px; font-size:0.9rem; border-left:3px solid #ffb703;";
+    botDiv.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyse des textes de loi...';
+    chat.appendChild(botDiv);
+
+    if (typeof window.processArbitreQuery === "function") {
+        window.processArbitreQuery(query).then(response => {
+            botDiv.innerHTML = response;
+            chat.scrollTop = chat.scrollHeight;
+        });
+    } else {
+        setTimeout(() => {
+            botDiv.innerHTML = "Désolé, le module juridique est en cours de mise à jour.";
+            chat.scrollTop = chat.scrollHeight;
+        }, 1500);
+    }
+}
+}
+
+function generateRideCard() {
+    if (window.session.isGuest) {
+        alert("🔒 La Carte de Score est réservée aux membres. Inscrivez-vous pour partager vos exploits !");
+        return;
+    }
+    
+    speak("Génération de votre carte de score personnalisée.");
+    const overlay = document.createElement('div');
+    overlay.id = "ride-card-overlay";
+    overlay.className = "glassmorphism";
+    overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; z-index:20000; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:30px; text-align:center; background:radial-gradient(circle, #1a1a1a, #000);";
+    
+    overlay.innerHTML = `
+        <div style="border:2px solid var(--accent); padding:40px; border-radius:20px; box-shadow:0 0 50px var(--accent-glow); background:rgba(0,0,0,0.8);">
+            <h1 style="font-size:2rem; color:var(--accent); margin-bottom:5px;">RIDE COMPLETE</h1>
+            <p style="color:#888; letter-spacing:3px; margin-bottom:30px; font-size:0.8rem;">NETIZEN INTERCEPTOR V26</p>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:40px;">
+                <div><span style="font-size:0.6rem; color:#666; display:block;">DISTANCE</span><strong style="font-size:1.2rem; color:#fff;">${document.getElementById('odometer')?.textContent || '0'} KM</strong></div>
+                <div><span style="font-size:0.6rem; color:#666; display:block;">MAX LEAN</span><strong style="font-size:1.2rem; color:#ff4d4d;">${window.maxLeanAngle || 0}°</strong></div>
+                <div><span style="font-size:0.6rem; color:#666; display:block;">V-MAX</span><strong style="font-size:1.2rem; color:var(--neon-blue);">${window.session.vMax || 0} KM/H</strong></div>
+                <div><span style="font-size:0.6rem; color:#666; display:block;">STATUS</span><strong style="font-size:1rem; color:#2ecc71;">LEGEND</strong></div>
+            </div>
+            
+            <button class="btn-insurance" style="width:100%; background:var(--accent); color:black; font-weight:bold; padding:15px; margin-bottom:15px; border-radius:10px;">
+                <i class="fa-solid fa-share-nodes"></i> PARTAGER LE SCORE
+            </button>
+            <button onclick="document.getElementById('ride-card-overlay').remove()" style="background:transparent; color:#555; border:none; cursor:pointer;">FERMER</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}

@@ -1,16 +1,16 @@
 {
   "packageId": "com.mon50ccetmoi.twa",
   "host": "xavierlechanu-netizen.github.io",
-  "name": "mon50ccetmoi | Navigation & Sécurité Scooter",
-  "launcherName": "mon50ccetmoi",
+  "name": "mon50ccetmoi v50000 God-View",
+  "launcherName": "mon50cc V50K",
   "display": "standalone",
-  "themeColor": "#CCA000",
+  "themeColor": "#00f2ff",
   "themeColorDark": "#000000",
-  "navigationColor": "#0A0A0A",
+  "navigationColor": "#000000",
   "navigationColorDark": "#000000",
   "navigationDividerColor": "#000000",
   "navigationDividerColorDark": "#000000",
-  "backgroundColor": "#0A0A0A",
+  "backgroundColor": "#000000",
   "enableNotifications": true,
   "startUrl": "/com.mon50ccetmoi.tws/",
   "iconUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/assets/icons/icon-512x512.png",
@@ -19,8 +19,8 @@
     "path": "./upload-keystore.jks",
     "alias": "upload"
   },
-  "appVersionName": "24.00",
-  "appVersionCode": 24,
+  "appVersionName": "50000.0",
+  "appVersionCode": 50000,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/manifest.json",
@@ -40,5 +40,5 @@
   ],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "24.00"
+  "appVersion": "25.01"
 }

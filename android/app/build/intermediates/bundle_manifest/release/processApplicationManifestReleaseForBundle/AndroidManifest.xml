@@ -23,8 +23,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mon50ccetmoi.twa"
-    android:versionCode="21"
-    android:versionName="20.1-FINAL" >
+    android:versionCode="24"
+    android:versionName="24.00" >
 
     <uses-sdk
         android:minSdkVersion="21"
@@ -147,16 +147,6 @@
 
                 <data
                     android:host="@string/hostName"
-                    android:scheme="https" />
-            </intent-filter>
-            <intent-filter android:autoVerify="true" >
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="https://xavierlechanu-netizen.github.io"
                     android:scheme="https" />
             </intent-filter>
         </activity>

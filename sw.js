@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon50ccetmoi-v20.1-FINAL';
+const CACHE_NAME = 'mon50ccetmoi-v50000.0-GOD-VIEW';
 const ASSETS = [
   './',
   './index.html',
@@ -8,13 +8,15 @@ const ASSETS = [
   './js/app.js',
   './js/auth.js',
   './js/crypto-js.min.js',
+  './js/neural-hud.js',
+  './js/wallet.js',
+  './js/blackbox.js',
+  './js/guardian-angel.js',
+  './js/sentinel.js',
+  './js/i18n.js',
   './manifest.json',
   './assets/icons/icon-192x192.png',
   './assets/icons/icon-512x512.png',
-  './assets/ui/play_store_feature_graphic_1776365906325.jpg',
-  './assets/ui/screenshot_gps.jpg',
-  './assets/ui/screenshot_garage.jpg',
-  './assets/ui/screenshot_wide.jpg',
   'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'
 ];
 

@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:22:1-212:12
-INJECTED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:22:1-212:12
-INJECTED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:22:1-212:12
-INJECTED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:22:1-212:12
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:22:1-203:12
+INJECTED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:22:1-203:12
+INJECTED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:22:1-203:12
+INJECTED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:22:1-203:12
 MERGED from [com.google.androidbrowserhelper:androidbrowserhelper:2.6.2] C:\Users\xavie\.gradle\caches\8.11.1\transforms\a85341c091fef9f274f544f710edae4a\transformed\jetified-androidbrowserhelper-2.6.2\AndroidManifest.xml:17:1-32:12
 MERGED from [androidx.appcompat:appcompat-resources:1.7.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\62775f09f78b38b2ea858f8dbdf5251f\transformed\jetified-appcompat-resources-1.7.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.appcompat:appcompat:1.7.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\183ebbc8ed821348f80a6d36d20b75e3\transformed\appcompat-1.7.0\AndroidManifest.xml:2:1-7:12
@@ -49,8 +49,8 @@ ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src
 	android:name
 		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:26:26-78
 application
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:35:5-211:19
-INJECTED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:35:5-211:19
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:35:5-202:19
+INJECTED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:35:5-202:19
 MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\37114162b03bece98b93a1e799d091e1\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
 MERGED from [androidx.emoji2:emoji2:1.3.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\37114162b03bece98b93a1e799d091e1\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:23:5-33:19
 MERGED from [androidx.core:core:1.13.0] C:\Users\xavie\.gradle\caches\8.11.1\transforms\a5429f7b20c607b890f08b5283ad4ec0\transformed\core-1.13.0\AndroidManifest.xml:28:5-89
@@ -126,7 +126,7 @@ ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src
 	android:name
 		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:74:31-77
 activity#com.mon50ccetmoi.twa.LauncherActivity
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:79:9-172:20
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:79:9-163:20
 	android:label
 		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:81:13-49
 	android:exported
@@ -253,60 +253,56 @@ ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src
 		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:156:21-52
 	android:scheme
 		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:155:23-45
-intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:host:https://xavierlechanu-netizen.github.io+data:scheme:https
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:162:17-168:33
-	android:autoVerify
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:162:32-57
 activity#com.google.androidbrowserhelper.trusted.FocusActivity
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:174:9-90
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:165:9-90
 	android:name
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:174:19-87
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:165:19-87
 activity#com.google.androidbrowserhelper.trusted.WebViewFallbackActivity
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:176:9-177:62
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:167:9-168:62
 	android:configChanges
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:177:13-59
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:168:13-59
 	android:name
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:176:19-97
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:167:19-97
 provider#androidx.core.content.FileProvider
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:179:9-187:20
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:170:9-178:20
 	android:grantUriPermissions
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:182:13-47
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:173:13-47
 	android:authorities
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:181:13-60
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:172:13-60
 	android:exported
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:183:13-37
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:174:13-37
 	android:name
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:180:13-62
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:171:13-62
 meta-data#android.support.FILE_PROVIDER_PATHS
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:184:13-186:53
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:175:13-177:53
 	android:resource
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:186:17-50
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:177:17-50
 	android:name
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:185:17-67
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:176:17-67
 service#com.mon50ccetmoi.twa.DelegationService
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:189:9-204:19
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:180:9-195:19
 	android:enabled
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:191:13-55
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:182:13-55
 	android:exported
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:192:13-56
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:183:13-56
 	android:name
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:190:13-46
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:181:13-46
 meta-data#android.support.customtabs.trusted.SMALL_ICON
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:195:17-197:73
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:186:17-188:73
 	android:resource
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:197:21-70
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:188:21-70
 	android:name
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:196:21-81
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:187:21-81
 intent-filter#action:name:android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE+category:name:android.intent.category.DEFAULT
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:200:13-203:29
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:191:13-194:29
 action#android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:201:17-105
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:192:17-105
 	android:name
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:201:25-103
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:192:25-103
 activity#com.google.androidbrowserhelper.trusted.NotificationPermissionRequestActivity
-ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:207:13-118
+ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:198:13-118
 	android:name
-		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:207:23-115
+		ADDED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml:198:23-115
 uses-sdk
 INJECTED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\xavie\.gemini\antigravity\scratch\balade-app\android\app\src\main\AndroidManifest.xml

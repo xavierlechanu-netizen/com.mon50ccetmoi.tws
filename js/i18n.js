@@ -44,7 +44,11 @@ const I18N = {
         expert_meca_title: "Assistant Méca V3",
         challenges_title: "Défis de la Quinzaine",
         donate_title: "Soutenir le Projet",
-        security_title: "Sécurité & Guardian"
+        security_title: "Sécurité & Guardian",
+        stop: "STOP",
+        reroute: "RE-CALCUL",
+        arbitre: "L'Arbitre de la Route",
+        arbitre_title: "L'Arbitre de la Route ⚖️"
     },
     en: {
         welcome: "Welcome to mon50ccetmoi",
@@ -86,7 +90,11 @@ const I18N = {
         expert_meca_title: "Meca Assistant V3",
         challenges_title: "Fortnightly Challenges",
         donate_title: "Support the Project",
-        security_title: "Security & Guardian"
+        security_title: "Security & Guardian",
+        stop: "STOP",
+        reroute: "RE-ROUTE",
+        arbitre: "Road Referee",
+        arbitre_title: "Road Referee ⚖️"
     },
     es: {
         welcome: "Bienvenido a mon50ccetmoi",

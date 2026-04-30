@@ -6,6 +6,12 @@
     <title>Connexion - mon50ccetmoi</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcXtkzj2xw=" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
+    <!-- Firebase SDK (v9 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/config.js"></script>
+    <script>firebase.initializeApp(CONFIG.FIREBASE);</script>
     <!-- CryptoJS -->
     <script src="js/crypto-js.min.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer crossorigin="anonymous"></script>
@@ -95,21 +101,37 @@
             );
         }
 
-        // --- NEW: Google Login Callback ---
-        function handleCredentialResponse(response) {
-            console.log("Encoded JWT ID token: " + response.credential);
-            // Parse JWT (Legacy simple way for demo, in real life use a backend or verify signature)
-            const base64Url = response.credential.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            
-            const payload = JSON.parse(jsonPayload);
-            console.log("Nom:", payload.name, "Email:", payload.email);
-            
-            // Bridge with auth.js
-            googleLogin(payload.name, payload.email);
+        // --- NEW: Google Login Callback via Firebase ---
+        async function handleCredentialResponse(response) {
+            console.log("Tentative de connexion Google via Firebase...");
+            const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
+            try {
+                const userCredential = await firebase.auth().signInWithCredential(credential);
+                const user = userCredential.user;
+                
+                // Vérifier si le profil Firestore existe
+                const doc = await firebase.firestore().collection("users").doc(user.uid).get();
+                let profile;
+                if (!doc.exists) {
+                    profile = {
+                        uid: user.uid,
+                        username: user.displayName || user.email.split('@')[0],
+                        role: 'user',
+                        points: 50,
+                        registrationDate: Date.now(),
+                        brand: "Google Pilot"
+                    };
+                    await firebase.firestore().collection("users").doc(user.uid).set(profile);
+                } else {
+                    profile = doc.data();
+                }
+                
+                secureSetItem('session', JSON.stringify(profile));
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Google Auth Error:", error);
+                alert("Erreur Google Auth : " + error.message);
+            }
         }
 
         if ('serviceWorker' in navigator) {

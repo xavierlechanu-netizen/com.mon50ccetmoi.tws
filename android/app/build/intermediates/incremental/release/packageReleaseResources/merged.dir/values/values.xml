@@ -19,21 +19,12 @@
     <string name="appName" translatable="false">mon50ccetmoi | Navigation &amp; Sécurité Scooter</string>
     <string name="assetStatements">
     [{
-        \"relation\": [\"delegate_permission/common.handle_all_urls\"],
-        \"target\": {
-            \"namespace\": \"web\",
-            \"site\": \"https://xavierlechanu-netizen.github.io\"
-        }
+      \"relation\": [\"delegate_permission/common.handle_all_urls\"],
+      \"target\": {
+        \"namespace\": \"web\",
+        \"site\": \"https://xavierlechanu-netizen.github.io\"
+      }
     }]
-    
-      ,[{
-          \"relation\": [\"delegate_permission/common.handle_all_urls\"],
-          \"target\": {
-              \"namespace\": \"web\",
-              \"site\": \"https://xavierlechanu-netizen.github.io\"
-          }
-      }]        
-    
   </string>
     <string name="fallbackType" translatable="false">customtabs</string>
     <string name="generatorApp" translatable="false">bubblewrap-cli</string>

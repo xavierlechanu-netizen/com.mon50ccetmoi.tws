@@ -6,7 +6,8 @@ const CONFIG = {
     // Google Maps API Keys
     MAPS: {
         PC: "AIzaSyCN_fevTiG8AvWPuDS2Kc_WpwlYfDy4k4M",
-        ANDROID: "AIzaSyCN_fevTiG8AvWPuDS2Kc_WpwlYfDy4k4M"
+        ANDROID: "AIzaSyCN_fevTiG8AvWPuDS2Kc_WpwlYfDy4k4M",
+        MAP_ID: "" // Laisser vide si non configuré sur Google Cloud
     },
     
     // Auth Configuration
@@ -15,7 +16,7 @@ const CONFIG = {
     },
     
     // App Versioning
-    VERSION: "20.1-FINAL",
+    VERSION: "50000.0-GOD-VIEW",
 
     // Firebase Cloud Database (Firestore)
     FIREBASE: {
