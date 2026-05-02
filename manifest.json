@@ -1,146 +1,41 @@
 {
-  "version": "29.0",
-  "id": "com.mon50ccetmoi.twa",
-  "lang": "fr-FR",
-  "dir": "ltr",
-  "name": "mon50ccetmoi v50000 God-View",
-  "short_name": "mon50cc V50K",
-  "description": "L'application ultime pour pilotes de 50cc. Navigation GPS sécurisée, Diagnostic IA Moteur, Sentinel Kernel auto-réparateur, et Blackbox certifiée pour assurances.",
+  "name": "mon50ccetmoi",
+  "short_name": "mon50cc",
+  "description": "La première communauté de scooters 50cc. Navigation, Alertes et Sécurité.",
   "start_url": "./index.html",
-  "scope": "./",
-  "scope_extensions": [
-    { "origin": "xavierlechanu-netizen.github.io" },
-    { "origin": "*.github.io" }
-  ],
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "tabbed", "standalone", "minimal-ui"],
+  "background_color": "#000000",
+  "theme_color": "#cca000",
   "orientation": "portrait",
-  "background_color": "#0a0a0a",
-  "theme_color": "#00f2ff",
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
-  "prefer_related_applications": true,
-  "related_applications": [
-    {
-      "platform": "play",
-      "id": "com.mon50ccetmoi.twa",
-      "url": "https://play.google.com/store/apps/details?id=com.mon50ccetmoi.twa"
-    }
-  ],
-  "iarc_rating_id": "IARC-2026-M50CC-PWA",
-  "categories": ["navigation", "lifestyle", "social", "utilities"],
-  "shortcuts": [
-    {
-      "name": "Mon Garage",
-      "short_name": "Garage",
-      "description": "Suivi de maintenance et garage virtuel",
-      "url": "./index.html?shortcut=garage",
-      "icons": [{ "src": "assets/icons/icon-192x192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Signaler un Danger",
-      "short_name": "Danger",
-      "description": "Signaler un obstacle ou un contrôle sur la route",
-      "url": "./index.html?shortcut=danger",
-      "icons": [{ "src": "assets/icons/icon-192x192.png", "sizes": "192x192" }]
-    }
-  ],
-  "share_target": {
-    "action": "./index.html?share=1",
-    "method": "GET",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
-  },
-  "protocol_handlers": [
-    {
-      "protocol": "web+mon50cc",
-      "url": "./index.html?uri=%s",
-      "title": "Ouvrir dans mon50ccetmoi"
-    }
-  ],
-  "file_handlers": [
-    {
-      "action": "./index.html",
-      "accept": {
-        "application/gpx+xml": [".gpx"],
-        "application/vnd.google-earth.kml+xml": [".kml"],
-        "application/json": [".json"]
-      }
-    }
-  ],
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "widgets": [
-    {
-      "name": "Statut mon50cc",
-      "short_name": "ScootStat",
-      "description": "Résumé de votre trajet et état du garage",
-      "tag": "scooter-status",
-      "template": "widget-template",
-      "ms_ac_template": "{ \"type\": \"AdaptiveCard\", \"body\": [{ \"type\": \"TextBlock\", \"text\": \"Prêt à rouler ?\" }] }",
-      "data": "./index.html?widget=status",
-      "type": "application/json",
-      "screenshots": [
-        {
-          "src": "assets/ui/screenshot_gps.jpg",
-          "sizes": "1024x1024",
-          "type": "image/jpeg"
-        }
-      ]
-    }
-  ],
-  "handle_links": "preferred",
+  "scope": "./",
   "icons": [
     {
       "src": "assets/icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "assets/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "screenshots": [
     {
-      "src": "assets/ui/screenshot_gps.jpg",
-      "sizes": "1024x1024",
-      "type": "image/jpeg",
-      "form_factor": "narrow",
-      "label": "Interface GPS mon50ccetmoi"
-    },
-    {
-      "src": "assets/ui/screenshot_garage.jpg",
-      "sizes": "1024x1024",
-      "type": "image/jpeg",
-      "form_factor": "narrow",
-      "label": "Gestion du Garage et Maintenance"
-    },
-    {
-      "src": "assets/ui/screenshot_wide.jpg",
-      "sizes": "1024x1024",
-      "type": "image/jpeg",
+      "src": "assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "form_factor": "wide",
-      "label": "Tableau de bord Communautaire"
-    },
+      "label": "Interface Tactique HUD"
+    }
+  ],
+  "related_applications": [
     {
-      "src": "assets/ui/play_store_feature_graphic_1776365906325.jpg",
-      "sizes": "1024x500",
-      "type": "image/jpeg",
-      "form_factor": "wide",
-      "label": "mon50ccetmoi Feature Graphic"
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.mon50ccetmoi.twa",
+      "id": "com.mon50ccetmoi.twa"
     }
   ]
 }

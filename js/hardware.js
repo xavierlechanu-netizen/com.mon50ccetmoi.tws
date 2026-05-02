@@ -80,6 +80,11 @@ window.Hardware = {
                 navigator.vibrate([50]); break;
             case 'sos':
                 navigator.vibrate([200, 200, 200, 500, 500, 500, 200, 200, 200]); break; // S-O-S in Morse
+            default:
+                navigator.vibrate(10);
+        }
+    },
+
     // 5. ULTRA POWER SAVER (NEW)
     isUltraMode: false,
 
@@ -105,5 +110,7 @@ window.Hardware = {
     }
 };
 
-window.Hardware.init();
+window.addEventListener('DOMContentLoaded', () => {
+    window.Hardware.init();
+});
 

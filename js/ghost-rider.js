@@ -15,6 +15,8 @@ window.GhostRider = {
         
         // 1. Check Danger Zones (Pre-defined)
         this.dangerZones.forEach(zone => {
+            if (typeof google === "undefined" || !google.maps || !google.maps.geometry) return;
+            
             const dist = google.maps.geometry.spherical.computeDistanceBetween(
                 new google.maps.LatLng(currentPosition.lat, currentPosition.lng),
                 new google.maps.LatLng(zone.lat, zone.lng)
@@ -46,6 +48,8 @@ window.GhostRider = {
                 const h = doc.data();
                 points.push(new google.maps.LatLng(h.pos.lat, h.pos.lng));
             });
+
+            if (typeof google === "undefined" || !google.maps || !google.maps.visualization) return;
 
             if (this.heatmap) this.heatmap.setMap(null);
             this.heatmap = new google.maps.visualization.HeatmapLayer({
@@ -99,6 +103,8 @@ window.GhostRider = {
             snap.forEach(doc => {
                 const alert = doc.data();
                 if (alert.userId === window.session?.uid) return;
+
+                if (typeof google === "undefined" || !google.maps || !google.maps.geometry) return;
 
                 const dist = google.maps.geometry.spherical.computeDistanceBetween(
                     new google.maps.LatLng(currentPosition.lat, currentPosition.lng),

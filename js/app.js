@@ -1,19 +1,26 @@
+try {
+// --- CORE NAVIGATION (SAFE ZONE) ---
+window.toggleMenu = function() {
+    try {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        if (sidebar) {
+            sidebar.classList.toggle('active');
+            if (overlay) overlay.classList.toggle('active');
+            console.log("mon50cc : Menu Toggle OK");
+        }
+    } catch(e) { console.error("Menu Crash:", e); }
+};
+
+window.closeMenu = function() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    if (sidebar) sidebar.classList.remove('active');
+    if (overlay) overlay.classList.remove('active');
+};
+
 // --- I18N SYSTEM ---
-window.currentLang = localStorage.getItem('app_lang');
-if (!window.currentLang) {
-    const browserLang = navigator.language.split('-')[0]; // ex: 'fr-FR' -> 'fr'
-    const supported = ['fr', 'en', 'es', 'it', 'nl', 'pl', 'pt', 'de', 'sv', 'da', 'fi', 'no', 'el', 'cs', 'hu', 'ro'];
-    window.currentLang = supported.includes(browserLang) ? browserLang : 'fr';
-}
-window.t = function(key) {
-    if (typeof I18N === 'undefined') return key;
-    return (I18N[window.currentLang] && I18N[window.currentLang][key]) || (I18N['fr'][key]) || key;
-};
-window.setLanguage = function(lang) {
-    window.currentLang = lang;
-    localStorage.setItem('app_lang', lang);
-    location.reload(); 
-};
+window.currentLang = localStorage.getItem('app_lang') || 'fr';
 
 function updateUILabels() {
     window.updateI18N();
@@ -42,7 +49,7 @@ window.updateI18N = function() {
     const bankLabel = document.querySelector('[onclick="scanRadar(\'atm\')"] span') || document.querySelector('[onclick="scanRadar(\'atm\')"]');
     if(bankLabel) bankLabel.innerHTML = `<i class="fa-solid fa-money-bill-1"></i> ${t('bank')}`;
 };
-window.updateI18N(); // Run now
+// window.updateI18N(); // Décalé après DOMContentLoaded pour éviter les crashs
 
 // PWA Installation Logic
 let deferredPrompt;
@@ -82,7 +89,7 @@ history.pushState(null, null, window.location.pathname);
 // escapeHTML est maintenant défini dans auth.js (global)
 
 // --- BOOT ---
-console.log("mon50ccetmoi v29.0-QUANTUM : Autonomous AI HUD Active.");
+console.log("mon50ccetmoi v50000.7-GOLD-STABLE : Production Ready.");
 
 let map;
 let directionsService;
@@ -144,6 +151,8 @@ const GOOGLE_MAPS_STYLE = [
     { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#000000" }] }
 ];
 
+window.appStarted = false;
+
 window.initMapController = function() {
     if (map) return; 
     console.log("mon50cc Maps : Initialisation du contrôleur...");
@@ -187,11 +196,17 @@ window.initMapController = function() {
         if (window.NeuralHUD) window.NeuralHUD.logToConsole("MAP_FAILOVER: RADAR_MODE_ENGAGED");
     } finally {
         if (typeof initDatabase === "function") initDatabase();
-        setTimeout(() => window.startApp(), 1000);
+        // On attend un peu que les autres modules se chargent
+        setTimeout(() => window.startApp(), 500);
     }
 }
 
 window.startApp = function() {
+    if (window.appStarted) return;
+    window.appStarted = true;
+    
+    console.log("mon50cc : Initialisation globale...");
+    
     try {
         // Initialisation sécurisée des modules
         if (window.NeuralHUD && typeof window.NeuralHUD.init === "function") window.NeuralHUD.init();
@@ -204,9 +219,30 @@ window.startApp = function() {
             loader.style.opacity = '0';
             setTimeout(() => loader.style.visibility = 'hidden', 800);
         }
+
+        // --- GUEST MODE BANNER ---
+        if (window.session && window.session.isGuest) {
+            const guestBanner = document.getElementById('guest-banner');
+            if (guestBanner) guestBanner.classList.remove('hidden');
+        }
+
+        // Lancement de la géolocalisation après le démarrage de l'UI
+        checkLegalConsent();
     } catch (e) {
         console.error("App startup bug prevented:", e);
     }
+};
+
+// Fonctions de menu déplacées au début pour sécurité
+
+window.showAdvantages = function() {
+    const pop = document.getElementById('advantages-popup');
+    if (pop) pop.classList.remove('hidden');
+};
+
+window.closeAdvantages = function() {
+    const pop = document.getElementById('advantages-popup');
+    if (pop) pop.classList.add('hidden');
 };
 
 window.initMap = function() {
@@ -286,7 +322,8 @@ function startGeolocation() {
 }
 
 // Remplacement du démarrage automatique par la vérification légale
-checkLegalConsent();
+// Retrait de l'appel direct pour éviter les conflits avant l'init de l'UI
+// checkLegalConsent(); 
 
 function updatePosition(position) {
     if(!map) return; 
@@ -665,13 +702,13 @@ window.searchDestination = function() {
 // --- 4. SERVICES COMMUNAUTAIRES (SIGNALEMENTS) ---
 window.toggleHazardMenu = function() {
     const opts = document.getElementById('hazard-options');
-    const mainBtn = document.getElementById('btn-hazard-main');
+    const mainBtn = document.getElementById('btn-hazard-quick') || document.getElementById('btn-hazard-main');
     if(opts.classList.contains('hidden')) {
         opts.classList.remove('hidden');
-        mainBtn.style.transform = 'rotate(45deg)';
+        if(mainBtn) mainBtn.style.transform = 'rotate(45deg)';
     } else {
         opts.classList.add('hidden');
-        mainBtn.style.transform = 'rotate(0deg)';
+        if(mainBtn) mainBtn.style.transform = 'rotate(0deg)';
     }
 };
 
@@ -771,9 +808,9 @@ window.scanRadar = function(type) {
     if(!currentPosition) return;
     toggleRadarMenu();
     const config = poiConfig[type];
-    const radarBtn = document.getElementById('btn-radar-main');
-    const oldHtml = radarBtn.innerHTML;
-    radarBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    const radarBtn = document.getElementById('btn-radar-quick') || document.getElementById('btn-radar-main');
+    const oldHtml = radarBtn ? radarBtn.innerHTML : '';
+    if(radarBtn) radarBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
     
     if (type === 'fuel') {
         // --- NEW: Government Data Integration ---
@@ -792,7 +829,7 @@ window.scanRadar = function(type) {
         
         fetch(url).then(r => r.json()).then(data => {
             renderPoiMarkers(data.elements, config);
-        }).finally(() => { radarBtn.innerHTML = oldHtml; });
+        }).finally(() => { if(radarBtn) radarBtn.innerHTML = oldHtml; });
     }
 }
 
@@ -2402,3 +2439,4 @@ function generateRideCard() {
     `;
     document.body.appendChild(overlay);
 }
+} catch(e) { console.error("GLOBAL APP CRASH PREVENTED:", e); }

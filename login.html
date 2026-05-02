@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Connexion - mon50ccetmoi</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcXtkzj2xw=" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=29.1">
     <!-- Firebase SDK (v9 Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -24,8 +24,10 @@
             <p class="login-subtitle">La 1ère communauté 50cc</p>
             
             <div id="login-form" class="auth-form">
-                <input type="text" id="login-user" placeholder="Votre Pseudo" />
-                <input type="password" id="login-pass" placeholder="Mot de passe" />
+                <label for="login-user" class="sr-only">Pseudo</label>
+                <input type="text" id="login-user" name="username" placeholder="Votre Pseudo" autocomplete="username" />
+                <label for="login-pass" class="sr-only">Mot de passe</label>
+                <input type="password" id="login-pass" name="password" placeholder="Mot de passe" autocomplete="current-password" />
                 <button onclick="doLogin()" class="btn-auth">SE CONNECTER</button>
                 <div style="margin: 15px 0; color: #888; font-size: 0.9rem;">OU</div>
                 <button onclick="loginAsGuest()" class="btn-auth" style="background:transparent; border:1px solid #999; color:#fff; margin-bottom: 20px;">
@@ -53,8 +55,10 @@
             </div>
 
             <div id="register-form" class="auth-form hidden">
-                <input type="text" id="reg-user" placeholder="Choisissez un pseudo unique" />
-                <input type="password" id="reg-pass" placeholder="Mot de passe" />
+                <label for="reg-user" class="sr-only">Nouveau Pseudo</label>
+                <input type="text" id="reg-user" name="reg-username" placeholder="Choisissez un pseudo unique" autocomplete="username" />
+                <label for="reg-pass" class="sr-only">Nouveau Mot de passe</label>
+                <input type="password" id="reg-pass" name="reg-password" placeholder="Mot de passe" autocomplete="new-password" />
                 <select id="reg-brand" class="scooter-brand-select">
                     <option value="" disabled selected>Marque de votre 50cc</option>
                     <option value="Jordon / Jog (MAXISCOOT)">Jordon / Jog (Groupe MAXISCOOT)</option>
@@ -72,16 +76,47 @@
                     <option value="Sym">Sym</option>
                     <option value="Autre">Autre</option>
                 </select>
-                <input type="text" id="reg-model" placeholder="Modèle (Ex: Kisbee, Booster, Zip...)" />
+                <label for="reg-model" class="sr-only">Modèle</label>
+                <input type="text" id="reg-model" name="reg-model" placeholder="Modèle (Ex: Kisbee, Booster, Zip...)" />
                 <button onclick="doRegister()" class="btn-auth btn-auth-alt">CRÉER MON COMPTE</button>
                 <p class="switch-link" onclick="toggleForm('login')">Déjà inscrit ? <strong>Se connecter</strong></p>
             </div>
             
 
         </div>
+
+        <!-- NEW: Membership Advantages Section -->
+        <div class="advantages-container glassmorphism">
+            <div class="promo-badge-gold">🔥 OFFRE LIMITÉE : GOLD GRATUIT À VIE</div>
+            <p style="font-size: 0.8rem; color: var(--neon-gold); margin-bottom: 15px; font-weight: bold; text-align:center;">
+                Inscrivez-vous avant 2032 et profitez de toutes les fonctions Premium gratuitement pour toujours.
+            </p>
+            <div class="advantage-grid">
+                <div class="adv-item">
+                    <i class="fa-solid fa-coins"></i>
+                    <h4>Ride-to-Earn</h4>
+                    <p>Minez du $MON50 à chaque kilomètre parcouru.</p>
+                </div>
+                <div class="adv-item">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h4>Sentinel OS</h4>
+                    <p>Protection anti-vol et anti-tamper autonome.</p>
+                </div>
+                <div class="adv-item">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <h4>Guardian Angel</h4>
+                    <p>Détection de chute et secours automatiques.</p>
+                </div>
+                <div class="adv-item">
+                    <i class="fa-solid fa-walkie-talkie"></i>
+                    <h4>Squad Link</h4>
+                    <p>Intercom tactique illimité pour vos balades.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=30.0"></script>
     <script>
         function toggleForm(formType) {
             document.getElementById('login-form').classList.add('hidden');
@@ -136,7 +171,7 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=20.7')
+                navigator.serviceWorker.register('./sw.js?v=50000.1')
                     .then(reg => console.log('Service Worker (Login) enregistré'))
                     .catch(err => console.log('Échec Service Worker: ', err));
             });

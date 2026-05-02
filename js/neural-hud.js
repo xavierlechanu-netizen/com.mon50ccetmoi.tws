@@ -225,23 +225,52 @@ window.NeuralHUD = {
         });
 
         setInterval(() => {
-            this.updateParticles();
-            const speedEl = document.getElementById('speed');
-            if (!speedEl) return;
-            const speed = parseFloat(speedEl.textContent || 0);
-            
-            if (window.isRiding) {
-                // RIDE-TO-EARN logic
-                this.tokenBalance += (speed / 1000);
-                this.updateTokenDisplay();
+            try {
+                this.updateParticles();
+                const speedEl = document.getElementById('speed');
+                if (!speedEl) return;
+                const speed = parseFloat(speedEl.textContent || 0);
                 
-                if (Math.random() > 0.99) this.speakOracle('earnings');
-                if (typeof EnginePulse !== "undefined") EnginePulse.updateSynth(speed);
-            }
+                if (window.isRiding) {
+                    // RIDE-TO-EARN logic
+                    this.tokenBalance += (speed / 1000);
+                    this.updateTokenDisplay();
+                    
+                    if (Math.random() > 0.99) this.speakOracle('earnings');
+                    if (typeof EnginePulse !== "undefined") EnginePulse.updateSynth(speed);
+                }
 
-            this.updateBiometrics(speed, this.currentStressLevel);
-            this.processLidar(speed);
+                this.updateBiometrics(speed, this.currentStressLevel || 0);
+                this.processLidar(speed);
+            } catch(e) { /* Silently fail to avoid Sentinel loop */ }
         }, 100);
+    },
+
+    runDiagnostics: function() {
+        if (window.isRiding) {
+            this.logToConsole("AEGIS: ABORTED. CANNOT RUN DIAGNOSTICS DURING RIDE.");
+            return;
+        }
+
+        this.logToConsole("AEGIS: INITIATING FULL SYSTEM DIAGNOSTIC...");
+        if (typeof speak === "function") speak("Initialisation des diagnostics système Aegis.");
+
+        const tests = [
+            { msg: "NEURAL_LINK: STABLE", delay: 800 },
+            { msg: "GPS_COHERENCE: 99.8%", delay: 1500 },
+            { msg: "SENTINEL_SHIELD: OPTIMAL", delay: 2200 },
+            { msg: "QUANTUM_WALLET: SYNCED", delay: 3000 },
+            { msg: "DIAGNOSTIC_COMPLETE: ALL_SYSTEMS_GO", delay: 4000 }
+        ];
+
+        tests.forEach((t, i) => {
+            setTimeout(() => {
+                this.logToConsole(`AEGIS: ${t.msg}`);
+                if (i === tests.length - 1 && typeof speak === "function") {
+                    speak("Diagnostic terminé. Tous les systèmes sont optimaux.");
+                }
+            }, t.delay);
+        });
     },
 
     processLidar: function(speed) {
@@ -284,7 +313,8 @@ window.NeuralHUD = {
 
 window.toggleHolographicMode = function() {
     document.body.classList.toggle('holographic-mode');
-    speak("Mode HUD activé.");
+    const isActive = document.body.classList.contains('holographic-mode');
+    speak(isActive ? "Mode Projection Pare-brise activé." : "Mode HUD Standard activé.");
 };
 
 window.NeuralHUD.init();

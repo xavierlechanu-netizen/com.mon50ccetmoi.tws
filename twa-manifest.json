@@ -1,10 +1,10 @@
 {
   "packageId": "com.mon50ccetmoi.twa",
   "host": "xavierlechanu-netizen.github.io",
-  "name": "mon50ccetmoi v50000 God-View",
-  "launcherName": "mon50cc V50K",
+  "name": "mon50ccetmoi v50000 GOLD",
+  "launcherName": "mon50cc GOLD",
   "display": "standalone",
-  "themeColor": "#00f2ff",
+  "themeColor": "#cca000",
   "themeColorDark": "#000000",
   "navigationColor": "#000000",
   "navigationColorDark": "#000000",
@@ -19,8 +19,8 @@
     "path": "./upload-keystore.jks",
     "alias": "upload"
   },
-  "appVersionName": "50000.0",
-  "appVersionCode": 50000,
+  "appVersionName": "50.0.0",
+  "appVersionCode": 50001,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/manifest.json",
@@ -40,5 +40,5 @@
   ],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "25.01"
+  "appVersion": "50.0.0"
 }

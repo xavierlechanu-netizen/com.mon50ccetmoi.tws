@@ -120,28 +120,17 @@ window.Sentinel = {
 
     handleBug: function(type, detail) {
         const now = Date.now();
-        const bugKey = type + (detail?.msg || "");
+        console.warn(`🚀 Sentinel : Bug intercepté (${type}). Analyse en cours...`);
         
-        // Anti-boucle : pas plus d'une réparation toutes les 30 secondes pour le même bug
-        if (this.repairAttempts[bugKey] && (now - this.repairAttempts[bugKey] < 30000)) {
-            return;
-        }
-        this.repairAttempts[bugKey] = now;
-
-        this.healthStatus = "REPAIRING";
-        console.warn(`🚀 Sentinel : Bug détecté (${type}). Lancement de l'auto-réparation...`);
-        
-        if (detail && detail.msg && (detail.msg.includes('google') || detail.msg.includes('Maps'))) {
-            this.repairModule('Maps');
-        } else if (type === "Promise Rejection") {
-            this.repairModule('Firebase');
-        }
-
         this.errorLog.push({type, detail, time: now});
+        this.healthStatus = "MONITORING";
+
+        // On ne répare plus automatiquement pour éviter les boucles au démarrage
+        // if (detail && detail.msg && detail.msg.includes('google')) this.repairModule('Maps');
         
         setTimeout(() => {
             this.healthStatus = "OPTIMAL";
-        }, 2000);
+        }, 1000);
     },
 
     repairModule: function(name) {

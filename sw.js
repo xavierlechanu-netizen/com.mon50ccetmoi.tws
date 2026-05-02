@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon50ccetmoi-v50000.0-GOD-VIEW';
+const CACHE_NAME = 'mon50ccetmoi-v50000.6-GOD-STABLE';
 const ASSETS = [
   './',
   './index.html',
@@ -12,19 +12,19 @@ const ASSETS = [
   './js/wallet.js',
   './js/blackbox.js',
   './js/guardian-angel.js',
-  './js/sentinel.js',
+  './js/sentinel-v2.js',
+  './js/ghost-rider-v2.js',
   './js/i18n.js',
   './manifest.json',
   './assets/icons/icon-192x192.png',
-  './assets/icons/icon-512x512.png',
-  'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css'
+  './assets/icons/icon-512x512.png'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('[ServiceWorker] Caching app shell');
+        console.log('[ServiceWorker] Caching app shell v6 (GOD STABLE)');
         return cache.addAll(ASSETS);
       })
   );
@@ -36,7 +36,7 @@ self.addEventListener('activate', event => {
     caches.keys().then(keyList => {
       return Promise.all(keyList.map(key => {
         if (key !== CACHE_NAME) {
-          console.log('[ServiceWorker] Removing old cache', key);
+          console.log('[ServiceWorker] PURGING OLD CACHE:', key);
           return caches.delete(key);
         }
       }));
@@ -46,19 +46,23 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Sanitize and check hostname for external APIs
-  try {
-      const url = new URL(event.request.url);
-      if (['api.open-meteo.com', 'nominatim.openstreetmap.org', 'overpass-api.de'].includes(url.hostname)) {
-          return;
-      }
-  } catch(e) { /* Invalid URL */ }
+  const url = new URL(event.request.url);
+  
+  if (url.pathname.endsWith('index.html') || url.pathname === '/') {
+      event.respondWith(
+          fetch(event.request).catch(() => caches.match(event.request))
+      );
+      return;
+  }
+
+  if (url.hostname.includes('google.com') || 
+      url.hostname.includes('gstatic.com')) {
+      return;
+  }
 
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Cache-First pour les assets statiques, Network-Fallback
-        // Mais on lance aussi un fetch en arrière-plan pour mettre à jour le cache (Stale-While-Revalidate)
         const fetchPromise = fetch(event.request).then(networkResponse => {
             if (networkResponse && networkResponse.status === 200) {
                 const responseToCache = networkResponse.clone();
@@ -67,13 +71,11 @@ self.addEventListener('fetch', event => {
                 });
             }
             return networkResponse;
-        }).catch(() => null);
+        }).catch(() => {
+            return response || new Response('Network error', { status: 408 });
+        });
 
         return response || fetchPromise;
-      }).catch(() => {
-        if (event.request.headers.get('accept').includes('text/html')) {
-          return caches.match('./index.html');
-        }
       })
   );
 });
