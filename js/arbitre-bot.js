@@ -48,6 +48,24 @@ window.processArbitreQuery = async function(query) {
                     response: `<strong>🏍️ RÈGLE : Circulation Inter-Files</strong><br><br>
                     🌍 <strong>Convention de Vienne :</strong> Le dépassement doit se faire par la gauche.<br>
                     ⚖️ <strong>Spécificité :</strong> En France, la CIF est en expérimentation sur certaines voies rapides (50 km/h max). Interdite partout ailleurs.`
+                },
+                {
+                    keywords: ['pot', 'échappement', 'bruit', 'chicane', 'db'],
+                    response: `<strong>🔊 NUISANCE : Échappement & Bruit</strong><br><br>
+                    ⚖️ <strong>Loi :</strong> Article R318-3 du Code de la Route.<br>
+                    🔹 <strong>Règle :</strong> Tout dispositif réduisant le bruit (chicane) doit être présent. L'absence de chicane est passible d'une amende de 135€ et peut entraîner l'immobilisation du véhicule.`
+                },
+                {
+                    keywords: ['passager', 'duo', 'place', 'selle'],
+                    response: `<strong>👥 DUO : Transport d'un passager</strong><br><br>
+                    ⚖️ <strong>Loi :</strong> Article R431-5.<br>
+                    🔹 <strong>Condition :</strong> Le cyclomoteur doit posséder une selle biplace et des repose-pieds. Le passager doit obligatoirement porter un casque et des gants homologués.`
+                },
+                {
+                    keywords: ['feu', 'éclairage', 'phare', 'clignotant'],
+                    response: `<strong>💡 VISIBILITÉ : Éclairage obligatoire</strong><br><br>
+                    ⚖️ <strong>Loi :</strong> Articles R313-1 à R313-32.<br>
+                    🔹 <strong>Obligation :</strong> Feux de croisement allumés de jour comme de nuit. Tout feu non fonctionnel est passible d'une contravention de 3ème classe (68€).`
                 }
             ]
         },

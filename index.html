@@ -231,7 +231,7 @@
     <div id="hud" class="glassmorphism">
         <div class="hud-item title" style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
-                mon 50cc et moi
+                mon50ccetmoi TACTICAL
                 <div id="pilot-rank" class="xp-rank-badge">RANK: INTERCEPTOR</div>
                 <div id="wallet-tokens" class="xp-rank-badge" style="color:var(--accent);">
                     <i class="fa-solid fa-coins"></i> <span id="token-balance">0.00</span> $MON50
@@ -243,36 +243,23 @@
             </div>
         </div>
         
-            <div class="speed-container">
-                <div class="hud-item speed-disp" id="speed-meter">
-                    <span id="speed">0</span>
-                    <small>km/h</small>
-                    <div style="font-size: 0.5rem; color: var(--accent); margin-top: -5px; font-weight: 900; letter-spacing: 2px;">RÉEL (GPS)</div>
-                </div>
-                <!-- Quantum Sync Wave (Live Visualizer) -->
-                <div id="quantum-sync-bar" class="quantum-sync-bar">
-                    <div class="sync-segment"></div>
-                    <div class="sync-segment"></div>
-                    <div class="sync-segment"></div>
-                    <div class="sync-segment"></div>
-                    <div class="sync-segment"></div>
-                </div>
-                <!-- Lean Angle Meter (NEW v25) -->
-                <div id="lean-meter" class="lean-meter hidden">
-                    <div class="lean-bar-bg">
-                        <div id="lean-fill-L" class="lean-fill"></div>
-                        <div id="lean-fill-R" class="lean-fill"></div>
-                    </div>
-                    <span id="lean-angle-val" class="lean-angle-val">0°</span>
-                </div>
-                <!-- G-FORCE METER (NEW v29) -->
-                <div id="g-force-meter" class="g-force-meter hidden">
-                    <span class="g-force-val" id="g-force-val">1.0G</span>
-                    <span class="g-force-label">G-FORCE</span>
-                </div>
-                <!-- PILOT LEVEL -->
-                <div id="pilot-level-tag" class="pilot-level-tag">LVL 01</div>
+        <div class="speed-container" style="margin-top: auto; margin-bottom: 20px;">
+            <div class="hud-item speed-disp" id="speed-meter" style="padding: 10px 30px;">
+                <span id="speed" style="font-size: 3rem;">0</span>
+                <small>km/h</small>
+                <div style="font-size: 0.5rem; color: var(--accent); margin-top: -5px; font-weight: 900; letter-spacing: 2px;">RÉEL (GPS)</div>
             </div>
+            <!-- Quantum Sync Wave (Live Visualizer) -->
+            <div id="quantum-sync-bar" class="quantum-sync-bar">
+                <div class="sync-segment"></div>
+                <div class="sync-segment"></div>
+                <div class="sync-segment"></div>
+                <div class="sync-segment"></div>
+                <div class="sync-segment"></div>
+            </div>
+            <!-- PILOT LEVEL -->
+            <div id="pilot-level-tag" class="pilot-level-tag" style="top: -10px; right: 10px;">LVL 01</div>
+        </div>
 
         <div class="hud-right">
             <div id="compass-box">
@@ -293,6 +280,7 @@
                 </div>
                 <button onclick="window.Intercom.toggleSquad()" id="btn-squad-toggle" class="btn-micro" style="width:100%; margin-top:8px; font-size:0.6rem; background:rgba(0,0,0,0.3); color:white; border:1px solid var(--accent); border-radius:5px;">SQUAD_LINK: OFF</button>
             </div>
+        </div>
             <!-- Neural HUD Particles -->
             <div id="neural-particles"></div>
             <!-- Digital Horizon Line (Neural HUD) -->
