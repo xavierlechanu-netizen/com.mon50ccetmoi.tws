@@ -24,8 +24,8 @@ def twaManifest = [
     applicationId: 'com.mon50ccetmoi.twa',
     hostName: 'xavierlechanu-netizen.github.io', // The domain being opened in the TWA.
     launchUrl: '/com.mon50ccetmoi.tws/', // The start path for the TWA. Must be relative to the domain.
-    name: 'mon50ccetmoi', // The application name.
-    launcherName: 'mon50ccetmoi', // The name shown on the Android Launcher.
+    name: 'mon 50cc et moi', // The application name.
+    launcherName: 'mon 50cc et moi', // The name shown on the Android Launcher.
     themeColor: '#00f2ff', // The color used for the status bar.
     themeColorDark: '#000000', // The color used for the dark status bar.
     navigationColor: '#000000', // The color used for the navigation bar.

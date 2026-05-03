@@ -1,6 +1,6 @@
 {
-  "name": "mon50ccetmoi",
-  "short_name": "mon50cc",
+  "name": "mon 50cc et moi",
+  "short_name": "mon 50cc",
   "description": "La première communauté de scooters 50cc. Navigation, Alertes et Sécurité.",
   "start_url": "./index.html",
   "display": "standalone",
