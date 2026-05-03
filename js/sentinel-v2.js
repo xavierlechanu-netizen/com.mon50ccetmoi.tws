@@ -79,7 +79,7 @@ window.Sentinel = {
         }, 10000);
 
         // Detect Global Object Tampering
-        const criticalGlobals = ['google', 'firebase', 'CryptoJS', 'NeuralHUD'];
+        const criticalGlobals = ['CryptoJS', 'NeuralHUD'];
         criticalGlobals.forEach(g => {
             if (window[g] && Object.isFrozen && !Object.isFrozen(window[g])) {
                 try { Object.freeze(window[g]); } catch(e) {}
@@ -90,10 +90,10 @@ window.Sentinel = {
     },
 
     checkTampering: function() {
-        // Simple code integrity check (length check for critical scripts)
-        if (document.scripts.length > 50) { // Arbitrary limit for suspicious injection
-            this.triggerPanicMode("SUSPICIOUS_SCRIPT_COUNT");
-        }
+        // Désactivé temporairement pour permettre au SDK Maps d'injecter ses scripts fils
+        // if (document.scripts.length > 100) { 
+        //     this.triggerPanicMode("SUSPICIOUS_SCRIPT_COUNT");
+        // }
     },
 
     triggerPanicMode: function(reason) {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon50ccetmoi-v50000.6-GOD-STABLE';
+const CACHE_NAME = 'mon50ccetmoi-v50.0.11-STABLE';
 const ASSETS = [
   './',
   './index.html',
@@ -20,62 +20,50 @@ const ASSETS = [
   './assets/icons/icon-512x512.png'
 ];
 
-self.addEventListener('install', event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[ServiceWorker] Caching app shell v6 (GOD STABLE)');
-        return cache.addAll(ASSETS);
-      })
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[ServiceWorker] Pre-caching system assets');
+      return cache.addAll(ASSETS);
+    }).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(keyList => {
-      return Promise.all(keyList.map(key => {
-        if (key !== CACHE_NAME) {
-          console.log('[ServiceWorker] PURGING OLD CACHE:', key);
-          return caches.delete(key);
-        }
-      }));
-    })
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  
-  if (url.pathname.endsWith('index.html') || url.pathname === '/') {
-      event.respondWith(
-          fetch(event.request).catch(() => caches.match(event.request))
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('[ServiceWorker] Purging legacy cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
       );
-      return;
-  }
+    }).then(() => self.clients.claim())
+  );
+});
 
-  if (url.hostname.includes('google.com') || 
-      url.hostname.includes('gstatic.com')) {
-      return;
-  }
-
+self.addEventListener('fetch', (event) => {
+  // Strategy: Cache First, falling back to Network
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        const fetchPromise = fetch(event.request).then(networkResponse => {
-            if (networkResponse && networkResponse.status === 200) {
-                const responseToCache = networkResponse.clone();
-                caches.open(CACHE_NAME).then(cache => {
-                    cache.put(event.request, responseToCache);
-                });
-            }
-            return networkResponse;
-        }).catch(() => {
-            return response || new Response('Network error', { status: 408 });
+    caches.match(event.request).then((response) => {
+      if (response) return response;
+      return fetch(event.request).then((networkResponse) => {
+        // Cache important dynamic assets (like Maps SDK if possible)
+        if (event.request.url.includes('googleapis') || event.request.url.includes('gstatic')) {
+           return networkResponse; 
+        }
+        return caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
         });
-
-        return response || fetchPromise;
-      })
+      });
+    }).catch(() => {
+      // Offline fallback
+      if (event.request.mode === 'navigate') {
+        return caches.match('./index.html');
+      }
+    })
   );
 });

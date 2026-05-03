@@ -9,6 +9,8 @@ window.NeuralHUD = {
         this.initOracle();
         this.initMotionSensors();
         this.initShakeDetection();
+        this.initQuantumWave();
+        this.initCoreInteraction();
         if (typeof window.Intercom !== "undefined") window.Intercom.init();
         
         this.currentXP = parseInt(localStorage.getItem('pilot_xp') || '0');
@@ -138,6 +140,73 @@ window.NeuralHUD = {
 
         const coreInner = document.querySelector('.core-inner');
         if (coreInner) coreInner.style.animationDuration = (60 / currentBpm) + 's';
+        
+        // Update Quantum Bar based on focus
+        const segments = document.querySelectorAll('.sync-segment');
+        const activeCount = Math.floor((100 - stress * 50) / 20);
+        segments.forEach((s, i) => {
+            if (i < activeCount) s.classList.add('active');
+            else s.classList.remove('active');
+        });
+    },
+
+    initQuantumWave: function() {
+        const canvas = document.getElementById('quantum-wave-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let phase = 0;
+
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.strokeStyle = '#00f2ff';
+            ctx.lineWidth = 2;
+            
+            const speedEl = document.getElementById('speed');
+            const speed = parseFloat(speedEl ? speedEl.textContent : 0);
+            const amplitude = 10 + (speed / 2);
+            const frequency = 0.05 + (speed / 1000);
+
+            for (let x = 0; x < canvas.width; x++) {
+                const y = (canvas.height / 2) + Math.sin(x * frequency + phase) * amplitude;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            phase += 0.1 + (speed / 500);
+            requestAnimationFrame(animate);
+        };
+        
+        canvas.width = 120;
+        canvas.height = 120;
+        animate();
+    },
+
+    initCoreInteraction: function() {
+        const core = document.getElementById('neural-core');
+        if (!core) return;
+        core.style.pointerEvents = 'auto';
+        core.addEventListener('click', () => {
+            this.triggerTacticalPulse();
+        });
+    },
+
+    triggerTacticalPulse: function() {
+        this.logToConsole("TACTICAL_PULSE: INITIATED");
+        if (typeof speak === "function") speak("Impulsion tactique envoyée. Analyse de zone en cours.");
+        
+        const core = document.getElementById('neural-core');
+        core.style.transform = 'translate(-50%, -50%) scale(1.5)';
+        core.style.opacity = '0.8';
+        
+        document.body.classList.add('glitch-active');
+        
+        setTimeout(() => {
+            core.style.transform = 'translate(-50%, -50%) scale(1)';
+            core.style.opacity = '0.25';
+            document.body.classList.remove('glitch-active');
+            this.logToConsole("PULSE: DATA_RECEIVED");
+        }, 1000);
     },
 
     initOracle: function() {

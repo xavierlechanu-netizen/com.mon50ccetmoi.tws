@@ -17,7 +17,7 @@
     </script>
     <meta charset="UTF-8">
     <!-- Sécurité Maximale : Content Security Policy -->
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com; object-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com; object-src 'none';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -39,7 +39,7 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="manifest" href="manifest.json" />
-    <title>mon50ccetmoi | GPS & Sécurité Scooter 50cc</title>
+    <title>mon50ccetmoi | Performance Ultime 50.0.11</title>
     <!-- <script src="js/secrets.js"></script> Remplacé par config.js intégré -->
     <script src="js/config.js?v=26.1"></script>
     <!-- Chargeur Dynamique Google Maps avec Gestion d'Erreur -->
@@ -141,16 +141,16 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <script src="js/crypto-js.min.js"></script>
-    <script src="js/i18n.js?v=50000.0"></script>
-    <script src="js/auth.js?v=30.0"></script>
-    <script src="js/database.js?v=50000.0"></script>
-    <script src="js/moderation.js?v=50000.0"></script>
-    <script src="js/moderation-bot.js?v=50000.0"></script>
-    <script src="js/sentinel-v2.js?v=50000.4"></script>
-    <script src="js/arbitre-bot.js?v=50000.0"></script>
-    <script src="js/guardian-angel.js?v=50000.0"></script>
-    <script src="js/blackbox.js?v=50000.0"></script>
-    <script src="js/ghost-rider-v2.js?v=50000.4"></script>
+    <script src="js/i18n.js?v=50011"></script>
+    <script src="js/auth.js?v=50011"></script>
+    <script src="js/database.js?v=50011"></script>
+    <script src="js/moderation.js?v=50011"></script>
+    <script src="js/moderation-bot.js?v=50011"></script>
+    <script src="js/sentinel-v2.js?v=50011"></script>
+    <script src="js/arbitre-bot.js?v=50011"></script>
+    <script src="js/guardian-angel.js?v=50011"></script>
+    <script src="js/blackbox.js?v=50011"></script>
+    <script src="js/ghost-rider-v2.js?v=50011"></script>
     <script src="js/hardware.js?v=50000.0"></script>
     <script src="js/habits.js?v=50000.0"></script>
     <script src="js/insurance-portal.js?v=50000.0"></script>
@@ -172,10 +172,14 @@
     <div class="cyber-grid-overlay"></div>
     <div class="scanline-overlay"></div>
 
-    <!-- Neural Core Centerpiece -->
+    <!-- Neural Core Centerpiece (Quantum Upgrade) -->
     <div id="neural-core" class="neural-core">
         <div class="core-ring"></div>
-        <div class="core-inner"></div>
+        <div class="core-ring-outer"></div>
+        <div class="core-inner">
+            <canvas id="quantum-wave-canvas"></canvas>
+        </div>
+        <div class="core-glow"></div>
     </div>
 
     <video id="ar-overlay" autoplay playsinline></video>
@@ -202,15 +206,19 @@
                 <div style="position:absolute; width:30%; height:100%; background:var(--neon-blue); animation: sentinel-scan 1.5s infinite linear;"></div>
             </div>
             <h1 class="loader-title">mon50ccetmoi</h1>
-            <div class="gold-edition" style="font-size: 0.7rem; color: #ffb703; font-family: 'JetBrains Mono'; text-align: center; letter-spacing: 2px; font-weight:bold;">v29.0 QUANTUM SHIELD</div>
+            <div class="gold-edition" style="font-size: 0.7rem; color: #ffb703; font-family: 'JetBrains Mono'; text-align: center; letter-spacing: 2px; font-weight:bold;">v50.0.11 QUANTUM SHIELD</div>
             <div class="loader-status" id="loader-status">BOOTING SYSTEM...</div>
         </div>
         
         <div id="system-check-list" class="system-check-list">
-            <div>> KERNEL_LOAD: OK</div>
-            <div>> GPS_SATELLITES: SEARCHING...</div>
-            <div>> DATABASE_SYNC: STARTING...</div>
-            <div>> HUD_CALIBRATION: IN_PROGRESS...</div>
+            <div>> KERNEL_LOAD: [ OK ]</div>
+            <div>> GPS_SATELLITES: [ LOCKING... ]</div>
+            <div>> NEURAL_CORE_SYNC: [ ACTIVE ]</div>
+            <div>> AEGIS_HUD_CALIBRATION: [ COMPLETED ]</div>
+            <div>> SENTINEL_KERNEL: [ ENFORCED ]</div>
+            <div>> QUANTUM_WALLET: [ ENCRYPTED ]</div>
+            <div>> SQUAD_LINK_INIT: [ READY ]</div>
+            <div>> ORACLE_VOICE_ENGINE: [ LOADED ]</div>
         </div>
     </div>
 
@@ -235,27 +243,35 @@
             </div>
         </div>
         
-        <div class="speed-container">
-            <div class="hud-item speed-disp" id="speed-meter">
-                <span id="speed">0</span>
-                <small>km/h</small>
-            </div>
-            <!-- Lean Angle Meter (NEW v25) -->
-            <div id="lean-meter" class="lean-meter hidden">
-                <div class="lean-bar-bg">
-                    <div id="lean-fill-L" class="lean-fill"></div>
-                    <div id="lean-fill-R" class="lean-fill"></div>
+            <div class="speed-container">
+                <div class="hud-item speed-disp" id="speed-meter">
+                    <span id="speed">0</span>
+                    <small>km/h</small>
                 </div>
-                <span id="lean-angle-val" class="lean-angle-val">0°</span>
+                <!-- Quantum Sync Wave (Live Visualizer) -->
+                <div id="quantum-sync-bar" class="quantum-sync-bar">
+                    <div class="sync-segment"></div>
+                    <div class="sync-segment"></div>
+                    <div class="sync-segment"></div>
+                    <div class="sync-segment"></div>
+                    <div class="sync-segment"></div>
+                </div>
+                <!-- Lean Angle Meter (NEW v25) -->
+                <div id="lean-meter" class="lean-meter hidden">
+                    <div class="lean-bar-bg">
+                        <div id="lean-fill-L" class="lean-fill"></div>
+                        <div id="lean-fill-R" class="lean-fill"></div>
+                    </div>
+                    <span id="lean-angle-val" class="lean-angle-val">0°</span>
+                </div>
+                <!-- G-FORCE METER (NEW v29) -->
+                <div id="g-force-meter" class="g-force-meter hidden">
+                    <span class="g-force-val" id="g-force-val">1.0G</span>
+                    <span class="g-force-label">G-FORCE</span>
+                </div>
+                <!-- PILOT LEVEL -->
+                <div id="pilot-level-tag" class="pilot-level-tag">LVL 01</div>
             </div>
-            <!-- G-FORCE METER (NEW v29) -->
-            <div id="g-force-meter" class="g-force-meter hidden">
-                <span class="g-force-val" id="g-force-val">1.0G</span>
-                <span class="g-force-label">G-FORCE</span>
-            </div>
-            <!-- PILOT LEVEL -->
-            <div id="pilot-level-tag" class="pilot-level-tag">LVL 01</div>
-        </div>
 
         <div class="hud-right">
             <div id="compass-box">
@@ -433,6 +449,7 @@
             </div>
             <ul class="menu-list">
                 <li id="menu-garage" onclick="showPage('garage')"><i class="fa-solid fa-warehouse"></i> Mon Garage <span class="badge" style="background:#3498db; font-size:0.5rem;">MEMBRE</span></li>
+                <li id="menu-historical" onclick="toggleMenu(); scanRadar('tourist_attraction')"><i class="fa-solid fa-landmark"></i> Lieux Historiques <span class="badge" style="background:#e67e22; font-size:0.5rem;">NEW</span></li>
                 <li id="menu-community" onclick="showPage('community')" style="color:#9b59b6;"><i class="fa-solid fa-users"></i> Communauté 50cc</li>
                 <li id="menu-roadbooks" onclick="showPage('roadbooks')"><i class="fa-solid fa-map-location-dot"></i> Mes Roadbooks <span class="badge" style="background:#3498db; font-size:0.5rem;">MEMBRE</span></li>
                 <li id="menu-about" onclick="showPage('about')"><i class="fa-solid fa-circle-info"></i> À Propos</li>
@@ -459,6 +476,7 @@
                 <div style="margin-top:20px; padding:15px; text-align:center; opacity:0.5; font-size:0.6rem; letter-spacing:2px; border-top:1px solid rgba(255,255,255,0.05); color:white;">
                     <div id="sentinel-status" style="margin-bottom:5px; color:#2ecc71;"><i class="fa-solid fa-microchip fa-pulse"></i> SENTINEL ACTIVE : OPTIMAL</div>
                     <i class="fa-solid fa-microchip"></i> SECURED BY NETIZEN-OS<br>
+                    <span style="font-size:0.6rem; color:#fff; font-weight:bold; letter-spacing:1px; display:block; margin:5px 0;"><i class="fa-solid fa-flag"></i> CONÇU & DÉVELOPPÉ EN FRANCE 🇫🇷</span>
                     <span style="font-size:0.5rem; color:var(--accent);">© 2026 CHEZBIGBOO - TOUS DROITS RÉSERVÉS</span>
                 </div>
                 <li style="padding: 15px 10px;">
@@ -537,11 +555,11 @@
     <div id="social-ticker" class="hidden">
         <div id="ticker-text" style="font-weight: 500;">Initialisation sécurisée...</div>
     </div>
-    <script src="js/app.js?v=50000.4"></script>
+    <script src="js/app.js?v=50011"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=50000.1').catch(e => console.error(e));
+                navigator.serviceWorker.register('./sw.js?v=50011').catch(e => console.error(e));
             });
         }
     </script>

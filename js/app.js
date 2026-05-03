@@ -333,6 +333,7 @@ function updatePosition(position) {
     const accuracy = position.coords.accuracy;
 
     currentPosition = { lat, lng };
+    if (window.OracleEngine) window.OracleEngine.updateRegion(lat, lng);
     
     // --- GUEST MODE LOCKS (Initial logic check) ---
     if (window.session && window.session.isGuest) {
@@ -358,12 +359,20 @@ function updatePosition(position) {
             speedEl.parentElement.classList.add('fast');
             speedEl.style.color = 'var(--danger)';
             vibrate(50); 
+            if (window.NeuralHUD) window.NeuralHUD.logToConsole("VELOCITY_ALERT: HIGH_SPEED_DETECTED");
         } else if(speedKmh > 25) {
             speedEl.parentElement.classList.remove('fast');
             speedEl.style.color = 'var(--accent)';
         } else {
             speedEl.parentElement.classList.remove('fast');
             speedEl.style.color = 'var(--neon-blue)';
+        }
+        
+        // Dynamic Glow based on speed
+        const hud = document.getElementById('hud');
+        if (hud) {
+            const glow = Math.min(speedKmh / 2, 20);
+            hud.style.boxShadow = `0 0 ${20 + glow}px rgba(0, 242, 255, ${0.5 + speedKmh/200})`;
         }
         
         // --- NEW: Compass & 3D Navigation Logic ---
@@ -546,14 +555,75 @@ function vibrate(ms) {
     if ('vibrate' in navigator) navigator.vibrate(ms);
 }
 
-function speak(text) {
-    if ('speechSynthesis' in window) {
-        const ut = new SpeechSynthesisUtterance(text);
-        ut.lang = 'fr-FR';
-        ut.rate = 1.1;
-        window.speechSynthesis.speak(ut);
-        vibrate([100, 50, 100]); // Vibration d'attention lors du message vocal
+// --- REGIONAL & VOICE ENGINE (ORACLE v50000.9) ---
+window.OracleEngine = {
+    gender: localStorage.getItem('oracle_gender') || 'female',
+    currentRegion: 'standard',
+    
+    regionalLexicon: {
+        'fr': {
+            'marseille': {
+                'start': "Té, l'Oracle est en place ! On est parés pour la route, peuchère.",
+                'speed': "Oh fada, tu vas trop vite ! Lève le pied avant de t'envoler.",
+                'threat_detected': "Vé ! Y'a un souci sur la route devant. Fais gaffe à toi.",
+                'level_up': "Et bim ! Tu as monté de niveau, bravo mon brave."
+            },
+            'quebec': {
+                'start': "Attache ta tuque, l'Oracle est prêt pour une sacrée virée !",
+                'speed': "Lâche la patate, tu roules pas mal trop vite là !",
+                'threat_detected': "Check ben ça, y'a de quoi de pas net sur le chemin.",
+                'level_up': "C'est écoeurant ! T'as gagné un niveau."
+            },
+            'standard': {
+                'start': "Core Universel stabilisé. Liaison totale établie.",
+                'speed': "Alerte : Vitesse excessive. Ralentissez immédiatement.",
+                'threat_detected': "ANALYSE : Menace identifiée. Prudence conseillée.",
+                'level_up': "Félicitations Pilote. Votre expérience a augmenté."
+            }
+        }
+    },
+
+    updateRegion: function(lat, lng) {
+        if (lat > 43.1 && lat < 43.4 && lng > 5.2 && lng < 5.6) this.currentRegion = 'marseille';
+        else if (lat > 45 && lat < 47 && lng > -74 && lng < -71) this.currentRegion = 'quebec';
+        else this.currentRegion = 'standard';
+    },
+
+    getVoice: function(lang) {
+        const voices = window.speechSynthesis.getVoices();
+        let filtered = voices.filter(v => v.lang.startsWith(lang));
+        let target = filtered.find(v => {
+            const name = v.name.toLowerCase();
+            return this.gender === 'female' ? 
+                (name.includes('female') || name.includes('mary') || name.includes('claire') || name.includes('hortense')) :
+                (name.includes('male') || name.includes('david') || name.includes('thomas') || name.includes('paul'));
+        });
+        return target || filtered[0] || null;
     }
+};
+
+function speak(phraseKey) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+
+    const lang = window.currentLang || 'fr';
+    const region = window.OracleEngine.currentRegion;
+    
+    let text = phraseKey;
+    if (window.OracleEngine.regionalLexicon[lang]) {
+        text = window.OracleEngine.regionalLexicon[lang][region]?.[phraseKey] || 
+               window.OracleEngine.regionalLexicon[lang]['standard']?.[phraseKey] || 
+               phraseKey;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = window.OracleEngine.getVoice(lang);
+    utterance.lang = lang;
+    utterance.rate = 0.95;
+    utterance.pitch = window.OracleEngine.gender === 'female' ? 1.05 : 0.9;
+    
+    window.speechSynthesis.speak(utterance);
+    if ('vibrate' in navigator) navigator.vibrate(30);
 }
 
 // --- NEW: Auto Night Mode ---
@@ -796,7 +866,8 @@ const poiConfig = {
     'fuel': { icon: 'fa-gas-pump', label: 'Essence', color: '#cca000', radius: 5000 },
     'doctors': { icon: 'fa-briefcase-medical', label: 'Santé & Pharmacie', color: '#e74c3c', radius: 3000 },
     'atm': { icon: 'fa-money-bill-1', label: 'DAB', color: '#2ecc71', radius: 3000 },
-    'mechanic': { icon: 'fa-wrench', label: 'Garages', color: '#ffa500', radius: 8000 }
+    'mechanic': { icon: 'fa-wrench', label: 'Garages', color: '#ffa500', radius: 8000 },
+    'tourist_attraction': { icon: 'fa-landmark', label: 'Lieux Historiques', color: '#e67e22', radius: 10000 }
 };
 
 window.toggleRadarMenu = function() {
