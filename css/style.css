@@ -200,14 +200,15 @@ body, html {
 /* Neural Speed Transparency & Ultra Glass */
 #hud {
     position: fixed;
-    top: 50%; left: 50%; width: 98vw; height: 98vh;
+    top: 50%; left: 50%; width: 96vw; height: 96vh;
     transform: translate(-50%, -50%) translateZ(100px);
     background: transparent;
     border: none;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 20px;
+    align-items: center;
+    padding: 10px;
     pointer-events: none;
     z-index: 1000;
 }

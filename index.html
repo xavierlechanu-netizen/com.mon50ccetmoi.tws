@@ -42,6 +42,7 @@
     <title>mon 50cc et moi | Performance Ultime 50.0.11</title>
     <!-- <script src="js/secrets.js"></script> Remplacé par config.js intégré -->
     <script src="js/config.js?v=26.1"></script>
+    <script src="js/oracle-voice.js?v=50011"></script>
     <!-- Chargeur Dynamique Google Maps avec Gestion d'Erreur -->
     <script>
         window.mapsSDKLoaded = false;
@@ -229,7 +230,7 @@
 
     <!-- HUD Overlay -->
     <div id="hud" class="glassmorphism">
-        <div class="hud-item title" style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div class="hud-item title" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
             <div>
                 mon50ccetmoi TACTICAL
                 <div id="pilot-rank" class="xp-rank-badge">RANK: INTERCEPTOR</div>
@@ -243,24 +244,6 @@
             </div>
         </div>
         
-        <div class="speed-container" style="margin-top: auto; margin-bottom: 20px;">
-            <div class="hud-item speed-disp" id="speed-meter" style="padding: 10px 30px;">
-                <span id="speed" style="font-size: 3rem;">0</span>
-                <small>km/h</small>
-                <div style="font-size: 0.5rem; color: var(--accent); margin-top: -5px; font-weight: 900; letter-spacing: 2px;">RÉEL (GPS)</div>
-            </div>
-            <!-- Quantum Sync Wave (Live Visualizer) -->
-            <div id="quantum-sync-bar" class="quantum-sync-bar">
-                <div class="sync-segment"></div>
-                <div class="sync-segment"></div>
-                <div class="sync-segment"></div>
-                <div class="sync-segment"></div>
-                <div class="sync-segment"></div>
-            </div>
-            <!-- PILOT LEVEL -->
-            <div id="pilot-level-tag" class="pilot-level-tag" style="top: -10px; right: 10px;">LVL 01</div>
-        </div>
-
         <div class="hud-right">
             <div id="compass-box">
                 <div id="compass-container">
@@ -281,6 +264,25 @@
                 <button onclick="window.Intercom.toggleSquad()" id="btn-squad-toggle" class="btn-micro" style="width:100%; margin-top:8px; font-size:0.6rem; background:rgba(0,0,0,0.3); color:white; border:1px solid var(--accent); border-radius:5px;">SQUAD_LINK: OFF</button>
             </div>
         </div>
+
+        <div class="speed-container" style="margin-top: auto; margin-bottom: 20px;">
+            <div class="hud-item speed-disp" id="speed-meter" style="padding: 10px 30px;">
+                <span id="speed" style="font-size: 3rem;">0</span>
+                <small>km/h</small>
+                <div style="font-size: 0.5rem; color: var(--accent); margin-top: -5px; font-weight: 900; letter-spacing: 2px;">RÉEL (GPS)</div>
+            </div>
+            <!-- Quantum Sync Wave (Live Visualizer) -->
+            <div id="quantum-sync-bar" class="quantum-sync-bar">
+                <div class="sync-segment"></div>
+                <div class="sync-segment"></div>
+                <div class="sync-segment"></div>
+                <div class="sync-segment"></div>
+                <div class="sync-segment"></div>
+            </div>
+            <!-- PILOT LEVEL -->
+            <div id="pilot-level-tag" class="pilot-level-tag" style="top: -10px; right: 10px;">LVL 01</div>
+        </div>
+    </div>
             <!-- Neural HUD Particles -->
             <div id="neural-particles"></div>
             <!-- Digital Horizon Line (Neural HUD) -->

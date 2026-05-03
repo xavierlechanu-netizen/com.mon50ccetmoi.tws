@@ -1548,6 +1548,7 @@ window.startApp = function() {
     
     loadHazards();
     renderRoadbooks();
+    if (window.OracleVoice) window.OracleVoice.start();
     updatePosition({ coords: { latitude: 48.8566, longitude: 2.3522, speed: 0, accuracy: 10 } });
     
     // Check Parameters
