@@ -1221,6 +1221,29 @@ body, html {
     pointer-events: auto;
 }
 
+.mileage-badge {
+    position: absolute;
+    bottom: 105px; /* Ajusté pour être au-dessus du bouton PTT (qui fait 65px + 30px bottom) */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    color: var(--neon-blue);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 242, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+    pointer-events: none;
+    z-index: 4001;
+    white-space: nowrap;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
 .btn-circular {
     width: 65px;
     height: 65px;

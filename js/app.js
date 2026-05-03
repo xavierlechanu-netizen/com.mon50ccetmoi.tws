@@ -1254,6 +1254,9 @@ function saveSessionAndCheckBadges() {
     const odom = document.getElementById('display-odometer');
     if(odom) odom.textContent = `Odomètre: ${window.session.totalDistance.toFixed(2)} km`;
     
+    const mileageHud = document.getElementById('mileage-hud');
+    if(mileageHud) mileageHud.textContent = `${window.session.totalDistance.toFixed(1)} KM`;
+    
     // --- NEW: CO2 Savings calculation ---
     const ecoEl = document.getElementById('display-eco');
     if(ecoEl) {
@@ -1481,6 +1484,9 @@ window.startApp = function() {
     
     checkTrialExpiration();
     updateUILabels();
+    if(window.session && document.getElementById('mileage-hud')) {
+        document.getElementById('mileage-hud').textContent = `${(window.session.totalDistance || 0).toFixed(1)} KM`;
+    }
     
     loadHazards();
     renderRoadbooks();
