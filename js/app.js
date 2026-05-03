@@ -325,6 +325,51 @@ function startGeolocation() {
 // Retrait de l'appel direct pour éviter les conflits avant l'init de l'UI
 // checkLegalConsent(); 
 
+// --- 3. NEURAL INNOVATION ENGINE (Invisibile Intelligence) ---
+class NeuralPredictionEngine {
+    constructor() {
+        this.gripLevel = 1.0; // 0.0 to 1.0
+        this.engineStress = 0.0; // 0.0 to 1.0
+        this.lastUpdateTime = Date.now();
+    }
+
+    update(speedKmh, temp = 20, precip = 0, leanAngle = 0) {
+        // GRIP PREDICTION: Based on physics and environmental data
+        // Base grip drops with water (precip) and extreme temperatures
+        let baseGrip = 1.0;
+        if (precip > 0) baseGrip -= 0.3;
+        if (temp < 5) baseGrip -= 0.15; // Cold asphalt
+        if (temp > 45) baseGrip -= 0.1; // Melting tar
+
+        // Speed and Lean Angle factor
+        const angleRisk = Math.abs(leanAngle) / 45;
+        const speedRisk = speedKmh / 90;
+        
+        this.gripLevel = Math.max(0.1, baseGrip - (angleRisk * speedRisk));
+
+        // ENGINE STRESS: Based on load and cooling
+        // High speed + high temp = high stress
+        const load = speedKmh / 50; // 50cc specific
+        const heatFactor = temp > 30 ? (temp - 30) / 20 : 0;
+        this.engineStress = Math.min(1.0, (load * 0.7) + (heatFactor * 0.3));
+
+        if (this.gripLevel < 0.4 && speedKmh > 30) {
+            if (window.NeuralHUD) window.NeuralHUD.logToConsole("GRIP_WARNING: SLIPPERY_SURFACE_DETECTED");
+        }
+        
+        this.lastUpdateTime = Date.now();
+    }
+}
+window.NeuralEngine = new NeuralPredictionEngine();
+
+let speedHistory = [];
+function getSmoothedSpeed(rawSpeed) {
+    speedHistory.push(rawSpeed);
+    if (speedHistory.length > 5) speedHistory.shift();
+    const sum = speedHistory.reduce((a, b) => a + b, 0);
+    return sum / speedHistory.length;
+}
+
 function updatePosition(position) {
     if(!map) return; 
     const lat = position.coords.latitude;
@@ -347,12 +392,19 @@ function updatePosition(position) {
         });
     }
 
-    // Vitesse (HUD)
+    // Vitesse (HUD) avec Smoothing Neural
+    const rawSpeed = (speed !== null && speed >= 0) ? speed * 3.6 : 0;
+    const speedKmh = Math.round(getSmoothedSpeed(rawSpeed));
     const speedEl = document.getElementById('speed');
-    let speedKmh = 0;
-    if (speed !== null && speed >= 0) {
-        speedKmh = Math.round(speed * 3.6);
+    
+    if (speedEl) {
         speedEl.textContent = speedKmh;
+        
+        // Update Neural Engine (Grip & Stress)
+        const currentTemp = window.lastWeatherTemp || 20;
+        const currentPrecip = window.lastPrecip || 0;
+        const currentLean = window.currentLeanAngle || 0;
+        window.NeuralEngine.update(speedKmh, currentTemp, currentPrecip, currentLean);
         
         // Effet de vitesse sur le HUD
         if(speedKmh > 40) {
@@ -384,12 +436,10 @@ function updatePosition(position) {
             document.getElementById('compass-dir').textContent = dirs[dirIdx];
             
             // AUTO-ROTATE MAP (Navigation Mode)
-            if (window.isRiding && map) {
-                map.setHeading(heading);
             }
         }
 
-        // DYNAMIC ZOOM & TILT
+        // DYNAMIC MAP INTELLIGENCE (Auto-Zoom & Tilt)
         if (map) {
             // Update movement time for Guardian
             if (speedKmh > 5) {
@@ -397,16 +447,24 @@ function updatePosition(position) {
                 if (isGuardianPromptActive) dismissGuardian();
             }
 
+            // Innovation: Map adapts to rider pace (Invisibly)
+            let targetZoom = 17;
+            let targetTilt = 30;
+
             if (speedKmh > 40) {
-                map.setTilt(45);
-                map.setZoom(15.5); // Vision lointaine pour radars
-            } else if (speedKmh > 5) {
-                map.setTilt(30);
-                map.setZoom(16.5); // Vision urbaine stable
-            } else {
-                map.setTilt(0);
-                map.setZoom(17.5); // Vue arrêt confortable
+                targetZoom = 14.5; // Long range for safety
+                targetTilt = 60;   // High perspective
+            } else if (speedKmh > 10) {
+                targetZoom = 16.5;
+                targetTilt = 45;
+            } else if (speedKmh < 3) {
+                targetZoom = 18.5; // Detailed parking view
+                targetTilt = 0;    // Standard flat view
             }
+
+            // Smooth adjustment to prevent jitter
+            if (Math.abs(map.getZoom() - targetZoom) > 0.1) map.setZoom(targetZoom);
+            if (map.getTilt() !== targetTilt) map.setTilt(targetTilt);
         }
 
         // vMax Tracking (NEW v25)

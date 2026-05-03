@@ -66,6 +66,18 @@ window.processArbitreQuery = async function(query) {
                     response: `<strong>💡 VISIBILITÉ : Éclairage obligatoire</strong><br><br>
                     ⚖️ <strong>Loi :</strong> Articles R313-1 à R313-32.<br>
                     🔹 <strong>Obligation :</strong> Feux de croisement allumés de jour comme de nuit. Tout feu non fonctionnel est passible d'une contravention de 3ème classe (68€).`
+                },
+                {
+                    keywords: ['autocollant', 'réfléchissant', 'casque', 'nuit'],
+                    response: `<strong>✨ SÉCURITÉ : Stickers réfléchissants</strong><br><br>
+                    ⚖️ <strong>Loi :</strong> Article R431-1 et homologation ECE 22.05/22.06.<br>
+                    🔹 <strong>Règle :</strong> 4 stickers réfléchissants (un sur chaque face) sont obligatoires sur le casque. Absence = 3 points de moins et 135€ d'amende.`
+                },
+                {
+                    keywords: ['téléphone', 'écouteur', 'musique', 'kit', 'main libre'],
+                    response: `<strong>📱 USAGE : Téléphone et Écouteurs</strong><br><br>
+                    ⚖️ <strong>Loi :</strong> Article R412-6-1.<br>
+                    🔹 <strong>Interdiction :</strong> Tout dispositif porté à l'oreille (écouteurs, casque audio) est interdit. Seuls les systèmes intégrés au casque (Bluetooth sans contact direct avec l'oreille) sont tolérés.`
                 }
             ]
         },
