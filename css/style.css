@@ -453,7 +453,7 @@ body, html {
     opacity: 0.4;
 }
 
-/* Holographic Mode v2 - Revolutionary Depth */
+/* Holographic Mode v2 - Windshield Projection Mode (Flipped for reflection) */
 .holographic-mode {
     transform: scaleY(-1);
     filter: brightness(1.4) contrast(1.2);

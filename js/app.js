@@ -1,4 +1,3 @@
-try {
 // --- CORE NAVIGATION (SAFE ZONE) ---
 window.toggleMenu = function() {
     try {
@@ -89,7 +88,7 @@ history.pushState(null, null, window.location.pathname);
 // escapeHTML est maintenant défini dans auth.js (global)
 
 // --- BOOT ---
-console.log("mon50ccetmoi v50000.7-GOLD-STABLE : Production Ready.");
+console.log("mon50ccetmoi v50000.13-GOLD-STABLE : Production Ready.");
 
 let map;
 let directionsService;
@@ -129,7 +128,7 @@ function checkTrialExpiration() {
     if (!window.session || window.session.isGuest) return;
     
     // On récupère les infos calculées par auth.js
-    if (window.session.isTrialExpired) {
+    if (window.session && window.session.isTrialExpired) {
         const overlay = document.getElementById('sub-overlay');
         if (overlay) overlay.classList.remove('hidden');
         speak("Alerte abonnement : Votre période d'essai gratuite est terminée.");
@@ -155,24 +154,29 @@ window.appStarted = false;
 
 window.initMapController = function() {
     if (map) return; 
-    console.log("mon50cc Maps : Initialisation du contrôleur...");
+    console.log("mon50cc Maps : Début de l'initialisation du contrôleur...");
     
     const mapElement = document.getElementById('map');
     const statusEl = document.getElementById('loader-status');
-    if (!mapElement) return;
+    if (!mapElement) {
+        console.error("mon50cc Maps : Élément #map introuvable !");
+        return;
+    }
 
     try {
         if (typeof google === 'undefined' || !google.maps) {
             throw new Error("SDK_NOT_LOADED");
         }
 
+        console.log("mon50cc Maps : Création de l'objet Map...");
         map = new google.maps.Map(mapElement, {
             center: { lat: 48.8566, lng: 2.3522 },
-            zoom: 15,
+            zoom: 16,
             styles: GOOGLE_MAPS_STYLE,
             disableDefaultUI: true,
-            backgroundColor: "#0a0a0a",
-            gestureHandling: "greedy"
+            zoomControl: false,
+            gestureHandling: 'greedy',
+            mapId: CONFIG.MAPS.MAP_ID || null
         });
 
         directionsService = new google.maps.DirectionsService();
@@ -181,22 +185,24 @@ window.initMapController = function() {
         trafficLayer = new google.maps.TrafficLayer();
         trafficLayer.setMap(map);
 
+        console.log("mon50cc Maps : Contrôleur prêt.");
         if (statusEl) statusEl.textContent = "Systèmes opérationnels.";
     } catch (e) {
-        console.error("Maps init failed:", e);
-        // FALLBACK: TACTICAL RADAR MODE
+        console.error("mon50cc Maps : Échec critique de l'initialisation :", e);
+        // FALLBACK: TACTICAL RADAR MODE (Visuel plus fort)
         mapElement.innerHTML = `
-            <div class="radar-fallback" style="height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#050505; color:var(--neon-blue);">
-                <i class="fa-solid fa-satellite-dish fa-spin" style="font-size:3rem; margin-bottom:20px;"></i>
-                <div style="font-family:'JetBrains Mono'; font-weight:900;">RADAR_TACTIQUE_ACTIF</div>
-                <div style="font-size:0.7rem; opacity:0.6; margin-top:10px;">SDK_FAILOVER: SENSOR_LIAISON_ESTABLISHED</div>
+            <div class="radar-fallback" style="height:100%; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#000; color:#ffb703; font-family:monospace; border:2px solid #333;">
+                <div class="radar-scanner" style="width:200px; height:200px; border-radius:50%; border:2px solid #ffb703; position:relative; margin-bottom:20px; box-shadow:0 0 20px #ffb70355;">
+                    <div style="position:absolute; top:50%; left:50%; width:100px; height:2px; background:linear-gradient(90deg, #ffb703, transparent); transform-origin:left center; animation: radar-spin 2s linear infinite;"></div>
+                </div>
+                <div style="font-weight:900; letter-spacing:3px;">MODE_RADAR_TACTIQUE</div>
+                <div style="font-size:0.7rem; color:#666; margin-top:5px;">SDK_OFFLINE | GPS_LOCKING</div>
             </div>
+            <style>@keyframes radar-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }</style>
         `;
-        if (statusEl) statusEl.textContent = "Mode Radar (Maps Error)...";
-        if (window.NeuralHUD) window.NeuralHUD.logToConsole("MAP_FAILOVER: RADAR_MODE_ENGAGED");
+        if (statusEl) statusEl.textContent = "Mode Radar (Fail-safe)...";
     } finally {
         if (typeof initDatabase === "function") initDatabase();
-        // On attend un peu que les autres modules se chargent
         setTimeout(() => window.startApp(), 500);
     }
 }
@@ -436,7 +442,6 @@ function updatePosition(position) {
             document.getElementById('compass-dir').textContent = dirs[dirIdx];
             
             // AUTO-ROTATE MAP (Navigation Mode)
-            }
         }
 
         // DYNAMIC MAP INTELLIGENCE (Auto-Zoom & Tilt)
@@ -831,6 +836,7 @@ window.searchDestination = function() {
 window.toggleHazardMenu = function() {
     const opts = document.getElementById('hazard-options');
     const mainBtn = document.getElementById('btn-hazard-quick') || document.getElementById('btn-hazard-main');
+    if(!opts) return;
     if(opts.classList.contains('hidden')) {
         opts.classList.remove('hidden');
         if(mainBtn) mainBtn.style.transform = 'rotate(45deg)';
@@ -930,7 +936,7 @@ const poiConfig = {
 
 window.toggleRadarMenu = function() {
     const r = document.getElementById('radar-options');
-    r.classList.toggle('hidden');
+    if(r) r.classList.toggle('hidden');
 }
 
 window.scanRadar = function(type) {
@@ -2501,11 +2507,16 @@ window.resetTelemetry = function() {
     speak("Données de télémétrie réinitialisées.");
     showPage('garage');
 }
-// --- AUTO-BOOT ---
+// --- AUTO-BOOT & FAIL-SAFE ---
+// On s'assure que le mode holographique n'est pas actif au démarrage (Correction Bug Web)
+document.body.classList.remove('holographic-mode');
+
 // Si le SDK Maps est déjà là, on lance manuellement
 if (typeof google !== 'undefined' && google.maps) {
-    console.log("SDK Maps déjà présent au chargement de app.js. Démarrage immédiat.");
-    window.initMap();
+    console.log("mon50cc : SDK Maps déjà présent. Démarrage immédiat.");
+    if (typeof window.initMapController === "function") {
+        window.initMapController();
+    }
 }
 window.submitArbitre = function() {
     const q = document.getElementById('arbitre-query');
@@ -2541,7 +2552,6 @@ window.submitArbitre = function() {
         }, 1500);
     }
 }
-}
 
 function generateRideCard() {
     if (window.session.isGuest) {
@@ -2575,4 +2585,4 @@ function generateRideCard() {
     `;
     document.body.appendChild(overlay);
 }
-} catch(e) { console.error("GLOBAL APP CRASH PREVENTED:", e); }
+

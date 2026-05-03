@@ -314,4 +314,18 @@ const I18N = {
     cs: { welcome: "Vítejte v mon50ccetmoi", loading: "Spouštění systémů...", riding_mode: "Režim jízdy", garage: "Moje Garáž", community: "Komunita", safety: "Bezpečnost", settings: "Nastavení", report_danger: "Nahlásit nebezpečí", police: "Policie / Kontrola", accident: "Nehoda", hazard: "Nebezpečí / Práce", speed: "RYCHLOST", distance: "VZDÁLENOST", altitude: "VÝŠKA", weather: "POČASÍ", fall_detected: "ZJIŠTĚN PÁD!", emergency_alert: "Kontakty budou upozorněny.", cancel: "Zrušit", save: "Uložit", logout: "Odhlásit", language: "Jazyk", status_riding: "Na cestě", status_paused: "Pauza", members_online: "Jezdci online", auth_required: "Nutné přihlášení", guest_mode: "Režim hosta", gas: "Benzín", emergency: "Pohotovost", bank: "Bankomat", maintenance: "Údržba", insurance: "Pojištění", share: "Sdílet", legal: "Právní" },
     hu: { welcome: "Üdvözöljük a mon50ccetmoi-ban", loading: "Rendszerek indítása...", riding_mode: "Vezetési mód", garage: "Garázsom", community: "Közösség", safety: "Biztonság", settings: "Beállítások", report_danger: "Veszély jelzése", police: "Rendőrség / Ellenőrzés", accident: "Baleset", hazard: "Veszély / Munkálatok", speed: "SEBESSÉG", distance: "TÁVOLSÁG", altitude: "MAGASSÁG", weather: "IDŐJÁRÁS", fall_detected: "ESÉST ÉSZLELTÜNK!", emergency_alert: "Riasztást küldünk a kapcsolatainak.", cancel: "Mégse", save: "Mentés", logout: "Kijelentkezés", language: "Nyelv", status_riding: "Úton", status_paused: "Szünet", members_online: "Motorosok online", auth_required: "Bejelentkezés szükséges", guest_mode: "Vendég mód", gas: "Benzin", emergency: "Sürgősségi", bank: "ATM", maintenance: "Karbantartás", insurance: "Biztosítás", share: "Megosztás", legal: "Jogi" },
     ro: { welcome: "Bine ați venit la mon50ccetmoi", loading: "Sistemele pornesc...", riding_mode: "Mod Conducere", garage: "Garajul Meu", community: "Comunitate", safety: "Siguranță", settings: "Setări", report_danger: "Raportează Pericol", police: "Poliție / Control", accident: "Accident", hazard: "Pericol / Lucrări", speed: "VITEZĂ", distance: "DISTANȚĂ", altitude: "ALTITUDINE", weather: "VREME", fall_detected: "CĂDERE DETECTATĂ!", emergency_alert: "O alertă va fi trimisă contactelor.", cancel: "Anulează", save: "Salvează", logout: "Deconectare", language: "Limbă", status_riding: "La drum", status_paused: "Pauză", members_online: "Piloți online", auth_required: "Autentificare necesară", guest_mode: "Mod Vizitator", gas: "Benzină", emergency: "Urgență", bank: "Bancomat", maintenance: "Mentenanță", insurance: "Asigurare", share: "Partajează", legal: "Legal" }
+
+// --- I18N HELPERS ---
+window.t = function(key) {
+    const lang = window.currentLang || 'fr';
+    const dict = I18N[lang] || I18N['fr'];
+    return dict[key] || I18N['fr'][key] || key;
+};
+
+window.setLanguage = function(lang) {
+    if (!I18N[lang]) return;
+    window.currentLang = lang;
+    localStorage.setItem('app_lang', lang);
+    if (typeof window.updateI18N === 'function') window.updateI18N();
+    console.log("mon50cc I18N : Langue changée vers", lang);
 };

@@ -42,9 +42,9 @@ window.Blackbox = {
             if (!acc) return;
             
             this.pushHf({
-                ax: acc.x.toFixed(2),
-                ay: acc.y.toFixed(2),
-                az: acc.z.toFixed(2)
+                ax: (acc.x || 0).toFixed(2),
+                ay: (acc.y || 0).toFixed(2),
+                az: (acc.z || 0).toFixed(2)
             });
 
             // Auto-Impact Detection & Structural Fatigue
