@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon50ccetmoi-v50.0.13-MAX-STABLE';
+const CACHE_NAME = 'mon50ccetmoi-v50.0.17-MAX-STABLE';
 const ASSETS = [
   './',
   './index.html',

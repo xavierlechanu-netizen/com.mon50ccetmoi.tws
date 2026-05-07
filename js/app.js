@@ -19,7 +19,7 @@ window.closeMenu = function() {
 };
 
 // --- I18N SYSTEM ---
-window.currentLang = localStorage.getItem('app_lang') || 'fr';
+// window.currentLang est maintenant géré par i18n.js pour un chargement prioritaire
 
 function updateUILabels() {
     window.updateI18N();
@@ -137,17 +137,20 @@ function checkTrialExpiration() {
 
 // Style Premium Dark "Gold & Black" pour Google Maps
 const GOOGLE_MAPS_STYLE = [
-    { "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] },
+    { "elementType": "geometry", "stylers": [{ "color": "#0a131c" }] },
     { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-    { "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#1a1a1a" }] },
-    { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#333333" }] },
-    { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-    { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#111111" }] },
-    { "featureType": "road", "elementType": "geometry.fill", "stylers": [{ "color": "#2c2c2c" }] },
-    { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#8a8a8a" }] },
-    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#3c3c3c" }] },
-    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#000000" }] }
+    { "elementType": "labels.text.fill", "stylers": [{ "color": "#436a8c" }] },
+    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#0a131c" }] },
+    { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#122a40" }] },
+    { "featureType": "landscape.man_made", "elementType": "geometry.fill", "stylers": [{ "color": "#0b1824" }] },
+    { "featureType": "landscape.man_made", "elementType": "geometry.stroke", "stylers": [{ "color": "#00d2ff" }, { "lightness": -60 }] },
+    { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#2a4b6c" }] },
+    { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#061017" }] },
+    { "featureType": "road", "elementType": "geometry.fill", "stylers": [{ "color": "#142d47" }] },
+    { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#1b3c5e" }] },
+    { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#4b85b8" }] },
+    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#00d2ff" }, { "lightness": -40 }] },
+    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#040b12" }] }
 ];
 
 window.appStarted = false;
@@ -232,10 +235,15 @@ window.startApp = function() {
             if (guestBanner) guestBanner.classList.remove('hidden');
         }
 
-        // Lancement de la géolocalisation après le démarrage de l'UI
-        checkLegalConsent();
     } catch (e) {
         console.error("App startup bug prevented:", e);
+    }
+    
+    // Lancement de la géolocalisation de manière garantie
+    try {
+        checkLegalConsent();
+    } catch (e) {
+        console.error("Geolocation init failed:", e);
     }
 };
 
@@ -615,7 +623,9 @@ window.confirmHazard = function(index, exists) {
 
 // --- NEW: Voice Synthesis & Haptics ---
 function vibrate(ms) {
-    if ('vibrate' in navigator) navigator.vibrate(ms);
+    if ('vibrate' in navigator && navigator.userActivation && navigator.userActivation.hasBeenActive) {
+        navigator.vibrate(ms);
+    }
 }
 
 // --- REGIONAL & VOICE ENGINE (ORACLE v50000.9) ---
@@ -629,19 +639,278 @@ window.OracleEngine = {
                 'start': "Té, l'Oracle est en place ! On est parés pour la route, peuchère.",
                 'speed': "Oh fada, tu vas trop vite ! Lève le pied avant de t'envoler.",
                 'threat_detected': "Vé ! Y'a un souci sur la route devant. Fais gaffe à toi.",
-                'level_up': "Et bim ! Tu as monté de niveau, bravo mon brave."
+                'level_up': "Et bim ! Tu as monté de niveau, bravo mon brave.",
+                'start_guardian': "Ange Gardien en place ! T'inquiète pas, je veille sur toi.",
+                'stop_guardian': "Ange Gardien au repos. Fais doucement, hein !",
+                'danger_overtake': "Vé ! Tu doubles n'importe comment, tu vas nous faire un plat !"
             },
             'quebec': {
                 'start': "Attache ta tuque, l'Oracle est prêt pour une sacrée virée !",
                 'speed': "Lâche la patate, tu roules pas mal trop vite là !",
                 'threat_detected': "Check ben ça, y'a de quoi de pas net sur le chemin.",
-                'level_up': "C'est écoeurant ! T'as gagné un niveau."
+                'level_up': "C'est écoeurant ! T'as gagné un niveau.",
+                'start_guardian': "Ton Ange Gardien est prêt, on lâche pas !",
+                'stop_guardian': "L'Ange Gardien prend une pause. Prudence !",
+                'danger_overtake': "Oulà ! Ton dépassement était pas mal risqué, check tes angles !"
             },
             'standard': {
                 'start': "Core Universel stabilisé. Liaison totale établie.",
                 'speed': "Alerte : Vitesse excessive. Ralentissez immédiatement.",
                 'threat_detected': "ANALYSE : Menace identifiée. Prudence conseillée.",
-                'level_up': "Félicitations Pilote. Votre expérience a augmenté."
+                'level_up': "Félicitations Pilote. Votre expérience a augmenté.",
+                'start_guardian': "Ange Gardien activé. Surveillance périmétrique en cours.",
+                'stop_guardian': "Ange Gardien désactivé. Fin de la surveillance.",
+                'danger_overtake': "ATTENTION : DÉPASSEMENT DANGEREUX DÉTECTÉ."
+            },
+            'liege': {
+                'start': "Oufti, l'Oracle est en place, valet ! On décolle ?",
+                'speed': "Ouille valet, tu vas trop vite ! Calme ton jeu.",
+                'threat_detected': "Aïe gaffe, y'a un bins sur la route devant.",
+                'level_up': "Oufti ! T'es passé au niveau suivant, c'est du propre !",
+                'start_guardian': "L'Ange Gardien est là pour toi, valet. Roule tranquille.",
+                'stop_guardian': "L'Ange Gardien va s'en jeter une, sois prudent.",
+                'danger_overtake': "Oufti ! Ton dépassement était un peu chaud, valet !"
+            },
+            'charleroi': {
+                'start': "Salut m'fi ! L'Oracle est prêt, on y va ?",
+                'speed': "M'fi, tu roules trop vite ! On n'est pas sur le ring ici.",
+                'threat_detected': "Fais gaffe m'fi, y'a un gros souci devant.",
+                'level_up': "Bordel m'fi ! T'as monté de niveau, félicitations !",
+                'start_guardian': "Ton Ange Gardien veille sur toi, m'fi. Pas de stress.",
+                'stop_guardian': "L'Ange Gardien a fini sa pause, fais attention m'fi.",
+                'danger_overtake': "M'fi ! C'était quoi ce dépassement de baraki ?"
+            },
+            'brussels': {
+                'start': "Salut fieu ! L'Oracle est là, on y va ou quoi ?",
+                'speed': "Dites une fois, fieu ! Tu vas trop vite, on n'est pas pressés !",
+                'threat_detected': "Attention fieu, y'a un stut sur la route devant.",
+                'level_up': "Non peut-être ! T'as monté de niveau, ça c'est du stoemp !",
+                'start_guardian': "L'Ange Gardien est avec toi, fieu. T'inquiète pas.",
+                'stop_guardian': "L'Ange Gardien va manger une frite, fais gaffe à toi.",
+                'danger_overtake': "Eh fieu ! Ton dépassement là, c'était un peu zinneke, non ?"
+            },
+            'flanders': {
+                'start': "Allez, l'Oracle est prêt. On roule, hein ?",
+                'speed': "Oula ! Tu vas trop vite, hein ! Calme-toi un peu.",
+                'threat_detected': "Pas de chance, y'a un problème sur la route.",
+                'level_up': "Super ! T'as monté de niveau. C'est bien, hein !",
+                'start_guardian': "L'Ange Gardien est là pour toi. C'est sécurisé, hein.",
+                'stop_guardian': "L'Ange Gardien s'arrête. Sois prudent, hein.",
+                'danger_overtake': "Dis, ton dépassement était un peu dangereux, hein !"
+            },
+            'andalucia': {
+                'start': "¡Ole! L'Oracle est prêt, mon ami. On y va !",
+                'speed': "Eh, l'ami ! Tu vas trop vite, doucement sur l'accélérateur.",
+                'threat_detected': "Attention, y'a du jaleo sur la route devant.",
+                'level_up': "¡Qué arte! Tu as monté de niveau, bravo !",
+                'start_guardian': "L'Ange Gardien est avec toi, l'ami.",
+                'stop_guardian': "L'Ange Gardien fait une petite sieste, sois prudent.",
+                'danger_overtake': "Eh ! Ce dépassement était un peu trop risqué, mi arma !"
+            },
+            'reunion': {
+                'start': "Lé paré ! L'Oracle est en place, dalon. Allons rouler !",
+                'speed': "Oté ! Tu vas trop vite, calme un peu là !",
+                'threat_detected': "Gaffe dalon, y'a un l'embouteillage ou un souci devant.",
+                'level_up': "Lé bon ça ! T'as monté de niveau, félicitations !",
+                'start_guardian': "L'Ange Gardien lé là, t'inquiète pas dalon.",
+                'stop_guardian': "L'Ange Gardien va prendre un petit rhum, sois prudent.",
+                'danger_overtake': "Oté ! Ton dépassement là, c'était risqué dalon !"
+            }
+        },
+        'zh': {
+            'standard': {
+                'start': "系统就绪。连接已建立。",
+                'speed': "警告：速度过快。请立即减速。",
+                'threat_detected': "分析：发现威胁。建议谨慎。",
+                'level_up': "恭喜车手。您的经验值已提升。",
+                'start_guardian': "守护天使已开启。正在监控。",
+                'stop_guardian': "守护天使已关闭。监控结束。",
+                'danger_overtake': "警告：检测到危险超车。"
+            }
+        },
+        'ja': {
+            'standard': {
+                'start': "システム準備完了。接続が確立されました。",
+                'speed': "警告：速度超過です。直ちに減速してください。",
+                'threat_detected': "分析：脅威を検知。注意してください。",
+                'level_up': "おめでとうございます。レベルが上がりました。",
+                'start_guardian': "守護天使が起動しました。監視中。",
+                'stop_guardian': "守護天使が解除されました。監視終了。",
+                'danger_overtake': "警告：危険な追い越しを検知しました。"
+            }
+        },
+        'es': {
+            'andalucia': {
+                'start': "¡Ole! El Oráculo está listo, mi arma. ¡Vámonos!",
+                'speed': "¡Eh, chiquillo! Vas mu' rápido, frena un poco.",
+                'threat_detected': "Cuidao, que hay un jaleo ahí delante.",
+                'level_up': "¡Qué arte tienes! Has subido de nivel.",
+                'start_guardian': "El Ángel de la Guarda está contigo, mi arma.",
+                'stop_guardian': "El Ángel se va a echar una siestecita, ten cuidao.",
+                'danger_overtake': "¡Chiquillo! Ese adelantamiento ha sío mu' peligroso."
+            },
+            'standard': {
+                'start': "Sistemas listos. Conexión establecida.",
+                'speed': "Alerta: Exceso de velocidad. Reduzca inmediatamente.",
+                'threat_detected': "ANÁLISIS: Amenaza identificada. Tenga precaución.",
+                'level_up': "Felicidades Piloto. Su experiencia ha aumentado.",
+                'start_guardian': "Ángel de la Guarda activado. Vigilancia en curso.",
+                'stop_guardian': "Ángel de la Guarda desactivado. Fin de la vigilancia.",
+                'danger_overtake': "ATENCIÓN: ADELANTAMIENTO PELIGROSO DETECTADO."
+            }
+        },
+        'en': {
+            'standard': {
+                'start': "System ready. Connection established.",
+                'speed': "Alert: Excessive speed. Please slow down.",
+                'threat_detected': "ANALYSIS: Threat identified. Caution advised.",
+                'level_up': "Congratulations Pilot. Your experience has increased.",
+                'start_guardian': "Guardian Angel activated. Monitoring perimeter.",
+                'stop_guardian': "Guardian Angel deactivated. End of monitoring.",
+                'danger_overtake': "WARNING: DANGEROUS OVERTAKE DETECTED."
+            }
+        },
+        'it': {
+            'standard': {
+                'start': "Sistema pronto. Connessione stabilita.",
+                'speed': "Allerta: Velocità eccessiva. Rallenta immediatamente.",
+                'threat_detected': "ANALISI: Minaccia identificata. Prudenza consigliata.",
+                'level_up': "Congratulazioni Pilota. La tua esperienza è aumentata.",
+                'start_guardian': "Angelo Custode attivato. Monitoraggio in corso.",
+                'stop_guardian': "Angelo Custode disattivato. Fine monitoraggio.",
+                'danger_overtake': "ATTENZIONE: SORPASSO PERICOLOSO RILEVATO."
+            }
+        },
+        'de': {
+            'standard': {
+                'start': "System bereit. Verbindung hergestellt.",
+                'speed': "Warnung: Zu hohe Geschwindigkeit. Bitte sofort abbremsen.",
+                'threat_detected': "ANALYSE: Gefahr erkannt. Vorsicht geboten.",
+                'level_up': "Glückwunsch Pilot. Deine Erfahrung ist gestiegen.",
+                'start_guardian': "Schutzengel aktiviert. Überwachung läuft.",
+                'stop_guardian': "Schutzengel deaktiviert. Ende der Überwachung.",
+                'danger_overtake': "WARNUNG: GEFÄHRLICHES ÜBERHOLMANÖVER ERKANNT."
+            }
+        },
+        'pt': {
+            'standard': {
+                'start': "Sistema pronto. Conexão estabelecida.",
+                'speed': "Alerta: Velocidade excessiva. Reduza imediatamente.",
+                'threat_detected': "ANÁLISE: Ameaça identificada. Cuidado aconselhado.",
+                'level_up': "Parabéns Piloto. A sua experiência aumentou.",
+                'start_guardian': "Anjo da Guarda ativado. Monitorização em curso.",
+                'stop_guardian': "Anjo da Guarda desativado. Fim da monitorização.",
+                'danger_overtake': "AVISO: ULTRAPASSAGEM PERIGOSA DETETADA."
+            }
+        },
+        'nl': {
+            'standard': {
+                'start': "Systeem gereed. Verbinding tot stand gebracht.",
+                'speed': "Waarschuwing: Te hoge snelheid. Gelieve onmiddellijk te vertragen.",
+                'threat_detected': "ANALYSE: Dreiging geïdentificeerd. Voorzichtigheid geboden.",
+                'level_up': "Gefeliciteerd Piloot. Uw ervaring is toegenomen.",
+                'start_guardian': "Beschermengel geactiveerd. Monitoring gestart.",
+                'stop_guardian': "Beschermengel gedeactiveerd. Einde monitoring.",
+                'danger_overtake': "WAARSCHUWING: GEVAARLIJKE INHAALACTIE GEDETECTEERD."
+            }
+        },
+        'pl': {
+            'standard': {
+                'start': "System gotowy. Połączenie nawiązane.",
+                'speed': "Alert: Nadmierna prędkość. Proszę natychmiast zwolnić.",
+                'threat_detected': "ANALIZA: Zidentyfikowano zagrożenie. Zalecana ostrożność.",
+                'level_up': "Gratulacje Pilocie. Twoje doświadczenie wzrosło.",
+                'start_guardian': "Anioł Stróż aktywowany. Monitorowanie w toku.",
+                'stop_guardian': "Anioł Stróż dezaktywowany. Koniec monitorowania.",
+                'danger_overtake': "OSTRZEŻENIE: WYKRYTO NIEBEZPIECZNE WYPRZEDZANIE."
+            }
+        },
+        'sv': {
+            'standard': {
+                'start': "Systemet är klart. Anslutning upprättad.",
+                'speed': "Varning: För hög hastighet. Sänk farten omedelbart.",
+                'threat_detected': "ANALYS: Hot identifierat. Var försiktig.",
+                'level_up': "Grattis Pilot. Din erfarenhet har ökat.",
+                'start_guardian': "Skyddsängel aktiverad. Övervakning pågår.",
+                'stop_guardian': "Skyddsängel inaktiverad. Slut på övervakning.",
+                'danger_overtake': "VARNING: FARLIG OMKÖRNING UPPTÄCKT."
+            }
+        },
+        'da': {
+            'standard': {
+                'start': "Systemet er klar. Forbindelse oprettet.",
+                'speed': "Advarsel: For høj hastighed. Sæt farten ned med det samme.",
+                'threat_detected': "ANALYSE: Trussel identificeret. Forsigtighed tilrådes.",
+                'level_up': "Tillykke Pilot. Din erfarenhet er øget.",
+                'start_guardian': "Skytsengel aktiveret. Overvågning i gang.",
+                'stop_guardian': "Skytsengel deaktiveret. Slut på overvågning.",
+                'danger_overtake': "ADVARSEL: FARLIG OVERHALING REGISTRERET."
+            }
+        },
+        'fi': {
+            'standard': {
+                'start': "Järjestelmä valmis. Yhteys muodostettu.",
+                'speed': "Hälytys: Liian suuri nopeus. Hidasta välittömästi.",
+                'threat_detected': "ANALYYSI: Uhka tunnistettu. Noudata varovaisuutta.",
+                'level_up': "Onnea Pilotti. Kokemuksesi on kasvanut.",
+                'start_guardian': "Suojelusenkeli aktivoitu. Valvonta käynnissä.",
+                'stop_guardian': "Suojelusenkeli deaktivoitu. Valvonta päättynyt.",
+                'danger_overtake': "VAROITUS: VAARALLINEN OHITUS HAVAITTU."
+            }
+        },
+        'no': {
+            'standard': {
+                'start': "Systemet er klart. Tilkobling opprettet.",
+                'speed': "Advarsel: For høy hastighet. Sakt ned umiddelbart.",
+                'threat_detected': "ANALYSE: Trussel identifisert. Forsiktighet anbefales.",
+                'level_up': "Gratulerer Pilot. Din erfaring har økt.",
+                'start_guardian': "Skytsengel aktivert. Overvåking pågår.",
+                'stop_guardian': "Skytsengel deaktivert. Slut på overvåking.",
+                'danger_overtake': "ADVARSEL: FARLIG FORBIKJØRING OPPDAGET."
+            }
+        },
+        'el': {
+            'standard': {
+                'start': "Σύστημα έτοιμο. Η σύνδεση ολοκληρώθηκε.",
+                'speed': "Ειδοποίηση: Υπερβολική ταχύτητα. Επιβραδύνετε αμέσως.",
+                'threat_detected': "ΑΝΑΛΥΣΗ: Εντοπίστηκε απειλή. Συνιστάται προσοχή.",
+                'level_up': "Συγχαρητήρια Πιλότε. Η εμπειρία σας αυξήθηκε.",
+                'start_guardian': "Φύλακας Άγγελος ενεργοποιήθηκε. Παρακολούθηση σε εξέλιξη.",
+                'stop_guardian': "Φύλακας Άγγελος απενεργοποιήθηκε. Τέλος παρακολούθησης.",
+                'danger_overtake': "ΠΡΟΣΟΧΗ: ΕΝΤΟΠΙΣΤΗΚΕ ΕΠΙΚΙΝΔΥΝΗ ΠΡΟΣΠΕΡΑΣΗ."
+            }
+        },
+        'cs': {
+            'standard': {
+                'start': "Systém připraven. Připojení navázáno.",
+                'speed': "Upozornění: Nadměrná rychlost. Okamžitě zpomalte.",
+                'threat_detected': "ANALÝZA: Identifikována hrozba. Doporučuje se opatrnost.",
+                'level_up': "Gratulujeme Pilote. Vaše zkušenosti se zvýšily.",
+                'start_guardian': "Anděl strážný aktivován. Sledování probíhá.",
+                'stop_guardian': "Anděl strážný deaktivován. Konec sledování.",
+                'danger_overtake': "VAROVÁNÍ: ZJIŠTĚNO NEBEZPEČNÉ PŘEDBÍHÁNÍ."
+            }
+        },
+        'hu': {
+            'standard': {
+                'start': "Rendszer kész. Kapcsolat létrejött.",
+                'speed': "Riasztás: Túl nagy sebesség. Azonnal lassítson.",
+                'threat_detected': "ELEMZÉS: Fenyegetés azonosítva. Óvatosság ajánlott.",
+                'level_up': "Gratulálunk Pilóta. Tapasztalata nőtt.",
+                'start_guardian': "Őrangyal aktiválva. Megfigyelés folyamatban.",
+                'stop_guardian': "Őrangyal deaktiválva. Megfigyelés vége.",
+                'danger_overtake': "FIGYELEM: VESZÉLYES ELŐZÉS ÉSZLELVE."
+            }
+        },
+        'ro': {
+            'standard': {
+                'start': "Sistem gata. Conexiune stabilită.",
+                'speed': "Alertă: Viteză excesivă. Încetiniți imediat.",
+                'threat_detected': "ANALIZĂ: Amenințare identificată. Se recomandă prudență.",
+                'level_up': "Felicitări Pilotule. Experiența ta a crescut.",
+                'start_guardian': "Înger Păzitor activat. Monitorizare în curs.",
+                'stop_guardian': "Înger Păzitor dezactivat. Sfârșitul monitorizării.",
+                'danger_overtake': "ATENȚIE: DEPĂȘIRE PERICULOASĂ DETECTATĂ."
             }
         }
     },
@@ -649,6 +918,12 @@ window.OracleEngine = {
     updateRegion: function(lat, lng) {
         if (lat > 43.1 && lat < 43.4 && lng > 5.2 && lng < 5.6) this.currentRegion = 'marseille';
         else if (lat > 45 && lat < 47 && lng > -74 && lng < -71) this.currentRegion = 'quebec';
+        else if (lat > 50.5 && lat < 50.8 && lng > 5.3 && lng < 5.8) this.currentRegion = 'liege';
+        else if (lat > 50.2 && lat < 50.5 && lng > 4.2 && lng < 4.6) this.currentRegion = 'charleroi';
+        else if (lat > 50.75 && lat < 50.95 && lng > 4.2 && lng < 4.6) this.currentRegion = 'brussels';
+        else if (lat > 50.95 && lat < 51.5 && lng > 2.5 && lng < 5.9) this.currentRegion = 'flanders';
+        else if (lat > 35.8 && lat < 38.7 && lng > -7.5 && lng < -1.6) this.currentRegion = 'andalucia';
+        else if (lat > -21.4 && lat < -20.8 && lng > 55.2 && lng < 55.9) this.currentRegion = 'reunion';
         else this.currentRegion = 'standard';
     },
 
@@ -686,7 +961,9 @@ function speak(phraseKey) {
     utterance.pitch = window.OracleEngine.gender === 'female' ? 1.05 : 0.9;
     
     window.speechSynthesis.speak(utterance);
-    if ('vibrate' in navigator) navigator.vibrate(30);
+    if ('vibrate' in navigator && navigator.userActivation && navigator.userActivation.hasBeenActive) {
+        navigator.vibrate(30);
+    }
 }
 
 // --- NEW: Auto Night Mode ---
@@ -709,6 +986,13 @@ window.addEventListener('deviceorientation', (e) => {
     const lean = Math.round(e.gamma); // Tilt left/right
     currentLeanAngle = Math.abs(lean);
     if(currentLeanAngle > maxLeanAngle) maxLeanAngle = currentLeanAngle;
+
+    // --- INTEGRATION: Guardian Angel Dangerous Overtake Check ---
+    if (window.GuardianAngel && typeof window.GuardianAngel.checkOvertakingSafety === "function") {
+        const speedKmh = parseInt(document.getElementById('speed')?.textContent || "0");
+        window.GuardianAngel.checkOvertakingSafety(speedKmh, lean);
+    }
+
     const horizon = document.querySelector('.horizon-line');
     if (horizon) {
         horizon.style.transform = `rotate(${-lean}deg)`;

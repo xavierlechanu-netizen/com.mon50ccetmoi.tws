@@ -633,18 +633,194 @@ body, html {
     left: 50%;
     transform: translateX(-50%);
     width: 94%;
-    max-width: 500px;
-    height: 85px;
-    border-radius: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-    z-index: 1000;
-    box-shadow: var(--shadow-premium);
-    -webkit-app-region: drag;
+    100% { transform: scale(1.2); opacity: 0.5; }
 }
 
+/* Scanline Effect Overlay */
+.scanline-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 4px, 3px 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+}
+
+/* Holographic Mode v2 - Windshield Projection Mode (Flipped for reflection) */
+.holographic-mode {
+    transform: scaleY(-1);
+    filter: brightness(1.4) contrast(1.2);
+}
+
+.holographic-mode #hud {
+    perspective: 1200px;
+    transform: translateX(-50%) rotateX(15deg);
+}
+
+.holographic-mode .hud-item {
+    transform: translateZ(60px);
+    text-shadow: 0 5px 15px var(--neon-blue);
+}
+
+/* Immersive 3D HUD Mode */
+.immersive-mode #map {
+    transform: rotateX(25deg) translateY(-40px) translateZ(-100px) scale(1.1);
+    filter: invert(100%) hue-rotate(180deg) brightness(0.6) contrast(1.5) saturate(0.5);
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.immersive-mode .cyber-grid-overlay {
+    transform: rotateX(25deg);
+    opacity: 0.8;
+}
+
+.immersive-mode #hud {
+    transform: translate(-50%, -55%) translateZ(150px) rotateX(10deg);
+}
+
+/* Oracle Tactical Console */
+#oracle-console {
+    position: absolute;
+    bottom: -150px;
+    left: -20px;
+    width: 140px;
+    height: 100px;
+    padding: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--neon-blue);
+    overflow: hidden;
+    border-left: 2px solid var(--neon-blue);
+    display: flex;
+    flex-direction: column;
+}
+
+.console-header {
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 3px;
+    margin-bottom: 5px;
+    font-weight: 900;
+    opacity: 0.8;
+}
+
+#console-logs .log {
+    margin-bottom: 2px;
+    animation: log-slide 0.3s ease-out;
+}
+
+@keyframes log-slide {
+    from { transform: translateX(-10px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Biometric Scanner */
+#biometric-scanner {
+    position: absolute;
+    bottom: -150px;
+    right: -20px;
+    width: 120px;
+    height: 80px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 2px solid var(--neon-pink);
+    overflow: hidden;
+}
+
+.scan-line {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 2px;
+    background: var(--neon-pink);
+    box-shadow: 0 0 10px var(--neon-pink);
+    animation: bio-scan 2s linear infinite;
+    opacity: 0.5;
+}
+
+@keyframes bio-scan {
+    0% { top: 0; }
+    100% { top: 100%; }
+}
+
+.bio-item {
+    font-size: 0.6rem;
+    font-weight: 900;
+    color: var(--text-light);
+    margin: 2px 0;
+}
+
+#bio-bpm { color: var(--neon-pink); }
+#bio-focus { color: var(--accent); }
+
+/* Glitch Effect */
+.glitch-active {
+    animation: screen-glitch 0.2s infinite;
+}
+
+@keyframes screen-glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+    40% { transform: translate(2px, -1px); filter: invert(0.1); }
+    60% { transform: translate(-1px, -2px); }
+    80% { transform: translate(1px, 2px); }
+    100% { transform: translate(0); }
+}
+
+/* Radar Sweep Animation */
+.radar-sweep {
+    position: fixed;
+    top: 50%; left: 50%;
+    width: 200vw; height: 200vw;
+    background: conic-gradient(from 0deg, transparent, rgba(0, 210, 255, 0.1) 10deg, transparent 90deg);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 2;
+    animation: radar-spin 8s linear infinite;
+}
+
+@keyframes radar-spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Pilot XP Ranking */
+.xp-rank-badge {
+    position: absolute;
+    top: 55px; left: 0;
+    background: linear-gradient(90deg, var(--neon-blue), transparent);
+    color: white;
+    padding: 2px 10px;
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    border-left: 3px solid white;
+}
+
+.grid-status-active {
+    position: absolute;
+    top: 75px; left: 0;
+    color: var(--neon-blue);
+    font-size: 0.5rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+.grid-status-active::before {
+    content: "●";
+    margin-right: 5px;
+    animation: status-blink 1s steps(2) infinite;
+}
+
+@keyframes status-blink {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+/* HEADS UP DISPLAY (HUD) - Replaced by .tactical-layout */
 .speed-container {
     flex: 1;
     display: flex;
@@ -941,7 +1117,7 @@ body, html {
 }
 
 .adv-item:hover {
-    transform: translateY(-5px);
+    transform: translateY(-50px);
     background: rgba(255, 255, 255, 0.05);
 }
 
@@ -2248,4 +2424,389 @@ body, html {
     font-size: 0.6rem;
     font-weight: 900;
     margin-left: auto;
+}
+
+/* --- SENTINEL TACTICAL HUD --- */
+.tactical-layout {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.tactical-panel {
+    background: rgba(10, 15, 20, 0.6);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    pointer-events: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* TOP BAR */
+.tactical-top-bar {
+    margin: calc(env(safe-area-inset-top, 0px) + 20px) 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.tactical-speed-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 30px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.tactical-speed-val {
+    font-size: 4.5rem;
+    font-weight: 900;
+    color: transparent;
+    background: linear-gradient(180deg, #fff200, #ffb703);
+    -webkit-background-clip: text;
+    text-shadow: 0 0 20px rgba(255, 183, 3, 0.8);
+    line-height: 1;
+}
+
+.tactical-speed-unit {
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: -5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.tactical-sentinel-badge {
+    background: rgba(10, 15, 20, 0.8);
+    border-radius: 15px;
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid rgba(46, 204, 113, 0.2);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.tactical-sentinel-badge i {
+    font-size: 2rem;
+    color: #2ecc71;
+    filter: drop-shadow(0 0 10px #2ecc71);
+    margin-bottom: 5px;
+}
+
+.tactical-sentinel-badge .sentinel-text {
+    color: #2ecc71;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-align: center;
+    text-shadow: 0 0 5px #2ecc71;
+    line-height: 1.2;
+}
+
+/* DESTINATION PILL */
+.tactical-dest-pill {
+    align-self: center;
+    margin-top: 15px;
+    padding: 10px 25px;
+    border-radius: 25px;
+    color: #888;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.tactical-dest-pill span {
+    color: #00d2ff;
+}
+
+/* BOTTOM PANEL */
+.tactical-bottom-panel {
+    margin: 0 20px 20px;
+    padding: 15px 20px;
+}
+
+.tactical-route-header {
+    border-bottom: 1px solid rgba(0, 210, 255, 0.2);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.tactical-route-header .route-title {
+    color: #00d2ff;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+}
+
+.tactical-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.stat-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 0.7rem;
+    color: #888;
+    font-weight: 600;
+}
+
+.stat-group.center-align { text-align: center; }
+.stat-group.right-align { text-align: right; }
+
+.stat-group span {
+    color: white;
+    font-weight: 800;
+    margin-left: 3px;
+}
+
+/* BOTTOM NAV BAR */
+.tactical-nav-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: transparent;
+    padding: 0 15px 25px;
+    pointer-events: auto;
+}
+
+.t-nav-btn {
+    background: transparent;
+    border: none;
+    color: #555;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.t-nav-btn i { font-size: 1.5rem; }
+.t-nav-btn span { font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; }
+
+.t-nav-btn.active, .t-nav-btn:hover {
+    color: #00d2ff;
+}
+
+.t-nav-btn.active i {
+    filter: drop-shadow(0 0 10px #00d2ff);
+}
+.fullscreen-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+}
+
+@keyframes pulse-red {
+    0% { transform: scale(1); box-shadow: 0 0 10px rgba(255,0,0,0.5); }
+    50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(255,0,0,0.8); }
+    100% { transform: scale(1); box-shadow: 0 0 10px rgba(255,0,0,0.5); }
+}
+
+@keyframes sound-bar {
+    0% { transform: scaleY(0.3); }
+    100% { transform: scaleY(1.5); }
+}
+
+@keyframes wave-pulse {
+    0% { transform: translateX(-50%); opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { transform: translateX(0%); opacity: 0.5; }
+}
+
+/* TACTICAL HUD OVERLAY */
+#hud.tactical-layout {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    padding: env(safe-area-inset-top, 40px) 20px env(safe-area-inset-bottom, 20px) 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: stretch;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: none;
+    background: transparent;
+    transform: none;
+    border-radius: 0;
+}
+
+#hud.tactical-layout > * {
+    pointer-events: auto;
+}
+
+/* TOP ROW */
+.tactical-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.tactical-speed-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
+}
+
+.tactical-speed-val {
+    font-size: 6rem;
+    font-weight: 900;
+    color: var(--neon-gold, #ffb700);
+    text-shadow: 0 0 20px rgba(255, 183, 0, 0.5);
+    line-height: 0.9;
+    font-family: 'Inter', sans-serif;
+}
+
+.tactical-speed-unit {
+    font-size: 1.2rem;
+    color: #ccc;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.tactical-sentinel-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 20, 30, 0.6);
+    border: 1px solid rgba(0, 242, 255, 0.3);
+    border-radius: 20px;
+    padding: 10px 15px;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+    cursor: pointer;
+}
+
+.tactical-sentinel-badge i {
+    font-size: 2.2rem;
+    color: var(--neon-blue, #00d2ff);
+    filter: drop-shadow(0 0 10px var(--neon-blue, #00d2ff));
+    margin-bottom: 5px;
+}
+
+.tactical-sentinel-badge .sentinel-text {
+    font-size: 0.75rem;
+    color: #00d2ff;
+    text-align: center;
+    font-weight: 800;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+/* DESTINATION PILL */
+.tactical-dest-pill {
+    align-self: center;
+    background: rgba(10, 20, 30, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    padding: 8px 20px;
+    font-size: 0.8rem;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: auto; /* Push bottom panel down */
+}
+
+/* BOTTOM STATS PANEL */
+.tactical-bottom-panel {
+    background: rgba(10, 20, 30, 0.85);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.tactical-route-header {
+    border-bottom: 1px solid rgba(0, 242, 255, 0.3);
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+}
+
+.tactical-route-header .route-title {
+    color: var(--neon-blue, #00d2ff);
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.tactical-stats-grid {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #aaa;
+    line-height: 2;
+}
+
+.tactical-stats-grid span {
+    color: #fff;
+    font-weight: 700;
+    margin-left: 5px;
+}
+
+.stat-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-group.left-align { text-align: left; }
+.stat-group.center-align { text-align: center; }
+.stat-group.right-align { text-align: right; }
+
+/* NAV BAR REWRITE */
+.tactical-nav-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: rgba(5, 10, 15, 0.9);
+    backdrop-filter: blur(20px);
+    border-radius: 40px;
+    padding: 15px;
+    border: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 10px;
+}
+
+.t-nav-btn {
+    background: transparent;
+    border: none;
+    color: #555;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: color 0.3s;
+    flex: 1;
+}
+
+.t-nav-btn i { font-size: 1.4rem; }
+.t-nav-btn span { font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; }
+
+.t-nav-btn.active, .t-nav-btn:hover {
+    color: var(--neon-blue, #00d2ff);
+}
+
+.t-nav-btn.active i {
+    filter: drop-shadow(0 0 10px var(--neon-blue, #00d2ff));
+}
+
+#search-container {
+    display: none !important;
 }

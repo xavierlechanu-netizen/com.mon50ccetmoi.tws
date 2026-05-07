@@ -16,7 +16,7 @@ const CONFIG = {
     },
     
     // App Versioning
-    VERSION: "50000.0-GOD-VIEW",
+    VERSION: "50000.16-GOD-VIEW",
 
     // Firebase Cloud Database (Firestore)
     FIREBASE: {

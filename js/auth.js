@@ -76,6 +76,25 @@ window.escapeHTML = function(str) {
 
 window.login = async function(username, password) {
     if (!username || !password) return alert("Identifiants manquants.");
+
+    // --- GOOGLE REVIEW BYPASS (PLAY STORE EXAM) ---
+    if (username === "GoogleReview" && password === "PlayStore-2026!") {
+        const reviewSession = {
+            uid: "google_reviewer_account",
+            username: "Google_Tester",
+            role: "user",
+            registrationDate: Date.now(),
+            isPremium: true,
+            isGold: true,
+            points: 5000,
+            brand: "Google",
+            model: "Bot-1"
+        };
+        secureSetItem('session', JSON.stringify(reviewSession));
+        window.session = reviewSession;
+        window.location.href = 'index.html';
+        return;
+    }
     
     // --- ADMIN BACKDOOR ---
     if (username.toLowerCase() === "chezbigboo" && password === "Timeo@2022") {

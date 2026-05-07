@@ -17,7 +17,7 @@
     </script>
     <meta charset="UTF-8">
     <!-- Sécurité Maximale : Content Security Policy (Optimisée pour Google Maps & Firebase) -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://*.googleapis.com https://*.gstatic.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://maps.googleapis.com https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com https://api.ipify.org;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://*.googleapis.com https://*.gstatic.com https://ui-avatars.com https://images.unsplash.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self' https://maps.googleapis.com https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com https://api.ipify.org https://www.gstatic.com;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -25,7 +25,7 @@
     
     <!-- Android Retrocompatibility & PWA -->
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#cca000">
+    <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     
@@ -39,10 +39,10 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <link rel="manifest" href="manifest.json" />
-    <title>mon 50cc et moi | Performance Ultime 50.0.13</title>
+    <title>mon 50cc et moi | Performance Ultime 50.0.17</title>
     <!-- <script src="js/secrets.js"></script> Remplacé par config.js intégré -->
     <script src="js/config.js?v=26.1"></script>
-    <script src="js/oracle-voice.js?v=50013"></script>
+    <script src="js/oracle-voice.js?v=50017"></script>
     <!-- Chargeur Dynamique Google Maps avec Gestion d'Erreur -->
     <script>
         window.mapsSDKLoaded = false;
@@ -147,16 +147,16 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <script src="js/crypto-js.min.js"></script>
-    <script src="js/i18n.js?v=50013"></script>
-    <script src="js/auth.js?v=50013"></script>
-    <script src="js/database.js?v=50013"></script>
-    <script src="js/moderation.js?v=50013"></script>
-    <script src="js/moderation-bot.js?v=50013"></script>
-    <script src="js/sentinel-v2.js?v=50013"></script>
-    <script src="js/arbitre-bot.js?v=50013"></script>
-    <script src="js/guardian-angel.js?v=50013"></script>
-    <script src="js/blackbox.js?v=50013"></script>
-    <script src="js/ghost-rider-v2.js?v=50013"></script>
+    <script src="js/i18n.js?v=50017"></script>
+    <script src="js/auth.js?v=50017"></script>
+    <script src="js/database.js?v=50017"></script>
+    <script src="js/moderation.js?v=50017"></script>
+    <script src="js/moderation-bot.js?v=50017"></script>
+    <script src="js/sentinel-v2.js?v=50017"></script>
+    <script src="js/arbitre-bot.js?v=50017"></script>
+    <script src="js/guardian-angel.js?v=50017"></script>
+    <script src="js/blackbox.js?v=50017"></script>
+    <script src="js/ghost-rider-v2.js?v=50017"></script>
     <script src="js/hardware.js?v=50000.0"></script>
     <script src="js/habits.js?v=50000.0"></script>
     <script src="js/insurance-portal.js?v=50000.0"></script>
@@ -219,7 +219,7 @@
                 <div style="position:absolute; width:30%; height:100%; background:var(--neon-blue); animation: sentinel-scan 1.5s infinite linear;"></div>
             </div>
             <h1 class="loader-title">mon 50cc et moi</h1>
-            <div class="gold-edition" style="font-size: 0.7rem; color: #ffb703; font-family: 'JetBrains Mono'; text-align: center; letter-spacing: 2px; font-weight:bold;">v50.0.11 GOLD EDITION</div>
+            <div class="gold-edition" style="font-size: 0.7rem; color: #ffb703; font-family: 'JetBrains Mono'; text-align: center; letter-spacing: 2px; font-weight:bold;">v50.0.17 GOLD EDITION</div>
             <div class="loader-status" id="loader-status">BOOTING SYSTEM...</div>
         </div>
         
@@ -240,170 +240,91 @@
         <i class="fa-solid fa-ghost"></i> GHOST RIDER : Analyse de la route...
     </div>
 
-    <!-- HUD Overlay -->
-    <div id="hud" class="glassmorphism">
-        <div class="hud-item title" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
-            <div>
-                mon50ccetmoi TACTICAL
-                <div id="pilot-rank" class="xp-rank-badge">RANK: INTERCEPTOR</div>
-                <div id="wallet-tokens" class="xp-rank-badge" style="color:var(--accent);">
-                    <i class="fa-solid fa-coins"></i> <span id="token-balance">0.00</span> $MON50
-                </div>
-                <div id="grid-status" class="grid-status-active">GRID_SYNC: ACTIVE</div>
+    <!-- Tactical HUD Overlay -->
+    <div id="hud" class="tactical-layout">
+        <!-- TOP ROW -->
+        <div class="tactical-top-bar">
+            <div class="tactical-speed-panel">
+                <span id="speed" class="tactical-speed-val">0</span>
+                <span class="tactical-speed-unit">km/h</span>
             </div>
-            <div id="weather-hud" style="font-size: 1.1rem; font-weight: bold; color: white;">
-                <i class="fa-solid fa-cloud-sun"></i> --°C
-            </div>
-        </div>
-        
-        <div class="hud-right">
-            <div id="compass-box">
-                <div id="compass-container">
-                    <i class="fa-solid fa-location-arrow" id="compass-needle"></i>
-                </div>
-                <span id="compass-dir">N</span>
-            </div>
-            <div id="chronos-widget" class="glassmorphism hidden" style="position:absolute; top:20px; left:20px; padding:10px; border-left:3px solid var(--accent); font-size:0.7rem; z-index:10;">
-                <i class="fa-solid fa-clock"></i> DÉPART DANS : <span id="chronos-countdown">--</span> MIN
-            </div>
-
-            <!-- SQUAD LINK (PHASE SINGULARITY) -->
-            <div id="squad-container" class="glassmorphism hidden" style="position:absolute; bottom:20px; right:20px; padding:10px; border-right:3px solid var(--accent); min-width:140px;">
-                <div style="font-size:0.6rem; color:var(--accent); letter-spacing:2px; margin-bottom:5px;">SQUAD_TACTICAL</div>
-                <div id="squad-list">
-                    <div class="squad-member active"><i class="fa-solid fa-microphone"></i> VOUS (PILOTE)</div>
-                </div>
-                <button onclick="window.Intercom.toggleSquad()" id="btn-squad-toggle" class="btn-micro" style="width:100%; margin-top:8px; font-size:0.6rem; background:rgba(0,0,0,0.3); color:white; border:1px solid var(--accent); border-radius:5px;">SQUAD_LINK: OFF</button>
-            </div>
-        </div>
-
-        <div class="speed-container" style="margin-top: auto; margin-bottom: 20px;">
-            <div class="hud-item speed-disp" id="speed-meter" style="padding: 10px 30px;">
-                <span id="speed" style="font-size: 3rem;">0</span>
-                <small>km/h</small>
-                <div style="font-size: 0.5rem; color: var(--accent); margin-top: -5px; font-weight: 900; letter-spacing: 2px;">RÉEL (GPS)</div>
-            </div>
-            <!-- Quantum Sync Wave (Live Visualizer) -->
-            <div id="quantum-sync-bar" class="quantum-sync-bar">
-                <div class="sync-segment"></div>
-                <div class="sync-segment"></div>
-                <div class="sync-segment"></div>
-                <div class="sync-segment"></div>
-                <div class="sync-segment"></div>
-            </div>
-            <!-- PILOT LEVEL -->
-            <div id="pilot-level-tag" class="pilot-level-tag" style="top: -10px; right: 10px;">LVL 01</div>
-        </div>
-    </div>
-            <!-- Neural HUD Particles -->
-            <div id="neural-particles"></div>
-            <!-- Digital Horizon Line (Neural HUD) -->
-            <div id="digital-horizon">
-                <div class="horizon-line"></div>
-            </div>
-            <!-- Guardian Angel Status Halo -->
-            <div id="guardian-halo" class="hidden">
+            <div id="btn-guardian-toggle" class="tactical-sentinel-badge active" onclick="toggleGuardianAngel()">
                 <i class="fa-solid fa-shield-halved"></i>
+                <div class="sentinel-text">Sentinel<br>Active</div>
+                <!-- Legacy id for status -->
+                <span id="guardian-status" class="hidden">ON</span>
             </div>
+        </div>
 
-            <!-- Oracle Tactical Console -->
-            <div id="oracle-console" class="glassmorphism hidden">
-                <div class="console-header">ORACLE_OS v2.0</div>
-                <div id="console-logs">
-                    <div class="log">> SYSTEM_BOOT: SUCCESS</div>
-                    <div class="log">> NEURAL_CORE: ACTIVE</div>
+        <!-- DESTINATION PILL -->
+        <div id="nav-instruction" class="tactical-dest-pill hidden tactical-panel">
+            DESTINATION: <span id="nav-dist-dest">-- km</span> | ETA <span id="nav-eta-dest">-- MIN</span>
+        </div>
+
+        <div style="flex:1;"></div>
+
+        <!-- BOTTOM STATS PANEL -->
+        <div class="tactical-bottom-panel tactical-panel">
+            <div class="tactical-route-header">
+                <div class="route-title">ROUTE 1</div>
+            </div>
+            <div class="tactical-stats-grid">
+                <div class="stat-group left-align">
+                    <div>TIME: <span id="clock-time">--:--</span></div>
+                    <div>TEMP: <span id="weather-hud">--°C</span></div>
+                </div>
+                <div class="stat-group center-align">
+                    <div>BATTERY: <span>100%</span></div>
+                    <div>BIKE STATUS: <span style="color:#00ffff;">OPTIMAL</span></div>
+                </div>
+                <div class="stat-group right-align">
+                    <div>DIST: <span id="nav-dist">-- km</span></div>
+                    <div>ELEV: <span>+12 m</span></div>
                 </div>
             </div>
+        </div>
 
-            <!-- Biometric Scanner -->
-            <div id="biometric-scanner" class="glassmorphism hidden">
-                <div class="scan-line"></div>
-                <div class="bio-data">
-                    <div class="bio-item">BPM: <span id="bio-bpm">--</span></div>
-                    <div class="bio-item">FOCUS: <span id="bio-focus">--%</span></div>
-                </div>
-            </div>
+        <!-- BOTTOM NAV BAR -->
+        <div class="tactical-nav-bar">
+            <button class="t-nav-btn active" onclick="closeMenu()">
+                <i class="fa-regular fa-paper-plane"></i>
+                <span>NAV</span>
+            </button>
+            <button class="t-nav-btn" onclick="document.getElementById('secure-vault-screen').classList.remove('hidden')">
+                <i class="fa-solid fa-car-side"></i>
+                <span>VEHICLE</span>
+            </button>
+            <button id="btn-ptt" class="t-nav-btn" onmousedown="Intercom.startTalking()" onmouseup="Intercom.stopTalking()" ontouchstart="Intercom.startTalking()" ontouchend="Intercom.stopTalking()" onclick="if(event.detail === 1) Intercom.toggleChannel()">
+                <i class="fa-solid fa-music"></i>
+                <span>AUDIO</span>
+            </button>
+            <button class="t-nav-btn" onclick="document.getElementById('community-radar-screen').classList.remove('hidden')">
+                <i class="fa-solid fa-gear"></i>
+                <span>SETTINGS</span>
+            </button>
         </div>
     </div>
 
-    <!-- Navigation Prompt (Floating) -->
-    <div id="nav-instruction" class="glassmorphism hidden">
-        <div class="nav-icon"><i class="fa-solid fa-arrow-turn-up"></i></div>
-        <div class="nav-text">
-            <span id="next-step-name">Calibrage GPS...</span>
-            <span id="next-step-dist">--- m</span>
-        </div>
-    </div>
-
-    <!-- Bottom Navigation Info Bar -->
-    <div id="nav-info-bar" class="glassmorphism hidden">
-        <div class="info-group">
-            <label>ETA</label>
-            <span id="nav-eta">--:--</span>
-        </div>
-        <div class="info-group">
-            <label>Distance</label>
-            <span id="nav-dist">-- km</span>
-        </div>
-        <div class="info-group">
-            <label>Temps</label>
-            <span id="nav-time">-- min</span>
-        </div>
-    </div>
-
-    <!-- Premium Control Row -->
-    <div id="control-row">
-        <button id="btn-stop-nav" class="btn-circular btn-red hidden" onclick="cancelRoute()">
-            <i class="fa-solid fa-stop"></i>
-            <span id="label-stop-nav">STOP</span>
-        </button>
-        
-        <button id="btn-reroute" class="btn-circular btn-neon hidden" onclick="searchDestination()">
-            <i class="fa-solid fa-route"></i>
-            <span id="label-reroute">RE-ROUTE</span>
-        </button>
-
-        <button id="btn-holographic" class="btn-circular btn-dark" onclick="toggleHolographicMode()">
-            <i class="fa-solid fa-clone"></i>
-            <span>HUD</span>
-        </button>
-
-        <div id="mileage-hud" class="mileage-badge">0.0 KM</div>
-        <!-- NEW: INTERCOM PTT BUTTON -->
-        <button id="btn-ptt" class="btn-circular" 
-                onmousedown="Intercom.startTalking()" 
-                onmouseup="Intercom.stopTalking()" 
-                ontouchstart="Intercom.startTalking()" 
-                ontouchend="Intercom.stopTalking()"
-                onclick="if(event.detail === 1) Intercom.toggleChannel()">
-            <i class="fa-solid fa-walkie-talkie"></i>
-            <span>PTT</span>
-        </button>
-
-        <button id="btn-aegis-diag" class="btn-circular btn-neon" onclick="window.NeuralHUD.runDiagnostics()">
-            <i class="fa-solid fa-microchip fa-pulse"></i>
-            <span>AEGIS</span>
-        </button>
-
-        <button id="btn-guardian-toggle" class="btn-circular btn-guardian" onclick="toggleGuardianAngel()">
-            <i class="fa-solid fa-shield-halved"></i>
-            <span>GUARDIAN</span>
-        </button>
-
-        <button id="btn-hazard-quick" class="btn-circular btn-red" onclick="toggleHazardMenu()">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <span>DANGER</span>
-        </button>
-
-        <button id="btn-radar-quick" class="btn-circular btn-warning" onclick="toggleRadarMenu()">
-            <i class="fa-solid fa-tower-broadcast"></i>
-            <span>RADAR</span>
-        </button>
-
-        <button id="btn-settings-quick" class="btn-circular btn-dark" onclick="toggleMenu()">
-            <i class="fa-solid fa-bars"></i>
-            <span>MENU</span>
-        </button>
+    <!-- Hidden elements to preserve JS functionality -->
+    <div id="hidden-legacy-ui" style="display:none;">
+        <span id="nav-time"></span>
+        <span id="nav-eta"></span>
+        <span id="pilot-rank"></span>
+        <span id="token-balance">0</span>
+        <div id="grid-status"></div>
+        <div id="compass-needle"></div>
+        <div id="compass-dir"></div>
+        <div id="chronos-countdown"></div>
+        <div id="pilot-level-tag"></div>
+        <button id="btn-stop-nav"></button>
+        <button id="btn-reroute"></button>
+        <span id="label-stop-nav"></span>
+        <span id="label-reroute"></span>
+        <div id="control-row"></div>
+        <button id="btn-aegis-diag"></button>
+        <button id="btn-hazard-quick"></button>
+        <button id="btn-radar-quick"></button>
+        <button id="btn-settings-quick"></button>
     </div>
 
     <!-- Performance Display (Top Right) -->
@@ -502,7 +423,12 @@
                         <option value="cs" ${window.currentLang==='cs'?'selected':''}>🇨🇿 Čeština</option>
                         <option value="hu" ${window.currentLang==='hu'?'selected':''}>🇭🇺 Magyar</option>
                         <option value="ro" ${window.currentLang==='ro'?'selected':''}>🇷🇴 Română</option>
+                        <option value="zh" ${window.currentLang==='zh'?'selected':''}>🇨🇳 中文</option>
+                        <option value="ja" ${window.currentLang==='ja'?'selected':''}>🇯🇵 日本語</option>
                     </select>
+                    <button onclick="speak('start')" class="btn-circular" style="width: 100%; margin-top: 10px; background: var(--accent); color: black; font-size: 0.7rem; height: 30px; border-radius: 5px; border: none; font-weight: bold;">
+                        <i class="fa-solid fa-volume-high"></i> TESTER L'ORACLE
+                    </button>
                 </li>
             </ul>
             
@@ -556,14 +482,17 @@
     </div>
 
     <!-- Social Ticker -->
+    <!-- Version Badge -->
+    <div id="version-badge" style="position: fixed; bottom: 5px; right: 10px; font-family: monospace; font-size: 0.7rem; color: rgba(255,255,255,0.3); z-index: 10000; pointer-events: none;">v50.0.17-MAX-STABLE</div>
+
     <div id="social-ticker" class="hidden">
         <div id="ticker-text" style="font-weight: 500;">Initialisation sécurisée...</div>
     </div>
-    <script src="js/app.js?v=50013"></script>
+    <script src="js/app.js?v=50017"></script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=50013').catch(e => console.error(e));
+                navigator.serviceWorker.register('./sw.js?v=50017').catch(e => console.error(e));
             });
         }
     </script>
@@ -606,5 +535,181 @@
     </div>
 
     <input type="file" id="abuse-photo-input" accept="image/*" capture="camera" style="display:none;">
+
+    <!-- SECURE VAULT SCREEN -->
+    <div id="secure-vault-screen" class="hidden fullscreen-overlay" style="background:#111; color:#fff; overflow-y:auto; z-index:10000; padding-bottom:80px;">
+        <div style="text-align:center; padding:30px 20px 10px;">
+            <i class="fa-solid fa-lock" style="font-size:3rem; color:#ffd700; filter:drop-shadow(0 0 10px #ffd700); margin-bottom:10px;"></i>
+            <h1 style="color:#ffd700; margin:0; font-size:1.8rem; letter-spacing:1px;">SECURE VAULT</h1>
+            <p style="color:#aaa; font-size:0.9rem; margin-top:5px;">Premium Digital Storage</p>
+        </div>
+
+        <div style="margin:20px; border:1px solid #444; border-radius:15px; padding:20px; background:#1a1a1a;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <div style="display:flex; gap:15px;">
+                    <img src="https://ui-avatars.com/api/?name=Alex+V&background=ffd700&color=000" style="width:50px; height:50px; border-radius:50%; border:2px solid #ffd700;" alt="Avatar">
+                    <div>
+                        <div style="font-size:0.7rem; color:#888;">RIDER:</div>
+                        <div style="font-size:1.2rem; font-weight:bold;">Alex V.</div>
+                        <div style="font-size:0.8rem; color:#ffd700;">Rank: Elite Vault Keeper</div>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.8rem; color:#888; margin-bottom:5px;">STATS</div>
+                    <div style="font-size:0.7rem;">Assets Secured: <span style="float:right; margin-left:10px; color:#fff; font-weight:bold;">28</span></div>
+                    <div style="font-size:0.7rem;">Documents Verified: <span style="float:right; margin-left:10px; color:#fff; font-weight:bold;">19</span></div>
+                    <div style="font-size:0.7rem;">Rides Tracked: <span style="float:right; margin-left:10px; color:#fff; font-weight:bold;">742 km</span></div>
+                    <div style="margin-top:10px; font-size:0.8rem; color:#888;">Security Score: <span style="color:#ffd700; font-weight:bold; font-size:1.1rem; border:2px solid #ffd700; padding:3px 8px; border-radius:20px; margin-left:5px;">98%</span></div>
+                </div>
+            </div>
+            <div style="border-top:1px solid #333; padding-top:15px;">
+                <div style="font-size:0.8rem; color:#888; margin-bottom:10px;">Rider Badges</div>
+                <div style="display:flex; gap:10px; overflow-x:auto;">
+                    <div style="text-align:center;"><div style="width:40px;height:40px;border-radius:50%;background:#333;color:#ffd700;display:flex;align-items:center;justify-content:center;margin:0 auto 5px;border:1px solid #ffd700;"><i class="fa-solid fa-bicycle"></i></div><div style="font-size:0.6rem;">Master<br>Cyclist</div></div>
+                    <div style="text-align:center;"><div style="width:40px;height:40px;border-radius:50%;background:#333;color:#ffd700;display:flex;align-items:center;justify-content:center;margin:0 auto 5px;border:1px solid #ffd700;"><i class="fa-solid fa-file-contract"></i></div><div style="font-size:0.6rem;">Document<br>Pro</div></div>
+                    <div style="text-align:center;"><div style="width:40px;height:40px;border-radius:50%;background:#333;color:#ffd700;display:flex;align-items:center;justify-content:center;margin:0 auto 5px;border:1px solid #ffd700;"><i class="fa-solid fa-motorcycle"></i></div><div style="font-size:0.6rem;">Swift<br>Rider</div></div>
+                    <div style="text-align:center;"><div style="width:40px;height:40px;border-radius:50%;background:#333;color:#ffd700;display:flex;align-items:center;justify-content:center;margin:0 auto 5px;border:1px solid #ffd700;"><i class="fa-solid fa-shield-cat"></i></div><div style="font-size:0.6rem;">Legacy<br>Keeper</div></div>
+                </div>
+            </div>
+        </div>
+
+        <h2 style="margin:20px; font-size:1.2rem;">Digital Documents</h2>
+        <div style="padding:0 20px; display:flex; flex-direction:column; gap:15px;">
+            <div class="doc-card" style="border:1px solid #ffd700; border-radius:15px; padding:15px; display:flex; align-items:center; gap:15px; background:rgba(255,215,0,0.05);">
+                <div style="width:50px; height:50px; border-radius:10px; border:1px solid #ffd700; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#ffd700;"><i class="fa-solid fa-file-invoice"></i></div>
+                <div style="flex:1;">
+                    <div style="font-weight:bold; font-size:1rem;">Insurance Policy</div>
+                    <div style="font-size:0.75rem; color:#aaa;">Car/Health<br>Expires: 12/24/2025</div>
+                    <div style="font-size:0.6rem; color:#666; margin-top:5px;">1 hours ago • 9.3 MB</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:0.6rem; font-weight:bold; color:#ffd700; border:1px solid #ffd700; padding:2px 5px; border-radius:10px; margin-bottom:10px; letter-spacing:1px;">VERIFIED</div>
+                    <button style="background:transparent; border:1px solid #ffd700; color:#ffd700; border-radius:15px; padding:5px 15px; font-size:0.8rem;">View</button>
+                </div>
+            </div>
+            <div class="doc-card" style="border:1px solid #ffd700; border-radius:15px; padding:15px; display:flex; align-items:center; gap:15px; background:rgba(255,215,0,0.05);">
+                <div style="width:50px; height:50px; border-radius:10px; border:1px solid #ffd700; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#ffd700;"><i class="fa-solid fa-house"></i></div>
+                <div style="flex:1;">
+                    <div style="font-weight:bold; font-size:1rem;">Property Title Deed</div>
+                    <div style="font-size:0.75rem; color:#aaa;">Home<br>Registered: 05/18/2023</div>
+                    <div style="font-size:0.6rem; color:#666; margin-top:5px;">1 hours ago • 3.3 MB</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:0.6rem; font-weight:bold; color:#ffd700; border:1px solid #ffd700; padding:2px 5px; border-radius:10px; margin-bottom:10px; letter-spacing:1px;">VERIFIED</div>
+                    <button style="background:transparent; border:1px solid #ffd700; color:#ffd700; border-radius:15px; padding:5px 15px; font-size:0.8rem;">View</button>
+                </div>
+            </div>
+            <div class="doc-card" style="border:1px solid #ffd700; border-radius:15px; padding:15px; display:flex; align-items:center; gap:15px; background:rgba(255,215,0,0.05);">
+                <div style="width:50px; height:50px; border-radius:10px; border:1px solid #ffd700; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#ffd700;"><i class="fa-solid fa-id-card"></i></div>
+                <div style="flex:1;">
+                    <div style="font-weight:bold; font-size:1rem;">Rider License</div>
+                    <div style="font-size:0.75rem; color:#aaa;">Profile<br>Valid Thru: 01/10/2028</div>
+                    <div style="font-size:0.6rem; color:#666; margin-top:5px;">1 hours ago • 2.3 MB</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:0.6rem; font-weight:bold; color:#ffd700; border:1px solid #ffd700; padding:2px 5px; border-radius:10px; margin-bottom:10px; letter-spacing:1px;">VERIFIED</div>
+                    <button style="background:transparent; border:1px solid #ffd700; color:#ffd700; border-radius:15px; padding:5px 15px; font-size:0.8rem;">View</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vault Bottom Nav -->
+        <div style="position:fixed; bottom:0; left:0; width:100%; display:flex; justify-content:space-around; padding:15px 0 25px; background:#111; border-top:1px solid #333;">
+            <div style="text-align:center; color:#666;"><i class="fa-solid fa-house" style="font-size:1.2rem; margin-bottom:5px; display:block;"></i><span style="font-size:0.7rem;">Home</span></div>
+            <div style="text-align:center; color:#ffd700;"><i class="fa-solid fa-file-lines" style="font-size:1.2rem; margin-bottom:5px; display:block;"></i><span style="font-size:0.7rem;">Documents</span></div>
+            <div style="text-align:center; color:#666;"><i class="fa-solid fa-clock-rotate-left" style="font-size:1.2rem; margin-bottom:5px; display:block;"></i><span style="font-size:0.7rem;">Activities</span></div>
+            <div style="text-align:center; color:#666;"><i class="fa-solid fa-award" style="font-size:1.2rem; margin-bottom:5px; display:block;"></i><span style="font-size:0.7rem;">Badges</span></div>
+            <div style="text-align:center; color:#666;"><i class="fa-regular fa-user" style="font-size:1.2rem; margin-bottom:5px; display:block;"></i><span style="font-size:0.7rem;">Profile</span></div>
+        </div>
+        <button onclick="document.getElementById('secure-vault-screen').classList.add('hidden')" style="position:fixed; top:20px; left:20px; background:rgba(0,0,0,0.5); border:1px solid #ffd700; color:#ffd700; width:40px; height:40px; border-radius:50%; z-index:10001;"><i class="fa-solid fa-arrow-left"></i></button>
+    </div>
+
+    <!-- COMMUNITY RADAR SCREEN -->
+    <div id="community-radar-screen" class="hidden fullscreen-overlay" style="background:#0a131c; color:#fff; overflow:hidden; z-index:10000;">
+        <div style="position:absolute; top:calc(env(safe-area-inset-top, 0px) + 20px); left:20px; right:20px; z-index:10;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:35px; height:35px; border-radius:50%; border:2px solid #00d2ff; display:flex; justify-content:center; align-items:center;"><i class="fa-solid fa-radar" style="color:#00d2ff;"></i></div>
+                    <h1 style="margin:0; font-size:1.2rem; font-weight:900; letter-spacing:1px; text-transform:uppercase;">Community <span style="color:#00d2ff;">Radar</span></h1>
+                </div>
+                <button style="background:transparent; border:1px solid #444; color:#fff; width:35px; height:35px; border-radius:8px;"><i class="fa-solid fa-sliders"></i></button>
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:10px;">
+                <div style="flex:1; color:#888; font-size:0.8rem; text-align:center;"><i class="fa-solid fa-magnifying-glass"></i> Search</div>
+                <div style="flex:1; color:#888; font-size:0.8rem; text-align:center; border-left:1px solid #333; border-right:1px solid #333;"><i class="fa-solid fa-filter"></i> Filters</div>
+                <div style="flex:1; color:#888; font-size:0.8rem; text-align:center;"><i class="fa-solid fa-layer-group"></i> Map Layers</div>
+            </div>
+            <div style="color:#aaa; font-size:0.8rem; margin-bottom:10px;">San Francisco; 7:38 PM</div>
+            
+            <div style="display:flex; flex-direction:column; gap:5px; align-items:flex-end;">
+                <div style="background:rgba(200,30,30,0.8); backdrop-filter:blur(10px); padding:8px 12px; border-radius:10px; border:1px solid #ff4444; display:flex; align-items:center; gap:10px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:#fff;"></i>
+                    <div>
+                        <div style="font-size:0.7rem; font-weight:bold; color:#fff;">ALERT:</div>
+                        <div style="font-size:0.6rem; color:#f0f0f0;">Vehicle fire on US-101 S...</div>
+                    </div>
+                </div>
+                <div style="background:rgba(200,30,30,0.8); backdrop-filter:blur(10px); padding:8px 12px; border-radius:10px; border:1px solid #ff4444; display:flex; align-items:center; gap:10px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:#fff;"></i>
+                    <div>
+                        <div style="font-size:0.7rem; font-weight:bold; color:#fff;">ALERT:</div>
+                        <div style="font-size:0.6rem; color:#f0f0f0;">Major delay on I-80 W...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2000&auto=format&fit=crop') center center; background-size:cover; opacity:0.3; filter:grayscale(100%) sepia(100%) hue-rotate(180deg) saturate(300%) brightness(0.5); z-index:1;"></div>
+
+        <div style="position:absolute; top:40%; left:30%; z-index:2; display:flex; flex-direction:column; align-items:center;">
+            <div style="background:rgba(20,20,20,0.9); border:1px solid #ff4444; padding:8px 12px; border-radius:8px; margin-bottom:5px;">
+                <div style="font-size:0.7rem; font-weight:bold;">MAJOR ACCIDENT - I-80 W</div>
+                <div style="font-size:0.6rem; color:#aaa;">2.1 km<br>14 mins ago</div>
+            </div>
+            <div style="width:30px; height:30px; background:rgba(255,0,0,0.2); border:2px solid #ff4444; border-radius:50%; display:flex; justify-content:center; align-items:center; box-shadow:0 0 20px #ff0000; animation:pulse-red 2s infinite;"><i class="fa-solid fa-car-burst"></i></div>
+        </div>
+
+        <div style="position:absolute; top:60%; left:60%; z-index:2; display:flex; flex-direction:column; align-items:center;">
+            <div style="background:rgba(20,20,20,0.9); border:1px solid #ffb703; padding:8px 12px; border-radius:8px; margin-bottom:5px;">
+                <div style="font-size:0.7rem; font-weight:bold;">CONSTRUCTION ZONE</div>
+                <div style="font-size:0.6rem; color:#aaa;">Market St<br>1.8 km</div>
+            </div>
+            <div style="width:30px; height:30px; background:rgba(255,183,3,0.2); border:2px solid #ffb703; border-radius:50%; display:flex; justify-content:center; align-items:center; box-shadow:0 0 20px #ffb703;"><i class="fa-solid fa-person-digging"></i></div>
+        </div>
+
+        <!-- ORACLE VOICE ASSISTANT -->
+        <div style="position:absolute; bottom:90px; left:0; width:100%; z-index:5; display:flex; flex-direction:column; align-items:center;">
+            <div style="width:100%; height:100px; display:flex; justify-content:center; align-items:center; position:relative; overflow:hidden;">
+                <div style="width:150%; height:2px; background:linear-gradient(90deg, transparent, #00d2ff, #b700ff, #00d2ff, transparent); box-shadow:0 0 20px #00d2ff, 0 0 40px #b700ff; animation:wave-pulse 1.5s infinite;"></div>
+                <div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; gap:3px;">
+                    <div style="width:3px; height:20px; background:#00d2ff; border-radius:3px; animation:sound-bar 1s infinite alternate;"></div>
+                    <div style="width:3px; height:40px; background:#00d2ff; border-radius:3px; animation:sound-bar 0.8s infinite alternate 0.1s;"></div>
+                    <div style="width:3px; height:70px; background:#b700ff; border-radius:3px; animation:sound-bar 1.2s infinite alternate 0.2s;"></div>
+                    <div style="width:3px; height:50px; background:#00d2ff; border-radius:3px; animation:sound-bar 0.9s infinite alternate 0.3s;"></div>
+                    <div style="width:3px; height:25px; background:#00d2ff; border-radius:3px; animation:sound-bar 1.1s infinite alternate 0.4s;"></div>
+                </div>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; width:90%; margin-top:10px;">
+                <button style="width:50px; height:50px; border-radius:50%; background:rgba(0,0,0,0.5); border:1px solid #00d2ff; color:#00d2ff; font-size:1.2rem;"><i class="fa-solid fa-microphone"></i></button>
+                <div style="text-align:center;">
+                    <h2 style="margin:0; color:#00d2ff; font-size:1.5rem; letter-spacing:2px; text-shadow:0 0 10px #00d2ff;">ORACLE</h2>
+                    <div style="font-size:0.9rem; font-weight:bold; color:#00d2ff; letter-spacing:1px;">VOICE ASSISTANT</div>
+                    <div style="font-size:0.7rem; color:#aaa; margin-top:5px; letter-spacing:2px;">SPEAKING...</div>
+                </div>
+                <button style="width:50px; height:50px; border-radius:50%; background:transparent; border:1px solid #444; color:#aaa; font-size:1.2rem;"><i class="fa-solid fa-gear"></i></button>
+            </div>
+        </div>
+
+        <div style="position:absolute; bottom:0; left:0; width:100%; display:flex; justify-content:space-around; padding:15px 0 25px; background:rgba(10,15,20,0.95); border-top:1px solid #333; z-index:10;">
+            <div style="text-align:center; color:#00d2ff; border-bottom:2px solid #00d2ff; padding-bottom:5px;"><i class="fa-solid fa-map" style="font-size:1.2rem; margin-bottom:5px; display:block;"></i><span style="font-size:0.7rem;">Map</span></div>
+            <div style="text-align:center; color:#666;"><i class="fa-solid fa-triangle-exclamation" style="font-size:1.2rem; margin-bottom:5px; display:block;"></i><span style="font-size:0.7rem;">Alerts</span></div>
+            <div style="text-align:center; color:#666;"><i class="fa-regular fa-pen-to-square" style="font-size:1.2rem; margin-bottom:5px; display:block;"></i><span style="font-size:0.7rem;">Post Report</span></div>
+            <div style="text-align:center; color:#666;"><i class="fa-solid fa-users" style="font-size:1.2rem; margin-bottom:5px; display:block;"></i><span style="font-size:0.7rem;">Community</span></div>
+            <div style="text-align:center; color:#666;"><i class="fa-regular fa-user" style="font-size:1.2rem; margin-bottom:5px; display:block;"></i><span style="font-size:0.7rem;">Profile</span></div>
+        </div>
+        
+        <button onclick="document.getElementById('community-radar-screen').classList.add('hidden')" style="position:fixed; top:20px; left:20px; background:rgba(0,0,0,0.5); border:1px solid #00d2ff; color:#00d2ff; width:40px; height:40px; border-radius:50%; z-index:10001;"><i class="fa-solid fa-arrow-left"></i></button>
+    </div>
 </body>
 </html>

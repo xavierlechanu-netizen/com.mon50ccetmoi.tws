@@ -19,7 +19,14 @@ class OracleVoice {
         this.recognition = new SpeechRecognition();
         this.recognition.continuous = true;
         this.recognition.interimResults = false;
-        this.recognition.lang = 'fr-FR';
+        
+        // Mapping des langues pour la reconnaissance
+        const langMap = {
+            'fr': 'fr-FR', 'en': 'en-US', 'es': 'es-ES', 'it': 'it-IT',
+            'nl': 'nl-NL', 'pl': 'pl-PL', 'pt': 'pt-PT', 'de': 'de-DE',
+            'zh': 'zh-CN', 'ja': 'ja-JP', 'ro': 'ro-RO'
+        };
+        this.recognition.lang = langMap[window.currentLang] || 'fr-FR';
 
         this.recognition.onresult = (event) => {
             const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
@@ -48,6 +55,26 @@ class OracleVoice {
     stop() {
         this.active = false;
         if (this.recognition) this.recognition.stop();
+    }
+
+    updateLanguage() {
+        const wasActive = this.active;
+        this.stop();
+        
+        const langMap = {
+            'fr': 'fr-FR', 'en': 'en-US', 'es': 'es-ES', 'it': 'it-IT',
+            'nl': 'nl-NL', 'pl': 'pl-PL', 'pt': 'pt-PT', 'de': 'de-DE',
+            'zh': 'zh-CN', 'ja': 'ja-JP', 'ro': 'ro-RO', 'hu': 'hu-HU',
+            'cs': 'cs-CZ', 'el': 'el-GR', 'no': 'no-NO', 'fi': 'fi-FI',
+            'da': 'da-DK', 'sv': 'sv-SE'
+        };
+        
+        if (this.recognition) {
+            this.recognition.lang = langMap[window.currentLang] || 'fr-FR';
+            console.log("Oracle Voice : Langue de reconnaissance mise à jour ->", this.recognition.lang);
+        }
+
+        if (wasActive) this.start();
     }
 
     processCommand(text) {

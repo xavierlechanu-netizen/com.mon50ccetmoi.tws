@@ -69,7 +69,7 @@ window.Hardware = {
 
     // 4. NUANCED HAPTICS
     vibratePattern: function(type) {
-        if (!navigator.vibrate) return;
+        if (!navigator.vibrate || !navigator.userActivation || !navigator.userActivation.hasBeenActive) return;
         
         switch(type) {
             case 'danger': 

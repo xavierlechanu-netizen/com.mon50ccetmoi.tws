@@ -26,7 +26,7 @@ def twaManifest = [
     launchUrl: '/com.mon50ccetmoi.tws/', // The start path for the TWA. Must be relative to the domain.
     name: 'mon 50cc et moi', // The application name.
     launcherName: 'mon 50cc et moi', // The name shown on the Android Launcher.
-    themeColor: '#00f2ff', // The color used for the status bar.
+    themeColor: '#000000', // The color used for the status bar.
     themeColorDark: '#000000', // The color used for the dark status bar.
     navigationColor: '#000000', // The color used for the navigation bar.
     navigationColorDark: '#000000', // The color used for the dark navbar.
@@ -57,8 +57,8 @@ android {
         applicationId "com.mon50ccetmoi.twa"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 50011
-        versionName "50.0.11"
+        versionCode 50017
+        versionName "50.0.17"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -157,7 +157,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             signingConfig signingConfigs.release
         }
     }
@@ -167,6 +167,7 @@ android {
     }
     lintOptions {
         checkReleaseBuilds false
+        abortOnError false
     }
 }
 

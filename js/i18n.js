@@ -313,9 +313,26 @@ const I18N = {
     el: { welcome: "Καλώς ήρθατε στο mon50ccetmoi", loading: "Εκκίνηση συστημάτων...", riding_mode: "Λειτουργία Διαδρομής", garage: "Το Γκαράζ μου", community: "Κοινότητα", safety: "Ασφάλεια", settings: "Ρυθμίσεις", report_danger: "Αναφορά Κινδύνου", police: "Αστυνομία / Έλεγχος", accident: "Ατύχημα", hazard: "Κίνδυνος / Έργα", speed: "ΤΑΧΥΤΗΤΑ", distance: "ΑΠΟΣΤΑΣΗ", altitude: "ΥΨΟΜΕΤΡΟ", weather: "ΚΑΙΡΟΣ", fall_detected: "ΑΝΙΧΝΕΥΤΗΚΕ ΠΤΩΣΗ!", emergency_alert: "Θα σταλεί ειδοποίηση στις επαφές σας.", cancel: "Ακύρωση", save: "Αποθήκευση", logout: "Αποσύνδεση", language: "Γλώσσα", status_riding: "Στο δρόμο", status_paused: "Σε παύση", members_online: "Οδηγοί online", auth_required: "Απαιτείται σύνδεση", guest_mode: "Λειτουργία Επισκέπτη", gas: "Βενζίνη", emergency: "Έκτακτη ανάγκη", bank: "ATM", maintenance: "Συντήρηση", insurance: "Ασφάλεια", share: "Κοινοποίηση", legal: "Νομικά" },
     cs: { welcome: "Vítejte v mon50ccetmoi", loading: "Spouštění systémů...", riding_mode: "Režim jízdy", garage: "Moje Garáž", community: "Komunita", safety: "Bezpečnost", settings: "Nastavení", report_danger: "Nahlásit nebezpečí", police: "Policie / Kontrola", accident: "Nehoda", hazard: "Nebezpečí / Práce", speed: "RYCHLOST", distance: "VZDÁLENOST", altitude: "VÝŠKA", weather: "POČASÍ", fall_detected: "ZJIŠTĚN PÁD!", emergency_alert: "Kontakty budou upozorněny.", cancel: "Zrušit", save: "Uložit", logout: "Odhlásit", language: "Jazyk", status_riding: "Na cestě", status_paused: "Pauza", members_online: "Jezdci online", auth_required: "Nutné přihlášení", guest_mode: "Režim hosta", gas: "Benzín", emergency: "Pohotovost", bank: "Bankomat", maintenance: "Údržba", insurance: "Pojištění", share: "Sdílet", legal: "Právní" },
     hu: { welcome: "Üdvözöljük a mon50ccetmoi-ban", loading: "Rendszerek indítása...", riding_mode: "Vezetési mód", garage: "Garázsom", community: "Közösség", safety: "Biztonság", settings: "Beállítások", report_danger: "Veszély jelzése", police: "Rendőrség / Ellenőrzés", accident: "Baleset", hazard: "Veszély / Munkálatok", speed: "SEBESSÉG", distance: "TÁVOLSÁG", altitude: "MAGASSÁG", weather: "IDŐJÁRÁS", fall_detected: "ESÉST ÉSZLELTÜNK!", emergency_alert: "Riasztást küldünk a kapcsolatainak.", cancel: "Mégse", save: "Mentés", logout: "Kijelentkezés", language: "Nyelv", status_riding: "Úton", status_paused: "Szünet", members_online: "Motorosok online", auth_required: "Bejelentkezés szükséges", guest_mode: "Vendég mód", gas: "Benzin", emergency: "Sürgősségi", bank: "ATM", maintenance: "Karbantartás", insurance: "Biztosítás", share: "Megosztás", legal: "Jogi" },
-    ro: { welcome: "Bine ați venit la mon50ccetmoi", loading: "Sistemele pornesc...", riding_mode: "Mod Conducere", garage: "Garajul Meu", community: "Comunitate", safety: "Siguranță", settings: "Setări", report_danger: "Raportează Pericol", police: "Poliție / Control", accident: "Accident", hazard: "Pericol / Lucrări", speed: "VITEZĂ", distance: "DISTANȚĂ", altitude: "ALTITUDINE", weather: "VREME", fall_detected: "CĂDERE DETECTATĂ!", emergency_alert: "O alertă va fi trimisă contactelor.", cancel: "Anulează", save: "Salvează", logout: "Deconectare", language: "Limbă", status_riding: "La drum", status_paused: "Pauză", members_online: "Piloți online", auth_required: "Autentificare necesară", guest_mode: "Mod Vizitator", gas: "Benzină", emergency: "Urgență", bank: "Bancomat", maintenance: "Mentenanță", insurance: "Asigurare", share: "Partajează", legal: "Legal" }
+    ro: { welcome: "Bine ați venit la mon50ccetmoi", loading: "Sistemele pornesc...", riding_mode: "Mod Conducere", garage: "Garajul Meu", community: "Comunitate", safety: "Siguranță", settings: "Setări", report_danger: "Raportează Pericol", police: "Poliție / Control", accident: "Accident", hazard: "Pericol / Lucrări", speed: "VITEZĂ", distance: "DISTANȚĂ", altitude: "ALTITUDINE", weather: "VREME", fall_detected: "CĂDERE DETECTATĂ!", emergency_alert: "O alertă va fi trimisă contactelor.", cancel: "Anulează", save: "Salvează", logout: "Deconectare", language: "Limbă", status_riding: "La drum", status_paused: "Pauză", members_online: "Piloți online", auth_required: "Autentificare necesară", guest_mode: "Mod Vizitator", gas: "Benzină", emergency: "Urgență", bank: "Bancomat", maintenance: "Mentenanță", insurance: "Asigurare", share: "Partajează", legal: "Legal" },
+    zh: { welcome: "欢迎来到 mon50ccetmoi", loading: "启动车载系统...", riding_mode: "骑行模式", garage: "我的车库", community: "社区", safety: "安全", settings: "设置", report_danger: "报告危险", police: "警察 / 检查站", accident: "事故", hazard: "危险 / 工程", speed: "速度", distance: "距离", altitude: "高度", weather: "天气", fall_detected: "检测到跌倒！", emergency_alert: "警报将发送给您的联系人。", cancel: "取消", save: "保存", logout: "注销", language: "语言", status_riding: "骑行中", status_paused: "已暂停", members_online: "在线骑手", auth_required: "需要登录", guest_mode: "访客模式", gas: "汽油", emergency: "紧急情况", bank: "自动提款机", maintenance: "保养", insurance: "保险", share: "分享", legal: "法律" },
+    ja: { welcome: "mon50ccetmoiへようこそ", loading: "車載システムを起動中...", riding_mode: "ライディングモード", garage: "マイガレージ", community: "コミュニティ", safety: "安全", settings: "設定", report_danger: "危険を報告", police: "警察 / 検問所", accident: "事故", hazard: "危険 / 工事", speed: "速度", distance: "距離", altitude: "高度", weather: "天気", fall_detected: "転倒を検知しました！", emergency_alert: "連絡先にアラートが送信されます。", cancel: "キャンセル", save: "保存", logout: "ログアウト", language: "言語", status_riding: "走行中", status_paused: "一時停止中", members_online: "オンラインライダー", auth_required: "ログインが必要です", guest_mode: "ゲストモード", gas: "ガソリン", emergency: "緊急", bank: "ATM", maintenance: "メンテナンス", insurance: "保険", share: "共有", legal: "法的情報" }
+};
 
 // --- I18N HELPERS ---
+function detectUserLanguage() {
+    const saved = localStorage.getItem('app_lang');
+    if (saved) return saved;
+
+    const browserLang = navigator.language.split('-')[0];
+    const supported = Object.keys(I18N);
+    
+    const finalLang = supported.includes(browserLang) ? browserLang : 'fr';
+    localStorage.setItem('app_lang', finalLang);
+    return finalLang;
+}
+
+window.currentLang = detectUserLanguage();
+
 window.t = function(key) {
     const lang = window.currentLang || 'fr';
     const dict = I18N[lang] || I18N['fr'];
@@ -327,5 +344,8 @@ window.setLanguage = function(lang) {
     window.currentLang = lang;
     localStorage.setItem('app_lang', lang);
     if (typeof window.updateI18N === 'function') window.updateI18N();
+    if (window.OracleVoice && typeof window.OracleVoice.updateLanguage === 'function') {
+        window.OracleVoice.updateLanguage();
+    }
     console.log("mon50cc I18N : Langue changée vers", lang);
 };

@@ -4,7 +4,7 @@
   "name": "mon 50cc et moi",
   "launcherName": "mon 50cc et moi",
   "display": "standalone",
-  "themeColor": "#cca000",
+  "themeColor": "#000000",
   "themeColorDark": "#000000",
   "navigationColor": "#000000",
   "navigationColorDark": "#000000",
@@ -19,8 +19,8 @@
     "path": "./upload-keystore.jks",
     "alias": "upload"
   },
-  "appVersionName": "50.0.11",
-  "appVersionCode": 50011,
+  "appVersionName": "50.0.17",
+  "appVersionCode": 50017,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://xavierlechanu-netizen.github.io/com.mon50ccetmoi.tws/manifest.json",
@@ -40,5 +40,5 @@
   ],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "50.0.11"
+  "appVersion": "50.0.17"
 }
