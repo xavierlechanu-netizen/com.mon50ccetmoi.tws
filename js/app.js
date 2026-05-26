@@ -1,4 +1,4 @@
-﻿// --- CORE NAVIGATION (SAFE ZONE) ---
+// --- CORE NAVIGATION (SAFE ZONE) ---
 window.toggleMenu = function() {
     try {
         const sidebar = document.getElementById('sidebar');

@@ -20,8 +20,8 @@
     "path": "./upload-keystore.jks",
     "alias": "upload"
   },
-  "appVersionName": "60.0.18",
-  "appVersionCode": 60021,
+  "appVersionName": "60.0.23",
+  "appVersionCode": 60023,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://mon50ccetmoi.com/manifest.json",
@@ -37,12 +37,14 @@
   "isMetaQuest": false,
   "minSdkVersion": 21,
   "orientation": "portrait",
-  "fingerprints": [],
+  "fingerprints": [
+    "A7:15:6D:CF:51:56:B1:DF:B8:D3:95:AF:70:F9:2A:42:1D:7C:92:7E:1C:06:E3:16:E0:93:DD:79:42:0D:B3:41"
+  ],
   "serviceAccountJsonFile": "mon50ccetmoi-firebase-adminsdk-fbsvc-248403805b.json",
   "additionalTrustedOrigins": [
     "https://mon50ccetmoi.com"
   ],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "60.0.18"
+  "appVersion": "60.0.23"
 }
