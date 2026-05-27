@@ -43,7 +43,9 @@ async function searchCase() {
             return;
         }
         
-        statusEl.innerHTML = `<span style="color:#333;">Dossier <strong>${codeInput}</strong> trouvé. Pilote : ${data.username || 'N/A'}.<br>Veuillez choisir le niveau d'expertise souhaité :</span>`;
+        const div1 = document.createElement('div'); div1.textContent = codeInput;
+        const div2 = document.createElement('div'); div2.textContent = data.username || 'N/A';
+        statusEl.innerHTML = `<span style="color:#333;">Dossier <strong>${div1.innerHTML}</strong> trouvé. Pilote : ${div2.innerHTML}.<br>Veuillez choisir le niveau d'expertise souhaité :</span>`;
         optionsEl.style.display = 'flex';
         payBtn.style.display = 'block';
         

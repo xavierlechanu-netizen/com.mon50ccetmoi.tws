@@ -14,7 +14,9 @@ window.Certificate = {
         
         const passport = Wallet.getSafetyPassport();
         const scanResult = localStorage.getItem('last_engine_scan') || 'NON EFFECTUÉ';
-        const certId = "CERT-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+        const array = new Uint32Array(1);
+        window.crypto.getRandomValues(array);
+        const certId = "CERT-" + array[0].toString(36).toUpperCase();
 
         const overlay = document.createElement('div');
         overlay.id = "cert-overlay";

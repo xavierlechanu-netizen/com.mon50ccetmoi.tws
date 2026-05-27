@@ -82,7 +82,11 @@ window.Telemetry = {
         if (logEl) {
             const div = document.createElement('div');
             div.className = `log-entry log-${type.toLowerCase()}`;
-            div.innerHTML = `<span class="log-time">[${timestamp}]</span> ${msg}`;
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'log-time';
+            timeSpan.textContent = `[${timestamp}] `;
+            div.appendChild(timeSpan);
+            div.appendChild(document.createTextNode(msg));
             logEl.appendChild(div);
             logEl.scrollTop = logEl.scrollHeight;
         }

@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             legacyNav(leg);
             
             if(leg && leg.steps && leg.steps.length > 0) {
-                const instructionText = leg.steps[0].instructions.replace(/<[^>]*>?/gm, '');
+                const instructionText = leg.steps[0].instructions.replace(/<(?:.|\n)*?>/gm, '');
                 window.checkPredictiveDanger(instructionText);
             }
         };

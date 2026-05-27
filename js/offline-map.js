@@ -309,12 +309,15 @@ window.OfflineMapManager = (function() {
         }
 
         const pct = percent || Math.round((current / total) * 100);
+        const safeZoneName = document.createElement('div');
+        safeZoneName.textContent = zoneName;
+        const escapedZoneName = safeZoneName.innerHTML;
         progressEl.innerHTML = `
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                 <i class="fa-solid fa-download" style="color:var(--neon-blue); animation: pulse 1s infinite;"></i>
                 <div>
                     <div style="font-size:0.75rem; color:var(--neon-blue); letter-spacing:1px;">TÉLÉCHARGEMENT EN COURS</div>
-                    <div style="font-size:0.9rem; font-weight:bold;">${zoneName}</div>
+                    <div style="font-size:0.9rem; font-weight:bold;">${escapedZoneName}</div>
                 </div>
                 <div style="margin-left:auto; font-size:1.2rem; font-weight:900; color:var(--neon-blue);">${pct}%</div>
             </div>
@@ -351,7 +354,10 @@ window.OfflineMapManager = (function() {
             return;
         }
 
-        container.innerHTML = zones.map((z, idx) => `
+        container.innerHTML = zones.map((z, idx) => {
+            const safeZoneName = document.createElement('div');
+            safeZoneName.textContent = z.name;
+            return `
             <div style="
                 background:rgba(0,20,40,0.8);
                 border:1px solid rgba(0,210,255,0.3);
@@ -366,7 +372,7 @@ window.OfflineMapManager = (function() {
                     <i class="fa-solid fa-map" style="color:var(--neon-blue);"></i>
                 </div>
                 <div style="flex:1;min-width:0;">
-                    <div style="font-weight:bold;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${z.name}</div>
+                    <div style="font-weight:bold;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeZoneName.innerHTML}</div>
                     <div style="font-size:0.65rem;color:#666;margin-top:2px;">${z.tiles} tuiles • ~${z.estimatedMb} Mo • ${z.date}</div>
                     <div style="font-size:0.65rem;color:#444;">Rayon: ${z.radiusKm} km</div>
                 </div>
@@ -383,7 +389,7 @@ window.OfflineMapManager = (function() {
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
             </div>
-        `).join('');
+        `}).join('');
     }
 
     // ── Supprimer une zone ───────────────────────────────────────

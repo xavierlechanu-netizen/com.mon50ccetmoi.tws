@@ -156,13 +156,16 @@ window.SecBot = {
         const line = document.createElement('div');
         if (type === "success") {
             line.style.color = "#2ecc71";
-            line.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${text}`;
+            line.innerHTML = `<i class="fa-solid fa-circle-check"></i> `;
+            line.appendChild(document.createTextNode(text));
         } else if (type === "warn") {
             line.style.color = "#ffb703";
-            line.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${text}`;
+            line.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> `;
+            line.appendChild(document.createTextNode(text));
         } else if (type === "error") {
             line.style.color = "#ff4d4d";
-            line.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${text}`;
+            line.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> `;
+            line.appendChild(document.createTextNode(text));
         } else {
             line.style.color = "#7bf5a8";
             line.textContent = `> ${text}`;
