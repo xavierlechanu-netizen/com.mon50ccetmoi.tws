@@ -185,6 +185,39 @@
                 Payer par virement (Revolut) <span id="btn-price">149.99€</span>
             </button>
         </div>
+
+        <!-- EXPERT DASHBOARD (Hidden until paid) -->
+        <div id="expert-dashboard" style="display: none; margin-top: 20px;">
+            <div style="background: #111; color: #00ffcc; padding: 20px; border-radius: 8px; border: 1px solid #0056b3; font-family: monospace;">
+                <h3 style="margin-top: 0; color: #00d2ff;"><i class="fa-solid fa-satellite-dish"></i> TÉLÉMÉTRIE BLACKBOX : <span id="telemetry-id"></span></h3>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <div style="flex: 1; background: #222; padding: 15px; border-radius: 6px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: #aaa;">VITESSE À L'IMPACT</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #ff3333;" id="telemetry-speed">-- km/h</div>
+                    </div>
+                    <div style="flex: 1; background: #222; padding: 15px; border-radius: 6px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: #aaa;">FORCE G (CHOC)</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #ff9900;" id="telemetry-g">-- G</div>
+                    </div>
+                    <div style="flex: 1; background: #222; padding: 15px; border-radius: 6px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: #aaa;">INCLINAISON</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #00ffcc;" id="telemetry-lean">-- °</div>
+                    </div>
+                </div>
+
+                <div style="background: #222; padding: 15px; border-radius: 6px; font-size: 0.9rem; line-height: 1.5;">
+                    <div><i class="fa-solid fa-clock"></i> <strong>Horodatage :</strong> <span id="telemetry-time"></span></div>
+                    <div><i class="fa-solid fa-location-dot"></i> <strong>Coordonnées GPS :</strong> <span id="telemetry-gps"></span></div>
+                    <div><i class="fa-solid fa-shield-halved"></i> <strong>Signature Cryptographique (SHA-256) :</strong></div>
+                    <div style="font-size: 0.7rem; color: #666; word-break: break-all; margin-top: 5px;" id="telemetry-hash"></div>
+                </div>
+
+                <button onclick="window.print()" style="margin-top: 20px; width: 100%; padding: 12px; background: #00d2ff; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    <i class="fa-solid fa-file-pdf"></i> Générer l'Attestation Officielle (PDF)
+                </button>
+            </div>
+        </div>
     </div>
 
     <script src="js/assureur.js"></script>

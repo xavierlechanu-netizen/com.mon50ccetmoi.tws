@@ -93,6 +93,7 @@ async function payReport() {
             onSuccess: () => {
                 statusEl.innerHTML = '<span class="success"><i class="fa-solid fa-circle-check"></i> Paiement confirmé ! Le rapport est déverrouillé pour le client et votre agence.</span>';
                 document.getElementById('report-options').style.display = 'none';
+                showExpertTelemetry(currentCaseId, currentReportType);
             },
             onError: (err) => {
                 statusEl.innerHTML = '<span class="error">Erreur lors du paiement : ' + err + '</span>';
@@ -111,4 +112,31 @@ async function payReport() {
         payBtn.disabled = false;
         payBtn.innerHTML = 'Payer par virement (Revolut) ' + currentPrice.toFixed(2) + '€';
     }
+}
+
+function showExpertTelemetry(caseId, reportType) {
+    const dashboard = document.getElementById('expert-dashboard');
+    if (!dashboard) return;
+    
+    // Génération de fausses données d'accident pour la démo
+    // Dans une version finale, ces données proviendraient de db.collection('litigation_proposals')
+    
+    document.getElementById('telemetry-id').textContent = caseId;
+    document.getElementById('telemetry-speed').textContent = (Math.random() * (60 - 30) + 30).toFixed(1) + ' km/h';
+    document.getElementById('telemetry-g').textContent = (Math.random() * (8 - 3) + 3).toFixed(2) + ' G';
+    document.getElementById('telemetry-lean').textContent = (Math.random() * 90).toFixed(1) + ' °';
+    
+    const now = new Date();
+    document.getElementById('telemetry-time').textContent = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+    document.getElementById('telemetry-gps').textContent = (45.75 + Math.random()*0.1).toFixed(4) + ', ' + (4.85 + Math.random()*0.1).toFixed(4);
+    
+    // Faux hash cryptographique
+    const rawData = caseId + now.toISOString() + "SECRET_KEY";
+    const fakeHash = "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4"; 
+    document.getElementById('telemetry-hash').textContent = fakeHash;
+    
+    dashboard.style.display = 'block';
+    
+    // Faire scroller jusqu'au tableau de bord
+    dashboard.scrollIntoView({ behavior: 'smooth' });
 }
