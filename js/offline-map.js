@@ -90,6 +90,7 @@ window.OfflineMapManager = (function() {
         // Position initiale : Paris ou position GPS actuelle
         const pos = window.currentPosition || { lat: 48.8566, lng: 2.3522 };
 
+        if (typeof L === "undefined") return;
         leafletMap = L.map('leaflet-map', {
             center: [pos.lat, pos.lng],
             zoom: 15,

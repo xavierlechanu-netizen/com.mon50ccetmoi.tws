@@ -354,7 +354,7 @@ window.LitigationAI = {
                 </p>
 
                 <div class="litigation-actions">
-                    <button class="btn-litigation-send" onclick="LitigationAI.confirmAndSend(${JSON.stringify(proposal).replace(/"/g, '&quot;')})">
+                    <button class="btn-litigation-send" onclick='LitigationAI.confirmAndSend(' + JSON.stringify(proposal).replace(/"/g, "&quot;") + ')'>
                         <i class="fa-solid fa-paper-plane"></i>
                         Envoyer à l'assureur
                     </button>
@@ -406,7 +406,7 @@ window.LitigationAI = {
                         <i class="fa-solid fa-triangle-exclamation" style="font-size:3rem; color:#ff4d4d;"></i>
                         <h3>Erreur d'envoi</h3>
                         <p>${result.error || 'Une erreur est survenue.'}</p>
-                        <button class="btn-litigation-start" onclick="LitigationAI.confirmAndSend(${JSON.stringify(proposal).replace(/"/g, '&quot;')})">
+                        <button class="btn-litigation-start" onclick='LitigationAI.confirmAndSend(' + JSON.stringify(proposal).replace(/"/g, "&quot;") + ')'>
                             <i class="fa-solid fa-rotate-right"></i> Réessayer
                         </button>
                         <button class="btn-close-litigation" onclick="document.getElementById('screen-overlay').classList.add('hidden')">

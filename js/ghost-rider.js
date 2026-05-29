@@ -41,6 +41,7 @@ window.GhostRider = {
         if (typeof google === "undefined" || !map) return;
         
         // On récupère tous les signalements récents (3h) pour créer la heatmap
+        if(typeof db === 'undefined') return;
         db.collection("hazards").where("timestamp", ">=", new Date(Date.now() - 10800000))
         .get().then(snap => {
             const points = [];

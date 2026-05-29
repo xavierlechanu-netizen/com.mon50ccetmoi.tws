@@ -66,8 +66,8 @@ window.Habits = {
 
 // Monitoring de début de trajet
 setInterval(() => {
-    if (window.isRiding && !window.Habits.currentRideStart && currentPosition) {
-        window.Habits.currentRideStart = currentPosition;
+    if (window.isRiding && !window.Habits.currentRideStart && window.currentPosition) {
+        window.Habits.currentRideStart = window.currentPosition;
         window.currentRideDuration = 0;
         window.Habits.detectHabit(currentPosition);
     }

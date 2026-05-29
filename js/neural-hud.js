@@ -5,7 +5,7 @@ window.NeuralHUD = {
     threatLevel: 0,
 
     init: function() {
-        this.initInterceptorMode();
+        if(typeof this.initInterceptorMode === 'function') this.initInterceptorMode();
         this.startNeuralLoop();
         this.initOracle();
         this.initMotionSensors();
@@ -246,7 +246,7 @@ window.NeuralHUD = {
         let lastFrameData = null;
 
         setInterval(() => {
-            if (!this.isNightVisionActive || !video.readyState === video.HAVE_ENOUGH_DATA) return;
+            if (!this.isNightVisionActive || video.readyState !== video.HAVE_ENOUGH_DATA) return;
             
             canvas.width = 160; canvas.height = 120; // Low res for perf
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -434,7 +434,7 @@ if (window.NeuralHUD) {
             // Fake nearby users
             const users = Math.floor(Math.random() * 8);
             if (users > 0) {
-                radarEl.innerHTML = `<span><strong style="color:#fff;">\${users}</strong> Pilotes dans le secteur</span>`;
+                radarEl.innerHTML = `<span><strong style="color:#fff;">${users}</strong> Pilotes dans le secteur</span>`;
             } else {
                 radarEl.innerHTML = `<span style="color:#aaa;">Zone dégagée</span>`;
             }
