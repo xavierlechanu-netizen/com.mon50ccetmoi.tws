@@ -5,6 +5,7 @@ window.NeuralHUD = {
     threatLevel: 0,
 
     init: function() {
+        this.initInterceptorMode();
         this.startNeuralLoop();
         this.initOracle();
         this.initMotionSensors();
@@ -394,3 +395,77 @@ window.toggleHolographicMode = function() {
 
 window.NeuralHUD.init();
 
+
+if (window.NeuralHUD) {
+    window.NeuralHUD.initInterceptorMode = function() {
+        this.logToConsole("INTERCEPTOR_MODE: ENGAGED");
+        this.updateWeatherRadar();
+        setInterval(() => this.updateWeatherRadar(), 15000); // Update every 15s
+        
+        // Random glitch events for high speed
+        setInterval(() => {
+            if (window.session && window.session.vMax > 80 && Math.random() > 0.8) {
+                this.triggerGlitchAlert("OVER_SPEED_WARNING");
+            }
+        }, 10000);
+    };
+
+    window.NeuralHUD.updateWeatherRadar = function() {
+        const tempEl = document.getElementById('weather-temp');
+        const windEl = document.getElementById('weather-wind');
+        const radarEl = document.getElementById('radar-users');
+        
+        if (tempEl) {
+            // Fake realistic temp between 12 and 22
+            const temp = Math.floor(Math.random() * 10) + 12;
+            tempEl.textContent = temp + "°C";
+            // Wind speed between 5 and 35 km/h
+            const wind = Math.floor(Math.random() * 30) + 5;
+            windEl.textContent = wind + " km/h";
+            
+            if (wind > 25) {
+                windEl.style.color = "#ffb703"; // Warning high wind
+            } else {
+                windEl.style.color = "#00d2ff"; // Normal
+            }
+        }
+        
+        if (radarEl) {
+            // Fake nearby users
+            const users = Math.floor(Math.random() * 8);
+            if (users > 0) {
+                radarEl.innerHTML = `<span><strong style="color:#fff;">\${users}</strong> Pilotes dans le secteur</span>`;
+            } else {
+                radarEl.innerHTML = `<span style="color:#aaa;">Zone dégagée</span>`;
+            }
+        }
+    };
+
+    window.NeuralHUD.triggerGlitchAlert = function(reason) {
+        this.logToConsole("ALERT: " + reason);
+        const overlay = document.getElementById('glitch-overlay');
+        if (!overlay) return;
+        
+        overlay.style.display = 'block';
+        
+        // Flashing effect
+        let flashes = 0;
+        const flashInterval = setInterval(() => {
+            overlay.style.opacity = flashes % 2 === 0 ? '1' : '0.2';
+            flashes++;
+            if (flashes > 5) {
+                clearInterval(flashInterval);
+                overlay.style.opacity = '0';
+                setTimeout(() => { overlay.style.display = 'none'; }, 200);
+            }
+        }, 80);
+        
+        // Glitch the whole body slightly
+        document.body.style.filter = 'contrast(150%) hue-rotate(90deg) saturate(200%)';
+        setTimeout(() => {
+            document.body.style.filter = 'none';
+        }, 500);
+        
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+    };
+}
