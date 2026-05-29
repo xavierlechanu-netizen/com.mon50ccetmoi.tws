@@ -25,7 +25,7 @@ window.InsurerPortal = {
     },
     
     buyReport: function(type, price, rewardBvc) {
-        if(confirm(`Confirmez-vous l'achat du rapport [${type}] pour ${price}€ HT ?\nLe paiement sera prélevé sur le compte de votre agence.`)) {
+        if(confirm(`Confirmez-vous l'achat du rapport [${type}] pour ${price}€ HT ?\n\n⚠️ CONDITIONS : Les données numériques fournies dans ces rapports sont définitives. Conformément à nos CGV B2B, ces rapports ne sont ni échangeables, ni remboursables.\n\nLe paiement sera prélevé sur le compte de votre agence.`)) {
             
             // Simulation du déverrouillage
             alert(`Paiement de ${price}€ validé.\n\nAccès accordé au rapport complet pour le dossier ${this.currentCode}. Les données vous sont envoyées par email sécurisé.`);
