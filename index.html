@@ -282,6 +282,15 @@
           <i class="fa-solid fa-shield-check" style="font-size: 4rem; color: #10a37f; filter: drop-shadow(0 0 20px #10a37f); margin-bottom: 20px;"></i>
           <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Sécurité & Confidentialité</h1>
           <p style="color: #10a37f; font-weight: bold; margin-top: 5px;">Conformité IMT-2030 (6G), FIPS 203/204 (PQC), IEEE P2733 (Neuro-Privacy), ISO 42001 (AI), ISO 14068-1 (Net-Zero), eIDAS 2.0, NIS2, ETSI EN 303, ISO 9001, 14001, 15408, 22301, 26262, 27001, 27018, 27701, SOC 2 & PCI DSS</p>
+
+      <div style="margin: 20px auto; width: 90%; max-width: 400px; background: rgba(255,0,0,0.2); border: 2px solid #ff0000; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 0 20px rgba(255,0,0,0.5);">
+          <h3 style="color: #ff0000; margin: 0 0 10px 0; font-size: 1.2rem; text-transform:uppercase;"><i class="fa-solid fa-skull"></i> Zone Critique</h3>
+          <p style="color: #ffcccc; font-size: 0.8rem; margin-bottom: 20px;">L'activation du Protocole 0 effacera instantanément et irrémédiablement toutes les clés, itinéraires et portefeuilles (Kill-Switch).</p>
+          <button onclick="if(confirm('DANGER: Confirmer l\'effacement total ?')) { if(window.ZeroTrust) window.ZeroTrust.triggerProtocolZero(); }" style="background: #ff0000; color: #fff; border: none; border-radius: 30px; padding: 15px 30px; font-size: 1.1rem; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);">
+              PROTOCOLE 0 (KILL-SWITCH)
+          </button>
+      </div>
+
       </div>
   
       <div style="margin: 40px auto; width: 90%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(16, 163, 127, 0.3); border-radius: 20px; padding: 40px 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">

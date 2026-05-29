@@ -10,6 +10,30 @@ const ZeroTrust = {
     lastInteractionTime: Date.now(),
     interactionHistory: [],
 
+    
+    triggerProtocolZero: function() {
+        console.warn("💀 [PROTOCOL 0] INITIATED: ERASING ALL LOCAL DATA...");
+        
+        // Supprimer toutes les données localStorage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Simuler un nettoyage du cache de la base de données (IndexedDB)
+        if (window.indexedDB) {
+            indexedDB.databases().then(dbs => {
+                dbs.forEach(db => { indexedDB.deleteDatabase(db.name); });
+            }).catch(() => {});
+        }
+
+        // Effets visuels destructeurs
+        document.body.innerHTML = "<div style='background:black; width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; color:#0f0; font-family:monospace; font-size:20px;'><p>SYSTEM PURGED. REBOOTING...</p></div>";
+        
+        // Redirection forcée
+        setTimeout(() => {
+            window.location.href = "about:blank";
+        }, 3000);
+    },
+
     init() {
         console.log("[ZERO-TRUST] Initializing Continuous Behavioral Biometrics & Extreme Security...");
         this.active = true;
