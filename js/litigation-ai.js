@@ -367,6 +367,21 @@ window.LitigationAI = {
     },
 
     async confirmAndSend(proposal) {
+        if (!window.Web4Economy) {
+            alert("Erreur: Moteur Web4 introuvable.");
+            return;
+        }
+        
+        const price = window.Web4Economy.prices.insurance_report;
+        if (!confirm(`Soumettre ce rapport expert à l'assurance coûte ${price} BVC.\nVoulez-vous continuer ?`)) {
+            return;
+        }
+        
+        if (!window.Web4Economy.spendToken(price, "Portail Expert - Transmission Assureur")) {
+            alert(`Fonds insuffisants ! Vous avez besoin de ${price} BVC. Roulez plus prudemment pour gagner des BVC.`);
+            return;
+        }
+
         const content = document.getElementById('screen-content');
         if (content) {
             content.innerHTML = `
