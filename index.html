@@ -221,6 +221,12 @@
     <div id="apple-smart-dock" style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; gap: 20px; padding: 15px 25px; border-radius: 40px; background: rgba(25, 25, 35, 0.4); backdrop-filter: blur(25px) saturate(200%); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2);">
         
         
+        
+        <!-- Avocat de Poche -->
+        <button id="dock-btn-lawyer" onclick="if(window.PocketLawyer) window.PocketLawyer.toggleLawyer()" style="background: none; border: none; color: #cca300; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-scale-balanced" style="filter: drop-shadow(0 0 5px #cca300);"></i>
+        </button>
+
         <!-- AR Vision -->
         <button id="dock-btn-ar" onclick="window.toggleARVision()" style="background: none; border: none; color: #00ffcc; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
             <i class="fa-solid fa-vr-cardboard" style="filter: drop-shadow(0 0 5px #00ffcc);"></i>
@@ -424,4 +430,5 @@
 <!-- GLITCH ALERT OVERLAY -->
 <div id="glitch-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:35000; pointer-events:none; background:radial-gradient(circle, transparent 20%, rgba(255,0,0,0.5) 100%); mix-blend-mode:difference; opacity:0; transition:opacity 0.05s; display:none;"></div>
 
+    <script src="js/pocket-lawyer.js"></script>
 </body>
