@@ -372,15 +372,13 @@ window.LitigationAI = {
             return;
         }
         
-        const price = window.Web4Economy.prices.insurance_report;
-        if (!confirm(`Soumettre ce rapport expert à l'assurance coûte ${price} BVC.\nVoulez-vous continuer ?`)) {
+        const reward = window.Web4Economy.prices.insurance_report; // 10 BVC
+        if (!confirm(`Soumettre ce rapport certifié fait gagner du temps à l'assureur.\nL'assureur vous versera une prime de +${reward} BVC pour ce rapport. Confirmer l'envoi ?`)) {
             return;
         }
         
-        if (!window.Web4Economy.spendToken(price, "Portail Expert - Transmission Assureur")) {
-            alert(`Fonds insuffisants ! Vous avez besoin de ${price} BVC. Roulez plus prudemment pour gagner des BVC.`);
-            return;
-        }
+        // C'est l'assureur qui paie le motard !
+        window.Web4Economy.mineToken(reward, "Prime Assureur - Rapport Certifié Transmis");
 
         const content = document.getElementById('screen-content');
         if (content) {
