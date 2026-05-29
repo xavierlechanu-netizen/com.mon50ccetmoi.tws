@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fr-FR" dir="ltr">
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://kit.fontawesome.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://ka-f.fontawesome.com https://unpkg.com; img-src 'self' data: https://unpkg.com; font-src 'self' https://ka-f.fontawesome.com; connect-src 'self' https://ka-f.fontawesome.com wss://*;">
+    <!-- WATCHDOG ANTI-CRASH -->
+    <script src="js/infallible.js"></script>
+    <script>
+        // SÃ©curitÃ© immÃ©diate : Redirection si banni dÃ©finitivement
+        try {
+            const rawSession = localStorage.getItem('session');
+            if (rawSession) {
+                // Si c'est du JSON en clair (ancien format)
+                if (rawSession.startsWith('{')) {
+                    const session = JSON.parse(rawSession);
+                    if (session.isPermanentlyBanned) window.location.href = 'banned.html';
+                } 
+                // Si c'est chiffrÃ©, le checkAuth s'en occupera aprÃ¨s le chargement d'auth.js
+            }
+        } catch(e) {
+        try {
+            window.session = (typeof checkAuth === "function") ? checkAuth(false) : { username: "Pilote", isGuest: true };
+        } catch(e) {
+            console.warn("Auth initialization failed, using guest mode.");
+            window.session = { username: "Pilote", isGuest: true };
+        }
+    </script>
+    <!-- Premium CSS -->
+    <link rel="stylesheet" href="css/premium.css">
+</head>
+<body style="margin:0; padding:0; background:#000; overflow:hidden;">
+    <!-- APEX SENTINEL: Holographic Quantum Background -->
+    <canvas id="quantum-bg" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1;pointer-events:none;opacity:0.6;"></canvas>
+
+    <div id="map" style="width: 100vw; height: 100vh; z-index: 10;"></div>
+    <div id="guardian-halo" class="guardian-halo hidden"></div>
+    <!-- Weather Overlay -->
+        <div style="margin: 20px 25px; border: 1px solid rgba(255, 215, 0, 0.2); border-radius: 20px; padding: 25px; background: rgba(5, 10, 20, 0.6); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <div style="display:flex; gap:15px; align-items: center;">
+ console.warn("Session check delayed..."); }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="lVQWTEJtveSbj_Vl3jvAlN1KKGH7-PJQf744AsBAjNQ" />
+    <!-- SÃ©curitÃ© Maximale : Content Security Policy (OptimisÃ©e pour Google Maps & Firebase) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'report-sample' https://maps.googleapis.com https://www.gstatic.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://accounts.google.com https://unpkg.com https://merchant.revolut.com; style-src 'self' 'unsafe-inline' 'report-sample' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://unpkg.com; img-src 'self' data: blob: https://maps.gstatic.com https://maps.googleapis.com https://*.googleapis.com https://*.gstatic.com https://ui-avatars.com https://images.unsplash.com https://lh3.googleusercontent.com https://*.tile.openstreetmap.org https://*.tile.opentopomap.org https://assets.revolut.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://unpkg.com; connect-src 'self' https://maps.googleapis.com https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com https://api.ipify.org https://www.gstatic.com https://accounts.google.com https://*.tile.openstreetmap.org https://nominatim.openstreetmap.org https://router.project-osrm.org https://unpkg.com https://*.revolut.com https://merchant.revolut.com; frame-src https://*.revolut.com https://merchant.revolut.com;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="mon 50cc et moi">
+    
+    <!-- Android Retrocompatibility & PWA -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+    
+    <!-- SEO & Social Sharing (Open Graph) -->
+    <meta name="description" content="La premiÃ¨re communautÃ© de scooters 50cc. Navigation sans autoroute, alertes radars et dÃ©tection de chute.">
+    <meta property="og:title" content="mon 50cc et moi | GPS & SÃ©curitÃ© Scooter">
+    <meta property="og:description" content="L'application indispensable pour rouler en 50cc en toute sÃ©curitÃ©.">
+    <meta property="og:image" content="https://mon50ccetmoi.com/assets/ui/screenshot_wide.jpg">
+    <meta property="og:url" content="https://mon50ccetmoi.com/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="manifest" href="manifest.json" />
+    <title>mon 50cc et moi | v60.0.0</title>
+    <!-- <script src="js/secrets.js"></script> RemplacÃ© par config.js intÃ©grÃ© -->
+    <script src="js/config.js?v=60019"></script>
+    <script src="js/oracle-voice.js?v=60019"></script>
+    <!-- Chargeur Dynamique Google Maps avec Gestion d'Erreur -->
+    <script>
+        window.mapsSDKLoaded = false;
+        
+        window.initMap = function() {
+            console.log("mon50cc Maps : SDK ChargÃ© avec succÃ¨s.");
+            window.mapsSDKLoaded = true;
+            if (typeof window.initMapController === "function") {
+                window.initMapController();
+            }
+        };
+
+        function loadMapsSDK() {
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const selectedKey = (typeof CONFIG !== 'undefined' && CONFIG.MAPS) ? (isAndroid ? CONFIG.MAPS.ANDROID : CONFIG.MAPS.PC) : "";
+            
+            if (!selectedKey) {
+                console.error("mon50cc Loader : ClÃ© API Maps manquante !");
+                forceStartApp("ERREUR_CONFIG_API");
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${selectedKey}&libraries=geometry,places,marker&v=beta&callback=initMap&loading=async`;
+            script.async = true;
+            script.defer = true;
+            script.onerror = function() {
+                console.error("mon50cc Loader : Ã‰chec critique du chargement Maps SDK.");
+                forceStartApp("Ã‰CHEC_RÃ‰SEAU_SDK");
+            };
+            document.head.appendChild(script);
+        }
+
+        function forceStartApp(reason) {
+            console.warn("mon50cc : DÃ©marrage forcÃ© (" + reason + ")");
+            const statusEl = document.getElementById('loader-status');
+            if(statusEl) statusEl.textContent = "Lancement (Mode DÃ©gradÃ©)...";
+            
+            // On s'assure que checkAuth est dÃ©fini (fail-safe)
+            if (typeof window.checkAuth !== "function") {
+                window.checkAuth = () => { return { username: "Pilote", isGuest: true }; };
+            }
+
+            setTimeout(() => {
+                if (typeof window.startApp === "function") window.startApp();
+            }, 500);
+        }
+
+        // --- CORE NAVIGATION (ULTIMATE BYPASS) ---
+        window.toggleMenu = function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (sidebar) {
+                sidebar.classList.toggle('active');
+                if (overlay) overlay.classList.toggle('active');
+                console.log("mon50cc : Menu Toggle (Bypass Mode)");
+            }
+        };
+
+        // --- CACHE PURGE FORCE ---
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for(let registration of registrations) {
+                    if (window.location.search.includes('purge=true')) {
+                        registration.unregister();
+                        console.log("mon50cc : Service Worker Unregistered (Purge Mode)");
+                    }
+                }
+            });
+        }
+
+        // On lance le chargement dÃ¨s que config.js est lÃ 
+        window.addEventListener('load', () => {
+            loadMapsSDK();
+            // Fail-safe global rÃ©duit Ã  4s pour une meilleure UX
+            setTimeout(() => {
+                if (!window.mapsSDKLoaded) forceStartApp("TIMEOUT_SDK");
+            }, 4000);
+
+            // ULTIMATE FAIL-SAFE: Masquer le loader quoi qu'il arrive aprÃ¨s 7s
+            setTimeout(() => {
+                const loader = document.getElementById('app-loader');
+                if (loader && loader.style.visibility !== 'hidden') {
+                    console.warn("mon50cc : Force-Hiding Loader (Ultimate Fail-safe)");
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.visibility = 'hidden', 800);
+                }
+            }, 7000);
+        });
+    </script>
+
+    <!-- UI/UX Dependencies -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer">
+    <!-- Leaflet CSS (Cartes Hors Ligne) -->
+    <link id="leaflet-css" rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css?v=60.0">
+    <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
+    <!-- Firebase SDK (v9 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Revolut Merchant SDK -->
+    <script src="https://merchant.revolut.com/embed.js" async></script>
+    <script src="js/vehicle-config.js"></script>
+    <script src="js/beyond-maps.js"></script>
+    <script src="js/social-map.js"></script>
+    <script src="js/self-evolution.js"></script>
+
+    <!-- SOCIAL RADAR BUTTON -->
+    
+
+    <!-- FUN MODE / SENSATION BUTTON -->
+    
+
+    <script src="js/i18n.js?v=60019"></script>
+    <script src="js/auth.js?v=60019"></script>
+    <script src="js/database.js?v=60019"></script>
+    <script src="js/moderation.js?v=60019"></script>
+    <script src="js/moderation-bot.js?v=60019"></script>
+    <script src="js/sentinel-v2.js?v=60019"></script>
+    <script src="js/arbitre-bot.js?v=60019"></script>
+    <script src="js/guardian-angel.js?v=60019"></script>
+    <script src="js/blackbox.js?v=60019"></script>
+    <script src="js/ghost-rider-v2.js?v=60019"></script>
+    <script src="js/hardware.js?v=60019"></script>
+    <script src="js/habits.js?v=60019"></script>
+    <script src="js/insurance-portal.js?v=60020"></script>
+    <script src="js/litigation-ai.js?v=60020"></script>
+    <script src="js/engine-pulse.js?v=60019"></script>
+    <script src="js/neural-hud.js?v=60019"></script>
+    <script src="js/intercom.js?v=60019"></script>
+    <script src="js/neural-sync.js?v=60019"></script>
+    <script src="js/wallet.js?v=60019"></script>
+    <script src="js/certificate.js?v=60019"></script>
+    <script src="js/predictive-meca.js?v=60019"></script>
+    <script src="js/meca-wizard.js?v=60019"></script>
+    <script src="js/anti-theft.js?v=60019"></script>
+    <script src="js/chronos.js?v=60019"></script>
+    <script src="js/telemetry.js?v=60027"></script>
+    <script>
+        try {
+            window.session = (typeof checkAuth === "function") ? checkAuth(false) : { username: "Pilote", isGuest: true };
+        } catch(e) {}
+    </script>
+    
+    <!-- APPLE SMART DOCK -->
+    <div id="apple-smart-dock" style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; gap: 20px; padding: 15px 25px; border-radius: 40px; background: rgba(25, 25, 35, 0.4); backdrop-filter: blur(25px) saturate(200%); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2);">
+        
+        
+        
+        <!-- Avocat de Poche -->
+        <button id="dock-btn-lawyer" onclick="if(window.PocketLawyer) window.PocketLawyer.toggleLawyer()" style="background: none; border: none; color: #cca300; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-scale-balanced" style="filter: drop-shadow(0 0 5px #cca300);"></i>
+        </button>
+
+        <!-- AR Vision -->
+        <button id="dock-btn-ar" onclick="window.toggleARVision()" style="background: none; border: none; color: #00ffcc; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-vr-cardboard" style="filter: drop-shadow(0 0 5px #00ffcc);"></i>
+        </button>
+
+
+        <!-- Crypto Wallet -->
+        <button id="dock-btn-wallet" onclick="window.showCryptoWallet()" style="background: none; border: none; color: #b700ff; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-brands fa-ethereum" style="filter: drop-shadow(0 0 5px #b700ff);"></i>
+        </button>
+
+        <!-- Radar Social -->
+        <button id="dock-btn-radar" onclick="window.toggleSocialRadar()" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-users-viewfinder" style="filter: drop-shadow(0 0 5px #00d2ff);"></i>
+        </button>
+
+        <!-- Sensation Mode -->
+        <button id="dock-btn-sensation" onclick="window.toggleSensationMode()" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-route" style="filter: drop-shadow(0 0 5px #b700ff);"></i>
+        </button>
+
+        <!-- Neural AI Evolution -->
+        <button id="dock-btn-brain" onclick="window.startEvolutionProtocol()" style="background: none; border: none; color: #fff; font-size: 1.8rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 0 10px;">
+            <i class="fa-solid fa-brain" style="color: #0f0; filter: drop-shadow(0 0 10px #0f0);"></i>
+        </button>
+
+        <!-- Vehicle Profile -->
+        <button id="dock-btn-moto" onclick="document.getElementById('vehicle-config-screen').classList.remove('hidden')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-motorcycle" style="filter: drop-shadow(0 0 5px #aaa);"></i>
+        </button>
+
+        <!-- Hall of Fame / Trophy -->
+        <button id="dock-btn-trophy" onclick="window.showLeaderboard()" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-trophy" style="filter: drop-shadow(0 0 5px #ffb703);"></i>
+        </button>
+  
+        <!-- NIS2 Security Settings -->
+        <button id="dock-btn-security" onclick="document.getElementById('security-settings-screen').classList.remove('hidden')" style="background: none; border: none; color: #10a37f; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-shield-halved" style="filter: drop-shadow(0 0 5px #10a37f);"></i>
+        </button>
+
+    </div>
+
+    <!-- Style for Hover Effects -->
+    <style>
+        #apple-smart-dock button:hover {
+            transform: scale(1.3) translateY(-10px);
+        }
+        #apple-smart-dock button:active {
+            transform: scale(0.9);
+        }
+    </style>
+
+  <!-- NIS2 SECURITY SETTINGS SCREEN -->
+  <div id="security-settings-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #051410 0%, #000 100%); color: #fff; z-index: 35000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
+      <button onclick="document.getElementById('security-settings-screen').classList.add('hidden')" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #10a37f; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div style="margin-top: 50px; text-align: center;">
+          <i class="fa-solid fa-shield-check" style="font-size: 4rem; color: #10a37f; filter: drop-shadow(0 0 20px #10a37f); margin-bottom: 20px;"></i>
+          <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Sécurité & Confidentialité</h1>
+          <p style="color: #10a37f; font-weight: bold; margin-top: 5px;">Conformité IMT-2030 (6G), FIPS 203/204 (PQC), IEEE P2733 (Neuro-Privacy), ISO 42001 (AI), ISO 14068-1 (Net-Zero), eIDAS 2.0, NIS2, ETSI EN 303, ISO 9001, 14001, 15408, 22301, 26262, 27001, 27018, 27701, SOC 2 & PCI DSS</p>
+
+      <div style="margin: 20px auto; width: 90%; max-width: 400px; background: rgba(255,0,0,0.2); border: 2px solid #ff0000; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 0 20px rgba(255,0,0,0.5);">
+          <h3 style="color: #ff0000; margin: 0 0 10px 0; font-size: 1.2rem; text-transform:uppercase;"><i class="fa-solid fa-skull"></i> Zone Critique</h3>
+          <p style="color: #ffcccc; font-size: 0.8rem; margin-bottom: 20px;">L'activation du Protocole 0 effacera instantanément et irrémédiablement toutes les clés, itinéraires et portefeuilles (Kill-Switch).</p>
+          <button onclick="if(confirm('DANGER: Confirmer l\'effacement total ?')) { if(window.ZeroTrust) window.ZeroTrust.triggerProtocolZero(); }" style="background: #ff0000; color: #fff; border: none; border-radius: 30px; padding: 15px 30px; font-size: 1.1rem; font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);">
+              PROTOCOLE 0 (KILL-SWITCH)
+          </button>
+      </div>
+
+      </div>
+  
+      <div style="margin: 40px auto; width: 90%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(16, 163, 127, 0.3); border-radius: 20px; padding: 40px 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+          <h3 style="color: #aaa; margin: 0 0 20px 0; font-size: 1.2rem;">Authentification Forte (FIDO2)</h3>
+          <p style="color: #ddd; font-size: 0.9rem; margin-bottom: 30px;">
+              Liez cet appareil à votre compte pour vous connecter via Face ID ou Touch ID, sans aucun mot de passe.
+          </p>
+          <button onclick="window.registerBiometric()" style="background: linear-gradient(135deg, #10a37f, #0d8a6a); color: #fff; border: none; border-radius: 30px; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px rgba(16, 163, 127, 0.5); width: 100%;">
+              <i class="fa-solid fa-fingerprint"></i> Lier cet appareil (FIDO2)
+          </button>
+      </div>
+
+      <div style="margin: 20px auto; width: 90%; max-width: 400px; background: rgba(255,0,0,0.05); border: 1px solid rgba(255, 0, 0, 0.3); border-radius: 20px; padding: 20px; text-align: center;">
+          <button onclick="window.logout()" style="background: transparent; color: #ff0055; border: 1px solid #ff0055; border-radius: 30px; padding: 10px 30px; font-size: 1rem; cursor: pointer; width: 100%;">
+              <i class="fa-solid fa-right-from-bracket"></i> Déconnexion (Session NIS2)
+          </button>
+      </div>
+  </div>
+
+<!-- TIM COOK SCREENS -->
+<div id="tim-cook-sos-screen" class="hidden fullscreen-overlay" style="background: rgba(255,0,0,0.95); color: #fff; z-index: 30000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <i class="fa-solid fa-triangle-exclamation fa-beat" style="font-size: 5rem; color: #fff; margin-bottom: 20px;"></i>
+    <h1 style="font-size: 3rem; margin: 0; text-transform: uppercase; letter-spacing: 5px; text-align:center;">Choc Détecté</h1>
+    <p style="font-size: 1.2rem; margin: 10px 0 30px; text-align:center;">Appel SOS aux urgences dans :</p>
+    <div id="sos-countdown" style="font-size: 6rem; font-weight: 900;">10</div>
+    <button onclick="window.cancelSOS()" style="margin-top: 40px; padding: 20px 50px; font-size: 1.5rem; font-weight: bold; background: #fff; color: #ff0000; border: none; border-radius: 40px; cursor: pointer; box-shadow: 0 0 20px rgba(255,255,255,0.5);">ANNULER L'ALERTE</button>
+</div>
+
+<div id="tim-cook-eco-screen" class="hidden fullscreen-overlay" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); color: #fff; z-index: 25000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s;">
+    <i class="fa-solid fa-leaf" style="font-size: 4rem; color: #00ff00; filter: drop-shadow(0 0 15px #00ff00); margin-bottom: 20px;"></i>
+    <h2 style="font-size: 2rem; color: #00ff00; margin: 0;">Bilan Carbone</h2>
+    <p style="font-size: 1.2rem; color: #aaa; margin: 10px 0 20px;">Comparé à une voiture classique</p>
+    <div style="font-size: 3rem; font-weight: 900; color: #fff; text-shadow: 0 0 10px #00ff00;"><span id="eco-saved-data">0g</span></div>
+    <p style="font-size: 1rem; color: #888; margin-top: 10px;">Merci de préserver la planète.</p>
+</div>
+
+<script src="js/tim-cook.js"></script>
+
+<!-- CRYPTO WALLET SCREEN -->
+<div id="crypto-wallet-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #0f172a 0%, #000 100%); color: #fff; z-index: 35000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
+    <button onclick="window.hideCryptoWallet()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #ff0055; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+    
+    <div style="margin-top: 50px; text-align: center;">
+        <i class="fa-brands fa-ethereum" style="font-size: 4rem; color: #b700ff; filter: drop-shadow(0 0 20px #b700ff); margin-bottom: 20px;"></i>
+        <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Ride-to-Earn Vault</h1>
+        <p style="color: #00ffcc; font-weight: bold; margin-top: 5px;">Réseau Web3 Sécurisé</p>
+    </div>
+
+    <div style="margin: 40px auto; width: 90%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(183,0,255,0.3); border-radius: 20px; padding: 40px 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+        <h3 style="color: #aaa; margin: 0 0 10px 0; font-size: 1rem;">Solde Total</h3>
+        <div id="crypto-balance" style="font-size: 3.5rem; font-weight: 900; color: #b700ff; text-shadow: 0 0 20px #b700ff;">0.00 BVC</div>
+        <div style="color: #fff; font-size: 1.2rem; margin-top: 10px; opacity: 0.7;">≈ 0.00 €</div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+        <button style="padding: 15px 40px; background: linear-gradient(90deg, #b700ff, #ff0055); border: none; border-radius: 30px; color: #fff; font-weight: 900; font-size: 1.2rem; box-shadow: 0 5px 20px rgba(183,0,255,0.4); cursor: pointer;">CONVERTIR EN ESSENCE</button>
+    </div>
+</div>
+
+    <script src="js/silicon-valley.js"></script>
+    <script src="js/jarvis-voice.js"></script>
+    <script src="js/v3-smartcity.js"></script>
+    <script src="js/carbon-trading.js"></script>
+    <script src="js/rgpd-cnil.js"></script>
+    <script src="js/web4-recovery.js"></script>
+    <script src="js/quantum-crypto.js"></script>
+    <script src="js/zero-trust.js"></script>
+
+    <script>
+        // INIT APEX SENTINEL
+        window.addEventListener('load', () => {
+            if(window.QuantumCrypto) window.QuantumCrypto.init();
+            if(window.ZeroTrust) window.ZeroTrust.init();
+            
+            // WebGL / Canvas Holographic Effect (Simplified for performance)
+            const canvas = document.getElementById('quantum-bg');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                let particles = [];
+                for(let i=0; i<50; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5
+                    });
+                }
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = 'rgba(0, 255, 204, 0.5)';
+                    particles.forEach(p => {
+                        p.x += p.vx; p.y += p.vy;
+                        if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                        if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    requestAnimationFrame(draw);
+                }
+                draw();
+            }
+        });
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+
+<!-- INTERCEPTOR HUD ELEMENTS -->
+<div id="hud" style="position:fixed; top:20px; right:20px; z-index:9000; display:flex; flex-direction:column; gap:10px; pointer-events:none; transition: all 0.3s ease;">
+    <div id="weather-hud" style="background:rgba(0, 10, 20, 0.8); border:1px solid #00d2ff; padding:12px 20px; border-radius:12px; color:#fff; font-family:'JetBrains Mono', monospace; font-size:14px; text-shadow:0 0 10px #00d2ff; box-shadow:0 0 15px rgba(0, 210, 255, 0.5); backdrop-filter:blur(5px); display:flex; gap:15px; align-items:center;">
+        <div><i class="fa-solid fa-cloud" style="color:#aaa;"></i> <span id="weather-temp">--°C</span></div>
+        <div><i class="fa-solid fa-wind" style="color:#00d2ff;"></i> <span id="weather-wind">-- km/h</span></div>
+    </div>
+    <div id="radar-hud" style="background:rgba(20, 0, 0, 0.8); border:1px solid #ff4d4d; padding:12px 20px; border-radius:12px; color:#fff; font-family:'JetBrains Mono', monospace; font-size:14px; text-shadow:0 0 10px #ff4d4d; box-shadow:0 0 15px rgba(255, 77, 77, 0.5); backdrop-filter:blur(5px); display:flex; align-items:center; gap:10px;">
+        <i class="fa-solid fa-satellite-dish fa-beat" style="color:#ff4d4d;"></i> <span id="radar-users">SCANNING...</span>
+    </div>
+</div>
+
+<!-- GLITCH ALERT OVERLAY -->
+<div id="glitch-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:35000; pointer-events:none; background:radial-gradient(circle, transparent 20%, rgba(255,0,0,0.5) 100%); mix-blend-mode:difference; opacity:0; transition:opacity 0.05s; display:none;"></div>
+
+    <script src="js/pocket-lawyer.js"></script>
+</body>

@@ -1,0 +1,77 @@
+/* --- PREMIUM UX UPGRADES --- */
+/* Page Transitions */
+.page-transition {
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+.page-enter {
+    opacity: 0;
+    transform: scale(0.95);
+}
+.page-enter-active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Day Mode overrides */
+body.day-mode {
+    background-color: #f0f4f8;
+    color: #1a1a1a;
+}
+body.day-mode #map {
+    filter: contrast(1) brightness(1.2) saturate(1);
+}
+body.day-mode .glassmorphism, body.day-mode .hud-item {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+body.day-mode h1, body.day-mode h2, body.day-mode h3 {
+    color: #000;
+}
+body.day-mode .neon-border {
+    border-color: #0088ff !important;
+    box-shadow: none !important;
+}
+body.day-mode p, body.day-mode span {
+    color: #333;
+}
+body.day-mode .btn-insurance {
+    color: white !important;
+    background: #0088ff !important;
+}
+
+/* Weather Overlay */
+.weather-rain-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 9998;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2NkYGD4zwABBAEApzG1OQAAAABJRU5ErkJggg==') repeat;
+    opacity: 0;
+    transition: opacity 2s ease;
+}
+.weather-rain-overlay.active {
+    opacity: 0.3;
+    animation: rain-fall 0.5s linear infinite;
+}
+@keyframes rain-fall {
+    0% { background-position: 0 0; }
+    100% { background-position: -20px 100vh; }
+}
+
+/* XP Bar */
+.xp-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+.xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffb703, #ff0055);
+    width: 0%;
+    transition: width 1s ease-out;
+}

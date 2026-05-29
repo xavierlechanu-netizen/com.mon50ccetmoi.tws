@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MonCinquanteCC</string>
+    <string name="title_activity_main">MonCinquanteCC</string>
+    <string name="package_name">com.moncinquantecc.app</string>
+    <string name="custom_url_scheme">com.moncinquantecc.app</string>
+</resources>
