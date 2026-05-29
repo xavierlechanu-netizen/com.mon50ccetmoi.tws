@@ -15,8 +15,8 @@ set "GRADLE_OPTS=-Xmx512m -XX:MaxMetaspaceSize=192m"
 REM ── Keystore ─────────────────────────────────────────────────────
 set "KEYSTORE_PATH=upload-keystore.jks"
 set "KEYSTORE_ALIAS=upload"
-set "KEYSTORE_PASS=Mon50cc-2026!"
-set "KEY_PASS=Mon50cc-2026!"
+set "KEYSTORE_PASS=%ENV_KEYSTORE_PASS%"
+set "KEY_PASS=%ENV_KEY_PASS%"
 
 REM ── Chemins de sortie ────────────────────────────────────────────
 set "AAB_UNSIGNED=app\build\outputs\bundle\release\app-release.aab"

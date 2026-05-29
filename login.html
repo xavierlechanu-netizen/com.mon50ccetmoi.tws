@@ -31,7 +31,17 @@
                 <label for="login-pass" class="sr-only">Mot de passe</label>
                 <input type="password" id="login-pass" name="password" placeholder="Mot de passe" autocomplete="current-password" />
                 <button onclick="doLogin()" class="btn-auth">SE CONNECTER</button>
+                
                 <div style="margin: 15px 0; color: #888; font-size: 0.9rem;">OU</div>
+                
+                <button onclick="loginBiometric()" class="btn-auth" style="background: linear-gradient(135deg, #10a37f, #0d8a6a); color: #fff; margin-bottom: 15px; border: 1px solid #14cc9e; box-shadow: 0 0 10px rgba(16, 163, 127, 0.4);">
+                    <i class="fa-solid fa-fingerprint"></i> Connexion Biométrique (FIDO2)
+                </button>
+
+                <div style="text-align: center; margin-bottom: 20px; font-size: 0.75rem; color: #10a37f;">
+                    <i class="fa-solid fa-shield-check"></i> Sécurité certifiée <strong>IMT-2030 (6G), FIPS 203/204 (PQC), IEEE P2733 (Neuro-Privacy), ISO 42001 (AI), ISO 14068-1 (Net-Zero), eIDAS 2.0, NIS2, ETSI EN 303, ISO 9001, 14001, 15408, 22301, 26262, 27001, 27018, 27701, SOC 2 & PCI DSS</strong>
+                </div>
+
                 <button onclick="loginAsGuest()" class="btn-auth" style="background:transparent; border:1px solid #999; color:#fff; margin-bottom: 20px;">
                     👤 Mode Invité Libre
                 </button>

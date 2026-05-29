@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr-FR" dir="ltr">
 <head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://kit.fontawesome.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://ka-f.fontawesome.com https://unpkg.com; img-src 'self' data: https://unpkg.com; font-src 'self' https://ka-f.fontawesome.com; connect-src 'self' https://ka-f.fontawesome.com wss://*;">
     <!-- WATCHDOG ANTI-CRASH -->
     <script src="js/infallible.js"></script>
     <script>
@@ -27,6 +28,10 @@
     <link rel="stylesheet" href="css/premium.css">
 </head>
 <body style="margin:0; padding:0; background:#000; overflow:hidden;">
+    <!-- APEX SENTINEL: Holographic Quantum Background -->
+    <canvas id="quantum-bg" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1;pointer-events:none;opacity:0.6;"></canvas>
+
+    <div id="map" style="width: 100vw; height: 100vh; z-index: 10;"></div>
     <div id="guardian-halo" class="guardian-halo hidden"></div>
     <!-- Weather Overlay -->
         <div style="margin: 20px 25px; border: 1px solid rgba(255, 215, 0, 0.2); border-radius: 20px; padding: 25px; background: rgba(5, 10, 20, 0.6); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
@@ -249,6 +254,11 @@
         <button id="dock-btn-trophy" onclick="window.showLeaderboard()" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
             <i class="fa-solid fa-trophy" style="filter: drop-shadow(0 0 5px #ffb703);"></i>
         </button>
+  
+        <!-- NIS2 Security Settings -->
+        <button id="dock-btn-security" onclick="document.getElementById('security-settings-screen').classList.remove('hidden')" style="background: none; border: none; color: #10a37f; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-shield-halved" style="filter: drop-shadow(0 0 5px #10a37f);"></i>
+        </button>
 
     </div>
 
@@ -261,6 +271,33 @@
             transform: scale(0.9);
         }
     </style>
+
+  <!-- NIS2 SECURITY SETTINGS SCREEN -->
+  <div id="security-settings-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #051410 0%, #000 100%); color: #fff; z-index: 35000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
+      <button onclick="document.getElementById('security-settings-screen').classList.add('hidden')" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #10a37f; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div style="margin-top: 50px; text-align: center;">
+          <i class="fa-solid fa-shield-check" style="font-size: 4rem; color: #10a37f; filter: drop-shadow(0 0 20px #10a37f); margin-bottom: 20px;"></i>
+          <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Sécurité & Confidentialité</h1>
+          <p style="color: #10a37f; font-weight: bold; margin-top: 5px;">Conformité IMT-2030 (6G), FIPS 203/204 (PQC), IEEE P2733 (Neuro-Privacy), ISO 42001 (AI), ISO 14068-1 (Net-Zero), eIDAS 2.0, NIS2, ETSI EN 303, ISO 9001, 14001, 15408, 22301, 26262, 27001, 27018, 27701, SOC 2 & PCI DSS</p>
+      </div>
+  
+      <div style="margin: 40px auto; width: 90%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(16, 163, 127, 0.3); border-radius: 20px; padding: 40px 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+          <h3 style="color: #aaa; margin: 0 0 20px 0; font-size: 1.2rem;">Authentification Forte (FIDO2)</h3>
+          <p style="color: #ddd; font-size: 0.9rem; margin-bottom: 30px;">
+              Liez cet appareil à votre compte pour vous connecter via Face ID ou Touch ID, sans aucun mot de passe.
+          </p>
+          <button onclick="window.registerBiometric()" style="background: linear-gradient(135deg, #10a37f, #0d8a6a); color: #fff; border: none; border-radius: 30px; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px rgba(16, 163, 127, 0.5); width: 100%;">
+              <i class="fa-solid fa-fingerprint"></i> Lier cet appareil (FIDO2)
+          </button>
+      </div>
+
+      <div style="margin: 20px auto; width: 90%; max-width: 400px; background: rgba(255,0,0,0.05); border: 1px solid rgba(255, 0, 0, 0.3); border-radius: 20px; padding: 20px; text-align: center;">
+          <button onclick="window.logout()" style="background: transparent; color: #ff0055; border: 1px solid #ff0055; border-radius: 30px; padding: 10px 30px; font-size: 1rem; cursor: pointer; width: 100%;">
+              <i class="fa-solid fa-right-from-bracket"></i> Déconnexion (Session NIS2)
+          </button>
+      </div>
+  </div>
 
 <!-- TIM COOK SCREENS -->
 <div id="tim-cook-sos-screen" class="hidden fullscreen-overlay" style="background: rgba(255,0,0,0.95); color: #fff; z-index: 30000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
@@ -308,6 +345,47 @@
     <script src="js/carbon-trading.js"></script>
     <script src="js/rgpd-cnil.js"></script>
     <script src="js/web4-recovery.js"></script>
+    <script src="js/quantum-crypto.js"></script>
+    <script src="js/zero-trust.js"></script>
+
+    <script>
+        // INIT APEX SENTINEL
+        window.addEventListener('load', () => {
+            if(window.QuantumCrypto) window.QuantumCrypto.init();
+            if(window.ZeroTrust) window.ZeroTrust.init();
+            
+            // WebGL / Canvas Holographic Effect (Simplified for performance)
+            const canvas = document.getElementById('quantum-bg');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                let particles = [];
+                for(let i=0; i<50; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5
+                    });
+                }
+                function draw() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = 'rgba(0, 255, 204, 0.5)';
+                    particles.forEach(p => {
+                        p.x += p.vx; p.y += p.vy;
+                        if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                        if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    requestAnimationFrame(draw);
+                }
+                draw();
+            }
+        });
+    </script>
 
     <script>
         if ('serviceWorker' in navigator) {

@@ -185,6 +185,125 @@ window.googleLogin = async function(name, email) {
     } catch(e) {}
 };
 
+// --- FIDO2 / WEBAUTHN (BIOMETRIC LOGIN) ---
+
+// Fonction utilitaire pour convertir ArrayBuffer en Base64
+function bufferToBase64url(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let str = '';
+    for (let charCode of bytes) str += String.fromCharCode(charCode);
+    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+window.registerBiometric = async function() {
+    try {
+        const sessionStr = window.secureGetItem('session');
+        if (!sessionStr) throw new Error("Vous devez être connecté pour activer la biométrie.");
+        const session = JSON.parse(sessionStr);
+
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+        const userId = new Uint8Array(16);
+        window.crypto.getRandomValues(userId);
+
+        const options = {
+            challenge: challenge,
+            rp: { name: "mon50ccetmoi" },
+            user: {
+                id: userId,
+                name: session.email || `${session.username}@mon50cc.internal`,
+                displayName: session.username
+            },
+            pubKeyCredParams: [{alg: -7, type: "public-key"}],
+            authenticatorSelection: {
+                authenticatorAttachment: "platform", // Force FaceID / TouchID / Windows Hello
+                userVerification: "required"
+            },
+            timeout: 60000,
+            attestation: "none"
+        };
+
+        // Si on n'est pas sur localhost, on précise le domaine
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            options.rp.id = window.location.hostname;
+        }
+
+        const credential = await navigator.credentials.create({ publicKey: options });
+        
+        // MVP: On sauvegarde l'ID du credential localement et/ou sur le compte Firebase
+        const credentialId = bufferToBase64url(credential.rawId);
+        
+        // Sauvegarde Firebase
+        if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+            await firebase.firestore().collection("users").doc(session.uid).update({
+                webauthnCredentialId: credentialId
+            });
+        }
+        
+        // Sauvegarde Locale (pour permettre le login depuis cet appareil)
+        window.secureSetItem('fido2_cred', credentialId);
+        window.secureSetItem('fido2_uid', session.uid);
+        
+        alert("✅ Appareil sécurisé ! Vous pourrez désormais vous connecter avec votre visage ou empreinte.");
+    } catch (e) {
+        console.error("WebAuthn Register Error:", e);
+        if (e.name === "NotAllowedError") {
+            alert("Accès biométrique refusé ou annulé.");
+        } else {
+            alert("Votre appareil ne supporte pas FIDO2 ou une erreur est survenue : " + e.message);
+        }
+    }
+};
+
+window.loginBiometric = async function() {
+    try {
+        const storedCredId = window.secureGetItem('fido2_cred');
+        const storedUid = window.secureGetItem('fido2_uid');
+        
+        if (!storedCredId || !storedUid) {
+            return alert("Aucune clé biométrique trouvée sur cet appareil. Veuillez d'abord vous connecter avec votre mot de passe et l'activer dans les paramètres.");
+        }
+
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+
+        const options = {
+            challenge: challenge,
+            rpId: window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' ? window.location.hostname : undefined,
+            userVerification: "required",
+            timeout: 60000
+        };
+
+        // Supprime rpId si local pour éviter les erreurs
+        if (!options.rpId) delete options.rpId;
+
+        const assertion = await navigator.credentials.get({ publicKey: options });
+        
+        if (assertion) {
+            // MVP Authentication Bypass via Local Verification
+            console.log("FIDO2 Assertion OK");
+            
+            // On récupère le profil complet depuis Firestore en simulant la connexion
+            if (typeof firebase !== 'undefined') {
+                const doc = await firebase.firestore().collection("users").doc(storedUid).get();
+                if (doc.exists) {
+                    const profile = doc.data();
+                    secureSetItem('session', JSON.stringify({ ...profile, uid: storedUid }));
+                    window.session = profile;
+                    window.location.href = profile.role === 'admin' ? 'admin.html' : 'index.html';
+                } else {
+                    throw new Error("Profil introuvable.");
+                }
+            } else {
+                throw new Error("Firebase non initialisé.");
+            }
+        }
+    } catch (e) {
+        console.error("WebAuthn Login Error:", e);
+        alert("Échec de la connexion biométrique : " + e.message);
+    }
+};
+
 // --- AUTH GUARD ---
 
 window.checkAuth = function(requireAdmin = false) {

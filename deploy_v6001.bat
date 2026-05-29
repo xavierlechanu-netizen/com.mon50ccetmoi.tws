@@ -2,8 +2,8 @@
 set JAVA_HOME=C:\Users\xavie\.bubblewrap\jdk\jdk-17.0.11+9
 set ANDROID_HOME=C:\Users\xavie\AppData\Local\Android\Sdk
 set PATH=%JAVA_HOME%\bin;%PATH%
-set BUBBLEWRAP_KEYSTORE_PASSWORD=Mon50cc-2026!
-set BUBBLEWRAP_KEY_PASSWORD=Mon50cc-2026!
+set "BUBBLEWRAP_KEYSTORE_PASSWORD=%KEYSTORE_PASS%"
+set "BUBBLEWRAP_KEY_PASSWORD=%KEY_PASS%"
 set GRADLE_OPTS=-Xmx384m -XX:MaxMetaspaceSize=128m
 
 echo [INFO] Demarrage de la compilation v60.0.1...
