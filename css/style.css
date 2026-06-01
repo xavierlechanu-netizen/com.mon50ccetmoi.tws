@@ -2056,25 +2056,7 @@ body, html {
 .rb-item button { background:#ffb703; border:none; padding:6px 12px; border-radius:3px; cursor:pointer; color:black; font-weight:bold; }
 
 /* --- BARRE DE RECHERCHE ITINÉRAIRE --- */
-#search-container {
-    position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + env(titlebar-area-height, 0px) + 180px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
-    height: 50px;
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
-    padding: 0 15px;
-    z-index: 2000;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    background: rgba(15,15,15,0.9);
-    border: 1px solid rgba(255, 183, 3, 0.4);
-    animation: neon-pulse 4s infinite ease-in-out;
-    -webkit-app-region: no-drag;
-}
+
 
 /* --- MENU SIDEBAR --- */
 #btn-menu-toggle {
@@ -2844,17 +2826,7 @@ body, html {
     filter: drop-shadow(0 0 10px var(--neon-blue, #00d2ff));
 }
 
-#search-container {
-    position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + 100px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
-    z-index: 10006;
-    pointer-events: auto;
-    display: block !important;
-}
+
 
 /* --- TELEMETRY DIAGNOSTIC HUD --- */
 .telemetry-glass {
@@ -3850,3 +3822,26 @@ body.shadow-mode .tactical-speed-val {
    Collection : litigation_proposals   → lecture userId uniquement
    ═══════════════════════════════════════════════════════════ */
 
+
+#search-container {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + env(titlebar-area-height, 0px) + 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    height: auto !important;
+    border-radius: 25px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    z-index: 20000;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    pointer-events: none;
+}
+#search-container > * {
+    pointer-events: auto;
+}
