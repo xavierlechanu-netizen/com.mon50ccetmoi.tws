@@ -497,8 +497,15 @@
 
     <!-- Search Tool (Top) -->
     <div id="search-container" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; z-index:20000; display:flex; flex-direction:column; gap:10px;">
+        <!-- Départ Manuel (Optionnel/Fallback) -->
+        <div id="manual-start-box" class="glassmorphism hidden" style="display:flex; align-items:center; background:rgba(0,0,0,0.8); border-radius:25px; padding:5px 15px; border:1px solid #ffb703;">
+            <button onclick="window.getLocationGPS()" title="Utiliser ma position GPS" style="background:none; border:none; color:#ffb703; cursor:pointer;"><i class="fa-solid fa-location-crosshairs"></i></button>
+            <input type="text" id="route-start" placeholder="Point de départ (par défaut: GPS)" style="flex:1; background:transparent; border:none; color:white; font-size:0.9rem; outline:none; margin:0 10px;">
+        </div>
+
+        <!-- Destination -->
         <div class="search-bar glassmorphism" style="display:flex; align-items:center; background:rgba(0,0,0,0.8); border-radius:25px; padding:5px 15px; border:1px solid rgba(255,255,255,0.2);">
-            <button onclick="toggleManualStart()" title="D&eacute;part manuel/GPS" style="background:none; border:none; color:#00d2ff; cursor:pointer;"><i class="fa-solid fa-map-pin"></i></button>
+            <button onclick="toggleManualStart()" title="Départ manuel/GPS" style="background:none; border:none; color:#00d2ff; cursor:pointer;"><i class="fa-solid fa-map-pin"></i></button>
             <input type="text" id="route-search" placeholder="O&ugrave; allez-vous ?" style="flex:1; background:transparent; border:none; color:white; font-size:1rem; outline:none; margin:0 10px;">
             <button onclick="searchDestination()" style="background:#00d2ff; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;"><i class="fa-solid fa-location-arrow" style="color:black;"></i></button>
             <button id="btn-cancel-route" class="hidden" onclick="cancelRoute()" style="background:#ff4d4d; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; margin-left:5px;"><i class="fa-solid fa-xmark" style="color:white;"></i></button>
