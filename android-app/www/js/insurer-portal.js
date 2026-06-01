@@ -25,23 +25,31 @@ window.InsurerPortal = {
     },
     
     buyReport: function(type, price, rewardBvc) {
-        if(confirm(`Confirmez-vous l'achat du rapport [${type}] pour ${price}€ HT ?\n\n⚠️ CONDITIONS : Les données numériques fournies dans ces rapports sont définitives. Conformément à nos CGV B2B, ces rapports ne sont ni échangeables, ni remboursables.\n\nLe paiement sera prélevé sur le compte de votre agence.`)) {
+        if(confirm(`[SÉCURITÉ ZERO-TRUST]\nConfirmez-vous l'achat du rapport [${type}] pour ${price}€ HT ?\n\n⚠️ CONDITIONS B2B : Les données chiffrées sont définitives.\nLe paiement sera instantanément prélevé via le Smart Contract.`)) {
             
-            // Simulation du déverrouillage
-            alert(`Paiement de ${price}€ validé.\n\nAccès accordé au rapport complet pour le dossier ${this.currentCode}. Les données vous sont envoyées par email sécurisé.`);
+            // Premium WOW Effect for success
+            const pricingBox = document.getElementById('insurer-pricing-box');
+            pricingBox.innerHTML = `
+                <div style="text-align:center; padding: 40px;">
+                    <i class="fa-solid fa-circle-check" style="font-size: 5rem; color: #00ffcc; text-shadow: 0 0 30px #00ffcc; margin-bottom:20px; animation: pulse 1s infinite;"></i>
+                    <h2 style="color:#fff; font-size:2rem; font-weight:900;">TRANSACTION VALIDÉE</h2>
+                    <p style="color:#00d2ff; font-family:'JetBrains Mono', monospace;">Clé de déchiffrement générée pour le dossier ${this.currentCode}</p>
+                    <div style="margin-top:30px; background:rgba(0,255,204,0.1); border:1px solid #00ffcc; border-radius:12px; padding:15px; color:#fff;">
+                        <i class="fa-solid fa-envelope"></i> Le rapport a été envoyé de manière sécurisée à votre adresse pro.
+                    </div>
+                </div>
+            `;
             
-            // Déclenchement du Smart Contract Web4 : Rétribution du pilote
-            if(window.Web4Economy && rewardBvc > 0) {
-                // On notifie le pilote qu'il a reçu sa prime car l'assureur a acheté le rapport
-                window.Web4Economy.mineToken(rewardBvc, `Smart Contract: L'assureur a déverrouillé votre rapport (${type})`);
-                
-                // Petit feedback visuel ou vocal
-                if(typeof speak === 'function') {
-                    speak('Votre assureur a accédé au dossier. La prime a été créditée sur votre portefeuille.');
+            setTimeout(() => {
+                // Déclenchement du Smart Contract Web4 : Rétribution du pilote
+                if(window.Web4Economy && rewardBvc > 0) {
+                    window.Web4Economy.mineToken(rewardBvc, `Smart Contract: L'assureur a acheté le rapport (${type})`);
+                    if(typeof speak === 'function') {
+                        speak('Transaction confirmée. Votre assureur a consulté le rapport. Les tokens ont été crédités.');
+                    }
                 }
-            }
-            
-            this.close();
+                setTimeout(() => this.close(), 3000);
+            }, 2000);
         }
     }
 };

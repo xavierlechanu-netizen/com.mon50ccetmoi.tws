@@ -340,54 +340,57 @@
 
 
 <!-- INSURER PORTAL SCREEN (B2B) -->
-<div id="insurer-portal-screen" class="hidden fullscreen-overlay" style="background: #0f172a; color: #fff; z-index: 40000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
-    <button onclick="window.InsurerPortal.close()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+<div id="insurer-portal-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #050a15 0%, #0a1128 100%); color: #fff; z-index: 40000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
+    <div style="position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle at 50% -20%, rgba(0,210,255,0.1) 0%, transparent 70%); pointer-events:none;"></div>
+    <button onclick="window.InsurerPortal.close()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius:50%; width: 40px; height: 40px; color: #fff; font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fa-solid fa-xmark"></i></button>
     
-    <div style="margin-top: 50px; text-align: center;">
-        <i class="fa-solid fa-building-shield" style="font-size: 4rem; color: #00d2ff; filter: drop-shadow(0 0 20px #00d2ff); margin-bottom: 20px;"></i>
-        <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Portail Expert Assureur</h1>
-        <p style="color: #00ffcc; font-weight: bold; margin-top: 5px;">Accès sécurisé Zero-Trust</p>
+    <div style="margin-top: 60px; text-align: center; position:relative; z-index:2;">
+        <i class="fa-solid fa-building-shield" style="font-size: 4.5rem; color: #00d2ff; filter: drop-shadow(0 0 30px rgba(0,210,255,0.8)); margin-bottom: 20px;"></i>
+        <h1 style="margin: 0; font-size: 2.5rem; font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, #fff 0%, #00d2ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">INSUR'TECH</h1>
+        <p style="color: #00d2ff; font-weight: 500; font-family:'JetBrains Mono', monospace; margin-top: 5px; font-size:0.9rem; letter-spacing:1px;">SECURE ZERO-TRUST PORTAL</p>
     </div>
 
     <!-- Login Box -->
-    <div id="insurer-login-box" style="margin: 40px auto; width: 90%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,210,255,0.3); border-radius: 20px; padding: 40px 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-        <h3 style="color: #aaa; margin: 0 0 20px 0; font-size: 1.1rem;">Entrez le Code Litige</h3>
-        <input type="text" id="insurer-code-input" placeholder="Ex: LIT-XXXX" style="width: 80%; padding: 15px; border-radius: 10px; border: 1px solid #00d2ff; background: rgba(0,0,0,0.5); color: #00ffcc; font-size: 1.5rem; text-align: center; text-transform: uppercase; margin-bottom: 20px;">
+    <div id="insurer-login-box" class="glass-card-premium" style="margin: 40px auto; width: 90%; max-width: 450px; text-align: center; position:relative; z-index:2;">
+        <h3 style="color: #94a3b8; margin: 0 0 25px 0; font-size: 1.2rem; font-weight:400;">Veuillez saisir le <span style="color:#fff; font-weight:600;">Code Litige</span></h3>
+        <input type="text" id="insurer-code-input" class="cyber-input" placeholder="LIT-XXXX" style="text-align:center; font-size:1.8rem; letter-spacing:4px; text-transform:uppercase; margin-bottom: 30px;">
         <br>
-        <button onclick="window.InsurerPortal.verifyCode()" style="padding: 15px 40px; background: linear-gradient(90deg, #00d2ff, #3a7bd5); border: none; border-radius: 30px; color: #fff; font-weight: 900; font-size: 1.2rem; box-shadow: 0 5px 20px rgba(0,210,255,0.4); cursor: pointer;"><i class="fa-solid fa-unlock"></i> Déverrouiller</button>
+        <button class="btn-neon-action" onclick="window.InsurerPortal.verifyCode()" style="width:100%;"><i class="fa-solid fa-fingerprint" style="margin-right:10px;"></i> Authentification</button>
     </div>
     
     <!-- Pricing Box -->
-    <div id="insurer-pricing-box" class="hidden" style="margin: 20px auto; width: 95%; max-width: 500px;">
-        <h3 style="text-align:center; color:#00ffcc; margin-bottom:20px;">Sélectionnez le rapport à débloquer</h3>
+    <div id="insurer-pricing-box" class="hidden" style="margin: 20px auto; width: 95%; max-width: 600px; position:relative; z-index:2;">
+        <h3 style="text-align:center; color:#fff; margin-bottom:30px; font-size:1.5rem; font-weight:300;">Sélectionnez le niveau d'expertise</h3>
         
-        <div style="background:rgba(255,255,255,0.05); border:1px solid #aaa; border-radius:15px; padding:20px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+        <div class="glass-card-premium" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; padding: 25px;">
             <div>
-                <strong style="font-size:1.2rem;">Rapport Standard</strong><br>
-                <span style="color:#aaa; font-size:0.9rem;">Constat simple, heure, position GPS</span>
+                <strong style="font-size:1.3rem; color:#e2e8f0;">Data Standard</strong><br>
+                <span style="color:#94a3b8; font-size:0.9rem;">Constat certifié blockchain, horodatage, trace GPS complète.</span>
             </div>
-            <button onclick="window.InsurerPortal.buyReport('Standard', 49.99, 5)" style="background:#444; color:#fff; border:none; padding:10px 20px; border-radius:10px; font-weight:bold; cursor:pointer;">49.99 €</button>
+            <button class="btn-neon-action" onclick="window.InsurerPortal.buyReport('Standard', 49.99, 5)" style="background: rgba(255,255,255,0.1); box-shadow:none;">49.99 €</button>
         </div>
         
-        <div style="background:rgba(0,210,255,0.1); border:1px solid #00d2ff; border-radius:15px; padding:20px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+        <div class="glass-card-premium" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; padding: 25px; border-color:rgba(0,210,255,0.4);">
             <div>
-                <strong style="font-size:1.2rem; color:#00d2ff;">Rapport Intermédiaire</strong><br>
-                <span style="color:#aaa; font-size:0.9rem;">Télémétrie complète (G-Force, Vitesse)</span>
+                <strong style="font-size:1.4rem; color:#00d2ff;"><i class="fa-solid fa-gauge-high"></i> Data Intermédiaire</strong><br>
+                <span style="color:#94a3b8; font-size:0.95rem;">Inclus Standard + Télémétrie G-Force, Vitesse instantanée, Angle.</span>
             </div>
-            <button onclick="window.InsurerPortal.buyReport('Intermédiaire', 89.99, 10)" style="background:#00d2ff; color:#000; border:none; padding:10px 20px; border-radius:10px; font-weight:bold; cursor:pointer;">89.99 €</button>
+            <button class="btn-neon-action" onclick="window.InsurerPortal.buyReport('Intermédiaire', 89.99, 10)">89.99 €</button>
         </div>
         
-        <div style="background:rgba(183,0,255,0.1); border:1px solid #b700ff; border-radius:15px; padding:20px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 0 15px rgba(183,0,255,0.2);">
+        <div class="glass-card-premium" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; padding: 25px; border-color:rgba(183,0,255,0.6); box-shadow: 0 10px 40px rgba(183,0,255,0.2), inset 0 1px 1px rgba(255,255,255,0.1); transform: scale(1.02);">
+            <div style="position:absolute; top:-10px; right:20px; background:#b700ff; color:#fff; font-size:0.7rem; font-weight:900; padding:4px 10px; border-radius:10px; text-transform:uppercase;">Recommandé IA</div>
             <div>
-                <strong style="font-size:1.2rem; color:#b700ff;"><i class="fa-solid fa-brain"></i> Rapport Expert IA</strong><br>
-                <span style="color:#aaa; font-size:0.9rem;">Reconstitution 3D, Analyse des responsabilités</span>
+                <strong style="font-size:1.5rem; color:#e879f9;"><i class="fa-solid fa-brain"></i> Rapport Expert Neural</strong><br>
+                <span style="color:#cbd5e1; font-size:0.95rem;">Reconstitution 3D prédictive de l'accident via IA. Analyse stricte des responsabilités.</span>
             </div>
-            <button onclick="window.InsurerPortal.buyReport('Expert', 149.99, 20)" style="background:linear-gradient(90deg, #b700ff, #ff0055); color:#fff; border:none; padding:10px 20px; border-radius:10px; font-weight:bold; cursor:pointer;">149.99 €</button>
+            <button class="btn-neon-action" onclick="window.InsurerPortal.buyReport('Expert', 149.99, 20)" style="background: linear-gradient(135deg, #b700ff 0%, #ff0055 100%); box-shadow: 0 0 20px rgba(183,0,255,0.6);">149.99 €</button>
         </div>
         
-        <p style="text-align: center; color: #888; font-size: 0.8rem; margin-top: 20px;">
-            ⚠️ Conformément à nos CGV B2B, les rapports numériques sont définitifs.<br>
-            Ils ne sont ni échangeables, ni remboursables après déverrouillage.
+        <p style="text-align: center; color: #64748b; font-size: 0.85rem; margin-top: 30px; font-family:'JetBrains Mono', monospace;">
+            <i class="fa-solid fa-lock"></i> SECURISÉ PAR BLOCKCHAIN POLYGON<br><br>
+            Conformément à nos CGV B2B, les rapports cryptographiques sont définitifs.<br>
+            Ils ne sont ni échangeables, ni remboursables après déverrouillage de la clé.
         </p>
     </div>
 </div>
