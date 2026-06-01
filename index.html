@@ -490,6 +490,51 @@
         }
     </script>
 
+    <!-- Search Tool (Top) -->
+    <div id="search-container" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; z-index:20000; display:flex; flex-direction:column; gap:10px;">
+        <div class="search-bar glassmorphism" style="display:flex; align-items:center; background:rgba(0,0,0,0.8); border-radius:25px; padding:5px 15px; border:1px solid rgba(255,255,255,0.2);">
+            <button onclick="toggleManualStart()" title="D&eacute;part manuel/GPS" style="background:none; border:none; color:#00d2ff; cursor:pointer;"><i class="fa-solid fa-map-pin"></i></button>
+            <input type="text" id="route-search" placeholder="O&ugrave; allez-vous ?" style="flex:1; background:transparent; border:none; color:white; font-size:1rem; outline:none; margin:0 10px;">
+            <button onclick="searchDestination()" style="background:#00d2ff; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;"><i class="fa-solid fa-location-arrow" style="color:black;"></i></button>
+            <button id="btn-cancel-route" class="hidden" onclick="cancelRoute()" style="background:#ff4d4d; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; margin-left:5px;"><i class="fa-solid fa-xmark" style="color:white;"></i></button>
+        </div>
+    </div>
+
+    <!-- Navigation Prompt (Floating) -->
+    <div id="nav-instruction" class="glassmorphism hidden" style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:20000; display:flex; align-items:center; background:rgba(0,0,0,0.9); padding:10px 20px; border-radius:20px; border:2px solid #00ff00;">
+        <div class="nav-icon" style="font-size:1.5rem; color:#00ff00; margin-right:15px;"><i class="fa-solid fa-arrow-turn-up"></i></div>
+        <div class="nav-text" style="color:white;">
+            <div id="next-step-name" style="font-weight:bold; font-size:1.1rem;">Calibrage GPS...</div>
+            <div id="next-step-dist" style="color:#aaa;">--- m</div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Info Bar -->
+    <div id="nav-info-bar" class="glassmorphism hidden" style="position:fixed; bottom:100px; left:50%; transform:translateX(-50%); z-index:20000; display:flex; justify-content:space-around; width:90%; max-width:400px; background:rgba(0,0,0,0.9); padding:15px; border-radius:20px; border:1px solid rgba(255,255,255,0.2);">
+        <div class="info-group" style="text-align:center; color:white;">
+            <div style="font-size:0.8rem; color:#aaa;">ETA</div>
+            <div id="nav-eta" style="font-weight:bold; font-size:1.2rem; color:#00d2ff;">--:--</div>
+        </div>
+        <div class="info-group" style="text-align:center; color:white;">
+            <div style="font-size:0.8rem; color:#aaa;">Dist</div>
+            <div id="nav-dist" style="font-weight:bold; font-size:1.2rem;">-- km</div>
+        </div>
+        <div class="info-group" style="text-align:center; color:white;">
+            <div style="font-size:0.8rem; color:#aaa;">Temps</div>
+            <div id="nav-time" style="font-weight:bold; font-size:1.2rem;">-- min</div>
+        </div>
+    </div>
+
+    <!-- Premium Control Row -->
+    <div id="control-row" style="position:fixed; bottom:20px; right:20px; z-index:20000; display:flex; gap:10px;">
+        <button id="btn-stop-nav" class="hidden" onclick="cancelRoute()" style="background:#ff4d4d; border:none; border-radius:50%; width:50px; height:50px; color:white; cursor:pointer; box-shadow:0 0 15px rgba(255,0,0,0.5);">
+            <i class="fa-solid fa-stop"></i>
+        </button>
+        <button id="btn-reroute" class="hidden" onclick="searchDestination()" style="background:#b700ff; border:none; border-radius:50%; width:50px; height:50px; color:white; cursor:pointer; box-shadow:0 0 15px rgba(183,0,255,0.5);">
+            <i class="fa-solid fa-route"></i>
+        </button>
+    </div>
+
 <!-- INTERCEPTOR HUD ELEMENTS -->
 <div id="hud" style="position:fixed; top:20px; right:20px; z-index:9000; display:flex; flex-direction:column; gap:10px; pointer-events:none; transition: all 0.3s ease;">
     <div id="weather-hud" style="background:rgba(0, 10, 20, 0.8); border:1px solid #00d2ff; padding:12px 20px; border-radius:12px; color:#fff; font-family:'JetBrains Mono', monospace; font-size:14px; text-shadow:0 0 10px #00d2ff; box-shadow:0 0 15px rgba(0, 210, 255, 0.5); backdrop-filter:blur(5px); display:flex; gap:15px; align-items:center;">
