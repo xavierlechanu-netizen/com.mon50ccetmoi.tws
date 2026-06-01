@@ -1,10 +1,11 @@
-const CACHE_NAME = 'mon50cc-cache-v70000';
+const CACHE_NAME = 'mon50cc-cache-v70002';
 const urlsToCache = [
   '/',
   '/index.html',
   '/css/premium.css',
   '/js/config.js',
   '/js/infallible.js',
+  '/js/crypto-native.js',
   '/js/app-core.js',
   '/js/app-map.js',
   '/js/app-ui.js',
@@ -23,7 +24,7 @@ self.addEventListener('install', event => {
         // Cache each URL individually so one failure doesn't break everything
         return Promise.allSettled(
           urlsToCache.map(url => cache.add(url).catch(err => {
-            console.warn('[SW] Failed to cache:', url, err);
+            console.warn('[SW] Failed to cache:', url, err.message || err);
           }))
         );
       })
@@ -45,13 +46,21 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Only handle same-origin GET requests
+  if (event.request.method !== 'GET') return;
+  
   event.respondWith(
     caches.match(event.request)
       .then(response => {
         if (response) {
           return response;
         }
-        return fetch(event.request);
+        return fetch(event.request).catch(() => {
+          // Offline fallback for navigation requests
+          if (event.request.mode === 'navigate') {
+            return caches.match('/index.html');
+          }
+        });
       })
   );
 });
