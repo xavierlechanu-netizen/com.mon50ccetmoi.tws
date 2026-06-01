@@ -228,53 +228,65 @@ window.initMapController = async function() {
                 console.warn("mon50cc Maps : DirectionsService non disponible dans routesLib.");
             }
         } catch(e) {
-            console.warn("mon50cc Maps : Erreur initialisation DirectionsService", e);
+            console.warn("mon50cc Maps : Erreur initialisation DirectionsService");
         }
 
-        // PlaceAutocompleteElement pour le Départ
+        // Autocomplete Classique pour le Départ
         const startInputOld = document.getElementById('route-start');
-        if (startInputOld && PlaceAutocompleteElement) {
-            const startInputGmp = new PlaceAutocompleteElement({
-                requestedLanguage: 'fr'
+        let autocompleteStart = null;
+        if (startInputOld && google.maps.places) {
+            autocompleteStart = new google.maps.places.Autocomplete(startInputOld, {
+                fields: ['geometry', 'name']
             });
-            startInputGmp.id = 'route-start-gmp';
-            startInputGmp.setAttribute('placeholder', 'Position de départ...');
-            startInputOld.parentNode.replaceChild(startInputGmp, startInputOld);
         }
 
-        // PlaceAutocompleteElement pour la Recherche
+        // Autocomplete Classique pour la Recherche (Destination)
         const inputOld = document.getElementById('route-search');
-        if (inputOld && PlaceAutocompleteElement) {
-            const searchInputGmp = new PlaceAutocompleteElement({
-                requestedLanguage: 'fr'
+        if (inputOld && google.maps.places) {
+            const autocompleteSearch = new google.maps.places.Autocomplete(inputOld, {
+                fields: ['geometry', 'name']
             });
-            searchInputGmp.id = 'route-search-gmp';
-            searchInputGmp.setAttribute('placeholder', 'Où allez-vous ?');
-            
-            inputOld.parentNode.replaceChild(searchInputGmp, inputOld);
 
-            searchInputGmp.addEventListener('gmp-placeselect', async ({ place }) => {
-                if (!place) return;
-                await place.fetchFields({ fields: ['location', 'viewport'] });
-                
-                if (!place.location) {
+            autocompleteSearch.addListener('place_changed', () => {
+                const place = autocompleteSearch.getPlace();
+                if (!place || !place.geometry || !place.geometry.location) {
                     window.searchDestination();
                     return;
                 }
-                if (place.viewport) {
-                    map.fitBounds(place.viewport);
-                } else {
-                    map.setCenter(place.location);
-                    map.setZoom(17);
-                }
 
-                if (!currentPosition) {
-                    speak("Recherche de votre position GPS. L'itinéraire démarrera automatiquement dès que possible.");
-                    window.pendingDestinationName = searchInputGmp.inputValue;
+                const destLocation = place.geometry.location;
+                map.panTo(destLocation);
+                map.setZoom(17);
+
+                // Vérifier si un départ manuel a été saisi
+                const manualStartEl = document.getElementById('route-start');
+                const manualStartQuery = manualStartEl ? manualStartEl.value.trim() : "";
+
+                if (manualStartQuery !== "") {
+                    // Si départ manuel renseigné, on lance l'itinéraire de départ manuel à destination
+                    geocoder.geocode({ address: manualStartQuery }, (resStart, statusStart) => {
+                        if (statusStart === "OK") {
+                            const startPos = resStart[0].geometry.location;
+                            calculateRouteSansAutoroute(startPos, destLocation);
+                            const btnCancel = document.getElementById('btn-cancel-route');
+                            if (btnCancel) btnCancel.classList.remove('hidden');
+                        } else {
+                            speak("Lieu de départ introuvable.");
+                        }
+                    });
                     return;
                 }
 
-                calculateRouteSansAutoroute(currentPosition, place.location);
+                // Sinon, utilisation du GPS
+                if (!currentPosition) {
+                    speak("Recherche de votre position GPS. L'itinéraire démarrera automatiquement dès que possible.");
+                    window.pendingDestinationName = inputOld.value;
+                    return;
+                }
+
+                calculateRouteSansAutoroute(currentPosition, destLocation);
+                const btnCancel = document.getElementById('btn-cancel-route');
+                if (btnCancel) btnCancel.classList.remove('hidden');
             });
         }
 
