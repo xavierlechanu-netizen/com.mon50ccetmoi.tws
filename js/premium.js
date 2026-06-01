@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial XP load
     if(window.session && window.session.xp) {
         window.updateXP(0);
+    }
 });
 
 // 5. Waze-Killer Turn-by-Turn Navigation
