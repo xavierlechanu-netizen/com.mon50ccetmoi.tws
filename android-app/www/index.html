@@ -16,7 +16,7 @@
                 } 
                 // Si c'est chiffrÃ©, le checkAuth s'en occupera aprÃ¨s le chargement d'auth.js
             }
-        } catch(e) {
+        } catch(e) { }
         try {
             window.session = (typeof checkAuth === "function") ? checkAuth(false) : { username: "Pilote", isGuest: true };
         } catch(e) {
@@ -33,12 +33,7 @@
 
     <div id="map" style="width: 100vw; height: 100vh; z-index: 10;"></div>
     <div id="guardian-halo" class="guardian-halo hidden"></div>
-    <!-- Weather Overlay -->
-        <div style="margin: 20px 25px; border: 1px solid rgba(255, 215, 0, 0.2); border-radius: 20px; padding: 25px; background: rgba(5, 10, 20, 0.6); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                <div style="display:flex; gap:15px; align-items: center;">
- console.warn("Session check delayed..."); }
-    </script>
+
     <meta charset="UTF-8">
     <meta name="google-site-verification" content="lVQWTEJtveSbj_Vl3jvAlN1KKGH7-PJQf744AsBAjNQ" />
     <!-- SÃ©curitÃ© Maximale : Content Security Policy (OptimisÃ©e pour Google Maps & Firebase) -->
