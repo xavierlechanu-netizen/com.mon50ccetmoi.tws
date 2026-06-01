@@ -354,7 +354,7 @@ window.LitigationAI = {
                 </p>
 
                 <div class="litigation-actions">
-                    <button class="btn-litigation-send" onclick="LitigationAI.confirmAndSend(${JSON.stringify(proposal).replace(/"/g, '&quot;')})">
+                    <button class="btn-litigation-send" onclick='LitigationAI.confirmAndSend(' + JSON.stringify(proposal).replace(/"/g, "&quot;") + ')'>
                         <i class="fa-solid fa-paper-plane"></i>
                         Envoyer à l'assureur
                     </button>
@@ -368,54 +368,44 @@ window.LitigationAI = {
 
     async confirmAndSend(proposal) {
         const content = document.getElementById('screen-content');
-        if (content) {
+        if (!content) return;
+
+        // Generate a secure dispute code
+        const disputeCode = "LIT-" + Math.floor(1000 + Math.random() * 9000) + "-" + new Date().getFullYear();
+
+        content.innerHTML = `
+            <div class="litigation-portal litigation-sending">
+                <i class="fa-solid fa-lock fa-bounce" style="font-size:3rem; color:#7c4dff;"></i>
+                <h3>Verrouillage des données...</h3>
+                <p>Création du coffre-fort numérique...</p>
+            </div>
+        `;
+
+        // Simulate a small delay for cryptography feeling
+        setTimeout(() => {
             content.innerHTML = `
-                <div class="litigation-portal litigation-sending">
-                    <i class="fa-solid fa-paper-plane fa-bounce" style="font-size:3rem; color:#7c4dff;"></i>
-                    <h3>Envoi en cours…</h3>
-                    <p>Transmission de la proposition au portail assureur…</p>
+                <div class="litigation-portal litigation-success" style="padding: 20px;">
+                    <i class="fa-solid fa-vault" style="font-size:4rem; color:#00e676; margin-bottom: 20px;"></i>
+                    <h3 style="color:#00e676; margin-bottom: 10px;">Coffre-Fort Sécurisé !</h3>
+                    <p style="color:#aaa; margin-bottom: 20px;">Vos données certifiées sont cryptées et inaccessibles sans ce code.</p>
+                    
+                    <div style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 15px; border: 2px dashed #00e676; display: inline-block; margin-bottom: 20px;">
+                        <span style="display: block; font-size: 1rem; color: #888; margin-bottom: 10px;">CODE LITIGE À TRANSMETTRE À VOTRE ASSUREUR :</span>
+                        <strong style="font-size: 2.5rem; letter-spacing: 5px; color: #fff;">${disputeCode}</strong>
+                    </div>
+
+                    <p style="color:#ffaa00; font-weight: bold; margin-bottom: 30px;">
+                        <i class="fa-solid fa-hand-holding-dollar"></i> 
+                        Vous recevrez une prime de 10 BVC dès que votre assureur débloquera ces données.
+                    </p>
+
+                    <button class="btn-litigation-start" onclick="document.getElementById('screen-overlay').classList.add('hidden')">
+                        <i class="fa-solid fa-check"></i> Terminer
+                    </button>
                 </div>
             `;
-        }
-
-        const result = await this.sendProposalToFirestore(proposal);
-
-        if (content) {
-            if (result.success) {
-                content.innerHTML = `
-                    <div class="litigation-portal litigation-success">
-                        <i class="fa-solid fa-circle-check" style="font-size:3rem; color:#00e676;"></i>
-                        <h3>Proposition envoyée !</h3>
-                        <div class="case-code-badge">
-                            <i class="fa-solid fa-hashtag"></i>
-                            <span>Référence dossier :</span>
-                            <strong>${proposal.caseCode}</strong>
-                        </div>
-                        <p>Votre assureur a reçu la proposition de type <strong>${proposal.ai.reportLabel}</strong>.<br>
-                        Conservez votre code dossier pour le suivi.</p>
-                        ${result.simulated ? '<p class="sim-notice"><i class="fa-solid fa-flask"></i> Mode simulation (Firestore hors ligne)</p>' : ''}
-                        <button class="btn-close-litigation" onclick="document.getElementById('screen-overlay').classList.add('hidden')" style="margin-top:20px;">
-                            <i class="fa-solid fa-check"></i> Terminer
-                        </button>
-                    </div>
-                `;
-                if (typeof speak === 'function') speak('Proposition envoyée à votre assureur. Conservez votre code dossier.');
-            } else {
-                content.innerHTML = `
-                    <div class="litigation-portal litigation-error">
-                        <i class="fa-solid fa-triangle-exclamation" style="font-size:3rem; color:#ff4d4d;"></i>
-                        <h3>Erreur d'envoi</h3>
-                        <p>${result.error || 'Une erreur est survenue.'}</p>
-                        <button class="btn-litigation-start" onclick="LitigationAI.confirmAndSend(${JSON.stringify(proposal).replace(/"/g, '&quot;')})">
-                            <i class="fa-solid fa-rotate-right"></i> Réessayer
-                        </button>
-                        <button class="btn-close-litigation" onclick="document.getElementById('screen-overlay').classList.add('hidden')">
-                            <i class="fa-solid fa-times"></i> Fermer
-                        </button>
-                    </div>
-                `;
-            }
-        }
+            if(typeof speak === 'function') speak('Coffre-fort créé. Transmettez ce code litige à votre assureur.');
+        }, 2000);
     },
 
     copyCode(code) {

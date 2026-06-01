@@ -1,0 +1,66 @@
+/* --- WEB 4 MINING & ECONOMY --- */
+
+window.Web4Economy = {
+    balance: 0.0,
+    prices: {
+        legal_report: 5.0,     // Prix fixe pour l'avocat de poche
+        insurance_report: 10.0 // Prix fixe pour le rapport d'assurance IA
+    },
+    
+    init: function() {
+        this.balance = parseFloat(localStorage.getItem('braveCoins') || '0');
+        this.updateUI();
+        
+        // Simulation de minage passif (ex: 0.1 BVC par minute de trajet)
+        setInterval(() => {
+            if (window.isRiding) { // Variable de app.js
+                this.mineToken(0.05, "Minage : Conduite Active");
+            }
+        }, 60000);
+    },
+
+    mineToken: function(amount, reason) {
+        this.balance += amount;
+        localStorage.setItem('braveCoins', this.balance.toFixed(2));
+        this.updateUI();
+        
+        // Animation HUD
+        this.showMiningHUD(amount);
+        console.log(`[Web4] +${amount} BVC (${reason})`);
+    },
+
+    spendToken: function(amount, reason) {
+        if (this.balance >= amount) {
+            this.balance -= amount;
+            localStorage.setItem('braveCoins', this.balance.toFixed(2));
+            this.updateUI();
+            console.log(`[Web4] -${amount} BVC (${reason})`);
+            return true; // Achat réussi
+        } else {
+            console.warn(`[Web4] Fonds insuffisants pour : ${reason}`);
+            return false; // Achat refusé
+        }
+    },
+
+    updateUI: function() {
+        const balanceEl = document.getElementById('crypto-balance');
+        if (balanceEl) {
+            balanceEl.innerText = this.balance.toFixed(2) + ' BVC';
+        }
+        window.braveCoins = this.balance; // Sync with legacy variables
+    },
+
+    showMiningHUD: function(amount) {
+        // Create a floating coin element in the UI
+        const coin = document.createElement('div');
+        coin.className = 'web4-coin-drop';
+        coin.innerHTML = `<i class="fa-brands fa-ethereum"></i> +${amount.toFixed(2)}`;
+        document.body.appendChild(coin);
+        
+        setTimeout(() => coin.remove(), 2000);
+    }
+};
+
+window.addEventListener('load', () => {
+    window.Web4Economy.init();
+});

@@ -4,7 +4,7 @@ window.ghostRiders = [];
 window.isSocialRadarActive = false;
 
 window.initSocialRadar = function() {
-    if (!window.map || !window.userLocation) {
+    if (!window.map || !window.currentPosition) {
         // Retry later if map is not ready
         setTimeout(window.initSocialRadar, 2000);
         return;
@@ -21,8 +21,8 @@ window.initSocialRadar = function() {
         let lngOffset = (Math.random() - 0.5) * 0.01;
 
         let riderPos = {
-            lat: window.userLocation.lat + latOffset,
-            lng: window.userLocation.lng + lngOffset
+            lat: window.currentPosition.lat + latOffset,
+            lng: window.currentPosition.lng + lngOffset
         };
 
         let pseudo = pseudoList[Math.floor(Math.random() * pseudoList.length)] + '_' + Math.floor(Math.random() * 99);

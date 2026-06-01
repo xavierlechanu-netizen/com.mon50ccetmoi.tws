@@ -143,7 +143,19 @@ window.PocketLawyer = {
     },
 
     generateLetter: function() {
-        alert("Modèle de recours juridique copié dans le presse-papiers. Prêt à être envoyé à l'ANTAI.");
+        if (!window.Web4Economy) {
+            alert("Erreur: Moteur Web4 introuvable.");
+            return;
+        }
+        
+        const price = window.Web4Economy.prices.legal_report;
+        if (confirm(`Générer un recours juridique coûte ${price} BVC.\nVoulez-vous continuer ?`)) {
+            if (window.Web4Economy.spendToken(price, "Avocat de Poche - Rapport Juridique")) {
+                alert(`Paiement de ${price} BVC accepté.\n\nModèle de recours juridique copié dans le presse-papiers. Prêt à être envoyé à l'ANTAI.`);
+            } else {
+                alert(`Fonds insuffisants ! Vous avez besoin de ${price} BVC. Roulez plus pour gagner des BVC.`);
+            }
+        }
     }
 };
 

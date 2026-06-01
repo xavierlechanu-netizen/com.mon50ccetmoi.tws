@@ -54,7 +54,7 @@ window.Blackbox = {
             });
 
             // Auto-Impact Detection & Structural Fatigue
-            const g = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z) / 9.81;
+            const g = Math.sqrt((acc.x||0)*(acc.x||0) + (acc.y||0)*(acc.y||0) + (acc.z||0)*(acc.z||0)) / 9.81;
             
             // Track micro-shocks for integrity
             if (g > 2.5) {

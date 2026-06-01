@@ -174,7 +174,7 @@ window.GuardianAngel = {
     },
 
     triggerSOS: async function(reason) {
-        if (!this.sessionId) return;
+        if (!this.sessionId || typeof db === "undefined") return;
         
         speak("ALERTE SOS LANÇÉE. Transfert des données aux secours.");
         if (typeof Hardware !== "undefined" && Hardware.vibratePattern) {

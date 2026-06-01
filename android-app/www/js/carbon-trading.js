@@ -37,7 +37,7 @@ window.generateEcoReport = function() {
         serialVal.innerText = "CEE-" + Math.random().toString(36).substring(2, 10).toUpperCase() + "-" + new Date().getFullYear();
         
         certScreen.classList.remove('hidden');
-        if(typeof speak === 'function') speak('Trajet terminé. Score écologique excellent. Certificat d\\'économie d\\'énergie généré avec succès.');
+        if(typeof speak === 'function') speak("Trajet terminé. Score écologique excellent. Certificat d'économie d'énergie généré avec succès.");
         
         // Update Wallet Badge if exists
         const walletBtn = document.getElementById('dock-btn-wallet');
@@ -61,7 +61,7 @@ window.openTradingFloor = function() {
     inventory.innerText = window.ceeCertificates + " CEE Disponibles";
     floorScreen.classList.remove('hidden');
     
-    if(typeof speak === 'function') speak('Accès à la salle de marché du carbone. Des mégacorporations attendent d\\'acheter vos certificats.');
+    if(typeof speak === 'function') speak("Accès à la salle de marché du carbone. Des mégacorporations attendent d'acheter vos certificats.");
 
     // Simulation du cours de la bourse
     window.tradingInterval = setInterval(() => {
