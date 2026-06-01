@@ -238,6 +238,13 @@ window.initMapController = async function() {
             autocompleteStart = new google.maps.places.Autocomplete(startInputOld, {
                 fields: ['geometry', 'name']
             });
+
+            autocompleteStart.addListener('place_changed', () => {
+                const searchEl = document.getElementById('route-search');
+                if (searchEl && searchEl.value.trim() !== "") {
+                    window.searchDestination();
+                }
+            });
         }
 
         // Autocomplete Classique pour la Recherche (Destination)

@@ -1,20 +1,21 @@
-const CACHE_NAME = 'mon50cc-cache-v70004';
+const CACHE_NAME = 'mon50cc-cache-v70005';
 const urlsToCache = [
   '/',
-  '/index.html',
-  '/css/premium.css',
-  '/js/config.js',
-  '/js/infallible.js',
-  '/js/crypto-native.js',
-  '/js/app-core.js',
-  '/js/app-map.js',
-  '/js/app-ui.js',
-  '/js/app-features.js',
-  '/js/app-wallet.js',
-  '/js/app-garage.js',
-  '/js/i18n.js',
-  '/js/auth.js',
-  '/js/database.js'
+  '/index.html?v=70005',
+  '/css/premium.css?v=70005',
+  '/css/style.css?v=70005',
+  '/js/config.js?v=70005',
+  '/js/infallible.js?v=70005',
+  '/js/crypto-native.js?v=70005',
+  '/js/app-core.js?v=70005',
+  '/js/app-map.js?v=70005',
+  '/js/app-ui.js?v=70005',
+  '/js/app-features.js?v=70005',
+  '/js/app-wallet.js?v=70005',
+  '/js/app-garage.js?v=70005',
+  '/js/i18n.js?v=70005',
+  '/js/auth.js?v=70005',
+  '/js/database.js?v=70005'
 ];
 
 self.addEventListener('install', event => {
