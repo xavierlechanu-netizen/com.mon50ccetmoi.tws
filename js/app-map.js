@@ -152,8 +152,8 @@ window.searchDestination = function() {
     const searchEl = document.getElementById('route-search-gmp') || document.getElementById('route-search');
     const startEl = document.getElementById('route-start-gmp') || document.getElementById('route-start');
     
-    const query = searchEl.inputValue !== undefined ? searchEl.inputValue : searchEl.value;
-    const startQuery = startEl.inputValue !== undefined ? startEl.inputValue : startEl.value;
+    const query = searchEl ? (searchEl.inputValue !== undefined ? searchEl.inputValue : searchEl.value) : "";
+    const startQuery = startEl ? (startEl.inputValue !== undefined ? startEl.inputValue : startEl.value) : "";
     
     if (!query) return;
 
