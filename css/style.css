@@ -3845,3 +3845,5 @@ body.shadow-mode .tactical-speed-val {
 #search-container > * {
     pointer-events: auto;
 }
+
+.pac-container { z-index: 30000 !important; }

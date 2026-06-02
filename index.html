@@ -486,7 +486,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js?v=70005').then(registration => {
+                navigator.serviceWorker.register('sw.js?v=70006').then(registration => {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
                 }, err => {
                     console.log('ServiceWorker registration failed: ', err);
@@ -496,7 +496,7 @@
     </script>
 
     <!-- Search Tool (Top) -->
-    <div id="search-container" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; z-index:20000; display:flex; flex-direction:column; gap:10px;">
+    <div id="search-container" style="position:fixed; left:50%; transform:translateX(-50%); width:90%; max-width:400px; z-index:20000; display:flex; flex-direction:column; gap:10px;">
         <!-- Départ Manuel (Optionnel/Fallback) -->
         <div id="manual-start-box" class="glassmorphism hidden" style="display:flex; align-items:center; background:rgba(0,0,0,0.8); border-radius:25px; padding:5px 15px; border:1px solid #ffb703;">
             <button onclick="window.getLocationGPS()" title="Utiliser ma position GPS" style="background:none; border:none; color:#ffb703; cursor:pointer;"><i class="fa-solid fa-location-crosshairs"></i></button>
@@ -522,7 +522,7 @@
     </div>
 
     <!-- Bottom Navigation Info Bar -->
-    <div id="nav-info-bar" class="glassmorphism hidden" style="position:fixed; bottom:100px; left:50%; transform:translateX(-50%); z-index:20000; display:flex; justify-content:space-around; width:90%; max-width:400px; background:rgba(0,0,0,0.9); padding:15px; border-radius:20px; border:1px solid rgba(255,255,255,0.2);">
+    <div id="nav-info-bar" class="glassmorphism" style="position:fixed; bottom:100px; left:50%; transform:translateX(-50%); z-index:20000; display:none; justify-content:space-around; width:90%; max-width:400px; background:rgba(0,0,0,0.9); padding:15px; border-radius:20px; border:1px solid rgba(255,255,255,0.2);">
         <div class="info-group" style="text-align:center; color:white;">
             <div style="font-size:0.8rem; color:#aaa;">ETA</div>
             <div id="nav-eta" style="font-weight:bold; font-size:1.2rem; color:#00d2ff;">--:--</div>
