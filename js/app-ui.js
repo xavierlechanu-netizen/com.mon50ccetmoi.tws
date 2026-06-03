@@ -254,7 +254,7 @@ window.showPage = function(page) {
                 <ul style="color: #aaa; font-size: 0.8rem; text-align: left; padding-left: 20px;">
                     <li><strong style="color: #fff;">-20% de réduction</strong> sur votre assurance tous risques grâce à l'IA Prédictive.</li>
                     <li><strong style="color: #fff;">Garantie panne 0 km</strong> incluse avec dépannage express.</li>
-                    <li><strong style="color: #fff;">Bonus de bonne conduite</strong> (Ride-to-Earn convertible en réductions).</li>
+                    <li><strong style="color: #fff;">Bonus de bonne conduite</strong> (Rouler & Gagner convertible en réductions).</li>
                 </ul>
                 <button class="btn-insurance" style="width:100%; margin-top:10px; background: #ffb703; color: black; font-weight: bold;" onclick="showPage('insurance')">VOIR MON OFFRE ASSURANCE</button>
             </div>

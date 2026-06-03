@@ -308,7 +308,7 @@ window.NeuralHUD = {
                 const speed = parseFloat(speedEl.textContent || 0);
                 
                 if (window.isRiding) {
-                    // RIDE-TO-EARN logic
+                    // ROULER & GAGNER logic
                     this.tokenBalance += (speed / 1000);
                     this.updateTokenDisplay();
                     

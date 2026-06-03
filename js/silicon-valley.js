@@ -49,7 +49,7 @@ window.toggleARVision = async function() {
     }
 };
 
-// 2. WEB3 RIDE-TO-EARN WALLET
+// 2. WEB3 ROULER & GAGNER WALLET
 window.braveCoins = parseFloat(localStorage.getItem('braveCoins') || '0.00');
 
 window.showCryptoWallet = function() {
