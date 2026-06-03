@@ -10,6 +10,8 @@ async function calculateRouteSansAutoroute(start, end) {
         return;
     }
 
+    window.currentRouteDestination = end; // Store for GO button
+
     // Nettoyage des tracés précédents
     currentRoutePolylines.forEach(p => p.setMap(null));
     currentRoutePolylines = [];
@@ -196,6 +198,17 @@ window.searchDestination = function() {
         }
     });
 }
+
+window.launchNativeGPS = function() {
+    if (!window.currentRouteDestination) return;
+    const lat = typeof window.currentRouteDestination.lat === 'function' ? window.currentRouteDestination.lat() : window.currentRouteDestination.lat;
+    const lng = typeof window.currentRouteDestination.lng === 'function' ? window.currentRouteDestination.lng() : window.currentRouteDestination.lng;
+    const isWazeInstalled = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    // Default to Google Maps which supports avoidHighways via dirflg=h (partially)
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving&dirflg=h`;
+    window.open(url, '_blank');
+};
 
 // --- 4. SERVICES COMMUNAUTAIRES (SIGNALEMENTS) ---
 window.toggleHazardMenu = function() {

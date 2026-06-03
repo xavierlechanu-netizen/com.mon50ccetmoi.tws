@@ -486,7 +486,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js?v=70006').then(registration => {
+                navigator.serviceWorker.register('sw.js?v=70007').then(registration => {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
                 }, err => {
                     console.log('ServiceWorker registration failed: ', err);
@@ -522,7 +522,7 @@
     </div>
 
     <!-- Bottom Navigation Info Bar -->
-    <div id="nav-info-bar" class="glassmorphism" style="position:fixed; bottom:100px; left:50%; transform:translateX(-50%); z-index:20000; display:none; justify-content:space-around; width:90%; max-width:400px; background:rgba(0,0,0,0.9); padding:15px; border-radius:20px; border:1px solid rgba(255,255,255,0.2);">
+    <div id="nav-info-bar" class="glassmorphism" style="position:fixed; bottom:100px; left:50%; transform:translateX(-50%); z-index:20000; display:none; justify-content:space-around; align-items:center; width:90%; max-width:400px; background:rgba(0,0,0,0.9); padding:10px 15px; border-radius:20px; border:1px solid rgba(255,255,255,0.2);">
         <div class="info-group" style="text-align:center; color:white;">
             <div style="font-size:0.8rem; color:#aaa;">ETA</div>
             <div id="nav-eta" style="font-weight:bold; font-size:1.2rem; color:#00d2ff;">--:--</div>
@@ -535,6 +535,7 @@
             <div style="font-size:0.8rem; color:#aaa;">Temps</div>
             <div id="nav-time" style="font-weight:bold; font-size:1.2rem;">-- min</div>
         </div>
+        <button id="btn-go-native" onclick="window.launchNativeGPS()" style="background:#00d2ff; color:#000; border:none; padding:10px 20px; border-radius:15px; font-weight:bold; font-size:1.2rem; cursor:pointer; box-shadow:0 0 15px rgba(0,210,255,0.5);">GO</button>
     </div>
 
     <!-- Premium Control Row -->
