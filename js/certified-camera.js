@@ -75,7 +75,33 @@ window.CertifiedCamera = {
         uiContainer.appendChild(btnCapture);
         uiContainer.appendChild(btnClose);
 
+        // HUD Scanner & Crosshair
+        const scannerOverlay = document.createElement('div');
+        scannerOverlay.style = `
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 5;
+            display: flex; justify-content: center; align-items: center;
+        `;
+        scannerOverlay.innerHTML = `
+            <div style="width: 250px; height: 250px; border: 2px solid rgba(0, 255, 204, 0.5); position: relative; box-shadow: inset 0 0 20px rgba(0,255,204,0.2);">
+                <div style="position: absolute; top: -10px; left: -10px; width: 30px; height: 30px; border-top: 4px solid #00ffcc; border-left: 4px solid #00ffcc;"></div>
+                <div style="position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; border-top: 4px solid #00ffcc; border-right: 4px solid #00ffcc;"></div>
+                <div style="position: absolute; bottom: -10px; left: -10px; width: 30px; height: 30px; border-bottom: 4px solid #00ffcc; border-left: 4px solid #00ffcc;"></div>
+                <div style="position: absolute; bottom: -10px; right: -10px; width: 30px; height: 30px; border-bottom: 4px solid #00ffcc; border-right: 4px solid #00ffcc;"></div>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; background: rgba(255, 0, 85, 0.8); border-radius: 50%;"></div>
+                <div style="width: 100%; height: 2px; background: rgba(0, 255, 204, 0.8); position: absolute; top: 0; left: 0; animation: scanLine 2s linear infinite; box-shadow: 0 0 10px #00ffcc;"></div>
+            </div>
+            <style>
+                @keyframes scanLine {
+                    0% { top: 0; }
+                    50% { top: 100%; }
+                    100% { top: 0; }
+                }
+            </style>
+        `;
+
         this.overlayEl.appendChild(this.videoEl);
+        this.overlayEl.appendChild(scannerOverlay);
         this.overlayEl.appendChild(uiContainer);
         document.body.appendChild(this.overlayEl);
 
