@@ -224,7 +224,7 @@ window.toggleHazardMenu = function() {
     }
 };
 
-window.saveHazard = function(type) {
+window.saveHazard = function(type, description = "") {
     if(!currentPosition) return;
 
     // VERIFICATION DU BAN
@@ -238,6 +238,7 @@ window.saveHazard = function(type) {
         lat: currentPosition.lat, 
         lon: currentPosition.lng, 
         type: type, 
+        description: description,
         author: window.session ? window.session.username : 'Anonyme',
         date: new Date().toISOString()
     };

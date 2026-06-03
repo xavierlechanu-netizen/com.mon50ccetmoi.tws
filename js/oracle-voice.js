@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ORACLE VOICE ENGINE - Voice Recognition & Commands (PHASE SINGULARITY)
  * Permet au pilote de contrôler l'app sans lâcher le guidon.
  */
@@ -99,9 +99,24 @@ class OracleVoice {
         vibrate(100);
 
         // ── Dangers & Alertes ──────────────────────────────────────
-        if (text.includes("danger") || text.includes("radar") || text.includes("police") || text.includes("contrôle")) {
-            if (typeof window.reportHazard === "function") {
-                window.reportHazard('radar', "Signalement Vocal");
+        if (text.includes("alerte rouge") || text.includes("danger immédiat") || text.includes("chauffard")) {
+            let description = "";
+            const triggers = ["alerte rouge", "danger immédiat", "chauffard"];
+            for (let t of triggers) {
+                if (text.includes(t)) {
+                    description = text.substring(text.indexOf(t) + t.length).trim();
+                    break;
+                }
+            }
+            if (typeof window.saveHazard === "function") {
+                window.saveHazard('danger_immediat', description);
+                speak(`Alerte rouge envoyée${description ? ' pour ' + description : ''}. Prudence.`);
+            } else {
+                speak("Je n'ai pas pu signaler le danger.");
+            }
+        } else if (text.includes("danger") || text.includes("radar") || text.includes("police") || text.includes("contrôle")) {
+            if (typeof window.saveHazard === "function") {
+                window.saveHazard('radar');
                 speak("Danger signalé à la communauté. Restez prudent.");
             } else {
                 speak("Je n'ai pas pu signaler le danger. La carte n'est pas encore chargée.");

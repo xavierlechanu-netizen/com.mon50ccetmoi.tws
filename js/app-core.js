@@ -1094,12 +1094,48 @@ function checkHazardProximity(lat, lng) {
         const p2 = new google.maps.LatLng(h.lat, h.lon);
         const dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
         
-        if (dist < 100 && lastSpokenHazard !== h.lat + h.lon) { 
+        // --- ALERTE ROUGE (GHOST CAR) ---
+        if (h.type === 'danger_immediat') {
+            const ageMins = (Date.now() - new Date(h.date).getTime()) / 60000;
+            if (dist < 1000 && ageMins <= 15 && window.lastSpokenRedAlert !== h.lat + h.lon) {
+                window.lastSpokenRedAlert = h.lat + h.lon;
+                if (typeof window.triggerRedAlert === 'function') {
+                    window.triggerRedAlert(Math.round(dist), h.description || "");
+                }
+            }
+        } 
+        // --- DANGERS STANDARDS ---
+        else if (dist < 100 && lastSpokenHazard !== h.lat + h.lon) { 
             speak(`Attention : ${h.type} signalé à proximité.`);
             lastSpokenHazard = h.lat + h.lon;
             showHazardConfirmation(index, h.type);
         }
     });
+}
+
+window.triggerRedAlert = function(distance, description) {
+    // Annonce vocale
+    let alertMsg = `Attention, conduite dangereuse signalée`;
+    if (description) {
+        alertMsg += ` : ${description}`;
+    }
+    alertMsg += ` à ${distance} mètres devant vous. Restez vigilant.`;
+    speak(alertMsg);
+
+    // Effet visuel clignotant rouge
+    const overlay = document.createElement('div');
+    overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; box-shadow: inset 0 0 50px 20px rgba(255, 0, 0, 0.8); z-index:999999; pointer-events:none; transition: opacity 0.5s;";
+    document.body.appendChild(overlay);
+
+    let count = 0;
+    const interval = setInterval(() => {
+        overlay.style.opacity = (count % 2 === 0) ? "0" : "1";
+        count++;
+        if (count > 10) {
+            clearInterval(interval);
+            overlay.remove();
+        }
+    }, 500);
 }
 
 function showHazardConfirmation(index, type) {
