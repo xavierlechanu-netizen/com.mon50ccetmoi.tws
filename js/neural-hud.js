@@ -308,8 +308,8 @@ window.NeuralHUD = {
                 const speed = parseFloat(speedEl.textContent || 0);
                 
                 if (window.isRiding) {
-                    // ROULER & GAGNER logic
-                    this.tokenBalance += (speed / 1000);
+                    // ROULER & GAGNER logic: 1 km = 1 BVC (Interval is 100ms)
+                    this.tokenBalance += (speed / 36000);
                     this.updateTokenDisplay();
                     
                     if (Math.random() > 0.99) this.speakOracle('earnings');
