@@ -1,6 +1,6 @@
 let currentCaseId = null;
 let currentReportType = 'EXPERT';
-let currentPrice = 149.99;
+let currentPrice = 199.99;
 
 function selectReport(type, price) {
     currentReportType = type;
