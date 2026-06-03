@@ -388,7 +388,18 @@ window.showPage = function(page) {
                 <p style="font-size:0.8rem; color:#888; margin-top:10px; text-align:center;">üéñÔ∏è Vous avez r√©ussi <strong>${wins}/150</strong> d√©fis pour le Badge Pro</p>
             </div>
 
-            <button class="btn-insurance" style="margin-top:20px; width:100%; background:#9b59b6; color:white;" onclick="toggleMenu()">CONTINUER L'ASCENSION</button>
+                          <button class="btn-insurance" style="margin-top:20px; width:100%; background:#9b59b6; color:white;" onclick="toggleMenu()">CONTINUER L''ASCENSION</button>
+              ${progress >= 100 && !localStorage.getItem(`defi_claimed_${currentPeriodIdx}`) ? `
+                  <button class="btn-insurance" style="margin-top:10px; width:100%; background:linear-gradient(90deg, #b700ff, #ff0055); color:white; font-weight:bold; box-shadow:0 0 15px rgba(183,0,255,0.5);" onclick="
+                      if(window.Web4Economy) {
+                          window.Web4Economy.mineToken(5.0, 'DÈfi Quinzaine ComplÈtÈ');
+                          localStorage.setItem('defi_claimed_${currentPeriodIdx}', 'true');
+                          window.session.completedChallengesCount = (window.session.completedChallengesCount || 0) + 1;
+                          alert('FÈlicitations ! Vous avez remportÈ 5 BVC pour avoir complÈtÈ le dÈfi.');
+                          showPage('defis');
+                      }
+                  ">R…CLAMER MES 5 BVC</button>
+              ` : (progress >= 100 ? `<button class="btn-insurance" style="margin-top:10px; width:100%; background:#333; color:#aaa; cursor:not-allowed;" disabled>R…COMPENSE DE 5 BVC R…CUP…R…E</button>` : '')}
         </div>`;
     } else if(page === 'roadbooks') {
         if(typeof content !== 'undefined') content.innerHTML = `<h3><i class="fa-solid fa-map-location-dot"></i> Navigation & Roadbooks</h3>
@@ -765,3 +776,4 @@ function handlePerfTracking(speedKmh) {
         setTimeout(() => perfHud.classList.add('hidden'), 10000);
     }
 }
+
