@@ -217,7 +217,10 @@ window.MecaWizard = {
                     <p><i class="fa-solid fa-microchip" style="color:#10a37f;"></i> <strong>Analyse IA :</strong> Fuite détectée sur la ligne d'échappement (Fréquence résonnante à 120Hz).</p>
                     <p style="margin-top:10px;"><i class="fa-solid fa-wrench" style="color:#10a37f;"></i> <strong>Recommandation :</strong> Vérifier le joint d'échappement au niveau du cylindre. Risque de perte de puissance et de surconsommation.</p>
                 </div>
-                <button onclick="document.getElementById('meca-result').innerHTML='';" style="margin-top:20px; background:transparent; border:1px solid #10a37f; color:#10a37f; padding:8px 15px; border-radius:5px; cursor:pointer;">
+                <button onclick="if(window.CertifiedCamera) window.CertifiedCamera.open(); else alert('Module de caméra non disponible');" style="margin-top:20px; width:100%; background:#ffb703; color:#000; padding:10px 15px; border-radius:5px; border:none; font-weight:bold; cursor:pointer; margin-bottom:10px;">
+                    <i class="fa-solid fa-camera"></i> Ajouter Preuve Photo au rapport
+                </button>
+                <button onclick="document.getElementById('meca-result').innerHTML='';" style="width:100%; background:transparent; border:1px solid #10a37f; color:#10a37f; padding:8px 15px; border-radius:5px; cursor:pointer;">
                     Fermer le rapport
                 </button>
             </div>
