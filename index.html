@@ -594,6 +594,18 @@
         </button>
     </div>
 
+<!-- MODERN CYBERPUNK SPEEDOMETER -->
+<div id="speed-hud-modern" style="position:fixed; top:20px; left:20px; z-index:9000; background:rgba(0, 5, 10, 0.85); border:1px solid #00d2ff; padding:20px 30px; border-radius:15px; color:#fff; font-family:'JetBrains Mono', monospace; box-shadow:0 0 20px rgba(0, 210, 255, 0.4); backdrop-filter:blur(10px); display:flex; flex-direction:column; align-items:center; pointer-events:none; transition:all 0.3s ease;">
+    <div style="font-size: 0.8rem; color: #00d2ff; letter-spacing: 2px; margin-bottom: 5px; text-transform: uppercase;">Télémétrie</div>
+    <div style="display:flex; align-items:baseline; gap:5px;">
+        <span id="speed" style="font-size: 4rem; font-weight: 900; line-height: 1; text-shadow: 0 0 15px #00d2ff; color:#fff;">0</span>
+        <span style="font-size: 1.2rem; color: #aaa;">km/h</span>
+    </div>
+    <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 10px; overflow: hidden;">
+        <div id="speed-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00d2ff, #b700ff); box-shadow: 0 0 10px #00d2ff; transition: width 0.3s ease;"></div>
+    </div>
+</div>
+
 <!-- INTERCEPTOR HUD ELEMENTS -->
 <div id="hud" style="position:fixed; top:20px; right:20px; z-index:9000; display:flex; flex-direction:column; gap:10px; pointer-events:none; transition: all 0.3s ease;">
     <div id="weather-hud" style="background:rgba(0, 10, 20, 0.8); border:1px solid #00d2ff; padding:12px 20px; border-radius:12px; color:#fff; font-family:'JetBrains Mono', monospace; font-size:14px; text-shadow:0 0 10px #00d2ff; box-shadow:0 0 15px rgba(0, 210, 255, 0.5); backdrop-filter:blur(5px); display:flex; gap:15px; align-items:center;">

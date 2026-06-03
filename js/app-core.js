@@ -904,9 +904,14 @@ function updatePosition(position) {
     const rawSpeed = (speed !== null && speed >= 0) ? speed * 3.6 : 0;
     const speedKmh = Math.round(getSmoothedSpeed(rawSpeed));
     const speedEl = document.getElementById('speed');
+    const speedBar = document.getElementById('speed-bar');
     
     if (speedEl) {
         speedEl.textContent = speedKmh;
+        if (speedBar) {
+            const percentage = Math.min((speedKmh / 80) * 100, 100);
+            speedBar.style.width = `${percentage}%`;
+        }
         
         // Update Neural Engine (Grip & Stress)
         const currentTemp = window.lastWeatherTemp || 20;
