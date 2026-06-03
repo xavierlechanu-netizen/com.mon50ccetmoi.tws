@@ -188,8 +188,15 @@
 
         <!-- EXPERT DASHBOARD (Hidden until paid) -->
         <div id="expert-dashboard" style="display: none; margin-top: 20px;">
-            <div style="background: #111; color: #00ffcc; padding: 20px; border-radius: 8px; border: 1px solid #0056b3; font-family: monospace;">
-                <h3 style="margin-top: 0; color: #00d2ff;"><i class="fa-solid fa-satellite-dish"></i> TÉLÉMÉTRIE BLACKBOX : <span id="telemetry-id"></span></h3>
+            <div style="background: #111; color: #00ffcc; padding: 20px; border-radius: 8px; border: 1px solid #0056b3; font-family: monospace; position: relative; overflow: hidden;">
+                
+                <!-- BACKGROUND WATERMARK -->
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 4rem; font-weight: 800; color: rgba(255, 183, 3, 0.1); white-space: nowrap; pointer-events: none; z-index: 0; text-align: center; line-height: 1.2;">
+                    CERTIFICATION<br>mon50cc.com
+                </div>
+
+                <div style="position: relative; z-index: 1;">
+                    <h3 style="margin-top: 0; color: #00d2ff;"><i class="fa-solid fa-satellite-dish"></i> TÉLÉMÉTRIE BLACKBOX : <span id="telemetry-id"></span></h3>
                 
                 <div style="display: flex; gap: 15px; margin-bottom: 20px;">
                     <div style="flex: 1; background: #222; padding: 15px; border-radius: 6px; text-align: center;">
@@ -216,6 +223,7 @@
                 <button onclick="window.print()" style="margin-top: 20px; width: 100%; padding: 12px; background: #00d2ff; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
                     <i class="fa-solid fa-file-pdf"></i> Générer l'Attestation Officielle (PDF)
                 </button>
+                </div> <!-- END OF Z-INDEX:1 -->
             </div>
         </div>
     </div>
