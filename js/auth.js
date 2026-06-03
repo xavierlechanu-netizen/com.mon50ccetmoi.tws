@@ -175,6 +175,26 @@ window.loginAsGuest = function() {
     window.location.href = 'index.html';
 };
 
+window.loginAsInvestor = function() {
+    const investorUser = { 
+        username: "Investisseur VIP", 
+        brand: "Sur-Mesure", 
+        role: "investor", 
+        isGuest: false, 
+        registrationDate: Date.now() - (100 * 24 * 60 * 60 * 1000),
+        totalDistance: 1542.5,
+        completedChallengesCount: 45
+    };
+    secureSetItem('session', JSON.stringify(investorUser));
+    
+    // Inject Demo Stats
+    localStorage.setItem('braveCoins', '500.00');
+    localStorage.setItem('mon50_tokens', '500.00');
+    localStorage.setItem('pilot_xp', '25000');
+    
+    window.location.href = 'index.html';
+};
+
 window.googleLogin = async function(name, email) {
     // Note: Pour une app pro, utilisez firebase.auth.GoogleAuthProvider()
     // Ici on simule pour garder la compatibilité avec le bouton GSI actuel
