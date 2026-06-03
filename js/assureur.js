@@ -39,7 +39,8 @@ async function searchCase() {
         currentCaseId = codeInput;
         
         if (data.payment_status === 'PAID') {
-            statusEl.innerHTML = '<span class="success"><i class="fa-solid fa-check"></i> Ce rapport a déjà été réglé et déverrouillé.</span>';
+            statusEl.innerHTML = '<span class="success"><i class="fa-solid fa-check"></i> Ce rapport a déjà été réglé et déverrouillé. Accès autorisé.</span>';
+            showExpertTelemetry(currentCaseId, data.report_type || 'EXPERT');
             return;
         }
         
@@ -114,9 +115,15 @@ async function payReport() {
     }
 }
 
-function showExpertTelemetry(caseId, reportType) {
+function showExpertTelemetry(caseId, reportType = 'EXPERT') {
     const dashboard = document.getElementById('expert-dashboard');
     if (!dashboard) return;
+    
+    // Mettre à jour le titre avec le type de rapport
+    const titleEl = document.querySelector('#expert-dashboard h3');
+    if (titleEl) {
+        titleEl.innerHTML = `<i class="fa-solid fa-satellite-dish"></i> TÉLÉMÉTRIE BLACKBOX : <span id="telemetry-id">${caseId}</span> <span style="font-size:0.6em; background:#ffb703; color:#000; padding:2px 8px; border-radius:10px; margin-left:10px; vertical-align:middle;">RAPPORT ${reportType}</span>`;
+    }
     
     // Génération de fausses données d'accident pour la démo
     // Dans une version finale, ces données proviendraient de db.collection('litigation_proposals')
