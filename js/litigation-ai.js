@@ -354,7 +354,7 @@ window.LitigationAI = {
                 </p>
 
                 <div class="litigation-actions">
-                    <button class="btn-litigation-start" onclick="if(window.CertifiedCamera) window.CertifiedCamera.open(); else alert('Module de caméra non disponible');" style="background:#ffb703; color:#000; margin-bottom:10px;">
+                    <button class="btn-litigation-start" onclick="if(window.CertifiedCamera) window.CertifiedCamera.open('${caseCode}'); else alert('Module de caméra non disponible');" style="background:#ffb703; color:#000; margin-bottom:10px;">
                         <i class="fa-solid fa-camera"></i>
                         Ajouter Preuve Photo (Horodatée)
                     </button>

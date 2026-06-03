@@ -7,9 +7,11 @@ window.CertifiedCamera = {
     stream: null,
     videoEl: null,
     overlayEl: null,
+    currentCaseCode: null,
 
-    open: async function() {
+    open: async function(caseCode = null) {
         if (this.overlayEl) return; // Déjà ouvert
+        this.currentCaseCode = caseCode;
 
         // Création de l'interface en plein écran
         this.overlayEl = document.createElement('div');
@@ -45,7 +47,8 @@ window.CertifiedCamera = {
 
         const hudText = document.createElement('div');
         hudText.style = "color: #00ffcc; font-family: monospace; text-shadow: 0 0 5px #000; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 10px; font-size: 0.9rem;";
-        hudText.innerHTML = `<i class="fa-solid fa-lock"></i> Mode Preuve Certifiée (mon50cc.com)`;
+        const hudCase = caseCode ? ` - DOSSIER: ${caseCode}` : '';
+        hudText.innerHTML = `<i class="fa-solid fa-lock"></i> Mode Preuve Certifiée (mon50cc.com)${hudCase}`;
 
         const btnCapture = document.createElement('button');
         btnCapture.innerHTML = '<i class="fa-solid fa-camera"></i> CAPTURER';
@@ -168,12 +171,14 @@ window.CertifiedCamera = {
         ctx.font = `${dataSize}px monospace`;
         ctx.fillStyle = "#00ffcc"; // Cyan Cyberpunk
         
-        const textData = [
-            `DATE : ${dateStr} - HEURE : ${timeStr}`,
-            `GPS  : LAT ${lat} | LNG ${lng}`,
-            `VITESSE AU MOMENT DU CHOC/ARRET : ${speed} KM/H`,
-            `SIGNATURE SHA : ${Math.random().toString(36).substring(2,15).toUpperCase()} (VALIDATION CLOUD)`
-        ];
+        const textData = [];
+        if (this.currentCaseCode) {
+            textData.push(`DOSSIER LITIGE : ${this.currentCaseCode}`);
+        }
+        textData.push(`DATE : ${dateStr} - HEURE : ${timeStr}`);
+        textData.push(`GPS  : LAT ${lat} | LNG ${lng}`);
+        textData.push(`VITESSE AU MOMENT DU CHOC/ARRET : ${speed} KM/H`);
+        textData.push(`SIGNATURE SHA : ${Math.random().toString(36).substring(2,15).toUpperCase()} (VALIDATION CLOUD)`);
 
         textData.forEach((line) => {
             ctx.fillText(line, padding, startY);
@@ -185,7 +190,8 @@ window.CertifiedCamera = {
         // ----------------------------------------------------
         const dataURL = canvas.toDataURL('image/jpeg', 0.9);
         const link = document.createElement('a');
-        link.download = `Preuve-Expertise-mon50cc-${Date.now()}.jpg`;
+        const fileName = this.currentCaseCode ? `Preuve-Litige-${this.currentCaseCode}.jpg` : `Preuve-Expertise-mon50cc-${Date.now()}.jpg`;
+        link.download = fileName;
         link.href = dataURL;
         link.click();
 
