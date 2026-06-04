@@ -222,6 +222,10 @@
     <!-- APPLE SMART DOCK -->
     <div id="apple-smart-dock" style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; gap: 20px; padding: 15px 25px; border-radius: 40px; background: rgba(25, 25, 35, 0.4); backdrop-filter: blur(25px) saturate(200%); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2);">
         
+        <!-- SOS / Ange Gardien -->
+        <button id="dock-btn-sos" onclick="if(typeof triggerFallAlert === 'function') triggerFallAlert(true);" style="background: none; border: none; color: #ff0055; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-truck-medical" style="filter: drop-shadow(0 0 5px #ff0055);"></i>
+        </button>
         
         
         <!-- Avocat de Poche -->
@@ -289,7 +293,22 @@
       <div style="margin-top: 50px; text-align: center;">
           <i class="fa-solid fa-shield-check" style="font-size: 4rem; color: #10a37f; filter: drop-shadow(0 0 20px #10a37f); margin-bottom: 20px;"></i>
           <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Sécurité & Confidentialité</h1>
-          <p style="color: #10a37f; font-weight: bold; margin-top: 5px;">Conformité IMT-2030 (6G), FIPS 203/204 (PQC), IEEE P2733 (Neuro-Privacy), ISO 42001 (AI), ISO 14068-1 (Net-Zero), eIDAS 2.0, NIS2, ETSI EN 303, ISO 9001, 14001, 15408, 22301, 26262, 27001, 27018, 27701, SOC 2 & PCI DSS</p>
+          <p style="color: #10a37f; font-weight: bold; margin-top: 5px;">Conformité IMT-2030 (6G), NIS2 & Ange Gardien</p>
+
+      <!-- BADGE 7000 LANGUES -->
+      <div style="margin: 20px auto; width: 90%; max-width: 400px; background: rgba(183, 0, 255, 0.1); border: 1px solid #b700ff; border-radius: 20px; padding: 15px; text-align: center; box-shadow: 0 0 15px rgba(183, 0, 255, 0.3);">
+          <h3 style="color: #b700ff; margin: 0 0 5px 0; font-size: 1.1rem;"><i class="fa-solid fa-earth-americas fa-spin-pulse"></i> Jarvis Universal Translator</h3>
+          <p style="color: #fff; font-size: 0.9rem; margin: 0; font-weight: bold;">7000+ dialectes & langues supportés par IA.</p>
+          <p style="color: #aaa; font-size: 0.7rem; margin-top: 5px;">Génération vocale dynamique. Sans téléchargement.</p>
+      </div>
+
+      <div style="margin: 20px auto; width: 90%; max-width: 400px; background: rgba(0,210,255,0.1); border: 1px solid #00d2ff; border-radius: 20px; padding: 20px; text-align: left;">
+          <h3 style="color: #00d2ff; margin: 0 0 10px 0;"><i class="fa-solid fa-user-shield"></i> Contacts Ange Gardien</h3>
+          <p style="color: #aaa; font-size: 0.8rem; margin-bottom: 15px;">Numéros prévenus automatiquement en cas de chute grave.</p>
+          <input type="tel" id="guardian-contact-1" placeholder="Contact 1 (ex: 0612345678)" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff;">
+          <input type="tel" id="guardian-contact-2" placeholder="Contact 2 (Optionnel)" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #444; background: #111; color: #fff;">
+          <button onclick="if(typeof window.saveGuardianContacts === 'function') window.saveGuardianContacts();" style="background: #00d2ff; color: #000; border: none; border-radius: 20px; padding: 10px 20px; font-weight: bold; width: 100%; cursor: pointer;">ENREGISTRER</button>
+      </div>
 
       <div style="margin: 20px auto; width: 90%; max-width: 400px; background: rgba(255,0,0,0.2); border: 2px solid #ff0000; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 0 20px rgba(255,0,0,0.5);">
           <h3 style="color: #ff0000; margin: 0 0 10px 0; font-size: 1.2rem; text-transform:uppercase;"><i class="fa-solid fa-skull"></i> Zone Critique</h3>

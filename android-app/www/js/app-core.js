@@ -478,6 +478,11 @@ document.addEventListener('visibilitychange', () => {
 async function checkLegalConsent() {
     const consent = localStorage.getItem('legal_consent_accepted');
     if (consent === 'true') {
+        // Déclenchement du message de bienvenue pour les utilisateurs récurrents
+        const name = (window.session && !window.session.isGuest) ? window.session.username : "";
+        const welcomeMsg = name ? `Content de vous revoir, ${name}. Systèmes opérationnels.` : "Systèmes opérationnels. Bonne route sur mon 50cc et moi.";
+        setTimeout(() => { if (typeof speak === 'function') speak(welcomeMsg); }, 1000);
+        
         startGeolocation();
         return;
     }

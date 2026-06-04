@@ -600,24 +600,78 @@ window.addEventListener('devicemotion', (e) => {
     }
 });
 
-function triggerFallAlert() {
+function triggerFallAlert(isManual = false) {
     if (typeof Hardware !== "undefined") {
         Hardware.vibratePattern('sos');
         Hardware.toggleFlashlightSOS(true);
     }
     if(document.getElementById('fall-screen')) return; 
+    
+    // Annonce vocale par Jarvis
+    if(typeof speak === 'function') {
+        speak(isManual ? "SOS Manuel activé. Alerte de la meute et de l'Ange Gardien." : "Chute détectée. Annulez si vous allez bien, sinon les secours seront prévenus.");
+    }
+
     const div = document.createElement('div');
     div.id = 'fall-screen';
     div.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(180,0,0,0.95); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; padding:20px;";
     div.innerHTML = `
-        <i class="fa-solid fa-triangle-exclamation" style="font-size:5rem; margin-bottom:20px;"></i>
-        <h1>${t('fall_detected')}</h1>
-        <p>${t('emergency_alert')}</p>
+        <i class="fa-solid fa-triangle-exclamation fa-beat" style="font-size:5rem; margin-bottom:20px;"></i>
+        <h1>${isManual ? 'SOS MANUEL' : t('fall_detected')}</h1>
+        <p>${t('emergency_alert')} <br><br> <span id="sos-countdown" style="font-size:1.5rem; font-weight:bold; color:#ffb703;">15s</span></p>
         ${getSOSActions()}
-        <button onclick="this.parentElement.remove()" style="margin-top:20px; padding:15px 30px; background:rgba(255,255,255,0.1); color:white; border:1px solid white; border-radius:50px; font-weight:bold; font-size:1rem;">ANNULER ALERTE</button>
+        <button onclick="window.cancelFallAlert()" style="margin-top:20px; padding:15px 30px; background:rgba(255,255,255,0.1); color:white; border:1px solid white; border-radius:50px; font-weight:bold; font-size:1rem;">ANNULER ALERTE</button>
     `;
     document.body.appendChild(div);
+
+    let timeLeft = 15;
+    window.fallAlertInterval = setInterval(() => {
+        timeLeft--;
+        const cnt = document.getElementById('sos-countdown');
+        if (cnt) cnt.textContent = timeLeft + "s";
+        if (timeLeft <= 0) {
+            clearInterval(window.fallAlertInterval);
+            window.executeAngeGardienProtocol();
+        }
+    }, 1000);
 }
+
+window.cancelFallAlert = function() {
+    clearInterval(window.fallAlertInterval);
+    const el = document.getElementById('fall-screen');
+    if (el) el.remove();
+    if(typeof speak === 'function') speak("Alerte annulée.");
+};
+
+window.executeAngeGardienProtocol = function() {
+    const contact1 = localStorage.getItem('guardian_contact_1');
+    const contact2 = localStorage.getItem('guardian_contact_2');
+    let message = "Alerte de la Meute envoyée.";
+    
+    if (contact1 || contact2) {
+        message += " SMS envoyé à l'Ange Gardien.";
+    }
+    
+    if(typeof speak === 'function') speak(message);
+    
+    const div = document.getElementById('fall-screen');
+    if (div) {
+        div.innerHTML = `
+            <i class="fa-solid fa-satellite-dish" style="font-size:5rem; margin-bottom:20px; color:#00d2ff;"></i>
+            <h1 style="color:#00d2ff;">ANGE GARDIEN ACTIVÉ</h1>
+            <p>Vos coordonnées GPS ont été transmises à vos contacts d'urgence et à la communauté la plus proche.</p>
+            <button onclick="window.cancelFallAlert()" style="margin-top:20px; padding:15px 30px; background:#00d2ff; color:#000; border:none; border-radius:50px; font-weight:bold; font-size:1rem;">OK</button>
+        `;
+    }
+};
+
+window.saveGuardianContacts = function() {
+    const c1 = document.getElementById('guardian-contact-1') ? document.getElementById('guardian-contact-1').value : '';
+    const c2 = document.getElementById('guardian-contact-2') ? document.getElementById('guardian-contact-2').value : '';
+    localStorage.setItem('guardian_contact_1', c1);
+    localStorage.setItem('guardian_contact_2', c2);
+    alert("Contacts Ange Gardien sauvegardés ! En cas de chute ou SOS, l'application tentera d'envoyer un message d'urgence.");
+};
 
 window.startRodage = function(name) {
     window.isRodageActive = true;

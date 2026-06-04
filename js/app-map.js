@@ -63,7 +63,7 @@ async function calculateRouteSansAutoroute(start, end) {
 
             // --- AJUSTEMENT 50cc ---
             durationSec = Math.round(durationSec * 1.20); // +20% pour scooter 50cc en ville
-            const maxSpeedMs = 40 / 3.6; 
+            const maxSpeedMs = 32 / 3.6; // Vitesse moyenne réaliste pour un 50cc (32 km/h) avec les arrêts
             const googleSpeedMs = distanceMeters / durationSec;
             if (googleSpeedMs > maxSpeedMs) {
                 durationSec = Math.round(distanceMeters / maxSpeedMs);
@@ -73,6 +73,45 @@ async function calculateRouteSansAutoroute(start, end) {
             const destNameLegacy = document.getElementById('route-search').value || 'ITINÉRAIRE 50CC';
             const titleElLegacy = document.querySelector('.route-title');
             if (titleElLegacy) titleElLegacy.textContent = destNameLegacy.toUpperCase();
+
+            // Activer le panneau de guidage interne (Waze-killer)
+            const navInstruction = document.getElementById('nav-instruction');
+            const nextStepName = document.getElementById('next-step-name');
+            const nextStepDist = document.getElementById('next-step-dist');
+            const navIcon = document.querySelector('.nav-icon i');
+
+            if (navInstruction) navInstruction.classList.remove('hidden');
+
+            const nextStep = leg.steps[0];
+            if (nextStep) {
+                let instructionText = nextStep.instructions.replace(/<[^>]*>?/gm, '');
+                if (nextStepName) nextStepName.textContent = instructionText;
+                if (nextStepDist) nextStepDist.textContent = nextStep.distance.text;
+
+                if (navIcon) {
+                    const lowerInst = instructionText.toLowerCase();
+                    if (lowerInst.includes('gauche')) {
+                        navIcon.className = 'fa-solid fa-arrow-turn-up';
+                        navIcon.style.transform = 'scaleX(-1) rotate(90deg)';
+                    } else if (lowerInst.includes('droite')) {
+                        navIcon.className = 'fa-solid fa-arrow-turn-up';
+                        navIcon.style.transform = 'rotate(90deg)';
+                    } else if (lowerInst.includes('rond-point')) {
+                        navIcon.className = 'fa-solid fa-arrows-spin';
+                        navIcon.style.transform = 'rotate(0deg)';
+                    } else {
+                        navIcon.className = 'fa-solid fa-arrow-up';
+                        navIcon.style.transform = 'rotate(0deg)';
+                    }
+                }
+                
+                // JARVIS : Annonce vocale de l'instruction de guidage
+                setTimeout(() => {
+                    if (typeof speak === 'function') {
+                        speak('Guidage interne démarré. Dans ' + nextStep.distance.text + ', ' + instructionText);
+                    }
+                }, 6000); // Décalé de 6 secondes pour laisser Jarvis annoncer l'ETA en premier
+            }
 
             let durationTextStr;
             const totalMins = Math.floor(durationSec / 60);

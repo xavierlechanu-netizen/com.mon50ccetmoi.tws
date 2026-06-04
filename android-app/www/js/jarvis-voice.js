@@ -14,7 +14,7 @@ window.initVoiceAI = function() {
     window.voiceAI.lang = 'fr-FR';
 
     window.voiceAI.onstart = function() {
-        console.log("[J.A.R.V.I.S] Mode écoute activé.");
+        console.log("[J.A.R.V.I.S v3.0] Mode écoute activé.");
         const micIcon = document.getElementById('jarvis-mic-icon');
         if (micIcon) {
             micIcon.style.color = '#0f0';
@@ -28,11 +28,36 @@ window.initVoiceAI = function() {
         console.log("[J.A.R.V.I.S] A entendu : ", transcript);
 
         // Analyse des mots clés (Trigger Words)
-        if (transcript.includes('oracle') || transcript.includes('système')) {
+        if (transcript.includes('oracle') || transcript.includes('système') || transcript.includes('jarvis')) {
             
+            // Commande : Trouver de l'essence
+            if (transcript.includes('essence') || transcript.includes('station')) {
+                if(typeof speak === 'function') speak('Recherche de la station essence la plus proche en cours. Nouvel itinéraire en calcul.');
+                const searchInput = document.getElementById('route-search');
+                if(searchInput) {
+                    searchInput.value = "Station essence";
+                    if (typeof window.searchDestination === 'function') window.searchDestination();
+                }
+            }
+            // Commande : Rentrer à la maison
+            else if (transcript.includes('maison') || transcript.includes('domicile') || transcript.includes('rentrer')) {
+                if(typeof speak === 'function') speak('Calcul de l\'itinéraire de retour. Soyez prudent pilote.');
+                const searchInput = document.getElementById('route-search');
+                if(searchInput) {
+                    searchInput.value = "Centre-ville"; // Adresse par défaut simulée
+                    if (typeof window.searchDestination === 'function') window.searchDestination();
+                }
+            }
+            // Commande : Signaler un accident/danger
+            else if (transcript.includes('accident') || transcript.includes('danger') || transcript.includes('radar')) {
+                if(typeof speak === 'function') speak('Information signalée à la meute. Merci pilote.');
+                if(typeof window.reportHazard === 'function') {
+                    window.reportHazard();
+                }
+            }
             // Commande : Activer le Radar Social
-            if (transcript.includes('radar') || transcript.includes('amis')) {
-                if(typeof speak === 'function') speak('Activation du Radar Social.');
+            else if (transcript.includes('meute') || transcript.includes('amis') || transcript.includes('social')) {
+                if(typeof speak === 'function') speak('Activation du Radar Social. Recherche des pilotes à proximité.');
                 if(typeof window.toggleSocialRadar === 'function') window.toggleSocialRadar();
             }
             // Commande : Activer le Mode Sensation
@@ -40,24 +65,9 @@ window.initVoiceAI = function() {
                 if(typeof speak === 'function') speak('Mode Sensation engagé. Recherche de routes sinueuses.');
                 if(typeof window.toggleSensationMode === 'function') window.toggleSensationMode();
             }
-            // Commande : Trouver de l'essence
-            else if (transcript.includes('essence') || transcript.includes('station')) {
-                if(typeof speak === 'function') speak('Recherche de la station essence la plus proche en cours.');
-                // Simuler une recherche (rediriger vers la barre de recherche)
-                const searchInput = document.getElementById('search-input');
-                if(searchInput) {
-                    searchInput.value = "Station essence";
-                    searchInput.focus();
-                }
-            }
-            // Commande : Signaler un accident/danger
-            else if (transcript.includes('accident') || transcript.includes('danger')) {
-                if(typeof speak === 'function') speak('Danger signalé à la communauté. Merci.');
-                // Appeler la fonction de signalement si existante
-            }
             // Commande Générique incomprise
             else {
-                if(typeof speak === 'function') speak('Je vous écoute, Pilote.');
+                if(typeof speak === 'function') speak('En attente d\'instructions, Pilote.');
             }
         }
     };
