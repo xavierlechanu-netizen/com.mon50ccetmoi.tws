@@ -1,4 +1,4 @@
-﻿// --- SYSTEM STARTUP ---
+// --- SYSTEM STARTUP ---
 function runCinematicStartup() {
     const statusEl = document.getElementById('loader-status');
     const needle = document.getElementById('gauge-needle');
@@ -626,454 +626,13 @@ function triggerFallAlert(isManual = false) {
     const div = document.createElement('div');
     div.id = 'fall-screen';
     div.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(180,0,0,0.95); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; padding:20px;";
-    div.innerHTML = 
+    div.innerHTML = `
         <i class="fa-solid fa-triangle-exclamation fa-beat" style="font-size:5rem; margin-bottom:20px;"></i>
-        <h1>+ 'window.startRodage = function(name) {
-    window.isRodageActive = true;
-    refreshRodageUI();
-    alert(`Mode Rodage ActivÃ©: ${name}. Vitesse max conseillÃ©e: 45km/h. Distance cumulÃ©e comptabilisÃ©e.`);
-    speak("Mode rodage activÃ©. MÃ©nagez votre moteur.");
-    closeScreen();
-    // Simulation d'un point de destination rodage
-    if(currentPosition) {
-        calculateRouteSansAutoroute(currentPosition, { lat: currentPosition.lat + 0.02, lng: currentPosition.lng + 0.02 });
-    }
-}
-
-window.submitMood = function(emoji) {
-    const comment = document.getElementById('mood-comment').value;
-    const mood = { label: emoji, text: comment };
-    
-    // Publication Cloud (Social Ticker)
-    if (typeof publishMoodCloud === "function") {
-        publishMoodCloud(mood);
-    }
-
-    alert("Merci pour votre retour !");
-    closeMood();
-}
-window.closeMood = function() { 
-    const mood = document.getElementById('mood-overlay');
-    if (mood) mood.classList.add('hidden'); 
-}
-// DÃ©sactivation du popup automatique (bloquait les tests)
-// setTimeout(() => document.getElementById('mood-overlay')?.classList.remove('hidden'), 30000); 
-
-window.requestAccountDeletion = function() {
-    const confirm1 = confirm("âš ï¸ ATTENTION : Voulez-vous vraiment supprimer dÃ©finitivement votre compte et TOUTES vos donnÃ©es (garage, points, historique) ?");
-    if (confirm1) {
-        const confirm2 = prompt("Pour confirmer, tapez 'SUPPRIMER' en majuscules :");
-        if (confirm2 === "SUPPRIMER") {
-            // Logique de suppression
-            let users = JSON.parse(secureGetItem('users') || '[]');
-            const username = window.session.username;
-            users = users.filter(u => u.username !== username);
-            secureSetItem('users', JSON.stringify(users));
-            
-            // Suppression session locale
-            logout();
-            alert("Votre compte a Ã©tÃ© supprimÃ© avec succÃ¨s. Vos donnÃ©es ont Ã©tÃ© purgÃ©es conformÃ©ment au RGPD.");
-        } else {
-            alert("Suppression annulÃ©e.");
-        }
-    }
-};
-
-window.logout = function() {
-    if (typeof secureRemoveItem === 'function') {
-        secureRemoveItem('session');
-    } else {
-        localStorage.removeItem('session');
-    }
-    window.location.href = 'login.html';
-}
-
-window.updateTicker = function() {
-    const t = document.getElementById('ticker-text');
-    if(t) t.innerHTML = `Bienvenue sur mon50ccetmoi v25.01 SILVER EDITION ! Prudence sur la route. ðŸ›µðŸ’¨`;
-}
-updateTicker();
-setInterval(updateTicker, 60000);
-
-window.testFallDetection = function() {
-    alert("Simulation d'un impact dans 3 secondes... PrÃ©parez-vous !");
-    setTimeout(() => {
-        triggerFallAlert();
-    }, 3000);
-    toggleMenu();
-}
-
-window.addMaintLog = function() {
-    const action = prompt("Quel entretien avez-vous fait ? (ex: Vidange)");
-    if(!action) return;
-    const history = JSON.parse(secureGetItem('maint_history') || '[]');
-    history.push({ date: new Date().toLocaleDateString(), action });
-    secureSetItem('maint_history', JSON.stringify(history));
-    showPage('garage');
-}
-
-window.joinGroup = function() {
-    const code = document.getElementById('group-code').value;
-    if(!code) return;
-    speak(`Connexion au groupe ${code} en cours...`);
-    setTimeout(() => {
-        speak(`Vous avez rejoint le groupe ! Vos amis apparaissent sur la carte.`);
-        closeScreen();
-        simulateCommunityLive();
-    }, 2000);
-}
-
-window.toggleParkingMode = function() {
-    isParkingMode = !isParkingMode;
-    const btn = document.getElementById('btn-parking-toggle');
-    if(isParkingMode) {
-        parkingStartPos = currentPosition;
-        btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Mode Parking : ON';
-        btn.classList.add('parking-active');
-        speak("Mode parking activÃ©. Votre scooter est sous surveillance.");
-    } else {
-        btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Mode Parking : OFF';
-        btn.classList.remove('parking-active');
-        speak("Mode parking dÃ©sactivÃ©.");
-    }
-    toggleMenu();
-}
-
-function handleParkingMode(lat, lng) {
-    if(!isParkingMode || !parkingStartPos) return;
-    const p1 = new google.maps.LatLng(parkingStartPos.lat, parkingStartPos.lng);
-    const p2 = new google.maps.LatLng(lat, lng);
-    const dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
-    
-    if(dist > 30) { // Alerte si le scoot bouge de plus de 30m
-        speak("ALERTE ! Mouvement suspect dÃ©tectÃ© !");
-        triggerFallAlert(); // Reuse the high-intensity alert UI
-        isParkingMode = false;
-        document.getElementById('btn-parking-toggle').classList.remove('parking-active');
-    }
-}
-
-function handlePerfTracking(speedKmh) {
-    const perfHud = document.getElementById('perf-hud');
-    const perfTimeEl = document.getElementById('perf-timer');
-    if(!perfHud || !perfTimeEl) return;
-
-    if(speedKmh === 0 && !isPerfTracking) {
-        isPerfTracking = true;
-        perfStartTime = null;
-        perfHud.classList.remove('hidden');
-        perfTimeEl.textContent = "0-50: PrÃªt...";
-    } else if(speedKmh > 2 && isPerfTracking && !perfStartTime) {
-        perfStartTime = Date.now();
-        perfTimeEl.textContent = "0-50: GAZ !";
-    } else if(speedKmh >= 50 && isPerfTracking && perfStartTime) {
-        const time = ((Date.now() - perfStartTime) / 1000).toFixed(2);
-        perfTimeEl.textContent = `0-50: ${time}s !`;
-        speak(`Performance rÃ©alisÃ©e : ${time} secondes.`);
-        isPerfTracking = false;
-        setTimeout(() => perfHud.classList.add('hidden'), 10000);
-    }
-}
-
- + {isManual ? 'SOS MANUEL' : t('fall_detected')}</h1>
-        <p>+ 'window.startRodage = function(name) {
-    window.isRodageActive = true;
-    refreshRodageUI();
-    alert(`Mode Rodage ActivÃ©: ${name}. Vitesse max conseillÃ©e: 45km/h. Distance cumulÃ©e comptabilisÃ©e.`);
-    speak("Mode rodage activÃ©. MÃ©nagez votre moteur.");
-    closeScreen();
-    // Simulation d'un point de destination rodage
-    if(currentPosition) {
-        calculateRouteSansAutoroute(currentPosition, { lat: currentPosition.lat + 0.02, lng: currentPosition.lng + 0.02 });
-    }
-}
-
-window.submitMood = function(emoji) {
-    const comment = document.getElementById('mood-comment').value;
-    const mood = { label: emoji, text: comment };
-    
-    // Publication Cloud (Social Ticker)
-    if (typeof publishMoodCloud === "function") {
-        publishMoodCloud(mood);
-    }
-
-    alert("Merci pour votre retour !");
-    closeMood();
-}
-window.closeMood = function() { 
-    const mood = document.getElementById('mood-overlay');
-    if (mood) mood.classList.add('hidden'); 
-}
-// DÃ©sactivation du popup automatique (bloquait les tests)
-// setTimeout(() => document.getElementById('mood-overlay')?.classList.remove('hidden'), 30000); 
-
-window.requestAccountDeletion = function() {
-    const confirm1 = confirm("âš ï¸ ATTENTION : Voulez-vous vraiment supprimer dÃ©finitivement votre compte et TOUTES vos donnÃ©es (garage, points, historique) ?");
-    if (confirm1) {
-        const confirm2 = prompt("Pour confirmer, tapez 'SUPPRIMER' en majuscules :");
-        if (confirm2 === "SUPPRIMER") {
-            // Logique de suppression
-            let users = JSON.parse(secureGetItem('users') || '[]');
-            const username = window.session.username;
-            users = users.filter(u => u.username !== username);
-            secureSetItem('users', JSON.stringify(users));
-            
-            // Suppression session locale
-            logout();
-            alert("Votre compte a Ã©tÃ© supprimÃ© avec succÃ¨s. Vos donnÃ©es ont Ã©tÃ© purgÃ©es conformÃ©ment au RGPD.");
-        } else {
-            alert("Suppression annulÃ©e.");
-        }
-    }
-};
-
-window.logout = function() {
-    if (typeof secureRemoveItem === 'function') {
-        secureRemoveItem('session');
-    } else {
-        localStorage.removeItem('session');
-    }
-    window.location.href = 'login.html';
-}
-
-window.updateTicker = function() {
-    const t = document.getElementById('ticker-text');
-    if(t) t.innerHTML = `Bienvenue sur mon50ccetmoi v25.01 SILVER EDITION ! Prudence sur la route. ðŸ›µðŸ’¨`;
-}
-updateTicker();
-setInterval(updateTicker, 60000);
-
-window.testFallDetection = function() {
-    alert("Simulation d'un impact dans 3 secondes... PrÃ©parez-vous !");
-    setTimeout(() => {
-        triggerFallAlert();
-    }, 3000);
-    toggleMenu();
-}
-
-window.addMaintLog = function() {
-    const action = prompt("Quel entretien avez-vous fait ? (ex: Vidange)");
-    if(!action) return;
-    const history = JSON.parse(secureGetItem('maint_history') || '[]');
-    history.push({ date: new Date().toLocaleDateString(), action });
-    secureSetItem('maint_history', JSON.stringify(history));
-    showPage('garage');
-}
-
-window.joinGroup = function() {
-    const code = document.getElementById('group-code').value;
-    if(!code) return;
-    speak(`Connexion au groupe ${code} en cours...`);
-    setTimeout(() => {
-        speak(`Vous avez rejoint le groupe ! Vos amis apparaissent sur la carte.`);
-        closeScreen();
-        simulateCommunityLive();
-    }, 2000);
-}
-
-window.toggleParkingMode = function() {
-    isParkingMode = !isParkingMode;
-    const btn = document.getElementById('btn-parking-toggle');
-    if(isParkingMode) {
-        parkingStartPos = currentPosition;
-        btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Mode Parking : ON';
-        btn.classList.add('parking-active');
-        speak("Mode parking activÃ©. Votre scooter est sous surveillance.");
-    } else {
-        btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Mode Parking : OFF';
-        btn.classList.remove('parking-active');
-        speak("Mode parking dÃ©sactivÃ©.");
-    }
-    toggleMenu();
-}
-
-function handleParkingMode(lat, lng) {
-    if(!isParkingMode || !parkingStartPos) return;
-    const p1 = new google.maps.LatLng(parkingStartPos.lat, parkingStartPos.lng);
-    const p2 = new google.maps.LatLng(lat, lng);
-    const dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
-    
-    if(dist > 30) { // Alerte si le scoot bouge de plus de 30m
-        speak("ALERTE ! Mouvement suspect dÃ©tectÃ© !");
-        triggerFallAlert(); // Reuse the high-intensity alert UI
-        isParkingMode = false;
-        document.getElementById('btn-parking-toggle').classList.remove('parking-active');
-    }
-}
-
-function handlePerfTracking(speedKmh) {
-    const perfHud = document.getElementById('perf-hud');
-    const perfTimeEl = document.getElementById('perf-timer');
-    if(!perfHud || !perfTimeEl) return;
-
-    if(speedKmh === 0 && !isPerfTracking) {
-        isPerfTracking = true;
-        perfStartTime = null;
-        perfHud.classList.remove('hidden');
-        perfTimeEl.textContent = "0-50: PrÃªt...";
-    } else if(speedKmh > 2 && isPerfTracking && !perfStartTime) {
-        perfStartTime = Date.now();
-        perfTimeEl.textContent = "0-50: GAZ !";
-    } else if(speedKmh >= 50 && isPerfTracking && perfStartTime) {
-        const time = ((Date.now() - perfStartTime) / 1000).toFixed(2);
-        perfTimeEl.textContent = `0-50: ${time}s !`;
-        speak(`Performance rÃ©alisÃ©e : ${time} secondes.`);
-        isPerfTracking = false;
-        setTimeout(() => perfHud.classList.add('hidden'), 10000);
-    }
-}
-
- + {t('emergency_alert')} <br><br> <span id="sos-countdown" style="font-size:1.5rem; font-weight:bold; color:#ffb703;">15s</span></p>
-        + 'window.startRodage = function(name) {
-    window.isRodageActive = true;
-    refreshRodageUI();
-    alert(`Mode Rodage ActivÃ©: ${name}. Vitesse max conseillÃ©e: 45km/h. Distance cumulÃ©e comptabilisÃ©e.`);
-    speak("Mode rodage activÃ©. MÃ©nagez votre moteur.");
-    closeScreen();
-    // Simulation d'un point de destination rodage
-    if(currentPosition) {
-        calculateRouteSansAutoroute(currentPosition, { lat: currentPosition.lat + 0.02, lng: currentPosition.lng + 0.02 });
-    }
-}
-
-window.submitMood = function(emoji) {
-    const comment = document.getElementById('mood-comment').value;
-    const mood = { label: emoji, text: comment };
-    
-    // Publication Cloud (Social Ticker)
-    if (typeof publishMoodCloud === "function") {
-        publishMoodCloud(mood);
-    }
-
-    alert("Merci pour votre retour !");
-    closeMood();
-}
-window.closeMood = function() { 
-    const mood = document.getElementById('mood-overlay');
-    if (mood) mood.classList.add('hidden'); 
-}
-// DÃ©sactivation du popup automatique (bloquait les tests)
-// setTimeout(() => document.getElementById('mood-overlay')?.classList.remove('hidden'), 30000); 
-
-window.requestAccountDeletion = function() {
-    const confirm1 = confirm("âš ï¸ ATTENTION : Voulez-vous vraiment supprimer dÃ©finitivement votre compte et TOUTES vos donnÃ©es (garage, points, historique) ?");
-    if (confirm1) {
-        const confirm2 = prompt("Pour confirmer, tapez 'SUPPRIMER' en majuscules :");
-        if (confirm2 === "SUPPRIMER") {
-            // Logique de suppression
-            let users = JSON.parse(secureGetItem('users') || '[]');
-            const username = window.session.username;
-            users = users.filter(u => u.username !== username);
-            secureSetItem('users', JSON.stringify(users));
-            
-            // Suppression session locale
-            logout();
-            alert("Votre compte a Ã©tÃ© supprimÃ© avec succÃ¨s. Vos donnÃ©es ont Ã©tÃ© purgÃ©es conformÃ©ment au RGPD.");
-        } else {
-            alert("Suppression annulÃ©e.");
-        }
-    }
-};
-
-window.logout = function() {
-    if (typeof secureRemoveItem === 'function') {
-        secureRemoveItem('session');
-    } else {
-        localStorage.removeItem('session');
-    }
-    window.location.href = 'login.html';
-}
-
-window.updateTicker = function() {
-    const t = document.getElementById('ticker-text');
-    if(t) t.innerHTML = `Bienvenue sur mon50ccetmoi v25.01 SILVER EDITION ! Prudence sur la route. ðŸ›µðŸ’¨`;
-}
-updateTicker();
-setInterval(updateTicker, 60000);
-
-window.testFallDetection = function() {
-    alert("Simulation d'un impact dans 3 secondes... PrÃ©parez-vous !");
-    setTimeout(() => {
-        triggerFallAlert();
-    }, 3000);
-    toggleMenu();
-}
-
-window.addMaintLog = function() {
-    const action = prompt("Quel entretien avez-vous fait ? (ex: Vidange)");
-    if(!action) return;
-    const history = JSON.parse(secureGetItem('maint_history') || '[]');
-    history.push({ date: new Date().toLocaleDateString(), action });
-    secureSetItem('maint_history', JSON.stringify(history));
-    showPage('garage');
-}
-
-window.joinGroup = function() {
-    const code = document.getElementById('group-code').value;
-    if(!code) return;
-    speak(`Connexion au groupe ${code} en cours...`);
-    setTimeout(() => {
-        speak(`Vous avez rejoint le groupe ! Vos amis apparaissent sur la carte.`);
-        closeScreen();
-        simulateCommunityLive();
-    }, 2000);
-}
-
-window.toggleParkingMode = function() {
-    isParkingMode = !isParkingMode;
-    const btn = document.getElementById('btn-parking-toggle');
-    if(isParkingMode) {
-        parkingStartPos = currentPosition;
-        btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Mode Parking : ON';
-        btn.classList.add('parking-active');
-        speak("Mode parking activÃ©. Votre scooter est sous surveillance.");
-    } else {
-        btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Mode Parking : OFF';
-        btn.classList.remove('parking-active');
-        speak("Mode parking dÃ©sactivÃ©.");
-    }
-    toggleMenu();
-}
-
-function handleParkingMode(lat, lng) {
-    if(!isParkingMode || !parkingStartPos) return;
-    const p1 = new google.maps.LatLng(parkingStartPos.lat, parkingStartPos.lng);
-    const p2 = new google.maps.LatLng(lat, lng);
-    const dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
-    
-    if(dist > 30) { // Alerte si le scoot bouge de plus de 30m
-        speak("ALERTE ! Mouvement suspect dÃ©tectÃ© !");
-        triggerFallAlert(); // Reuse the high-intensity alert UI
-        isParkingMode = false;
-        document.getElementById('btn-parking-toggle').classList.remove('parking-active');
-    }
-}
-
-function handlePerfTracking(speedKmh) {
-    const perfHud = document.getElementById('perf-hud');
-    const perfTimeEl = document.getElementById('perf-timer');
-    if(!perfHud || !perfTimeEl) return;
-
-    if(speedKmh === 0 && !isPerfTracking) {
-        isPerfTracking = true;
-        perfStartTime = null;
-        perfHud.classList.remove('hidden');
-        perfTimeEl.textContent = "0-50: PrÃªt...";
-    } else if(speedKmh > 2 && isPerfTracking && !perfStartTime) {
-        perfStartTime = Date.now();
-        perfTimeEl.textContent = "0-50: GAZ !";
-    } else if(speedKmh >= 50 && isPerfTracking && perfStartTime) {
-        const time = ((Date.now() - perfStartTime) / 1000).toFixed(2);
-        perfTimeEl.textContent = `0-50: ${time}s !`;
-        speak(`Performance rÃ©alisÃ©e : ${time} secondes.`);
-        isPerfTracking = false;
-        setTimeout(() => perfHud.classList.add('hidden'), 10000);
-    }
-}
-
- + {getSOSActions()}
+        <h1>${isManual ? 'SOS MANUEL' : t('fall_detected')}</h1>
+        <p>${t('emergency_alert')} <br><br> <span id="sos-countdown" style="font-size:1.5rem; font-weight:bold; color:#ffb703;">15s</span></p>
+        ${getSOSActions()}
         <button onclick="window.cancelFallAlert()" style="margin-top:20px; padding:15px 30px; background:rgba(255,255,255,0.1); color:white; border:1px solid white; border-radius:50px; font-weight:bold; font-size:1rem;">ANNULER ALERTE</button>
-    \;
+    `;
     document.body.appendChild(div);
 
     let timeLeft = 15;
@@ -1108,12 +667,12 @@ window.executeAngeGardienProtocol = function() {
     
     const div = document.getElementById('fall-screen');
     if (div) {
-        div.innerHTML = 
+        div.innerHTML = `
             <i class="fa-solid fa-satellite-dish" style="font-size:5rem; margin-bottom:20px; color:#00d2ff;"></i>
             <h1 style="color:#00d2ff;">ANGE GARDIEN ACTIVÉ</h1>
             <p>Vos coordonnées GPS ont été transmises à vos contacts d'urgence et à la communauté la plus proche.</p>
             <button onclick="window.cancelFallAlert()" style="margin-top:20px; padding:15px 30px; background:#00d2ff; color:#000; border:none; border-radius:50px; font-weight:bold; font-size:1rem;">OK</button>
-        \;
+        `;
     }
 };
 
@@ -1128,8 +687,8 @@ window.saveGuardianContacts = function() {
 window.startRodage = function(name) {
     window.isRodageActive = true;
     refreshRodageUI();
-    alert(`Mode Rodage ActivÃ©: ${name}. Vitesse max conseillÃ©e: 45km/h. Distance cumulÃ©e comptabilisÃ©e.`);
-    speak("Mode rodage activÃ©. MÃ©nagez votre moteur.");
+    alert(`Mode Rodage Activé: ${name}. Vitesse max conseillée: 45km/h. Distance cumulée comptabilisée.`);
+    speak("Mode rodage activé. Ménagez votre moteur.");
     closeScreen();
     // Simulation d'un point de destination rodage
     if(currentPosition) {
@@ -1153,11 +712,11 @@ window.closeMood = function() {
     const mood = document.getElementById('mood-overlay');
     if (mood) mood.classList.add('hidden'); 
 }
-// DÃ©sactivation du popup automatique (bloquait les tests)
+// Désactivation du popup automatique (bloquait les tests)
 // setTimeout(() => document.getElementById('mood-overlay')?.classList.remove('hidden'), 30000); 
 
 window.requestAccountDeletion = function() {
-    const confirm1 = confirm("âš ï¸ ATTENTION : Voulez-vous vraiment supprimer dÃ©finitivement votre compte et TOUTES vos donnÃ©es (garage, points, historique) ?");
+    const confirm1 = confirm("⚠️ ATTENTION : Voulez-vous vraiment supprimer définitivement votre compte et TOUTES vos données (garage, points, historique) ?");
     if (confirm1) {
         const confirm2 = prompt("Pour confirmer, tapez 'SUPPRIMER' en majuscules :");
         if (confirm2 === "SUPPRIMER") {
@@ -1169,9 +728,9 @@ window.requestAccountDeletion = function() {
             
             // Suppression session locale
             logout();
-            alert("Votre compte a Ã©tÃ© supprimÃ© avec succÃ¨s. Vos donnÃ©es ont Ã©tÃ© purgÃ©es conformÃ©ment au RGPD.");
+            alert("Votre compte a été supprimé avec succès. Vos données ont été purgées conformément au RGPD.");
         } else {
-            alert("Suppression annulÃ©e.");
+            alert("Suppression annulée.");
         }
     }
 };
@@ -1187,13 +746,13 @@ window.logout = function() {
 
 window.updateTicker = function() {
     const t = document.getElementById('ticker-text');
-    if(t) t.innerHTML = `Bienvenue sur mon50ccetmoi v25.01 SILVER EDITION ! Prudence sur la route. ðŸ›µðŸ’¨`;
+    if(t) t.innerHTML = `Bienvenue sur mon50ccetmoi v25.01 SILVER EDITION ! Prudence sur la route. 🛵💨`;
 }
 updateTicker();
 setInterval(updateTicker, 60000);
 
 window.testFallDetection = function() {
-    alert("Simulation d'un impact dans 3 secondes... PrÃ©parez-vous !");
+    alert("Simulation d'un impact dans 3 secondes... Préparez-vous !");
     setTimeout(() => {
         triggerFallAlert();
     }, 3000);
@@ -1227,11 +786,11 @@ window.toggleParkingMode = function() {
         parkingStartPos = currentPosition;
         btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Mode Parking : ON';
         btn.classList.add('parking-active');
-        speak("Mode parking activÃ©. Votre scooter est sous surveillance.");
+        speak("Mode parking activé. Votre scooter est sous surveillance.");
     } else {
         btn.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Mode Parking : OFF';
         btn.classList.remove('parking-active');
-        speak("Mode parking dÃ©sactivÃ©.");
+        speak("Mode parking désactivé.");
     }
     toggleMenu();
 }
@@ -1243,7 +802,7 @@ function handleParkingMode(lat, lng) {
     const dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
     
     if(dist > 30) { // Alerte si le scoot bouge de plus de 30m
-        speak("ALERTE ! Mouvement suspect dÃ©tectÃ© !");
+        speak("ALERTE ! Mouvement suspect détecté !");
         triggerFallAlert(); // Reuse the high-intensity alert UI
         isParkingMode = false;
         document.getElementById('btn-parking-toggle').classList.remove('parking-active');
@@ -1259,14 +818,14 @@ function handlePerfTracking(speedKmh) {
         isPerfTracking = true;
         perfStartTime = null;
         perfHud.classList.remove('hidden');
-        perfTimeEl.textContent = "0-50: PrÃªt...";
+        perfTimeEl.textContent = "0-50: Prêt...";
     } else if(speedKmh > 2 && isPerfTracking && !perfStartTime) {
         perfStartTime = Date.now();
         perfTimeEl.textContent = "0-50: GAZ !";
     } else if(speedKmh >= 50 && isPerfTracking && perfStartTime) {
         const time = ((Date.now() - perfStartTime) / 1000).toFixed(2);
         perfTimeEl.textContent = `0-50: ${time}s !`;
-        speak(`Performance rÃ©alisÃ©e : ${time} secondes.`);
+        speak(`Performance réalisée : ${time} secondes.`);
         isPerfTracking = false;
         setTimeout(() => perfHud.classList.add('hidden'), 10000);
     }
