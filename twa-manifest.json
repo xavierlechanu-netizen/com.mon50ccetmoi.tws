@@ -41,9 +41,7 @@
     "A7:15:6D:CF:51:56:B1:DF:B8:D3:95:AF:70:F9:2A:42:1D:7C:92:7E:1C:06:E3:16:E0:93:DD:79:42:0D:B3:41"
   ],
   "serviceAccountJsonFile": "mon50ccetmoi-firebase-adminsdk-fbsvc-248403805b.json",
-  "additionalTrustedOrigins": [
-    "https://mon50ccetmoi.com"
-  ],
+  "additionalTrustedOrigins": [],
   "retainedBundles": [],
   "displayOverride": [],
   "appVersion": "60.0.23"

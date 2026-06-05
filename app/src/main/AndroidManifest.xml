@@ -171,7 +171,7 @@
                     <category android:name="android.intent.category.DEFAULT" />
                     <category android:name="android.intent.category.BROWSABLE"/>
                     <data android:scheme="https"
-                        android:host="https://mon50ccetmoi.com"/>
+                        android:host="mon50ccetmoi.com"/>
                 </intent-filter>
             
 
