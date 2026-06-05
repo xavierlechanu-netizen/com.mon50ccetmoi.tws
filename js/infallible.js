@@ -2,7 +2,7 @@
 
 // 1. WATCHDOG (Auto-Healing)
 window.onerror = function(message, source, lineno, colno, error) {
-    console.warn("[WATCHDOG] Erreur fatale interceptée : ", message);
+    console.warn("[WATCHDOG] Erreur fatale interceptée : ", message, " | Source:", source, " | Ligne:", lineno, " | Col:", colno);
     // Au lieu de crasher, on tente un "Soft Reset" du module concerné
     const body = document.body;
     if(body && body.style.display === 'none') {
