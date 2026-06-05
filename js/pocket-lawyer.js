@@ -59,6 +59,17 @@ window.PocketLawyer = {
     },
 
     openLawyer: function() {
+        if (!window.Web4Economy) {
+            alert("Erreur: Moteur Web4 introuvable.");
+            return;
+        }
+        
+        const price = window.Web4Economy.prices.legal_report || 5;
+        if (window.Web4Economy.balance < price) {
+            alert(`Fonds insuffisants ! Vous avez besoin de ${price} BVC pour accéder à l'Avocat de Poche. Roulez plus pour en gagner.`);
+            return;
+        }
+
         this.isOpen = true;
         let overlay = document.getElementById("lawyer-overlay");
         
