@@ -7,7 +7,7 @@
   "display": "fullscreen",
   "background_color": "#000000",
   "theme_color": "#00ffcc",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/1986/1986937.png",
