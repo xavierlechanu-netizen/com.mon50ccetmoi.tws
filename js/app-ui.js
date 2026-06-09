@@ -135,7 +135,23 @@ window.showPage = function(page) {
         const history = JSON.parse(secureGetItem('maint_history') || '[]');
         const ctDate = secureGetItem('ct_date') || 'Non dÃ©fini';
         
+        // Gamification Data
+        const currentXP = parseInt(localStorage.getItem('pilot_xp') || '0');
+        const level = Math.floor(Math.sqrt(currentXP / 100)) + 1;
+        const ranks = ["ROOKIE", "SCOUT", "INTERCEPTOR", "GHOST_RIDER", "SINGULARITY_PILOT"];
+        const rankIdx = Math.min(Math.floor(currentXP / 1500), ranks.length - 1);
+        const rankName = ranks[rankIdx];
+        
         if(typeof content !== 'undefined') content.innerHTML = `<h3><i class="fa-solid fa-warehouse"></i> ${t('garage_title')}</h3>
+            
+            <div class="card" style="border:1px solid #00d2ff; background: rgba(0, 210, 255, 0.05); margin-bottom:15px; text-align:center;">
+                <h4 style="color:#00d2ff; margin-bottom:5px;"><i class="fa-solid fa-star"></i> NIVEAU PILOTE : ${level}</h4>
+                <p style="font-size:0.8rem; color:#aaa; margin-top:0;">Rang: <strong style="color:#fff;">${rankName}</strong> | XP: ${currentXP}</p>
+                <div style="width:100%; height:8px; background:#111; border-radius:4px; margin-top:10px; overflow:hidden;">
+                    <div style="width:${(currentXP % 100)}%; height:100%; background:linear-gradient(90deg, #00d2ff, #b700ff);"></div>
+                </div>
+            </div>
+
             <div class="card" style="border:1px solid #ffb703; background: rgba(255,183,3,0.05); margin-bottom:15px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>

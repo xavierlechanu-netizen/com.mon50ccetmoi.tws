@@ -2,13 +2,54 @@
 
 window.InsurerPortal = {
     currentCode: null,
+    currentInsurer: null,
     
     open: function() {
         document.getElementById('insurer-portal-screen').classList.remove('hidden');
+        if (this.currentInsurer) {
+            document.getElementById('insurer-login-box').classList.add('hidden');
+            document.getElementById('insurer-dashboard-box').classList.remove('hidden');
+        } else {
+            document.getElementById('insurer-login-box').classList.remove('hidden');
+            document.getElementById('insurer-dashboard-box').classList.add('hidden');
+        }
+        document.getElementById('insurer-pricing-box').classList.add('hidden');
     },
     
     close: function() {
         document.getElementById('insurer-portal-screen').classList.add('hidden');
+    },
+
+    login: function() {
+        const id = document.getElementById('insurer-id-input').value.trim().toUpperCase();
+        const pwd = document.getElementById('insurer-pwd-input').value.trim();
+        
+        if (!id || !pwd) {
+            alert("Veuillez saisir votre Identifiant et Mot de passe.");
+            return;
+        }
+
+        // Mode DÉMO : Accepte n'importe quelle combinaison non vide
+        this.currentInsurer = id;
+        document.getElementById('insurer-name-display').innerText = this.currentInsurer;
+        document.getElementById('insurer-login-box').classList.add('hidden');
+        document.getElementById('insurer-dashboard-box').classList.remove('hidden');
+        console.log("[InsurerPortal] Connecté en tant que " + id);
+    },
+
+    signup: function() {
+        alert("En mode démo, votre compte est simulé.\nUtilisez n'importe quel identifiant et mot de passe pour vous connecter.");
+    },
+
+    logout: function() {
+        this.currentInsurer = null;
+        this.currentCode = null;
+        document.getElementById('insurer-id-input').value = "";
+        document.getElementById('insurer-pwd-input').value = "";
+        document.getElementById('insurer-code-input').value = "";
+        document.getElementById('insurer-login-box').classList.remove('hidden');
+        document.getElementById('insurer-dashboard-box').classList.add('hidden');
+        document.getElementById('insurer-pricing-box').classList.add('hidden');
     },
     
     verifyCode: function() {
@@ -19,7 +60,7 @@ window.InsurerPortal = {
         }
         
         // Simuler la recherche dans le coffre-fort Firebase
-        document.getElementById('insurer-login-box').classList.add('hidden');
+        document.getElementById('insurer-dashboard-box').classList.add('hidden');
         document.getElementById('insurer-pricing-box').classList.remove('hidden');
         this.currentCode = input;
     },

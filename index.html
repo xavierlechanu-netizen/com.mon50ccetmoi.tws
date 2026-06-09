@@ -411,16 +411,27 @@
     
     <div style="margin-top: 60px; text-align: center; position:relative; z-index:2;">
         <i class="fa-solid fa-building-shield" style="font-size: 4.5rem; color: #00d2ff; filter: drop-shadow(0 0 30px rgba(0,210,255,0.8)); margin-bottom: 20px;"></i>
-        <h1 style="margin: 0; font-size: 2.5rem; font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, #fff 0%, #00d2ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">INSUR'TECH</h1>
+        <h1 style="margin: 0; font-size: 2.5rem; font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, #fff 0%, #00d2ff 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">INSUR'TECH</h1>
         <p style="color: #00d2ff; font-weight: 500; font-family:'JetBrains Mono', monospace; margin-top: 5px; font-size:0.9rem; letter-spacing:1px;">SECURE ZERO-TRUST PORTAL</p>
     </div>
 
     <!-- Login Box -->
     <div id="insurer-login-box" class="glass-card-premium" style="margin: 40px auto; width: 90%; max-width: 450px; text-align: center; position:relative; z-index:2;">
-        <h3 style="color: #94a3b8; margin: 0 0 25px 0; font-size: 1.2rem; font-weight:400;">Veuillez saisir le <span style="color:#fff; font-weight:600;">Code Litige</span></h3>
+        <h3 style="color: #94a3b8; margin: 0 0 25px 0; font-size: 1.2rem; font-weight:400;">Espace <span style="color:#fff; font-weight:600;">Professionnel</span></h3>
+        <input type="text" id="insurer-id-input" class="cyber-input" placeholder="Identifiant Assureur (Ex: AXA-001)" style="text-align:center; font-size:1.2rem; margin-bottom: 15px; text-transform:uppercase;">
+        <input type="password" id="insurer-pwd-input" class="cyber-input" placeholder="Mot de passe" style="text-align:center; font-size:1.2rem; margin-bottom: 30px;">
+        
+        <button class="btn-neon-action" onclick="window.InsurerPortal.login()" style="width:100%; margin-bottom: 15px;"><i class="fa-solid fa-right-to-bracket" style="margin-right:10px;"></i> Connexion</button>
+        <button class="btn-neon-action" onclick="window.InsurerPortal.signup()" style="width:100%; background: rgba(255,255,255,0.1); box-shadow: none; border-color: rgba(255,255,255,0.2);"><i class="fa-solid fa-user-plus" style="margin-right:10px;"></i> Créer un compte</button>
+    </div>
+
+    <!-- Dashboard Box (After Login) -->
+    <div id="insurer-dashboard-box" class="glass-card-premium hidden" style="margin: 40px auto; width: 90%; max-width: 450px; text-align: center; position:relative; z-index:2;">
+        <h3 style="color: #94a3b8; margin: 0 0 25px 0; font-size: 1.2rem; font-weight:400;">Bienvenue <span id="insurer-name-display" style="color:#00d2ff; font-weight:600;">Assureur</span></h3>
+        <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 25px;">Veuillez saisir le Code Litige du client pour accéder au dossier.</p>
         <input type="text" id="insurer-code-input" class="cyber-input" placeholder="LIT-XXXX" style="text-align:center; font-size:1.8rem; letter-spacing:4px; text-transform:uppercase; margin-bottom: 30px;">
-        <br>
-        <button class="btn-neon-action" onclick="window.InsurerPortal.verifyCode()" style="width:100%;"><i class="fa-solid fa-fingerprint" style="margin-right:10px;"></i> Authentification</button>
+        <button class="btn-neon-action" onclick="window.InsurerPortal.verifyCode()" style="width:100%;"><i class="fa-solid fa-magnifying-glass" style="margin-right:10px;"></i> Rechercher le dossier</button>
+        <button class="btn-neon-action" onclick="window.InsurerPortal.logout()" style="width:100%; background: transparent; box-shadow: none; border-color: #ff0055; color: #ff0055; margin-top: 15px;"><i class="fa-solid fa-right-from-bracket" style="margin-right:10px;"></i> Déconnexion</button>
     </div>
     
     <!-- Pricing Box -->
@@ -607,6 +618,23 @@
 
     <!-- Premium Control Row -->
     <div id="control-row" style="position:fixed; bottom:20px; right:20px; z-index:20000; display:flex; gap:10px;">
+        <!-- BOUTON LITE MODE -->
+        <button id="btn-lite-toggle" onclick="if(window.toggleLiteMode) window.toggleLiteMode()" style="background:#555; border:none; border-radius:50%; width:50px; height:50px; color:white; cursor:pointer; font-size:1.2rem; transition:background 0.3s; box-shadow:0 0 10px rgba(0,0,0,0.5);">
+            <i class="fa-solid fa-bolt"></i>
+        </button>
+        <!-- BOUTON SIGNALEMENT MANUEL -->
+        <div style="position:relative;">
+            <button id="btn-hazard-quick" onclick="if(window.toggleHazardMenu) window.toggleHazardMenu()" style="background:#f1c40f; border:none; border-radius:50%; width:50px; height:50px; color:black; cursor:pointer; box-shadow:0 0 15px rgba(241,196,15,0.5); font-size:1.2rem; transition:transform 0.3s;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </button>
+            <div id="hazard-options" class="hidden" style="position:absolute; bottom:60px; right:0; background:rgba(0,0,0,0.8); padding:10px; border-radius:15px; border:1px solid #f1c40f; display:flex; flex-direction:column; gap:10px; width:150px;">
+                <button onclick="if(window.saveHazard) window.saveHazard('Police')" style="background:#00d2ff; color:black; border:none; padding:8px; border-radius:10px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-building-shield"></i> Police</button>
+                <button onclick="if(window.saveHazard) window.saveHazard('Route Dégradée')" style="background:#f1c40f; color:black; border:none; padding:8px; border-radius:10px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-road-circle-exclamation"></i> Route</button>
+                <button onclick="if(window.saveHazard) window.saveHazard('animal')" style="background:#e67e22; color:white; border:none; padding:8px; border-radius:10px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-paw"></i> Animal</button>
+                <button onclick="if(window.saveHazard) window.saveHazard('danger_immediat')" style="background:#ff4d4d; color:white; border:none; padding:8px; border-radius:10px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-car-burst"></i> Grave</button>
+            </div>
+        </div>
+
         <button id="btn-stop-nav" class="hidden" onclick="cancelRoute()" style="background:#ff4d4d; border:none; border-radius:50%; width:50px; height:50px; color:white; cursor:pointer; box-shadow:0 0 15px rgba(255,0,0,0.5);">
             <i class="fa-solid fa-stop"></i>
         </button>

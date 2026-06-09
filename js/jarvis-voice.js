@@ -55,6 +55,13 @@ window.initVoiceAI = function() {
                     window.reportHazard();
                 }
             }
+            // Commande : Signaler un animal
+            else if (transcript.includes('animal') || transcript.includes('animaux') || transcript.includes('chien') || transcript.includes('sanglier') || transcript.includes('biche') || transcript.includes('chevreuil') || transcript.includes('vache') || transcript.includes('cheval')) {
+                if(typeof speak === 'function') speak("Présence d'un animal signalée. Soyez prudents.");
+                if(typeof window.reportHazard === 'function') {
+                    window.reportHazard('animal', 'Signalement Vocal Jarvis');
+                }
+            }
             // Commande : Activer le Radar Social
             else if (transcript.includes('meute') || transcript.includes('amis') || transcript.includes('social')) {
                 if(typeof speak === 'function') speak('Activation du Radar Social. Recherche des pilotes à proximité.');

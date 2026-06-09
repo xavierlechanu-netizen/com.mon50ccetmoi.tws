@@ -17,9 +17,6 @@
 <resources>
   
     <string-array name="additional_trusted_origins">
-    
-      <item>https://https://mon50ccetmoi.com</item>
-    
     </string-array>
   
 
@@ -43,14 +40,5 @@
             \"site\": \"https://mon50ccetmoi.com\"
         }
     }]
-    
-      ,[{
-          \"relation\": [\"delegate_permission/common.handle_all_urls\"],
-          \"target\": {
-              \"namespace\": \"web\",
-              \"site\": \"https://https://mon50ccetmoi.com\"
-          }
-      }]        
-    
   </string>  
 </resources>

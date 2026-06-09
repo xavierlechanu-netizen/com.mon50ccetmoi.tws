@@ -66,6 +66,23 @@ window.Web4Economy = {
             balanceEl.innerText = this.balance.toFixed(2) + ' BVC';
         }
         window.braveCoins = this.balance; // Sync with legacy variables
+        
+        // Restriction : Bloquer l'Avocat de Poche si solde insuffisant
+        const lawyerBtn = document.getElementById('dock-btn-lawyer');
+        if (lawyerBtn) {
+            const lawyerPrice = this.prices.legal_report || 5;
+            if (this.balance < lawyerPrice) {
+                lawyerBtn.style.opacity = '0.4';
+                lawyerBtn.style.filter = 'grayscale(100%)';
+                lawyerBtn.innerHTML = '<i class="fa-solid fa-lock" style="filter: drop-shadow(0 0 5px #ff4d4d); color: #ff4d4d;"></i>';
+                lawyerBtn.title = `Nécessite ${lawyerPrice} BVC`;
+            } else {
+                lawyerBtn.style.opacity = '1';
+                lawyerBtn.style.filter = 'none';
+                lawyerBtn.innerHTML = '<i class="fa-solid fa-scale-balanced" style="filter: drop-shadow(0 0 5px #cca300);"></i>';
+                lawyerBtn.title = "Avocat de Poche";
+            }
+        }
     },
 
     showMiningHUD: function(amount) {

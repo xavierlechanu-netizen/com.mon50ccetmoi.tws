@@ -295,6 +295,13 @@ window.saveHazard = function(type, description = "") {
     }
 
     alert(`Signalement: ${escapeHTML(type)} enregistré ! Merci à vous.`);
+    
+    // GAMIFICATION: +50 XP pour le signalement communautaire
+    if (typeof window.updateXP === "function") {
+        window.updateXP(5); // +50 XP (updateXP multiplie par 10)
+        if(typeof speak === "function") speak("Signalement validé. Vous gagnez de l'expérience.");
+    }
+    
     toggleHazardMenu();
     loadHazards();
 };
@@ -302,7 +309,17 @@ window.saveHazard = function(type, description = "") {
 function loadHazards() {
     if (typeof google === 'undefined' || !google.maps || !google.maps.Marker) return;
     const raw = secureGetItem('hazards');
-    const hazards = raw ? JSON.parse(raw) : [];
+    let hazards = raw ? JSON.parse(raw) : [];
+    
+    // Filtrage éphémère Animaux (> 30 mins = expiré)
+    hazards = hazards.filter(h => {
+        if ((h.type === 'animal' || h.type === 'chien') && h.date) {
+            const ageMins = (Date.now() - new Date(h.date).getTime()) / 60000;
+            return ageMins <= 30;
+        }
+        return true;
+    });
+
     hazardMarkers.forEach(m => m.setMap(null));
     hazardMarkers = [];
     
@@ -317,13 +334,14 @@ function loadHazards() {
     }
 
     hazards.forEach((h, index) => {
-        const hColor = h.type === 'Police' ? '#00d2ff' : (h.type === 'Route Dégradée' ? '#f1c40f' : '#ff4d4d');
+        const isAnimal = (h.type === 'animal' || h.type === 'chien');
+        const hColor = h.type === 'Police' ? '#00d2ff' : (h.type === 'Route Dégradée' ? '#f1c40f' : (isAnimal ? '#e67e22' : '#ff4d4d'));
         const marker = new google.maps.Marker({
             position: { lat: h.lat, lng: h.lon },
             map: map,
             icon: { path: google.maps.SymbolPath.CIRCLE, fillColor: hColor, fillOpacity: 0.9, scale: 9, strokeColor: 'white', strokeWeight: 2 }
         });
-        const info = new google.maps.InfoWindow({ content: `<b>${escapeHTML(h.type)}</b><br><small>${escapeHTML(h.author)}</small>` });
+        const info = new google.maps.InfoWindow({ content: `<b>${isAnimal ? '🐾 ' : ''}${escapeHTML(h.type)}</b><br><small>${escapeHTML(h.author)}</small>` });
         marker.addListener("click", () => info.open(map, marker));
         hazardMarkers.push(marker);
 
@@ -332,7 +350,7 @@ function loadHazards() {
             const div = document.createElement('div');
             div.className = 'hazard-alert';
             div.style.cursor = 'pointer';
-            div.innerHTML = `<div><i class="fa-solid fa-triangle-exclamation"></i> <strong>${escapeHTML(h.type)}</strong><br><span>Par ${escapeHTML(h.author)}</span></div><i class="fa-solid fa-chevron-right" style="font-size:0.6rem; color:#444;"></i>`;
+            div.innerHTML = `<div><i class="fa-solid fa-${isAnimal ? 'paw' : 'triangle-exclamation'}"></i> <strong>${escapeHTML(h.type)}</strong><br><span>Par ${escapeHTML(h.author)}</span></div><i class="fa-solid fa-chevron-right" style="font-size:0.6rem; color:#444;"></i>`;
             div.onclick = () => {
                 map.setCenter({ lat: h.lat, lng: h.lon });
                 map.setZoom(17);
