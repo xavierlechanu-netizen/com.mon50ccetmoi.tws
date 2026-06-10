@@ -1867,6 +1867,29 @@ body, html {
     background: rgba(0,0,0,0.6); 
     width: 100%; height: 100%; 
     display: flex; justify-content: center; align-items: center; 
+    gap: 30px;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.advantages-container {
+    width: 90%;
+    max-width: 400px;
+    padding: 30px;
+    border-radius: 20px;
+    background: rgba(20,20,20,0.4);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+@media (max-width: 850px) {
+    .login-overlay {
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
 }
 .login-container {
     width: 90%;
