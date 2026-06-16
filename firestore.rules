@@ -24,9 +24,16 @@ service cloud.firestore {
     // Profils Utilisateurs : Seul l'utilisateur ou l'admin peut modifier son profil, tout le monde peut voir
     match /users/{userId} {
       allow read: if true;
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(userId);
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
+    }
+
+    // Certificats de Batterie : Lecture publique pour la vérification acheteur, création par le propriétaire
+    match /battery_certificates/{certId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+      allow update, delete: if false; // Les certificats sont inaltérables
     }
 
     // Blackbox : Stockage ultra-privé. Lecture réservée au proprio ou expert vérifié
@@ -82,7 +89,9 @@ service cloud.firestore {
 
     // Signalement d'abus (Reports Abuse)
     match /reports_abuse/{reportId} {
-      allow read, write: if isSignedIn();
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
     }
 
     // Stations services signalées/blacklistées (Blacklist Stations)
@@ -95,6 +104,13 @@ service cloud.firestore {
     match /complaints_official/{complaintId} {
       allow read: if isAdmin();
       allow write: if isSignedIn();
+    }
+
+    // Inscriptions Beta Testeurs (Public)
+    match /beta_testers/{testerId} {
+      allow read: if true; // Nécessaire pour afficher la barre de progression (count)
+      allow create: if isSignedIn(); // Réservé aux membres connectés pour éviter le spam
+      allow update, delete: if isAdmin();
     }
 
     // Alertes d'administration (Admin Alerts)
@@ -118,13 +134,13 @@ service cloud.firestore {
     // Blocage d'IP (Banned IPs)
     match /banned_ips/{ip} {
       allow read: if isAdmin();
-      allow write: if isSignedIn();
+      allow write: if isAdmin();
     }
 
     // Logs de modération (Mod Logs)
     match /mod_logs/{logId} {
       allow read: if isAdmin();
-      allow write: if isSignedIn();
+      allow write: if isAdmin();
     }
 
     // ─────────────────────────────────────────────────────────────
