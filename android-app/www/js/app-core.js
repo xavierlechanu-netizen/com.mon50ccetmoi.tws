@@ -1,3 +1,80 @@
+// --- LITE MODE (PERFORMANCE) ---
+window.isLiteMode = localStorage.getItem('liteMode') === 'true';
+
+window.promptLiteMode = function() {
+    const modal = document.createElement('div');
+    modal.id = 'lite-modal';
+    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10,10,10,0.95); backdrop-filter:blur(5px); z-index:20000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; padding:30px; text-align:center;";
+    modal.innerHTML = `
+        <i class="fa-solid fa-gauge-high" style="font-size:3rem; color:#00d2ff; margin-bottom:20px;"></i>
+        <h2 style="margin-bottom:15px; color:#00d2ff;">Optimisation Suggérée</h2>
+        <p style="font-size:0.9rem; line-height:1.4; margin-bottom:25px; color:#ccc;">
+            Nous avons détecté que votre appareil pourrait être ralenti par certaines animations 3D et effets visuels de la carte.
+            <br><br>
+            Voulez-vous activer le <strong>Mode Éco / Performances</strong> pour une meilleure fluidité et préserver votre batterie ?
+        </p>
+        <button id="btn-accept-lite" style="width:100%; padding:15px; background:linear-gradient(135deg, #00d2ff, #0077b6); color:white; border:none; border-radius:30px; font-weight:bold; font-size:1rem; margin-bottom:15px;">ACTIVER LE MODE ÉCO (Recommandé)</button>
+        <button id="btn-refuse-lite" style="background:transparent; border:1px solid #444; width:100%; padding:15px; border-radius:30px; color:#aaa; font-weight:bold; font-size:0.9rem;">NON, GARDER LA HAUTE QUALITÉ</button>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('btn-accept-lite').onclick = () => {
+        window.isLiteMode = true;
+        localStorage.setItem('liteMode', 'true');
+        document.body.classList.add('lite-mode');
+        modal.remove();
+        if(typeof speak === 'function') speak("Mode Éco activé pour des performances optimales.");
+        setTimeout(() => location.reload(), 500);
+    };
+
+    document.getElementById('btn-refuse-lite').onclick = () => {
+        window.isLiteMode = false;
+        localStorage.setItem('liteMode', 'false');
+        modal.remove();
+    };
+};
+
+if (localStorage.getItem('liteMode') === null) {
+    const cores = navigator.hardwareConcurrency || 4;
+    const ram = navigator.deviceMemory || 4; // deviceMemory is often undefined on iOS
+    
+    const ua = navigator.userAgent.toLowerCase();
+    const isOldAndroid = ua.includes('android 6') || ua.includes('android 7') || ua.includes('android 8') || ua.includes('android 9');
+    const isOldIOS = ua.includes('iphone os 11') || ua.includes('iphone os 12') || ua.includes('iphone os 13');
+    const isOldOS = isOldAndroid || isOldIOS;
+
+    // We consider it an old device if it has <= 4 cores, OR <= 3GB of RAM, OR an old OS version
+    if (cores <= 4 || ram <= 3 || isOldOS) {
+        console.log("Old device detected. Prompting for Lite Mode.");
+        const showPrompt = () => { setTimeout(window.promptLiteMode, 500); };
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', showPrompt);
+        } else {
+            showPrompt();
+        }
+    } else {
+        window.isLiteMode = false;
+        localStorage.setItem('liteMode', 'false');
+    }
+}
+
+window.toggleLiteMode = function() {
+    window.isLiteMode = !window.isLiteMode;
+    localStorage.setItem('liteMode', window.isLiteMode ? 'true' : 'false');
+    if (window.isLiteMode) {
+        document.body.classList.add('lite-mode');
+        if(typeof speak === 'function') speak("Mode Éco Performances activé.");
+    } else {
+        document.body.classList.remove('lite-mode');
+        if(typeof speak === 'function') speak("Mode Performances Maximales activé.");
+    }
+    setTimeout(() => location.reload(), 1500);
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (window.isLiteMode) document.body.classList.add('lite-mode');
+});
+
 // --- CORE NAVIGATION (SAFE ZONE) ---
 window.toggleMenu = function() {
     try {
@@ -150,22 +227,23 @@ function checkTrialExpiration() {
     }
 }
 
-// Style Premium Dark "Gold & Black" pour Google Maps
+// Style Cyberpunk Dark Neon pour Google Maps
 const GOOGLE_MAPS_STYLE = [
-    { "elementType": "geometry", "stylers": [{ "color": "#0a131c" }] },
+    { "elementType": "geometry", "stylers": [{ "color": "#120024" }] }, // Dark purple/black background
     { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-    { "elementType": "labels.text.fill", "stylers": [{ "color": "#436a8c" }] },
-    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#0a131c" }] },
-    { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#122a40" }] },
-    { "featureType": "landscape.man_made", "elementType": "geometry.fill", "stylers": [{ "color": "#0b1824" }] },
-    { "featureType": "landscape.man_made", "elementType": "geometry.stroke", "stylers": [{ "color": "#00d2ff" }, { "lightness": -60 }] },
-    { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#2a4b6c" }] },
-    { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#061017" }] },
-    { "featureType": "road", "elementType": "geometry.fill", "stylers": [{ "color": "#142d47" }] },
-    { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#1b3c5e" }] },
-    { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#4b85b8" }] },
-    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#00d2ff" }, { "lightness": -40 }] },
-    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#040b12" }] }
+    { "elementType": "labels.text.fill", "stylers": [{ "color": "#00f2ff" }] }, // Neon cyan text
+    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#120024" }, { "weight": 2 }] },
+    { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#ff0055" }] },
+    { "featureType": "landscape.man_made", "elementType": "geometry.fill", "stylers": [{ "color": "#1b0a33" }] },
+    { "featureType": "landscape.man_made", "elementType": "geometry.stroke", "stylers": [{ "color": "#ff0055" }, { "lightness": -30 }] },
+    { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#ffb700" }] },
+    { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#0d011a" }] },
+    { "featureType": "road", "elementType": "geometry.fill", "stylers": [{ "color": "#00f2ff" }] },
+    { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#0088ff" }] },
+    { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#ffffff" }] },
+    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#ff0055" }] },
+    { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#aa0033" }] },
+    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#05000a" }] }
 ];
 
 window.appStarted = false;
@@ -206,9 +284,11 @@ window.initMapController = async function() {
         map = new Map(mapElement, {
             center: { lat: 48.8566, lng: 2.3522 },
             zoom: 16,
-            styles: GOOGLE_MAPS_STYLE,
+            styles: window.isLiteMode ? [] : GOOGLE_MAPS_STYLE, // Retirer style lourd en lite
             disableDefaultUI: true,
             zoomControl: false,
+            tilt: window.isLiteMode ? 0 : 45, // Pas de 3D en lite
+            mapTypeId: window.isLiteMode ? 'roadmap' : undefined,
             gestureHandling: 'greedy'
         });
 
@@ -228,53 +308,72 @@ window.initMapController = async function() {
                 console.warn("mon50cc Maps : DirectionsService non disponible dans routesLib.");
             }
         } catch(e) {
-            console.warn("mon50cc Maps : Erreur initialisation DirectionsService", e);
+            console.warn("mon50cc Maps : Erreur initialisation DirectionsService");
         }
 
-        // PlaceAutocompleteElement pour le Départ
+        // Autocomplete Classique pour le Départ
         const startInputOld = document.getElementById('route-start');
-        if (startInputOld && PlaceAutocompleteElement) {
-            const startInputGmp = new PlaceAutocompleteElement({
-                requestedLanguage: 'fr'
+        let autocompleteStart = null;
+        if (startInputOld && google.maps.places) {
+            autocompleteStart = new google.maps.places.Autocomplete(startInputOld, {
+                fields: ['geometry', 'name']
             });
-            startInputGmp.id = 'route-start-gmp';
-            startInputGmp.setAttribute('placeholder', 'Position de départ...');
-            startInputOld.parentNode.replaceChild(startInputGmp, startInputOld);
+
+            autocompleteStart.addListener('place_changed', () => {
+                const searchEl = document.getElementById('route-search');
+                if (searchEl && searchEl.value.trim() !== "") {
+                    window.searchDestination();
+                }
+            });
         }
 
-        // PlaceAutocompleteElement pour la Recherche
+        // Autocomplete Classique pour la Recherche (Destination)
         const inputOld = document.getElementById('route-search');
-        if (inputOld && PlaceAutocompleteElement) {
-            const searchInputGmp = new PlaceAutocompleteElement({
-                requestedLanguage: 'fr'
+        if (inputOld && google.maps.places) {
+            const autocompleteSearch = new google.maps.places.Autocomplete(inputOld, {
+                fields: ['geometry', 'name']
             });
-            searchInputGmp.id = 'route-search-gmp';
-            searchInputGmp.setAttribute('placeholder', 'Où allez-vous ?');
-            
-            inputOld.parentNode.replaceChild(searchInputGmp, inputOld);
 
-            searchInputGmp.addEventListener('gmp-placeselect', async ({ place }) => {
-                if (!place) return;
-                await place.fetchFields({ fields: ['location', 'viewport'] });
-                
-                if (!place.location) {
+            autocompleteSearch.addListener('place_changed', () => {
+                const place = autocompleteSearch.getPlace();
+                if (!place || !place.geometry || !place.geometry.location) {
                     window.searchDestination();
                     return;
                 }
-                if (place.viewport) {
-                    map.fitBounds(place.viewport);
-                } else {
-                    map.setCenter(place.location);
-                    map.setZoom(17);
-                }
 
-                if (!currentPosition) {
-                    speak("Recherche de votre position GPS. L'itinéraire démarrera automatiquement dès que possible.");
-                    window.pendingDestinationName = searchInputGmp.inputValue;
+                const destLocation = place.geometry.location;
+                map.panTo(destLocation);
+                map.setZoom(17);
+
+                // Vérifier si un départ manuel a été saisi
+                const manualStartEl = document.getElementById('route-start');
+                const manualStartQuery = manualStartEl ? manualStartEl.value.trim() : "";
+
+                if (manualStartQuery !== "") {
+                    // Si départ manuel renseigné, on lance l'itinéraire de départ manuel à destination
+                    geocoder.geocode({ address: manualStartQuery }, (resStart, statusStart) => {
+                        if (statusStart === "OK") {
+                            const startPos = resStart[0].geometry.location;
+                            calculateRouteSansAutoroute(startPos, destLocation);
+                            const btnCancel = document.getElementById('btn-cancel-route');
+                            if (btnCancel) btnCancel.classList.remove('hidden');
+                        } else {
+                            speak("Lieu de départ introuvable.");
+                        }
+                    });
                     return;
                 }
 
-                calculateRouteSansAutoroute(currentPosition, place.location);
+                // Sinon, utilisation du GPS
+                if (!currentPosition) {
+                    speak("Recherche de votre position GPS. L'itinéraire démarrera automatiquement dès que possible.");
+                    window.pendingDestinationName = inputOld.value;
+                    return;
+                }
+
+                calculateRouteSansAutoroute(currentPosition, destLocation);
+                const btnCancel = document.getElementById('btn-cancel-route');
+                if (btnCancel) btnCancel.classList.remove('hidden');
             });
         }
 
@@ -494,17 +593,9 @@ async function checkLegalConsent() {
     modal.innerHTML = `
         <i class="fa-solid fa-shield-halved" style="font-size:3rem; color:#ffb703; margin-bottom:20px;"></i>
         <h2 style="margin-bottom:15px;">Respect de votre Vie Privée</h2>
-        <p style="font-size:0.9rem; line-height:1.4; margin-bottom:15px;">
-            Pour fonctionner, <strong>mon50ccetmoi</strong> collecte les données de <strong>localisation précise</strong>.
+        <p style="font-size:0.9rem; line-height:1.4; margin-bottom:15px; color:#ffb703; font-weight:bold;">
+            <strong>mon 50cc et moi</strong> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, et ce même lorsque l'application est fermée ou qu'elle n'est pas utilisée.
         </p>
-        <div style="background:#1a1a1a; padding:15px; border-radius:10px; text-align:left; font-size:0.8rem; margin-bottom:15px; border-left:4px solid #ffb703;">
-            <p><strong>Utilisation en arrière-plan :</strong> Votre position est accédée même lorsque l'application est fermée ou en arrière-plan pour :</p>
-            <ul style="margin-top:5px; padding-left:15px;">
-                <li>Vous alerter en cas de <strong>chute détectée</strong>.</li>
-                <li>Garder la <strong>navigation active</strong> écran éteint.</li>
-                <li>Signaler les <strong>dangers</strong> à la communauté.</li>
-            </ul>
-        </div>
         <p style="font-size:0.75rem; color:#888; margin-bottom:20px;">
             Les données sont chiffrées et vous pouvez supprimer votre compte à tout moment. En continuant, vous acceptez notre <a href="privacy.html" target="_blank" style="color:#ffb703;">politique de confidentialité</a>.
         </p>
@@ -551,9 +642,9 @@ function showGpsBanner(msg, code) {
         hardLock.innerHTML = `
             <i class="fa-solid fa-location-crosshairs" style="font-size:4rem; color:#ef4444; margin-bottom:20px;"></i>
             <h2 style="margin-bottom:15px; color:#ffb703;">GPS OBLIGATOIRE</h2>
-            <p style="font-size:1rem; line-height:1.5; margin-bottom:25px;">
-                mon50cc est une application de navigation GPS et de sécurité.<br><br>
-                <b>Sans accès à votre position, l'application ne peut pas fonctionner.</b>
+            <p style="font-size:0.9rem; line-height:1.5; margin-bottom:25px; text-align:left; background:rgba(0,0,0,0.5); padding:15px; border-radius:10px; border:1px solid #333;">
+                <b style="color:#ffb703;">mon 50cc et moi</b> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, <b>et ce même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</b><br><br>
+                Sans accès à votre position, l'application ne peut pas fonctionner.
             </p>
             <button onclick="window.repairGps()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1.1rem; margin-bottom:15px; box-shadow:0 0 15px rgba(255, 183, 3, 0.5);">
                 AUTORISER LE GPS
@@ -594,20 +685,43 @@ function hideGpsBanner() {
 
 window.repairGps = function() {
     const appUrl = 'mon50ccetmoi.com';
-    const instructions = [
-        "📱 Sur Android Chrome :",
-        "1. Appuie sur les 3 points ⋮ en haut à droite",
-        "2. Paramètres → Paramètres du site",
-        "3. Localisation → Cherche '" + appUrl + "'",
-        "4. Passe de 'Bloquer' à 'Autoriser'",
-        "5. Recharge l'application",
-        "",
-        "📱 Dans l'app Android :",
-        "1. Appui long sur l'icône de l'app",
-        "2. Infos sur l'appli → Autorisations",
-        "3. Position → Autoriser (ou Toujours autoriser)"
-    ].join("\n");
-    alert(instructions);
+    const instructions = `
+        <div style="text-align:left; font-size:0.9rem; line-height:1.5;">
+            <b style="color:#ffb703;">📱 Sur Android Chrome :</b><br>
+            1. Appuie sur les 3 points ⋮ en haut à droite<br>
+            2. Paramètres → Paramètres du site<br>
+            3. Localisation → Cherche '${appUrl}'<br>
+            4. Passe de 'Bloquer' à 'Autoriser'<br>
+            5. Recharge l'application<br><br>
+            <b style="color:#ffb703;">📱 Dans l'app Android :</b><br>
+            1. Appui long sur l'icône de l'app<br>
+            2. Infos sur l'appli → Autorisations<br>
+            3. Position → Autoriser (ou Toujours autoriser)
+        </div>
+    `;
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Comment réactiver le GPS',
+            html: instructions,
+            icon: 'info',
+            confirmButtonText: 'J\\'AI COMPRIS',
+            background: '#1a1a1a',
+            color: '#fff',
+            confirmButtonColor: '#ffb703'
+        });
+    } else {
+        const modal = document.createElement('div');
+        modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;";
+        modal.innerHTML = `
+            <div style="background:#1a1a1a; padding:25px; border-radius:15px; border:2px solid #ffb703; max-width:400px; width:100%; color:white;">
+                <h3 style="color:#ffb703; margin-top:0; margin-bottom:15px;">Comment réactiver le GPS</h3>
+                ${instructions}
+                <button onclick="this.parentElement.parentElement.remove()" style="width:100%; margin-top:20px; padding:12px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1rem;">J'AI COMPRIS</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
 };
 
 window.retryGps = function() {
@@ -890,9 +1004,14 @@ function updatePosition(position) {
     const rawSpeed = (speed !== null && speed >= 0) ? speed * 3.6 : 0;
     const speedKmh = Math.round(getSmoothedSpeed(rawSpeed));
     const speedEl = document.getElementById('speed');
+    const speedBar = document.getElementById('speed-bar');
     
     if (speedEl) {
         speedEl.textContent = speedKmh;
+        if (speedBar) {
+            const percentage = Math.min((speedKmh / 80) * 100, 100);
+            speedBar.style.width = `${percentage}%`;
+        }
         
         // Update Neural Engine (Grip & Stress)
         const currentTemp = window.lastWeatherTemp || 20;
@@ -1080,12 +1199,54 @@ function checkHazardProximity(lat, lng) {
         const p2 = new google.maps.LatLng(h.lat, h.lon);
         const dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
         
-        if (dist < 100 && lastSpokenHazard !== h.lat + h.lon) { 
+        // --- ALERTE ROUGE (GHOST CAR) ---
+        if (h.type === 'danger_immediat') {
+            const ageMins = (Date.now() - new Date(h.date).getTime()) / 60000;
+            if (dist < 1000 && ageMins <= 15 && window.lastSpokenRedAlert !== h.lat + h.lon) {
+                window.lastSpokenRedAlert = h.lat + h.lon;
+                if (typeof window.triggerRedAlert === 'function') {
+                    window.triggerRedAlert(Math.round(dist), h.description || "");
+                }
+            }
+        } 
+        // --- ANIMAUX (Anticipation 500m) ---
+        else if ((h.type === 'animal' || h.type === 'chien') && dist < 500 && lastSpokenHazard !== h.lat + h.lon) {
+            speak(`Attention, ${h.type} signalé à environ 500 mètres. Restez vigilant.`);
+            lastSpokenHazard = h.lat + h.lon;
+            showHazardConfirmation(index, h.type);
+        }
+        // --- DANGERS STANDARDS ---
+        else if (dist < 100 && lastSpokenHazard !== h.lat + h.lon) { 
             speak(`Attention : ${h.type} signalé à proximité.`);
             lastSpokenHazard = h.lat + h.lon;
             showHazardConfirmation(index, h.type);
         }
     });
+}
+
+window.triggerRedAlert = function(distance, description) {
+    // Annonce vocale
+    let alertMsg = `Attention, conduite dangereuse signalée`;
+    if (description) {
+        alertMsg += ` : ${description}`;
+    }
+    alertMsg += ` à ${distance} mètres devant vous. Restez vigilant.`;
+    speak(alertMsg);
+
+    // Effet visuel clignotant rouge
+    const overlay = document.createElement('div');
+    overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; box-shadow: inset 0 0 50px 20px rgba(255, 0, 0, 0.8); z-index:999999; pointer-events:none; transition: opacity 0.5s;";
+    document.body.appendChild(overlay);
+
+    let count = 0;
+    const interval = setInterval(() => {
+        overlay.style.opacity = (count % 2 === 0) ? "0" : "1";
+        count++;
+        if (count > 10) {
+            clearInterval(interval);
+            overlay.remove();
+        }
+    }, 500);
 }
 
 function showHazardConfirmation(index, type) {

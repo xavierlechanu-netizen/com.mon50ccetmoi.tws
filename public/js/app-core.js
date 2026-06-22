@@ -642,9 +642,9 @@ function showGpsBanner(msg, code) {
         hardLock.innerHTML = `
             <i class="fa-solid fa-location-crosshairs" style="font-size:4rem; color:#ef4444; margin-bottom:20px;"></i>
             <h2 style="margin-bottom:15px; color:#ffb703;">GPS OBLIGATOIRE</h2>
-            <p style="font-size:1rem; line-height:1.5; margin-bottom:25px;">
-                mon50cc est une application de navigation GPS et de sécurité.<br><br>
-                <b>Sans accès à votre position, l'application ne peut pas fonctionner.</b>
+            <p style="font-size:0.9rem; line-height:1.5; margin-bottom:25px; text-align:left; background:rgba(0,0,0,0.5); padding:15px; border-radius:10px; border:1px solid #333;">
+                <b style="color:#ffb703;">mon 50cc et moi</b> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, <b>et ce même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</b><br><br>
+                Sans accès à votre position, l'application ne peut pas fonctionner.
             </p>
             <button onclick="window.repairGps()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1.1rem; margin-bottom:15px; box-shadow:0 0 15px rgba(255, 183, 3, 0.5);">
                 AUTORISER LE GPS
@@ -685,20 +685,43 @@ function hideGpsBanner() {
 
 window.repairGps = function() {
     const appUrl = 'mon50ccetmoi.com';
-    const instructions = [
-        "📱 Sur Android Chrome :",
-        "1. Appuie sur les 3 points ⋮ en haut à droite",
-        "2. Paramètres → Paramètres du site",
-        "3. Localisation → Cherche '" + appUrl + "'",
-        "4. Passe de 'Bloquer' à 'Autoriser'",
-        "5. Recharge l'application",
-        "",
-        "📱 Dans l'app Android :",
-        "1. Appui long sur l'icône de l'app",
-        "2. Infos sur l'appli → Autorisations",
-        "3. Position → Autoriser (ou Toujours autoriser)"
-    ].join("\n");
-    alert(instructions);
+    const instructions = `
+        <div style="text-align:left; font-size:0.9rem; line-height:1.5;">
+            <b style="color:#ffb703;">📱 Sur Android Chrome :</b><br>
+            1. Appuie sur les 3 points ⋮ en haut à droite<br>
+            2. Paramètres → Paramètres du site<br>
+            3. Localisation → Cherche '${appUrl}'<br>
+            4. Passe de 'Bloquer' à 'Autoriser'<br>
+            5. Recharge l'application<br><br>
+            <b style="color:#ffb703;">📱 Dans l'app Android :</b><br>
+            1. Appui long sur l'icône de l'app<br>
+            2. Infos sur l'appli → Autorisations<br>
+            3. Position → Autoriser (ou Toujours autoriser)
+        </div>
+    `;
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Comment réactiver le GPS',
+            html: instructions,
+            icon: 'info',
+            confirmButtonText: 'J\\'AI COMPRIS',
+            background: '#1a1a1a',
+            color: '#fff',
+            confirmButtonColor: '#ffb703'
+        });
+    } else {
+        const modal = document.createElement('div');
+        modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;";
+        modal.innerHTML = `
+            <div style="background:#1a1a1a; padding:25px; border-radius:15px; border:2px solid #ffb703; max-width:400px; width:100%; color:white;">
+                <h3 style="color:#ffb703; margin-top:0; margin-bottom:15px;">Comment réactiver le GPS</h3>
+                ${instructions}
+                <button onclick="this.parentElement.parentElement.remove()" style="width:100%; margin-top:20px; padding:12px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1rem;">J'AI COMPRIS</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
 };
 
 window.retryGps = function() {
