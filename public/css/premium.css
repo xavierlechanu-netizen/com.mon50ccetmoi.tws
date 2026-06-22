@@ -1,0 +1,180 @@
+/* --- PREMIUM UX UPGRADES --- */
+/* Page Transitions */
+.page-transition {
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+.page-enter {
+    opacity: 0;
+    transform: scale(0.95);
+}
+.page-enter-active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Day Mode overrides */
+body.day-mode {
+    background-color: #f0f4f8;
+    color: #1a1a1a;
+}
+body.day-mode #map {
+    filter: contrast(1) brightness(1.2) saturate(1);
+}
+body.day-mode .glassmorphism, body.day-mode .hud-item {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+body.day-mode h1, body.day-mode h2, body.day-mode h3 {
+    color: #000;
+}
+body.day-mode .neon-border {
+    border-color: #0088ff !important;
+    box-shadow: none !important;
+}
+body.day-mode p, body.day-mode span {
+    color: #333;
+}
+body.day-mode .btn-insurance {
+    color: white !important;
+    background: #0088ff !important;
+}
+
+/* Weather Overlay */
+.weather-rain-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 9998;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2NkYGD4zwABBAEApzG1OQAAAABJRU5ErkJggg==') repeat;
+    opacity: 0;
+    transition: opacity 2s ease;
+}
+.weather-rain-overlay.active {
+    opacity: 0.3;
+    animation: rain-fall 0.5s linear infinite;
+}
+@keyframes rain-fall {
+    0% { background-position: 0 0; }
+    100% { background-position: -20px 100vh; }
+}
+
+/* XP Bar */
+.xp-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+.xp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffb703, #ff0055);
+    width: 0%;
+    transition: width 1s ease-out;
+}
+
+/* --- ULTIMATE PREMIUM ASSUR2000 OVERHAUL --- */
+
+/* Glassmorphism Ultra Premium */
+.glass-card-premium {
+    background: rgba(10, 15, 30, 0.65);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 30px;
+    color: #ffffff;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+
+.glass-card-premium:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 45px rgba(0, 210, 255, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(0, 210, 255, 0.3);
+}
+
+/* Neon Button Action */
+.btn-neon-action {
+    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 32px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-neon-action::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-neon-action:hover {
+    box-shadow: 0 0 30px rgba(0, 210, 255, 0.8);
+    transform: scale(1.05);
+}
+
+.btn-neon-action:hover::before {
+    left: 100%;
+}
+
+/* Cyber Input */
+.cyber-input {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 15px 20px;
+    color: #fff;
+    font-size: 1.1rem;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.cyber-input:focus {
+    outline: none;
+    border-color: #00d2ff;
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+}
+
+/* Stat Counters */
+.stat-premium {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 5px;
+}
+.stat-label {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}

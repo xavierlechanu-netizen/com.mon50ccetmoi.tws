@@ -1,0 +1,80 @@
+node_modules/
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# ─── Keystores & Secrets (NEVER commit) ───
+upload-keystore.jks
+*.jks
+*.keystore
+service-account.json
+mon50ccetmoi-firebase-adminsdk-*.json
+js/secrets.js
+
+# ─── Android Build Artifacts ───
+android/app/build/
+android/.gradle/
+android/local.properties
+android/build/
+build/
+.gradle/
+*.aab
+*.apk
+*.idsig
+
+# ─── Legacy / Temporary Files ───
+# Scripts de patch/fix one-shot (déjà appliqués)
+tmp_script_*.js
+fix.py
+fix_html.py
+fix_html_2.py
+fix_syntax.js
+super_fix.py
+add_kill_btn.py
+add_lawyer.py
+add_stop_btn.js
+apply_*.js
+inject_hud.py
+recover.js
+recover_diff.js
+recover_view.js
+repair_binaries.py
+setup_cap.py
+split-app.js
+auto_build.js
+check_binaries.py
+update_app.py
+update_hud.py
+update_insurer_ui.py
+update_sec.py
+update_wallet.py
+update_wallet2.py
+find_jpegs.py
+create_action.py
+check_id.py
+update_html.js
+
+# Fichiers backup obsolètes
+*.bak
+app_blame.txt
+backup_log.txt
+diff_index.txt
+old_index.html
+
+# Archives volumineuses (ne pas versionner)
+anciennes_versions.zip
+*.zip
+
+# Fichiers temporaires de documentation
+Sans nom 1.odt
+detail rapport mon50ccetmoi.odt
+
+# Deploy scripts (spécifiques à l'environnement local)
+deploy_*.bat
+build_*.bat
+publish_*.bat
+
+# Temp deploy dirs
+temp_v11_deploy/
+archives/

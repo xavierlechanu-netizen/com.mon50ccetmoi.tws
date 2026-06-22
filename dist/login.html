@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Connexion - mon50ccetmoi</title>
+    <link rel="icon" type="image/png" href="/assets/icon-192x192-GDee59gT.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="css/style.css?v=50018">
+
+    <!-- Firebase SDK (v9 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/config.js"></script>
+    <script>firebase.initializeApp(CONFIG.FIREBASE);</script>
+    <!-- CryptoJS -->
+    <script src="js/crypto-native.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer crossorigin="anonymous"></script>
+</head>
+<body class="login-body">
+    <div class="login-overlay">
+        <div class="login-container glassmorphism">
+            <div class="login-logo"><i class="fa-solid fa-motorcycle"></i></div>
+            <h1 class="login-title">mon50ccetmoi</h1>
+            <p class="login-subtitle">La 1ère communauté 50cc</p>
+            
+            <div id="login-form" class="auth-form">
+                <label for="login-user" class="sr-only">Pseudo</label>
+                <input type="text" id="login-user" name="username" placeholder="Votre Pseudo" autocomplete="username" />
+                <label for="login-pass" class="sr-only">Mot de passe</label>
+                <input type="password" id="login-pass" name="password" placeholder="Mot de passe" autocomplete="current-password" />
+                <button onclick="doLogin()" class="btn-auth">SE CONNECTER</button>
+                
+                <div style="margin: 15px 0; color: #888; font-size: 0.9rem;">OU</div>
+                
+                <button onclick="loginBiometric()" class="btn-auth" style="background: linear-gradient(135deg, #10a37f, #0d8a6a); color: #fff; margin-bottom: 15px; border: 1px solid #14cc9e; box-shadow: 0 0 10px rgba(16, 163, 127, 0.4);">
+                    <i class="fa-solid fa-fingerprint"></i> Connexion Biométrique (FIDO2)
+                </button>
+
+                <div style="text-align: center; margin-bottom: 20px; font-size: 0.75rem; color: #10a37f;">
+                    <i class="fa-solid fa-shield-check"></i> Sécurité : <strong>Firebase Auth · Chiffrement AES-256 · Sessions cryptées · RGPD/CNIL · FIDO2 Biométrique</strong>
+                </div>
+
+                <button onclick="loginAsGuest()" class="btn-auth" style="background:transparent; border:1px solid #999; color:#fff; margin-bottom: 20px;">
+                    👤 Mode Invité Libre
+                </button>
+
+                <button onclick="loginAsInvestor()" class="btn-auth" style="background: linear-gradient(90deg, #cca300, #ffaa00); border:none; color:#000; font-weight:bold; box-shadow: 0 0 15px rgba(204,163,0,0.5); margin-bottom: 20px;">
+                    <i class="fa-solid fa-briefcase"></i> Mode Démo Investisseur VIP
+                </button>
+
+                <button onclick="window.location.href='assureur.html'" class="btn-auth" style="background:transparent; border:1px solid #ff0055; color:#ff0055; margin-bottom: 20px; box-shadow: 0 0 10px rgba(255,0,85,0.2);">
+                    <i class="fa-solid fa-building-shield"></i> Accès Portail Assureur
+                </button>
+
+                <!-- Google Sign-In Button -->
+                <div id="g_id_onload"
+                     data-client_id="618915667828-ebv4uc1ehq7mhks9l1qajrtg7k833jab.apps.googleusercontent.com"
+                     data-context="signin"
+                     data-ux_mode="popup"
+                     data-callback="handleCredentialResponse"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left"
+                     style="margin-bottom: 20px;">
+                </div>
+                <p class="switch-link" onclick="toggleForm('register')">Pas encore membre ? <strong>Rejoindre</strong></p>
+            </div>
+
+            <div id="register-form" class="auth-form hidden">
+                <label for="reg-user" class="sr-only">Nouveau Pseudo</label>
+                <input type="text" id="reg-user" name="reg-username" placeholder="Choisissez un pseudo unique" autocomplete="username" />
+                <label for="reg-pass" class="sr-only">Nouveau Mot de passe</label>
+                <input type="password" id="reg-pass" name="reg-password" placeholder="Mot de passe" autocomplete="new-password" />
+                <select id="reg-brand" class="scooter-brand-select">
+                    <option value="" disabled selected>Marque de votre véhicule</option>
+                    <option value="Citroën">Citroën (Ami...)</option>
+                    <option value="Ligier / Microcar">Ligier / Microcar</option>
+                    <option value="Aixam">Aixam</option>
+                    <option value="Peugeot">Peugeot</option>
+                    <option value="MBK / Yamaha">MBK / Yamaha</option>
+                    <option value="Piaggio / Gilera">Piaggio / Gilera</option>
+                    <option value="Chatenet">Chatenet</option>
+                    <option value="Casalini">Casalini</option>
+                    <option value="Neco">Neco</option>
+                    <option value="TNT Motor">TNT Motor</option>
+                    <option value="Mash">Mash</option>
+                    <option value="Lexmoto">Lexmoto</option>
+                    <option value="Magpower">Magpower</option>
+                    <option value="Orcal">Orcal</option>
+                    <option value="Yadea">Yadea</option>
+                    <option value="Kymco">Kymco</option>
+                    <option value="Sym">Sym</option>
+                    <option value="Autre">Autre</option>
+                </select>
+                <label for="reg-model" class="sr-only">Modèle</label>
+                <input type="text" id="reg-model" name="reg-model" placeholder="Modèle (Ex: Ami, Kisbee, Booster, Zip...)" />
+                <button onclick="doRegister()" class="btn-auth btn-auth-alt">CRÉER MON COMPTE</button>
+                <p class="switch-link" onclick="toggleForm('login')">Déjà inscrit ? <strong>Se connecter</strong></p>
+            </div>
+            
+
+        </div>
+
+        <!-- NEW: Membership Advantages Section -->
+        <div class="advantages-container glassmorphism">
+            <div class="promo-badge-gold">🔥 OFFRE LIMITÉE : GOLD GRATUIT À VIE</div>
+            <p style="font-size: 0.8rem; color: var(--neon-gold); margin-bottom: 15px; font-weight: bold; text-align:center;">
+                Inscrivez-vous avant 2032 et profitez de l'abonnement Premium (Valeur 29€/an) gratuitement pour toujours !
+            </p>
+            <div class="advantage-grid">
+                <div class="adv-item">
+                    <i class="fa-solid fa-coins"></i>
+                    <h4>Rouler & Gagner</h4>
+                    <p>Minez du $MON50 à chaque kilomètre parcouru.</p>
+                </div>
+                <div class="adv-item">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h4>Sentinel OS</h4>
+                    <p>Protection anti-vol et anti-tamper autonome.</p>
+                </div>
+                <div class="adv-item">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <h4>Guardian Angel</h4>
+                    <p>Détection de chute et secours automatiques.</p>
+                </div>
+                <div class="adv-item">
+                    <i class="fa-solid fa-walkie-talkie"></i>
+                    <h4>Squad Link</h4>
+                    <p>Intercom tactique illimité pour vos balades.</p>
+                </div>
+            </div>
+            <div style="margin-top: 20px; text-align: center; font-size: 0.75rem;">
+                <a href="privacy.html" target="_blank" style="color: #888; text-decoration: none; margin: 0 5px;">Politique de confidentialité</a> | 
+                <a href="cookies.html" target="_blank" style="color: #888; text-decoration: none; margin: 0 5px;">Politique Cookies</a> | 
+                <a href="terms.html" target="_blank" style="color: #888; text-decoration: none; margin: 0 5px;">Conditions Générales</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js?v=30.0"></script>
+    <script>
+        function toggleForm(formType) {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById(formType + '-form').classList.remove('hidden');
+        }
+
+        function doLogin() {
+            login(document.getElementById('login-user').value, document.getElementById('login-pass').value);
+        }
+        function doRegister() {
+            register(
+                document.getElementById('reg-user').value, 
+                document.getElementById('reg-pass').value, 
+                document.getElementById('reg-brand').value,
+                document.getElementById('reg-model').value
+            );
+        }
+
+        // --- NEW: URL Hash Routing ---
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.location.hash === '#register') {
+                toggleForm('register');
+            }
+        });
+
+        // --- NEW: Google Login Callback via Firebase ---
+        async function handleCredentialResponse(response) {
+            console.log("Tentative de connexion Google via Firebase...");
+            const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
+            try {
+                const userCredential = await firebase.auth().signInWithCredential(credential);
+                const user = userCredential.user;
+                
+                // Vérifier si le profil Firestore existe
+                const doc = await firebase.firestore().collection("users").doc(user.uid).get();
+                let profile;
+                if (!doc.exists) {
+                    profile = {
+                        uid: user.uid,
+                        username: user.displayName || user.email.split('@')[0],
+                        role: 'user',
+                        points: 50,
+                        registrationDate: Date.now(),
+                        brand: "Google Pilot"
+                    };
+                    await firebase.firestore().collection("users").doc(user.uid).set(profile);
+                } else {
+                    profile = doc.data();
+                }
+                
+                secureSetItem('session', JSON.stringify(profile));
+                window.location.href = 'app.html';
+            } catch (error) {
+                console.error("Google Auth Error:", error);
+                alert("Erreur Google Auth : " + error.message);
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js?v=80000')
+                    .then(reg => console.log('Service Worker (Login) enregistré'))
+                    .catch(err => console.log('Échec Service Worker: ', err));
+            });
+        }
+    </script>
+</body>
+</html>

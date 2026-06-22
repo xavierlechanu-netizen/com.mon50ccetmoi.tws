@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fr-FR" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>mon 50cc et moi | Le Copilote IA des Scooters et VSP</title>
+    
+    <!-- SEO Meta Tags Avancés -->
+    <meta name="description" content="L'application indispensable pour les conducteurs de 50cc et Voitures Sans Permis (Aixam, Ligier, Ami). GPS sans autoroute, Ange Gardien (détection de chute), Diagnostic Batterie et Assistance Juridique IA.">
+    <meta name="keywords" content="50cc, VSP, Voiture Sans Permis, Aixam, Ligier, Microcar, Ami, Citroën Ami, Chatenet, Peugeot Kisbee, Yamaha Neo's, GPS scooter, Ange Gardien, Batterie SOH, Assurance, Litige">
+    
+    <!-- Open Graph (Facebook/Twitter) -->
+    <meta property="og:title" content="mon 50cc et moi | L'Ange Gardien des 50cc & VSP">
+    <meta property="og:description" content="Le copilote IA indispensable pour rouler en toute sécurité. GPS adapté, détection de chute, et diagnostic batterie certifié.">
+    <meta property="og:image" content="https://mon50ccetmoi.com/assets/ui/screenshot_wide.jpg">
+    <meta property="og:url" content="https://mon50ccetmoi.com/">
+    <meta property="og:type" content="website">
+
+    <!-- Structured Data (JSON-LD) for Google Rich Results -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "mon 50cc et moi",
+        "alternateName": "mon50cc",
+        "url": "https://mon50ccetmoi.com",
+        "description": "Le copilote IA pour les conducteurs de scooters 50cc et Voitures Sans Permis (VSP). Navigation GPS sans autoroute, détection de chute, boîte noire certifiée et portail assureur B2B.",
+        "applicationCategory": "NavigationApplication",
+        "operatingSystem": "Android, Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+        },
+        "softwareVersion": "80.0.0",
+        "inLanguage": "fr-FR",
+        "featureList": [
+            "Navigation GPS VSP et 50cc",
+            "Détection de chute (Guardian Angel)",
+            "Boîte noire télémétrique",
+            "Diagnostic de Batterie SOH",
+            "Portail assureur B2B"
+        ]
+    }
+    </script>
+    
+    <link rel="icon" type="image/png" href="/assets/icon-192x192-GDee59gT.png">
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer">
+
+    <style>
+        /* CSS Premium Dark Mode / Cyberpunk */
+        :root {
+            --bg-color: #050505;
+            --surface-color: rgba(20, 20, 20, 0.7);
+            --primary: #00d2ff;
+            --primary-glow: rgba(0, 210, 255, 0.4);
+            --secondary: #10a37f;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 210, 255, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(16, 163, 127, 0.05), transparent 25%);
+        }
+
+        /* Navbar */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--primary);
+        }
+
+        .btn-login {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 20px 60px;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            filter: blur(150px);
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        .badge-update {
+            background: rgba(16, 163, 127, 0.1);
+            color: var(--secondary);
+            border: 1px solid rgba(16, 163, 127, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            display: inline-block;
+        }
+
+        .hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(3rem, 6vw, 5rem);
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, #a0a0a0);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .btn-cta {
+            background: linear-gradient(135deg, var(--primary), #0077ff);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 800;
+            box-shadow: 0 10px 30px var(--primary-glow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px var(--primary-glow);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 60px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--surface-color);
+            border: 1px solid var(--glass-border);
+            padding: 40px 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .card i {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--glass-border);
+            padding: 40px 5%;
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 80px;
+        }
+
+        .footer-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .footer-links a:hover {
+            color: var(--text-main);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1rem; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">
+            <i class="fa-solid fa-motorcycle"></i> mon50cc
+        </a>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <a href="assureur.html" class="btn-login" style="border-color: #ff0055; color: #ff0055;"><i class="fa-solid fa-building-shield"></i> Espace Assureur</a>
+            <a href="login.html" class="btn-login">Espace Pilote</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="badge-update"><i class="fa-solid fa-bolt"></i> Nouveau : Certificats Batterie Disponibles</div>
+        <h1>Le copilote intelligent pour<br><span>50cc et VSP</span></h1>
+        <p>L'application indispensable qui transforme votre téléphone en véritable tableau de bord. GPS sans autoroute, détection de chute, et diagnostic batterie intégré.</p>
+        
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 10px;">
+            <a href="login.html#register" class="btn-cta" style="background: linear-gradient(135deg, #ffaa00, #ff5500); box-shadow: 0 10px 30px rgba(255, 170, 0, 0.4);"><i class="fa-solid fa-user-plus"></i> Créer mon compte gratuit</a>
+            
+            <div style="color: #a0a0a0; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-brands fa-android" style="color: #3DDC84; font-size: 1.2rem;"></i> Bêta fermée exclusive sur Android (iOS prévu pour 2028)
+            </div>
+
+            <div style="background: rgba(255, 170, 0, 0.1); border: 1px solid rgba(255, 170, 0, 0.3); color: #ffaa00; padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; margin-top: 5px;">
+                🎁 Offre Fondateur : Compte GOLD gratuit à vie si inscrit avant 2032 (au lieu de 29€/an) !
+            </div>
+            
+            <div style="margin-top: 15px; display: flex; gap: 20px; font-size: 0.9rem;">
+                <a href="login.html" style="color: var(--text-muted); text-decoration: none;"><i class="fa-solid fa-right-to-bracket"></i> Déjà membre ? Se connecter</a>
+                <span style="color: #444;">|</span>
+                <a href="javascript:void(0)" onclick="loginAsGuest()" style="color: var(--text-muted); text-decoration: none;"><i class="fa-solid fa-user-astronaut"></i> Mode Invité (Sans sauvegarde)</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <h2 class="section-title">Une technologie conçue pour vous.</h2>
+        <div class="grid">
+            
+            <div class="card">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <h3>Navigation 100% Adaptée</h3>
+                <p>Oubliez les détours imprévus sur voies rapides. Notre GPS calcule les meilleurs itinéraires exclusivement autorisés pour les véhicules 50cc et VSP (Ami, Ligier...).</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-heart-pulse"></i>
+                <h3>Ange Gardien IA</h3>
+                <p>Roulez l'esprit tranquille. En cas de détection de chute, l'application prévient automatiquement vos contacts d'urgence avec votre position GPS exacte.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-battery-full"></i>
+                <h3>Diagnostic Batterie (SOH)</h3>
+                <p>Propriétaire d'un véhicule électrique ? Évaluez l'état de santé de votre batterie et générez un certificat officiel certifié sur Blockchain pour la revente.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-building-shield"></i>
+                <h3>Portail Assurance B2B</h3>
+                <p>En cas de litige, notre intelligence artificielle génère un rapport circonstancié (Boîte Noire) téléchargeable et partageable instantanément avec votre assureur.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-users-viewfinder"></i>
+                <h3>Communauté & Squad Link</h3>
+                <p>Connectez-vous avec d'autres pilotes, partagez des alertes en temps réel, et utilisez notre système d'intercom tactique illimité pour vos balades en groupe.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-lock"></i>
+                <h3>Sécurité & Vie Privée</h3>
+                <p>Vos données vous appartiennent. Système conforme RGPD avec Droit à l'Oubli automatisé, authentification FIDO2, et bases de données cloud ultra-sécurisées.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <div class="logo" style="justify-content: center; margin-bottom: 20px;">
+            <i class="fa-solid fa-motorcycle"></i> mon50ccetmoi
+        </div>
+        <p>&copy; 2026 mon50ccetmoi. Tous droits réservés.</p>
+        <div class="footer-links">
+            <a href="mentions-legales.html">Mentions Légales</a>
+            <a href="privacy.html">Confidentialité</a>
+            <a href="mailto:contact@mon50ccetmoi.com">Contact</a>
+        </div>
+    </footer>
+
+    <!-- SEO Semantic Invisible Block -->
+    <div style="display:none;" aria-hidden="true">
+        <h2>L'application de référence pour les Voitures Sans Permis (VSP) et Scooters 50cc</h2>
+        <p>Que vous rouliez en <strong>Aixam, Ligier, Microcar, Citroën Ami, Chatenet, Casalini</strong> ou en scooter comme le <strong>Peugeot Kisbee, Yamaha Neo's, Piaggio Zip, Sym, Kymco</strong>, mon50ccetmoi est l'application GPS et sécurité de référence.</p>
+        <p>Nous proposons un itinéraire sans autoroute, un bouton SOS d'urgence en cas d'accident, une boîte noire certifiée pour les assurances, et un module d'évaluation de la batterie (SOH) pour les scooters électriques.</p>
+    </div>
+
+    <!-- Scripts pour l'authentification Invité -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/config.js"></script>
+    <script>firebase.initializeApp(CONFIG.FIREBASE);</script>
+    <script src="js/crypto-native.js"></script>
+    <script src="js/auth.js"></script>
+
+</body>
+</html>

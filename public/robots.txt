@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin.html
+Disallow: /banned.html
+Disallow: /_legacy/
+Disallow: /functions/
+Disallow: /android-app/
+Disallow: /scripts/
+Disallow: /tools/
+Disallow: /build/
+Disallow: /scratch/
+
+Sitemap: https://mon50ccetmoi.com/sitemap.xml

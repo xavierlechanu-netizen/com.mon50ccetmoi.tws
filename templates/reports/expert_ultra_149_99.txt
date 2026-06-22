@@ -1,0 +1,32 @@
+=== RAPPORT BLACK BOX mon50ccetmoi ===
+NIVEAU D'EXPERTISE : EXPERT ULTRA (149.99€)
+---------------------------------------
+Date : [DATE_TRAJET]
+ID Dossier : [CASE_ID]
+---------------------------------------
+Points enregistrés : [NB_POINTS]
+Vitesse maximum : [VMAX] km/h
+Départ GPS : [START_LAT], [START_LNG]
+Arrivée GPS : [END_LAT], [END_LNG]
+
+--- ANALYSE SENSORIELLE HAUTE PRÉCISION ---
+Force G Max (Impact/Freinage) : [G_FORCE] G
+Angle Inclinaison Max : [LEAN_ANGLE] deg
+Stabilité de trajectoire : [STABILITY] %
+Détection d'anomalie grip : [GRIP_STATUS]
+
+--- ECO-TÉLÉMÉTRIE & MAINTENANCE ---
+Distance estimée : [DISTANCE] km
+Consommation carburant estimée : [FUEL] L
+Usure pneumatique estimée : [WEAR] %
+
+--- CERTIFICATION ET INTÉGRITÉ ---
+Hash de sécurité (SHA-256) : [HASH]
+Météo certifiée au point d'impact : [METEO]
+Signature numérique mon50ccetmoi v60.0.12 : VALIDE
+
+Ce rapport est généré automatiquement par l'application mon50ccetmoi.
+Toute modification manuelle annule la certification.
+Pour toute expertise assurance, contactez : contact@mon50ccetmoi.fr
+Xavier Le Chanu | SIRET 891 912 503 00036 | TVA FR87891912503
+=== FIN DU RAPPORT ===

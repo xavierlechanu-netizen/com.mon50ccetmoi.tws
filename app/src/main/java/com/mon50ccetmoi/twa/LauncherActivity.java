@@ -1,0 +1,50 @@
+/*
+ * Copyright 2020 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.mon50ccetmoi.twa;
+
+import android.content.pm.ActivityInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+
+
+
+public class LauncherActivity
+        extends com.google.androidbrowserhelper.trusted.LauncherActivity {
+    
+
+    
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+        getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
+        super.onCreate(savedInstanceState);
+        // Les restrictions d'orientation ont été supprimées pour être compatible avec
+        // les appareils à grand écran (Foldables/Tablettes) sous Android 16.
+    }
+
+    @Override
+    protected Uri getLaunchingUrl() {
+        // Get the original launch Url.
+        Uri uri = super.getLaunchingUrl();
+
+        
+
+        return uri;
+    }
+}

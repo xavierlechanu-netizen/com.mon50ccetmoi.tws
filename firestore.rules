@@ -1,0 +1,171 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- FONCTIONS DE SÉCURITÉ ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function getUsername() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.username;
+    }
+
+    // --- RÈGLES PAR COLLECTION ---
+
+    // Profils Utilisateurs : Seul l'utilisateur ou l'admin peut modifier son profil, tout le monde peut voir
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Certificats de Batterie : Lecture publique pour la vérification acheteur, création par le propriétaire
+    match /battery_certificates/{certId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+      allow update, delete: if false; // Les certificats sont inaltérables
+    }
+
+    // Blackbox : Stockage ultra-privé. Lecture réservée au proprio ou expert vérifié
+    match /blackbox_reports/{reportId} {
+      allow create: if isSignedIn();
+      allow read: if isOwner(resource.data.userId) || isAdmin() || (resource.data.isUnlocked == true);
+      allow update: if false; // Un rapport Blackbox est IMMUABLE (non modifiable) une fois créé
+    }
+
+    // Coffre-fort ANTS : Sanctuaire absolu
+    match /ants_wallet/{walletId} {
+      allow read, write: if isOwner(walletId);
+    }
+
+    // Guardian Angel Sessions : Partage public via lien unique, mais écriture privée
+    match /guardian_sessions/{sessionId} {
+      allow read: if true; // Pour le partage aux proches
+      allow create, update: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+
+    // Alertes Communautaires (Hazards)
+    match /hazards/{hazardId} {
+      allow read: if true;
+      allow create: if isSignedIn(); // Retrait du contrôle pos.lat/lng en clair car chiffré sous payload
+      allow delete: if isAdmin() || (isSignedIn() && getUsername() == resource.data.author);
+    }
+
+    // Sessions de Balades
+    match /balades/{baladeId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data.userId);
+    }
+
+    // Partage de position en temps réel (Presence)
+    match /presence/{username} {
+      allow read: if true;
+      allow write: if isSignedIn() && getUsername() == username;
+    }
+
+    // Humeurs / Ticker Social (Moods)
+    match /moods/{moodId} {
+      allow read: if true;
+      allow create: if isSignedIn() && getUsername() == request.resource.data.username;
+      allow delete: if isAdmin();
+    }
+
+    // SOS / Alertes d'urgence (Emergency Alerts)
+    match /emergency_alerts/{alertId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+
+    // Signalement d'abus (Reports Abuse)
+    match /reports_abuse/{reportId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // Stations services signalées/blacklistées (Blacklist Stations)
+    match /blacklist_stations/{stationId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Dossiers de plaintes officiels (Complaints Official)
+    match /complaints_official/{complaintId} {
+      allow read: if isAdmin();
+      allow write: if isSignedIn();
+    }
+
+    // Inscriptions Beta Testeurs (Public)
+    match /beta_testers/{testerId} {
+      allow read: if true; // Nécessaire pour afficher la barre de progression (count)
+      allow create: if isSignedIn(); // Réservé aux membres connectés pour éviter le spam
+      allow update, delete: if isAdmin();
+    }
+
+    // Alertes d'administration (Admin Alerts)
+    match /admin_alerts/{alertId} {
+      allow read: if isAdmin();
+      allow write: if isSignedIn();
+    }
+
+    // Évaluations des garages (Garage Evaluations)
+    match /garage_evaluations/{garageId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Roadbooks partagés (Community Roadbooks)
+    match /community_roadbooks/{roadbookId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Blocage d'IP (Banned IPs)
+    match /banned_ips/{ip} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Logs de modération (Mod Logs)
+    match /mod_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // REVOLUT — Collections de paiement
+    // Écriture : Firebase Admin SDK (Cloud Functions) UNIQUEMENT
+    // Lecture  : propriétaire du dossier uniquement
+    // ─────────────────────────────────────────────────────────────
+
+    // Ordres Revolut créés par la Cloud Function
+    match /revolut_orders/{orderId} {
+      allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
+      allow write: if false; // Écriture exclusivement via Firebase Admin (Cloud Function)
+    }
+
+    // Confirmations de paiement (écrites par le webhook Revolut via Cloud Function)
+    match /payment_confirmations/{caseId} {
+      allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
+      allow write: if false; // Écriture exclusivement via Firebase Admin (Cloud Function)
+    }
+
+    // Propositions de litige IA (écrites par le client, lues par l'utilisateur et l'admin)
+    match /litigation_proposals/{caseId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if false; // Mise à jour uniquement via Cloud Function (webhook)
+    }
+  }
+}

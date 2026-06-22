@@ -1,0 +1,48 @@
+{
+  "packageId": "com.mon50ccetmoi.twa",
+  "host": "mon50ccetmoi.com",
+  "name": "mon 50cc et moi",
+  "launcherName": "mon 50cc et moi",
+  "display": "standalone",
+  "themeColor": "#000000",
+  "themeColorDark": "#000000",
+  "navigationColor": "#000000",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#000000",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://www.gstatic.com/images/branding/product/2x/googleg_96dp.png",
+  "maskableIconUrl": "https://www.gstatic.com/images/branding/product/2x/googleg_96dp.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./new-upload-keystore.jks",
+    "alias": "upload"
+  },
+  "appVersionName": "90.0.1",
+  "appVersionCode": 90001,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://mon50ccetmoi.com/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {
+    "location": {}
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 21,
+  "orientation": "portrait",
+  "fingerprints": [
+    "A7:15:6D:CF:51:56:B1:DF:B8:D3:95:AF:70:F9:2A:42:1D:7C:92:7E:1C:06:E3:16:E0:93:DD:79:42:0D:B3:41"
+  ],
+  "serviceAccountJsonFile": "mon50ccetmoi-firebase-adminsdk-fbsvc-248403805b.json",
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "displayOverride": [],
+  "appVersion": "90.0.1"
+}

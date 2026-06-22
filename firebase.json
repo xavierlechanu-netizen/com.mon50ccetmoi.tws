@@ -1,0 +1,87 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs20"
+  },
+  "hosting": {
+    "public": "dist",
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "headers": [
+      {
+        "source": "/.well-known/assetlinks.json",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ]
+      },
+      {
+        "source": "**/*.html",
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "SAMEORIGIN"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          }
+        ]
+      }
+    ],
+    "ignore": [
+      "firebase.json",
+      "functions/**",
+      "node_modules/**",
+      "_legacy/**",
+      "docs/**",
+      "scratch/**",
+      "scripts/**",
+      "tools/**",
+      "templates/**",
+      "android-app/**",
+      "assets_ui_bak/**",
+      "*.jks",
+      "*.gradle",
+      "*.bat",
+      "*.py",
+      "*.bak",
+      "*.zip",
+      "*.odt",
+      "*.aab",
+      "*.apk",
+      "*.idsig",
+      "*.pem",
+      "*.txt",
+      "*.md",
+      "README.md",
+      "CHANGELOG.md",
+      "MANIFESTO.md",
+      "service-account.json",
+      "mon50ccetmoi-firebase-adminsdk-*.json",
+      "local.properties",
+      "gradle*",
+      "settings.gradle",
+      "build.gradle",
+      "twa-manifest.json",
+      ".github/**",
+      ".gradle/**",
+      ".firebase/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/404.html"
+      }
+    ]
+  }
+}
