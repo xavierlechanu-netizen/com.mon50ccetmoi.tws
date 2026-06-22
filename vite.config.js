@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-  base: '/com.mon50ccetmoi.tws/',
+  base: '/',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
