@@ -6,6 +6,13 @@
     <title>Partner Connect - mon50ccetmoi B2B</title>
     <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Firebase SDK (v9 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/config.js"></script>
+    
     <style>
         :root {
             --bg-dark: #0a0a0a;
@@ -283,18 +290,24 @@
     </div>
 
     <script>
-        function doLogin() {
-            const id = document.getElementById('partner-id').value;
+        async function doLogin() {
+            const id = document.getElementById('partner-id').value.trim();
             const pwd = document.getElementById('partner-pwd').value;
             
-            if(id.length < 2 || pwd.length < 2) {
-                alert("Veuillez entrer vos identifiants (mot de passe libre pour la démo).");
+            if(!id || !pwd) {
+                alert("Veuillez entrer vos identifiants.");
                 return;
             }
 
-            document.getElementById('partner-name-display').textContent = id;
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'flex';
+            try {
+                await firebase.auth().signInWithEmailAndPassword(id, pwd);
+                document.getElementById('partner-name-display').textContent = id;
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'flex';
+            } catch(error) {
+                console.error("Auth error:", error);
+                alert("Identifiants incorrects ou accès refusé.");
+            }
         }
 
         function switchView(viewId) {

@@ -2,7 +2,7 @@ let currentCaseId = null;
 let currentReportType = 'EXPERT';
 let currentPrice = 199.99;
 
-function authenticateInsurer() {
+async function authenticateInsurer() {
     const user = document.getElementById('insurer-username').value.trim();
     const pass = document.getElementById('insurer-password').value;
     const errorEl = document.getElementById('login-error');
@@ -13,35 +13,21 @@ function authenticateInsurer() {
         return;
     }
     
-    // Règle 1 : Minimum 20 caractères
-    if (pass.length < 20) {
-        errorEl.innerHTML = '<i class="fa-solid fa-shield-cat"></i> <strong>Sécurité insuffisante :</strong> Le mot de passe doit faire au moins 20 caractères.';
+    try {
+        await firebase.auth().signInWithEmailAndPassword(user, pass);
+        // Succès de l'authentification
+        errorEl.style.display = 'none';
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('portal-content').style.display = 'block';
+        
+        // Feedback vocal (si supporté par l'app principale)
+        if (typeof speak === 'function') {
+            speak('Connexion experte établie. Bienvenue sur le portail.');
+        }
+    } catch (error) {
+        errorEl.innerHTML = '<i class="fa-solid fa-shield-cat"></i> <strong>Accès refusé :</strong> Identifiants invalides ou compte inexistant.';
         errorEl.style.display = 'block';
-        return;
-    }
-    
-    // Règle 2 : Au moins une majuscule
-    if (!/[A-Z]/.test(pass)) {
-        errorEl.innerHTML = '<i class="fa-solid fa-shield-cat"></i> <strong>Sécurité insuffisante :</strong> Le mot de passe doit contenir au moins une lettre majuscule.';
-        errorEl.style.display = 'block';
-        return;
-    }
-    
-    // Règle 3 : Au moins un caractère spécial
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pass)) {
-        errorEl.innerHTML = '<i class="fa-solid fa-shield-cat"></i> <strong>Sécurité insuffisante :</strong> Le mot de passe doit contenir au moins un caractère spécial (!@#$...).';
-        errorEl.style.display = 'block';
-        return;
-    }
-    
-    // Succès de l'authentification
-    errorEl.style.display = 'none';
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('portal-content').style.display = 'block';
-    
-    // Feedback vocal (si supporté par l'app principale)
-    if (typeof speak === 'function') {
-        speak('Connexion experte établie. Bienvenue sur le portail.');
+        console.error("Auth error:", error);
     }
 }
 
@@ -139,9 +125,8 @@ async function payReport() {
         
         const orderData = await response.json();
         
-        // Lancement de Revolut Checkout (Mode Sandbox ou Prod)
-        // IMPORTANT: Mettre 'sandbox' pour les tests, 'prod' pour la production
-        const instance = await RevolutCheckout(orderData.order_token, 'sandbox');
+        // Lancement de Revolut Checkout (Mode Production)
+        const instance = await RevolutCheckout(orderData.order_token, 'prod');
         
         instance.payWithPopup({
             onSuccess: () => {

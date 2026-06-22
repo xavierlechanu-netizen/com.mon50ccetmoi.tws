@@ -59,14 +59,14 @@ window.PocketLawyer = {
     },
 
     openLawyer: function() {
-        if (!window.Web4Economy) {
-            alert("Erreur: Moteur Web4 introuvable.");
+        if (typeof window.braveCoins === 'undefined') {
+            alert("Erreur: Module de fidélité introuvable.");
             return;
         }
         
-        const price = window.Web4Economy.prices.legal_report || 5;
-        if (window.Web4Economy.balance < price) {
-            alert(`Fonds insuffisants ! Vous avez besoin de ${price} BVC pour accéder à l'Avocat de Poche. Roulez plus pour en gagner.`);
+        const price = 5; // 5 Pts BVC constants
+        if (window.braveCoins < price) {
+            alert(`Fonds insuffisants ! Vous avez besoin de ${price} Pts BVC pour accéder à l'Avocat de Poche. Roulez plus pour en gagner.`);
             return;
         }
 
@@ -155,17 +155,23 @@ window.PocketLawyer = {
     },
 
     generateLetter: function() {
-        if (!window.Web4Economy) {
-            alert("Erreur: Moteur Web4 introuvable.");
+        if (typeof window.braveCoins === 'undefined') {
+            alert("Erreur: Module de fidélité introuvable.");
             return;
         }
         
-        const price = window.Web4Economy.prices.legal_report;
-        if (confirm(`Générer un recours juridique coûte ${price} BVC.\nVoulez-vous continuer ?`)) {
-            if (window.Web4Economy.spendToken(price, "Avocat de Poche - Rapport Juridique")) {
-                alert(`Paiement de ${price} BVC accepté.\n\nModèle de recours juridique copié dans le presse-papiers. Prêt à être envoyé à l'ANTAI.`);
+        const price = 5;
+        if (confirm(`Générer un recours juridique coûte ${price} Pts BVC.\nVoulez-vous continuer ?`)) {
+            if (window.braveCoins >= price) {
+                window.braveCoins -= price;
+                localStorage.setItem('braveCoins', window.braveCoins.toString());
+                // Update UI balance if open
+                const balanceEl = document.getElementById('crypto-balance');
+                if(balanceEl) balanceEl.innerText = Math.floor(window.braveCoins) + ' Pts BVC';
+                
+                alert(`Paiement de ${price} Pts BVC accepté.\n\nModèle de recours juridique copié dans le presse-papiers. Prêt à être envoyé à l'ANTAI.`);
             } else {
-                alert(`Fonds insuffisants ! Vous avez besoin de ${price} BVC. Roulez plus pour gagner des BVC.`);
+                alert(`Fonds insuffisants ! Vous avez besoin de ${price} Pts BVC. Roulez plus pour gagner des Pts BVC.`);
             }
         }
     }

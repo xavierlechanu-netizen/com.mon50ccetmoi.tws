@@ -1,6 +1,6 @@
 /**
  * mon 50cc et moi - Module OBD-II Bluetooth
- * v80.0
+ * v100.00-GOLD
  * Utilise l'API Web Bluetooth pour se connecter aux boîtiers ELM327
  */
 

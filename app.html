@@ -110,7 +110,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
 
     <link rel="manifest" href="manifest.json" />
-    <title>mon 50cc et moi | v70.0.0</title>
+    <title>mon 50cc et moi | v100.00-GOLD</title>
     <!-- <script src="js/secrets.js"></script> RemplacÃ© par config.js intÃ©grÃ© -->
     <script src="js/config.js?v=60019"></script>
     <script src="js/error-tracking.js?v=70000"></script>
@@ -259,7 +259,7 @@
     <script defer src="js/certified-camera.js"></script>
     <script defer src="js/engine-pulse.js?v=60019"></script>
     <script defer src="js/neural-hud.js?v=60019"></script>
-    <script defer src="js/intercom.js?v=60019"></script>
+
     <script defer src="js/neural-sync.js?v=60019"></script>
     <script defer src="js/wallet.js?v=60019"></script>
     <script defer src="js/certificate.js?v=60019"></script>
@@ -341,7 +341,7 @@
             <i class="fa-solid fa-scale-balanced" aria-hidden="true" style="filter: drop-shadow(0 0 5px #cca300);"></i>
         </button>
 
-        <!-- AR Vision (v85.0) -->
+        <!-- AR Vision (v100.00-GOLD) -->
         <button id="dock-btn-ar" aria-label="Activer la vision en Réalité Augmentée" role="button" onclick="if(window.arNavigationManager) window.arNavigationManager.toggleAR()" style="background: none; border: none; color: #00ffcc; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
             <i class="fa-solid fa-vr-cardboard" aria-hidden="true" style="filter: drop-shadow(0 0 5px #00ffcc);"></i>
         </button>
@@ -607,40 +607,40 @@
 </div>
 
 
-<!-- CRYPTO WALLET SCREEN -->
+<!-- LOYALTY PROGRAM SCREEN -->
 <div id="crypto-wallet-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #0f172a 0%, #000 100%); color: #fff; z-index: 35000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
     <button onclick="window.hideCryptoWallet()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #ff0055; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
     
     <div style="margin-top: 50px; text-align: center;">
-        <i class="fa-brands fa-ethereum" style="font-size: 4rem; color: #b700ff; filter: drop-shadow(0 0 20px #b700ff); margin-bottom: 20px;"></i>
-        <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Rouler & Gagner</h1>
-        <p style="color: #00ffcc; font-weight: bold; margin-top: 5px;">Réseau Web3 Sécurisé</p>
+        <i class="fa-solid fa-gift" style="font-size: 4rem; color: #b700ff; filter: drop-shadow(0 0 20px #b700ff); margin-bottom: 20px;"></i>
+        <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Fidélité & Récompenses</h1>
+        <p style="color: #00ffcc; font-weight: bold; margin-top: 5px;">Programme Rouler & Gagner</p>
     </div>
 
     <div style="margin: 40px auto; width: 90%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(183,0,255,0.3); border-radius: 20px; padding: 40px 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
         <h3 style="color: #aaa; margin: 0 0 10px 0; font-size: 1rem;">Solde Total</h3>
-        <div id="crypto-balance" style="font-size: 3.5rem; font-weight: 900; color: #b700ff; text-shadow: 0 0 20px #b700ff;">0.00 BVC</div>
-        <div style="color: #fff; font-size: 1.2rem; margin-top: 10px; opacity: 0.7;">≈ 0.00 €</div>
+        <div id="crypto-balance" style="font-size: 3.5rem; font-weight: 900; color: #b700ff; text-shadow: 0 0 20px #b700ff;">0 Pts BVC</div>
+        <div style="color: #fff; font-size: 1.2rem; margin-top: 10px; opacity: 0.7;">Brave Coins (Non monétaires)</div>
     </div>
     
     <div style="text-align: center; margin-top: 30px;">
-        <h3 style="color: #fff; margin-bottom: 15px;">Écosystème Web4</h3>
+        <h3 style="color: #fff; margin-bottom: 15px;">Avantages Exclusifs</h3>
         <div style="display:flex; flex-direction:column; gap:10px; align-items:center; margin-bottom:20px;">
             <div style="background:rgba(255,255,255,0.1); padding:10px 20px; border-radius:10px; width:80%; max-width:350px; display:flex; justify-content:space-between;">
                 <span><i class="fa-solid fa-scale-balanced" style="color:#cca300;"></i> Frais d'Avocat</span>
-                <span style="color:#ff4d4d; font-weight:bold;">- 5.0 BVC</span>
+                <span style="color:#ff4d4d; font-weight:bold;">- 5 Pts BVC</span>
             </div>
             <div style="background:rgba(255,255,255,0.1); padding:10px 20px; border-radius:10px; width:80%; max-width:350px; display:flex; justify-content:space-between;">
-                <span><i class="fa-solid fa-building-shield" style="color:#00ffcc;"></i> Prime Assureur</span>
-                <span style="color:#00ffcc; font-weight:bold;">+ 10.0 BVC</span>
+                <span><i class="fa-solid fa-building-shield" style="color:#00ffcc;"></i> Remise Assureur</span>
+                <span style="color:#00ffcc; font-weight:bold;">+ 10 Pts BVC</span>
             </div>
         </div>
         <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; margin-top: 20px;">
             <button onclick="window.PocketLawyer.open()" style="padding: 15px 40px; background: linear-gradient(90deg, #cca300, #ffaa00); border: none; border-radius: 30px; color: #000; font-weight: 900; font-size: 1.1rem; box-shadow: 0 5px 20px rgba(204,163,0,0.4); cursor: pointer;">
-                <i class="fa-solid fa-scale-balanced"></i> PAYER AVOCAT DE POCHE (5 BVC)
+                <i class="fa-solid fa-scale-balanced"></i> PAYER AVOCAT DE POCHE (5 Pts BVC)
             </button>
             <button style="padding: 15px 40px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 30px; color: #aaa; font-weight: bold; font-size: 0.9rem; cursor: not-allowed;">
-                CONVERTIR EN ESSENCE (Bientôt)
+                CONVERTIR EN GOODIES (Bientôt)
             </button>
         </div>
     </div>
@@ -651,10 +651,8 @@
     <script src="js/v3-smartcity.js"></script>
     <script src="js/carbon-trading.js"></script>
     <script src="js/rgpd-cnil.js"></script>
-    <script src="js/web4-recovery.js"></script>
     <script src="js/web4-mining.js"></script>
     <script src="js/insurer-portal.js"></script>
-    <script src="js/quantum-crypto.js"></script>
     <script src="js/zero-trust.js"></script>
 
     <script>
@@ -943,14 +941,14 @@
             <button onclick="window.Certificate.purchaseBatteryCert('premium')" style="background: #00d2ff; color: #000; border: none; border-radius: 20px; padding: 10px 20px; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);">14.99 €</button>
         </div>
 
-        <!-- Option 3: Blockchain -->
+        <!-- Option 3: Quantum Shield -->
         <div style="background: rgba(183, 0, 255, 0.05); border: 1px solid rgba(183, 0, 255, 0.6); border-radius: 15px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; padding: 25px; box-shadow: 0 10px 30px rgba(183, 0, 255, 0.2); transform: scale(1.02); position: relative;">
             <div style="position:absolute; top:-10px; right:20px; background:#b700ff; color:#fff; font-size:0.7rem; font-weight:900; padding:4px 10px; border-radius:10px; text-transform:uppercase;">Le plus sécurisé</div>
             <div>
-                <strong style="font-size:1.5rem; color:#e879f9;"><i class="fa-brands fa-ethereum"></i> 3. Certificat Blockchain</strong><br>
-                <span style="color:#cbd5e1; font-size:0.95rem;">Premium + Signature cryptographique inaltérable sur réseau Web3.</span>
+                <strong style="font-size:1.5rem; color:#e879f9;"><i class="fa-solid fa-shield-halved"></i> 3. Certificat Quantum Shield</strong><br>
+                <span style="color:#cbd5e1; font-size:0.95rem;">Premium + Signature cryptographique inaltérable (Chiffrement E2EE de niveau militaire).</span>
             </div>
-            <button onclick="window.Certificate.purchaseBatteryCert('blockchain')" style="background: linear-gradient(135deg, #b700ff 0%, #ff0055 100%); color: #fff; border: none; border-radius: 20px; padding: 10px 20px; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px rgba(183, 0, 255, 0.6);">29.99 €</button>
+            <button onclick="window.Certificate.purchaseBatteryCert('quantum')" style="background: linear-gradient(135deg, #b700ff 0%, #ff0055 100%); color: #fff; border: none; border-radius: 20px; padding: 10px 20px; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px rgba(183, 0, 255, 0.6);">29.99 €</button>
         </div>
     </div>
 </div>

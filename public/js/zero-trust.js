@@ -11,9 +11,23 @@ const ZeroTrust = {
     interactionHistory: [],
 
     
-    triggerProtocolZero: function() {
-        console.warn("💀 [PROTOCOL 0] INITIATED: ERASING ALL LOCAL DATA...");
+    triggerProtocolZero: async function() {
+        console.warn("💀 [PROTOCOL 0] INITIATED: ERASING ALL DATA...");
         
+        // Afficher l'écran de destruction
+        document.body.innerHTML = "<div style='background:black; width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#f00; font-family:monospace; font-size:20px;'><i class='fa-solid fa-skull fa-beat' style='font-size:5rem; margin-bottom:20px;'></i><p id='purge-status'>PURGE RGPD EN COURS...</p></div>";
+        
+        try {
+            const userId = window.session?.user_id;
+            if (userId && typeof firebase !== 'undefined') {
+                const deleteCall = firebase.functions("europe-west1").httpsCallable('deleteUserAccount');
+                await deleteCall({ user_id: userId });
+                console.log("[PROTOCOL 0] Firebase Account & Firestore Data wiped.");
+            }
+        } catch(e) {
+            console.error("[PROTOCOL 0] Firebase error during wipe", e);
+        }
+
         // Supprimer toutes les données localStorage
         localStorage.clear();
         sessionStorage.clear();
@@ -25,8 +39,7 @@ const ZeroTrust = {
             }).catch(() => {});
         }
 
-        // Effets visuels destructeurs
-        document.body.innerHTML = "<div style='background:black; width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; color:#0f0; font-family:monospace; font-size:20px;'><p>SYSTEM PURGED. REBOOTING...</p></div>";
+        document.getElementById('purge-status').innerText = "SYSTEM PURGED. REBOOTING...";
         
         // Redirection forcée
         setTimeout(() => {

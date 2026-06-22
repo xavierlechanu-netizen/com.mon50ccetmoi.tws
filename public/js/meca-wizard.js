@@ -135,9 +135,9 @@ window.MecaWizard = {
                 <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
                 
                 <div style="text-align:center;">
-                    <h5 style="color:#10a37f; margin-bottom:10px;"><i class="fa-solid fa-lock-open"></i> Débloquer le Rapport Expert (4.99€)</h5>
-                    <button id="btn-revolut-pay" onclick="window.MecaWizard.payWithRevolut()" style="background:#000; color:#fff; border:1px solid #10a37f; padding:12px 20px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">
-                        <i class="fa-solid fa-credit-card"></i> Payer avec Revolut
+                    <h5 style="color:#10a37f; margin-bottom:10px;"><i class="fa-solid fa-lock-open"></i> Débloquer le Rapport Expert (50 Pts BVC)</h5>
+                    <button id="btn-revolut-pay" onclick="window.MecaWizard.payWithBVC()" style="background:#000; color:#fff; border:1px solid #10a37f; padding:12px 20px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">
+                        <i class="fa-solid fa-gem"></i> Utiliser 50 Pts BVC
                     </button>
                     <div id="revolut-status" style="margin-top:10px; font-size:0.8rem; color:#ccc;"></div>
                 </div>
@@ -145,64 +145,39 @@ window.MecaWizard = {
         `;
     },
 
-    payWithRevolut: async function() {
+    payWithBVC: async function() {
         const btn = document.getElementById('btn-revolut-pay');
         const statusEl = document.getElementById('revolut-status');
         if (!btn) return;
 
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion sécurisée...';
-
-        try {
-            // Appel Cloud Function pour générer l'ordre Revolut
-            const functionUrl = 'https://europe-west1-mon50ccetmoi.cloudfunctions.net/createRevolutOrder';
-            const caseId = 'MECA-IA-' + Date.now(); // Référence unique du diagnostic
-
-            const response = await fetch(functionUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    amount_cents: 499, // 4.99€
-                    currency: 'EUR',
-                    case_id: caseId,
-                    report_type: 'SIMPLE',
-                    user_id: window.session?.uid || 'GUEST'
-                })
-            });
-
-            if (!response.ok) throw new Error("Erreur de communication bancaire.");
-
-            const orderData = await response.json();
-
-            // Initialiser le popup Revolut Checkout (Mode Sandbox)
-            if (typeof RevolutCheckout === 'undefined') {
-                throw new Error("SDK Revolut non chargé.");
-            }
-
-            const instance = await RevolutCheckout(orderData.order_token, 'sandbox');
-
-            instance.payWithPopup({
-                onSuccess: () => {
-                    this.showExpertReport();
-                },
-                onError: (err) => {
-                    statusEl.innerHTML = '<span style="color:#dc3545;">Erreur de paiement : ' + err + '</span>';
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Réessayer le paiement';
-                },
-                onCancel: () => {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Payer avec Revolut (4.99€)';
-                }
-            });
-
-        } catch (err) {
-            console.error("Revolut Error:", err);
-            statusEl.innerHTML = '<span style="color:#dc3545;">' + err.message + '</span>';
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Payer avec Revolut';
+        if (typeof window.braveCoins === 'undefined') {
+            statusEl.innerHTML = '<span style="color:#dc3545;">Erreur: Programme de fidélité indisponible.</span>';
+            return;
         }
+
+        const price = 50;
+
+        if (window.braveCoins < price) {
+            statusEl.innerHTML = `<span style="color:#dc3545;">Fonds insuffisants. Vous avez ${Math.floor(window.braveCoins)} Pts, il en faut ${price}.</span>`;
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion au réseau IA...';
+
+        // Simulation réseau IA
+        setTimeout(() => {
+            window.braveCoins -= price;
+            localStorage.setItem('braveCoins', window.braveCoins.toString());
+            
+            // Mise à jour de l'affichage UI si disponible
+            const balanceEl = document.getElementById('crypto-balance');
+            if(balanceEl) balanceEl.innerText = Math.floor(window.braveCoins) + ' Pts BVC';
+            
+            this.showExpertReport();
+        }, 2000);
     },
+
 
     showExpertReport: function() {
         const container = document.getElementById('meca-result');

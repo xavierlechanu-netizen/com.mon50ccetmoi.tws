@@ -364,7 +364,7 @@ window.showPage = function(page) {
                 <div class="glassmorphism" style="padding:20px; border:1px solid var(--accent); margin-bottom:30px; text-align:left;">
                     <p style="font-size:0.9rem; font-weight:bold; text-align:center;">SIGNATURE CORPORATE</p>
                     <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriÃ©tÃ© exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
-                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">ProtÃ©gÃ© par les lois internationales sur la propriÃ©tÃ© intellectuelle. TÃ©lÃ©mÃ©trie certifiÃ©e conforme aux standards ANTS v1.0.</p>
+                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">ProtÃ©gÃ© par les lois internationales sur la propriÃ©tÃ© intellectuelle. TÃ©lÃ©mÃ©trie certifiÃ©e conforme aux standards ANTS v100.00-GOLD.</p>
                 </div>
                 
                 <button onclick="document.getElementById('screen-overlay').classList.add('hidden')" class="btn-cancel" style="background:#333; color:white;">FERMER</button>
@@ -448,7 +448,7 @@ window.showPage = function(page) {
                 <p><strong>DonnÃ©es GPS :</strong> Vos coordonnÃ©es sont traitÃ©es localement pour la navigation et la dÃ©tection de chute.</p>
                 <p><strong>Partage :</strong> Les signalements de dangers sont partagÃ©s de maniÃ¨re anonyme avec la communautÃ©.</p>
                 <p><strong>Stockage :</strong> Vos prÃ©fÃ©rences sont enregistrÃ©es dans votre navigateur (LocalStorage).</p>
-                <p><strong>Version :</strong> v13.0-ULTRA-PRO Build 2026</p>
+                <p><strong>Version :</strong> v100.00-GOLD-PRO Build 2026</p>
                 <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
     } else if(page === 'pro-tips') {
@@ -762,7 +762,7 @@ window.logout = function() {
 
 window.updateTicker = function() {
     const t = document.getElementById('ticker-text');
-    if(t) t.innerHTML = `Bienvenue sur mon50ccetmoi v25.01 SILVER EDITION ! Prudence sur la route. 🛵💨`;
+    if(t) t.innerHTML = `Bienvenue sur mon50ccetmoi v100.00-GOLD SILVER EDITION ! Prudence sur la route. 🛵💨`;
 }
 updateTicker();
 setInterval(updateTicker, 60000);

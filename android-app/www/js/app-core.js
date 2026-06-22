@@ -165,7 +165,7 @@ history.pushState(null, null, window.location.pathname);
 // escapeHTML est maintenant défini dans auth.js (global)
 
 // --- BOOT ---
-console.log("mon50ccetmoi v60.0.19-GOLD : Production Ready.");
+console.log("mon50ccetmoi v100.00-GOLD : Production Ready.");
 
 let map;
 let geocoder;
@@ -402,7 +402,7 @@ window.initMapController = async function() {
 window.startApp = function() {
     if (window.appStarted) return;
     window.appStarted = true;
-    console.log("mon50cc Master Controller : Démarrage de la séquence d'initialisation v60.0.19-GOLD...");
+    console.log("mon50cc Master Controller : Démarrage de la séquence d'initialisation v100.00-GOLD...");
     runCinematicStartup();
     
     checkTrialExpiration();
@@ -461,7 +461,7 @@ window.startApp = function() {
         updateUILabels();
         if (typeof renderCommunityMarkers === "function") renderCommunityMarkers();
         if (typeof simulateLiveFleet === "function") simulateLiveFleet();
-        console.log("mon50cc v60.0.19-GOLD : Système prêt.");
+        console.log("mon50cc v100.00-GOLD : Système prêt.");
     }, 3500);
 
     // Lancement de la géolocalisation
@@ -1285,7 +1285,7 @@ function vibrate(ms) {
     }
 }
 
-// --- REGIONAL & VOICE ENGINE (ORACLE v50000.9) ---
+// --- REGIONAL & VOICE ENGINE (ORACLE v100.00-GOLD) ---
 window.OracleEngine = {
     gender: localStorage.getItem('oracle_gender') || 'female',
     currentRegion: 'standard',

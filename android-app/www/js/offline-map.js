@@ -1,5 +1,5 @@
 /**
- * OfflineMapManager — mon50ccetmoi v50.1.8-GOLD
+ * OfflineMapManager — mon50ccetmoi v100.00-GOLD
  * Gestion complète des cartes hors ligne avec Leaflet + OpenStreetMap
  * Basculement automatique : Google Maps (online) ↔ Leaflet (offline)
  */

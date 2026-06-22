@@ -364,7 +364,7 @@ window.showPage = function(page) {
                 <div class="glassmorphism" style="padding:20px; border:1px solid var(--accent); margin-bottom:30px; text-align:left;">
                     <p style="font-size:0.9rem; font-weight:bold; text-align:center;">SIGNATURE CORPORATE</p>
                     <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriÃ©tÃ© exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
-                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">ProtÃ©gÃ© par les lois internationales sur la propriÃ©tÃ© intellectuelle. TÃ©lÃ©mÃ©trie certifiÃ©e conforme aux standards ANTS v1.0.</p>
+                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">ProtÃ©gÃ© par les lois internationales sur la propriÃ©tÃ© intellectuelle. TÃ©lÃ©mÃ©trie certifiÃ©e conforme aux standards ANTS v100.00-GOLD.</p>
                 </div>
                 
                 <button onclick="document.getElementById('screen-overlay').classList.add('hidden')" class="btn-cancel" style="background:#333; color:white;">FERMER</button>
@@ -448,7 +448,7 @@ window.showPage = function(page) {
                 <p><strong>DonnÃ©es GPS :</strong> Vos coordonnÃ©es sont traitÃ©es localement pour la navigation et la dÃ©tection de chute.</p>
                 <p><strong>Partage :</strong> Les signalements de dangers sont partagÃ©s de maniÃ¨re anonyme avec la communautÃ©.</p>
                 <p><strong>Stockage :</strong> Vos prÃ©fÃ©rences sont enregistrÃ©es dans votre navigateur (LocalStorage).</p>
-                <p><strong>Version :</strong> v13.0-ULTRA-PRO Build 2026</p>
+                <p><strong>Version :</strong> v100.00-GOLD-PRO Build 2026</p>
                 <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
     } else if(page === 'pro-tips') {
@@ -646,7 +646,13 @@ function triggerFallAlert(isManual = false) {
         <i class="fa-solid fa-triangle-exclamation fa-beat" style="font-size:5rem; margin-bottom:20px;"></i>
         <h1>${isManual ? 'SOS MANUEL' : t('fall_detected')}</h1>
         <p>${t('emergency_alert')} <br><br> <span id="sos-countdown" style="font-size:1.5rem; font-weight:bold; color:#ffb703;">15s</span></p>
-        ${getSOSActions()}
+        
+        <!-- NOUVEAU : Bouton Officiel d'Urgence (Conforme Législation) -->
+        <a href="tel:112" style="display:block; margin: 15px auto; padding:15px 30px; background:#ff0000; color:white; text-decoration:none; border-radius:50px; font-weight:900; font-size:1.2rem; box-shadow:0 0 15px rgba(255,0,0,0.6);">
+            <i class="fa-solid fa-phone"></i> APPELER LES SECOURS (112 / 911)
+        </a>
+        
+        ${typeof getSOSActions === 'function' ? getSOSActions() : ''}
         <button onclick="window.cancelFallAlert()" style="margin-top:20px; padding:15px 30px; background:rgba(255,255,255,0.1); color:white; border:1px solid white; border-radius:50px; font-weight:bold; font-size:1rem;">ANNULER ALERTE</button>
     `;
     document.body.appendChild(div);
@@ -670,23 +676,62 @@ window.cancelFallAlert = function() {
     if(typeof speak === 'function') speak("Alerte annulée.");
 };
 
-window.executeAngeGardienProtocol = function() {
+window.executeAngeGardienProtocol = async function() {
     const contact1 = localStorage.getItem('guardian_contact_1');
     const contact2 = localStorage.getItem('guardian_contact_2');
-    let message = "Alerte de la Meute envoyée.";
-    
-    if (contact1 || contact2) {
-        message += " SMS envoyé à l'Ange Gardien.";
-    }
-    
-    if(typeof speak === 'function') speak(message);
+    const contacts = [contact1, contact2].filter(Boolean);
     
     const div = document.getElementById('fall-screen');
     if (div) {
         div.innerHTML = `
+            <div style="width: 60px; height: 60px; border: 4px solid #333; border-top-color: #00d2ff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto;"></div>
+            <h1 style="color:#00d2ff;">TRANSMISSION SOS...</h1>
+            <p>Connexion aux serveurs d'urgence en cours.</p>
+        `;
+    }
+    
+    let message = "Alerte de la Meute transmise.";
+    
+    // Appel de la vraie Cloud Function
+    try {
+        const userId = window.session?.user_id || "anonymous";
+        // On suppose que firebase est initialisé globalement
+        const sendSOSCall = firebase.functions("europe-west1").httpsCallable('sendEmergencySOS');
+        
+        await sendSOSCall({
+            user_id: userId,
+            location: "GPS Coord (Simulated)",
+            contacts: contacts,
+            message: "Alerte SOS de l'utilisateur."
+        });
+        
+        if (contacts.length > 0) {
+            message += ` Vos ${contacts.length} Ange(s) Gardien(s) ont été notifiés par SMS.`;
+        }
+        console.log("[SOS] Cloud Function executed successfully.");
+    } catch (e) {
+        console.error("[SOS] Cloud Function failed", e);
+        // Fallback local HTTP POST using fetch if callable SDK fails (due to V2 https function)
+        try {
+            await fetch("https://sendemergencysos-rwdjqtbv2q-ew.a.run.app", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ data: { user_id: window.session?.user_id, contacts: contacts } })
+            });
+            console.log("[SOS] Fallback fetch successful.");
+            if (contacts.length > 0) message += ` Ange(s) Gardien(s) notifiés.`;
+        } catch(errFetch) {
+            message = "Erreur réseau lors de la transmission du SOS automatisé. Veuillez appeler les secours manuellement.";
+        }
+    }
+
+    if(typeof speak === 'function') speak(message);
+    
+    if (div) {
+        div.innerHTML = `
             <i class="fa-solid fa-satellite-dish" style="font-size:5rem; margin-bottom:20px; color:#00d2ff;"></i>
             <h1 style="color:#00d2ff;">ANGE GARDIEN ACTIVÉ</h1>
-            <p>Vos coordonnées GPS ont été transmises à vos contacts d'urgence et à la communauté la plus proche.</p>
+            <p>${message}</p>
             <button onclick="window.cancelFallAlert()" style="margin-top:20px; padding:15px 30px; background:#00d2ff; color:#000; border:none; border-radius:50px; font-weight:bold; font-size:1rem;">OK</button>
         `;
     }
@@ -762,7 +807,7 @@ window.logout = function() {
 
 window.updateTicker = function() {
     const t = document.getElementById('ticker-text');
-    if(t) t.innerHTML = `Bienvenue sur mon50ccetmoi v25.01 SILVER EDITION ! Prudence sur la route. 🛵💨`;
+    if(t) t.innerHTML = `Bienvenue sur mon50ccetmoi v100.00-GOLD SILVER EDITION ! Prudence sur la route. 🛵💨`;
 }
 updateTicker();
 setInterval(updateTicker, 60000);

@@ -1,6 +1,6 @@
 /**
  * mon 50cc et moi - Module OBD-II Bluetooth
- * v80.0
+ * v100.00-GOLD
  * Utilise l'API Web Bluetooth pour se connecter aux boîtiers ELM327
  */
 
@@ -259,20 +259,4 @@ window.addEventListener('obd_data', (e) => {
     }
 });
 
-// Simulation pour test sans dongle physique
-window.testOBD = function() {
-    window.dispatchEvent(new CustomEvent('obd_status', { detail: { connected: true } }));
-    let rpm = 1200;
-    let speed = 0;
-    setInterval(() => {
-        rpm += (Math.random() - 0.5) * 200;
-        if (rpm < 1000) rpm = 1000;
-        if (rpm > 8000) rpm = 8000;
-        speed += (Math.random() - 0.4) * 2;
-        if (speed < 0) speed = 0;
-        
-        window.dispatchEvent(new CustomEvent('obd_data', { detail: { type: 'rpm', value: rpm } }));
-        window.dispatchEvent(new CustomEvent('obd_data', { detail: { type: 'speed', value: speed } }));
-        window.dispatchEvent(new CustomEvent('obd_data', { detail: { type: 'temp', value: 85 + Math.random() * 2 } }));
-    }, 500);
-};
+

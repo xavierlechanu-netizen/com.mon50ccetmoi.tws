@@ -188,8 +188,8 @@ window.InsurancePortal = {
             }
         }
 
-        const instance = await RevolutCheckout(orderData.order_token, 'sandbox');
-        // Pour les tests production, utiliser : RevolutCheckout(token, 'prod')
+        const instance = await RevolutCheckout(orderData.order_token, 'prod');
+        // Mode production activé — anciennement 'sandbox'
 
         instance.payWithPopup({
             onSuccess: () => {

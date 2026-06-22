@@ -20,8 +20,8 @@ window.InsurerPortal = {
         document.getElementById('insurer-portal-screen').classList.add('hidden');
     },
 
-    login: function() {
-        const id = document.getElementById('insurer-id-input').value.trim().toUpperCase();
+    login: async function() {
+        const id = document.getElementById('insurer-id-input').value.trim();
         const pwd = document.getElementById('insurer-pwd-input').value.trim();
         
         if (!id || !pwd) {
@@ -29,16 +29,21 @@ window.InsurerPortal = {
             return;
         }
 
-        // Mode DÉMO : Accepte n'importe quelle combinaison non vide
-        this.currentInsurer = id;
-        document.getElementById('insurer-name-display').innerText = this.currentInsurer;
-        document.getElementById('insurer-login-box').classList.add('hidden');
-        document.getElementById('insurer-dashboard-box').classList.remove('hidden');
-        console.log("[InsurerPortal] Connecté en tant que " + id);
+        try {
+            await firebase.auth().signInWithEmailAndPassword(id, pwd);
+            this.currentInsurer = id;
+            document.getElementById('insurer-name-display').innerText = this.currentInsurer;
+            document.getElementById('insurer-login-box').classList.add('hidden');
+            document.getElementById('insurer-dashboard-box').classList.remove('hidden');
+            console.log("[InsurerPortal] Connecté en tant que " + id);
+        } catch (error) {
+            console.error("Auth error:", error);
+            alert("Accès refusé : Identifiants invalides ou compte inexistant.");
+        }
     },
 
     signup: function() {
-        alert("En mode démo, votre compte est simulé.\nUtilisez n'importe quel identifiant et mot de passe pour vous connecter.");
+        alert("La création de compte Assureur est gérée manuellement par notre équipe pour des raisons de sécurité. Veuillez nous contacter.");
     },
 
     logout: function() {

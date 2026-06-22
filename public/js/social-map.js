@@ -2,91 +2,89 @@
 
 window.ghostRiders = [];
 window.isSocialRadarActive = false;
+window.socialRadarUnsubscribe = null;
 
 window.initSocialRadar = function() {
-    if (!window.map || !window.currentPosition) {
-        // Retry later if map is not ready
+    if (!window.map || !window.currentPosition || !window.firebase) {
+        // Retry later if map or firebase is not ready
         setTimeout(window.initSocialRadar, 2000);
         return;
     }
 
-    const pseudoList = ['GhostRider_75', 'TMAX_Killa', 'Ami_Racer_92', 'Zip_Master', 'Ligier_King', 'Booster_Spirit'];
-    const vehicles = ['50cc 2T', '50cc 4T', 'Voiturette (VSP)', 'Électrique'];
+    const db = window.firebase.firestore();
 
-    // Generate 10 ghost riders, some active, some inactive
-    let purgedCount = 0;
-    for (let i = 0; i < 10; i++) {
-        // Random offset roughly ~500 meters
-        let latOffset = (Math.random() - 0.5) * 0.01;
-        let lngOffset = (Math.random() - 0.5) * 0.01;
-
-        let riderPos = {
-            lat: window.currentPosition.lat + latOffset,
-            lng: window.currentPosition.lng + lngOffset
-        };
-
-        let pseudo = pseudoList[Math.floor(Math.random() * pseudoList.length)] + '_' + Math.floor(Math.random() * 99);
-        let lvl = Math.floor(Math.random() * 50) + 1;
-        let vehicle = vehicles[Math.floor(Math.random() * vehicles.length)];
-        
-        // Simulation of inactivity between 0 and 150 days
-        let lastActiveDays = Math.floor(Math.random() * 150);
-        
-        if (lastActiveDays > 90) {
-            purgedCount++;
-            continue; // Skip rendering this user (Ghost user vanished)
-        }
-
-        // Create marker
-        let marker = new google.maps.Marker({
-            position: riderPos,
-            map: null, // Hidden by default
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 8,
-                fillColor: '#00d2ff',
-                fillOpacity: 1,
-                strokeColor: '#fff',
-                strokeWeight: 2,
-            },
-            title: pseudo
-        });
-
-        let infoWindow = new google.maps.InfoWindow({
-            content: `
-                <div style="color: #000; padding: 5px; font-family: 'Inter', sans-serif;">
-                    <h3 style="margin: 0; font-size: 1.1rem; color: #ff0055;"><i class="fa-solid fa-user-astronaut"></i> ${pseudo}</h3>
-                    <p style="margin: 5px 0 0 0; font-size: 0.9rem; font-weight: bold;">Lvl ${lvl} | ${vehicle}</p>
-                </div>
-            `
-        });
-
-        marker.addListener('click', () => {
-            infoWindow.open(window.map, marker);
-        });
-
-        window.ghostRiders.push({
-            marker: marker,
-            baseLat: riderPos.lat,
-            baseLng: riderPos.lng,
-            angle: Math.random() * Math.PI * 2
-        });
-    }
-    
-    console.log(`[Radar Social] Nettoyage effectué : ${purgedCount} utilisateurs fantômes inactifs depuis plus de 90 jours ont été supprimés de la carte.`);
-
-    // Animate ghost riders slowly moving
+    // Publier notre propre position sur Firestore (toutes les 10 secondes)
     setInterval(() => {
-        if (!window.isSocialRadarActive) return;
-        
-        window.ghostRiders.forEach(ghost => {
-            // Move in a small circle to simulate driving
-            ghost.angle += 0.05;
-            let nlat = ghost.baseLat + Math.sin(ghost.angle) * 0.0005;
-            let nlng = ghost.baseLng + Math.cos(ghost.angle) * 0.0005;
-            ghost.marker.setPosition({ lat: nlat, lng: nlng });
+        if(window.isSocialRadarActive && window.currentPosition && window.session?.uid) {
+            db.collection('user_locations').doc(window.session.uid).set({
+                lat: window.currentPosition.lat,
+                lng: window.currentPosition.lng,
+                pseudo: window.session.pseudo || 'Pilot_Unknown',
+                vehicle: '50cc', 
+                lastActive: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true }).catch(err => console.warn("SocialMap Publish Error:", err));
+        }
+    }, 10000);
+
+    // Écouter les positions des autres utilisateurs
+    window.socialRadarUnsubscribe = db.collection('user_locations')
+        .onSnapshot(snapshot => {
+            snapshot.docChanges().forEach(change => {
+                const data = change.doc.data();
+                const uid = change.doc.id;
+
+                // Ignorer notre propre marqueur
+                if (window.session && uid === window.session.uid) return;
+
+                if (change.type === 'added' || change.type === 'modified') {
+                    // Mettre à jour ou créer
+                    let existingRider = window.ghostRiders.find(r => r.uid === uid);
+                    if (existingRider) {
+                        existingRider.marker.setPosition({ lat: data.lat, lng: data.lng });
+                    } else {
+                        // Créer un nouveau marqueur
+                        let marker = new google.maps.Marker({
+                            position: { lat: data.lat, lng: data.lng },
+                            map: window.isSocialRadarActive ? window.map : null,
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: 8,
+                                fillColor: '#00d2ff',
+                                fillOpacity: 1,
+                                strokeColor: '#fff',
+                                strokeWeight: 2,
+                            },
+                            title: data.pseudo
+                        });
+
+                        let infoWindow = new google.maps.InfoWindow({
+                            content: `
+                                <div style="color: #000; padding: 5px; font-family: 'Inter', sans-serif;">
+                                    <h3 style="margin: 0; font-size: 1.1rem; color: #ff0055;"><i class="fa-solid fa-user-astronaut"></i> ${data.pseudo}</h3>
+                                    <p style="margin: 5px 0 0 0; font-size: 0.9rem; font-weight: bold;">${data.vehicle || 'Moto'}</p>
+                                </div>
+                            `
+                        });
+
+                        marker.addListener('click', () => {
+                            infoWindow.open(window.map, marker);
+                        });
+
+                        window.ghostRiders.push({ uid: uid, marker: marker });
+                    }
+                }
+                
+                if (change.type === 'removed') {
+                    let existingIndex = window.ghostRiders.findIndex(r => r.uid === uid);
+                    if (existingIndex > -1) {
+                        window.ghostRiders[existingIndex].marker.setMap(null);
+                        window.ghostRiders.splice(existingIndex, 1);
+                    }
+                }
+            });
         });
-    }, 1000);
+        
+    console.log("[Radar Social] Connecté au serveur en temps réel.");
 };
 
 window.toggleSocialRadar = function() {
@@ -100,13 +98,14 @@ window.toggleSocialRadar = function() {
             btn.style.boxShadow = '0 0 30px #00d2ff';
         }
         
-        // Ensure initialized
-        if(window.ghostRiders.length === 0) window.initSocialRadar();
+        if(window.ghostRiders.length === 0 && !window.socialRadarUnsubscribe) {
+             window.initSocialRadar();
+        }
         
         window.ghostRiders.forEach(ghost => ghost.marker.setMap(window.map));
         
         if(typeof speak === 'function') {
-            speak('Radar Social activé. Recherche des pilotes à proximité.');
+            speak('Radar Social activé. Connexion au réseau des pilotes en cours.');
         }
     } else {
         if(btn) {

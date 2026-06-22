@@ -106,7 +106,7 @@ window.Certificate = {
         let iaAnalysisHTML = '';
         let blockchainHTML = '';
 
-        if (tier === 'premium' || tier === 'blockchain') {
+        if (tier === 'premium' || tier === 'quantum') {
             iaAnalysisHTML = `
                 <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 40px; background: #fffcf0;">
                     <h3 style="color: #d97706; font-size: 0.9rem; margin-top: 0;">ANALYSE DU STYLE DE CONDUITE (IA)</h3>
@@ -123,17 +123,17 @@ window.Certificate = {
             `;
         }
 
-        if (tier === 'blockchain') {
+        if (tier === 'quantum') {
             const hash = Array.from(window.crypto.getRandomValues(new Uint8Array(20))).map(b => b.toString(16).padStart(2, '0')).join('');
             blockchainHTML = `
                 <div style="border: 1px solid #b700ff; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: rgba(183, 0, 255, 0.05);">
-                    <h3 style="color: #b700ff; font-size: 0.9rem; margin-top: 0; display:flex; align-items:center; gap:10px;"><svg width="16" height="16" viewBox="0 0 320 512" fill="#b700ff"><path d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.6 160 512l152-221.4-152 92.8z"/></svg> CERTIFICATION BLOCKCHAIN POLYGON</h3>
-                    <p style="font-size: 0.75rem; color: #666; margin-bottom: 0; word-break: break-all; font-family: monospace;">Hash Cryptographique : 0x${hash}a9f4c<br>Ce document est inaltérable et enregistré de manière décentralisée (Web3).</p>
+                    <h3 style="color: #b700ff; font-size: 0.9rem; margin-top: 0; display:flex; align-items:center; gap:10px;"><svg width="16" height="16" viewBox="0 0 320 512" fill="#b700ff"><path d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.6 160 512l152-221.4-152 92.8z"/></svg> CERTIFICATION QUANTUM SHIELD E2EE</h3>
+                    <p style="font-size: 0.75rem; color: #666; margin-bottom: 0; word-break: break-all; font-family: monospace;">Clé de chiffrement : 0x${hash}a9f4c<br>Ce document est protégé par un chiffrement de bout en bout de qualité militaire.</p>
                 </div>
             `;
         }
 
-        const borderColor = tier === 'blockchain' ? '#b700ff' : '#10a37f';
+        const borderColor = tier === 'quantum' ? '#b700ff' : '#10a37f';
 
         overlay.innerHTML = `
             <div style="border:4px solid ${borderColor}; border-radius: 10px; padding:40px; max-width:800px; margin:auto; position:relative; overflow: hidden; background: #fff;">
@@ -223,7 +223,7 @@ window.Certificate = {
             // Déterminer le montant en centimes
             let amountCents = 499;
             if (tier === 'premium') amountCents = 1499;
-            if (tier === 'blockchain') amountCents = 2999;
+            if (tier === 'quantum') amountCents = 2999;
 
             // Generate Cert ID (utilisé comme case_id pour l'ordre Revolut)
             const array = new Uint32Array(1);
@@ -265,7 +265,7 @@ window.Certificate = {
                 if (typeof RevolutCheckout !== 'function') throw new Error("SDK Revolut introuvable.");
             }
 
-            const instance = await RevolutCheckout(orderData.order_token, 'sandbox');
+            const instance = await RevolutCheckout(orderData.order_token, 'prod');
 
             loader.remove(); // On enlève notre loader pour que la popup Revolut prenne le relais
 
@@ -313,14 +313,7 @@ window.Certificate = {
         } catch (error) {
             loader.remove();
             console.error("Erreur init Revolut :", error);
-            // Fallback très léger si erreur réseau (ou pour démo locale sans function deployée)
-            if (error.message.includes("Erreur serveur") || error.message.includes("fetch")) {
-               console.warn("DÉMO: Simulation du paiement suite à l'échec de la Cloud Function");
-               this.generateBattery(tier);
-               if (typeof speak === 'function') speak("Simulation de génération hors-ligne.");
-            } else {
-               alert("Impossible d'initialiser Revolut Pay : " + error.message);
-            }
+            alert("Erreur de communication avec le serveur de paiement : " + error.message + ". La génération du certificat sécurisé est impossible.");
         }
     },
 

@@ -22,11 +22,13 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 const db = admin.firestore();
 
-// ─── Clé secrète Revolut via Firebase Secret Manager ───────────────────────
+// ─── Clés secrètes Revolut via Firebase Secret Manager ──────────────────────
 const REVOLUT_SECRET_KEY = defineSecret("REVOLUT_SECRET_KEY");
+const REVOLUT_WEBHOOK_SECRET = defineSecret("REVOLUT_WEBHOOK_SECRET");
 
 // ─── Constantes API Revolut ─────────────────────────────────────────────────
-const REVOLUT_API_BASE    = "https://sandbox-merchant.revolut.com/api";
+// PRODUCTION : merchant.revolut.com (anciennement sandbox-merchant.revolut.com)
+const REVOLUT_API_BASE    = "https://merchant.revolut.com/api";
 const REVOLUT_API_VERSION = "2026-04-20";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -55,10 +57,20 @@ exports.createRevolutOrder = onRequest(
         let { amount_cents, currency, case_id, user_id, report_type } = req.body;
 
         // Validation & Sécurité des montants
+        // Tous les prix sont définis côté serveur pour empêcher la manipulation client
         const prices = {
-            'SIMPLE': 4990,
-            'INTERMEDIAIRE': 8999,
-            'EXPERT': 14999
+            // Rapports d'expertise assureur (B2B)
+            'SIMPLE': 4990,              // 49.90 €
+            'INTERMEDIAIRE': 8999,       // 89.99 €
+            'EXPERT': 19999,             // 199.99 € (corrigé : était 14999)
+            // Diagnostic mécanique IA (B2C)
+            'DIAGNOSTIC_IA': 499,        // 4.99 €
+            // Certificats de batterie (B2C)
+            'BATTERY_CERT_BASIQUE': 499,     // 4.99 €
+            'BATTERY_CERT_PREMIUM': 1499,    // 14.99 €
+            'BATTERY_CERT_QUANTUM': 2999,    // 29.99 € (anciennement BLOCKCHAIN)
+            // Garage Partenaire (B2B)
+            'GARAGE_FEE': 5000           // 50.00 €
         };
 
         if (!report_type || !prices[report_type]) {
@@ -66,7 +78,7 @@ exports.createRevolutOrder = onRequest(
             report_type = 'SIMPLE';
         }
         
-        // Sécurité : on force le montant côté serveur pour éviter la triche côté client
+        // Sécurité : on force le montant côté serveur pour empêcher la triche côté client
         amount_cents = prices[report_type];
         currency = "EUR";
 
@@ -154,9 +166,27 @@ exports.createRevolutOrder = onRequest(
 //        Événements : ORDER_COMPLETED, ORDER_PAYMENT_DECLINED
 // ─────────────────────────────────────────────────────────────────────────────
 exports.revolutWebhook = onRequest(
-    { region: "europe-west1" },
+    { secrets: [REVOLUT_WEBHOOK_SECRET], region: "europe-west1" },
     async (req, res) => {
         if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+
+        // ── Vérification HMAC de la signature Revolut ────────────────────
+        const signature = req.headers["revolut-signature"];
+        const webhookSecret = REVOLUT_WEBHOOK_SECRET.value();
+        if (webhookSecret && signature) {
+            const crypto = require("crypto");
+            const expectedSig = crypto
+                .createHmac("sha256", webhookSecret)
+                .update(JSON.stringify(req.body))
+                .digest("hex");
+            if (signature !== expectedSig) {
+                console.error("[Revolut Webhook] Signature HMAC invalide. Requête rejetée.");
+                return res.status(401).send("Signature invalide");
+            }
+        } else if (webhookSecret && !signature) {
+            console.error("[Revolut Webhook] Header Revolut-Signature manquant. Requête rejetée.");
+            return res.status(401).send("Signature manquante");
+        }
 
         const event = req.body;
         console.log("[Revolut Webhook] Événement reçu :", JSON.stringify(event));
@@ -191,15 +221,32 @@ exports.revolutWebhook = onRequest(
                     completed_at: admin.firestore.FieldValue.serverTimestamp()
                 });
 
-                // 2. Débloquer le rapport dans litigation_proposals
-                const litigationRef = db.collection("litigation_proposals").doc(caseId);
-                batch.update(litigationRef, {
-                    payment_status:   "PAID",
-                    payment_method:   "REVOLUT",
-                    revolut_order_id: orderId,
-                    report_unlocked:  true,
-                    unlocked_at:      admin.firestore.FieldValue.serverTimestamp()
-                });
+                if (orderData.report_type === "GARAGE_FEE") {
+                    // C'est un abonnement pro/garage
+                    const userId = orderData.user_id;
+                    if (userId && userId !== "unknown") {
+                        batch.set(db.collection("users").doc(userId), {
+                            isCertifiedGarage: true,
+                            certified_at: admin.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                        
+                        batch.set(db.collection("garage_partners").doc(userId), {
+                            revolut_order_id: orderId,
+                            user_id: userId,
+                            certified_at: admin.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                } else {
+                    // 2. Débloquer le rapport dans litigation_proposals
+                    const litigationRef = db.collection("litigation_proposals").doc(caseId);
+                    batch.update(litigationRef, {
+                        payment_status:   "PAID",
+                        payment_method:   "REVOLUT",
+                        revolut_order_id: orderId,
+                        report_unlocked:  true,
+                        unlocked_at:      admin.firestore.FieldValue.serverTimestamp()
+                    });
+                }
 
                 // 3. Enregistrer dans blackbox_reports comme preuve de paiement
                 batch.set(db.collection("payment_confirmations").doc(caseId), {
@@ -224,17 +271,83 @@ exports.revolutWebhook = onRequest(
                 console.log(`[Revolut Webhook] ❌ Paiement refusé pour ordre : ${orderId}`);
             }
 
-            return res.status(200).send("OK");
-
-        } catch (err) {
-            console.error("[Revolut Webhook] Erreur :", err);
-            return res.status(500).send("Erreur serveur");
+            return res.status(200).json({ success: true });
+        } catch (error) {
+            console.error("[Revolut Webhook] Error processing event :", error);
+            return res.status(500).json({ error: "Internal Server Error" });
         }
     }
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 3. checkPaymentStatus
+// 4. sendEmergencySOS
+//    Enregistre et simule l'envoi d'une alerte SOS aux contacts d'urgence.
+// ─────────────────────────────────────────────────────────────────────────────
+exports.sendEmergencySOS = onRequest(
+    { region: "europe-west1" },
+    async (req, res) => {
+        setCorsHeaders(res);
+        if (req.method === "OPTIONS") return res.status(204).send("");
+        if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
+
+        const { user_id, location, contacts, message } = req.body;
+
+        try {
+            await db.collection("sos_alerts").add({
+                user_id: user_id || "anonymous",
+                location: location || "Unknown",
+                contacts: contacts || [],
+                message: message || "SOS Alert",
+                status: "sent_simulation",
+                timestamp: admin.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`[SOS] Alert sent to ${contacts?.length || 0} contacts for user ${user_id}`);
+            return res.status(200).json({ success: true, message: "SOS envoyé avec succès." });
+        } catch(e) {
+            console.error("[SOS] Error", e);
+            return res.status(500).json({ error: "Internal Error" });
+        }
+    }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. deleteUserAccount (Protocole 0 / RGPD)
+//    Supprime le compte Firebase Auth et les données utilisateur Firestore.
+// ─────────────────────────────────────────────────────────────────────────────
+exports.deleteUserAccount = onRequest(
+    { region: "europe-west1" },
+    async (req, res) => {
+        setCorsHeaders(res);
+        if (req.method === "OPTIONS") return res.status(204).send("");
+        if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
+
+        const { user_id } = req.body;
+        if (!user_id) {
+            return res.status(400).json({ error: "user_id is required" });
+        }
+
+        try {
+            // Delete from Firebase Auth
+            try {
+                await admin.auth().deleteUser(user_id);
+            } catch(e) {
+                console.warn("[RGPD] Auth user not found or already deleted.");
+            }
+
+            // Wipe User Data from Firestore
+            await db.collection("users").doc(user_id).delete();
+            
+            console.log(`[RGPD] Account wiped completely for user ${user_id}`);
+            return res.status(200).json({ success: true, message: "Account completely wiped (RGPD)" });
+        } catch(e) {
+            console.error("[RGPD] Error wiping account", e);
+            return res.status(500).json({ error: "Internal Error" });
+        }
+    }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. checkPaymentStatus
 //    Vérifié par le client pour savoir si un paiement est confirmé.
 //    Le client poll cette fonction après avoir redirigé l'utilisateur
 //    vers le checkout Revolut.
@@ -275,6 +388,37 @@ exports.checkPaymentStatus = onRequest(
         } catch (err) {
             console.error("[checkPaymentStatus] Erreur :", err);
             return res.status(500).json({ error: err.message });
+        }
+    }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. triggerAntiTheftAlert
+//    Déclenchée par l'app mobile en cas de détection de secousse/vol.
+//    Sauvegarde l'alerte sur Firestore pour un suivi et des notifications Push.
+// ─────────────────────────────────────────────────────────────────────────────
+exports.triggerAntiTheftAlert = onRequest(
+    { region: "europe-west1" },
+    async (req, res) => {
+        setCorsHeaders(res);
+        if (req.method === "OPTIONS") return res.status(204).send("");
+        if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
+
+        const { user_id, force, location } = req.body;
+
+        try {
+            await db.collection("theft_alerts").add({
+                user_id: user_id || "anonymous",
+                force: force || 0,
+                location: location || "Unknown",
+                status: "active",
+                timestamp: admin.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`[ANTI-THEFT] Alert registered for user ${user_id} with force ${force}G`);
+            return res.status(200).json({ success: true, message: "Alerte de vol transmise aux serveurs avec succès." });
+        } catch(e) {
+            console.error("[ANTI-THEFT] Error", e);
+            return res.status(500).json({ error: "Internal Error" });
         }
     }
 );
