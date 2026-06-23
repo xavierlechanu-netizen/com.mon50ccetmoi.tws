@@ -19,6 +19,36 @@
     <script src="https://accounts.google.com/gsi/client" async defer crossorigin="anonymous"></script>
 </head>
 <body class="login-body">
+<!-- PROMINENT DISCLOSURE BACKGROUND LOCATION (GOOGLE PLAY COMPLIANCE) -->
+<div id="prominent-disclosure-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; z-index:9999999; display:none; flex-direction:column; align-items:center; justify-content:center; color:white; padding:30px; text-align:center; overflow-y:auto; box-sizing: border-box;">
+    <i class="fa-solid fa-location-dot" style="font-size:4rem; color:#ffb703; margin-bottom:20px;"></i>
+    <h2 style="margin-bottom:15px; font-family:'Outfit', sans-serif;">Utilisation de votre position</h2>
+    <p style="font-size:1rem; line-height:1.5; margin-bottom:20px; color:#ffb703; font-weight:bold; max-width:500px;">
+        Cette application collecte des données de localisation pour activer la détection automatique de chute, la navigation GPS, le calcul de votre vitesse, et le partage de dangers et de votre position avec la communauté, <strong>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</strong>
+    </p>
+    <div style="display:flex; flex-direction:column; gap:15px; width:100%; max-width:400px;">
+        <button onclick="acceptProminentDisclosure()" style="padding:15px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1.1rem; cursor:pointer; box-shadow: 0 0 15px rgba(255, 183, 3, 0.4);">J'AI COMPRIS ET J'ACCEPTE</button>
+        <button onclick="declineProminentDisclosure()" style="background:transparent; border:1px solid #666; color:#aaa; padding:15px; border-radius:30px; font-weight:bold; font-size:1rem; cursor:pointer;">Refuser</button>
+    </div>
+</div>
+<script>
+    function checkProminentDisclosure() {
+        if (localStorage.getItem('legal_consent_accepted') !== 'true') {
+            document.getElementById('prominent-disclosure-modal').style.display = 'flex';
+        }
+    }
+    function acceptProminentDisclosure() {
+        localStorage.setItem('legal_consent_accepted', 'true');
+        document.getElementById('prominent-disclosure-modal').style.display = 'none';
+    }
+    function declineProminentDisclosure() {
+        alert("L'application nécessite l'accès à votre position pour fonctionner correctement.");
+        document.getElementById('prominent-disclosure-modal').style.display = 'none';
+    }
+    document.addEventListener('DOMContentLoaded', checkProminentDisclosure);
+    if (document.readyState === 'complete' || document.readyState === 'interactive') checkProminentDisclosure();
+</script>
+<!-- END PROMINENT DISCLOSURE -->
     <div class="login-overlay">
         <div class="login-container glassmorphism">
             <div class="login-logo"><i class="fa-solid fa-motorcycle"></i></div>
