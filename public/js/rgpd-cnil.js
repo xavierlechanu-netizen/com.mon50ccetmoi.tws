@@ -29,7 +29,7 @@ function injectPrivacyBanner() {
             <div style="background: rgba(255,0,85,0.1); border-left: 4px solid #ff0055; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
                 <h3 style="margin: 0 0 10px 0; color: #ff0055; font-size: 1rem;"><i class="fa-brands fa-google-play"></i> Déclaration de Confidentialité</h3>
                 <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
-                    Cette application collecte des données de localisation pour calculer vos distances parcourues (Score Éco) et activer le Radar Social, <strong>y compris lorsque l'application est fermée ou non utilisée</strong>. L'accès en arrière-plan est indispensable au service.
+                    <strong>mon 50cc et moi</strong> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, même lorsque l'application est fermée ou qu'elle n'est pas utilisée. L'accès en arrière-plan est indispensable au service.
                 </p>
             </div>
 
@@ -122,6 +122,7 @@ window.acceptGlobalPrivacy = function() {
 
     localStorage.setItem('global_privacy_consent', 'true');
     localStorage.setItem('cnil_consent', 'true'); // legacy support
+    localStorage.setItem('legal_consent_accepted', 'true'); // bypass app-core modal
     localStorage.setItem('privacy_consent_record', JSON.stringify(consentRecord));
     localStorage.setItem('cnil_mic', micChecked ? 'true' : 'false');
     localStorage.setItem('cnil_cam', camChecked ? 'true' : 'false');

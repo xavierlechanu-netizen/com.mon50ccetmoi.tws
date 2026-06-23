@@ -219,10 +219,7 @@ function checkTrialExpiration() {
     if (window.session && window.session.isTrialExpired) {
         const overlay = document.getElementById('sub-overlay');
         if (overlay) overlay.classList.remove('hidden');
-    content.classList.remove('page-enter-active');
-    content.classList.add('page-enter');
-    setTimeout(() => content.classList.add('page-enter-active'), 50);
-    if(navigator.vibrate) navigator.vibrate(50);
+        if(navigator.vibrate) navigator.vibrate(50);
         speak("Alerte abonnement : Votre période d'essai gratuite est terminée.");
     }
 }
@@ -594,7 +591,7 @@ async function checkLegalConsent() {
         <i class="fa-solid fa-shield-halved" style="font-size:3rem; color:#ffb703; margin-bottom:20px;"></i>
         <h2 style="margin-bottom:15px;">Respect de votre Vie Privée</h2>
         <p style="font-size:0.9rem; line-height:1.4; margin-bottom:15px; color:#ffb703; font-weight:bold;">
-            <strong>mon 50cc et moi</strong> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, et ce même lorsque l'application est fermée ou qu'elle n'est pas utilisée.
+            <strong>mon 50cc et moi</strong> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, même lorsque l'application est fermée ou qu'elle n'est pas utilisée.
         </p>
         <p style="font-size:0.75rem; color:#888; margin-bottom:20px;">
             Les données sont chiffrées et vous pouvez supprimer votre compte à tout moment. En continuant, vous acceptez notre <a href="privacy.html" target="_blank" style="color:#ffb703;">politique de confidentialité</a>.
@@ -643,7 +640,7 @@ function showGpsBanner(msg, code) {
             <i class="fa-solid fa-location-crosshairs" style="font-size:4rem; color:#ef4444; margin-bottom:20px;"></i>
             <h2 style="margin-bottom:15px; color:#ffb703;">GPS OBLIGATOIRE</h2>
             <p style="font-size:0.9rem; line-height:1.5; margin-bottom:25px; text-align:left; background:rgba(0,0,0,0.5); padding:15px; border-radius:10px; border:1px solid #333;">
-                <b style="color:#ffb703;">mon 50cc et moi</b> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, <b>et ce même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</b><br><br>
+                <b style="color:#ffb703;">mon 50cc et moi</b> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, <b>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</b><br><br>
                 Sans accès à votre position, l'application ne peut pas fonctionner.
             </p>
             <button onclick="window.repairGps()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1.1rem; margin-bottom:15px; box-shadow:0 0 15px rgba(255, 183, 3, 0.5);">
@@ -705,7 +702,7 @@ window.repairGps = function() {
             title: 'Comment réactiver le GPS',
             html: instructions,
             icon: 'info',
-            confirmButtonText: 'J\\'AI COMPRIS',
+            confirmButtonText: "J'AI COMPRIS",
             background: '#1a1a1a',
             color: '#fff',
             confirmButtonColor: '#ffb703'
