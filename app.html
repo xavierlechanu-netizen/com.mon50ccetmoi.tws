@@ -312,6 +312,9 @@
         </button>
 
         <!-- OBD-II Scanner -->
+        <button id="dock-btn-social" aria-label="Activer le Radar Social (Ghost Rider)" role="button" onclick="if(window.socialRadarManager) window.socialRadarManager.toggleRadar()" style="background: none; border: none; color: #99aab5; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-ghost"></i>
+        </button>
         <button id="dock-btn-obd" aria-label="Connecter le boîtier OBD-II" role="button" onclick="if(window.obdManager) window.obdManager.connect()" style="background: none; border: none; color: #ffaa00; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
             <i class="fa-brands fa-bluetooth" aria-hidden="true" style="filter: drop-shadow(0 0 5px #ffaa00);"></i>
         </button>
@@ -784,6 +787,7 @@
     <script src="js/meca-wizard.js"></script>
     <script src="js/obd-bluetooth.js"></script>
     <script src="js/ar-navigation.js"></script>
+    <script src="js/social-radar.js"></script>
     
     <!-- MECA-WIZARD MODAL -->
     <div id="meca-result-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 60000; display: flex; align-items: center; justify-content: center;">
