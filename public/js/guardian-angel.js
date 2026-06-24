@@ -12,6 +12,22 @@ window.GuardianAngel = {
 
     init: function() {
         console.log("Guardian Angel System : [ READY ]");
+        
+        // 1. Crash Detection Listener
+        window.addEventListener('devicemotion', (event) => {
+            if (!this.isActive || this.crashCountdown) return;
+            
+            const acc = event.accelerationIncludingGravity;
+            if (acc) {
+                // Calculate total acceleration vector
+                const gForce = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z) / 9.81;
+                
+                // If G-Force > 5G (approx 50m/s^2), trigger Crash Detection
+                if (gForce > 5.0) {
+                    this.detectCrash();
+                }
+            }
+        });
     },
 
     toggle: async function() {
@@ -173,6 +189,49 @@ window.GuardianAngel = {
         };
     },
 
+    /**
+     * NEW: CRASH DETECTION LOGIC
+     */
+    detectCrash: function() {
+        if (this.crashCountdown) return;
+        
+        console.warn("CRASH DÉTECTÉ (>5G) !");
+        vibrate([1000, 500, 1000, 500, 1000]);
+        speak("Alerte de collision majeure détectée. Appel des secours dans 15 secondes.");
+        
+        const prompt = document.createElement('div');
+        prompt.className = "crash-prompt-overlay";
+        prompt.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255, 0, 0, 0.95); z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; padding:30px; text-align:center; animation: pulseRed 1s infinite;";
+        prompt.innerHTML = `
+            <i class="fa-solid fa-triangle-exclamation" style="font-size:5rem; color:#fff; margin-bottom:20px;"></i>
+            <h1 style="font-size:3rem; margin:0;">CRASH DÉTECTÉ</h1>
+            <p style="font-size:1.2rem; font-weight:bold;">Envoi des secours dans <span id="crash-timer" style="font-size:2rem;">15</span>s</p>
+            <button id="btn-crash-cancel" style="width:100%; padding:20px; background:#fff; color:red; border:none; border-radius:15px; font-weight:900; font-size:1.5rem; margin-top:40px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">JE VAIS BIEN (ANNULER)</button>
+        `;
+        document.body.appendChild(prompt);
+
+        let timeLeft = 15;
+        this.crashCountdown = setInterval(() => {
+            timeLeft--;
+            const timerEl = document.getElementById('crash-timer');
+            if (timerEl) timerEl.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(this.crashCountdown);
+                this.crashCountdown = null;
+                prompt.remove();
+                this.triggerSOS("Choc violent (>5G). Aucune réponse du pilote.");
+            }
+        }, 1000);
+
+        document.getElementById('btn-crash-cancel').onclick = () => {
+            clearInterval(this.crashCountdown);
+            this.crashCountdown = null;
+            prompt.remove();
+            speak("Alerte de collision annulée. Restez prudent.");
+        };
+    },
+
     triggerSOS: async function(reason) {
         if (!this.sessionId || typeof db === "undefined") return;
         
@@ -199,6 +258,10 @@ window.GuardianAngel = {
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
         }
+        
+        // SMS Fallback
+        const smsBody = encodeURIComponent(`URGENCE MON50CC ! ${reason} Position GPS: https://maps.google.com/?q=${currentPosition?.lat},${currentPosition?.lng}`);
+        window.location.href = `sms:?body=${smsBody}`;
     },
 
     stopSession: function() {

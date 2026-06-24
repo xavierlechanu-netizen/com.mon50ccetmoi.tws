@@ -85,6 +85,135 @@ window.MecaWizard = {
         }
     },
 
+    // 3. Analyseur d'échappement (Décibels & Fréquence)
+    startDecibelMeter: async function() {
+        const modal = document.getElementById('meca-result-modal');
+        if (modal) modal.classList.remove('hidden');
+        
+        const resultDiv = document.getElementById('meca-result');
+        if (!resultDiv) return;
+
+        resultDiv.innerHTML = `
+            <div class="glassmorphism biometric-scan" style="padding:20px; text-align:center;">
+                <i class="fa-solid fa-volume-high fa-beat" style="font-size:2rem; color:var(--neon-blue);"></i>
+                <p style="margin-top:15px; font-weight:bold;">INITIALISATION DU DÉCIBELMÈTRE...</p>
+            </div>
+        `;
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            
+            if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (this.audioCtx.state === 'suspended') await this.audioCtx.resume();
+
+            this.microphone = this.audioCtx.createMediaStreamSource(stream);
+            this.analyser = this.audioCtx.createAnalyser();
+            this.analyser.fftSize = 1024;
+            this.microphone.connect(this.analyser);
+
+            speak("Décibelmètre activé. Faites tourner le moteur au ralenti.");
+
+            resultDiv.innerHTML = `
+                <div class="glassmorphism" style="padding:20px; text-align:center;">
+                    <h4 style="color:var(--neon-blue);"><i class="fa-solid fa-gauge-high"></i> MESURE EN COURS</h4>
+                    <div id="db-level" style="font-size:3rem; font-weight:900; margin:10px 0;">0 dB</div>
+                    <div id="hz-level" style="font-size:1.2rem; color:var(--accent);">-- Hz</div>
+                    <canvas id="audio-canvas" width="280" height="80" style="background:#0a0a0a; border-radius:8px; margin-top:15px; border: 1px solid var(--accent);"></canvas>
+                </div>
+            `;
+
+            let maxDb = 0;
+            let currentHz = 0;
+            const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+            
+            const measureDb = () => {
+                this.animationId = requestAnimationFrame(measureDb);
+                this.analyser.getByteFrequencyData(dataArray);
+                
+                // Calcul approximatif des dBFS convertis en dBSPL pour l'affichage
+                let sum = 0;
+                let maxIndex = 0;
+                let maxValue = 0;
+                for (let i = 0; i < dataArray.length; i++) {
+                    sum += dataArray[i];
+                    if (dataArray[i] > maxValue) {
+                        maxValue = dataArray[i];
+                        maxIndex = i;
+                    }
+                }
+                const avg = sum / dataArray.length;
+                const db = Math.round((avg / 255) * 120); // Approximation 120dB max
+                
+                if (db > maxDb) maxDb = db;
+                
+                // Calcul de fréquence dominante
+                currentHz = Math.round(maxIndex * this.audioCtx.sampleRate / this.analyser.fftSize);
+
+                const dbEl = document.getElementById('db-level');
+                if (dbEl) {
+                    dbEl.textContent = db + ' dB';
+                    dbEl.style.color = db > 85 ? '#ff4444' : '#00e676';
+                }
+                
+                const hzEl = document.getElementById('hz-level');
+                if (hzEl) hzEl.textContent = currentHz + ' Hz (Moteur)';
+
+                // Draw minimal scope
+                const canvas = document.getElementById('audio-canvas');
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#0a0a0a';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.beginPath();
+                    const sliceWidth = canvas.width * 1.0 / dataArray.length;
+                    let x = 0;
+                    for (let i = 0; i < dataArray.length; i++) {
+                        const v = dataArray[i] / 255.0;
+                        const y = (1 - v) * canvas.height;
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                        x += sliceWidth;
+                    }
+                    ctx.strokeStyle = db > 85 ? '#ff4444' : '#00f2ff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            };
+
+            measureDb();
+
+            setTimeout(() => {
+                this.stopAnalysis(stream);
+                const isLegal = maxDb <= 85;
+                const engineType = currentHz > 150 ? '2 Temps (Aigu)' : '4 Temps (Grave)';
+                
+                resultDiv.innerHTML = `
+                    <div class="glassmorphism" style="padding:20px;">
+                        <h4 style="color:${isLegal ? '#00e676' : '#ff4444'};">RÉSULTAT ACOUSTIQUE</h4>
+                        <div style="font-size:2rem; font-weight:900; margin:10px 0; color:${isLegal ? '#00e676' : '#ff4444'};">MAX : ${maxDb} dB</div>
+                        <p><strong>Type perçu :</strong> ${engineType}</p>
+                        <p style="margin-top:10px; font-size:0.9rem;">
+                            ${isLegal 
+                                ? "L'échappement est homologué. Vous êtes en sécurité en cas de contrôle." 
+                                : "<strong>ATTENTION :</strong> Niveau sonore > 85dB. Risque d'amende et de confiscation."}
+                        </p>
+                        <button onclick="document.getElementById('meca-result-modal').classList.add('hidden')" style="width:100%; padding:15px; margin-top:20px; background:var(--glass-bg); color:var(--text-main); border:1px solid var(--accent); border-radius:8px; font-weight:bold;">FERMER</button>
+                    </div>
+                `;
+                
+                if (isLegal) {
+                    speak(`Analyse terminée. Pic à ${maxDb} décibels. Échappement homologué.`);
+                } else {
+                    speak(`Alerte. Pic sonore à ${maxDb} décibels. Votre pot d'échappement dépasse la limite légale.`);
+                }
+            }, 8000);
+
+        } catch (err) {
+            console.error("Erreur Micro:", err);
+            speak("Erreur d'accès au microphone pour le décibelmètre.");
+        }
+    },
+
     drawOscilloscope: function() {
         const canvas = document.getElementById('audio-canvas');
         if (!canvas) return;

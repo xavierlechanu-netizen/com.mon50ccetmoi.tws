@@ -98,11 +98,72 @@ window.PredictiveMeca = {
                     val.textContent = wear + '%';
                     
                     // Couleurs dynamiques
-                    if (wear < 50) bar.style.backgroundColor = '#4caf50'; // Vert
-                    else if (wear < 85) bar.style.backgroundColor = '#ff9800'; // Orange
-                    else bar.style.backgroundColor = '#f44336'; // Rouge
+                    if (wear > 80) bar.style.background = '#ff4444';
+                    else if (wear > 50) bar.style.background = '#ffbb33';
+                    else bar.style.background = '#00e676';
                 }
             }
         }
+    },
+    
+    // NEW: Riding Style Analyzer
+    analyzeRidingStyle: function() {
+        if (!window.Blackbox) return;
+        
+        const stats = window.Blackbox.getStats();
+        if (stats.distance < 0.1) {
+            speak("Trajet trop court pour analyser votre pilotage.");
+            return;
+        }
+
+        // Base score = 100
+        let pilotScore = 100;
+        
+        // Penalties for harsh riding
+        if (stats.maxG > 1.5) pilotScore -= 10;
+        if (stats.maxG > 2.5) pilotScore -= 15;
+        if (stats.maxSpeed > 60) pilotScore -= 10;
+        
+        // Reward for Eco riding
+        if (stats.avgSpeed > 25 && stats.avgSpeed < 45) pilotScore += 5;
+        
+        // Boundaries
+        if (pilotScore > 100) pilotScore = 100;
+        if (pilotScore < 0) pilotScore = 0;
+        
+        let feedback = "";
+        let color = "";
+        
+        if (pilotScore >= 90) {
+            feedback = "Pilotage parfait et éco-responsable. Usure minimale des pièces.";
+            color = "#00e676";
+            if (typeof speak === 'function') speak("Score de pilotage : Excellent. Conduite fluide et économe.");
+        } else if (pilotScore >= 70) {
+            feedback = "Bon pilotage, mais quelques accélérations brusques détectées.";
+            color = "#ffbb33";
+            if (typeof speak === 'function') speak("Score de pilotage : Bon. Attention aux accélérations brusques.");
+        } else {
+            feedback = "Conduite très agressive ! Usure critique des freins et de la courroie.";
+            color = "#ff4444";
+            if (typeof speak === 'function') speak("Score de pilotage : Médiocre. Conduite trop agressive pour la mécanique.");
+        }
+
+        this.showPilotScoreUI(pilotScore, feedback, color);
+    },
+    
+    showPilotScoreUI: function(score, feedback, color) {
+        const modal = document.createElement('div');
+        modal.id = 'pilot-score-modal';
+        modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:90000; display:flex; align-items:center; justify-content:center;";
+        modal.innerHTML = `
+            <div class="glassmorphism" style="padding:30px; text-align:center; max-width:90%;">
+                <i class="fa-solid fa-flag-checkered" style="font-size:3rem; color:${color}; margin-bottom:15px;"></i>
+                <h2 style="margin:0; font-size:1.5rem;">SCORE DE PILOTAGE</h2>
+                <div style="font-size:4rem; font-weight:900; margin:20px 0; color:${color}; text-shadow: 0 0 20px ${color};">${score}<span style="font-size:2rem;">/100</span></div>
+                <p style="font-size:1.1rem; margin-bottom:30px;">${feedback}</p>
+                <button onclick="document.getElementById('pilot-score-modal').remove()" style="width:100%; padding:15px; background:var(--glass-bg); color:white; border:1px solid var(--accent); border-radius:10px; font-weight:bold; cursor:pointer;">FERMER LE RAPPORT</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
     }
 };
