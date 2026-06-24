@@ -84,9 +84,11 @@ class ARNavigationManager {
             document.body.classList.add('ar-mode-active');
             this.isActive = true;
 
-            if (typeof speak === "function") speak("Réalité augmentée activée.");
+            if (typeof speak === "function") {
+                speak("Système optique enclenché. Affichage tête haute opérationnel. Attention, ce mode consomme beaucoup d'énergie, veuillez brancher le téléphone si possible.");
+            }
             if (window.NeuralHUD && typeof window.NeuralHUD.logToConsole === "function") {
-                window.NeuralHUD.logToConsole("AR_SYSTEM: ENGAGED");
+                window.NeuralHUD.logToConsole("AR_SYSTEM: ENGAGED - HUD ACTIVE");
             }
         } catch (err) {
             console.error("Impossible de démarrer la caméra AR:", err);
@@ -113,7 +115,7 @@ class ARNavigationManager {
         document.body.classList.remove('ar-mode-active');
         this.isActive = false;
 
-        if (typeof speak === "function") speak("Réalité augmentée désactivée.");
+        if (typeof speak === "function") speak("Affichage tête haute désactivé. Retour à la navigation standard.");
         if (window.NeuralHUD && typeof window.NeuralHUD.logToConsole === "function") {
             window.NeuralHUD.logToConsole("AR_SYSTEM: OFFLINE");
         }
