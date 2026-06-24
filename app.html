@@ -359,6 +359,11 @@
             <i class="fa-solid fa-flag-checkered" aria-hidden="true" style="filter: drop-shadow(0 0 5px #ffeb3b);"></i>
         </button>
 
+        <!-- Parrainage (Referral) -->
+        <button id="dock-btn-referral" aria-label="Parrainer un ami" role="button" onclick="if(window.ReferralManager) window.ReferralManager.shareReferralLink()" style="background: none; border: none; color: #00d2ff; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-user-plus" aria-hidden="true" style="filter: drop-shadow(0 0 5px #00d2ff);"></i>
+        </button>
+
         <!-- Assurance Connectée -->
         <button id="dock-btn-insurance" aria-label="Voir mon assurance connectée" role="button" onclick="window.location.href='insurance.html'" style="background: none; border: none; color: #ff0055; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
             <i class="fa-solid fa-shield-cat" aria-hidden="true" style="filter: drop-shadow(0 0 5px #ff0055);"></i>
@@ -803,6 +808,7 @@
     <script src="js/obd-bluetooth.js"></script>
     <script src="js/ar-navigation.js"></script>
     <script src="js/social-radar.js"></script>
+    <script src="js/referral.js"></script>
     
     <!-- MECA-WIZARD MODAL -->
     <div id="meca-result-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 60000; display: flex; align-items: center; justify-content: center;">
