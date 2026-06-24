@@ -81,16 +81,16 @@ window.toggleARVision = async function() {
     }
 };
 
-// 2. WEB3 ROULER & GAGNER WALLET
-window.braveCoins = parseFloat(localStorage.getItem('braveCoins') || '0.00');
+// 2. PROGRAMME FIDELITE ROULER & GAGNER
+window.braveCoins = parseInt(localStorage.getItem('braveCoins') || '0');
 
 window.showCryptoWallet = function() {
     const screen = document.getElementById('crypto-wallet-screen');
     const balance = document.getElementById('crypto-balance');
     if(screen) screen.classList.remove('hidden');
-    if(balance) balance.innerText = window.braveCoins.toFixed(2) + ' BVC';
+    if(balance) balance.innerText = Math.floor(window.braveCoins) + ' Pts BVC';
     
-    if(typeof speak === 'function') speak('Accès au portefeuille sécurisé Web 3.');
+    if(typeof speak === 'function') speak('Accès à votre espace fidélité.');
 };
 
 window.hideCryptoWallet = function() {
@@ -98,15 +98,15 @@ window.hideCryptoWallet = function() {
     if(screen) screen.classList.add('hidden');
 };
 
-// Hook into distance tracking to mine crypto
+// Hook into distance tracking to earn points
 if(typeof window.stopNavigation === 'function') {
     const originalStop = window.stopNavigation;
     window.stopNavigation = function() {
         originalStop();
-        // Reward 12.5 Brave Coins per ride
-        window.braveCoins += 12.5;
+        // Reward 12 Points BVC per ride
+        window.braveCoins += 12;
         localStorage.setItem('braveCoins', window.braveCoins.toString());
-        if(typeof speak === 'function') setTimeout(() => speak('Vous avez miné 12,5 Brave Coins pour ce trajet sécurisé.'), 8000);
+        if(typeof speak === 'function') setTimeout(() => speak('Vous avez gagné 12 points BVC pour ce trajet sécurisé.'), 8000);
     };
 }
 

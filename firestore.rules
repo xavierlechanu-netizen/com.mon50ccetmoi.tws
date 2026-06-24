@@ -21,9 +21,9 @@ service cloud.firestore {
 
     // --- RÈGLES PAR COLLECTION ---
 
-    // Profils Utilisateurs : Seul l'utilisateur ou l'admin peut modifier son profil, tout le monde peut voir
+    // Profils Utilisateurs : Lecture restreinte au proprio ou admin
     match /users/{userId} {
-      allow read: if true;
+      allow read: if isOwner(userId) || isAdmin();
       allow create: if isSignedIn() && isOwner(userId);
       allow update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
@@ -97,38 +97,43 @@ service cloud.firestore {
     // Stations services signalées/blacklistées (Blacklist Stations)
     match /blacklist_stations/{stationId} {
       allow read: if true;
-      allow write: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || (isSignedIn() && isOwner(resource.data.userId));
     }
 
     // Dossiers de plaintes officiels (Complaints Official)
     match /complaints_official/{complaintId} {
       allow read: if isAdmin();
-      allow write: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || (isSignedIn() && isOwner(resource.data.userId));
     }
 
-    // Inscriptions Beta Testeurs (Public)
+    // Inscriptions Beta Testeurs
     match /beta_testers/{testerId} {
-      allow read: if true; // Nécessaire pour afficher la barre de progression (count)
-      allow create: if isSignedIn(); // Réservé aux membres connectés pour éviter le spam
+      allow read: if isOwner(testerId) || isAdmin(); 
+      allow create: if isSignedIn(); 
       allow update, delete: if isAdmin();
     }
 
     // Alertes d'administration (Admin Alerts)
     match /admin_alerts/{alertId} {
       allow read: if isAdmin();
-      allow write: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
     }
 
     // Évaluations des garages (Garage Evaluations)
     match /garage_evaluations/{garageId} {
       allow read: if true;
-      allow write: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || (isSignedIn() && isOwner(resource.data.userId));
     }
 
     // Roadbooks partagés (Community Roadbooks)
     match /community_roadbooks/{roadbookId} {
       allow read: if true;
-      allow write: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin() || (isSignedIn() && isOwner(resource.data.userId));
     }
 
     // Blocage d'IP (Banned IPs)

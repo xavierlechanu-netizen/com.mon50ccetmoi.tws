@@ -15,12 +15,8 @@
  */
 package com.mon50ccetmoi.twa;
 
-import android.content.pm.ActivityInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-
-
 
 public class LauncherActivity
         extends com.google.androidbrowserhelper.trusted.LauncherActivity {
@@ -30,17 +26,14 @@ public class LauncherActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
-        getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
+        // Les couleurs de la barre d'état et de navigation sont gérées par
+        // les metadata du AndroidManifest.xml (colorPrimary, navigationColor).
+        // Les API setStatusBarColor/setNavigationBarColor sont obsolètes depuis SDK 35.
         super.onCreate(savedInstanceState);
-        // Les restrictions d'orientation ont été supprimées pour être compatible avec
-        // les appareils à grand écran (Foldables/Tablettes) sous Android 16.
     }
 
     @Override
     protected Uri getLaunchingUrl() {
-        // Get the original launch Url.
         Uri uri = super.getLaunchingUrl();
 
         
@@ -48,3 +41,4 @@ public class LauncherActivity
         return uri;
     }
 }
+

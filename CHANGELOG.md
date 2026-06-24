@@ -6,6 +6,24 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ---
 
+## [100.00.08] — 2026-06-24 — 🏆 GOLD EDITION: Sécurité, RGPD Mondial & Performances
+
+### Ajouté
+- **Conformité Internationale Massive (RGPD/PIPL/CCPA)** : Intégration dynamique de la politique de confidentialité en **25 langues** (FR, EN, ES, IT, DE, PT, NL, PL, ZH, JA, KO, HE, ID, HU, HI, FI, DA, RO, SK, SV, TH, TR, CS, NO). Adaptation automatique selon la locale de l'utilisateur.
+- **Prominent Disclosure (Google Play)** : Refonte de la modale de consentement pour respecter les nouvelles exigences de localisation en arrière-plan du Play Store.
+
+### Amélioré
+- **Architecture & Performances** : Minification agressive du CSS (réduction de 25%) et création d'un bundler JS (fusion de 34 fichiers en un seul `app-bundle.min.js`) pour diviser drastiquement le temps de chargement de l'application (TTI).
+- **Hébergement** : Déploiement optimisé sur Firebase Hosting (contournement des quotas API).
+
+### Sécurité
+- **Patch Firestore Rules** : Verrouillage strict des règles de base de données. 
+  - Restriction totale sur les données biométriques et télémétriques (Guardian Angel).
+  - Protection des données sensibles du portail assureur (B2B).
+  - Validation stricte des schémas de données pour prévenir les injections.
+
+---
+
 ## [80.0.3] — 2026-06-22 — 🎛️ OBD-II HUD Dashboard
 
 ### Ajouté

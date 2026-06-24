@@ -8,8 +8,8 @@ const fs = require('fs');
 const path = require('path');
 
 const rootDir = path.join(__dirname, '..');
-const cssPath = path.join(rootDir, 'css', 'style.css');
-const cssMinPath = path.join(rootDir, 'css', 'style.min.css');
+const cssPath = path.join(rootDir, 'public', 'css', 'style.css');
+const cssMinPath = path.join(rootDir, 'public', 'css', 'style.min.css');
 
 console.log('🚀 Démarrage de la minification...');
 

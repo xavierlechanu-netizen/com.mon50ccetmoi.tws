@@ -50,12 +50,18 @@ class OracleVoice {
         this.active = true;
         try { this.recognition.start(); } catch(e) { console.error("Start fail:", e); }
         console.log("Oracle Voice Engine : [ ONLINE ]");
+        
+        const overlay = document.getElementById('oracle-listening-overlay');
+        if (overlay) overlay.classList.remove('hidden');
     }
 
     stop() {
         this.active = false;
         if (this.recognition) this.recognition.stop();
         console.log("Oracle Voice Engine : [ OFFLINE ]");
+        
+        const overlay = document.getElementById('oracle-listening-overlay');
+        if (overlay) overlay.classList.add('hidden');
     }
 
     toggle() {
@@ -184,6 +190,26 @@ class OracleVoice {
         else if (text.includes("il pleut") || text.includes("météo détaillée")) {
             if(typeof window.updateWeatherUI === 'function') window.updateWeatherUI(true);
             speak("Pluie détectée. J'adapte l'affichage et je modifie les paramètres d'adhérence virtuels.");
+        }
+        // ── Diagnostic IA / Mécanique ──────────────────────────────
+        else if (text.includes("diagnostic") || text.includes("état") || text.includes("santé") || text.includes("mécanique") || text.includes("panne") || text.includes("révision")) {
+            if (window.PredictiveMeca) {
+                const score = Math.round(window.PredictiveMeca.getGlobalHealthScore());
+                let message = `Votre véhicule est opérationnel à ${score} %.`;
+                if (score < 50) message += " Attention, maintenance urgente requise. J'affiche le diagnostic.";
+                else if (score < 85) message += " Une révision est conseillée. J'affiche le diagnostic.";
+                else message += " Tout semble en parfait état. J'affiche le diagnostic.";
+                
+                speak(message);
+                
+                const modal = document.getElementById('ai-diagnostic-modal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    window.PredictiveMeca.updateDashboardUI();
+                }
+            } else {
+                speak("L'analyse prédictive est hors ligne.");
+            }
         }
         // ── Aide ───────────────────────────────────────────────────
         else if (text.includes("aide") || text.includes("commande") || text.includes("que peux") || text.includes("que sais")) {

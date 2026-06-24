@@ -302,32 +302,58 @@
 </head>
 <body>
 <!-- PROMINENT DISCLOSURE BACKGROUND LOCATION (GOOGLE PLAY COMPLIANCE) -->
-<div id="prominent-disclosure-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; z-index:9999999; display:none; flex-direction:column; align-items:center; justify-content:center; color:white; padding:30px; text-align:center; overflow-y:auto; box-sizing: border-box;">
-    <i class="fa-solid fa-location-dot" style="font-size:4rem; color:#ffb703; margin-bottom:20px;"></i>
-    <h2 style="margin-bottom:15px; font-family:'Outfit', sans-serif;">Utilisation de votre position</h2>
-    <p style="font-size:1rem; line-height:1.5; margin-bottom:20px; color:#ffb703; font-weight:bold; max-width:500px;">
-        Cette application collecte des données de localisation pour activer la détection automatique de chute, la navigation GPS, le calcul de votre vitesse, et le partage de dangers et de votre position avec la communauté, <strong>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</strong>
-    </p>
-    <div style="display:flex; flex-direction:column; gap:15px; width:100%; max-width:400px;">
-        <button onclick="acceptProminentDisclosure()" style="padding:15px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1.1rem; cursor:pointer; box-shadow: 0 0 15px rgba(255, 183, 3, 0.4);">J'AI COMPRIS ET J'ACCEPTE</button>
-        <button onclick="declineProminentDisclosure()" style="background:transparent; border:1px solid #666; color:#aaa; padding:15px; border-radius:30px; font-weight:bold; font-size:1rem; cursor:pointer;">Refuser</button>
+<div id="prominent-disclosure-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; z-index:9999999; display:none; flex-direction:column; align-items:center; justify-content:flex-start; color:white; padding:24px; text-align:left; overflow-y:auto; box-sizing:border-box; -webkit-overflow-scrolling:touch;">
+    <div style="max-width:480px; width:100%; margin:auto;">
+        <div style="text-align:center; margin-bottom:20px;">
+            <i class="fa-solid fa-location-dot" style="font-size:3rem; color:#ffb703;"></i>
+        </div>
+        <h2 style="text-align:center; margin-bottom:20px; font-size:1.3rem; color:#ffffff;">
+            Utilisation de vos données de localisation
+        </h2>
+
+        <div style="background:#1a1a1a; padding:16px; border-radius:8px; border-left:4px solid #ffb703; margin-bottom:20px;">
+            <p style="font-size:1rem; line-height:1.5; color:#ffffff; margin:0;">
+                <strong>L'application mon 50cc et moi collecte et utilise vos données de localisation en arrière-plan</strong> pour permettre la détection automatique de chute (Guardian Angel), la navigation GPS étape par étape, et le signalement de dangers routiers. Ces données sont collectées <strong>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</strong> Elles ne sont pas utilisées pour afficher des annonces publicitaires.
+            </p>
+        </div>
+
+        <p style="font-size:0.9rem; line-height:1.4; color:#aaa; margin-bottom:24px; text-align:center;">
+            Ces données sont utilisées uniquement pour assurer votre sécurité et vous guider. Elles ne sont jamais vendues à des tiers.<br><br>
+            <a href="privacy.html" target="_blank" rel="noopener" style="color:#ffb703; text-decoration:underline; font-weight:bold;">
+                Consulter notre Politique de Confidentialité
+            </a>
+        </p>
+
+        <button id="btn-accept-disclosure" style="
+            width:100%; padding:16px; background:#ffb703; color:#000;
+            border:none; border-radius:30px; font-weight:bold; font-size:1rem;
+            margin-bottom:12px; cursor:pointer;
+        ">J'accepte</button>
+
+        <button id="btn-refuse-disclosure" style="
+            width:100%; padding:14px; background:transparent;
+            border:1px solid #444; border-radius:30px;
+            color:#aaa; font-size:0.9rem; cursor:pointer;
+        ">Refuser</button>
     </div>
 </div>
 <script>
     function checkProminentDisclosure() {
-        if (localStorage.getItem('legal_consent_accepted') !== 'true') {
+        if (localStorage.getItem('location_consent_accepted') !== 'true') {
             document.getElementById('prominent-disclosure-modal').style.display = 'flex';
         }
     }
-    function acceptProminentDisclosure() {
-        localStorage.setItem('legal_consent_accepted', 'true');
-        document.getElementById('prominent-disclosure-modal').style.display = 'none';
-    }
-    function declineProminentDisclosure() {
-        alert("L'application nécessite l'accès à votre position pour fonctionner correctement.");
-        document.getElementById('prominent-disclosure-modal').style.display = 'none';
-    }
-    document.addEventListener('DOMContentLoaded', checkProminentDisclosure);
+    document.addEventListener('DOMContentLoaded', function() {
+        checkProminentDisclosure();
+        document.getElementById('btn-accept-disclosure').addEventListener('click', function() {
+            localStorage.setItem('location_consent_accepted', 'true');
+            document.getElementById('prominent-disclosure-modal').style.display = 'none';
+        });
+        document.getElementById('btn-refuse-disclosure').addEventListener('click', function() {
+            document.getElementById('prominent-disclosure-modal').style.display = 'none';
+            alert("L'application nécessite l'accès à votre position pour fonctionner correctement.");
+        });
+    });
     if (document.readyState === 'complete' || document.readyState === 'interactive') checkProminentDisclosure();
 </script>
 <!-- END PROMINENT DISCLOSURE -->

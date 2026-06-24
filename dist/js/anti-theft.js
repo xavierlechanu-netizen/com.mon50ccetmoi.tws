@@ -93,8 +93,23 @@ window.AntiTheft = {
             window.NeuralHUD.logToConsole(`SENTRY_ALERT: MOTION_DETECTED (${force.toFixed(1)}G)`);
         }
         
-        // Remote Notification simulation
-        console.warn("SENTRY_CLOUD_ALERT: Potential tampering detected at " + new Date().toLocaleTimeString());
+        // Remote Notification simulation / Firebase Cloud Function call
+        const projectId = window.CONFIG?.FIREBASE?.projectId || 'mon50ccetmoi';
+        const functionUrl = `https://europe-west1-${projectId}.cloudfunctions.net/triggerAntiTheftAlert`;
+        
+        fetch(functionUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: window.session?.uid || 'GUEST',
+                force: force,
+                location: window.currentPosition ? `${window.currentPosition.lat},${window.currentPosition.lng}` : "Unknown"
+            })
+        }).then(res => res.json()).then(data => {
+            console.log("SENTRY_CLOUD_ALERT: Server responded:", data);
+        }).catch(err => {
+            console.error("SENTRY_CLOUD_ALERT: Failed to notify server", err);
+        });
     },
 
     reportTheft: async function() {

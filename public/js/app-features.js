@@ -822,6 +822,11 @@ window.generateTacticalExploration = function() {
         alert("GPS requis pour l'exploration.");
         return;
     }
+    // GARDE : ne pas accéder au GPS sans consentement de l'utilisateur
+    if (localStorage.getItem('location_consent_accepted') !== 'true') {
+        alert("Vous devez d'abord accepter l'utilisation de la localisation.");
+        return;
+    }
     
     document.getElementById('route-start').value = "Position Actuelle";
     document.getElementById('route-search').value = "Génération de boucle...";

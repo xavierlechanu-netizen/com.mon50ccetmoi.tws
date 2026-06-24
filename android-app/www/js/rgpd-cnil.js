@@ -6,8 +6,12 @@ window.checkGlobalPrivacy = function() {
     const hasConsented = localStorage.getItem('global_privacy_consent');
     
     if (!hasConsented) {
-        window.preventAppLaunch = true;
-        injectPrivacyBanner();
+        // Auto-accept pour ne pas bloquer le démarrage et ne pas interférer avec la Prominent Disclosure de Google Play
+        localStorage.setItem('global_privacy_consent', 'true');
+        // NE PAS définir legal_consent_accepted ici — c'est la Prominent Disclosure qui s'en charge
+        window.preventAppLaunch = false;
+        if(typeof window.initVoiceAI === 'function') setTimeout(window.initVoiceAI, 1000);
+        if(typeof window.initZeroClickDestiny === 'function') setTimeout(window.initZeroClickDestiny, 2000);
     } else {
         window.preventAppLaunch = false;
         if(typeof window.initVoiceAI === 'function') setTimeout(window.initVoiceAI, 1000);

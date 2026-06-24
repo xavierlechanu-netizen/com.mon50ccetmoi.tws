@@ -93,6 +93,11 @@ window.Telemetry = {
     },
 
     trackGps: function() {
+        // GARDE : ne pas accéder au GPS sans consentement de l'utilisateur
+        if (localStorage.getItem('location_consent_accepted') !== 'true') {
+            console.warn("mon50cc Telemetry : GPS bloqué — consentement non accordé.");
+            return;
+        }
         if ('geolocation' in navigator) {
             navigator.geolocation.watchPosition(
                 (pos) => {

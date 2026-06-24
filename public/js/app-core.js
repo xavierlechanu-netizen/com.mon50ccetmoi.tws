@@ -563,17 +563,21 @@ async function requestWakeLock() {
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && !wakeLockRef) {
         requestWakeLock();
-        // Relancer le GPS si on a perdu la position pendant le sleep
-        if (!currentPosition && gpsWatchId === null) {
+        // Relancer le GPS si on a perdu la position pendant le sleep (SEULEMENT si consentement donné)
+        if (!currentPosition && gpsWatchId === null && hasLocationConsent()) {
             console.log("mon50cc GPS : Retour au premier plan sans position → relance GPS.");
             startGeolocation();
         }
     }
 });
 
+// ── Garde de consentement : vérifie si l'utilisateur a accepté la divulgation ──
+function hasLocationConsent() {
+    return localStorage.getItem('location_consent_accepted') === 'true';
+}
+
 async function checkLegalConsent() {
-    const consent = localStorage.getItem('legal_consent_accepted');
-    if (consent === 'true') {
+    if (hasLocationConsent()) {
         // Déclenchement du message de bienvenue pour les utilisateurs récurrents
         const name = (window.session && !window.session.isGuest) ? window.session.username : "";
         const welcomeMsg = name ? `Content de vous revoir, ${name}. Systèmes opérationnels.` : "Systèmes opérationnels. Bonne route sur mon 50cc et moi.";
@@ -583,38 +587,89 @@ async function checkLegalConsent() {
         return;
     }
 
-    // Création du modal de divulgation (Prominent Disclosure)
+    // ══════════════════════════════════════════════════════════════════
+    // DIVULGATION BIEN VISIBLE (Prominent Disclosure) — Google Play
+    // Conforme à la politique relative aux données de l'utilisateur.
+    // Affiché AVANT toute collecte de données de localisation.
+    // ══════════════════════════════════════════════════════════════════
     const modal = document.createElement('div');
-    modal.id = 'legal-modal';
-    modal.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; z-index:20000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; padding:30px; text-align:center; overflow-y:auto;";
+    modal.id = 'location-disclosure-modal';
+    modal.style.cssText = `
+        position:fixed; top:0; left:0; width:100%; height:100%;
+        background:#0a0a0a; z-index:20000;
+        display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+        color:white; padding:24px; text-align:left; overflow-y:auto;
+        -webkit-overflow-scrolling:touch;
+    `;
     modal.innerHTML = `
-        <i class="fa-solid fa-shield-halved" style="font-size:3rem; color:#ffb703; margin-bottom:20px;"></i>
-        <h2 style="margin-bottom:15px;">Respect de votre Vie Privée</h2>
-        <p style="font-size:0.9rem; line-height:1.4; margin-bottom:15px; color:#ffb703; font-weight:bold;">
-            <strong>mon 50cc et moi</strong> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, même lorsque l'application est fermée ou qu'elle n'est pas utilisée.
-        </p>
-        <p style="font-size:0.75rem; color:#888; margin-bottom:20px;">
-            Les données sont chiffrées et vous pouvez supprimer votre compte à tout moment. En continuant, vous acceptez notre <a href="privacy.html" target="_blank" style="color:#ffb703;">politique de confidentialité</a>.
-        </p>
-        <button id="btn-accept-legal" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1rem; margin-bottom:10px;">ACCEPTER ET CONTINUER</button>
-        <button onclick="window.close()" style="background:transparent; border:none; color:#666; font-size:0.8rem; text-decoration:underline;" id="btn-refuse-legal">Refuser et quitter</button>
+        <div style="max-width:480px; width:100%; margin:auto;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <i class="fa-solid fa-location-dot" style="font-size:3rem; color:#ffb703;"></i>
+            </div>
+            <h2 style="text-align:center; margin-bottom:20px; font-size:1.3rem; color:#ffffff;">
+                Utilisation de vos données de localisation
+            </h2>
+
+            <div style="background:#1a1a1a; padding:16px; border-radius:8px; border-left:4px solid #ffb703; margin-bottom:20px;">
+                <p style="font-size:1rem; line-height:1.5; color:#ffffff; margin:0;">
+                    <strong>L'application mon 50cc et moi collecte et utilise vos données de localisation en arrière-plan</strong> pour permettre la détection automatique de chute (Guardian Angel), la navigation GPS étape par étape, et le signalement de dangers routiers. Ces données sont collectées <strong>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</strong> Elles ne sont pas utilisées pour afficher des annonces publicitaires.
+                </p>
+            </div>
+
+            <p style="font-size:0.9rem; line-height:1.4; color:#aaa; margin-bottom:24px; text-align:center;">
+                Ces données sont utilisées uniquement pour assurer votre sécurité et vous guider. Elles ne sont jamais vendues à des tiers.<br><br>
+                <a href="privacy.html" target="_blank" rel="noopener" style="color:#ffb703; text-decoration:underline; font-weight:bold;">
+                    Consulter notre Politique de Confidentialité
+                </a>
+            </p>
+
+            <button id="btn-accept-location" style="
+                width:100%; padding:16px; background:#ffb703; color:#000;
+                border:none; border-radius:30px; font-weight:bold; font-size:1rem;
+                margin-bottom:12px; cursor:pointer;
+            ">J'accepte</button>
+
+            <button id="btn-refuse-location" style="
+                width:100%; padding:14px; background:transparent;
+                border:1px solid #444; border-radius:30px;
+                color:#aaa; font-size:0.9rem; cursor:pointer;
+            ">Refuser</button>
+        </div>
     `;
     document.body.appendChild(modal);
 
-    // Bouton Refus : masque le modal (window.close() ne marche pas sur mobile)
-    document.getElementById('btn-refuse-legal').onclick = () => {
-        modal.style.display = 'none';
-        speak("L'application nécessite votre accord pour fonctionner.");
+    // Bouton REFUSER : empêche le démarrage du GPS, affiche un message
+    document.getElementById('btn-refuse-location').onclick = () => {
+        modal.remove();
+        // Afficher un bandeau persistant expliquant que l'app ne peut pas fonctionner
+        const banner = document.createElement('div');
+        banner.id = 'location-refused-banner';
+        banner.style.cssText = `
+            position:fixed; bottom:0; left:0; width:100%; padding:16px;
+            background:#1a0000; border-top:2px solid #ff4444; color:#ff8888;
+            text-align:center; font-size:0.85rem; z-index:19999; line-height:1.4;
+        `;
+        banner.innerHTML = `
+            <strong>⚠️ Localisation requise</strong><br>
+            L'application ne peut pas fonctionner sans accès à votre position.
+            <br><button onclick="checkLegalConsent()" style="margin-top:8px; padding:8px 24px; background:#ffb703; color:#000; border:none; border-radius:20px; font-weight:bold; cursor:pointer;">Réessayer</button>
+        `;
+        document.body.appendChild(banner);
+        if (typeof speak === 'function') speak("L'application nécessite l'accès à votre position pour fonctionner.");
     };
 
-    document.getElementById('btn-accept-legal').onclick = () => {
-        localStorage.setItem('legal_consent_accepted', 'true');
+    // Bouton ACCEPTER : sauvegarde le consentement et démarre le GPS
+    document.getElementById('btn-accept-location').onclick = () => {
+        localStorage.setItem('location_consent_accepted', 'true');
         modal.remove();
+        // Retirer le bandeau de refus s'il existait
+        const oldBanner = document.getElementById('location-refused-banner');
+        if (oldBanner) oldBanner.remove();
         
         // Déclenchement du message de bienvenue (Audio débloqué par le clic)
         const name = (window.session && !window.session.isGuest) ? window.session.username : "";
         const welcomeMsg = name ? `Content de vous revoir, ${name}. Systèmes opérationnels.` : "Systèmes opérationnels. Bonne route sur mon 50cc et moi.";
-        speak(welcomeMsg);
+        if (typeof speak === 'function') speak(welcomeMsg);
         
         startGeolocation();
     };
@@ -640,7 +695,7 @@ function showGpsBanner(msg, code) {
             <i class="fa-solid fa-location-crosshairs" style="font-size:4rem; color:#ef4444; margin-bottom:20px;"></i>
             <h2 style="margin-bottom:15px; color:#ffb703;">GPS OBLIGATOIRE</h2>
             <p style="font-size:0.9rem; line-height:1.5; margin-bottom:25px; text-align:left; background:rgba(0,0,0,0.5); padding:15px; border-radius:10px; border:1px solid #333;">
-                <b style="color:#ffb703;">mon 50cc et moi</b> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, <b>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</b><br><br>
+                Cette application collecte des données de localisation pour activer la détection automatique de chute, la navigation GPS, le calcul de votre vitesse, et le partage de dangers et de votre position avec la communauté, <b>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</b><br><br>
                 Sans accès à votre position, l'application ne peut pas fonctionner.
             </p>
             <button onclick="window.repairGps()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1.1rem; margin-bottom:15px; box-shadow:0 0 15px rgba(255, 183, 3, 0.5);">
@@ -743,6 +798,12 @@ let gpsRetryCount = 0;
 const GPS_MAX_RETRIES = 3;
 
 async function startGeolocation() {
+    // GARDE DE SÉCURITÉ : ne JAMAIS démarrer le GPS sans consentement explicite
+    if (!hasLocationConsent()) {
+        console.warn("mon50cc GPS : Consentement de localisation non accordé. GPS bloqué.");
+        return;
+    }
+
     if (!('geolocation' in navigator)) {
         console.error("mon50cc GPS : Géolocalisation non supportée sur cet appareil.");
         showGpsBanner("Géolocalisation non supportée par ce navigateur.", 0);

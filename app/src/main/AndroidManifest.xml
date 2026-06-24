@@ -25,11 +25,6 @@
         <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
         <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
         <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-        <!-- GPS en arrière-plan : requis pour la navigation écran éteint + détection de chute -->
-        <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-        <!-- Maintenir le GPS actif en tâche de fond (Android 14+) -->
-        <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-        <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     
 
     

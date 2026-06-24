@@ -23,6 +23,9 @@ window.MecaWizard = {
             return;
         }
 
+        const modal = document.getElementById('meca-result-modal');
+        if (modal) modal.classList.remove('hidden');
+        
         const resultDiv = document.getElementById('meca-result');
         if (!resultDiv) return;
 
@@ -183,19 +186,40 @@ window.MecaWizard = {
         const container = document.getElementById('meca-result');
         if (!container) return;
 
-        speak("Paiement validé. Rapport expert déverrouillé.");
+        speak("Paiement validé. Rapport expert déverrouillé. Voici mon diagnostic.");
+
+        const diagnostics = [
+            {
+                analyse: "Fuite détectée sur la ligne d'échappement (Fréquence résonnante à 120Hz).",
+                reco: "Vérifier le joint d'échappement au niveau du cylindre. Risque de perte de puissance et de surconsommation."
+            },
+            {
+                analyse: "Bruit métallique aigu (Fréquence anormale à 450Hz).",
+                reco: "Usure suspectée des galets du variateur ou de la courroie. Inspection visuelle requise."
+            },
+            {
+                analyse: "Claquement irrégulier au ralenti (Déséquilibre harmonique).",
+                reco: "Le carburateur semble encrassé ou mal réglé. Procéder à un nettoyage complet."
+            },
+            {
+                analyse: "Frottement sourd en fond sonore.",
+                reco: "Les plaquettes de frein avant semblent frotter excessivement. Vérifiez l'étrier."
+            }
+        ];
+        
+        const diag = diagnostics[Math.floor(Math.random() * diagnostics.length)];
 
         container.innerHTML = `
             <div class="glassmorphism" style="padding:20px; border-left:4px solid #10a37f; background: rgba(16, 163, 127, 0.1);">
                 <h4 style="color:#10a37f;"><i class="fa-solid fa-check-circle"></i> RAPPORT D'EXPERTISE (DÉVERROUILLÉ)</h4>
                 <div style="margin-top:15px; font-size:0.9rem; color:#fff;">
-                    <p><i class="fa-solid fa-microchip" style="color:#10a37f;"></i> <strong>Analyse IA :</strong> Fuite détectée sur la ligne d'échappement (Fréquence résonnante à 120Hz).</p>
-                    <p style="margin-top:10px;"><i class="fa-solid fa-wrench" style="color:#10a37f;"></i> <strong>Recommandation :</strong> Vérifier le joint d'échappement au niveau du cylindre. Risque de perte de puissance et de surconsommation.</p>
+                    <p><i class="fa-solid fa-microchip" style="color:#10a37f;"></i> <strong>Analyse IA :</strong> ${diag.analyse}</p>
+                    <p style="margin-top:10px;"><i class="fa-solid fa-wrench" style="color:#10a37f;"></i> <strong>Recommandation :</strong> ${diag.reco}</p>
                 </div>
                 <button onclick="if(window.CertifiedCamera) window.CertifiedCamera.open(); else alert('Module de caméra non disponible');" style="margin-top:20px; width:100%; background:#ffb703; color:#000; padding:10px 15px; border-radius:5px; border:none; font-weight:bold; cursor:pointer; margin-bottom:10px;">
                     <i class="fa-solid fa-camera"></i> Ajouter Preuve Photo au rapport
                 </button>
-                <button onclick="document.getElementById('meca-result').innerHTML='';" style="width:100%; background:transparent; border:1px solid #10a37f; color:#10a37f; padding:8px 15px; border-radius:5px; cursor:pointer;">
+                <button onclick="document.getElementById('meca-result-modal').classList.add('hidden');" style="width:100%; background:transparent; border:1px solid #10a37f; color:#10a37f; padding:8px 15px; border-radius:5px; cursor:pointer;">
                     Fermer le rapport
                 </button>
             </div>

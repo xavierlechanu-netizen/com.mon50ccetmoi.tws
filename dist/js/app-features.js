@@ -476,21 +476,95 @@ window.requestCertification = function() {
     speak("Demande enregistrée.");
 };
 
-window.payGarageEntryFee = function() {
+window.payGarageEntryFee = async function() {
     const ok = confirm("Confirmez-vous le paiement du droit d'entrée de 50€ TTC pour devenir Garage Certifié ?");
     if(ok) {
-        speak("Paiement validé. Félicitations, vous êtes maintenant un Garage Certifié mon 50 cm3 et moi !");
-        if(window.session) {
-            window.session.isCertifiedGarage = true;
-            secureSetItem('session', JSON.stringify(window.session));
+        if(typeof speak === 'function') speak("Initialisation du paiement sécurisé.");
+        try {
+            const projectId = window.CONFIG?.FIREBASE?.projectId || 'mon50ccetmoi';
+            const url = `https://europe-west1-${projectId}.cloudfunctions.net/createRevolutOrder`;
+            const caseId = 'GARAGE-' + Date.now();
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount_cents: 5000,
+                    currency: 'EUR',
+                    case_id: caseId,
+                    user_id: window.session?.uid || 'guest',
+                    report_type: 'GARAGE_FEE'
+                })
+            });
+
+            if(!response.ok) throw new Error("Erreur lors de la création de la commande.");
+            const orderData = await response.json();
+
+            const instance = await RevolutCheckout(orderData.order_token, 'prod');
+            
+            instance.payWithPopup({
+                onSuccess: () => {
+                    if(typeof speak === 'function') speak("Validation du paiement par le serveur, veuillez patienter...");
+                    
+                    let attempts = 0;
+                    const checkStatus = setInterval(async () => {
+                        attempts++;
+                        try {
+                            const res = await fetch(`https://europe-west1-${projectId}.cloudfunctions.net/checkPaymentStatus?case_id=${caseId}&user_id=${window.session?.uid}`);
+                            const data = await res.json();
+                            if(data.paid) {
+                                clearInterval(checkStatus);
+                                if(typeof speak === 'function') speak("Paiement validé ! Vous êtes maintenant un Garage Certifié.");
+                                if(window.session) {
+                                    window.session.isCertifiedGarage = true;
+                                    secureSetItem('session', JSON.stringify(window.session));
+                                }
+                                showPage('pro-space');
+                            } else if(attempts > 10) {
+                                clearInterval(checkStatus);
+                                alert("Le paiement est en cours de traitement par Revolut. Votre accès pro sera activé automatiquement sous peu.");
+                                showPage('home');
+                            }
+                        } catch(e) {
+                            console.error(e);
+                        }
+                    }, 2000);
+                },
+                onError: (message) => {
+                    alert("Erreur lors du paiement : " + message);
+                },
+                onCancel: () => {
+                    console.log("Paiement annulé.");
+                }
+            });
+        } catch (err) {
+            console.error(err);
+            alert("Impossible d'initialiser le paiement : " + err.message);
         }
-        showPage('pro-space');
     }
 };
 
-window.applyPartnerExemption = function() {
+window.applyPartnerExemption = async function() {
     const ok = confirm("En choisissant cette option, vous vous engagez à offrir une remise de 10% sur vos prestations aux membres présentant l'application. En échange, votre certification et votre boost sont OFFERTS. Valider ?");
     if(ok) {
+        try {
+            if (window.firebase && window.session?.uid) {
+                const db = firebase.firestore();
+                await db.collection('users').doc(window.session.uid).update({
+                    isCertifiedGarage: true,
+                    isGaragePartner: true
+                });
+                await db.collection('garage_partners').doc(window.session.uid).set({
+                    user_id: window.session.uid,
+                    exempted: true,
+                    certified_at: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log("[GARAGE] Partner status persisted to Firestore");
+            }
+        } catch(e) {
+            console.error("[GARAGE] Failed to persist partner status", e);
+        }
+
         speak("Félicitations ! Vous êtes désormais Partenaire Officiel mon 50 cm3 et moi. Votre générosité envers la communauté est récompensée.");
         if(window.session) {
             window.session.isCertifiedGarage = true;
@@ -746,6 +820,11 @@ setInterval(window.triggerCommunitySonar, 120000); // Sonar toutes les 2 minutes
 window.generateTacticalExploration = function() {
     if (!navigator.geolocation) {
         alert("GPS requis pour l'exploration.");
+        return;
+    }
+    // GARDE : ne pas accéder au GPS sans consentement de l'utilisateur
+    if (localStorage.getItem('location_consent_accepted') !== 'true') {
+        alert("Vous devez d'abord accepter l'utilisation de la localisation.");
         return;
     }
     
