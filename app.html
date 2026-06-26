@@ -235,6 +235,16 @@
 
     <!-- CORE MODULAR APP (BUNDLED) -->
     <script defer src="js/app-bundle.min.js?v=70004"></script>
+    <script defer src="js/crews-territory.js"></script>
+    <script defer src="js/loot-drops.js"></script>
+    <script defer src="js/cortege-mode.js"></script>
+    <script defer src="js/safe-ride.js"></script>
+    <script defer src="js/garage-market.js"></script>
+    <script defer src="js/sos-community.js"></script>
+    <script defer src="js/leaderboard.js"></script>
+    <script defer src="js/roadbooks.js"></script>
+    <script defer src="js/pit-stops.js"></script>
+    <script defer src="js/privacy-manager.js"></script>
     <script>
         try {
             window.session = (typeof checkAuth === "function") ? checkAuth(false) : { username: "Pilote", isGuest: true };
@@ -398,6 +408,62 @@
         <button id="dock-btn-sentry" onclick="if(window.AntiTheft) window.AntiTheft.toggleSentryMode()" style="background: none; border: none; color: #ff3333; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;" title="Mode Sentinelle">
             <i class="fa-solid fa-lock" id="icon-sentry" style="filter: drop-shadow(0 0 5px #ff3333);"></i>
         </button>
+
+        <!-- Crew / Territoires -->
+        <button id="crew-hud-btn" onclick="if(window.CrewSystem) window.CrewSystem.showModal()" style="background: none; border: 1px solid #00d2ff; border-radius: 20px; color: #00d2ff; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 8px 15px; margin-left: 10px; display:flex; align-items:center; gap: 8px;" title="Guerre de Territoires">
+            <i class="fa-solid fa-flag"></i> Crew
+        </button>
+
+        <!-- Mode Cortège -->
+        <button id="cortege-hud-btn" onclick="if(window.CortegeSystem) window.CortegeSystem.showModal()" style="background: none; border: 1px solid #00ffcc; border-radius: 20px; color: #00ffcc; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 8px 15px; margin-left: 10px; display:flex; align-items:center; gap: 8px;" title="Balade en Cortège">
+            <i class="fa-solid fa-motorcycle"></i> Cortège
+        </button>
+
+        <!-- Troc de Garage -->
+        <button id="market-hud-btn" onclick="if(window.GarageMarket) window.GarageMarket.showModal()" style="background: none; border: 1px solid #ffaa00; border-radius: 20px; color: #ffaa00; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 8px 15px; margin-left: 10px; display:flex; align-items:center; gap: 8px;" title="Marché de Pièces">
+            <i class="fa-solid fa-wrench"></i> Troc
+        </button>
+
+        <!-- SOS Urgence -->
+        <button id="sos-hud-btn" onclick="if(window.SosSystem) window.SosSystem.showModal()" style="background: rgba(255,0,0,0.2); border: 2px solid #ff0000; border-radius: 20px; color: #ff0000; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 8px 15px; margin-left: 10px; display:flex; align-items:center; gap: 8px; box-shadow: 0 0 10px rgba(255,0,0,0.5);" title="Lancer une alerte SOS">
+            <i class="fa-solid fa-triangle-exclamation"></i> S.O.S
+        </button>
+
+        <!-- Leaderboard -->
+        <button id="leaderboard-hud-btn" onclick="if(window.Leaderboard) window.Leaderboard.showModal()" style="background: none; border: 1px solid #ffd700; border-radius: 20px; color: #ffd700; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 8px 15px; margin-left: 10px; display:flex; align-items:center; gap: 8px;" title="Classement BVC">
+            <i class="fa-solid fa-trophy"></i>
+        </button>
+
+        <!-- Roadbook REC -->
+        <button id="roadbook-rec-btn" onclick="if(window.RoadbookSystem) window.RoadbookSystem.toggleRecording()" style="background: none; border: 1px solid #b700ff; border-radius: 20px; color: #b700ff; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 8px 15px; margin-left: 10px; display:flex; align-items:center; gap: 8px;" title="Enregistrer une trace (Roadbook)">
+            <i class="fa-solid fa-route"></i> REC Trace
+        </button>
+
+        <!-- Pit Stop -->
+        <button id="pitstop-hud-btn" onclick="if(window.PitStopSystem) window.PitStopSystem.showModal()" style="background: none; border: 1px solid #ff0055; border-radius: 20px; color: #ff0055; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 8px 15px; margin-left: 10px; display:flex; align-items:center; gap: 8px;" title="Ajouter une Station / Garage">
+            <i class="fa-solid fa-gas-pump"></i> Pit Stop
+        </button>
+
+        <!-- Mode Fantôme (RGPD) -->
+        <button id="ghost-mode-btn" onclick="if(window.PrivacyManager) window.PrivacyManager.toggleGhostMode()" style="background: none; border: 1px solid #00ffcc; border-radius: 20px; color: #00ffcc; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 8px 15px; margin-left: 10px; display:flex; align-items:center; gap: 8px;" title="Mode Fantôme (Invisible)">
+            <i class="fa-solid fa-eye"></i> Visible
+        </button>
+
+        <!-- Privacy Settings -->
+        <button id="privacy-settings-btn" onclick="if(window.PrivacyManager) window.PrivacyManager.showSettingsModal()" style="background: none; border: none; color: #aaa; font-size: 1.2rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px; margin-left: 10px;" title="Paramètres & RGPD">
+            <i class="fa-solid fa-shield-halved"></i>
+        </button>
+
+        <!-- Dev Tools Dropdown (Loot / OBD Drain) -->
+        <div style="position:relative; display:inline-block; margin-left:10px;">
+            <button onclick="document.getElementById('dev-menu').style.display = document.getElementById('dev-menu').style.display === 'none' ? 'block' : 'none'" style="background: none; border: none; color: #ffd700; font-size: 1.5rem; cursor: pointer;" title="Dev Tools">
+                <i class="fa-solid fa-code" style="filter: drop-shadow(0 0 5px #ffd700);"></i>
+            </button>
+            <div id="dev-menu" style="display:none; position:absolute; bottom:40px; right:0; background:#111; border:1px solid #ffd700; border-radius:10px; padding:10px; width:150px; text-align:left; z-index:999;">
+                <button onclick="if(window.LootSystem) window.LootSystem.devSpawnLoot(); this.parentNode.style.display='none';" style="display:block; width:100%; background:none; border:none; color:white; text-align:left; padding:5px; cursor:pointer;"><i class="fa-solid fa-parachute-box"></i> Spawn Loot</button>
+                <button onclick="if(window.PitStopSystem) window.PitStopSystem.devDrainFuel(); this.parentNode.style.display='none';" style="display:block; width:100%; background:none; border:none; color:white; text-align:left; padding:5px; cursor:pointer;"><i class="fa-solid fa-gas-pump"></i> Vider OBD</button>
+            </div>
+        </div>
 
     </nav>
 

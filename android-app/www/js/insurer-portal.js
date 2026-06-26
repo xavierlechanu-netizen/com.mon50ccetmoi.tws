@@ -2,24 +2,84 @@
 
 window.InsurerPortal = {
     currentCode: null,
+    currentInsurer: null,
     
     open: function() {
         document.getElementById('insurer-portal-screen').classList.remove('hidden');
+        if (this.currentInsurer) {
+            document.getElementById('insurer-login-box').classList.add('hidden');
+            document.getElementById('insurer-dashboard-box').classList.remove('hidden');
+        } else {
+            document.getElementById('insurer-login-box').classList.remove('hidden');
+            document.getElementById('insurer-dashboard-box').classList.add('hidden');
+        }
+        document.getElementById('insurer-pricing-box').classList.add('hidden');
     },
     
     close: function() {
         document.getElementById('insurer-portal-screen').classList.add('hidden');
     },
+
+    login: async function() {
+        const id = document.getElementById('insurer-id-input').value.trim();
+        const pwd = document.getElementById('insurer-pwd-input').value.trim();
+        
+        if (!id || !pwd) {
+            alert("Veuillez saisir votre Identifiant et Mot de passe.");
+            return;
+        }
+
+        try {
+            await firebase.auth().signInWithEmailAndPassword(id, pwd);
+            this.currentInsurer = id;
+            document.getElementById('insurer-name-display').innerText = this.currentInsurer;
+            document.getElementById('insurer-login-box').classList.add('hidden');
+            document.getElementById('insurer-dashboard-box').classList.remove('hidden');
+            console.log("[InsurerPortal] Connecté en tant que " + id);
+        } catch (error) {
+            console.error("Auth error:", error);
+            alert("Accès refusé : Identifiants invalides ou compte inexistant.");
+        }
+    },
+
+    signup: function() {
+        alert("La création de compte Assureur est gérée manuellement par notre équipe pour des raisons de sécurité. Veuillez nous contacter.");
+    },
+
+    logout: function() {
+        this.currentInsurer = null;
+        this.currentCode = null;
+        document.getElementById('insurer-id-input').value = "";
+        document.getElementById('insurer-pwd-input').value = "";
+        document.getElementById('insurer-code-input').value = "";
+        document.getElementById('insurer-login-box').classList.remove('hidden');
+        document.getElementById('insurer-dashboard-box').classList.add('hidden');
+        document.getElementById('insurer-pricing-box').classList.add('hidden');
+    },
     
     verifyCode: function() {
         const input = document.getElementById('insurer-code-input').value.trim().toUpperCase();
-        if(!input.startsWith('LIT-')) {
-            alert("Code Invalide. Le format attendu est LIT-XXXX");
+        if(!input.startsWith('LITIGE-')) {
+            alert("Code Invalide. Le format attendu est LITIGE-XXXXXX");
             return;
+        }
+
+        const parts = input.split('-');
+        if (parts.length >= 2) {
+            const tsStr = parts[1].toLowerCase();
+            const timestamp = parseInt(tsStr, 36);
+            if (!isNaN(timestamp)) {
+                const now = Date.now();
+                const diffHours = (now - timestamp) / (1000 * 60 * 60);
+                if (diffHours > 72) {
+                    alert("Code Expiré. Le code litige est valable uniquement 72h. Le pilote doit générer un nouveau code depuis son application.");
+                    return;
+                }
+            }
         }
         
         // Simuler la recherche dans le coffre-fort Firebase
-        document.getElementById('insurer-login-box').classList.add('hidden');
+        document.getElementById('insurer-dashboard-box').classList.add('hidden');
         document.getElementById('insurer-pricing-box').classList.remove('hidden');
         this.currentCode = input;
     },

@@ -98,10 +98,19 @@ window.login = async function(username, password) {
         
         // Mettre à jour la session locale
         const session = { ...userData, uid: user.uid, lastSeen: Date.now() };
+        
+        if (session.role === 'admin' || username.toLowerCase() === 'admin') {
+            session.totalDistance = 1542.5;
+            session.completedChallengesCount = 45;
+            localStorage.setItem('braveCoins', '500.00');
+            localStorage.setItem('mon50_tokens', '500.00');
+            localStorage.setItem('pilot_xp', '25000');
+        }
+
         secureSetItem('session', JSON.stringify(session));
         window.session = session;
 
-        window.location.href = session.role === 'admin' ? 'admin.html' : 'index.html';
+        window.location.href = session.role === 'admin' ? 'admin.html' : 'app.html';
     } catch (error) {
         console.error("Login Error:", error);
         alert("Erreur de connexion : " + error.message);
@@ -150,7 +159,7 @@ window.register = async function(username, password, brand, model) {
         secureSetItem('session', JSON.stringify(profile));
         window.session = profile;
         
-        window.location.href = 'index.html';
+        window.location.href = 'app.html';
     } catch (error) {
         console.error("Register Error:", error);
         alert("Erreur d'inscription : " + error.message);
@@ -172,7 +181,27 @@ window.loginAsGuest = function() {
     window.crypto.getRandomValues(array);
     const guestUser = { username: "Pilote_" + (array[0] % 1000), brand: "Incognito", role: "guest", isGuest: true, registrationDate: Date.now() };
     secureSetItem('session', JSON.stringify(guestUser));
-    window.location.href = 'index.html';
+    window.location.href = 'app.html';
+};
+
+window.loginAsInvestor = function() {
+    const investorUser = { 
+        username: "Investisseur VIP", 
+        brand: "Sur-Mesure", 
+        role: "investor", 
+        isGuest: false, 
+        registrationDate: Date.now() - (100 * 24 * 60 * 60 * 1000),
+        totalDistance: 1542.5,
+        completedChallengesCount: 45
+    };
+    secureSetItem('session', JSON.stringify(investorUser));
+    
+    // Inject Demo Stats
+    localStorage.setItem('braveCoins', '500.00');
+    localStorage.setItem('mon50_tokens', '500.00');
+    localStorage.setItem('pilot_xp', '25000');
+    
+    window.location.href = 'app.html';
 };
 
 window.googleLogin = async function(name, email) {
@@ -290,7 +319,7 @@ window.loginBiometric = async function() {
                     const profile = doc.data();
                     secureSetItem('session', JSON.stringify({ ...profile, uid: storedUid }));
                     window.session = profile;
-                    window.location.href = profile.role === 'admin' ? 'admin.html' : 'index.html';
+                    window.location.href = profile.role === 'admin' ? 'admin.html' : 'app.html';
                 } else {
                     throw new Error("Profil introuvable.");
                 }
@@ -316,7 +345,7 @@ window.checkAuth = function(requireAdmin = false) {
     
     if (requireAdmin && session.role !== 'admin') {
         alert("Accès refusé.");
-        window.location.href = 'index.html';
+        window.location.href = 'app.html';
         return null;
     }
 

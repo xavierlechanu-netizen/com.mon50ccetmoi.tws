@@ -8,10 +8,21 @@ window.AntiTheft = {
             speak("Mode Sentinelle désactivé.");
         } else {
             this.startSentry();
-            speak("Mode Sentinelle activé. Périmètre sécurisé.");
+            speak("Mode Sentinelle activé. Périmètre sécurisé. Je surveille l'accéléromètre.");
         }
-        const btn = document.getElementById('btn-parking-toggle');
-        if (btn) btn.innerHTML = `<i class="fa-solid fa-shield-halved"></i> Mode Parking : ${this.isSentryActive ? 'SENTINEL' : 'OFF'}`;
+        
+        const btn = document.getElementById('dock-btn-sentry');
+        if (btn) {
+            if (this.isSentryActive) {
+                btn.style.color = '#ff0000';
+                btn.style.animation = 'pulse-halo 1.5s infinite';
+                btn.title = "Mode Sentinelle ACTIF (Appuyer pour désactiver)";
+            } else {
+                btn.style.color = '#ff3333';
+                btn.style.animation = 'none';
+                btn.title = "Mode Sentinelle";
+            }
+        }
     },
 
     startSentry: function() {
@@ -93,8 +104,23 @@ window.AntiTheft = {
             window.NeuralHUD.logToConsole(`SENTRY_ALERT: MOTION_DETECTED (${force.toFixed(1)}G)`);
         }
         
-        // Remote Notification simulation
-        console.warn("SENTRY_CLOUD_ALERT: Potential tampering detected at " + new Date().toLocaleTimeString());
+        // Remote Notification simulation / Firebase Cloud Function call
+        const projectId = window.CONFIG?.FIREBASE?.projectId || 'mon50ccetmoi';
+        const functionUrl = `https://europe-west1-${projectId}.cloudfunctions.net/triggerAntiTheftAlert`;
+        
+        fetch(functionUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: window.session?.uid || 'GUEST',
+                force: force,
+                location: window.currentPosition ? `${window.currentPosition.lat},${window.currentPosition.lng}` : "Unknown"
+            })
+        }).then(res => res.json()).then(data => {
+            console.log("SENTRY_CLOUD_ALERT: Server responded:", data);
+        }).catch(err => {
+            console.error("SENTRY_CLOUD_ALERT: Failed to notify server", err);
+        });
     },
 
     reportTheft: async function() {

@@ -8,6 +8,7 @@ window.Web4Economy = {
     },
     
     init: function() {
+        this.checkYearlyExpiration();
         this.balance = parseFloat(localStorage.getItem('braveCoins') || '0');
         this.updateUI();
         
@@ -17,6 +18,23 @@ window.Web4Economy = {
                 this.mineToken(0.05, "Minage : Conduite Active");
             }
         }, 60000);
+    },
+
+    checkYearlyExpiration: function() {
+        const currentYear = new Date().getFullYear();
+        const lastYear = localStorage.getItem('mon50_bvc_year') || currentYear.toString();
+        
+        if (parseInt(currentYear) > parseInt(lastYear)) {
+            localStorage.setItem('braveCoins', '0.00');
+            localStorage.setItem('mon50_tokens', '0.00');
+            if (window.NeuralHUD) window.NeuralHUD.tokenBalance = 0;
+            window.braveCoins = 0;
+            console.log("[Web4] Bonne année ! Compteurs BVC remis à zéro pour la nouvelle saison.");
+            
+            // Show alert to user if they open the app
+            setTimeout(() => alert("Nouvelle Saison ! Vos points BVC (Rouler & Gagner) ont expiré et ont été remis à zéro pour l'année civile en cours."), 2000);
+        }
+        localStorage.setItem('mon50_bvc_year', currentYear.toString());
     },
 
     mineToken: function(amount, reason) {
@@ -48,6 +66,23 @@ window.Web4Economy = {
             balanceEl.innerText = this.balance.toFixed(2) + ' BVC';
         }
         window.braveCoins = this.balance; // Sync with legacy variables
+        
+        // Restriction : Bloquer l'Avocat de Poche si solde insuffisant
+        const lawyerBtn = document.getElementById('dock-btn-lawyer');
+        if (lawyerBtn) {
+            const lawyerPrice = this.prices.legal_report || 5;
+            if (this.balance < lawyerPrice) {
+                lawyerBtn.style.opacity = '0.4';
+                lawyerBtn.style.filter = 'grayscale(100%)';
+                lawyerBtn.innerHTML = '<i class="fa-solid fa-lock" style="filter: drop-shadow(0 0 5px #ff4d4d); color: #ff4d4d;"></i>';
+                lawyerBtn.title = `Nécessite ${lawyerPrice} BVC`;
+            } else {
+                lawyerBtn.style.opacity = '1';
+                lawyerBtn.style.filter = 'none';
+                lawyerBtn.innerHTML = '<i class="fa-solid fa-scale-balanced" style="filter: drop-shadow(0 0 5px #cca300);"></i>';
+                lawyerBtn.title = "Avocat de Poche";
+            }
+        }
     },
 
     showMiningHUD: function(amount) {

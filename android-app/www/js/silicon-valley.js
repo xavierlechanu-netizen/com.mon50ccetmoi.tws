@@ -7,13 +7,17 @@ window.arStream = null;
 window.toggleARVision = async function() {
     window.isARActive = !window.isARActive;
     const arVideo = document.getElementById('ar-video-bg');
+    const arArrow = document.getElementById('ar-hud-arrow');
     const mapContainer = document.getElementById('map');
     const btn = document.getElementById('dock-btn-ar');
 
     if (window.isARActive) {
         try {
-            if(btn) btn.style.transform = 'scale(1.2)';
-            if(btn) btn.style.filter = 'drop-shadow(0 0 10px #00ffcc)';
+            if(btn) {
+                btn.style.transform = 'scale(1.2)';
+                btn.style.filter = 'drop-shadow(0 0 10px #00ffcc)';
+                btn.style.color = '#fff';
+            }
             
             // Request Camera
             window.arStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
@@ -21,25 +25,53 @@ window.toggleARVision = async function() {
                 arVideo.srcObject = window.arStream;
                 arVideo.classList.remove('hidden');
             }
-            // Make map partially transparent
+            if(arArrow) arArrow.classList.remove('hidden');
+            
+            // Make map transparent to see the camera behind
             if(mapContainer) {
-                mapContainer.style.opacity = '0.3';
+                mapContainer.style.opacity = '0.35';
                 mapContainer.style.mixBlendMode = 'screen';
             }
-            if(typeof speak === 'function') speak('Vision Réalité Augmentée activée. HUD J.A.R.V.I.S en ligne.');
+            
+            // Start AR compass rotation
+            window.arOrientationHandler = function(event) {
+                if(!window.isARActive) return;
+                let compassHeading = event.webkitCompassHeading || Math.abs(event.alpha - 360);
+                if(arArrow) {
+                    // Simulation logic: Rotate arrow based on device heading and a target destination.
+                    // If no destination, just point North for demonstration.
+                    let targetBearing = window.currentNavBearing || 0; 
+                    let rotation = targetBearing - compassHeading;
+                    // Fix 3D perspective to make it look like it's pointing "forward" into the camera view
+                    arArrow.style.transform = `rotateZ(${rotation}deg) rotateX(60deg)`;
+                }
+            };
+            window.addEventListener('deviceorientation', window.arOrientationHandler, true);
+
+            if(typeof speak === 'function') speak('Réalité Augmentée activée. Superposition de navigation HUD en ligne.');
         } catch(err) {
             console.error("AR Error: ", err);
             window.isARActive = false;
             if(typeof speak === 'function') speak("Erreur d'accès à la caméra pour la réalité augmentée.");
-            if(btn) btn.style.transform = 'scale(1)';
+            if(btn) {
+                btn.style.transform = 'scale(1)';
+                btn.style.color = '#00ffcc';
+            }
         }
     } else {
-        if(btn) btn.style.transform = 'scale(1)';
-        if(btn) btn.style.filter = 'drop-shadow(0 0 5px #00ffcc)';
+        if(btn) {
+            btn.style.transform = 'scale(1)';
+            btn.style.filter = 'drop-shadow(0 0 5px #00ffcc)';
+            btn.style.color = '#00ffcc';
+        }
         if(arVideo) arVideo.classList.add('hidden');
+        if(arArrow) arArrow.classList.add('hidden');
         if(window.arStream) {
             window.arStream.getTracks().forEach(track => track.stop());
             window.arStream = null;
+        }
+        if(window.arOrientationHandler) {
+            window.removeEventListener('deviceorientation', window.arOrientationHandler, true);
         }
         if(mapContainer) {
             mapContainer.style.opacity = '1';
@@ -49,16 +81,16 @@ window.toggleARVision = async function() {
     }
 };
 
-// 2. WEB3 RIDE-TO-EARN WALLET
-window.braveCoins = parseFloat(localStorage.getItem('braveCoins') || '0.00');
+// 2. PROGRAMME FIDELITE ROULER & GAGNER
+window.braveCoins = parseInt(localStorage.getItem('braveCoins') || '0');
 
 window.showCryptoWallet = function() {
     const screen = document.getElementById('crypto-wallet-screen');
     const balance = document.getElementById('crypto-balance');
     if(screen) screen.classList.remove('hidden');
-    if(balance) balance.innerText = window.braveCoins.toFixed(2) + ' BVC';
+    if(balance) balance.innerText = Math.floor(window.braveCoins) + ' Pts BVC';
     
-    if(typeof speak === 'function') speak('Accès au portefeuille sécurisé Web 3.');
+    if(typeof speak === 'function') speak('Accès à votre espace fidélité.');
 };
 
 window.hideCryptoWallet = function() {
@@ -66,15 +98,15 @@ window.hideCryptoWallet = function() {
     if(screen) screen.classList.add('hidden');
 };
 
-// Hook into distance tracking to mine crypto
+// Hook into distance tracking to earn points
 if(typeof window.stopNavigation === 'function') {
     const originalStop = window.stopNavigation;
     window.stopNavigation = function() {
         originalStop();
-        // Reward 12.5 Brave Coins per ride
-        window.braveCoins += 12.5;
+        // Reward 12 Points BVC per ride
+        window.braveCoins += 12;
         localStorage.setItem('braveCoins', window.braveCoins.toString());
-        if(typeof speak === 'function') setTimeout(() => speak('Vous avez miné 12,5 Brave Coins pour ce trajet sécurisé.'), 8000);
+        if(typeof speak === 'function') setTimeout(() => speak('Vous avez gagné 12 points BVC pour ce trajet sécurisé.'), 8000);
     };
 }
 

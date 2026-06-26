@@ -1,4 +1,4 @@
-package com.moncinquantecc.app;
+package com.mon50ccetmoi.twa;
 
 import com.getcapacitor.BridgeActivity;
 

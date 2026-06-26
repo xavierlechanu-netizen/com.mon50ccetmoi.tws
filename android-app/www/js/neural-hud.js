@@ -12,6 +12,7 @@ window.NeuralHUD = {
         this.initShakeDetection();
         this.initQuantumWave();
         this.initCoreInteraction();
+        this.initOBDListener();
         if (typeof window.Intercom !== "undefined") window.Intercom.init();
         
         this.currentXP = parseInt(localStorage.getItem('pilot_xp') || '0');
@@ -53,6 +54,45 @@ window.NeuralHUD = {
                     this.logToConsole("GESTURE: SHAKE_DETECTED");
                     if (typeof window.saveHazard === "function") window.saveHazard("Danger (Auto-Shake)");
                 }
+            }
+        });
+    },
+
+    initOBDListener: function() {
+        window.addEventListener('obd_status', (e) => {
+            const connected = e.detail.connected;
+            this.logToConsole(`OBD_II_LINK: ${connected ? 'ESTABLISHED' : 'LOST'}`);
+            if (typeof speak === "function") {
+                speak(connected ? "Liaison télémétrique moteur établie." : "Alerte : Connexion moteur perdue.");
+            }
+            const btn = document.getElementById('dock-btn-obd');
+            if (btn) {
+                btn.style.color = connected ? '#00ffcc' : '#ffaa00';
+                btn.style.textShadow = connected ? '0 0 10px #00ffcc' : 'none';
+            }
+        });
+
+        window.addEventListener('obd_data', (e) => {
+            const data = e.detail;
+            if (data.type === 'speed') {
+                const speedEl = document.getElementById('speed');
+                if (speedEl) speedEl.textContent = data.value;
+                
+                const speedBar = document.getElementById('speed-bar');
+                if (speedBar) speedBar.style.width = Math.min(100, (data.value / 60) * 100) + '%';
+            } else if (data.type === 'temp') {
+                const tempEl = document.getElementById('weather-temp');
+                if (tempEl) {
+                    tempEl.textContent = data.value + '°C';
+                    tempEl.style.color = data.value > 90 ? '#ff4d4d' : '#00d2ff';
+                    const icon = tempEl.parentElement.querySelector('i');
+                    if (icon) {
+                        icon.className = 'fa-solid fa-temperature-three-quarters';
+                        icon.style.color = data.value > 90 ? '#ff4d4d' : '#00d2ff';
+                    }
+                }
+            } else if (data.type === 'rpm') {
+                if (Math.random() > 0.98) this.logToConsole(`RPM: ${data.value}`);
             }
         });
     },
@@ -104,10 +144,30 @@ window.NeuralHUD = {
         const levelEl = document.getElementById('pilot-level-tag');
         if (levelEl) levelEl.textContent = `LVL ${level.toString().padStart(2, '0')}`;
         
-        if (level > (this.lastLevel || 0)) {
-            if (this.lastLevel) this.speakOracle('level_up');
-            this.lastLevel = level;
+        if (this.lastLevel && level > this.lastLevel) {
+            this.speakOracle('level_up');
+            this.triggerLevelUpAnimation(level);
         }
+        this.lastLevel = level;
+    },
+
+    triggerLevelUpAnimation: function(newLevel) {
+        this.logToConsole(`LEVEL UP: ${newLevel}`);
+        const overlay = document.createElement('div');
+        overlay.style = `position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.5); z-index:999999; text-align:center; color:#00d2ff; font-family:'JetBrains Mono', monospace; text-shadow:0 0 20px #00d2ff; pointer-events:none; transition:transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s; opacity:0;`;
+        overlay.innerHTML = `<i class="fa-solid fa-angles-up" style="font-size:4rem; margin-bottom:10px;"></i><h1 style="margin:0; font-size:3rem;">NIVEAU ${newLevel}</h1><p style="margin:0; font-size:1.5rem; color:#fff;">Félicitations Pilote</p>`;
+        document.body.appendChild(overlay);
+        
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+            overlay.style.transform = 'translate(-50%, -50%) scale(1)';
+        }, 50);
+        
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+            overlay.style.transform = 'translate(-50%, -50%) scale(1.5)';
+            setTimeout(() => overlay.remove(), 500);
+        }, 3000);
     },
 
     triggerRadarScan: function() {
@@ -300,26 +360,29 @@ window.NeuralHUD = {
             */
         });
 
+        const intervalTime = window.isLiteMode ? 500 : 100;
         setInterval(() => {
             try {
-                this.updateParticles();
+                if (!window.isLiteMode) this.updateParticles();
                 const speedEl = document.getElementById('speed');
                 if (!speedEl) return;
                 const speed = parseFloat(speedEl.textContent || 0);
                 
                 if (window.isRiding) {
-                    // RIDE-TO-EARN logic
-                    this.tokenBalance += (speed / 1000);
+                    // ROULER & GAGNER logic
+                    this.tokenBalance += (speed / (3600000 / intervalTime));
                     this.updateTokenDisplay();
                     
                     if (Math.random() > 0.99) this.speakOracle('earnings');
-                    if (typeof EnginePulse !== "undefined") EnginePulse.updateSynth(speed);
+                    if (typeof EnginePulse !== "undefined" && !window.isLiteMode) EnginePulse.updateSynth(speed);
                 }
 
-                this.updateBiometrics(speed, this.currentStressLevel || 0);
-                this.processLidar(speed);
+                if (!window.isLiteMode) {
+                    this.updateBiometrics(speed, this.currentStressLevel || 0);
+                    this.processLidar(speed);
+                }
             } catch(e) { /* Silently fail to avoid Sentinel loop */ }
-        }, 100);
+        }, intervalTime);
     },
 
     runDiagnostics: function() {

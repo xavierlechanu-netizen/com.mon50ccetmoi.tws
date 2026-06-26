@@ -6,6 +6,18 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ---
 
+## [100.50.00] — 2026-06-26 — 🌍 Global Privacy & Android Sync
+
+### Ajouté
+- **Bouclier Légal Mondial (Privacy Manager)** : Déploiement d'un gestionnaire de confidentialité universel supportant le RGPD (Europe), le CCPA (USA), la PIPL/DSL (Chine), l'APPI/PDPA (Asie) et la loi POPIA / Malabo (Afrique).
+- **Mode Fantôme (Ghost Mode)** : Ajout d'un bouton d'action rapide dans le dock pour disparaître instantanément de la carte sociale.
+- **Droit à l'Oubli (Right to Forget)** : Implémentation de la suppression totale des données personnelles depuis l'interface (nettoyage Firebase et cache local).
+- **Mentions Légales** : Ajout d'une clause d'exclusion explicite pour la Corée du Nord (RPDC) afin de respecter les sanctions internationales et les embargos.
+
+### Amélioré
+- **Compilation Android (Capacitor/Bubblewrap)** : Synchronisation du code web optimisé avec le moteur natif Android.
+- **Support Java 17 (Gradle)** : Patch des plugins natifs Capacitor 8 pour garantir la compilation avec la chaîne d'outils Java 17, assurant la stabilité de la génération du fichier AAB signé.
+
 ## [100.00.08] — 2026-06-24 — 🏆 GOLD EDITION: Sécurité, RGPD Mondial & Performances
 
 ### Ajouté

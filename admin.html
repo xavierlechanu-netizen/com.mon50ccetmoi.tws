@@ -7,6 +7,38 @@
     <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="css/style.min.css?v=50018">
+    <style>
+        .admin-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+        }
+        .admin-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-admin-link {
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .btn-admin-logout {
+            padding: 8px 15px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
 
     
     <!-- Google Firebase & Config -->
@@ -22,9 +54,9 @@
 </head>
 <body class="admin-body">
     <div class="admin-header">
-        <h1><i class="fa-solid fa-user-shield"></i> Administration Système</h1>
-        <div>
-            <a href="index.html" class="btn-admin-link">Aller sur la Carte</a>
+        <h1 style="margin:0; font-size:1.5rem;"><i class="fa-solid fa-user-shield"></i> Admin</h1>
+        <div class="admin-header-actions">
+            <a href="app.html" class="btn-admin-link"><i class="fa-solid fa-map-location-dot"></i> Le GPS</a>
             <button onclick="logout()" class="btn-admin-logout"><i class="fa-solid fa-power-off"></i></button>
         </div>
     </div>

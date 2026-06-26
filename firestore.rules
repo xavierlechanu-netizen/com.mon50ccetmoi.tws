@@ -172,5 +172,81 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update: if false; // Mise à jour uniquement via Cloud Function (webhook)
     }
+
+    // ─────────────────────────────────────────────────────────────
+    // CREWS & TERRITORIES (Guerre de Territoire)
+    // ─────────────────────────────────────────────────────────────
+
+    match /crews/{crewId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isOwner(resource.data.leaderUid) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /territory_sectors/{sectorId} {
+      allow read: if true;
+      // On permet aux utilisateurs connectés de mettre à jour les kilomètres de leur Crew sur le secteur
+      allow write: if isSignedIn();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // LOOT DROPS (Chasse au trésor)
+    // ─────────────────────────────────────────────────────────────
+    match /loot_drops/{lootId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin() || true; // En dev on permet à tout le monde de tester
+      allow update: if isSignedIn(); // Pour permettre de claim le loot
+      allow delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // CORTÈGE SESSIONS (Balade Synchro)
+    // ─────────────────────────────────────────────────────────────
+    match /cortege_sessions/{sessionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      
+      match /members/{memberId} {
+        allow read, write: if isSignedIn();
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // GARAGE TRADES (Troc de Pièces)
+    // ─────────────────────────────────────────────────────────────
+    match /garage_trades/{tradeId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && request.auth.uid == resource.data.authorUid;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // S.O.S COMMUNAUTAIRE
+    // ─────────────────────────────────────────────────────────────
+    match /sos_alerts/{alertId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && request.auth.uid == resource.data.authorUid;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // ROADBOOKS (Tracés)
+    // ─────────────────────────────────────────────────────────────
+    match /roadbooks/{roadbookId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && request.auth.uid == resource.data.authorUid;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // PIT STOPS (Stations et Garages)
+    // ─────────────────────────────────────────────────────────────
+    match /pit_stops/{pitstopId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && request.auth.uid == resource.data.authorUid;
+    }
   }
 }

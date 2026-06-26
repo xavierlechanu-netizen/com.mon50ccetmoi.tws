@@ -59,6 +59,17 @@ window.PocketLawyer = {
     },
 
     openLawyer: function() {
+        if (typeof window.braveCoins === 'undefined') {
+            alert("Erreur: Module de fidélité introuvable.");
+            return;
+        }
+        
+        const price = 5; // 5 Pts BVC constants
+        if (window.braveCoins < price) {
+            alert(`Fonds insuffisants ! Vous avez besoin de ${price} Pts BVC pour accéder à l'Avocat de Poche. Roulez plus pour en gagner.`);
+            return;
+        }
+
         this.isOpen = true;
         let overlay = document.getElementById("lawyer-overlay");
         
@@ -81,7 +92,8 @@ window.PocketLawyer = {
             <button onclick="PocketLawyer.closeLawyer()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-scale-balanced fa-beat-fade" style="font-size: 4rem; color: #cca300; filter: drop-shadow(0 0 20px #cca300); margin-bottom: 10px;"></i>
             <h1 style="font-size: 2rem; margin: 0; text-transform: uppercase; color: #cca300;">Avocat de Poche</h1>
-            <p style="color: #aaa; margin-bottom: 30px;">Analyse GPS de l'environnement légal...</p>
+            <p style="color: #aaa; margin-bottom: 5px;">Analyse GPS et génération par Intelligence Artificielle (IA) ✨</p>
+            <p style="color: #777; font-size: 0.8rem; margin-bottom: 30px; text-align: center; max-width: 80%; line-height: 1.2;">Avertissement (IA Act) : Ce rapport est généré par une IA. Il a une valeur purement indicative et ne remplace pas un conseil juridique professionnel.</p>
             
             <div id="lawyer-scanning" style="text-align: center; margin-top: 50px;">
                 <div style="width: 60px; height: 60px; border: 4px solid #333; border-top-color: #cca300; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
@@ -132,6 +144,13 @@ window.PocketLawyer = {
                         ` : ''}
                     </div>
                 `;
+                
+                // Stocker le template
+                this.currentScenarioTemplate = scenario.letterTemplate;
+                
+                if (typeof speak === 'function') {
+                    speak("Analyse juridique terminée. " + scenario.verdict);
+                }
             }
         }, 2000);
     },
@@ -142,18 +161,40 @@ window.PocketLawyer = {
         if (overlay) overlay.style.display = "none";
     },
 
+    startAudioDefense: function() {
+        if (typeof speak === 'function') {
+            speak("Mode Défense Juridique activé. Règle numéro 1 : Ne reconnaissez aucun tort à l'oral. Règle numéro 2 : Prenez des photos de la situation et de la plaque adverse. Règle numéro 3 : Remplissez le constat factuellement. En cas de délit de fuite, relevez la plaque et contactez la police.");
+        } else {
+            console.warn("L'assistant vocal (speak) n'est pas disponible pour dicter la défense.");
+        }
+    },
+
     generateLetter: function() {
-        if (!window.Web4Economy) {
-            alert("Erreur: Moteur Web4 introuvable.");
+        if (typeof window.braveCoins === 'undefined') {
+            alert("Erreur: Module de fidélité introuvable.");
             return;
         }
         
-        const price = window.Web4Economy.prices.legal_report;
-        if (confirm(`Générer un recours juridique coûte ${price} BVC.\nVoulez-vous continuer ?`)) {
-            if (window.Web4Economy.spendToken(price, "Avocat de Poche - Rapport Juridique")) {
-                alert(`Paiement de ${price} BVC accepté.\n\nModèle de recours juridique copié dans le presse-papiers. Prêt à être envoyé à l'ANTAI.`);
+        const price = 5;
+        if (confirm(`Générer un recours juridique coûte ${price} Pts BVC.\nVoulez-vous continuer ?`)) {
+            if (window.braveCoins >= price) {
+                window.braveCoins -= price;
+                localStorage.setItem('braveCoins', window.braveCoins.toString());
+                
+                const balanceEl = document.getElementById('crypto-balance');
+                if(balanceEl) balanceEl.innerText = Math.floor(window.braveCoins) + ' Pts BVC';
+                
+                const letter = this.currentScenarioTemplate || "Monsieur l'Officier du Ministère Public,\nJe conteste formellement ce PV.";
+                
+                navigator.clipboard.writeText(letter).then(() => {
+                    alert(`Paiement de ${price} Pts BVC accepté.\n\nLa lettre de contestation a été copiée dans votre presse-papiers ! Vous pouvez la coller sur le site de l'ANTAI.`);
+                    if(typeof speak === 'function') speak("Plaidoirie copiée dans le presse-papiers.");
+                }).catch(err => {
+                    alert("Erreur lors de la copie. Voici votre lettre :\n\n" + letter);
+                });
+                
             } else {
-                alert(`Fonds insuffisants ! Vous avez besoin de ${price} BVC. Roulez plus pour gagner des BVC.`);
+                alert(`Fonds insuffisants ! Vous avez besoin de ${price} Pts BVC. Roulez plus pour gagner des Pts BVC.`);
             }
         }
     }

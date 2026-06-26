@@ -10,6 +10,8 @@ async function calculateRouteSansAutoroute(start, end) {
         return;
     }
 
+    window.currentRouteDestination = end; // Store for GO button
+
     // Nettoyage des tracés précédents
     currentRoutePolylines.forEach(p => p.setMap(null));
     currentRoutePolylines = [];
@@ -110,10 +112,6 @@ async function calculateRouteSansAutoroute(start, end) {
                     }
                 }, 6000); // Décalé de 6 secondes pour laisser Jarvis annoncer l'ETA en premier
             }
-            
-            const destNameLegacy = document.getElementById('route-search').value || 'ITINÉRAIRE 50CC';
-            const titleElLegacy = document.querySelector('.route-title');
-            if (titleElLegacy) titleElLegacy.textContent = destNameLegacy.toUpperCase();
 
             let durationTextStr;
             const totalMins = Math.floor(durationSec / 60);
@@ -145,6 +143,34 @@ async function calculateRouteSansAutoroute(start, end) {
             
             const etaText = etaEl ? etaEl.textContent : '';
             speak(window.getLocalizedRouteMsg(leg.distance.text, etaText, window.isRodageActive));
+
+            // SAFE RIDE : Vérification Météo
+            if (window.SafeRide) {
+                const destLat = typeof end.lat === 'function' ? end.lat() : end.lat;
+                const destLng = typeof end.lng === 'function' ? end.lng() : end.lng;
+                window.SafeRide.checkWeatherForRoute(destLat, destLng).then(weather => {
+                    if (weather.isDangerous) {
+                        const issuesStr = weather.issues.join(" et ");
+                        setTimeout(() => {
+                            if (typeof speak === 'function') {
+                                speak(`Alerte Météo Safe Ride : ${issuesStr}. Ralentissez.`);
+                            }
+                        }, 9000);
+                        
+                        // Modifier l'ETA visuellement (+20% temps pour danger)
+                        if (etaEl && timeEl) {
+                            const newDurationSec = durationSec * 1.20;
+                            const newTotalMins = Math.floor(newDurationSec / 60);
+                            timeEl.textContent = newTotalMins >= 60 ? `${Math.floor(newTotalMins/60)} h ${newTotalMins%60} min (Météo)` : `${newTotalMins} min (Météo)`;
+                            timeEl.style.color = '#ff4d4d'; // Rouge danger
+                            
+                            const newArrivalTime = new Date(Date.now() + newDurationSec * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            etaEl.textContent = newArrivalTime;
+                            etaEl.style.color = '#ff4d4d';
+                        }
+                    }
+                });
+            }
 
             if(destinationMarker) destinationMarker.setMap(null);
             destinationMarker = new google.maps.Marker({
@@ -195,8 +221,8 @@ window.searchDestination = function() {
     const searchEl = document.getElementById('route-search-gmp') || document.getElementById('route-search');
     const startEl = document.getElementById('route-start-gmp') || document.getElementById('route-start');
     
-    const query = searchEl.inputValue !== undefined ? searchEl.inputValue : searchEl.value;
-    const startQuery = startEl.inputValue !== undefined ? startEl.inputValue : startEl.value;
+    const query = searchEl ? (searchEl.inputValue !== undefined ? searchEl.inputValue : searchEl.value) : "";
+    const startQuery = startEl ? (startEl.inputValue !== undefined ? startEl.inputValue : startEl.value) : "";
     
     if (!query) return;
 
@@ -240,6 +266,17 @@ window.searchDestination = function() {
     });
 }
 
+window.launchNativeGPS = function() {
+    if (!window.currentRouteDestination) return;
+    const lat = typeof window.currentRouteDestination.lat === 'function' ? window.currentRouteDestination.lat() : window.currentRouteDestination.lat;
+    const lng = typeof window.currentRouteDestination.lng === 'function' ? window.currentRouteDestination.lng() : window.currentRouteDestination.lng;
+    const isWazeInstalled = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    // Default to Google Maps which supports avoidHighways via dirflg=h (partially)
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving&dirflg=h`;
+    window.open(url, '_blank');
+};
+
 // --- 4. SERVICES COMMUNAUTAIRES (SIGNALEMENTS) ---
 window.toggleHazardMenu = function() {
     const opts = document.getElementById('hazard-options');
@@ -254,7 +291,7 @@ window.toggleHazardMenu = function() {
     }
 };
 
-window.saveHazard = function(type) {
+window.saveHazard = function(type, description = "") {
     if(!currentPosition) return;
 
     // VERIFICATION DU BAN
@@ -268,6 +305,7 @@ window.saveHazard = function(type) {
         lat: currentPosition.lat, 
         lon: currentPosition.lng, 
         type: type, 
+        description: description,
         author: window.session ? window.session.username : 'Anonyme',
         date: new Date().toISOString()
     };
@@ -285,6 +323,13 @@ window.saveHazard = function(type) {
     }
 
     alert(`Signalement: ${escapeHTML(type)} enregistré ! Merci à vous.`);
+    
+    // GAMIFICATION: +50 XP pour le signalement communautaire
+    if (typeof window.updateXP === "function") {
+        window.updateXP(5); // +50 XP (updateXP multiplie par 10)
+        if(typeof speak === "function") speak("Signalement validé. Vous gagnez de l'expérience.");
+    }
+    
     toggleHazardMenu();
     loadHazards();
 };
@@ -292,7 +337,17 @@ window.saveHazard = function(type) {
 function loadHazards() {
     if (typeof google === 'undefined' || !google.maps || !google.maps.Marker) return;
     const raw = secureGetItem('hazards');
-    const hazards = raw ? JSON.parse(raw) : [];
+    let hazards = raw ? JSON.parse(raw) : [];
+    
+    // Filtrage éphémère Animaux (> 30 mins = expiré)
+    hazards = hazards.filter(h => {
+        if ((h.type === 'animal' || h.type === 'chien') && h.date) {
+            const ageMins = (Date.now() - new Date(h.date).getTime()) / 60000;
+            return ageMins <= 30;
+        }
+        return true;
+    });
+
     hazardMarkers.forEach(m => m.setMap(null));
     hazardMarkers = [];
     
@@ -307,13 +362,14 @@ function loadHazards() {
     }
 
     hazards.forEach((h, index) => {
-        const hColor = h.type === 'Police' ? '#00d2ff' : (h.type === 'Route Dégradée' ? '#f1c40f' : '#ff4d4d');
+        const isAnimal = (h.type === 'animal' || h.type === 'chien');
+        const hColor = h.type === 'Police' ? '#00d2ff' : (h.type === 'Route Dégradée' ? '#f1c40f' : (isAnimal ? '#e67e22' : '#ff4d4d'));
         const marker = new google.maps.Marker({
             position: { lat: h.lat, lng: h.lon },
             map: map,
             icon: { path: google.maps.SymbolPath.CIRCLE, fillColor: hColor, fillOpacity: 0.9, scale: 9, strokeColor: 'white', strokeWeight: 2 }
         });
-        const info = new google.maps.InfoWindow({ content: `<b>${escapeHTML(h.type)}</b><br><small>${escapeHTML(h.author)}</small>` });
+        const info = new google.maps.InfoWindow({ content: `<b>${isAnimal ? '🐾 ' : ''}${escapeHTML(h.type)}</b><br><small>${escapeHTML(h.author)}</small>` });
         marker.addListener("click", () => info.open(map, marker));
         hazardMarkers.push(marker);
 
@@ -322,7 +378,7 @@ function loadHazards() {
             const div = document.createElement('div');
             div.className = 'hazard-alert';
             div.style.cursor = 'pointer';
-            div.innerHTML = `<div><i class="fa-solid fa-triangle-exclamation"></i> <strong>${escapeHTML(h.type)}</strong><br><span>Par ${escapeHTML(h.author)}</span></div><i class="fa-solid fa-chevron-right" style="font-size:0.6rem; color:#444;"></i>`;
+            div.innerHTML = `<div><i class="fa-solid fa-${isAnimal ? 'paw' : 'triangle-exclamation'}"></i> <strong>${escapeHTML(h.type)}</strong><br><span>Par ${escapeHTML(h.author)}</span></div><i class="fa-solid fa-chevron-right" style="font-size:0.6rem; color:#444;"></i>`;
             div.onclick = () => {
                 map.setCenter({ lat: h.lat, lng: h.lon });
                 map.setZoom(17);
@@ -649,3 +705,69 @@ window.simulateLiveFleet = function() {
     });
     console.log("mon50cc Fleet : Ghost riders deployed.");
 }
+
+// --- 7. TERRITORY WARS (CREWS) ---
+window.MapSystem = window.MapSystem || {};
+window.MapSystem.territoryShapes = {}; // zipCode -> google.maps.Circle
+
+window.MapSystem.updateTerritoryLayer = function(zipCode, data) {
+    if (!map) return;
+    
+    const color = data.color || '#ffffff';
+    
+    // Si on l'a déjà dessiné, on met juste à jour la couleur
+    if (this.territoryShapes[zipCode]) {
+        this.territoryShapes[zipCode].setOptions({ fillColor: color, strokeColor: color });
+        return;
+    }
+    
+    // Sinon on tente de géocoder le code postal pour trouver le centre de la zone (en France)
+    if (typeof geocoder !== 'undefined' && geocoder) {
+        geocoder.geocode({ address: zipCode + " France" }, (res, status) => {
+            if (status === "OK" && res[0]) {
+                const center = res[0].geometry.location;
+                // Dessiner un grand cercle pour représenter le territoire
+                const circle = new google.maps.Circle({
+                    strokeColor: color,
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: color,
+                    fillOpacity: 0.35,
+                    map: map,
+                    center: center,
+                    radius: 2000 // 2km radius approximation
+                });
+                
+                // Ajouter une InfoWindow
+                const info = new google.maps.InfoWindow({
+                    content: `<div style="color:black; font-family:'Outfit', sans-serif;">
+                                <h3 style="margin:0; color:${color};"><i class="fa-solid fa-flag"></i> Secteur ${zipCode}</h3>
+                                <p style="margin:5px 0;">Dominé par: <b>${data.dominantCrewName || 'Inconnu'}</b></p>
+                              </div>`
+                });
+                
+                circle.addListener("click", (ev) => {
+                    info.setPosition(ev.latLng);
+                    info.open(map);
+                });
+                
+                this.territoryShapes[zipCode] = circle;
+            }
+        });
+    }
+};
+
+// Tracking fake de km sur le code postal actuel si en mouvement
+setInterval(() => {
+    // Si on roule, toutes les minutes on ajoute des kms virtuels au territoire actuel
+    if (window.isRiding && window.currentPosition && typeof geocoder !== 'undefined') {
+        geocoder.geocode({ location: window.currentPosition }, (res, status) => {
+            if (status === "OK" && res[0]) {
+                const zipComp = res[0].address_components.find(c => c.types.includes("postal_code"));
+                if (zipComp && window.CrewSystem && window.CrewSystem.currentCrew) {
+                    window.CrewSystem.addKmToTerritory(zipComp.short_name, 0.5); // +0.5 km simulés
+                }
+            }
+        });
+    }
+}, 60000);

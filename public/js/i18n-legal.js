@@ -47,7 +47,13 @@ const I18N_LEGAL = {
         privacy_p9: "Conformément à la Loi sur la protection des informations personnelles (PIPL) et à la Loi sur la sécurité des données (DSL), <strong>mon50ccetmoi</strong> applique des mesures strictes pour les résidents chinois :",
         privacy_li_cn1: "<span class='highlight'>Transparence et Minimisation :</span> Nous collectons uniquement les données strictement nécessaires au fonctionnement du service, avec le consentement explicite de l'utilisateur.",
         privacy_li_cn2: "<span class='highlight'>Transferts Transfrontaliers :</span> Les données des utilisateurs sont traitées avec des mécanismes de sécurité robustes pour empêcher toute fuite, et tout transfert éventuel hors de Chine requiert un consentement spécifique.",
-        privacy_li_cn3: "<span class='highlight'>Sécurité des Données (DSL) :</span> Aucune donnée collectée (trajets, sinistres) n'est classifiée comme critique pour la sécurité nationale. Il s'agit de données à usage strictement civil et privé (B2C/B2B)."
+        privacy_li_cn3: "<span class='highlight'>Sécurité des Données (DSL) :</span> Aucune donnée collectée (trajets, sinistres) n'est classifiée comme critique pour la sécurité nationale. Il s'agit de données à usage strictement civil et privé (B2C/B2B).",
+        privacy_h10: "10. Conformité pour les Utilisateurs en Afrique (POPIA & Convention de Malabo)",
+        privacy_p10: "Conformément à la loi POPIA (Afrique du Sud) et aux principes de la Convention de Malabo (Union Africaine), nous nous engageons à protéger les données personnelles de nos utilisateurs africains :",
+        privacy_li_af1: "<span class='highlight'>Responsabilité et Limitation :</span> Vos données GPS ne sont collectées que pour l'usage direct de l'application. Vous gardez le contrôle total sur leur suppression.",
+        privacy_li_af2: "<span class='highlight'>Sécurité :</span> Les données sont chiffrées selon les standards internationaux pour prévenir tout accès non autorisé.",
+        privacy_h11: "11. Sanctions Internationales et Territoires Exclus",
+        privacy_p11: "En raison des réglementations internationales et des sanctions en vigueur, l'application <strong>mon50ccetmoi</strong> n'est ni disponible, ni destinée à être utilisée en <strong>Corée du Nord (RPDC)</strong>. Aucune donnée n'est traitée depuis ce territoire."
     },
     en: {
         privacy_title: "Privacy Policy",
@@ -97,7 +103,13 @@ const I18N_LEGAL = {
         privacy_p9: "In accordance with the Personal Information Protection Law (PIPL) and the Data Security Law (DSL), <strong>mon50ccetmoi</strong> applies strict measures for Chinese residents:",
         privacy_li_cn1: "<span class='highlight'>Transparency and Minimization:</span> We only collect data strictly necessary for the service to function, with the explicit consent of the user.",
         privacy_li_cn2: "<span class='highlight'>Cross-border Transfers:</span> User data is treated with robust security mechanisms to prevent leaks, and any potential transfer outside China requires specific consent.",
-        privacy_li_cn3: "<span class='highlight'>Data Security (DSL):</span> No data collected (trips, claims) is classified as critical for national security. It is strictly civil and private use data (B2C/B2B)."
+        privacy_li_cn3: "<span class='highlight'>Data Security (DSL):</span> No data collected (trips, claims) is classified as critical for national security. It is strictly civil and private use data (B2C/B2B).",
+        privacy_h10: "10. Compliance for Users in Africa (POPIA & Malabo Convention)",
+        privacy_p10: "In accordance with POPIA (South Africa) and the principles of the Malabo Convention (African Union), we are committed to protecting the personal data of our African users:",
+        privacy_li_af1: "<span class='highlight'>Accountability & Limitation:</span> Your GPS data is collected only for the direct use of the application. You retain full control over its deletion.",
+        privacy_li_af2: "<span class='highlight'>Security:</span> Data is encrypted using international standards to prevent unauthorized access.",
+        privacy_h11: "11. International Sanctions & Excluded Territories",
+        privacy_p11: "Due to international regulations and active sanctions, the <strong>mon50ccetmoi</strong> application is neither available nor intended for use in <strong>North Korea (DPRK)</strong>. No data is processed from this territory."
     },
     es: {
         privacy_title: "Política de Privacidad",

@@ -1,6 +1,35 @@
 let currentCaseId = null;
 let currentReportType = 'EXPERT';
-let currentPrice = 149.99;
+let currentPrice = 199.99;
+
+async function authenticateInsurer() {
+    const user = document.getElementById('insurer-username').value.trim();
+    const pass = document.getElementById('insurer-password').value;
+    const errorEl = document.getElementById('login-error');
+    
+    if (!user || !pass) {
+        errorEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Veuillez saisir votre identifiant et mot de passe.';
+        errorEl.style.display = 'block';
+        return;
+    }
+    
+    try {
+        await firebase.auth().signInWithEmailAndPassword(user, pass);
+        // Succès de l'authentification
+        errorEl.style.display = 'none';
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('portal-content').style.display = 'block';
+        
+        // Feedback vocal (si supporté par l'app principale)
+        if (typeof speak === 'function') {
+            speak('Connexion experte établie. Bienvenue sur le portail.');
+        }
+    } catch (error) {
+        errorEl.innerHTML = '<i class="fa-solid fa-shield-cat"></i> <strong>Accès refusé :</strong> Identifiants invalides ou compte inexistant.';
+        errorEl.style.display = 'block';
+        console.error("Auth error:", error);
+    }
+}
 
 function selectReport(type, price) {
     currentReportType = type;
@@ -14,7 +43,8 @@ function selectReport(type, price) {
 }
 
 async function searchCase() {
-    const codeInput = document.getElementById('input-case-code').value.trim();
+    const rawInput = document.getElementById('input-case-code').value.trim();
+    const codeInput = rawInput.toUpperCase();
     const statusEl = document.getElementById('status-display');
     const optionsEl = document.getElementById('report-options');
     const payBtn = document.getElementById('btn-pay');
@@ -29,6 +59,15 @@ async function searchCase() {
     payBtn.style.display = 'none';
     
     try {
+        // Mode DÉMO : Code de test pour les assureurs
+        if (codeInput === 'LIT-TEST-2026') {
+            currentCaseId = codeInput;
+            statusEl.innerHTML = `<span style="color:#333;">Dossier <strong>${codeInput}</strong> trouvé. Pilote : Pilote Démo.<br>Veuillez choisir le niveau d'expertise souhaité :</span>`;
+            optionsEl.style.display = 'flex';
+            payBtn.style.display = 'block';
+            return;
+        }
+
         const doc = await db.collection('litigation_proposals').doc(codeInput).get();
         if (!doc.exists) {
             statusEl.innerHTML = '<span class="error">Dossier introuvable ou expiré.</span>';
@@ -39,7 +78,8 @@ async function searchCase() {
         currentCaseId = codeInput;
         
         if (data.payment_status === 'PAID') {
-            statusEl.innerHTML = '<span class="success"><i class="fa-solid fa-check"></i> Ce rapport a déjà été réglé et déverrouillé.</span>';
+            statusEl.innerHTML = '<span class="success"><i class="fa-solid fa-check"></i> Ce rapport a déjà été réglé et déverrouillé. Accès autorisé.</span>';
+            showExpertTelemetry(currentCaseId, data.report_type || 'EXPERT');
             return;
         }
         
@@ -51,7 +91,7 @@ async function searchCase() {
         
     } catch (err) {
         console.error(err);
-        statusEl.innerHTML = '<span class="error">Erreur de connexion à la base de données.</span>';
+        statusEl.innerHTML = '<span class="error">Erreur technique : ' + err.message + '</span>';
     }
 }
 
@@ -85,9 +125,8 @@ async function payReport() {
         
         const orderData = await response.json();
         
-        // Lancement de Revolut Checkout (Mode Sandbox ou Prod)
-        // IMPORTANT: Mettre 'sandbox' pour les tests, 'prod' pour la production
-        const instance = await RevolutCheckout(orderData.order_token, 'sandbox');
+        // Lancement de Revolut Checkout (Mode Production)
+        const instance = await RevolutCheckout(orderData.order_token, 'prod');
         
         instance.payWithPopup({
             onSuccess: () => {
@@ -114,9 +153,15 @@ async function payReport() {
     }
 }
 
-function showExpertTelemetry(caseId, reportType) {
+function showExpertTelemetry(caseId, reportType = 'EXPERT') {
     const dashboard = document.getElementById('expert-dashboard');
     if (!dashboard) return;
+    
+    // Mettre à jour le titre avec le type de rapport
+    const titleEl = document.querySelector('#expert-dashboard h3');
+    if (titleEl) {
+        titleEl.innerHTML = `<i class="fa-solid fa-satellite-dish"></i> TÉLÉMÉTRIE BLACKBOX : <span id="telemetry-id">${caseId}</span> <span style="font-size:0.6em; background:#ffb703; color:#000; padding:2px 8px; border-radius:10px; margin-left:10px; vertical-align:middle;">RAPPORT ${reportType}</span>`;
+    }
     
     // Génération de fausses données d'accident pour la démo
     // Dans une version finale, ces données proviendraient de db.collection('litigation_proposals')

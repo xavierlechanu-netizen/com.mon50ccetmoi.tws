@@ -169,6 +169,7 @@ body.day-mode .btn-insurance {
     font-weight: 900;
     background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 5px;
 }
@@ -203,4 +204,55 @@ body.day-mode .btn-insurance {
     animation: glitchRed 0.3s infinite linear;
     color: #ff0055 !important;
     text-shadow: 2px 0 0 #00d2ff, -2px 0 0 #0f0;
+}
+
+/* --- S.O.S GYROPHARE CSS --- */
+.gyrophare-marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.gyrophare-marker i {
+    font-size: 24px;
+    color: white;
+    z-index: 2;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+}
+
+.gyrophare-siren {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    opacity: 0.8;
+    z-index: 1;
+}
+
+.gyrophare-siren.red {
+    background: radial-gradient(circle, #ff0000 0%, transparent 70%);
+    animation: flash-red 0.5s infinite alternate;
+}
+
+.gyrophare-siren.blue {
+    background: radial-gradient(circle, #0055ff 0%, transparent 70%);
+    animation: flash-blue 0.5s infinite alternate-reverse;
+}
+
+@keyframes flash-red {
+    0% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 10px #ff0000; }
+    100% { transform: scale(1.5); opacity: 1; box-shadow: 0 0 40px #ff0000, 0 0 80px #ff0000; }
+}
+
+@keyframes flash-blue {
+    0% { transform: scale(1.5); opacity: 1; box-shadow: 0 0 40px #0055ff, 0 0 80px #0055ff; }
+    100% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 10px #0055ff; }
 }

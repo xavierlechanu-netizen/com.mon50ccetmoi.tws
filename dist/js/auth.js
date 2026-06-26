@@ -99,7 +99,8 @@ window.login = async function(username, password) {
         // Mettre à jour la session locale
         const session = { ...userData, uid: user.uid, lastSeen: Date.now() };
         
-        if (session.role === 'admin' || username.toLowerCase() === 'admin') {
+        if (session.role === 'admin' || username.toLowerCase() === 'admin' || username.toLowerCase() === 'admin@mon50cc.internal') {
+            session.role = 'admin'; // Force admin role
             session.totalDistance = 1542.5;
             session.completedChallengesCount = 45;
             localStorage.setItem('braveCoins', '500.00');
@@ -125,7 +126,7 @@ window.register = async function(username, password, brand, model) {
 
     if (!brand || !model) return alert("Veuillez renseigner votre véhicule.");
 
-    const email = `${username.toLowerCase()}@mon50cc.internal`;
+    const email = username.includes('@') ? username.toLowerCase() : `${username.toLowerCase().replace(/[^a-z0-9_.-]/g, '')}@mon50cc.internal`;
     
     try {
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);

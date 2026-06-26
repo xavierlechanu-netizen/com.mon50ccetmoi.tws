@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réparation Mon50cc</title>
+    <style>
+        body { background: #0a0a0a; color: #ffb703; text-align: center; padding-top: 20vh; font-family: sans-serif; }
+        .spinner { border: 4px solid rgba(255,183,3,0.3); border-top: 4px solid #ffb703; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+    <script>
+        async function cleanEverything() {
+            try {
+                // 1. Désenregistrer les Service Workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for(let registration of registrations) {
+                        await registration.unregister();
+                    }
+                }
+                // 2. Vider le Cache Storage
+                if ('caches' in window) {
+                    const names = await caches.keys();
+                    for (let name of names) {
+                        await caches.delete(name);
+                    }
+                }
+                
+                // 3. Redirection avec un paramètre anti-cache
+                setTimeout(() => {
+                    window.location.replace('index.html?cleared=' + Date.now());
+                }, 1500);
+            } catch (e) {
+                console.error(e);
+                window.location.replace('index.html?error=1');
+            }
+        }
+        window.onload = cleanEverything;
+    </script>
+</head>
+<body>
+    <h1>Mise à jour système...</h1>
+    <p>Nettoyage du cache en cours, veuillez patienter quelques secondes.</p>
+    <div class="spinner"></div>
+</body>
+</html>

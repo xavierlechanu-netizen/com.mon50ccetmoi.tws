@@ -144,6 +144,34 @@ async function calculateRouteSansAutoroute(start, end) {
             const etaText = etaEl ? etaEl.textContent : '';
             speak(window.getLocalizedRouteMsg(leg.distance.text, etaText, window.isRodageActive));
 
+            // SAFE RIDE : Vérification Météo
+            if (window.SafeRide) {
+                const destLat = typeof end.lat === 'function' ? end.lat() : end.lat;
+                const destLng = typeof end.lng === 'function' ? end.lng() : end.lng;
+                window.SafeRide.checkWeatherForRoute(destLat, destLng).then(weather => {
+                    if (weather.isDangerous) {
+                        const issuesStr = weather.issues.join(" et ");
+                        setTimeout(() => {
+                            if (typeof speak === 'function') {
+                                speak(`Alerte Météo Safe Ride : ${issuesStr}. Ralentissez.`);
+                            }
+                        }, 9000);
+                        
+                        // Modifier l'ETA visuellement (+20% temps pour danger)
+                        if (etaEl && timeEl) {
+                            const newDurationSec = durationSec * 1.20;
+                            const newTotalMins = Math.floor(newDurationSec / 60);
+                            timeEl.textContent = newTotalMins >= 60 ? `${Math.floor(newTotalMins/60)} h ${newTotalMins%60} min (Météo)` : `${newTotalMins} min (Météo)`;
+                            timeEl.style.color = '#ff4d4d'; // Rouge danger
+                            
+                            const newArrivalTime = new Date(Date.now() + newDurationSec * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            etaEl.textContent = newArrivalTime;
+                            etaEl.style.color = '#ff4d4d';
+                        }
+                    }
+                });
+            }
+
             if(destinationMarker) destinationMarker.setMap(null);
             destinationMarker = new google.maps.Marker({
                 position: end,
@@ -677,3 +705,69 @@ window.simulateLiveFleet = function() {
     });
     console.log("mon50cc Fleet : Ghost riders deployed.");
 }
+
+// --- 7. TERRITORY WARS (CREWS) ---
+window.MapSystem = window.MapSystem || {};
+window.MapSystem.territoryShapes = {}; // zipCode -> google.maps.Circle
+
+window.MapSystem.updateTerritoryLayer = function(zipCode, data) {
+    if (!map) return;
+    
+    const color = data.color || '#ffffff';
+    
+    // Si on l'a déjà dessiné, on met juste à jour la couleur
+    if (this.territoryShapes[zipCode]) {
+        this.territoryShapes[zipCode].setOptions({ fillColor: color, strokeColor: color });
+        return;
+    }
+    
+    // Sinon on tente de géocoder le code postal pour trouver le centre de la zone (en France)
+    if (typeof geocoder !== 'undefined' && geocoder) {
+        geocoder.geocode({ address: zipCode + " France" }, (res, status) => {
+            if (status === "OK" && res[0]) {
+                const center = res[0].geometry.location;
+                // Dessiner un grand cercle pour représenter le territoire
+                const circle = new google.maps.Circle({
+                    strokeColor: color,
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: color,
+                    fillOpacity: 0.35,
+                    map: map,
+                    center: center,
+                    radius: 2000 // 2km radius approximation
+                });
+                
+                // Ajouter une InfoWindow
+                const info = new google.maps.InfoWindow({
+                    content: `<div style="color:black; font-family:'Outfit', sans-serif;">
+                                <h3 style="margin:0; color:${color};"><i class="fa-solid fa-flag"></i> Secteur ${zipCode}</h3>
+                                <p style="margin:5px 0;">Dominé par: <b>${data.dominantCrewName || 'Inconnu'}</b></p>
+                              </div>`
+                });
+                
+                circle.addListener("click", (ev) => {
+                    info.setPosition(ev.latLng);
+                    info.open(map);
+                });
+                
+                this.territoryShapes[zipCode] = circle;
+            }
+        });
+    }
+};
+
+// Tracking fake de km sur le code postal actuel si en mouvement
+setInterval(() => {
+    // Si on roule, toutes les minutes on ajoute des kms virtuels au territoire actuel
+    if (window.isRiding && window.currentPosition && typeof geocoder !== 'undefined') {
+        geocoder.geocode({ location: window.currentPosition }, (res, status) => {
+            if (status === "OK" && res[0]) {
+                const zipComp = res[0].address_components.find(c => c.types.includes("postal_code"));
+                if (zipComp && window.CrewSystem && window.CrewSystem.currentCrew) {
+                    window.CrewSystem.addKmToTerritory(zipComp.short_name, 0.5); // +0.5 km simulés
+                }
+            }
+        });
+    }
+}, 60000);
