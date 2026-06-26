@@ -50,12 +50,18 @@ class OracleVoice {
         this.active = true;
         try { this.recognition.start(); } catch(e) { console.error("Start fail:", e); }
         console.log("Oracle Voice Engine : [ ONLINE ]");
+        
+        const overlay = document.getElementById('oracle-listening-overlay');
+        if (overlay) overlay.classList.remove('hidden');
     }
 
     stop() {
         this.active = false;
         if (this.recognition) this.recognition.stop();
         console.log("Oracle Voice Engine : [ OFFLINE ]");
+        
+        const overlay = document.getElementById('oracle-listening-overlay');
+        if (overlay) overlay.classList.add('hidden');
     }
 
     toggle() {
@@ -163,10 +169,29 @@ class OracleVoice {
             const temp = document.getElementById('weather-hud')?.textContent || '--';
             speak(`La température affichée est de ${temp}.`);
         }
+        // ── Mode Constat / Défense Juridique ─────────────────────────
+        else if (text.includes("mode constat") || text.includes("j'ai un accident") || text.includes("urgence extrême") || text.includes("accrochage")) {
+            speak("Mode urgence activé. Ne paniquez pas.");
+            if (window.SOSEmergency) {
+                window.SOSEmergency.trigger();
+            } else {
+                 const timCook = document.getElementById('tim-cook-sos-screen');
+                 if(timCook) timCook.classList.remove('hidden');
+            }
+            if (window.PocketLawyer && window.PocketLawyer.startAudioDefense) {
+                setTimeout(() => {
+                    window.PocketLawyer.startAudioDefense();
+                }, 4000); // Attendre la fin du premier message audio
+            }
+        }
         // ── SOS / Urgence ──────────────────────────────────────────
-        else if (text.includes("sos") || text.includes("secours") || text.includes("urgence") || text.includes("accident")) {
+        else if (text.includes("sos") || text.includes("secours") || text.includes("urgence")) {
             speak("Activation du protocole SOS. Restez immobile.");
             if (window.SOSEmergency) window.SOSEmergency.trigger();
+            else {
+                 const timCook = document.getElementById('tim-cook-sos-screen');
+                 if(timCook) timCook.classList.remove('hidden');
+            }
         }
         // ── Premium / Mode ─────────────────────────────────────────
         else if (text.includes("mode jour") || text.includes("thème clair")) {
@@ -184,6 +209,26 @@ class OracleVoice {
         else if (text.includes("il pleut") || text.includes("météo détaillée")) {
             if(typeof window.updateWeatherUI === 'function') window.updateWeatherUI(true);
             speak("Pluie détectée. J'adapte l'affichage et je modifie les paramètres d'adhérence virtuels.");
+        }
+        // ── Diagnostic IA / Mécanique ──────────────────────────────
+        else if (text.includes("diagnostic") || text.includes("état") || text.includes("santé") || text.includes("mécanique") || text.includes("panne") || text.includes("révision")) {
+            if (window.PredictiveMeca) {
+                const score = Math.round(window.PredictiveMeca.getGlobalHealthScore());
+                let message = `Votre véhicule est opérationnel à ${score} %.`;
+                if (score < 50) message += " Attention, maintenance urgente requise. J'affiche le diagnostic.";
+                else if (score < 85) message += " Une révision est conseillée. J'affiche le diagnostic.";
+                else message += " Tout semble en parfait état. J'affiche le diagnostic.";
+                
+                speak(message);
+                
+                const modal = document.getElementById('ai-diagnostic-modal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    window.PredictiveMeca.updateDashboardUI();
+                }
+            } else {
+                speak("L'analyse prédictive est hors ligne.");
+            }
         }
         // ── Aide ───────────────────────────────────────────────────
         else if (text.includes("aide") || text.includes("commande") || text.includes("que peux") || text.includes("que sais")) {

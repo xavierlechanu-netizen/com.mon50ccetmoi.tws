@@ -169,10 +169,29 @@ class OracleVoice {
             const temp = document.getElementById('weather-hud')?.textContent || '--';
             speak(`La température affichée est de ${temp}.`);
         }
+        // ── Mode Constat / Défense Juridique ─────────────────────────
+        else if (text.includes("mode constat") || text.includes("j'ai un accident") || text.includes("urgence extrême") || text.includes("accrochage")) {
+            speak("Mode urgence activé. Ne paniquez pas.");
+            if (window.SOSEmergency) {
+                window.SOSEmergency.trigger();
+            } else {
+                 const timCook = document.getElementById('tim-cook-sos-screen');
+                 if(timCook) timCook.classList.remove('hidden');
+            }
+            if (window.PocketLawyer && window.PocketLawyer.startAudioDefense) {
+                setTimeout(() => {
+                    window.PocketLawyer.startAudioDefense();
+                }, 4000); // Attendre la fin du premier message audio
+            }
+        }
         // ── SOS / Urgence ──────────────────────────────────────────
-        else if (text.includes("sos") || text.includes("secours") || text.includes("urgence") || text.includes("accident")) {
+        else if (text.includes("sos") || text.includes("secours") || text.includes("urgence")) {
             speak("Activation du protocole SOS. Restez immobile.");
             if (window.SOSEmergency) window.SOSEmergency.trigger();
+            else {
+                 const timCook = document.getElementById('tim-cook-sos-screen');
+                 if(timCook) timCook.classList.remove('hidden');
+            }
         }
         // ── Premium / Mode ─────────────────────────────────────────
         else if (text.includes("mode jour") || text.includes("thème clair")) {

@@ -144,6 +144,13 @@ window.PocketLawyer = {
                         ` : ''}
                     </div>
                 `;
+                
+                // Stocker le template
+                this.currentScenarioTemplate = scenario.letterTemplate;
+                
+                if (typeof speak === 'function') {
+                    speak("Analyse juridique terminée. " + scenario.verdict);
+                }
             }
         }, 2000);
     },
@@ -152,6 +159,14 @@ window.PocketLawyer = {
         this.isOpen = false;
         const overlay = document.getElementById("lawyer-overlay");
         if (overlay) overlay.style.display = "none";
+    },
+
+    startAudioDefense: function() {
+        if (typeof speak === 'function') {
+            speak("Mode Défense Juridique activé. Règle numéro 1 : Ne reconnaissez aucun tort à l'oral. Règle numéro 2 : Prenez des photos de la situation et de la plaque adverse. Règle numéro 3 : Remplissez le constat factuellement. En cas de délit de fuite, relevez la plaque et contactez la police.");
+        } else {
+            console.warn("L'assistant vocal (speak) n'est pas disponible pour dicter la défense.");
+        }
     },
 
     generateLetter: function() {
@@ -165,11 +180,19 @@ window.PocketLawyer = {
             if (window.braveCoins >= price) {
                 window.braveCoins -= price;
                 localStorage.setItem('braveCoins', window.braveCoins.toString());
-                // Update UI balance if open
+                
                 const balanceEl = document.getElementById('crypto-balance');
                 if(balanceEl) balanceEl.innerText = Math.floor(window.braveCoins) + ' Pts BVC';
                 
-                alert(`Paiement de ${price} Pts BVC accepté.\n\nModèle de recours juridique copié dans le presse-papiers. Prêt à être envoyé à l'ANTAI.`);
+                const letter = this.currentScenarioTemplate || "Monsieur l'Officier du Ministère Public,\nJe conteste formellement ce PV.";
+                
+                navigator.clipboard.writeText(letter).then(() => {
+                    alert(`Paiement de ${price} Pts BVC accepté.\n\nLa lettre de contestation a été copiée dans votre presse-papiers ! Vous pouvez la coller sur le site de l'ANTAI.`);
+                    if(typeof speak === 'function') speak("Plaidoirie copiée dans le presse-papiers.");
+                }).catch(err => {
+                    alert("Erreur lors de la copie. Voici votre lettre :\n\n" + letter);
+                });
+                
             } else {
                 alert(`Fonds insuffisants ! Vous avez besoin de ${price} Pts BVC. Roulez plus pour gagner des Pts BVC.`);
             }

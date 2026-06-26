@@ -273,7 +273,7 @@ jarsigner -keystore upload-keystore.jks app-release-unsigned.aab upload
 
 ## 👥 Équipe
 
-Développé par **Xavier Lechanu** — Développeur full-stack, passionné de mobilité urbaine et de sécurité routière.
+Développé par **Xavier Le Chanu** — Développeur full-stack, passionné de mobilité urbaine et de sécurité routière.
 
 ---
 

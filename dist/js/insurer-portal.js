@@ -59,9 +59,23 @@ window.InsurerPortal = {
     
     verifyCode: function() {
         const input = document.getElementById('insurer-code-input').value.trim().toUpperCase();
-        if(!input.startsWith('LIT-')) {
-            alert("Code Invalide. Le format attendu est LIT-XXXX");
+        if(!input.startsWith('LITIGE-')) {
+            alert("Code Invalide. Le format attendu est LITIGE-XXXXXX");
             return;
+        }
+
+        const parts = input.split('-');
+        if (parts.length >= 2) {
+            const tsStr = parts[1].toLowerCase();
+            const timestamp = parseInt(tsStr, 36);
+            if (!isNaN(timestamp)) {
+                const now = Date.now();
+                const diffHours = (now - timestamp) / (1000 * 60 * 60);
+                if (diffHours > 72) {
+                    alert("Code Expiré. Le code litige est valable uniquement 72h. Le pilote doit générer un nouveau code depuis son application.");
+                    return;
+                }
+            }
         }
         
         // Simuler la recherche dans le coffre-fort Firebase

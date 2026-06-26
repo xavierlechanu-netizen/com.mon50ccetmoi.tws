@@ -498,19 +498,39 @@
       <!-- RPM -->
       <div style="text-align: center; color: #fff;">
           <div style="font-size: 0.8rem; color: #ffaa00; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-gauge-simple-high"></i> RPM</div>
-          <div style="font-size: 2.2rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 10px #ffaa00;"><span id="obd-val-rpm">--</span></div>
+          <div style="font-size: 2.2rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 10px #ffaa00;"><span id="obd-val-rpm" class="hud-neon-active">--</span></div>
       </div>
       <!-- SPEED -->
       <div style="text-align: center; color: #fff;">
           <div style="font-size: 0.8rem; color: #00d2ff; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-gauge"></i> Vitesse</div>
-          <div style="font-size: 3rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 15px #00d2ff;"><span id="obd-val-speed">--</span> <span style="font-size: 1rem; color: #aaa;">km/h</span></div>
+          <div style="font-size: 3rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 15px #00d2ff;"><span id="obd-val-speed" class="hud-neon-active">--</span> <span style="font-size: 1rem; color: #aaa;">km/h</span></div>
       </div>
       <!-- TEMP -->
       <div style="text-align: center; color: #fff;">
           <div style="font-size: 0.8rem; color: #ff4d4d; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-temperature-half"></i> Moteur</div>
-          <div style="font-size: 2.2rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 10px #ff4d4d;"><span id="obd-val-temp">--</span><span style="font-size: 1rem; color:#aaa;">°C</span></div>
+          <div style="font-size: 2.2rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 10px #ff4d4d;"><span id="obd-val-temp" class="hud-neon-active">--</span><span style="font-size: 1rem; color:#aaa;">°C</span></div>
       </div>
   </div>
+  
+  <script>
+      window.triggerHUDGlitch = function() {
+          const hud = document.getElementById('obd-hud-screen');
+          if (hud && !hud.classList.contains('hidden')) {
+              hud.classList.add('hud-glitch-danger');
+              setTimeout(() => { hud.classList.remove('hud-glitch-danger'); }, 1500);
+          }
+      };
+      // Overwrite triggerFallAlert to also trigger glitch
+      setTimeout(() => {
+          if (window.triggerFallAlert) {
+              const originalFall = window.triggerFallAlert;
+              window.triggerFallAlert = function(isManual) {
+                  window.triggerHUDGlitch();
+                  originalFall(isManual);
+              };
+          }
+      }, 2000);
+  </script>
 
   <!-- OBD-II CONNECTION STATUS -->
   <div id="obd-status-indicator" class="hidden" style="position: fixed; top: 130px; left: 50%; transform: translateX(-50%); z-index: 20000; background: rgba(255, 170, 0, 0.2); border: 1px solid #ffaa00; color: #ffaa00; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; pointer-events: auto; cursor: pointer; backdrop-filter: blur(5px);" onclick="if(window.obdManager) window.obdManager.disconnect()">
@@ -809,6 +829,11 @@
     <script src="js/ar-navigation.js"></script>
     <script src="js/social-radar.js"></script>
     <script src="js/referral.js"></script>
+    <!-- Nouveaux modules InsurTech & Sécurité -->
+    <script src="js/driving-score.js"></script>
+    <script src="js/danger-zones.js"></script>
+    <script src="js/accident-report.js"></script>
+    <script src="js/weather-alert.js"></script>
     
     <!-- MECA-WIZARD MODAL -->
     <div id="meca-result-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 60000; display: flex; align-items: center; justify-content: center;">

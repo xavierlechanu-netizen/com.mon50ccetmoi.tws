@@ -178,3 +178,29 @@ body.day-mode .btn-insurance {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
+
+/* --- CYBERPUNK HUD ANIMATIONS --- */
+@keyframes neonPulseBlue {
+    0% { filter: drop-shadow(0 0 5px #00d2ff); }
+    50% { filter: drop-shadow(0 0 15px #00d2ff); }
+    100% { filter: drop-shadow(0 0 5px #00d2ff); }
+}
+
+@keyframes glitchRed {
+    0% { transform: translate(0) skew(0); filter: drop-shadow(0 0 5px #ff0055); }
+    20% { transform: translate(-2px, 1px) skew(-5deg); filter: drop-shadow(0 0 20px #ff0055); }
+    40% { transform: translate(2px, -1px) skew(5deg); filter: drop-shadow(0 0 5px #ff0055); }
+    60% { transform: translate(-1px, 2px) skew(0); }
+    80% { transform: translate(1px, -2px) skew(-2deg); }
+    100% { transform: translate(0) skew(0); filter: drop-shadow(0 0 5px #ff0055); }
+}
+
+.hud-neon-active {
+    animation: neonPulseBlue 2s infinite ease-in-out;
+}
+
+.hud-glitch-danger {
+    animation: glitchRed 0.3s infinite linear;
+    color: #ff0055 !important;
+    text-shadow: 2px 0 0 #00d2ff, -2px 0 0 #0f0;
+}

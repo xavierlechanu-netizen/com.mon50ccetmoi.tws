@@ -8,10 +8,21 @@ window.AntiTheft = {
             speak("Mode Sentinelle désactivé.");
         } else {
             this.startSentry();
-            speak("Mode Sentinelle activé. Périmètre sécurisé.");
+            speak("Mode Sentinelle activé. Périmètre sécurisé. Je surveille l'accéléromètre.");
         }
-        const btn = document.getElementById('btn-parking-toggle');
-        if (btn) btn.innerHTML = `<i class="fa-solid fa-shield-halved"></i> Mode Parking : ${this.isSentryActive ? 'SENTINEL' : 'OFF'}`;
+        
+        const btn = document.getElementById('dock-btn-sentry');
+        if (btn) {
+            if (this.isSentryActive) {
+                btn.style.color = '#ff0000';
+                btn.style.animation = 'pulse-halo 1.5s infinite';
+                btn.title = "Mode Sentinelle ACTIF (Appuyer pour désactiver)";
+            } else {
+                btn.style.color = '#ff3333';
+                btn.style.animation = 'none';
+                btn.title = "Mode Sentinelle";
+            }
+        }
     },
 
     startSentry: function() {

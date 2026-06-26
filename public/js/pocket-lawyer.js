@@ -161,6 +161,14 @@ window.PocketLawyer = {
         if (overlay) overlay.style.display = "none";
     },
 
+    startAudioDefense: function() {
+        if (typeof speak === 'function') {
+            speak("Mode Défense Juridique activé. Règle numéro 1 : Ne reconnaissez aucun tort à l'oral. Règle numéro 2 : Prenez des photos de la situation et de la plaque adverse. Règle numéro 3 : Remplissez le constat factuellement. En cas de délit de fuite, relevez la plaque et contactez la police.");
+        } else {
+            console.warn("L'assistant vocal (speak) n'est pas disponible pour dicter la défense.");
+        }
+    },
+
     generateLetter: function() {
         if (typeof window.braveCoins === 'undefined') {
             alert("Erreur: Module de fidélité introuvable.");

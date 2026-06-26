@@ -87,6 +87,11 @@ function saveSessionAndCheckBadges() {
 
     // --- Badge Check ---
     checkUserBadges();
+
+    // --- NEW: Referral Reward Check ---
+    if (window.ReferralManager && window.session.totalDistance) {
+        window.ReferralManager.checkReferralReward(window.session.totalDistance);
+    }
 }
 
 function checkUserBadges() {

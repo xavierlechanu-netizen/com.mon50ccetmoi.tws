@@ -27,6 +27,10 @@ class OBDManager {
             '01 05'  // Engine Coolant Temp
         ];
         this.currentQueryIndex = 0;
+        
+        // Throttling des alertes vocales IA
+        this.lastRpmAlertTime = 0;
+        this.lastTempAlertTime = 0;
     }
 
     async connect() {
@@ -220,10 +224,15 @@ window.addEventListener('obd_data', (e) => {
         if (el) {
             el.innerText = Math.round(value);
             // Dynamic color feedback for RPM
-            if (value > 7000) {
+            if (value > 8500) {
                 el.style.color = '#ff0055';
                 el.style.textShadow = '0 0 20px #ff0055';
-            } else if (value > 4500) {
+                // Alerte IA Sur-régime (toutes les 10s max)
+                if (window.obdManager && (Date.now() - window.obdManager.lastRpmAlertTime > 10000)) {
+                    if(typeof speak === 'function') speak("Alerte ! Régime moteur critique. Ralentissez pour préserver le cylindre.");
+                    window.obdManager.lastRpmAlertTime = Date.now();
+                }
+            } else if (value > 7000) {
                 el.style.color = '#ffb700';
                 el.style.textShadow = '0 0 15px #ffb700';
             } else {
@@ -251,6 +260,11 @@ window.addEventListener('obd_data', (e) => {
             if (value > 95) {
                 el.style.color = '#ff0055';
                 el.style.textShadow = '0 0 20px #ff0055';
+                // Alerte IA Surchauffe (toutes les 15s max)
+                if (window.obdManager && (Date.now() - window.obdManager.lastTempAlertTime > 15000)) {
+                    if(typeof speak === 'function') speak("Alerte, surchauffe moteur détectée. Coupez le contact immédiatement.");
+                    window.obdManager.lastTempAlertTime = Date.now();
+                }
             } else {
                 el.style.color = '#ff4d4d';
                 el.style.textShadow = '0 0 10px #ff4d4d';
