@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon50cc-cache-v80002';
+const CACHE_NAME = 'mon50cc-cache-v80003';
 const urlsToCache = [
   '/',
   '/index.html?v=80000',
