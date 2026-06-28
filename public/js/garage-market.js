@@ -5,7 +5,14 @@ window.GarageMarket = {
     init: function() {
         if (!window.session || !window.session.uid) return;
         console.log("[GarageMarket] Initializing...");
-        this.listenToTrades();
+        
+        // Attendre que la carte soit prête pour éviter de perdre les marqueurs initiaux
+        const checkDependencies = setInterval(() => {
+            if (typeof map !== 'undefined' && map) {
+                clearInterval(checkDependencies);
+                this.listenToTrades();
+            }
+        }, 500);
     },
 
     listenToTrades: function() {

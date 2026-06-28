@@ -81,8 +81,16 @@ window.CortegeSystem = {
                     const uid = change.doc.id;
                     
                     if (change.type === "added" || change.type === "modified") {
+                        const oldData = this.members[uid];
                         this.members[uid] = data;
                         this.updateMemberMarker(uid, data);
+                        
+                        // Check for new virtual hand signal
+                        if (data.lastSignal && (!oldData || !oldData.lastSignal || oldData.lastSignal.time !== data.lastSignal.time)) {
+                            if (uid !== window.session.uid) {
+                                this.handleNewSignal(data.name, data.lastSignal);
+                            }
+                        }
                     } else if (change.type === "removed") {
                         delete this.members[uid];
                         if(this.markers[uid]) {
@@ -143,6 +151,11 @@ window.CortegeSystem = {
     },
     
     showModal: function() {
+        if (this.sessionId) {
+            this.showSignalsModal();
+            return;
+        }
+
         const code = prompt("CORTÈGE : Entrez le code secret à 4 chiffres d'un ami pour le rejoindre, ou laissez le champ vide et cliquez sur OK pour CRÉER votre propre cortège :");
         if (code === null) return;
         
@@ -150,6 +163,67 @@ window.CortegeSystem = {
             this.joinSession(code.trim());
         } else {
             this.createSession();
+        }
+    },
+
+    showSignalsModal: function() {
+        let modal = document.getElementById("cortege-signals-modal");
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = "cortege-signals-modal";
+            modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px);";
+            document.body.appendChild(modal);
+        }
+        
+        modal.innerHTML = `
+            <div style="background:rgba(20,20,20,0.9); border:1px solid #00ffcc; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
+                <h2 style="color:#00ffcc; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-motorcycle"></i> Signaux Rapides</h2>
+                <p style="color:#aaa; margin-bottom:20px; font-size:0.9rem;">Envoyez un signal au cortège. Tous les membres seront notifiés instantanément.</p>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+                    <button onclick="window.CortegeSystem.sendSignal('⛽', 'Besoin d\\'essence')" style="background:#111; color:#fff; border:1px solid #ffaa00; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-gas-pump" style="color:#ffaa00;"></i> Essence</button>
+                    <button onclick="window.CortegeSystem.sendSignal('📸', 'Pause demandée')" style="background:#111; color:#fff; border:1px solid #00d2ff; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-camera" style="color:#00d2ff;"></i> Pause</button>
+                    <button onclick="window.CortegeSystem.sendSignal('🔧', 'Problème technique')" style="background:#111; color:#fff; border:1px solid #ff0055; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-wrench" style="color:#ff0055;"></i> Meca</button>
+                    <button onclick="window.CortegeSystem.sendSignal('👮', 'Danger signalé')" style="background:#111; color:#fff; border:1px solid #ffeb3b; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-triangle-exclamation" style="color:#ffeb3b;"></i> Danger</button>
+                </div>
+                
+                <button onclick="document.getElementById('cortege-signals-modal').style.display='none'" style="width:100%; background:transparent; border:1px solid #aaa; color:#fff; padding:10px; border-radius:20px; cursor:pointer; font-family:'Outfit', sans-serif;">Fermer</button>
+            </div>
+        `;
+        modal.style.display = "flex";
+    },
+
+    sendSignal: async function(icon, text) {
+        if (!this.sessionId || !window.session) return;
+        try {
+            await firebase.firestore().collection("cortege_sessions").doc(this.sessionId)
+                .collection("members").doc(window.session.uid).update({
+                    lastSignal: {
+                        icon: icon,
+                        text: text,
+                        time: Date.now()
+                    }
+                });
+            document.getElementById('cortege-signals-modal').style.display = 'none';
+        } catch(e) {
+            console.error("[CortegeSystem] Error sending signal", e);
+        }
+    },
+
+    handleNewSignal: function(senderName, signal) {
+        const toast = document.createElement('div');
+        toast.style.cssText = "position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,255,204,0.9);color:#000;padding:15px 25px;border-radius:25px;z-index:99999;font-weight:bold;font-family:'Outfit', sans-serif;box-shadow:0 0 20px rgba(0,255,204,0.5);font-size:1.1rem;opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:10px;";
+        toast.innerHTML = `<span style="font-size:1.5rem;">${signal.icon}</span> <span><b>${senderName}</b> : ${signal.text}</span>`;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => { toast.style.opacity = "1"; }, 100);
+        setTimeout(() => { 
+            toast.style.opacity = "0"; 
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
+
+        if (typeof speak === 'function') {
+            speak(`Cortège. ${senderName} signale : ${signal.text}`);
         }
     }
 };

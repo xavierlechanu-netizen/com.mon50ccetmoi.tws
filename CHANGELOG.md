@@ -6,6 +6,18 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ---
 
+## [100.50.03] — 2026-06-28 — 🎨 Nouvelle Identité Cyberpunk & Refonte Graphique
+
+### Ajouté
+- **Nouvelle Identité Visuelle** : Lancement d'un tout nouveau design premium de type "Cyberpunk", arborant des teintes néon cyan et vert émeraude.
+- **Icônes Haute Définition** : Refonte de l'icône de l'application sur tous les écrans (lanceur Android et UI) pour correspondre au nouveau thème "Copilote IA".
+- **Bannière YouTube Officielle** : Intégration de la direction artistique sur les réseaux avec le slogan "Le Copilote IA des Scooters et VSP".
+
+### Amélioré
+- **Ressources Android (AAB)** : Mise à jour complète des `mipmap` natifs et compilation d'une nouvelle version signée (v100.50.03) prête pour le Play Store.
+
+---
+
 ## [100.50.00] — 2026-06-26 — 🌍 Global Privacy & Android Sync
 
 ### Ajouté

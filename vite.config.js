@@ -19,7 +19,12 @@ export default defineConfig({
         terms: resolve(__dirname, 'terms.html'),
         offline: resolve(__dirname, 'offline.html'),
         beta: resolve(__dirname, 'beta.html'),
-        banned: resolve(__dirname, 'banned.html')
+        banned: resolve(__dirname, 'banned.html'),
+        assureur: resolve(__dirname, 'assureur.html'),
+        partenaires: resolve(__dirname, 'partenaires.html'),
+        cookies: resolve(__dirname, 'cookies.html'),
+        mentions: resolve(__dirname, 'mentions-legales.html'),
+        p404: resolve(__dirname, '404.html')
       }
     }
   }

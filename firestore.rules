@@ -218,7 +218,7 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────
     match /garage_trades/{tradeId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.authorUid;
       allow update, delete: if isSignedIn() && request.auth.uid == resource.data.authorUid;
     }
 
@@ -227,8 +227,12 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────
     match /sos_alerts/{alertId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.authorUid;
       allow update: if isSignedIn() && request.auth.uid == resource.data.authorUid;
+      
+      match /helpers/{helperId} {
+        allow read, write: if isSignedIn();
+      }
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -236,7 +240,7 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────
     match /roadbooks/{roadbookId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.authorUid;
       allow update, delete: if isSignedIn() && request.auth.uid == resource.data.authorUid;
     }
 
@@ -245,7 +249,7 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────
     match /pit_stops/{pitstopId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.authorUid;
       allow update, delete: if isSignedIn() && request.auth.uid == resource.data.authorUid;
     }
   }
