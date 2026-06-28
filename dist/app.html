@@ -304,7 +304,7 @@
     <div id="guardian-halo" class="guardian-halo hidden"></div>
 
     <!-- APPLE SMART DOCK (A11y Compliant) -->
-    <nav aria-label="Menu principal" id="apple-smart-dock" style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; gap: 20px; padding: 15px 25px; border-radius: 40px; background: rgba(25, 25, 35, 0.4); backdrop-filter: blur(25px) saturate(200%); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2); max-width: 90vw; overflow-x: auto; align-items: center;">
+    <nav aria-label="Menu principal" id="apple-smart-dock" style="position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; gap: 20px; padding: 15px 25px; border-radius: 40px; background: rgba(25, 25, 35, 0.4); backdrop-filter: blur(25px) saturate(200%); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2); max-width: 90vw; overflow-x: auto; align-items: center;">
         
         <!-- SOS / Ange Gardien -->
         <button id="dock-btn-sos" aria-label="Déclencher une alerte SOS médicale" role="button" onclick="if(typeof triggerFallAlert === 'function') triggerFallAlert(true);" style="background: none; border: none; color: #ff0055; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
@@ -1024,7 +1024,7 @@
     </div>
 
     <!-- Premium Control Row -->
-    <div id="control-row" style="position:fixed; bottom:20px; right:20px; z-index:20000; display:flex; gap:10px;">
+    <div id="control-row" style="position:fixed; bottom:150px; right:20px; z-index:20000; display:flex; gap:10px;">
         <!-- BOUTON LITE MODE -->
         <button id="btn-lite-toggle" onclick="if(window.toggleLiteMode) window.toggleLiteMode()" style="background:#555; border:none; border-radius:50%; width:50px; height:50px; color:white; cursor:pointer; font-size:1.2rem; transition:background 0.3s; box-shadow:0 0 10px rgba(0,0,0,0.5);">
             <i class="fa-solid fa-bolt"></i>
@@ -1034,11 +1034,11 @@
             <button id="btn-hazard-quick" onclick="if(window.toggleHazardMenu) window.toggleHazardMenu()" style="background:#f1c40f; border:none; border-radius:50%; width:50px; height:50px; color:black; cursor:pointer; box-shadow:0 0 15px rgba(241,196,15,0.5); font-size:1.2rem; transition:transform 0.3s;">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </button>
-            <div id="hazard-options" class="hidden" style="position:absolute; bottom:60px; right:0; background:rgba(0,0,0,0.8); padding:10px; border-radius:15px; border:1px solid #f1c40f; display:flex; flex-direction:column; gap:10px; width:150px;">
-                <button onclick="if(window.saveHazard) window.saveHazard('Police')" style="background:#00d2ff; color:black; border:none; padding:8px; border-radius:10px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-building-shield"></i> Police</button>
-                <button onclick="if(window.saveHazard) window.saveHazard('Route Dégradée')" style="background:#f1c40f; color:black; border:none; padding:8px; border-radius:10px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-road-circle-exclamation"></i> Route</button>
-                <button onclick="if(window.saveHazard) window.saveHazard('animal')" style="background:#e67e22; color:white; border:none; padding:8px; border-radius:10px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-paw"></i> Animal</button>
-                <button onclick="if(window.saveHazard) window.saveHazard('danger_immediat')" style="background:#ff4d4d; color:white; border:none; padding:8px; border-radius:10px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-car-burst"></i> Grave</button>
+            <div id="hazard-options" class="hidden" style="position:absolute; bottom:80px; right:0; background:rgba(0,0,0,0.8); padding:10px; border-radius:15px; border:1px solid #f1c40f; display:flex; flex-direction:column; gap:10px; width:160px;">
+                <button onclick="if(window.saveHazard) window.saveHazard('Police')" style="background:#00d2ff; color:black; border:none; padding:10px 15px; border-radius:10px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:10px; text-align:left;"><i class="fa-solid fa-building-shield"></i> Police</button>
+                <button onclick="if(window.saveHazard) window.saveHazard('Route Dégradée')" style="background:#f1c40f; color:black; border:none; padding:10px 15px; border-radius:10px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:10px; text-align:left;"><i class="fa-solid fa-road-circle-exclamation"></i> Route</button>
+                <button onclick="if(window.saveHazard) window.saveHazard('animal')" style="background:#e67e22; color:white; border:none; padding:10px 15px; border-radius:10px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:10px; text-align:left;"><i class="fa-solid fa-paw"></i> Animal</button>
+                <button onclick="if(window.saveHazard) window.saveHazard('danger_immediat')" style="background:#ff4d4d; color:white; border:none; padding:10px 15px; border-radius:10px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:10px; text-align:left;"><i class="fa-solid fa-car-burst"></i> Grave</button>
             </div>
         </div>
 
@@ -1218,12 +1218,13 @@
 </div>
 
 <!-- INTERCEPTOR HUD ELEMENTS -->
+<div id="weather-hud" style="position:fixed; top:110px; left:50%; transform:translateX(-50%); z-index:9000; background:rgba(0, 10, 20, 0.8); border:1px solid #00d2ff; padding:12px 20px; border-radius:12px; color:#fff; font-family:'JetBrains Mono', monospace; font-size:14px; text-shadow:0 0 10px #00d2ff; box-shadow:0 0 15px rgba(0, 210, 255, 0.5); backdrop-filter:blur(5px); display:flex; gap:15px; align-items:center; pointer-events:none;">
+    <div><i class="fa-solid fa-cloud" style="color:#aaa;"></i> <span id="weather-temp">--°C</span></div>
+    <div><i class="fa-solid fa-wind" style="color:#00d2ff;"></i> <span id="weather-wind">-- km/h</span></div>
+</div>
+
 <div id="hud" style="position:fixed; top:20px; right:20px; z-index:9000; display:flex; flex-direction:column; gap:10px; pointer-events:none; transition: all 0.3s ease;">
-    <div id="weather-hud" style="background:rgba(0, 10, 20, 0.8); border:1px solid #00d2ff; padding:12px 20px; border-radius:12px; color:#fff; font-family:'JetBrains Mono', monospace; font-size:14px; text-shadow:0 0 10px #00d2ff; box-shadow:0 0 15px rgba(0, 210, 255, 0.5); backdrop-filter:blur(5px); display:flex; gap:15px; align-items:center;">
-        <div><i class="fa-solid fa-cloud" style="color:#aaa;"></i> <span id="weather-temp">--°C</span></div>
-        <div><i class="fa-solid fa-wind" style="color:#00d2ff;"></i> <span id="weather-wind">-- km/h</span></div>
-    </div>
-    <div id="radar-hud" style="background:rgba(20, 0, 0, 0.8); border:1px solid #ff4d4d; padding:12px 20px; border-radius:12px; color:#fff; font-family:'JetBrains Mono', monospace; font-size:14px; text-shadow:0 0 10px #ff4d4d; box-shadow:0 0 15px rgba(255, 77, 77, 0.5); backdrop-filter:blur(5px); display:flex; align-items:center; gap:10px;">
+    <div id="radar-hud" style="background:rgba(20, 0, 0, 0.8); border:1px solid #ff4d4d; padding:12px 20px; border-radius:12px; color:#fff; font-family:'JetBrains Mono', monospace; font-size:14px; text-shadow:0 0 10px #ff4d4d; box-shadow:0 0 15px rgba(255, 77, 77, 0.5); backdrop-filter:blur(5px); display:flex; align-items:center; gap:10px; margin-bottom: 80px;">
         <i class="fa-solid fa-satellite-dish fa-beat" style="color:#ff4d4d;"></i> <span id="radar-users">SCANNING...</span>
     </div>
 </div>
