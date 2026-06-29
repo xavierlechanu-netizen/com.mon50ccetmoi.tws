@@ -173,6 +173,7 @@
             <a class="nav-item active" onclick="switchView('overview')"><i class="fa-solid fa-chart-line"></i> Vue d'ensemble</a>
             <a class="nav-item" onclick="switchView('reports')"><i class="fa-solid fa-file-pdf"></i> Rapports Boîte Noire</a>
             <a class="nav-item" onclick="switchView('leads')"><i class="fa-solid fa-bullseye"></i> Leads & Campagnes</a>
+            <a class="nav-item" onclick="switchView('billing')"><i class="fa-solid fa-wallet"></i> Facturation & Wallet</a>
             <a class="nav-item" onclick="switchView('team')"><i class="fa-solid fa-users-gear"></i> Équipe & Sécurité</a>
             <a class="nav-item" onclick="switchView('audit')"><i class="fa-solid fa-shield-halved"></i> Audit & Conformité</a>
             <div style="flex:1;"></div>
@@ -361,6 +362,53 @@
                 </table>
             </div>
 
+            <!-- View: Billing & Wallet -->
+            <div id="view-billing" class="view">
+                <h2 class="section-title">Facturation & Wallet Prépayé</h2>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">
+                    Rechargez votre solde pour diffuser vos offres exclusives. Le coût d'acquisition (CPA) est déduit automatiquement à chaque fois qu'un conducteur clique sur votre campagne.
+                </p>
+
+                <div class="kpi-grid" style="margin-bottom: 30px;">
+                    <div class="kpi-card" style="border: 1px solid var(--accent); box-shadow: 0 0 15px rgba(255, 183, 3, 0.2);">
+                        <i class="fa-solid fa-wallet"></i>
+                        <div class="kpi-value" id="wallet-balance-display">250.00 €</div>
+                        <div class="kpi-label">Solde Prépayé Disponible</div>
+                    </div>
+                    <div class="kpi-card">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <h3 style="margin-bottom: 15px; font-size: 1rem;">Ajouter des fonds</h3>
+                        <button class="btn-action" style="width: 100%; padding: 10px; background: var(--accent); color: #000; font-weight: bold;" onclick="document.getElementById('billing-modal').style.display='flex'"><i class="fa-solid fa-plus"></i> Recharger le compte</button>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom:15px; font-size:1rem;">Historique des Déductions (Derniers Leads)</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date / Heure</th>
+                            <th>Campagne</th>
+                            <th>Description</th>
+                            <th>Montant Déduit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billing-history-body">
+                        <tr>
+                            <td>Aujourd'hui, 14:22</td>
+                            <td>"Promo Casque Jet 50%"</td>
+                            <td>1 Lead (Clic par un utilisateur VSP)</td>
+                            <td><span style="color: #ff5252; font-weight: bold;">- 1.50 €</span></td>
+                        </tr>
+                        <tr>
+                            <td>Hier, 09:14</td>
+                            <td>"Assurance Jeune Permis -15%"</td>
+                            <td>1 Lead (Clic par un utilisateur 50cc)</td>
+                            <td><span style="color: #ff5252; font-weight: bold;">- 0.50 €</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <!-- View: Team & Security -->
             <div id="view-team" class="view">
                 <h2 class="section-title">Sécurité & Équipe</h2>
@@ -498,11 +546,41 @@
             
             <label style="font-size: 0.85rem; color: var(--text-muted);">Coût d'acquisition maximum (CPA)</label>
             <input type="number" id="campaign-cpa" placeholder="Ex: 0.50" step="0.10" style="text-align: left; letter-spacing: normal; width: 100%; padding: 12px; margin: 10px 0 20px 0; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 6px; outline: none;">
+            
+            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; cursor: pointer; color: var(--accent);">
+                <input type="checkbox" id="campaign-flash" style="width: 20px; height: 20px; accent-color: var(--accent);">
+                <span style="font-weight: bold;"><i class="fa-solid fa-stopwatch"></i> Promo Flash Éphémère (Disparaît après 48h)</span>
+            </label>
 
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <button class="btn-action" style="flex:1; background: var(--accent); color: #000;" onclick="submitCampaign()">Lancer la Campagne</button>
                 <button class="btn-action" style="flex:1; background:var(--bg-panel); color:var(--text-color); border:1px solid var(--border);" onclick="document.getElementById('campaign-modal').style.display='none'">Annuler</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Billing Modal (Stripe Mockup) -->
+    <div class="modal-overlay" id="billing-modal">
+        <div class="modal-content" style="max-width: 450px; width:90%; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: var(--text-main);"><i class="fa-brands fa-stripe" style="font-size: 1.5rem; color: #635bff; vertical-align: middle; margin-right: 10px;"></i> Paiement Sécurisé</h3>
+                <button onclick="document.getElementById('billing-modal').style.display='none'" style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><i class="fa-solid fa-xmark fa-lg"></i></button>
+            </div>
+            
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">Rechargez votre Wallet B2B. Ce solde ne sera utilisé que pour les Leads validés.</p>
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Montant de la recharge (€)</label>
+            <input type="number" id="billing-amount" value="500.00" step="10.00" style="width: 100%; padding: 12px; margin: 10px 0 20px 0; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 6px; outline: none; font-size: 1.2rem; font-weight: bold;">
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Informations de la carte</label>
+            <div style="display: flex; align-items: center; background: #000; border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin: 10px 0 20px 0;">
+                <i class="fa-brands fa-cc-visa" style="color: #fff; font-size: 1.2rem; margin-right: 10px;"></i>
+                <input type="text" value="•••• •••• •••• 4242" disabled style="background: transparent; border: none; color: #fff; width: 100%; outline: none; font-family: monospace;">
+                <input type="text" value="12/28" disabled style="background: transparent; border: none; color: #fff; width: 50px; outline: none; font-family: monospace;">
+                <input type="text" value="CVC" disabled style="background: transparent; border: none; color: var(--text-muted); width: 40px; outline: none; font-family: monospace;">
+            </div>
+
+            <button class="btn-action" style="width: 100%; background: #635bff; color: #fff; font-size: 1.1rem; padding: 12px;" onclick="addFunds()"><i class="fa-solid fa-lock"></i> Payer maintenant</button>
         </div>
     </div>
 
@@ -753,6 +831,7 @@
                 'overview': "Vue d'ensemble",
                 'reports': "Rapports Boîte Noire",
                 'leads': "Leads & Campagnes",
+                'billing': "Facturation & Wallet",
                 'team': "Équipe & Sécurité",
                 'audit': "Audit & Conformité"
             };
@@ -762,6 +841,7 @@
             const title = document.getElementById('campaign-title').value.trim();
             const location = document.getElementById('campaign-location').value;
             const cpa = document.getElementById('campaign-cpa').value;
+            const isFlash = document.getElementById('campaign-flash').checked;
 
             if(!title || !cpa) {
                 alert("Veuillez remplir le titre et le CPA.");
@@ -770,8 +850,14 @@
 
             const tbody = document.getElementById('campaigns-table-body');
             const tr = document.createElement('tr');
+            
+            let displayTitle = `"${title}"`;
+            if (isFlash) {
+                displayTitle += ` <span style="background:var(--accent); color:#000; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold; margin-left:10px;"><i class="fa-solid fa-stopwatch"></i> Flash 48h</span>`;
+            }
+
             tr.innerHTML = `
-                <td>"${title}"</td>
+                <td>${displayTitle}</td>
                 <td>${location}</td>
                 <td>0</td>
                 <td>0 (0%)</td>
@@ -782,8 +868,40 @@
             document.getElementById('campaign-modal').style.display = 'none';
             document.getElementById('campaign-title').value = "";
             document.getElementById('campaign-cpa').value = "";
+            document.getElementById('campaign-flash').checked = false;
             
             alert("✅ Votre campagne a été créée et mise en ligne avec succès !");
+        }
+
+        function addFunds() {
+            const amountInput = document.getElementById('billing-amount').value;
+            const amount = parseFloat(amountInput);
+            
+            if (isNaN(amount) || amount <= 0) {
+                alert("Veuillez entrer un montant valide.");
+                return;
+            }
+
+            const balanceElem = document.getElementById('wallet-balance-display');
+            let currentBalance = parseFloat(balanceElem.innerText.replace('€', '').trim());
+            
+            const newBalance = currentBalance + amount;
+            balanceElem.innerText = newBalance.toFixed(2) + ' €';
+
+            document.getElementById('billing-modal').style.display = 'none';
+
+            const tbody = document.getElementById('billing-history-body');
+            const tr = document.createElement('tr');
+            const dateStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            tr.innerHTML = `
+                <td>A l'instant, ${dateStr}</td>
+                <td>Rechargement Wallet (Stripe)</td>
+                <td>Paiement CB **** 4242</td>
+                <td><span style="color: #00e676; font-weight: bold;">+ ${amount.toFixed(2)} €</span></td>
+            `;
+            tbody.insertBefore(tr, tbody.firstChild);
+
+            alert("✅ Paiement accepté. Votre solde a été mis à jour.");
         }
     </script>
 </body>
