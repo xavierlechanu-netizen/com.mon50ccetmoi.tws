@@ -360,18 +360,24 @@
 
     <script>
         async function forgotPassword() {
-            const email = prompt("Entrez l'adresse email associée à votre compte partenaire pour réinitialiser le mot de passe :");
-            if (!email) return;
-            
+            const identifiant = prompt("Entrez votre Identifiant ou Email :");
+            if (!identifiant) return;
+
+            // Si c'est un compte Admin de l'entreprise (pas d'arobase)
+            if (!identifiant.includes('@')) {
+                alert("Pour le compte Administrateur de l'entreprise, la réinitialisation automatique est désactivée par sécurité.\n\nVeuillez contacter la plateforme à : admin@mon50ccetmoi.com");
+                window.location.href = "mailto:admin@mon50ccetmoi.com?subject=Demande de réinitialisation mot de passe Admin B2B - " + identifiant;
+                return;
+            }
+
+            // Si c'est un Agent (sous-compte avec un email)
             try {
-                // Si en local, on simule l'envoi pour ne pas bloquer
                 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                    alert(`(Mode Dev Local) Un lien de réinitialisation a été envoyé à ${email}.`);
+                    alert(`(Local) Un lien de réinitialisation a été envoyé à l'agent ${identifiant}.`);
                     return;
                 }
-                
-                await firebase.auth().sendPasswordResetEmail(email);
-                alert(`Un lien de réinitialisation a été envoyé à l'adresse ${email}.`);
+                await firebase.auth().sendPasswordResetEmail(identifiant);
+                alert(`Un lien de réinitialisation a été envoyé à l'adresse de l'agent : ${identifiant}`);
             } catch (error) {
                 console.error("Reset password error:", error);
                 alert("Erreur lors de la réinitialisation : " + error.message);
