@@ -17,3 +17,12 @@ Lors de la rédaction, de la modification ou de l'audit de code pour ce projet, 
 - **A11 (Qualité du code / DoS)** : 
   - Éviter les requêtes lourdes ou infinies sur Firestore pour éviter le Déni de Service et la facturation excessive.
   - Garder le code Javascript propre, modulaire et factorisé.
+
+## Principes CIS (Center for Internet Security) v8.1 à appliquer :
+- **Control 3 (Data Protection)** : Chiffrer les données sensibles au repos et en transit (TLS, Firebase Encryption). Appliquer le principe du moindre privilège.
+- **Control 4 (Secure Configuration)** : Utiliser des configurations sécurisées par défaut, modifier ou désactiver tous les comptes/services inutiles.
+- **Control 6 (Access Control)** : Implémenter un contrôle d'accès rigoureux basé sur les rôles (RBAC) via Firebase Auth.
+- **Control 16 (Application Software Security)** : 
+  - **16.8** : Séparation stricte des environnements de développement, test, et production.
+  - **16.10** : Architecture "Secure by Design" (validation rigoureuse de toutes les entrées utilisateurs, "never trust user input").
+  - **16.11** : Utilisation exclusive de librairies de sécurité approuvées et maintenues.
