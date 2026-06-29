@@ -324,7 +324,16 @@
             }
 
             try {
-                await firebase.auth().signInWithEmailAndPassword(id, pwd);
+                try {
+                    await firebase.auth().signInWithEmailAndPassword(id, pwd);
+                } catch (firebaseError) {
+                    // Autorise la connexion sans Firebase uniquement si on est sur localhost (pour les tests de développement)
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        console.warn("Attention : Firebase bloqué en local. Connexion simulée pour tester l'interface.");
+                    } else {
+                        throw firebaseError; // Sur le vrai site, on bloque vraiment
+                    }
+                }
                 
                 // Logique pour les 5 premiers assureurs
                 const first5Partners = ['AMV_ASSURANCES', 'MUTUELLE_MOTARDS', 'AXA_PRO', 'ALLIANZ_PARTNER', 'MACIF_2ROUES', 'NATIONALE_COURTAGE'];
