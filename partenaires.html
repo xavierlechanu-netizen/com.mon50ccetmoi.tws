@@ -174,6 +174,7 @@
             <a class="nav-item" onclick="switchView('reports')"><i class="fa-solid fa-file-pdf"></i> Rapports Boîte Noire</a>
             <a class="nav-item" onclick="switchView('leads')"><i class="fa-solid fa-bullseye"></i> Leads & Campagnes</a>
             <a class="nav-item" onclick="switchView('team')"><i class="fa-solid fa-users-gear"></i> Équipe & Sécurité</a>
+            <a class="nav-item" onclick="switchView('audit')"><i class="fa-solid fa-shield-halved"></i> Audit & Conformité</a>
             <div style="flex:1;"></div>
             <a class="nav-item" onclick="window.location.reload()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion</a>
         </div>
@@ -383,6 +384,56 @@
                 </table>
             </div>
 
+            <!-- View: Audit & Compliance -->
+            <div id="view-audit" class="view">
+                <h2 class="section-title"><i class="fa-solid fa-shield-halved" style="color:var(--success);"></i> Conformité OWASP Top 10 (2021)</h2>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">
+                    La sécurité de la plateforme <strong>mon50ccetmoi</strong> est structurée selon les recommandations internationales de l'OWASP afin de prévenir les vulnérabilités critiques et garantir la protection des données partenaires.
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;">
+                    <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border-left: 4px solid #ff3333; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                        <strong>A01:2021 - Contrôles d'accès défaillants</strong><br>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Protection par rôles, vérification croisée stricte des identités B2B (ex: intégration SIRET).</span>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border-left: 4px solid #ff5533; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                        <strong>A02:2021 - Défaillances cryptographiques</strong><br>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Données sensibles chiffrées en transit (TLS) et au repos (Firebase Encryption).</span>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border-left: 4px solid #ff7733; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                        <strong>A03:2021 - Injection</strong><br>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Validation des entrées et typage strict des requêtes pour prévenir les attaques (ex: filtrage des saisies utilisateurs).</span>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border-left: 4px solid #ff9933; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                        <strong>A04:2021 - Conception non sécurisée</strong><br>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Architectures vérifiées avant implémentation avec l'approche "Security by Design".</span>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border-left: 4px solid #ffbb33; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                        <strong>A05:2021 - Mauvaise configuration de sécurité</strong><br>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Règles de sécurité de base de données (Firestore Rules) bloquant l'accès public et limitant la visibilité des données.</span>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border-left: 4px solid #aadd33; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                        <strong>A06:2021 - Composants vulnérables et obsolètes</strong><br>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Veille continue et mises à jour régulières des dépendances logicielles.</span>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border-left: 4px solid #55dd33; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                        <strong>A07:2021 - Identification et authentification de mauvaise qualité</strong><br>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Gestion robuste des sessions, hachage des mots de passe gérés par Firebase Auth.</span>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border-left: 4px solid #00bb55; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                        <strong>A08:2021 - Manque d'intégrité des données et du logiciel</strong><br>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Contrôle d'intégrité strict lors du traitement de la télémétrie et des flux CI/CD.</span>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border-left: 4px solid #009977; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                        <strong>A09:2021 - Carence des systèmes de contrôle et de journalisation</strong><br>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Journalisation des événements pour garantir un audit et une traçabilité complets.</span>
+                    </div>
+                    <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border-left: 4px solid #007799; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+                        <strong>A10:2021 - Falsification de requête côté serveur (SSRF)</strong><br>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Cloisonnement des flux et restriction des appels réseau autorisés côté backend.</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -581,7 +632,8 @@
                 'overview': "Vue d'ensemble",
                 'reports': "Rapports Boîte Noire",
                 'leads': "Leads & Campagnes",
-                'team': "Équipe & Sécurité"
+                'team': "Équipe & Sécurité",
+                'audit': "Audit & Conformité"
             };
             document.getElementById('page-title').textContent = titles[viewId];
         }
