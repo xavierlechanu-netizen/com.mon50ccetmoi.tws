@@ -328,7 +328,7 @@
                     <i class="fa-solid fa-bullhorn" style="font-size:2rem; color:var(--text-muted); margin-bottom:15px;"></i>
                     <h3 style="margin-bottom:10px;">Créer une nouvelle campagne</h3>
                     <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Push notification ciblée ou Bannière dans "Mon Garage"</p>
-                    <button class="btn-action" style="padding:10px 20px; font-size:1rem; background:var(--accent); color:#000;">+ Nouvelle Offre Partenaire</button>
+                    <button class="btn-action" style="padding:10px 20px; font-size:1rem; background:var(--accent); color:#000;" onclick="document.getElementById('campaign-modal').style.display='flex'">+ Nouvelle Offre Partenaire</button>
                 </div>
 
                 <h3 style="margin-bottom:15px; font-size:1rem;">Campagnes Actives</h3>
@@ -342,7 +342,7 @@
                             <th>Coût d'Acquisition</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="campaigns-table-body">
                         <tr>
                             <td>"Assurance Jeune Permis -15%"</td>
                             <td>Menu Principal (Bannière)</td>
@@ -478,6 +478,31 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Campaign Modal -->
+    <div class="modal-overlay" id="campaign-modal">
+        <div class="modal-content" style="max-width: 500px; width:90%; text-align: left;">
+            <h3 style="margin-bottom: 20px; color: var(--accent);"><i class="fa-solid fa-bullhorn"></i> Créer une Campagne In-App</h3>
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Titre de l'Offre (Max 40 car.)</label>
+            <input type="text" id="campaign-title" placeholder="Ex: -15% sur l'assurance 50cc" style="text-align: left; letter-spacing: normal; width: 100%; padding: 12px; margin: 10px 0 20px 0; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 6px; outline: none;">
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Emplacement</label>
+            <select id="campaign-location" style="width: 100%; padding: 12px; margin: 10px 0 20px 0; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 6px; outline: none;">
+                <option value="Onglet 'Mon Garage'">Onglet "Mon Garage" (Sous le véhicule)</option>
+                <option value="Menu Principal (Bannière)">Menu Principal (Bannière d'accueil)</option>
+                <option value="Notification Push (Ciblée)">Notification Push (Ciblée)</option>
+            </select>
+            
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Coût d'acquisition maximum (CPA)</label>
+            <input type="number" id="campaign-cpa" placeholder="Ex: 0.50" step="0.10" style="text-align: left; letter-spacing: normal; width: 100%; padding: 12px; margin: 10px 0 20px 0; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 6px; outline: none;">
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn-action" style="flex:1; background: var(--accent); color: #000;" onclick="submitCampaign()">Lancer la Campagne</button>
+                <button class="btn-action" style="flex:1; background:var(--bg-panel); color:var(--text-color); border:1px solid var(--border);" onclick="document.getElementById('campaign-modal').style.display='none'">Annuler</button>
+            </div>
         </div>
     </div>
 
@@ -732,6 +757,33 @@
                 'audit': "Audit & Conformité"
             };
             document.getElementById('page-title').textContent = titles[viewId];
+        }
+        function submitCampaign() {
+            const title = document.getElementById('campaign-title').value.trim();
+            const location = document.getElementById('campaign-location').value;
+            const cpa = document.getElementById('campaign-cpa').value;
+
+            if(!title || !cpa) {
+                alert("Veuillez remplir le titre et le CPA.");
+                return;
+            }
+
+            const tbody = document.getElementById('campaigns-table-body');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>"${title}"</td>
+                <td>${location}</td>
+                <td>0</td>
+                <td>0 (0%)</td>
+                <td>${cpa} € / Lead</td>
+            `;
+            tbody.insertBefore(tr, tbody.firstChild);
+
+            document.getElementById('campaign-modal').style.display = 'none';
+            document.getElementById('campaign-title').value = "";
+            document.getElementById('campaign-cpa').value = "";
+            
+            alert("✅ Votre campagne a été créée et mise en ligne avec succès !");
         }
     </script>
 </body>
