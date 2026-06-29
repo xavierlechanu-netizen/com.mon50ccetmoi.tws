@@ -430,6 +430,25 @@
                 return;
             }
 
+            // Base de données sécurisée : Association Compte -> SIREN (9 premiers chiffres du SIRET)
+            // C'est ce qui empêche de taper le SIRET de Google pour pirater le compte de Nationale de Courtage !
+            const partnerSirenDatabase = {
+                'NATIONALE_COURTAGE': '834220556', // Remplacez par le vrai SIREN (9 chiffres) de Nationale de Courtage
+                'AMV_ASSURANCES': '330540907',
+                'MUTUELLE_MOTARDS': '327362703',
+                'AXA_PRO': '722057460',
+                'ALLIANZ_PARTNER': '340234962',
+                'MACIF_2ROUES': '781452511'
+            };
+
+            const expectedSiren = partnerSirenDatabase[pendingAdminId.toUpperCase()];
+            const inputSiren = siret.substring(0, 9); // Les 9 premiers chiffres forment le SIREN
+
+            if (expectedSiren && inputSiren !== expectedSiren) {
+                resultDiv.innerHTML = '<span style="color:#ff3333;"><i class="fa-solid fa-triangle-exclamation"></i> Alerte Sécurité : Ce SIRET ne correspond pas à l\'entreprise de votre compte partenaire.</span>';
+                return;
+            }
+
             resultDiv.innerHTML = '<span style="color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Interrogation des bases de l\'État...</span>';
 
             try {
@@ -440,6 +459,12 @@
                 if (data.results && data.results.length > 0) {
                     const entreprise = data.results[0];
                     if (entreprise.etat_administratif === "A") {
+                        // Ultime vérification : on s'assure que le SIREN retourné correspond
+                        if (expectedSiren && entreprise.siren !== expectedSiren) {
+                             resultDiv.innerHTML = `<span style="color:#ff3333;">Le SIRET appartient à <b>${entreprise.nom_complet}</b>, ce qui ne correspond pas à votre compte.</span>`;
+                             return;
+                        }
+                        
                         resultDiv.innerHTML = `<span style="color:#00ff88;"><i class="fa-solid fa-check-circle"></i> <b>${entreprise.nom_complet}</b> vérifiée.<br><br>Validation réussie. Un email de réinitialisation vient d'être envoyé au dirigeant officiel.</span>`;
                         setTimeout(() => {
                             document.getElementById('siret-modal').style.display = 'none';
