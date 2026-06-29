@@ -33,3 +33,8 @@ Lors de la rédaction, de la modification ou de l'audit de code pour ce projet, 
   - **Certificat de Propriété (Ownership Voucher)** : Chaque boîtier matériel doit être lié cryptographiquement à une identité numérique pour prouver l'appartenance de l'appareil.
   - **Serveur de Rendez-vous (RV)** : Utiliser le concept de serveur de mise en relation sécurisé pour orienter l'appareil vers son Cloud cible, évitant que l'appareil soit pré-configuré avec des adresses en dur vulnérables.
   - **Réduction de la surface d'attaque (UEFI/BMO)** : Maintenir une empreinte minimale du client IoT pour limiter les vecteurs de compromission.
+
+## Exigences de Certification FIDO à appliquer :
+- **Authentification Utilisateur (Passkeys / FIDO2)** : Toute implémentation d'authentification biométrique (Face ID, Touch ID) doit respecter les spécifications FIDO2, WebAuthn et UAF pour garantir un chiffrement de bout en bout sans mot de passe.
+- **Vérification d'Identité (IDV-Face / DocAuth)** : La validation des documents (ex: permis de conduire) et la reconnaissance faciale lors de l'onboarding doivent s'appuyer sur les protocoles d'authenticité de documents certifiés FIDO pour contrer l'usurpation d'identité et les deepfakes.
+- **Écosystème Certifié** : Privilégier les composants (clients, serveurs RV, capteurs biométriques) validés par les laboratoires accrédités FIDO.
