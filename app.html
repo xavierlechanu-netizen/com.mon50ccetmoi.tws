@@ -148,6 +148,33 @@
             document.head.appendChild(script);
         }
 
+        function initFallbackMap() {
+            try {
+                if(window.fallbackMapInitialized) return;
+                if(typeof L === 'undefined') return;
+                window.fallbackMapInitialized = true;
+                const mapEl = document.getElementById('map');
+                if(!mapEl) return;
+                
+                mapEl.innerHTML = '';
+                const map = L.map('map', {zoomControl: false, attributionControl: false}).setView([48.8566, 2.3522], 14);
+                
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 19
+                }).addTo(map);
+
+                const neonIcon = L.divIcon({
+                    html: '<div style="width:16px;height:16px;background:#00d2ff;border-radius:50%;box-shadow:0 0 10px #00d2ff, 0 0 20px #00d2ff;border:2px solid #fff;"></div>',
+                    className: '',
+                    iconSize: [16, 16]
+                });
+                L.marker([48.8566, 2.3522], {icon: neonIcon}).addTo(map);
+                console.log("mon50cc : Fallback Leaflet Map Initialized");
+            } catch(e) {
+                console.error("mon50cc : Leaflet Fallback failed", e);
+            }
+        }
+
         function forceStartApp(reason) {
             console.warn("mon50cc : DÃ©marrage forcÃ© (" + reason + ")");
             const statusEl = document.getElementById('loader-status');
@@ -158,9 +185,11 @@
                 window.checkAuth = () => { return { username: "Pilote", isGuest: true }; };
             }
 
+            setTimeout(initFallbackMap, 500);
+
             setTimeout(() => {
                 if (typeof window.startApp === "function") window.startApp();
-            }, 500);
+            }, 800);
         }
 
         // --- CORE NAVIGATION (ULTIMATE BYPASS) ---
@@ -188,21 +217,22 @@
 
         // On lance le chargement dÃ¨s que config.js est lÃ 
         window.addEventListener('load', () => {
-            loadMapsSDK();
-            // Fail-safe global rÃ©duit Ã  4s pour une meilleure UX
-            setTimeout(() => {
-                if (!window.mapsSDKLoaded) forceStartApp("TIMEOUT_SDK");
-            }, 4000);
+            // FORCE LEAFLET OVER GOOGLE MAPS FOR DEMO/MOBILE RELIABILITY
+            initFallbackMap();
+            window.mapsSDKLoaded = true;
 
-            // ULTIMATE FAIL-SAFE: Masquer le loader quoi qu'il arrive aprÃ¨s 7s
             setTimeout(() => {
                 const loader = document.getElementById('app-loader');
                 if (loader && loader.style.visibility !== 'hidden') {
-                    console.warn("mon50cc : Force-Hiding Loader (Ultimate Fail-safe)");
+                    console.warn("mon50cc : Hiding Loader");
                     loader.style.opacity = '0';
                     setTimeout(() => loader.style.visibility = 'hidden', 800);
                 }
-            }, 7000);
+            }, 2000);
+            
+            setTimeout(() => {
+                if (typeof window.startApp === "function") window.startApp();
+            }, 1000);
         });
     </script>
 
@@ -211,8 +241,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer">
-    <!-- Leaflet CSS (Cartes Hors Ligne) -->
+    <!-- Leaflet CSS & JS (Cartes Hors Ligne) -->
     <link id="leaflet-css" rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="css/style.min.css?v=70004">
     <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
     <!-- Firebase SDK (v9 Compat) -->
