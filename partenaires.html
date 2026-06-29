@@ -257,14 +257,25 @@
                 <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px;">
                     Retrouvez ici les rapports certifiés générés par la boîte noire de l'application lors des sinistres de vos assurés.
                 </p>
+                
+                <!-- Filter Bar -->
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <input type="text" placeholder="Rechercher par N° dossier ou Assuré..." style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-color);">
+                    <select style="padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-color);">
+                        <option>Tous les statuts</option>
+                        <option>Non lu</option>
+                        <option>Traité</option>
+                    </select>
+                </div>
+
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>N° Dossier</th>
                             <th>Date du Sinistre</th>
                             <th>Assuré</th>
-                            <th>Vitesse au moment de l'impact</th>
-                            <th>Données Télémétriques</th>
+                            <th>Vitesse d'impact</th>
+                            <th>Indicateur Fraude</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -274,24 +285,33 @@
                             <td>25 Mai 2026</td>
                             <td>Martin.D (Peugeot Kisbee)</td>
                             <td>42 km/h</td>
-                            <td>Trajectoire GPS, Force G: 3.8G</td>
-                            <td><button class="btn-action" onclick="alert('Téléchargement du rapport PDF sécurisé...')"><i class="fa-solid fa-download"></i> Télécharger PDF</button></td>
+                            <td><span class="badge resolved" style="background:#00ff88; color:#000;">Fiable à 98%</span></td>
+                            <td>
+                                <button class="btn-action" style="background:var(--bg-panel); color:var(--text-color); margin-right:5px; border:1px solid var(--border); font-size:0.8rem;" onclick="openReportModal('8451', '42 km/h', '3.8', '98%')"><i class="fa-solid fa-eye"></i> Données</button>
+                                <button class="btn-action" style="font-size:0.8rem;" onclick="alert('Téléchargement du rapport PDF sécurisé...')"><i class="fa-solid fa-download"></i> PDF</button>
+                            </td>
                         </tr>
                         <tr>
                             <td>#REP-8422</td>
                             <td>20 Mai 2026</td>
                             <td>Riderdu75 (MBK Booster)</td>
                             <td>45 km/h</td>
-                            <td>Trace GPS uniquement</td>
-                            <td><button class="btn-action" onclick="alert('Téléchargement du rapport PDF sécurisé...')"><i class="fa-solid fa-download"></i> Télécharger PDF</button></td>
+                            <td><span class="badge pending" style="background:#ffbb33; color:#000;">Douteux (Incohérence)</span></td>
+                            <td>
+                                <button class="btn-action" style="background:var(--bg-panel); color:var(--text-color); margin-right:5px; border:1px solid var(--border); font-size:0.8rem;" onclick="openReportModal('8422', '45 km/h', '1.2', '45%')"><i class="fa-solid fa-eye"></i> Données</button>
+                                <button class="btn-action" style="font-size:0.8rem;" onclick="alert('Téléchargement du rapport PDF sécurisé...')"><i class="fa-solid fa-download"></i> PDF</button>
+                            </td>
                         </tr>
                         <tr>
                             <td>#REP-8390</td>
                             <td>12 Mai 2026</td>
                             <td>Emma_Ami (Citroën Ami)</td>
-                            <td>12 km/h (Accrochage parking)</td>
-                            <td>Photos horodatées, Localisation certifiée</td>
-                            <td><button class="btn-action" onclick="alert('Téléchargement du rapport PDF sécurisé...')"><i class="fa-solid fa-download"></i> Télécharger PDF</button></td>
+                            <td>12 km/h (Parking)</td>
+                            <td><span class="badge resolved" style="background:#00ff88; color:#000;">Photos Certifiées</span></td>
+                            <td>
+                                <button class="btn-action" style="background:var(--bg-panel); color:var(--text-color); margin-right:5px; border:1px solid var(--border); font-size:0.8rem;" onclick="openReportModal('8390', '12 km/h', '2.1', '99%')"><i class="fa-solid fa-eye"></i> Données</button>
+                                <button class="btn-action" style="font-size:0.8rem;" onclick="alert('Téléchargement du rapport PDF sécurisé...')"><i class="fa-solid fa-download"></i> PDF</button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -461,7 +481,59 @@
         </div>
     </div>
 
+    <!-- Report Modal -->
+    <div class="modal-overlay" id="report-modal">
+        <div class="modal-content" style="max-width: 600px; width:90%;">
+            <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-file-shield" style="color:var(--accent);"></i> Télémétrie du Sinistre <span id="report-id-display"></span></h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border:1px solid var(--border);">
+                    <span style="font-size:0.8rem; color:var(--text-muted);">Force d'impact (G)</span>
+                    <div id="report-gforce-display" style="font-size:1.5rem; font-weight:bold; color:#ff3333;">3.8 G</div>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Collision détectée par gyroscope</span>
+                </div>
+                <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; border:1px solid var(--border);">
+                    <span style="font-size:0.8rem; color:var(--text-muted);">Vitesse juste avant impact</span>
+                    <div id="report-speed-display" style="font-size:1.5rem; font-weight:bold;">42 km/h</div>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">Freinage d'urgence identifié (-2G)</span>
+                </div>
+            </div>
+            
+            <div style="background: var(--bg-panel); padding: 15px; border-radius: 8px; margin-bottom: 20px; border:1px solid var(--border);">
+                <h4 style="margin-bottom: 10px; font-size:0.9rem;">Trace GPS & Contexte Visuel</h4>
+                <div style="height: 120px; background: #1a2a40; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.85rem; border: 1px dashed var(--border);">
+                    <i class="fa-solid fa-map-location-dot" style="margin-right:8px;"></i> Carte interactive de l'accident (Simulation)
+                </div>
+            </div>
+
+            <div style="background: rgba(0, 255, 136, 0.1); border: 1px solid var(--accent); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="margin-bottom: 5px; color: var(--accent);"><i class="fa-solid fa-robot"></i> Analyse Anti-Fraude (IA)</h4>
+                <p style="font-size: 0.85rem; margin:0; line-height:1.4;">Les données de la boîte noire sont corrélées avec la déclaration. Score de fiabilité : <strong id="report-fraud-display" style="color:var(--accent);">98%</strong>.</p>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-action" style="flex:1;" onclick="alert('Requête API envoyée à votre SI Assureur !')"><i class="fa-solid fa-server"></i> Intégrer au SI (API)</button>
+                <button class="btn-action" style="background:var(--bg-panel); color:var(--text-color); border:1px solid var(--border);" onclick="document.getElementById('report-modal').style.display='none'">Fermer</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function openReportModal(id, speed, gforce, fraud) {
+            document.getElementById('report-id-display').innerText = '#' + id;
+            document.getElementById('report-speed-display').innerText = speed;
+            document.getElementById('report-gforce-display').innerText = gforce + ' G';
+            document.getElementById('report-fraud-display').innerText = fraud;
+            
+            if(parseInt(fraud) < 80) {
+                document.getElementById('report-fraud-display').style.color = '#ff3333';
+            } else {
+                document.getElementById('report-fraud-display').style.color = 'var(--accent)';
+            }
+            
+            document.getElementById('report-modal').style.display = 'flex';
+        }
+
         let pendingAdminId = "";
 
         async function forgotPassword() {
