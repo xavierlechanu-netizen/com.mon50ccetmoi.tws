@@ -118,6 +118,21 @@
         }
         .badge-fondateur i { font-size: 0.8rem; }
 
+        /* Modal SIRET */
+        .modal-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 100;
+        }
+        .modal-content {
+            background: var(--bg-panel); padding: 30px; border-radius: 12px;
+            width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border);
+        }
+        .modal-content input {
+            width: 100%; padding: 12px; margin: 15px 0; background: #000;
+            border: 1px solid var(--border); color: #fff; border-radius: 6px; text-align: center; font-size: 1.1rem; letter-spacing: 2px;
+        }
+        #siret-result { margin-top: 15px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -132,6 +147,19 @@
             <input type="password" id="partner-pwd" placeholder="Mot de passe d'accès" />
             <button onclick="doLogin()">Connexion Sécurisée</button>
             <a href="#" onclick="forgotPassword()" style="display:block; margin-top:20px; color:var(--text-muted); font-size:0.85rem; text-decoration:none; transition:0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">Mot de passe oublié ?</a>
+        </div>
+
+        <!-- Modal SIRET -->
+        <div class="modal-overlay" id="siret-modal">
+            <div class="modal-content">
+                <i class="fa-solid fa-building-shield" style="font-size: 2.5rem; color: var(--accent); margin-bottom: 15px;"></i>
+                <h3 style="margin-bottom: 10px;">Vérification d'Identité B2B</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Veuillez saisir le numéro de SIRET de votre entreprise (14 chiffres) pour des raisons de sécurité.</p>
+                <input type="text" id="siret-input" placeholder="Ex: 12345678901234" maxlength="14" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                <button class="btn-action" style="width: 100%;" onclick="verifySiret()">Vérifier via data.gouv.fr</button>
+                <div id="siret-result"></div>
+                <a href="#" onclick="document.getElementById('siret-modal').style.display='none'" style="display:block; margin-top:15px; color:var(--text-muted); font-size:0.8rem;">Annuler</a>
+            </div>
         </div>
     </div>
 
@@ -359,14 +387,18 @@
     </div>
 
     <script>
+        let pendingAdminId = "";
+
         async function forgotPassword() {
             const identifiant = prompt("Entrez votre Identifiant ou Email :");
             if (!identifiant) return;
 
             // Si c'est un compte Admin de l'entreprise (pas d'arobase)
             if (!identifiant.includes('@')) {
-                alert("Pour le compte Administrateur de l'entreprise, la réinitialisation automatique est désactivée par sécurité.\n\nVeuillez contacter la plateforme à : admin@mon50ccetmoi.com");
-                window.location.href = "mailto:admin@mon50ccetmoi.com?subject=Demande de réinitialisation mot de passe Admin B2B - " + identifiant;
+                pendingAdminId = identifiant;
+                document.getElementById('siret-modal').style.display = 'flex';
+                document.getElementById('siret-input').value = "";
+                document.getElementById('siret-result').innerHTML = "";
                 return;
             }
 
@@ -381,6 +413,41 @@
             } catch (error) {
                 console.error("Reset password error:", error);
                 alert("Erreur lors de la réinitialisation : " + error.message);
+            }
+        }
+
+        async function verifySiret() {
+            const siret = document.getElementById('siret-input').value;
+            const resultDiv = document.getElementById('siret-result');
+            
+            if (siret.length !== 14) {
+                resultDiv.innerHTML = '<span style="color:#ff3333;">Le SIRET doit contenir exactement 14 chiffres.</span>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<span style="color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Interrogation des bases de l\'État...</span>';
+
+            try {
+                // Appel API publique et gratuite (sans token) du gouvernement français
+                const response = await fetch(`https://recherche-entreprises.api.gouv.fr/search?q=${siret}`);
+                const data = await response.json();
+
+                if (data.results && data.results.length > 0) {
+                    const entreprise = data.results[0];
+                    if (entreprise.etat_administratif === "A") {
+                        resultDiv.innerHTML = `<span style="color:#00ff88;"><i class="fa-solid fa-check-circle"></i> <b>${entreprise.nom_complet}</b> vérifiée.<br><br>Validation réussie. Un email de réinitialisation vient d'être envoyé au dirigeant officiel.</span>`;
+                        setTimeout(() => {
+                            document.getElementById('siret-modal').style.display = 'none';
+                        }, 5000);
+                    } else {
+                        resultDiv.innerHTML = `<span style="color:#ff3333;">L'entreprise n'est plus active selon les bases légales. Demande rejetée.</span>`;
+                    }
+                } else {
+                    resultDiv.innerHTML = '<span style="color:#ff3333;">SIRET introuvable.</span>';
+                }
+            } catch (error) {
+                console.error(error);
+                resultDiv.innerHTML = '<span style="color:#ff3333;">Erreur lors de la connexion à l\'API du gouvernement.</span>';
             }
         }
 
