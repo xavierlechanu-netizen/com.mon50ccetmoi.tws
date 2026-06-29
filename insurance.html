@@ -76,6 +76,24 @@
             font-size: 1.1rem;
             cursor: pointer;
         }
+
+        /* Badge Fondateur */
+        .badge-fondateur {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%);
+            color: #1A1A1A;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 10px rgba(253, 185, 49, 0.4);
+            margin-left: 8px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -112,7 +130,7 @@
         <h2 style="margin-top:0; color:#ff0055;">Devis Partenaire</h2>
         <p>Grâce à votre excellent score de conduite, vous économisez <strong>-30%</strong> sur votre prime d'assurance !</p>
         <div style="font-size:3rem; font-weight:bold; color:#fff; margin:10px 0;">19.99 € <span style="font-size:1rem; color:#888;">/ mois</span></div>
-        <p style="font-size:0.8rem; color:#888;">Formule Tiers Étendu + Vol. Assureur : Revolut Insurance Partners.</p>
+        <p style="font-size:0.8rem; color:#888;">Formule Tiers Étendu + Vol. Assureur : Revolut Insurance Partners <span class="badge-fondateur" title="Partenaire Fondateur"><i class="fa-solid fa-shield"></i> Fondateur mon50ccetmoi</span>.</p>
         <button class="btn-action" onclick="alert('Redirection vers le portail de signature électronique...')">Souscrire maintenant</button>
     </div>
 
