@@ -13,6 +13,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="js/config.js"></script>
     
+    <script>
+        // Initialisation de Firebase
+        firebase.initializeApp(CONFIG.FIREBASE);
+    </script>
+    
     <style>
         :root {
             --bg-dark: #0a0a0a;
@@ -322,7 +327,7 @@
                 await firebase.auth().signInWithEmailAndPassword(id, pwd);
                 
                 // Logique pour les 5 premiers assureurs
-                const first5Partners = ['AMV_ASSURANCES', 'MUTUELLE_MOTARDS', 'AXA_PRO', 'ALLIANZ_PARTNER', 'MACIF_2ROUES'];
+                const first5Partners = ['AMV_ASSURANCES', 'MUTUELLE_MOTARDS', 'AXA_PRO', 'ALLIANZ_PARTNER', 'MACIF_2ROUES', 'NATIONALE_COURTAGE'];
                 let badgeHtml = '';
                 if (first5Partners.includes(id.toUpperCase())) {
                     badgeHtml = ' <span class="badge-fondateur" title="Partenaire Fondateur - 5 Premiers"><i class="fa-solid fa-shield"></i> Fondateur mon50ccetmoi</span>';
