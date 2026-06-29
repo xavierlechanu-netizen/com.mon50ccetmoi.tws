@@ -26,3 +26,10 @@ Lors de la rédaction, de la modification ou de l'audit de code pour ce projet, 
   - **16.8** : Séparation stricte des environnements de développement, test, et production.
   - **16.10** : Architecture "Secure by Design" (validation rigoureuse de toutes les entrées utilisateurs, "never trust user input").
   - **16.11** : Utilisation exclusive de librairies de sécurité approuvées et maintenues.
+
+## Principes IoT FIDO Device Onboard (FDO) à appliquer :
+- **Intégration Sécurisée (IoT / Edge)** : 
+  - **Authentification Mutuelle** : L'appareil (ex: boîtier OBD-II) et le cloud cible (Portail Assureur/BMS) doivent toujours vérifier mutuellement leurs identités cryptographiques avant d'échanger des données de télémétrie.
+  - **Certificat de Propriété (Ownership Voucher)** : Chaque boîtier matériel doit être lié cryptographiquement à une identité numérique pour prouver l'appartenance de l'appareil.
+  - **Serveur de Rendez-vous (RV)** : Utiliser le concept de serveur de mise en relation sécurisé pour orienter l'appareil vers son Cloud cible, évitant que l'appareil soit pré-configuré avec des adresses en dur vulnérables.
+  - **Réduction de la surface d'attaque (UEFI/BMO)** : Maintenir une empreinte minimale du client IoT pour limiter les vecteurs de compromission.
