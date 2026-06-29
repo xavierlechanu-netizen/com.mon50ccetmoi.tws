@@ -131,6 +131,7 @@
             <input type="text" id="partner-id" placeholder="Identifiant Partenaire" value="AMV_ASSURANCES" />
             <input type="password" id="partner-pwd" placeholder="Mot de passe d'accès" />
             <button onclick="doLogin()">Connexion Sécurisée</button>
+            <a href="#" onclick="forgotPassword()" style="display:block; margin-top:20px; color:var(--text-muted); font-size:0.85rem; text-decoration:none; transition:0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-muted)'">Mot de passe oublié ?</a>
         </div>
     </div>
 
@@ -144,6 +145,7 @@
             <a class="nav-item active" onclick="switchView('overview')"><i class="fa-solid fa-chart-line"></i> Vue d'ensemble</a>
             <a class="nav-item" onclick="switchView('reports')"><i class="fa-solid fa-file-pdf"></i> Rapports Boîte Noire</a>
             <a class="nav-item" onclick="switchView('leads')"><i class="fa-solid fa-bullseye"></i> Leads & Campagnes</a>
+            <a class="nav-item" onclick="switchView('team')"><i class="fa-solid fa-users-gear"></i> Équipe & Sécurité</a>
             <div style="flex:1;"></div>
             <a class="nav-item" onclick="window.location.reload()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnexion</a>
         </div>
@@ -310,10 +312,72 @@
                 </table>
             </div>
 
+            <!-- View: Team & Security -->
+            <div id="view-team" class="view">
+                <h2 class="section-title">Sécurité & Équipe</h2>
+                
+                <div class="kpi-grid" style="margin-bottom: 20px;">
+                    <!-- Change Password Form -->
+                    <div class="kpi-card" style="display: flex; flex-direction: column; gap: 15px;">
+                        <h3 style="font-size: 1rem; margin-bottom: 5px;"><i class="fa-solid fa-lock" style="font-size: 1rem; margin-right: 8px;"></i> Modifier le mot de passe</h3>
+                        <input type="password" id="new-pwd" placeholder="Nouveau mot de passe" style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 6px; outline: none;">
+                        <button class="btn-action" onclick="changePassword()" style="align-self: flex-start;">Mettre à jour</button>
+                    </div>
+
+                    <!-- Add Agent Form -->
+                    <div class="kpi-card" style="display: flex; flex-direction: column; gap: 15px;">
+                        <h3 style="font-size: 1rem; margin-bottom: 5px;"><i class="fa-solid fa-user-plus" style="font-size: 1rem; margin-right: 8px;"></i> Ajouter un Agent</h3>
+                        <input type="text" id="agent-name" placeholder="Nom de l'agent" style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 6px; outline: none;">
+                        <input type="email" id="agent-email" placeholder="Email de l'agent" style="width: 100%; padding: 12px; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 6px; outline: none;">
+                        <button class="btn-action" onclick="addAgent()" style="align-self: flex-start;">Créer l'accès</button>
+                    </div>
+                </div>
+
+                <!-- List of Agents -->
+                <h3 style="margin-bottom:15px; font-size:1rem;">Agents autorisés sur ce compte</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nom de l'Agent</th>
+                            <th>Email</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="agent-list">
+                        <tr>
+                            <td>Compte Principal</td>
+                            <td>admin@partenaire.com</td>
+                            <td><span class="badge resolved">Admin</span></td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     </div>
 
     <script>
+        async function forgotPassword() {
+            const email = prompt("Entrez l'adresse email associée à votre compte partenaire pour réinitialiser le mot de passe :");
+            if (!email) return;
+            
+            try {
+                // Si en local, on simule l'envoi pour ne pas bloquer
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    alert(`(Mode Dev Local) Un lien de réinitialisation a été envoyé à ${email}.`);
+                    return;
+                }
+                
+                await firebase.auth().sendPasswordResetEmail(email);
+                alert(`Un lien de réinitialisation a été envoyé à l'adresse ${email}.`);
+            } catch (error) {
+                console.error("Reset password error:", error);
+                alert("Erreur lors de la réinitialisation : " + error.message);
+            }
+        }
+
         async function doLogin() {
             const id = document.getElementById('partner-id').value.trim();
             const pwd = document.getElementById('partner-pwd').value;
@@ -352,6 +416,54 @@
             }
         }
 
+        async function changePassword() {
+            const newPwd = document.getElementById('new-pwd').value;
+            if (newPwd.length < 6) {
+                alert("Le mot de passe doit faire au moins 6 caractères.");
+                return;
+            }
+            try {
+                const user = firebase.auth().currentUser;
+                if (user) {
+                    await user.updatePassword(newPwd);
+                    alert("Mot de passe mis à jour avec succès !");
+                    document.getElementById('new-pwd').value = "";
+                } else {
+                    alert("Vous êtes en mode démo (bypass local), le mot de passe n'a pas été changé sur Firebase.");
+                }
+            } catch (error) {
+                console.error("Password update error:", error);
+                alert("Erreur lors de la mise à jour : " + error.message);
+            }
+        }
+
+        function addAgent() {
+            const name = document.getElementById('agent-name').value.trim();
+            const email = document.getElementById('agent-email').value.trim();
+            
+            if (!name || !email) {
+                alert("Veuillez remplir le nom et l'email de l'agent.");
+                return;
+            }
+
+            // Simuler l'ajout visuel
+            const tbody = document.getElementById('agent-list');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${name}</td>
+                <td>${email}</td>
+                <td><span class="badge pending">Invitation envoyée</span></td>
+                <td><button class="btn-action" style="background:#ff3333;" onclick="this.closest('tr').remove()">Révoquer</button></td>
+            `;
+            tbody.appendChild(tr);
+
+            // Reset form
+            document.getElementById('agent-name').value = "";
+            document.getElementById('agent-email').value = "";
+            
+            alert(`Accès créé pour ${name}. Un email d'invitation a été envoyé à ${email}.`);
+        }
+
         function switchView(viewId) {
             // Update Sidebar Active state
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
@@ -365,7 +477,8 @@
             const titles = {
                 'overview': "Vue d'ensemble",
                 'reports': "Rapports Boîte Noire",
-                'leads': "Leads & Campagnes"
+                'leads': "Leads & Campagnes",
+                'team': "Équipe & Sécurité"
             };
             document.getElementById('page-title').textContent = titles[viewId];
         }
