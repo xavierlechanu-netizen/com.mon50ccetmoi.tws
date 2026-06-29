@@ -390,8 +390,13 @@
         let pendingAdminId = "";
 
         async function forgotPassword() {
-            const identifiant = prompt("Entrez votre Identifiant ou Email :");
-            if (!identifiant) return;
+            event.preventDefault(); // Empêche le rechargement de la page lié au href="#"
+            
+            const identifiant = document.getElementById('partner-id').value.trim();
+            if (!identifiant) {
+                alert("Veuillez d'abord saisir votre Identifiant Partenaire ou Email dans le champ ci-dessus.");
+                return;
+            }
 
             // Si c'est un compte Admin de l'entreprise (pas d'arobase)
             if (!identifiant.includes('@')) {
