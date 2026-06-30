@@ -53,6 +53,9 @@ window.JarvisEngine = {
         else if (this.matchAny(transcript, ['qui es-tu', 'ton nom', 't\'appelles'])) {
             return { action: 'IDENTITY', reply: `Je suis Jarvis, l'intelligence artificielle propriétaire de Mon 50cc et Moi, conçue pour vous assister.` };
         }
+        else if (this.matchAny(transcript, ['drogue', 'stupéfiant', 'stupéfiants', 'positif', 'fumé', 'joint', 'cannabis', 'thc', 'dépistage', 'test'])) {
+            return { action: 'DRUGS_WARNING', reply: `Conduire sous l'emprise de stupéfiants avec un BSR ou Permis AM est un délit grave. Pour une première infraction, vous risquez jusqu'à 4500 euros d'amende, 2 ans de prison, l'immobilisation ou la confiscation de votre scooter, et la suspension de votre permis AM. Bien qu'il n'y ait pas de perte de points sur le BSR, les sanctions pénales sont très lourdes.` };
+        }
         else {
             return { action: 'UNKNOWN', reply: this.getRandomResponse('error') };
         }
@@ -101,6 +104,11 @@ window.JarvisEngine = {
                     modal.classList.remove('hidden');
                     if(window.PredictiveMeca) window.PredictiveMeca.updateDashboardUI();
                 }
+                break;
+            case 'DRUGS_WARNING':
+                // La réponse vocale (reply) est déjà prise en charge. 
+                // Optionnellement, nous pourrions afficher une alerte UI.
+                console.warn("[J.A.R.V.I.S 4.0] Prévention stupéfiants déclenchée.");
                 break;
         }
     }

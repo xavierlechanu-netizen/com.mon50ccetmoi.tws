@@ -352,6 +352,11 @@
             <i class="fa-solid fa-vr-cardboard" aria-hidden="true" style="filter: drop-shadow(0 0 5px #00ffcc);"></i>
         </button>
 
+        <!-- Garage Virtuel -->
+        <button id="dock-btn-garage" aria-label="Ouvrir le Garage Virtuel" role="button" onclick="if(window.VirtualGarage) window.VirtualGarage.openUI()" style="background: none; border: none; color: #00d2ff; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-motorcycle" aria-hidden="true" style="filter: drop-shadow(0 0 5px #00d2ff);"></i>
+        </button>
+
         <!-- OBD-II Scanner -->
         <button id="dock-btn-social" aria-label="Activer le Radar Social (Ghost Rider)" role="button" onclick="if(window.socialRadarManager) window.socialRadarManager.toggleRadar()" style="background: none; border: none; color: #99aab5; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
             <i class="fa-solid fa-ghost"></i>
@@ -1358,6 +1363,8 @@ function updateHoloVehicle(type) {
 }
 </style>
 
+    <script src="js/garage.js"></script>
+    <script src="js/safe-rider.js"></script>
     <script src="js/pocket-lawyer.js"></script>
 </body>
 </html>

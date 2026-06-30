@@ -90,68 +90,129 @@ window.PocketLawyer = {
 
         overlay.innerHTML = `
             <button onclick="PocketLawyer.closeLawyer()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
-            <i class="fa-solid fa-scale-balanced fa-beat-fade" style="font-size: 4rem; color: #cca300; filter: drop-shadow(0 0 20px #cca300); margin-bottom: 10px;"></i>
-            <h1 style="font-size: 2rem; margin: 0; text-transform: uppercase; color: #cca300;">Avocat de Poche</h1>
-            <p style="color: #aaa; margin-bottom: 5px;">Analyse GPS et génération par Intelligence Artificielle (IA) ✨</p>
-            <p style="color: #777; font-size: 0.8rem; margin-bottom: 30px; text-align: center; max-width: 80%; line-height: 1.2;">Avertissement (IA Act) : Ce rapport est généré par une IA. Il a une valeur purement indicative et ne remplace pas un conseil juridique professionnel.</p>
+            <i class="fa-solid fa-scale-balanced fa-beat-fade" style="font-size: 3rem; color: #cca300; filter: drop-shadow(0 0 10px #cca300); margin-bottom: 5px;"></i>
+            <h1 style="font-size: 1.5rem; margin: 0; text-transform: uppercase; color: #cca300;">Avocat de Poche</h1>
+            <p style="color: #777; font-size: 0.8rem; margin-bottom: 15px; text-align: center; max-width: 80%; line-height: 1.2;">Avertissement (IA Act) : Aide indicative générée par IA. Ne remplace pas un conseil juridique.</p>
             
-            <div id="lawyer-scanning" style="text-align: center; margin-top: 50px;">
-                <div style="width: 60px; height: 60px; border: 4px solid #333; border-top-color: #cca300; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-                <p style="margin-top: 20px; color: #cca300;">Vérification des arrêtés municipaux en cours...</p>
+            <div id="lawyer-chat-box" style="flex: 1; width: 90%; max-width: 500px; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; scroll-behavior: smooth;">
+                <div style="background: rgba(204,163,0,0.2); padding: 10px 15px; border-radius: 15px; align-self: flex-start; max-width: 85%; border-left: 3px solid #cca300; line-height: 1.4;">
+                    Bonjour, je suis votre Avocat de Poche. Posez-moi une question juridique (ex: débridage, amende, assurance) ou scannez votre stationnement.
+                </div>
             </div>
             
-            <div id="lawyer-result" style="display: none; width: 90%; max-width: 500px; padding-bottom: 50px;"></div>
+            <div style="width: 90%; max-width: 500px; display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="text" id="lawyer-input" placeholder="Votre question..." style="flex: 1; padding: 12px; border-radius: 20px; border: 1px solid #555; background: #222; color: #fff; outline: none;" onkeypress="if(event.key === 'Enter') PocketLawyer.sendMessage()">
+                <button onclick="PocketLawyer.sendMessage()" style="background: #cca300; color: #000; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+            
+            <button onclick="PocketLawyer.startGPSScan()" style="margin-bottom: 30px; background: transparent; border: 1px solid #cca300; color: #cca300; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-location-dot"></i> Scanner mon stationnement (GPS)</button>
             
             <style>
                 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-                .lawyer-card { background: rgba(255,255,255,0.05); border-radius: 20px; padding: 25px; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-                .lawyer-btn { padding: 15px 30px; border-radius: 30px; border: none; font-weight: bold; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; margin-top: 20px; }
+                .lawyer-card { background: rgba(255,255,255,0.05); border-radius: 15px; margin-top: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+                .lawyer-btn { padding: 10px 20px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; }
             </style>
         `;
+    },
 
-        // Simuler la recherche GPS (2 secondes)
+    sendMessage: function(text = null) {
+        const input = document.getElementById('lawyer-input');
+        const message = text || input.value.trim();
+        if (!message) return;
+        
+        if (!text) input.value = '';
+        
+        const chatBox = document.getElementById('lawyer-chat-box');
+        
+        // Add user message
+        const userMsg = document.createElement('div');
+        userMsg.style = "background: rgba(255,255,255,0.1); padding: 10px 15px; border-radius: 15px; align-self: flex-end; max-width: 85%; color: #fff;";
+        userMsg.textContent = message;
+        chatBox.appendChild(userMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
+        // Add typing indicator
+        const typingMsg = document.createElement('div');
+        typingMsg.style = "color: #cca300; font-size: 0.9rem; align-self: flex-start; margin-top: 5px;";
+        typingMsg.innerHTML = '<i class="fa-solid fa-ellipsis fa-fade"></i> Analyse en cours...';
+        chatBox.appendChild(typingMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
         setTimeout(() => {
-            const scanning = document.getElementById("lawyer-scanning");
-            const result = document.getElementById("lawyer-result");
-            if (scanning && result) {
-                scanning.style.display = "none";
-                
-                // Sélectionner un scénario aléatoire pour la démo
-                const scenario = this.scenarios[Math.floor(Math.random() * this.scenarios.length)];
-                
-                result.style.display = "block";
-                result.innerHTML = `
-                    <div class="lawyer-card" style="border: 1px solid ${scenario.color};">
-                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                            <i class="${scenario.icon}" style="font-size: 2.5rem; color: ${scenario.color};"></i>
-                            <div>
-                                <h2 style="margin: 0; font-size: 1.5rem; color: ${scenario.color};">${scenario.status}</h2>
-                                <p style="margin: 0; color: #ccc;">Environnement : ${scenario.type}</p>
-                            </div>
+            if(chatBox.contains(typingMsg)) chatBox.removeChild(typingMsg);
+            const reply = this.processChatQuery(message);
+            this.addBotMessage(reply);
+        }, 1000);
+    },
+    
+    addBotMessage: function(htmlContent) {
+        const chatBox = document.getElementById('lawyer-chat-box');
+        if(!chatBox) return;
+        const botMsg = document.createElement('div');
+        botMsg.style = "background: rgba(204,163,0,0.1); padding: 10px 15px; border-radius: 15px; align-self: flex-start; max-width: 85%; border-left: 3px solid #cca300; line-height: 1.4; color: #fff;";
+        botMsg.innerHTML = htmlContent;
+        chatBox.appendChild(botMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
+        if (typeof speak === 'function') {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlContent;
+            speak(tempDiv.textContent || tempDiv.innerText || "");
+        }
+    },
+    
+    processChatQuery: function(text) {
+        const t = text.toLowerCase();
+        
+        if (t.includes('débrid') || t.includes('debride')) {
+            return "<strong>Débridage (Art. L317-5)</strong><br>C'est un délit. Vous risquez jusqu'à <strong>135€ d'amende</strong> pour le propriétaire, mais surtout, <strong>votre assurance s'annule</strong> en cas d'accident corporel. Les assureurs se retournent contre vous pour payer les dommages aux victimes.";
+        }
+        if (t.includes('stup') || t.includes('drogue') || t.includes('fumé') || t.includes('positif') || t.includes('cannabis') || t.includes('thc')) {
+            return "<strong>Conduite sous stupéfiants (Délit)</strong><br>Même avec un BSR, vous risquez jusqu'à <strong>4500€ d'amende</strong>, 2 ans de prison, et l'immobilisation du scooter. Il n'y a pas de perte de points sur un BSR. S'il s'agit d'une première infraction, le juge peut faire preuve de clémence si vous montrez des preuves médicales de votre volonté de vous soigner.";
+        }
+        if (t.includes('alcool')) {
+            return "<strong>Alcoolémie</strong><br>Pour un permis probatoire ou BSR, la limite légale est de 0,2 g/L. Vous risquez l'immobilisation immédiate du cyclomoteur et de fortes amendes.";
+        }
+        if (t.includes('assurance')) {
+            return "<strong>Défaut d'assurance (Délit)</strong><br>Conduire sans assurance coûte jusqu'à <strong>3750€ d'amende</strong>. En cas d'accident, le Fonds de Garantie indemnise la victime mais vous réclamera le remboursement, potentiellement toute votre vie.";
+        }
+        if (t.includes('fuite') || t.includes('obtempérer')) {
+            return "<strong>Refus d'obtempérer / Délit de fuite</strong><br>Cumuler ces délits entraîne des peines de prison fermes, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrôle de police.";
+        }
+        
+        return "Désolé, ma base de jurisprudence est encore limitée sur ce point précis. Essayez de me parler de <em>débridage</em>, <em>stupéfiants</em>, <em>alcool</em> ou d'<em>assurance</em>.";
+    },
+    
+    startGPSScan: function() {
+        const chatBox = document.getElementById('lawyer-chat-box');
+        if(!chatBox) return;
+        
+        this.addBotMessage('<div style="text-align: center;"><div style="width: 30px; height: 30px; border: 3px solid #333; border-top-color: #cca300; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div><p style="margin-top: 10px; font-size: 0.9rem;">Vérification GPS en cours...</p></div>');
+        
+        setTimeout(() => {
+            chatBox.removeChild(chatBox.lastChild); // Remove loading message
+            
+            const scenario = this.scenarios[Math.floor(Math.random() * this.scenarios.length)];
+            this.currentScenarioTemplate = scenario.letterTemplate;
+            
+            let html = `
+                <div class="lawyer-card" style="border: 1px solid ${scenario.color}; padding: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <i class="${scenario.icon}" style="font-size: 2rem; color: ${scenario.color};"></i>
+                        <div>
+                            <h2 style="margin: 0; font-size: 1.2rem; color: ${scenario.color};">${scenario.status}</h2>
+                            <p style="margin: 0; font-size: 0.8rem; color: #ccc;">${scenario.type}</p>
                         </div>
-                        <div style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 10px; border-left: 4px solid ${scenario.color}; margin-bottom: 20px;">
-                            <strong style="color: #fff;"><i class="fa-solid fa-book-open"></i> ${scenario.law}</strong>
-                            <p style="margin: 5px 0 0 0; color: #bbb; font-size: 0.95rem;">${scenario.verdict}</p>
-                        </div>
-                        
-                        <h3 style="color: #fff; margin-bottom: 10px;"><i class="fa-solid fa-shield-halved"></i> Argumentaire de Défense</h3>
-                        <p style="color: #ddd; font-style: italic; line-height: 1.5;">"${scenario.defense}"</p>
-                        
-                        ${scenario.letterTemplate ? `
-                            <button class="lawyer-btn" style="background: linear-gradient(90deg, #cca300, #b38f00); color: #000;" onclick="PocketLawyer.generateLetter()">
-                                <i class="fa-solid fa-file-signature"></i> Générer un recours juridique
-                            </button>
-                        ` : ''}
                     </div>
-                `;
-                
-                // Stocker le template
-                this.currentScenarioTemplate = scenario.letterTemplate;
-                
-                if (typeof speak === 'function') {
-                    speak("Analyse juridique terminée. " + scenario.verdict);
-                }
-            }
+                    <p style="margin: 5px 0 10px 0; color: #ddd; font-size: 0.9rem;">${scenario.verdict}</p>
+                    ${scenario.letterTemplate ? `
+                        <button class="lawyer-btn" style="background: #cca300; color: #000; font-size: 0.9rem; padding: 8px 15px; width: 100%;" onclick="PocketLawyer.generateLetter()">
+                            <i class="fa-solid fa-file-signature"></i> Recours (5 Pts)
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+            this.addBotMessage(html);
         }, 2000);
     },
 

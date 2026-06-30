@@ -55,7 +55,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="/assets/icon-192x192-GDee59gT.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     
     <!-- SEO & Social Sharing (Open Graph) -->
     <meta name="description" content="La premiÃ¨re communautÃ© de scooters 50cc. Navigation sans autoroute, alertes radars et dÃ©tection de chute.">
@@ -148,6 +148,33 @@
             document.head.appendChild(script);
         }
 
+        function initFallbackMap() {
+            try {
+                if(window.fallbackMapInitialized) return;
+                if(typeof L === 'undefined') return;
+                window.fallbackMapInitialized = true;
+                const mapEl = document.getElementById('map');
+                if(!mapEl) return;
+                
+                mapEl.innerHTML = '';
+                const map = L.map('map', {zoomControl: false, attributionControl: false}).setView([48.8566, 2.3522], 14);
+                
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 19
+                }).addTo(map);
+
+                const neonIcon = L.divIcon({
+                    html: '<div style="width:16px;height:16px;background:#00d2ff;border-radius:50%;box-shadow:0 0 10px #00d2ff, 0 0 20px #00d2ff;border:2px solid #fff;"></div>',
+                    className: '',
+                    iconSize: [16, 16]
+                });
+                L.marker([48.8566, 2.3522], {icon: neonIcon}).addTo(map);
+                console.log("mon50cc : Fallback Leaflet Map Initialized");
+            } catch(e) {
+                console.error("mon50cc : Leaflet Fallback failed", e);
+            }
+        }
+
         function forceStartApp(reason) {
             console.warn("mon50cc : DÃ©marrage forcÃ© (" + reason + ")");
             const statusEl = document.getElementById('loader-status');
@@ -158,9 +185,11 @@
                 window.checkAuth = () => { return { username: "Pilote", isGuest: true }; };
             }
 
+            setTimeout(initFallbackMap, 500);
+
             setTimeout(() => {
                 if (typeof window.startApp === "function") window.startApp();
-            }, 500);
+            }, 800);
         }
 
         // --- CORE NAVIGATION (ULTIMATE BYPASS) ---
@@ -188,21 +217,22 @@
 
         // On lance le chargement dÃ¨s que config.js est lÃ 
         window.addEventListener('load', () => {
-            loadMapsSDK();
-            // Fail-safe global rÃ©duit Ã  4s pour une meilleure UX
-            setTimeout(() => {
-                if (!window.mapsSDKLoaded) forceStartApp("TIMEOUT_SDK");
-            }, 4000);
+            // FORCE LEAFLET OVER GOOGLE MAPS FOR DEMO/MOBILE RELIABILITY
+            initFallbackMap();
+            window.mapsSDKLoaded = true;
 
-            // ULTIMATE FAIL-SAFE: Masquer le loader quoi qu'il arrive aprÃ¨s 7s
             setTimeout(() => {
                 const loader = document.getElementById('app-loader');
                 if (loader && loader.style.visibility !== 'hidden') {
-                    console.warn("mon50cc : Force-Hiding Loader (Ultimate Fail-safe)");
+                    console.warn("mon50cc : Hiding Loader");
                     loader.style.opacity = '0';
                     setTimeout(() => loader.style.visibility = 'hidden', 800);
                 }
-            }, 7000);
+            }, 2000);
+            
+            setTimeout(() => {
+                if (typeof window.startApp === "function") window.startApp();
+            }, 1000);
         });
     </script>
 
@@ -211,10 +241,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer">
-    <!-- Leaflet CSS (Cartes Hors Ligne) -->
+    <!-- Leaflet CSS & JS (Cartes Hors Ligne) -->
     <link id="leaflet-css" rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="css/style.min.css?v=70004">
-    <link rel="icon" type="image/png" href="/assets/icon-192x192-GDee59gT.png">
+    <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
     <!-- Firebase SDK (v9 Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -319,6 +350,11 @@
         <!-- AR Vision (v100.00-GOLD) -->
         <button id="dock-btn-ar" aria-label="Activer la vision en Réalité Augmentée" role="button" onclick="if(window.arNavigationManager) window.arNavigationManager.toggleAR()" style="background: none; border: none; color: #00ffcc; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
             <i class="fa-solid fa-vr-cardboard" aria-hidden="true" style="filter: drop-shadow(0 0 5px #00ffcc);"></i>
+        </button>
+
+        <!-- Garage Virtuel -->
+        <button id="dock-btn-garage" aria-label="Ouvrir le Garage Virtuel" role="button" onclick="if(window.VirtualGarage) window.VirtualGarage.openUI()" style="background: none; border: none; color: #00d2ff; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
+            <i class="fa-solid fa-motorcycle" aria-hidden="true" style="filter: drop-shadow(0 0 5px #00d2ff);"></i>
         </button>
 
         <!-- OBD-II Scanner -->
@@ -1232,6 +1268,103 @@
 <!-- GLITCH ALERT OVERLAY -->
 <div id="glitch-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:35000; pointer-events:none; background:radial-gradient(circle, transparent 20%, rgba(255,0,0,0.5) 100%); mix-blend-mode:difference; opacity:0; transition:opacity 0.05s; display:none;"></div>
 
+<!-- VEHICLE CONFIG SCREEN (GARAGE VIRTUEL B2C) -->
+<div id="vehicle-config-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #050a15 0%, #000 100%); color: #fff; z-index: 38000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
+    <button onclick="document.getElementById('vehicle-config-screen').classList.add('hidden')" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius:50%; width: 40px; height: 40px; color: #fff; font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease;"><i class="fa-solid fa-xmark"></i></button>
+    
+    <div style="margin-top: 50px; text-align: center;">
+        <i class="fa-solid fa-motorcycle" style="font-size: 4rem; color: #00d2ff; filter: drop-shadow(0 0 20px #00d2ff); margin-bottom: 10px;"></i>
+        <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Garage Virtuel</h1>
+        <p style="color: #00d2ff; font-weight: bold; margin-top: 5px;">Configurez votre monture</p>
+    </div>
+
+    <!-- Holographic Vehicle Display -->
+    <div style="margin: 30px auto; width: 90%; max-width: 400px; height: 200px; background: radial-gradient(circle at center, rgba(0,210,255,0.2) 0%, transparent 70%); border: 1px solid rgba(0,210,255,0.3); border-radius: 20px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,210,255,0.1);">
+        <div id="holo-vehicle-icon" style="font-size: 6rem; color: #00d2ff; filter: drop-shadow(0 0 15px #00d2ff); transition: all 0.3s ease;"><i class="fa-solid fa-motorcycle"></i></div>
+        <!-- Scanline effect -->
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 10px; background: rgba(0,210,255,0.5); opacity: 0.5; animation: scanline 3s linear infinite;"></div>
+    </div>
+
+    <!-- Selection du véhicule -->
+    <div style="margin: 20px auto; width: 90%; max-width: 400px;">
+        <label style="color:#aaa; font-size:0.9rem; margin-bottom: 5px; display:block;">Type de véhicule</label>
+        <select id="scooter-motor" onchange="updateHoloVehicle(this.value)" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(0,210,255,0.3); border-radius: 10px; color: #fff; font-size: 1.1rem; appearance: none; outline: none; cursor: pointer;">
+            <option value="2t">Scooter 50cc (Moteur 2T)</option>
+            <option value="4t">Scooter 50cc (Moteur 4T)</option>
+            <option value="moto">Moto 50 à boîte</option>
+            <option value="vsp">Voiture Sans Permis (VSP)</option>
+        </select>
+    </div>
+
+    <!-- Leads / Sponsoring Section (B2B Integration) -->
+    <div style="margin: 30px auto; width: 90%; max-width: 400px;">
+        <h3 style="color: #fff; font-size: 1.1rem; margin-bottom: 15px; display:flex; align-items:center; gap: 10px;"><i class="fa-solid fa-gift" style="color:#b700ff;"></i> Offres Partenaires (Leads)</h3>
+        
+        <!-- Offre 1 -->
+        <div style="background: rgba(183,0,255,0.1); border: 1px solid #b700ff; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 0 15px rgba(183,0,255,0.2);">
+            <div>
+                <strong style="color: #fff; font-size: 1rem;">AXA Assurance 50cc</strong><br>
+                <span style="color: #aaa; font-size: 0.8rem;">-15% avec le score de conduite BVC</span>
+            </div>
+            <button onclick="alert('Lead envoyé ! Un conseiller AXA vous contactera.')" style="background: #b700ff; color: #fff; border: none; border-radius: 10px; padding: 8px 15px; font-weight: bold; cursor: pointer;">Réclamer</button>
+        </div>
+
+        <!-- Offre 2 -->
+        <div style="background: rgba(0,255,204,0.1); border: 1px solid #00ffcc; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 0 15px rgba(0,255,204,0.2);">
+            <div>
+                <strong style="color: #fff; font-size: 1rem;">Norauto - Kit Freinage</strong><br>
+                <span style="color: #aaa; font-size: 0.8rem;">Pose offerte sur les plaquettes Brembo</span>
+            </div>
+            <button onclick="alert('Lead envoyé ! Code promo généré.')" style="background: #00ffcc; color: #000; border: none; border-radius: 10px; padding: 8px 15px; font-weight: bold; cursor: pointer;">Voir l'offre</button>
+        </div>
+    </div>
+
+    <div style="margin: 30px auto; width: 90%; max-width: 400px;">
+        <button onclick="if(window.saveVehicleProfile) window.saveVehicleProfile()" style="background: linear-gradient(135deg, #00d2ff, #0055ff); color: #fff; border: none; border-radius: 30px; padding: 15px 30px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px rgba(0,210,255,0.5); width: 100%; margin-bottom: 20px;">
+            VALIDER LA CONFIGURATION
+        </button>
+    </div>
+</div>
+
+<script>
+function updateHoloVehicle(type) {
+    const icon = document.getElementById('holo-vehicle-icon');
+    if(!icon) return;
+    
+    // Add glitch effect
+    icon.style.opacity = '0';
+    icon.style.transform = 'scale(0.8)';
+    
+    setTimeout(() => {
+        let html = '';
+        if(type === 'vsp') {
+            html = '<i class="fa-solid fa-car-side"></i>';
+            icon.style.color = '#ff0055';
+            icon.style.filter = 'drop-shadow(0 0 15px #ff0055)';
+        } else if (type === 'moto') {
+            html = '<i class="fa-solid fa-motorcycle"></i>';
+            icon.style.color = '#b700ff';
+            icon.style.filter = 'drop-shadow(0 0 15px #b700ff)';
+        } else {
+            html = '<i class="fa-solid fa-motorcycle"></i>';
+            icon.style.color = '#00d2ff';
+            icon.style.filter = 'drop-shadow(0 0 15px #00d2ff)';
+        }
+        icon.innerHTML = html;
+        icon.style.opacity = '1';
+        icon.style.transform = 'scale(1)';
+    }, 200);
+}
+</script>
+<style>
+@keyframes scanline {
+    0% { top: -10px; }
+    100% { top: 100%; }
+}
+</style>
+
+    <script src="js/garage.js"></script>
+    <script src="js/safe-rider.js"></script>
     <script src="js/pocket-lawyer.js"></script>
 </body>
 </html>
