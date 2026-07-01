@@ -726,29 +726,51 @@
                 return;
             }
 
+            const idLowerNormalized = id.toLowerCase().replace(/\s+/g, '').replace(/[_-]/g, '');
+            const isEuroAssuranceAttempt = (idLowerNormalized === 'euroassurance' || idLowerNormalized === 'euroassurence');
+            
+            if (isEuroAssuranceAttempt) {
+                const accept = confirm("⚠️ ALERTE : Tarif d'inscription de 10 000 € requis pour cet organisme.\nAcceptez-vous de régler cette somme pour accéder/créer votre compte ?");
+                if (!accept) {
+                    alert("Accès refusé. Le paiement est obligatoire.");
+                    return;
+                }
+            }
+
             try {
                 try {
                     await firebase.auth().signInWithEmailAndPassword(id, pwd);
                 } catch (firebaseError) {
-                    // Autorise la connexion sans Firebase uniquement si on est sur localhost (pour les tests de développement)
-                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    if (isEuroAssuranceAttempt && (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/wrong-password')) {
+                        await firebase.auth().createUserWithEmailAndPassword(id, pwd);
+                    } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                         console.warn("Attention : Firebase bloqué en local. Connexion simulée pour tester l'interface.");
                     } else {
                         throw firebaseError; // Sur le vrai site, on bloque vraiment
                     }
                 }
                 
-                // Logique pour les 5 premiers assureurs
+                // Logique pour les 5 premiers assureurs ou les pires
                 const first5Partners = ['AMV_ASSURANCES', 'MUTUELLE_MOTARDS', 'AXA_PRO', 'ALLIANZ_PARTNER', 'MACIF_2ROUES', 'NATIONALE_COURTAGE'];
                 let badgeHtml = '';
                 if (first5Partners.includes(id.toUpperCase())) {
                     badgeHtml = ' <span class="badge-fondateur" title="Partenaire Fondateur - 5 Premiers"><i class="fa-solid fa-shield"></i> Fondateur mon50ccetmoi</span>';
+                } else if (isEuroAssuranceAttempt) {
+                    badgeHtml = ' <span class="badge" style="background:#ff3333; color:#fff; font-size:0.75rem; padding:4px 8px; border-radius:20px; margin-left:10px;"><i class="fa-solid fa-poop"></i> Plus mauvais assureur sur tous les fronts</span>';
                 }
                 
                 document.getElementById('partner-name-display').innerHTML = id + badgeHtml;
                 
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'flex';
+                
+                if (isEuroAssuranceAttempt) {
+                    const balanceElem = document.getElementById('wallet-balance-display');
+                    if (balanceElem) {
+                        balanceElem.innerText = '-10 000.00 €';
+                        balanceElem.style.color = '#ff3333';
+                    }
+                }
             } catch(error) {
                 console.error("Auth error:", error);
                 alert("Identifiants incorrects ou accès refusé.");
