@@ -161,7 +161,7 @@ window.PocketLawyer = {
         
         if (insurerName.toLowerCase().includes("euro assurance") || insurerName.toLowerCase().includes("euroassurence")) {
             setTimeout(() => {
-                this.addBotMessage(`⚠️ <strong>Note de l'Avocat :</strong> Nous avons reçu de très nombreux signalements concernant cet assureur. Sachez qu'ils sont désormais classés "Pire Assureur sur tous les fronts" sur notre plateforme B2B et subissent de lourdes pénalités (accès facturé 10 000 €).`);
+                this.addBotMessage(`⚠️ <strong>Note de l'Avocat :</strong> Nous avons reçu de nombreux signalements concernant cet assureur. Sachez qu'il est désormais classé "Partenaire non recommandé" sur notre plateforme B2B et soumis à des frais de vérification renforcée (10 000 €).`);
             }, 3000);
         }
     },

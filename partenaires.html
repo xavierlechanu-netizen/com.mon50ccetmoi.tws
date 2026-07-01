@@ -730,7 +730,7 @@
             const isEuroAssuranceAttempt = (idLowerNormalized === 'euroassurance' || idLowerNormalized === 'euroassurence');
             
             if (isEuroAssuranceAttempt) {
-                const accept = confirm("⚠️ ALERTE : Tarif d'inscription de 10 000 € requis pour cet organisme.\nAcceptez-vous de régler cette somme pour accéder/créer votre compte ?");
+                const accept = confirm("⚠️ ALERTE : Cet organisme est classé 'Partenaire non recommandé' suite à de multiples signalements.\nUn tarif de vérification renforcée de 10 000 € est requis.\nAcceptez-vous de régler cette somme pour accéder/créer votre compte ?");
                 if (!accept) {
                     alert("Accès refusé. Le paiement est obligatoire.");
                     return;
@@ -756,7 +756,7 @@
                 if (first5Partners.includes(id.toUpperCase())) {
                     badgeHtml = ' <span class="badge-fondateur" title="Partenaire Fondateur - 5 Premiers"><i class="fa-solid fa-shield"></i> Fondateur mon50ccetmoi</span>';
                 } else if (isEuroAssuranceAttempt) {
-                    badgeHtml = ' <span class="badge" style="background:#ff3333; color:#fff; font-size:0.75rem; padding:4px 8px; border-radius:20px; margin-left:10px;"><i class="fa-solid fa-poop"></i> Plus mauvais assureur sur tous les fronts</span>';
+                    badgeHtml = ' <span class="badge" style="background:#ff8800; color:#fff; font-size:0.75rem; padding:4px 8px; border-radius:20px; margin-left:10px;"><i class="fa-solid fa-triangle-exclamation"></i> Partenaire non recommandé</span>';
                 }
                 
                 document.getElementById('partner-name-display').innerHTML = id + badgeHtml;

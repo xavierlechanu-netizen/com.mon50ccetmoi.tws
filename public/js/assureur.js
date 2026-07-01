@@ -18,9 +18,9 @@ async function authenticateInsurer() {
     const isEuroAssuranceAttempt = (userLowerNormalized === 'euroassurance' || userLowerNormalized === 'euroassurence');
     
     if (isEuroAssuranceAttempt) {
-        const accept = confirm("⚠️ ALERTE : Vous êtes classé 'Pire assureur sur tous les fronts'.\nPour créer un compte ou vous connecter, un tarif exceptionnel de 10 000 € est exigé.\n\nAcceptez-vous de payer ces 10 000 € ?");
+        const accept = confirm("⚠️ ALERTE : Cet organisme est classé 'Partenaire non recommandé' suite à de multiples signalements.\nPour créer un compte ou vous connecter, un tarif de vérification renforcée de 10 000 € est exigé.\n\nAcceptez-vous de payer ces 10 000 € ?");
         if (!accept) {
-            errorEl.innerHTML = '<i class="fa-solid fa-poop"></i> <strong>Accès refusé :</strong> Paiement de 10 000 € requis pour cet organisme.';
+            errorEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <strong>Accès refusé :</strong> Frais de vérification renforcée de 10 000 € requis pour cet organisme.';
             errorEl.style.display = 'block';
             return;
         }
@@ -47,7 +47,7 @@ async function authenticateInsurer() {
         if (isEuroAssurance) {
             const portalTitle = document.querySelector('#portal-content h1');
             if (portalTitle) {
-                portalTitle.innerHTML += ' <span style="font-size:0.4em; background:#ff3333; color:#fff; padding:5px 10px; border-radius:10px; vertical-align:middle;" title="Pire assureur sur tous les fronts"><i class="fa-solid fa-poop"></i> Pire Assureur</span>';
+                portalTitle.innerHTML += ' <span style="font-size:0.4em; background:#ff8800; color:#fff; padding:5px 10px; border-radius:10px; vertical-align:middle;" title="Partenaire non recommandé - Signalements multiples"><i class="fa-solid fa-triangle-exclamation"></i> Partenaire non recommandé</span>';
             }
         }
 
