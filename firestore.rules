@@ -94,6 +94,13 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // Signalements de litiges assureurs (Insurer Reports)
+    match /insurer_reports/{reportId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
     // Stations services signalées/blacklistées (Blacklist Stations)
     match /blacklist_stations/{stationId} {
       allow read: if true;
@@ -195,7 +202,7 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────
     match /loot_drops/{lootId} {
       allow read: if isSignedIn();
-      allow create: if isAdmin() || true; // En dev on permet à tout le monde de tester
+      allow create: if isAdmin(); // Seuls les admins peuvent créer des loot drops
       allow update: if isSignedIn(); // Pour permettre de claim le loot
       allow delete: if isAdmin();
     }

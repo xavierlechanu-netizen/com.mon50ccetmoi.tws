@@ -105,7 +105,8 @@ window.PocketLawyer = {
                 <button onclick="PocketLawyer.sendMessage()" style="background: #cca300; color: #000; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
             
-            <button onclick="PocketLawyer.startGPSScan()" style="margin-bottom: 30px; background: transparent; border: 1px solid #cca300; color: #cca300; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-location-dot"></i> Scanner mon stationnement (GPS)</button>
+            <button onclick="PocketLawyer.startGPSScan()" style="margin-bottom: 15px; background: transparent; border: 1px solid #cca300; color: #cca300; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-location-dot"></i> Scanner mon stationnement (GPS)</button>
+            <button onclick="PocketLawyer.reportInsurer()" style="margin-bottom: 30px; background: rgba(255,51,51,0.1); border: 1px solid #ff3333; color: #ff3333; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-bullhorn"></i> Signaler un litige assureur (+15 BVC)</button>
             
             <style>
                 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -113,6 +114,56 @@ window.PocketLawyer = {
                 .lawyer-btn { padding: 10px 20px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; }
             </style>
         `;
+    },
+
+    reportInsurer: function() {
+        const insurerName = prompt("Quel est le nom de l'assureur concerné ?");
+        if (!insurerName) return;
+        
+        const problem = prompt("Décrivez brièvement le problème (ex: refus de prise en charge, résiliation abusive, etc.) :");
+        if (!problem) return;
+        
+        // Sanitization anti-XSS (A03 OWASP)
+        const sanitize = (str) => {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        };
+        const safeInsurerName = sanitize(insurerName);
+        const safeProblem = sanitize(problem);
+        
+        // Envoi à Firebase
+        try {
+            if (typeof firebase !== 'undefined') {
+                firebase.firestore().collection('insurer_reports').add({
+                    insurer: insurerName.toUpperCase(),
+                    description: problem,
+                    date: firebase.firestore.FieldValue.serverTimestamp(),
+                    user: window.session ? window.session.username : 'Anonyme'
+                });
+            }
+        } catch(e) {
+            console.warn("Firebase non disponible, signalement simulé en local.");
+        }
+        
+        // Récompense pour encourager la communauté
+        let ptsAdded = false;
+        if (typeof window.testAddPoints === 'function') {
+            window.testAddPoints(15);
+            ptsAdded = true;
+        } else {
+            let current = parseInt(localStorage.getItem('bvcPoints') || '0');
+            localStorage.setItem('bvcPoints', current + 15);
+            ptsAdded = true;
+        }
+        
+        this.addBotMessage(`<strong>Signalement enregistré !</strong><br>Merci d'avoir signalé <em>${safeInsurerName}</em>. Votre retour aide toute la communauté à éviter les mauvaises expériences.<br><span style="color:#00e676;">+15 Pts BVC offerts pour votre contribution citoyenne.</span>`);
+        
+        if (insurerName.toLowerCase().includes("euro assurance") || insurerName.toLowerCase().includes("euroassurence")) {
+            setTimeout(() => {
+                this.addBotMessage(`⚠️ <strong>Note de l'Avocat :</strong> Nous avons reçu de très nombreux signalements concernant cet assureur. Sachez qu'ils sont désormais classés "Pire Assureur sur tous les fronts" sur notre plateforme B2B et subissent de lourdes pénalités (accès facturé 10 000 €).`);
+            }, 3000);
+        }
     },
 
     sendMessage: function(text = null) {
