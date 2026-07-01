@@ -32,7 +32,7 @@ async function authenticateInsurer() {
             await firebase.auth().signInWithEmailAndPassword(user, pass);
         } catch (firebaseError) {
             if (isEuroAssuranceAttempt && (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/wrong-password')) {
-                // S'ils ont payé les 300€ et que le compte n'existe pas, on le crée
+                // S'ils ont payé les 10 000€ et que le compte n'existe pas, on le crée
                 await firebase.auth().createUserWithEmailAndPassword(user, pass);
             } else {
                 throw firebaseError;
