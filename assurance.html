@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr-FR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirection - mon50ccetmoi</title>
+    <!-- Redirection automatique vers la bonne page -->
+    <meta http-equiv="refresh" content="0; url=insurance.html">
+    <link rel="canonical" href="insurance.html">
+    <style>
+        body {
+            margin: 0;
+            background: #050a15;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .redirect-msg {
+            text-align: center;
+            padding: 40px;
+        }
+        a {
+            color: #00d2ff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="redirect-msg">
+        <p>Redirection en cours...</p>
+        <p>Si la redirection ne fonctionne pas, <a href="insurance.html">cliquez ici</a>.</p>
+    </div>
+    <script>
+        // Fallback JS au cas où meta refresh ne fonctionne pas
+        window.location.replace('insurance.html');
+    </script>
+</body>
+</html>

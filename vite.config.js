@@ -21,6 +21,7 @@ export default defineConfig({
         beta: resolve(__dirname, 'beta.html'),
         banned: resolve(__dirname, 'banned.html'),
         assureur: resolve(__dirname, 'assureur.html'),
+        assurance: resolve(__dirname, 'assurance.html'),
         partenaires: resolve(__dirname, 'partenaires.html'),
         cookies: resolve(__dirname, 'cookies.html'),
         mentions: resolve(__dirname, 'mentions-legales.html'),
