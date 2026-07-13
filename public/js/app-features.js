@@ -581,8 +581,12 @@ window.applyPartnerExemption = async function() {
 };
 
 window.publishProTip = function() {
-    const title = document.getElementById('pro-tip-title').value;
-    const body = document.getElementById('pro-tip-body').value;
+    let title = document.getElementById('pro-tip-title').value;
+    let body = document.getElementById('pro-tip-body').value;
+    if(!title || !body) return;
+
+    title = title.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    body = body.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     if(!title || !body) return;
 
     const tip = {

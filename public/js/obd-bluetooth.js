@@ -111,7 +111,7 @@ class OBDManager {
         this.buffer += str;
 
         if (this.buffer.includes('>')) { // Prompt de fin de réponse ELM327
-            let response = this.buffer.replace('>', '').trim();
+            let response = this.buffer.replace(/>/g, '').trim();
             this.buffer = ''; // Reset buffer
             this.parseObdResponse(response);
         }

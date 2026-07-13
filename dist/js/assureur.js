@@ -184,7 +184,8 @@ async function payReport() {
                 showExpertTelemetry(currentCaseId, currentReportType);
             },
             onError: (err) => {
-                statusEl.innerHTML = '<span class="error">Erreur lors du paiement : ' + err + '</span>';
+                const safeErr = String(err).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                statusEl.innerHTML = '<span class="error">Erreur lors du paiement : ' + safeErr + '</span>';
                 payBtn.disabled = false;
                 payBtn.innerHTML = 'Réessayer le paiement ' + currentPrice.toFixed(2) + '€';
             },

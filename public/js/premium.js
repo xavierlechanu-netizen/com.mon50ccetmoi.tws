@@ -75,7 +75,9 @@ window.startPremiumNavigation = function(leg) {
 
     // Format instructions
     const nextStep = leg.steps[0];
-    let instructionText = nextStep.instructions.replace(/<[^>]*>?/gm, ''); // Strip HTML tags
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = nextStep.instructions;
+    let instructionText = tempDiv.textContent || tempDiv.innerText || ""; // Strip HTML tags
     
     const navInstruction = document.getElementById('nav-instruction');
     const navDistance = document.getElementById('nav-distance');

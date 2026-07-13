@@ -84,7 +84,9 @@ async function calculateRouteSansAutoroute(start, end) {
 
             const nextStep = leg.steps[0];
             if (nextStep) {
-                let instructionText = nextStep.instructions.replace(/<[^>]*>?/gm, '');
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = nextStep.instructions;
+                let instructionText = tempDiv.textContent || tempDiv.innerText || "";
                 if (nextStepName) nextStepName.textContent = instructionText;
                 if (nextStepDist) nextStepDist.textContent = nextStep.distance.text;
 
@@ -560,13 +562,14 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
 
                 // Étoiles de notation
                 const isGuest = !window.session || window.session.isGuest;
+                const safePlaceName = (place.name || "").replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                 const starBtns = isGuest ? "" : `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:5px;">
                     <small>Évaluer ce garage :</small><br>
-                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', 1)">⭐</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', 2)">⭐</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', 3)">⭐</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', 4)">⭐</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${place.name.replace(/'/g, "\\'")}', 5)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 1)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 2)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 3)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 4)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 5)">⭐</span>
                 </div>`;
 
                 const info = new google.maps.InfoWindow({
