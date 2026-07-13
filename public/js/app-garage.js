@@ -353,12 +353,13 @@ window.showVault = function() {
 }
 
 window.hideVault = function() {
-    document.getElementById('secure-vault-screen').classList.add('hidden');
+    const vault = document.getElementById('secure-vault-screen');
+    if (vault) vault.classList.add('hidden');
     const searchContainer = document.getElementById('search-container');
     const hud = document.getElementById('hud');
     if(searchContainer) searchContainer.classList.remove('hidden');
     if(hud) hud.style.display = 'block';
-}
+};
 
 // DEBUG: Sentinel Error Reporter Overlay
 (function() {

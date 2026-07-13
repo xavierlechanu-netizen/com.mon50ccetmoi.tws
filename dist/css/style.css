@@ -1721,7 +1721,7 @@ body, html {
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255,255,255,0.2);
 }
-.login-logo { font-size: 3rem; color: #ffb703; margin-bottom: 10px; }
+.login-logo { font-size: 3rem; color: #00d2ff; text-shadow: 0 0 15px rgba(0, 210, 255, 0.8); margin-bottom: 10px; }
 .login-title { font-size: 2rem; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
 .login-subtitle { font-size: 1rem; color: #bbb; margin-bottom: 30px; }
 .auth-form input {
@@ -1735,13 +1735,13 @@ body, html {
     font-size: 1rem;
     outline: none;
 }
-.auth-form input:focus { border-color: #ffb703; }
+.auth-form input:focus { border-color: #00d2ff; box-shadow: 0 0 10px rgba(0, 210, 255, 0.4); }
 .btn-auth {
     width: 100%; padding: 15px; border-radius: 10px; border: none;
-    background: #ffb703; color: #000; font-weight: bold; font-size: 1.1rem;
-    cursor: pointer; box-shadow: 0 4px 15px rgba(0,225,255,0.4);
+    background: #00d2ff; color: #000; font-weight: bold; font-size: 1.1rem;
+    cursor: pointer; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.6);
 }
-.btn-auth-alt { background: #ffb703; box-shadow: 0 4px 15px rgba(255,183,3,0.4); }
+.btn-auth-alt { background: #00d2ff; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.6); }
 .switch-link { margin-top: 20px; color: #aaa; cursor: pointer; font-size: 0.9rem; }
 .switch-link strong { color: #fff; border-bottom: 1px solid var(--accent); }
 

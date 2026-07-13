@@ -1,6 +1,7 @@
 let currentCaseId = null;
 let currentReportType = 'EXPERT';
 let currentPrice = 199.99;
+let isEuroAssurance = false;
 
 async function authenticateInsurer() {
     const user = document.getElementById('insurer-username').value.trim();
@@ -12,14 +13,44 @@ async function authenticateInsurer() {
         errorEl.style.display = 'block';
         return;
     }
+
+    const userLowerNormalized = user.toLowerCase().replace(/\s+/g, '').replace(/[_-]/g, '');
+    const isEuroAssuranceAttempt = (userLowerNormalized === 'euroassurance' || userLowerNormalized === 'euroassurence');
+    
+    if (isEuroAssuranceAttempt) {
+        const accept = confirm("⚠️ ALERTE : Cet organisme est classé 'Partenaire non recommandé' suite à de multiples signalements.\nPour créer un compte ou vous connecter, un tarif de vérification renforcée de 10 000 € est exigé.\n\nAcceptez-vous de payer ces 10 000 € ?");
+        if (!accept) {
+            errorEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <strong>Accès refusé :</strong> Frais de vérification renforcée de 10 000 € requis pour cet organisme.';
+            errorEl.style.display = 'block';
+            return;
+        }
+        isEuroAssurance = true;
+    }
     
     try {
-        await firebase.auth().signInWithEmailAndPassword(user, pass);
-        // Succès de l'authentification
+        try {
+            await firebase.auth().signInWithEmailAndPassword(user, pass);
+        } catch (firebaseError) {
+            if (isEuroAssuranceAttempt && (firebaseError.code === 'auth/user-not-found' || firebaseError.code === 'auth/wrong-password')) {
+                // S'ils ont payé les 10 000€ et que le compte n'existe pas, on le crée
+                await firebase.auth().createUserWithEmailAndPassword(user, pass);
+            } else {
+                throw firebaseError;
+            }
+        }
+        
+        // Succès de l'authentification ou création
         errorEl.style.display = 'none';
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('portal-content').style.display = 'block';
         
+        if (isEuroAssurance) {
+            const portalTitle = document.querySelector('#portal-content h1');
+            if (portalTitle) {
+                portalTitle.innerHTML += ' <span style="font-size:0.4em; background:#ff8800; color:#fff; padding:5px 10px; border-radius:10px; vertical-align:middle;" title="Partenaire non recommandé - Signalements multiples"><i class="fa-solid fa-triangle-exclamation"></i> Partenaire non recommandé</span>';
+            }
+        }
+
         // Feedback vocal (si supporté par l'app principale)
         if (typeof speak === 'function') {
             speak('Connexion experte établie. Bienvenue sur le portail.');
@@ -65,6 +96,15 @@ async function searchCase() {
             statusEl.innerHTML = `<span style="color:#333;">Dossier <strong>${codeInput}</strong> trouvé. Pilote : Pilote Démo.<br>Veuillez choisir le niveau d'expertise souhaité :</span>`;
             optionsEl.style.display = 'flex';
             payBtn.style.display = 'block';
+            
+            if (isEuroAssurance) {
+                const reportCards = document.querySelectorAll('.report-card');
+                if (reportCards.length >= 3) {
+                    reportCards[0].style.display = 'none';
+                    reportCards[1].style.display = 'none';
+                    selectReport('EXPERT', 199.99); // Force selection of the most expensive
+                }
+            }
             return;
         }
 
@@ -88,6 +128,15 @@ async function searchCase() {
         statusEl.innerHTML = `<span style="color:#333;">Dossier <strong>${div1.innerHTML}</strong> trouvé. Pilote : ${div2.innerHTML}.<br>Veuillez choisir le niveau d'expertise souhaité :</span>`;
         optionsEl.style.display = 'flex';
         payBtn.style.display = 'block';
+        
+        if (isEuroAssurance) {
+            const reportCards = document.querySelectorAll('.report-card');
+            if (reportCards.length >= 3) {
+                reportCards[0].style.display = 'none'; // Cache Rapport Simple
+                reportCards[1].style.display = 'none'; // Cache Rapport Intermédiaire
+                selectReport('EXPERT', 199.99); // Force l'expertise la plus chère
+            }
+        }
         
     } catch (err) {
         console.error(err);

@@ -130,5 +130,45 @@
         </div>
     </div>
 
+    <!-- BOURSE D'ÉCHANGE COMMUNAUTAIRE -->
+    <div style="margin-top: 40px; border-top: 1px solid rgba(0,210,255,0.2); padding-top: 30px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 style="margin:0; color:#00d2ff; text-shadow:0 0 10px rgba(0,210,255,0.5);"><i class="fa-solid fa-arrows-rotate"></i> Bourse d'Échange</h2>
+            <button onclick="if(window.ExchangeMarket) ExchangeMarket.openPublishForm()" style="background:linear-gradient(135deg,#00d2ff,#0090ff); color:#fff; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer; font-size:0.9rem;">
+                <i class="fa-solid fa-plus"></i> Publier une annonce
+            </button>
+        </div>
+        <p style="color:#888; margin-bottom:20px;">Achetez, vendez ou troquez des pièces détachées d'occasion avec la communauté.</p>
+        <div class="grid-market" id="exchange-listings-container">
+            <div style="text-align:center; padding:40px; color:#666;">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size:2rem; margin-bottom:10px;"></i>
+                <p>Chargement des annonces…</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="js/infallible.js"></script>
+    <script src="js/config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script>
+        if (typeof CONFIG !== 'undefined' && CONFIG.FIREBASE) {
+            if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
+            window.db = firebase.firestore();
+        }
+        // Session fallback
+        try {
+            const rawSession = localStorage.getItem('session');
+            if (rawSession && rawSession.startsWith('{')) {
+                window.session = JSON.parse(rawSession);
+            } else {
+                window.session = { username: "Invité", isGuest: true };
+            }
+        } catch(e) { window.session = { username: "Invité", isGuest: true }; }
+    </script>
+    <script src="js/exchange.js"></script>
+
 </body>
 </html>

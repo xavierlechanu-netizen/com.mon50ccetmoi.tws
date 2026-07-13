@@ -34,8 +34,8 @@ window.CrashReporter = {
     },
 
     logError: function(errorData) {
-        // Prevent logging errors if Firebase isn't loaded yet
-        if (typeof firebase === 'undefined' || !firebase.firestore) return;
+        // Prevent logging errors if Firebase isn't loaded or initialized yet
+        if (typeof firebase === 'undefined' || !firebase.firestore || firebase.apps.length === 0) return;
 
         try {
             const db = firebase.firestore();

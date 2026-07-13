@@ -58,3 +58,18 @@ const CONFIG = {
         }
     }
 };
+
+// --- FALLBACK SÉCURISÉ GLOBAL ---
+// Utilisé pour assurer que les fonctions existent avant le chargement des autres scripts
+if (typeof window.secureSetItem === 'undefined') {
+    window.secureSetItem = function(key, value) {
+        try { localStorage.setItem(key, value); } catch(e) { console.warn('secureSetItem fallback error:', e); }
+    };
+}
+if (typeof window.secureGetItem === 'undefined') {
+    window.secureGetItem = function(key) {
+        try { return localStorage.getItem(key); } catch(e) { return null; }
+    };
+}
+var secureSetItem = window.secureSetItem;
+var secureGetItem = window.secureGetItem;

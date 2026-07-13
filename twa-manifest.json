@@ -13,8 +13,8 @@
   "backgroundColor": "#000000",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "https://www.gstatic.com/images/branding/product/2x/googleg_96dp.png",
-  "maskableIconUrl": "https://www.gstatic.com/images/branding/product/2x/googleg_96dp.png",
+  "iconUrl": "https://mon50ccetmoi.com/assets/icons/icon-512x512.png",
+  "maskableIconUrl": "https://mon50ccetmoi.com/assets/icons/icon-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "./new-upload-keystore.jks",
@@ -22,7 +22,20 @@
   },
   "appVersionName": "100.60.00",
   "appVersionCode": 1006000,
-  "shortcuts": [],
+  "shortcuts": [
+    {
+      "name": "Navigation GPS",
+      "short_name": "GPS",
+      "url": "/app.html",
+      "icons": [{"src": "/assets/icons/icon-192x192.png", "sizes": "192x192"}]
+    },
+    {
+      "name": "SOS Urgence",
+      "short_name": "SOS",
+      "url": "/app.html#sos",
+      "icons": [{"src": "/assets/icons/icon-192x192.png", "sizes": "192x192"}]
+    }
+  ],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://mon50ccetmoi.com/manifest.json",
   "fallbackType": "customtabs",

@@ -6,12 +6,9 @@ window.checkGlobalPrivacy = function() {
     const hasConsented = localStorage.getItem('global_privacy_consent');
     
     if (!hasConsented) {
-        // Auto-accept pour ne pas bloquer le démarrage et ne pas interférer avec la Prominent Disclosure de Google Play
-        localStorage.setItem('global_privacy_consent', 'true');
-        // NE PAS définir legal_consent_accepted ici — c'est la Prominent Disclosure qui s'en charge
-        window.preventAppLaunch = false;
-        if(typeof window.initVoiceAI === 'function') setTimeout(window.initVoiceAI, 1000);
-        if(typeof window.initZeroClickDestiny === 'function') setTimeout(window.initZeroClickDestiny, 2000);
+        // CNIL : Ne PAS auto-accepter. Afficher la bannière et attendre le choix actif de l'utilisateur.
+        window.preventAppLaunch = true;
+        injectPrivacyBanner();
     } else {
         window.preventAppLaunch = false;
         if(typeof window.initVoiceAI === 'function') setTimeout(window.initVoiceAI, 1000);
@@ -69,7 +66,8 @@ function injectPrivacyBanner() {
                 </label>
             </div>
             
-            <button onclick="window.acceptGlobalPrivacy()" style="width: 100%; padding: 15px; background: #00ffcc; color: #000; font-weight: 900; font-size: 1.2rem; border: none; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-bottom: 15px;">J'ACCEPTE TOUT</button>
+            <button onclick="window.acceptGlobalPrivacy()" style="width: 100%; padding: 15px; background: #00ffcc; color: #000; font-weight: 900; font-size: 1.2rem; border: none; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-bottom: 10px;">J'ACCEPTE TOUT</button>
+            <button onclick="window.refuseGlobalPrivacy()" style="width: 100%; padding: 15px; background: transparent; color: #fff; font-weight: 700; font-size: 1rem; border: 2px solid #fff; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-bottom: 15px;">REFUSER (fonctionnalités limitées)</button>
             <div style="text-align: center;">
                 <button onclick="window.openPrivacyPolicy()" style="background: none; border: none; color: #888; text-decoration: underline; cursor: pointer;">Lire la Politique de Confidentialité</button>
             </div>
@@ -145,6 +143,32 @@ window.acceptGlobalPrivacy = function() {
 window.openPrivacyPolicy = function() {
     const modal = document.getElementById('privacy-policy-modal');
     if(modal) modal.classList.remove('hidden');
+};
+
+window.refuseGlobalPrivacy = function() {
+    // CNIL : L'utilisateur refuse les cookies optionnels mais accepte les essentiels (GPS obligatoire)
+    const consentRecord = {
+        gps: true, // Obligatoire pour le fonctionnement
+        mic: false,
+        cam: false,
+        ccpa_do_not_sell: true,
+        pipl_crossborder: false,
+        refused: true,
+        timestamp: new Date().toISOString(),
+        version: 'v100.00-GOLD'
+    };
+
+    localStorage.setItem('global_privacy_consent', 'refused');
+    localStorage.setItem('privacy_consent_record', JSON.stringify(consentRecord));
+    localStorage.setItem('cnil_mic', 'false');
+    localStorage.setItem('cnil_cam', 'false');
+
+    const banner = document.getElementById('global-privacy-banner');
+    if(banner) banner.remove();
+    
+    window.preventAppLaunch = false;
+    
+    alert("Vous avez refusé les cookies optionnels. L'application fonctionnera avec des fonctionnalités limitées (pas de commandes vocales ni de réalité augmentée).");
 };
 
 window.closePrivacyPolicy = function() {

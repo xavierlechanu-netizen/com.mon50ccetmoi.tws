@@ -50,7 +50,7 @@ service cloud.firestore {
 
     // Guardian Angel Sessions : Partage public via lien unique, mais écriture privée
     match /guardian_sessions/{sessionId} {
-      allow read: if true; // Pour le partage aux proches
+      allow read: if true; // Requis pour le partage web (hors app)
       allow create, update: if isSignedIn() && isOwner(request.resource.data.userId);
     }
 
@@ -70,7 +70,7 @@ service cloud.firestore {
 
     // Partage de position en temps réel (Presence)
     match /presence/{username} {
-      allow read: if true;
+      allow read: if isSignedIn(); // Protection de la localisation
       allow write: if isSignedIn() && getUsername() == username;
     }
 
@@ -83,7 +83,7 @@ service cloud.firestore {
 
     // SOS / Alertes d'urgence (Emergency Alerts)
     match /emergency_alerts/{alertId} {
-      allow read: if true;
+      allow read: if isSignedIn(); // Protection des données sensibles d'accident
       allow create: if isSignedIn() && isOwner(request.resource.data.userId);
     }
 
@@ -258,6 +258,47 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.auth.uid == request.resource.data.authorUid;
       allow update, delete: if isSignedIn() && request.auth.uid == resource.data.authorUid;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // MODE CONVOI (Balades en groupe)
+    // ─────────────────────────────────────────────────────────────
+    match /convoys/{convoyId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn();
+
+      // Sous-collection : positions GPS des membres
+      match /positions/{memberId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn();
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // BOURSE D'ÉCHANGE (Marketplace communautaire)
+    // ─────────────────────────────────────────────────────────────
+    match /exchange_listings/{listingId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.seller is string
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 3
+        && request.resource.data.title.size() <= 100
+        && request.resource.data.price is number
+        && request.resource.data.price > 0
+        && request.resource.data.price <= 50000;
+      allow update: if isSignedIn() && resource.data.seller == getUsername();
+      allow delete: if isSignedIn() && (resource.data.seller == getUsername() || isAdmin());
+    }
+
+    // Messages entre acheteur et vendeur
+    match /exchange_messages/{msgId} {
+      // Seuls l'expéditeur et le destinataire peuvent lire le message
+      allow read: if isSignedIn() && (resource.data.sender == getUsername() || resource.data.receiver == getUsername() || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.sender == getUsername();
+      allow update, delete: if false; // Messages immutables
     }
   }
 }
