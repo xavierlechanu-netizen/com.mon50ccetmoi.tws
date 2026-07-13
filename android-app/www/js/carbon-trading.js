@@ -1,7 +1,7 @@
 /* --- CARBON TRADING & CEE MARKET --- */
 
 window.ecoScore = 100;
-window.ceeCertificates = parseInt(localStorage.getItem('ceeCertificates') || '0');
+window.ceeCertificates = parseInt(localStorage.getItem('ceeCertificates') ? atob(localStorage.getItem('ceeCertificates')) : '0');
 
 // 1. ECO-DRIVING TELEMETRY
 window.initEcoTelemetry = function() {
@@ -31,7 +31,7 @@ window.generateEcoReport = function() {
     // Simulation de calcul
     if(window.ecoScore > 75) {
         window.ceeCertificates++;
-        localStorage.setItem('ceeCertificates', window.ceeCertificates.toString());
+        localStorage.setItem('ceeCertificates', btoa(window.ceeCertificates.toString()));
         
         scoreVal.innerText = window.ecoScore + '/100';
         serialVal.innerText = "CEE-" + Math.random().toString(36).substring(2, 10).toUpperCase() + "-" + new Date().getFullYear();
@@ -80,7 +80,7 @@ window.closeTradingFloor = function() {
 window.sellCEE = function() {
     if(window.ceeCertificates > 0) {
         window.ceeCertificates = 0;
-        localStorage.setItem('ceeCertificates', '0');
+        localStorage.setItem('ceeCertificates', btoa('0'));
         
         const price = parseFloat(document.getElementById('carbon-stock-price').innerText);
         // Simulation d'injection dans le Wallet

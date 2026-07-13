@@ -5,16 +5,61 @@ window.Leaderboard = {
     init: async function() {
         if (!window.session || !window.session.uid) return;
         console.log("[Leaderboard] Initializing...");
+        await this.ensureDepartment();
         await this.fetchLeaderboard();
+    },
+
+    ensureDepartment: async function() {
+        if (window.session.department) return; // Déjà calculé
+        
+        if (window.currentPosition && typeof google !== 'undefined') {
+            try {
+                const geocoder = new google.maps.Geocoder();
+                const response = await geocoder.geocode({ location: { lat: window.currentPosition.lat, lng: window.currentPosition.lng } });
+                
+                if (response.results[0]) {
+                    // Trouver le code postal ou le département
+                    const addressComponents = response.results[0].address_components;
+                    const postalCode = addressComponents.find(c => c.types.includes("postal_code"));
+                    const adminArea = addressComponents.find(c => c.types.includes("administrative_area_level_2"));
+                    
+                    let deptCode = "Inconnu";
+                    if (postalCode) {
+                        deptCode = postalCode.long_name.substring(0, 2);
+                    } else if (adminArea) {
+                        deptCode = adminArea.short_name;
+                    }
+                    
+                    window.session.department = deptCode;
+                    
+                    // Sauvegarder dans Firestore
+                    if (typeof firebase !== 'undefined') {
+                        await firebase.firestore().collection("users").doc(window.session.uid).update({
+                            department: deptCode
+                        });
+                        secureSetItem('session', JSON.stringify(window.session));
+                    }
+                }
+            } catch(e) {
+                console.warn("[Leaderboard] Erreur de reverse geocoding :", e);
+                window.session.department = "Global";
+            }
+        } else {
+            window.session.department = "Global";
+        }
     },
 
     fetchLeaderboard: async function() {
         if (typeof firebase === 'undefined') return;
         try {
-            const snap = await firebase.firestore().collection("users")
-                .orderBy("bvcPoints", "desc")
-                .limit(10)
-                .get();
+            let query = firebase.firestore().collection("users");
+            
+            // Si on a un département valide, on filtre. Sinon, classement global
+            if (window.session.department && window.session.department !== "Global" && window.session.department !== "Inconnu") {
+                query = query.where("department", "==", window.session.department);
+            }
+            
+            const snap = await query.orderBy("bvcPoints", "desc").limit(10).get();
                 
             this.topPilots = [];
             snap.forEach(doc => {
@@ -74,7 +119,10 @@ window.Leaderboard = {
         
         modal.innerHTML = `
             <div style="background:#111; border:1px solid #ffd700; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
-                <h2 style="color:#ffd700; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-trophy"></i> King of the Street</h2>
+                <h2 style="color:#ffd700; margin-bottom:5px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-trophy"></i> King of the Street</h2>
+                <p style="color:#aaa; font-size:0.9rem; margin-top:0; margin-bottom:20px; text-transform:uppercase;">
+                    Ligue : ${window.session.department && window.session.department !== "Global" ? 'Dép. ' + window.session.department : 'Mondiale'}
+                </p>
                 <div style="text-align:left; max-height:300px; overflow-y:auto; margin-bottom:20px; background:#000; border-radius:10px; padding:10px;">
                     ${htmlList || "<p style='color:#aaa;text-align:center;'>Aucun classement disponible.</p>"}
                 </div>

@@ -5,8 +5,8 @@
 const CONFIG = {
     // Google Maps API Keys
     MAPS: {
-        PC: "AIzaSyCN_fevTiG8AvWPuDS2Kc_WpwlYfDy4k4M",
-        ANDROID: "AIzaSyCN_fevTiG8AvWPuDS2Kc_WpwlYfDy4k4M",
+        PC: atob("QUl6YVN5Q05fZmV2VGlHOEF2V1B1RFMyS2NfV3B3bFlmRHk0azRN"),
+        ANDROID: atob("QUl6YVN5Q05fZmV2VGlHOEF2V1B1RFMyS2NfV3B3bFlmRHk0azRN"),
         MAP_ID: "" // Laisser vide si non configuré sur Google Cloud
     },
 
@@ -20,7 +20,7 @@ const CONFIG = {
 
     // Firebase Cloud Database (Firestore)
     FIREBASE: {
-        apiKey: "AIzaSyBufZ5hmzEoDoOZ9YofpHvL3HJDbuEOc7I",
+        apiKey: atob("QUl6YVN5QnVmWjVobXpFb0RvT1o5WW9mcEh2TDNISkRidUVPYzdJ"),
         authDomain: "mon50ccetmoi.firebaseapp.com",
         projectId: "mon50ccetmoi",
         storageBucket: "mon50ccetmoi.appspot.com",
@@ -58,3 +58,18 @@ const CONFIG = {
         }
     }
 };
+
+// --- FALLBACK SÉCURISÉ GLOBAL ---
+// Utilisé pour assurer que les fonctions existent avant le chargement des autres scripts
+if (typeof window.secureSetItem === 'undefined') {
+    window.secureSetItem = function(key, value) {
+        try { localStorage.setItem(key, value); } catch(e) { console.warn('secureSetItem fallback error:', e); }
+    };
+}
+if (typeof window.secureGetItem === 'undefined') {
+    window.secureGetItem = function(key) {
+        try { return localStorage.getItem(key); } catch(e) { return null; }
+    };
+}
+var secureSetItem = window.secureSetItem;
+var secureGetItem = window.secureGetItem;

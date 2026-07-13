@@ -5,6 +5,24 @@
 
 let db;
 
+// --- FALLBACK SÉCURISÉ ---
+// Si auth.js n'est pas chargé (ex: assureur.html), on fournit un fallback
+// qui utilise localStorage en clair. Quand auth.js est chargé, ses versions
+// chiffrées (window.secureSetItem/secureGetItem) prennent le dessus.
+if (typeof secureSetItem === 'undefined' && !window.secureSetItem) {
+    window.secureSetItem = function(key, value) {
+        try { localStorage.setItem(key, value); } catch(e) { console.warn('secureSetItem fallback error:', e); }
+    };
+}
+if (typeof secureGetItem === 'undefined' && !window.secureGetItem) {
+    window.secureGetItem = function(key) {
+        try { return localStorage.getItem(key); } catch(e) { return null; }
+    };
+}
+// Alias global pour les appels sans préfixe window.
+var secureSetItem = window.secureSetItem;
+var secureGetItem = window.secureGetItem;
+
 function initDatabase() {
     try {
         // Initialisation Firebase (si pas déjà fait par auth.js)

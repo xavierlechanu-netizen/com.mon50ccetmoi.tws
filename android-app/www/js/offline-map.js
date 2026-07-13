@@ -356,8 +356,7 @@ window.OfflineMapManager = (function() {
         }
 
         container.innerHTML = zones.map((z, idx) => {
-            const safeZoneName = document.createElement('div');
-            safeZoneName.textContent = z.name;
+            const safeName = (z.name || "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
             return `
             <div style="
                 background:rgba(0,20,40,0.8);
@@ -373,7 +372,7 @@ window.OfflineMapManager = (function() {
                     <i class="fa-solid fa-map" style="color:var(--neon-blue);"></i>
                 </div>
                 <div style="flex:1;min-width:0;">
-                    <div style="font-weight:bold;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeZoneName.innerHTML}</div>
+                    <div style="font-weight:bold;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</div>
                     <div style="font-size:0.65rem;color:#666;margin-top:2px;">${z.tiles} tuiles • ~${z.estimatedMb} Mo • ${z.date}</div>
                     <div style="font-size:0.65rem;color:#444;">Rayon: ${z.radiusKm} km</div>
                 </div>

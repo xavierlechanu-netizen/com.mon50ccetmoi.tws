@@ -17,6 +17,10 @@ window.CrewSystem = {
             if (doc.exists) {
                 this.currentCrew = { id: doc.id, ...doc.data() };
                 this.updateUI();
+                
+                if (this.currentCrew.qgLat && this.currentCrew.qgLng) {
+                    this.drawQG(this.currentCrew.qgLat, this.currentCrew.qgLng);
+                }
             }
         } catch(e) {
             console.error("[CrewSystem] Error loading crew", e);
@@ -162,6 +166,60 @@ window.CrewSystem = {
         }
     },
     
+    drawQG: function(lat, lng) {
+        if (!map || !this.currentCrew) return;
+        
+        if (this.qgMarker) {
+            this.qgMarker.setMap(null);
+        }
+        
+        this.qgMarker = new google.maps.Marker({
+            position: { lat: lat, lng: lng },
+            map: map,
+            icon: {
+                path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                fillColor: this.currentCrew.color,
+                fillOpacity: 1,
+                strokeColor: '#fff',
+                strokeWeight: 2,
+                scale: 6
+            },
+            title: `QG: ${this.currentCrew.name}`
+        });
+        
+        const info = new google.maps.InfoWindow({
+            content: `<div style="color:black; font-family:'Outfit', sans-serif; text-align:center; padding:10px;">
+                        <h3 style="margin:0; color:${this.currentCrew.color};"><i class="fa-solid fa-crown"></i> QG ${this.currentCrew.name}</h3>
+                        <p style="margin:5px 0; font-size:0.9rem;">Point de Ralliement Secret</p>
+                      </div>`
+        });
+        this.qgMarker.addListener("click", () => info.open(map, this.qgMarker));
+    },
+
+    setQG: async function() {
+        if (!this.currentCrew || this.currentCrew.leaderUid !== window.session.uid) {
+            return alert("Seul le leader du Crew peut définir le QG !");
+        }
+        if (!window.currentPosition) return alert("Le signal GPS est requis.");
+        
+        try {
+            await firebase.firestore().collection("crews").doc(this.currentCrew.id).update({
+                qgLat: window.currentPosition.lat,
+                qgLng: window.currentPosition.lng
+            });
+            this.currentCrew.qgLat = window.currentPosition.lat;
+            this.currentCrew.qgLng = window.currentPosition.lng;
+            this.drawQG(window.currentPosition.lat, window.currentPosition.lng);
+            alert("Le Quartier Général de votre Crew a été établi à votre position actuelle ! Il est désormais visible par tous vos membres.");
+            
+            const modal = document.getElementById("crew-modal");
+            if (modal) modal.style.display = "none";
+        } catch(e) {
+            console.error("[CrewSystem] Error setting QG", e);
+            alert("Erreur lors de la sauvegarde du QG.");
+        }
+    },
+    
     showModal: function() {
         let modal = document.getElementById("crew-modal");
         if (!modal) {
@@ -177,7 +235,12 @@ window.CrewSystem = {
                 <div style="background:rgba(20,20,20,0.9); border:1px solid ${this.currentCrew.color}; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
                     <h2 style="color:${this.currentCrew.color}; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-crown"></i> ${this.currentCrew.name}</h2>
                     <p style="color:#aaa; margin-bottom:20px;">Vous êtes membre de ce Crew. Roulez dans différents codes postaux pour les capturer !</p>
-                    <button onclick="document.getElementById('crew-modal').style.display='none'" style="background:transparent; border:1px solid #aaa; color:#fff; padding:10px 20px; border-radius:20px; cursor:pointer;">Fermer</button>
+                    
+                    ${this.currentCrew.leaderUid === window.session.uid ? 
+                        `<button onclick="window.CrewSystem.setQG()" style="width:100%; background:#111; border:1px solid ${this.currentCrew.color}; color:#fff; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-bottom:15px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-map-pin"></i> Poser le QG ici</button>` 
+                        : ''}
+
+                    <button onclick="document.getElementById('crew-modal').style.display='none'" style="background:transparent; border:1px solid #aaa; color:#fff; padding:10px 20px; border-radius:20px; cursor:pointer; font-family:'Outfit', sans-serif;">Fermer</button>
                 </div>
             `;
         } else {

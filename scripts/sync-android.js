@@ -28,13 +28,15 @@ if (fs.existsSync(path.join(srcDir, 'index.html'))) {
 }
 
 // Copier les dossiers JS, CSS et Assets
-const foldersToCopy = ['js', 'css', 'assets'];
-foldersToCopy.forEach(folder => {
-    const srcPath = path.join(srcDir, folder);
-    const destPath = path.join(destDir, folder);
-    if (fs.existsSync(srcPath)) {
-        copyFolderSync(srcPath, destPath);
-        console.log(`-> Dossier ${folder}/ copié !`);
+const foldersToCopy = [
+    { src: path.join(srcDir, 'public', 'js'), dest: path.join(destDir, 'js') },
+    { src: path.join(srcDir, 'public', 'css'), dest: path.join(destDir, 'css') },
+    { src: path.join(srcDir, 'assets'), dest: path.join(destDir, 'assets') }
+];
+foldersToCopy.forEach(mapping => {
+    if (fs.existsSync(mapping.src)) {
+        copyFolderSync(mapping.src, mapping.dest);
+        console.log(`-> Dossier copié vers ${mapping.dest} !`);
     }
 });
 
