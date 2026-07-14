@@ -297,6 +297,20 @@
             .hero h1 { font-size: 2.5rem; }
             .hero p { font-size: 1rem; }
             .grid { grid-template-columns: 1fr; }
+            header {
+                padding: calc(15px + env(safe-area-inset-top, 25px)) 10px 10px;
+                gap: 5px;
+            }
+            .logo {
+                font-size: 1.2rem;
+            }
+            .logo span {
+                display: none; /* Cache le texte mon50cc sur petit écran pour faire de la place */
+            }
+            .btn-login {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -360,7 +374,7 @@
 
     <header>
         <a href="#" class="logo">
-            <i class="fa-solid fa-motorcycle"></i> mon50cc
+            <i class="fa-solid fa-motorcycle"></i> <span>mon50cc</span>
         </a>
         <div style="display: flex; gap: 15px; align-items: center;">
             <a href="assureur.html" class="btn-login" style="border-color: #ff0055; color: #ff0055;"><i class="fa-solid fa-building-shield"></i> Espace Assureur</a>
