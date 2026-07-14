@@ -20,13 +20,14 @@ class OracleVoice {
         this.recognition.continuous = true;
         this.recognition.interimResults = false;
         
-        // Mapping des langues pour la reconnaissance
+        // Mapping des langues principales, mais on fallback sur n'importe quel dialecte du téléphone (les 7000+ supportés par l'OS)
         const langMap = {
             'fr': 'fr-FR', 'en': 'en-US', 'es': 'es-ES', 'it': 'it-IT',
             'nl': 'nl-NL', 'pl': 'pl-PL', 'pt': 'pt-PT', 'de': 'de-DE',
             'zh': 'zh-CN', 'ja': 'ja-JP', 'ro': 'ro-RO', 'hk': 'zh-HK'
         };
-        this.recognition.lang = langMap[window.currentLang] || 'fr-FR';
+        // Utilise la langue choisie dans l'app, SINON utilise le dialecte exact du téléphone (ex: fr-CA, ar-DZ, sw-KE)
+        this.recognition.lang = langMap[window.currentLang] || navigator.language || 'fr-FR';
 
         this.recognition.onresult = (event) => {
             const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
@@ -87,8 +88,9 @@ class OracleVoice {
         };
         
         if (this.recognition) {
-            this.recognition.lang = langMap[window.currentLang] || 'fr-FR';
-            console.log("Oracle Voice : Langue de reconnaissance mise à jour ->", this.recognition.lang);
+            // Débridage total : si la langue n'est pas dans la liste, on capte le dialecte natif de l'utilisateur (Android/iOS)
+            this.recognition.lang = langMap[window.currentLang] || navigator.language || 'fr-FR';
+            console.log("Oracle Voice : Langue de reconnaissance (Mondiale) ->", this.recognition.lang);
         }
 
         if (wasActive) this.start();

@@ -1,6 +1,6 @@
 {
   "name": "mon50ccetmoi",
-  "version": "100.60.05",
+  "version": "100.80.00",
   "description": "L'application de la communauté 50cc",
   "scripts": {
     "dev": "vite",

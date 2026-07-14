@@ -124,25 +124,35 @@ window.publishUserLocation = async function(lat, lng, status = "Riding") {
 
 function syncCommunityPositions() {
     if (!db) return;
-    db.collection("presence").onSnapshot((snapshot) => {
-        let members = [];
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.username !== window.session?.username) {
-                if (data.payload) {
-                    const decrypted = cloudDecrypt(data.payload);
-                    if (decrypted) {
-                        members.push({ ...decrypted, username: data.username });
-                    }
-                } else {
-                    members.push(data); // Legacy
-                }
+    
+    // Only listen to presence if user is authenticated (firestore.rules requires isSignedIn)
+    if (typeof firebase !== 'undefined' && firebase.auth()) {
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                db.collection("presence").onSnapshot((snapshot) => {
+                    let members = [];
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        if (data.username !== window.session?.username) {
+                            if (data.payload) {
+                                const decrypted = cloudDecrypt(data.payload);
+                                if (decrypted) {
+                                    members.push({ ...decrypted, username: data.username });
+                                }
+                            } else {
+                                members.push(data); // Legacy
+                            }
+                        }
+                    });
+                    
+                    window.communityMembers = members;
+                    if (typeof renderCommunityMarkers === "function") renderCommunityMarkers();
+                }, (error) => {
+                    console.warn("Presence sync error (expected if not logged in):", error);
+                });
             }
         });
-        
-        window.communityMembers = members;
-        if (typeof renderCommunityMarkers === "function") renderCommunityMarkers();
-    });
+    }
 }
 
 // --- SOCIAL TICKER SYNC ---

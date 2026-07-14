@@ -1,3 +1,17 @@
+// Fallback if loaded before auth.js/database.js
+if (typeof window.secureGetItem === 'undefined') {
+    window.secureGetItem = function(key) {
+        try { return localStorage.getItem(key); } catch(e) { return null; }
+    };
+    window.secureSetItem = function(key, value) {
+        try { localStorage.setItem(key, value); } catch(e) {}
+    };
+}
+if (typeof secureGetItem === 'undefined') {
+    var secureGetItem = window.secureGetItem;
+    var secureSetItem = window.secureSetItem;
+}
+
 // --- 7. SERVICES (Météo, Boussole, Garage) ---
 window.fetchWeather = async function(lat, lon) {
     try {
@@ -7,6 +21,7 @@ window.fetchWeather = async function(lat, lon) {
         const code = data.current_weather.weathercode;
         
         let icon = '<i class="fa-solid fa-cloud-sun"></i>';
+
         let alertMsg = "";
         const wind = data.current_weather.windspeed;
         window.isVigilanceRouge = false; // Reset

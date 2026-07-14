@@ -35,15 +35,15 @@ window.CrashReporter = {
 
     logError: function(errorData) {
         // Prevent logging errors if Firebase isn't loaded or initialized yet
-        if (typeof firebase === 'undefined' || !firebase.firestore || firebase.apps.length === 0) return;
-
         try {
+            if (typeof firebase === 'undefined' || !firebase.firestore || !firebase.apps || firebase.apps.length === 0) return;
+
             const db = firebase.firestore();
             const payload = {
                 ...errorData,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 userAgent: navigator.userAgent,
-                appVersion: '70.0.0', // Should ideally match CONFIG.VERSION
+                appVersion: '100.80.00', // Updated version
                 url: window.location.href,
                 online: navigator.onLine
             };

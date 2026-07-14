@@ -92,11 +92,18 @@ window.PocketLawyer = {
             <button onclick="PocketLawyer.closeLawyer()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-scale-balanced fa-beat-fade" style="font-size: 3rem; color: #cca300; filter: drop-shadow(0 0 10px #cca300); margin-bottom: 5px;"></i>
             <h1 style="font-size: 1.5rem; margin: 0; text-transform: uppercase; color: #cca300;">Avocat de Poche</h1>
+            <div style="background: rgba(0,210,255,0.1); border: 1px solid #00d2ff; color: #00d2ff; font-size: 0.7rem; padding: 3px 10px; border-radius: 10px; margin-top: 5px; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; display: inline-block;"><i class="fa-solid fa-microchip"></i> Propulsé par JARVIS 4.0</div>
             <p style="color: #777; font-size: 0.8rem; margin-bottom: 15px; text-align: center; max-width: 80%; line-height: 1.2;">Avertissement (AI Act) : Aide indicative générée par IA. Ne remplace pas un conseil juridique. <strong>Soumis à contrôle humain.</strong></p>
             
             <div id="lawyer-chat-box" style="flex: 1; width: 90%; max-width: 500px; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; scroll-behavior: smooth;">
                 <div style="background: rgba(204,163,0,0.2); padding: 10px 15px; border-radius: 15px; align-self: flex-start; max-width: 85%; border-left: 3px solid #cca300; line-height: 1.4;">
-                    Bonjour, je suis votre Avocat de Poche. Posez-moi une question juridique (ex: débridage, amende, assurance) ou scannez votre stationnement.
+                    Ma base de jurisprudence couvre <strong>16 pays</strong> avec des sources officielles. Essayez :<br>
+                    • Casque en France<br>
+                    • Permis Indonésie<br>
+                    • Protection données Brésil<br>
+                    • Casque UK<br>
+                    • CCPA USA<br><br>
+                    <em>• Tapez <strong>pays</strong> pour voir la liste complète.</em>
                 </div>
             </div>
             
@@ -106,7 +113,8 @@ window.PocketLawyer = {
             </div>
             
             <button onclick="PocketLawyer.startGPSScan()" style="margin-bottom: 15px; background: transparent; border: 1px solid #cca300; color: #cca300; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-location-dot"></i> Scanner mon stationnement (GPS)</button>
-            <button onclick="PocketLawyer.reportInsurer()" style="margin-bottom: 30px; background: rgba(255,51,51,0.1); border: 1px solid #ff3333; color: #ff3333; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-bullhorn"></i> Signaler un litige assureur (+15 BVC)</button>
+            <button onclick="PocketLawyer.reportInsurer()" style="margin-bottom: 15px; background: rgba(255,51,51,0.1); border: 1px solid #ff3333; color: #ff3333; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-bullhorn"></i> Signaler un litige assureur (+15 BVC)</button>
+            <button onclick="window.open('https://www.legifrance.gouv.fr/', '_blank')" style="margin-bottom: 30px; background: rgba(0, 51, 153, 0.2); border: 1px solid #0055ff; color: #88bbff; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-book-section"></i> Base Légifrance (Textes Officiels)</button>
             
             <style>
                 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -167,6 +175,28 @@ window.PocketLawyer = {
             setTimeout(function() {
                 self.addBotMessage('⚠️ <strong>Note de l\'Avocat :</strong> Nous avons reçu de nombreux signalements concernant cet assureur. Sachez qu\'il est désormais classé "Partenaire non recommandé" sur notre plateforme B2B et soumis à des frais de vérification renforcée (10 000 €).');
             }, 3000);
+        }
+    },
+
+    devClearReports: async function() {
+        if (confirm("⚠️ DANGER ADMIN : Êtes-vous sûr de vouloir supprimer TOUS les signalements assureurs de la base de données de production ?")) {
+            try {
+                if (typeof firebase === 'undefined') return alert("Erreur: Firebase non initialisé");
+                const snapshot = await firebase.firestore().collection('insurer_reports').get();
+                if (snapshot.empty) {
+                    alert("La base de données des signalements est déjà vide !");
+                    return;
+                }
+                const batch = firebase.firestore().batch();
+                snapshot.docs.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+                alert(`✅ Succès : ${snapshot.size} signalement(s) effacé(s) de la base de données.`);
+            } catch (e) {
+                console.error(e);
+                alert("Erreur lors de la purge de la base de données : " + e.message);
+            }
         }
     },
 
@@ -237,6 +267,15 @@ window.PocketLawyer = {
                 if (results.length > 1) {
                     html += `<br><br><span style="color:#cca300; font-size:0.85em;">📚 ${results.length - 1} autre(s) résultat(s) trouvé(s). Précisez votre question pour affiner.</span>`;
                 }
+                
+                // Suggestion automatique du Code Litige pour les cas pertinents
+                if (t.includes('accident') || t.includes('litige') || t.includes('assurance') || t.includes('accrochage') || t.includes('constat') || t.includes('sinistre')) {
+                    html += `<br><br><div style="background:rgba(255, 51, 51, 0.1); border:1px solid #ff3333; border-radius:10px; padding:10px; margin-top:10px;">
+                        <p style="margin:0 0 10px 0; color:#ffcccc; font-size:0.9rem;"><strong>Dossier d'Expertise (Boîte Noire)</strong><br>Avez-vous besoin de générer un Code Litige pour votre assureur ?</p>
+                        <button onclick="if(window.DisputeAutomation) window.DisputeAutomation.initiateDispute(); else alert('Module introuvable.');" style="background:#ff3333; color:#fff; border:none; border-radius:20px; padding:8px 15px; cursor:pointer; font-weight:bold; width:100%;"><i class="fa-solid fa-gavel"></i> Générer mon Code Litige</button>
+                    </div>`;
+                }
+
                 return html;
             }
         }
@@ -275,7 +314,18 @@ window.PocketLawyer = {
             return "<strong>Refus d'obtempérer / Délit de fuite</strong><br>Cumuler ces délits entraîne des peines de prison fermes, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrôle de police.";
         }
 
-        return "Ma base de jurisprudence couvre <strong>15 pays</strong> avec des sources officielles. Essayez :<br>• <em>Casque en France</em><br>• <em>Permis Indonésie</em><br>• <em>Protection données Brésil</em><br>• <em>Casque UK</em><br>• <em>CCPA USA</em><br>• Tapez <strong>pays</strong> pour voir la liste complète.";
+        const safeText = window.escapeHTML ? window.escapeHTML(text) : text;
+        let baseMsg = `Ma base de jurisprudence couvre <strong>16 pays</strong> avec des sources officielles. Pour la France, les textes de référence sont sur <strong>Légifrance</strong>.<br><br>
+        <a href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=${encodeURIComponent(text)}" target="_blank" style="display:inline-block; padding:10px 15px; background:rgba(0, 51, 153, 0.3); border:1px solid #0055ff; color:#88bbff; border-radius:15px; text-decoration:none; margin-top:10px;"><i class="fa-solid fa-magnifying-glass"></i> Chercher "${safeText}" sur Légifrance</a>`;
+
+        if (t.includes('accident') || t.includes('litige') || t.includes('assurance') || t.includes('accrochage') || t.includes('constat') || t.includes('sinistre')) {
+            baseMsg += `<br><br><div style="background:rgba(255, 51, 51, 0.1); border:1px solid #ff3333; border-radius:10px; padding:10px; margin-top:10px;">
+                <p style="margin:0 0 10px 0; color:#ffcccc; font-size:0.9rem;"><strong>Dossier d'Expertise (Boîte Noire)</strong><br>Avez-vous besoin de générer un Code Litige pour votre assureur ?</p>
+                <button onclick="if(window.DisputeAutomation) window.DisputeAutomation.initiateDispute(); else alert('Module introuvable.');" style="background:#ff3333; color:#fff; border:none; border-radius:20px; padding:8px 15px; cursor:pointer; font-weight:bold; width:100%;"><i class="fa-solid fa-gavel"></i> Générer mon Code Litige</button>
+            </div>`;
+        }
+
+        return baseMsg;
     },
     
     startGPSScan: function() {

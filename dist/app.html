@@ -118,7 +118,7 @@
     <title>mon 50cc et moi | v100.00-GOLD</title>
     <!-- <script src="js/secrets.js"></script> RemplacÃ© par config.js intÃ©grÃ© -->
     <script src="js/config.js?v=60019"></script>
-    <script src="js/error-tracking.js?v=70000"></script>
+    <script src="js/error-tracking.js?v=1008000"></script>
     <script src="js/oracle-voice.js?v=60019"></script>
     <!-- Chargeur Dynamique Google Maps avec Gestion d'Erreur -->
     <script>
@@ -249,7 +249,7 @@
     <!-- Leaflet CSS & JS (Cartes Hors Ligne) -->
     <link id="leaflet-css" rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="css/style.min.css?v=70004">
+    <link rel="stylesheet" href="css/style.min.css?v=1008000">
     <link rel="icon" type="image/png" href="/assets/icon-192x192-CsrcJCmh.png">
     <!-- Firebase SDK (v9 Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -270,7 +270,7 @@
     
 
     <!-- CORE MODULAR APP (BUNDLED) -->
-    <script defer src="js/app-bundle.min.js?v=70004"></script>
+    <script defer src="js/app-bundle.min.js?v=1008000"></script>
     <script defer src="js/crews-territory.js"></script>
     <script defer src="js/loot-drops.js"></script>
     <script defer src="js/cortege-mode.js"></script>
@@ -505,9 +505,10 @@
             <button onclick="document.getElementById('dev-menu').style.display = document.getElementById('dev-menu').style.display === 'none' ? 'block' : 'none'" style="background: none; border: none; color: #ffd700; font-size: 1.5rem; cursor: pointer;" title="Dev Tools">
                 <i class="fa-solid fa-code" style="filter: drop-shadow(0 0 5px #ffd700);"></i>
             </button>
-            <div id="dev-menu" style="display:none; position:absolute; bottom:40px; right:0; background:#111; border:1px solid #ffd700; border-radius:10px; padding:10px; width:150px; text-align:left; z-index:999;">
+            <div id="dev-menu" style="display:none; position:absolute; bottom:40px; right:0; background:#111; border:1px solid #ffd700; border-radius:10px; padding:10px; width:200px; text-align:left; z-index:999;">
                 <button onclick="if(window.LootSystem) window.LootSystem.devSpawnLoot(); this.parentNode.style.display='none';" style="display:block; width:100%; background:none; border:none; color:white; text-align:left; padding:5px; cursor:pointer;"><i class="fa-solid fa-parachute-box"></i> Spawn Loot</button>
                 <button onclick="if(window.PitStopSystem) window.PitStopSystem.devDrainFuel(); this.parentNode.style.display='none';" style="display:block; width:100%; background:none; border:none; color:white; text-align:left; padding:5px; cursor:pointer;"><i class="fa-solid fa-gas-pump"></i> Vider OBD</button>
+                <button onclick="if(window.PocketLawyer) window.PocketLawyer.devClearReports(); this.parentNode.style.display='none';" style="display:block; width:100%; background:none; border:none; color:#ff4d4d; text-align:left; padding:5px; cursor:pointer; margin-top: 5px; border-top: 1px solid #333;"><i class="fa-solid fa-trash"></i> Purger Signalements</button>
             </div>
         </div>
 
@@ -550,7 +551,14 @@
       <div style="margin: 20px auto; width: 90%; max-width: 400px; background: rgba(183, 0, 255, 0.1); border: 1px solid #b700ff; border-radius: 20px; padding: 15px; text-align: center; box-shadow: 0 0 15px rgba(183, 0, 255, 0.3);">
           <h3 style="color: #b700ff; margin: 0 0 5px 0; font-size: 1.1rem;"><i class="fa-solid fa-earth-americas fa-spin-pulse"></i> Jarvis Universal Translator</h3>
           <p style="color: #fff; font-size: 0.9rem; margin: 0; font-weight: bold;">7000+ dialectes & langues supportés par IA.</p>
-          <p style="color: #aaa; font-size: 0.7rem; margin-top: 5px;">Génération vocale dynamique. Sans téléchargement.</p>
+          <p style="color: #aaa; font-size: 0.7rem; margin-top: 5px; margin-bottom: 10px;">Génération vocale dynamique. Sans téléchargement.</p>
+          <div id="google_translate_element" style="margin-top: 10px;"></div>
+          <script type="text/javascript">
+              function googleTranslateElementInit() {
+                  new google.translate.TranslateElement({pageLanguage: 'fr', layout: google.translate.TranslateElement.InlineLayout.SIMPLE}, 'google_translate_element');
+              }
+          </script>
+          <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
       </div>
 
       <div style="margin: 20px auto; width: 90%; max-width: 400px; background: rgba(0,210,255,0.1); border: 1px solid #00d2ff; border-radius: 20px; padding: 20px; text-align: left;">
@@ -979,9 +987,10 @@
             try {
                 if(typeof firebase !== 'undefined' && firebase.analytics) {
                     window.mon50Analytics = firebase.analytics();
+                    if (window.mon50Analytics && typeof window.mon50Analytics.logEvent === 'function') {
+                        window.mon50Analytics.logEvent('app_open', { version: '100.80.00' });
+                    }
                     console.log('mon50cc : Firebase Analytics initialisé.');
-                    // Track key events
-                    window.mon50Analytics.logEvent('app_open', { version: '70.0.0' });
                 }
             } catch(e) { console.warn('Analytics init skipped:', e.message); }
             

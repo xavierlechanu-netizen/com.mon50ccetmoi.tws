@@ -345,7 +345,8 @@ window.DisputeAutomation = {
 
 
 window.showVault = function() {
-    document.getElementById('secure-vault-screen').classList.remove('hidden');
+    const vault = document.getElementById('secure-vault-screen');
+    if (vault) vault.classList.remove('hidden');
     const searchContainer = document.getElementById('search-container');
     const hud = document.getElementById('hud');
     if(searchContainer) searchContainer.classList.add('hidden');

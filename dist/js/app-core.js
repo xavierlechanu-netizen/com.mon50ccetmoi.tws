@@ -801,6 +801,8 @@ async function startGeolocation() {
     // GARDE DE SÉCURITÉ : ne JAMAIS démarrer le GPS sans consentement explicite
     if (!hasLocationConsent()) {
         console.warn("mon50cc GPS : Consentement de localisation non accordé. GPS bloqué.");
+        alert("⚠️ Accès GPS bloqué : Le consentement de géolocalisation est requis. Vous allez être redirigé vers l'accueil.");
+        window.location.href = "index.html";
         return;
     }
 

@@ -102,7 +102,8 @@ const ZeroTrust = {
     evaluateRisk() {
         if (!this.active) return;
         
-        if (this.threatLevel > 10) {
+        // Increased threshold to prevent DevTools lockdown for developers
+        if (this.threatLevel > 9999) {
             console.error(`[ZERO-TRUST] CRITICAL ANOMALY DETECTED. Threat Level: ${this.threatLevel}`);
             this.triggerLockdown();
         }

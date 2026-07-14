@@ -76,6 +76,27 @@ window.LegalDatabase = {
             content: "La protection des données personnelles est régie par le <strong>RGPD</strong> (entré en vigueur le 25 mai 2018) et la <strong>Loi Informatique et Libertés</strong> (Loi n°78-17 du 6 janvier 1978). La CNIL est l'autorité de contrôle française.<br>Droits : Accès (Art.15), Rectification (Art.16), Effacement (Art.17), Portabilité (Art.20), Opposition (Art.21).",
             source: "Légifrance & EUR-Lex — Règlement (UE) 2016/679",
             url: "legifrance.gouv.fr | eur-lex.europa.eu"
+        },
+        retractation: {
+            keywords: ["remboursement", "rétractation", "retractation", "cgv", "numérique", "digital"],
+            title: "🇫🇷 Droit de Rétractation (Contenu Numérique) — Art. L221-28",
+            content: "Selon l'<strong>Article L221-28 (13°) du Code de la consommation</strong>, le droit de rétractation ne peut pas être exercé pour la fourniture d'un <strong>contenu numérique non fourni sur un support matériel</strong> dont l'exécution a commencé après accord préalable exprès du consommateur et renoncement exprès à son droit de rétractation. Les rapports d'expertise générés ne sont donc <strong>pas remboursables</strong>.",
+            source: "Légifrance — Art. L221-28 du Code de la Consommation",
+            url: "legifrance.gouv.fr"
+        },
+        vice_cache: {
+            keywords: ["vice", "caché", "cache", "panne", "arnaque", "occasion"],
+            title: "🇫🇷 Garantie des Vices Cachés — Art. 1641 Code Civil",
+            content: "L'<strong>Article 1641 du Code civil</strong> précise que le vendeur est tenu de la garantie à raison des défauts cachés de la chose vendue qui la rendent impropre à l'usage auquel on la destine. L'acheteur a <strong>2 ans à compter de la découverte du vice</strong> pour agir.",
+            source: "Légifrance — Art. 1641 du Code Civil",
+            url: "legifrance.gouv.fr"
+        },
+        accident_assurance: {
+            keywords: ["accident", "constat", "sinistre", "indemnisation", "badinter"],
+            title: "🇫🇷 Indemnisation des Victimes (Loi Badinter)",
+            content: "La <strong>Loi n° 85-677 du 5 juillet 1985 (Loi Badinter)</strong> vise à améliorer la situation des victimes d'accidents de la circulation et à accélérer les procédures d'indemnisation. Si vous n'êtes pas responsable, votre assureur doit vous indemniser intégralement de vos préjudices corporels et matériels.",
+            source: "Légifrance — Loi Badinter",
+            url: "legifrance.gouv.fr"
         }
     },
 
