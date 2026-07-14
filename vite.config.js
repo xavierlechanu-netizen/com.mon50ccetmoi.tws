@@ -24,6 +24,7 @@ export default defineConfig({
         assurance: resolve(__dirname, 'assurance.html'),
         partenaires: resolve(__dirname, 'partenaires.html'),
         cookies: resolve(__dirname, 'cookies.html'),
+        cgv: resolve(__dirname, 'cgv.html'),
         mentions: resolve(__dirname, 'mentions-legales.html'),
         p404: resolve(__dirname, '404.html')
       }
