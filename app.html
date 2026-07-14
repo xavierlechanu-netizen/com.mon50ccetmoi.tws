@@ -32,21 +32,26 @@
             }
         } catch(e) { console.warn("Session locale non disponible"); }
 
-        function openMarketplaceCheck() {
-            let userPoints = parseInt(localStorage.getItem('bvcPoints') || '0');
-            if(userPoints >= 5) {
-                window.location.href = 'marketplace.html';
-            } else {
-                alert("🔒 Accès restreint.\n\nIl vous faut au moins 5 points de bonne conduite pour débloquer la Marketplace.\nVous avez actuellement : " + userPoints + " point(s).\n\nContinuez à rouler prudemment !");
+        async function openMarketplaceCheck() {
+            if (!window.session || !window.session.uid) {
+                alert("Vous devez être connecté.");
+                return;
+            }
+            try {
+                const doc = await firebase.firestore().collection("users").doc(window.session.uid).get();
+                let userPoints = doc.exists ? (doc.data().bvcPoints || 0) : 0;
+                
+                if(userPoints >= 5) {
+                    window.location.href = 'marketplace.html';
+                } else {
+                    alert("🔒 Accès restreint.\n\nIl vous faut au moins 5 points de bonne conduite pour débloquer la Marketplace.\nVous avez actuellement : " + userPoints + " point(s).\n\nContinuez à rouler prudemment !");
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Erreur de vérification des points.");
             }
         }
 
-        // Commande de test pour la console
-        window.testAddPoints = function(pts = 5) {
-            let current = parseInt(localStorage.getItem('bvcPoints') || '0');
-            localStorage.setItem('bvcPoints', current + pts);
-            alert("Vous avez reçu " + pts + " points !\nTotal: " + (current + pts));
-        };
     </script>
     <!-- Premium CSS -->
     <link rel="stylesheet" href="css/premium.css">
@@ -508,6 +513,10 @@
 
     </nav>
 
+    <!-- BANNIÈRE VIGILANCE ROUGE (Cachée par défaut) -->
+    <div id="vigilance-rouge-banner" style="display: none; background: #ff0000; color: #fff; text-align: center; padding: 10px; font-weight: bold; position: fixed; top: 0; left: 0; width: 100%; z-index: 100000; box-shadow: 0 5px 15px rgba(255,0,0,0.5);">
+        <marquee scrollamount="6" id="vigilance-rouge-text" style="font-size: 1rem;"></marquee>
+    </div>
     <!-- Style for Hover Effects and Dock Layout -->
     <style>
         #apple-smart-dock {
@@ -764,8 +773,8 @@
             <button onclick="window.PocketLawyer.open()" style="padding: 15px 40px; background: linear-gradient(90deg, #cca300, #ffaa00); border: none; border-radius: 30px; color: #000; font-weight: 900; font-size: 1.1rem; box-shadow: 0 5px 20px rgba(204,163,0,0.4); cursor: pointer;">
                 <i class="fa-solid fa-scale-balanced"></i> PAYER AVOCAT DE POCHE (5 Pts BVC)
             </button>
-            <button style="padding: 15px 40px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 30px; color: #aaa; font-weight: bold; font-size: 0.9rem; cursor: not-allowed;">
-                CONVERTIR EN GOODIES (Bientôt)
+            <button onclick="alert('Boutique en cours d\'approvisionnement !')" style="padding: 15px 40px; background: rgba(255,183,3,0.2); border: 1px solid #ffb703; border-radius: 30px; color: #ffb703; font-weight: bold; font-size: 0.9rem; cursor: pointer;">
+                CONVERTIR EN GOODIES
             </button>
         </div>
     </div>
@@ -1372,6 +1381,7 @@ function updateHoloVehicle(type) {
     <script src="js/safe-rider.js"></script>
     <script src="js/convoy.js"></script>
     <script src="js/exchange.js"></script>
+    <script src="js/legal-database.js"></script>
     <script src="js/pocket-lawyer.js"></script>
 </body>
 </html>

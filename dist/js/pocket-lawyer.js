@@ -92,7 +92,7 @@ window.PocketLawyer = {
             <button onclick="PocketLawyer.closeLawyer()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-scale-balanced fa-beat-fade" style="font-size: 3rem; color: #cca300; filter: drop-shadow(0 0 10px #cca300); margin-bottom: 5px;"></i>
             <h1 style="font-size: 1.5rem; margin: 0; text-transform: uppercase; color: #cca300;">Avocat de Poche</h1>
-            <p style="color: #777; font-size: 0.8rem; margin-bottom: 15px; text-align: center; max-width: 80%; line-height: 1.2;">Avertissement (IA Act) : Aide indicative générée par IA. Ne remplace pas un conseil juridique.</p>
+            <p style="color: #777; font-size: 0.8rem; margin-bottom: 15px; text-align: center; max-width: 80%; line-height: 1.2;">Avertissement (AI Act) : Aide indicative générée par IA. Ne remplace pas un conseil juridique. <strong>Soumis à contrôle humain.</strong></p>
             
             <div id="lawyer-chat-box" style="flex: 1; width: 90%; max-width: 500px; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; scroll-behavior: smooth;">
                 <div style="background: rgba(204,163,0,0.2); padding: 10px 15px; border-radius: 15px; align-self: flex-start; max-width: 85%; border-left: 3px solid #cca300; line-height: 1.4;">
@@ -152,28 +152,34 @@ window.PocketLawyer = {
             window.testAddPoints(15);
             ptsAdded = true;
         } else {
-            let current = parseInt(localStorage.getItem('bvcPoints') || '0');
-            localStorage.setItem('bvcPoints', current + 15);
+            if (window.session && window.session.uid && typeof firebase !== 'undefined') {
+                firebase.firestore().collection("users").doc(window.session.uid).set({
+                    bvcPoints: firebase.firestore.FieldValue.increment(15)
+                }, { merge: true }).catch(function(e) { console.error(e); });
+            }
             ptsAdded = true;
         }
         
         this.addBotMessage(`<strong>Signalement enregistré !</strong><br>Merci d'avoir signalé <em>${safeInsurerName}</em>. Votre retour aide toute la communauté à éviter les mauvaises expériences.<br><span style="color:#00e676;">+15 Pts BVC offerts pour votre contribution citoyenne.</span>`);
         
         if (insurerName.toLowerCase().includes("euro assurance") || insurerName.toLowerCase().includes("euroassurence")) {
-            setTimeout(() => {
-                this.addBotMessage(`⚠️ <strong>Note de l'Avocat :</strong> Nous avons reçu de nombreux signalements concernant cet assureur. Sachez qu'il est désormais classé "Partenaire non recommandé" sur notre plateforme B2B et soumis à des frais de vérification renforcée (10 000 €).`);
+            const self = this;
+            setTimeout(function() {
+                self.addBotMessage('⚠️ <strong>Note de l\'Avocat :</strong> Nous avons reçu de nombreux signalements concernant cet assureur. Sachez qu\'il est désormais classé "Partenaire non recommandé" sur notre plateforme B2B et soumis à des frais de vérification renforcée (10 000 €).');
             }, 3000);
         }
     },
 
     sendMessage: function(text = null) {
         const input = document.getElementById('lawyer-input');
-        const message = text || input.value.trim();
+        if (!input && !text) return;
+        const message = text || (input ? input.value.trim() : '');
         if (!message) return;
         
-        if (!text) input.value = '';
+        if (!text && input) input.value = '';
         
         const chatBox = document.getElementById('lawyer-chat-box');
+        if (!chatBox) return;
         
         // Add user message
         const userMsg = document.createElement('div');
@@ -215,6 +221,44 @@ window.PocketLawyer = {
     processChatQuery: function(text) {
         const t = text.toLowerCase();
         
+        // ═══════════════════════════════════════════════════════
+        // 🌍 MOTEUR JURIDIQUE MONDIAL (LegalDatabase)
+        // Cherche d'abord dans la base mondiale officielle
+        // ═══════════════════════════════════════════════════════
+        if (window.LegalDatabase && typeof window.LegalDatabase.search === 'function') {
+            const results = window.LegalDatabase.search(text);
+            if (results.length > 0) {
+                // Prendre le résultat le plus pertinent
+                const r = results[0];
+                let html = `<strong>${r.title}</strong><br>${r.content}`;
+                html += `<br><em style="color:#888; font-size:0.8em;">Source : ${r.source}</em>`;
+                
+                // Si plusieurs résultats, indiquer les autres disponibles
+                if (results.length > 1) {
+                    html += `<br><br><span style="color:#cca300; font-size:0.85em;">📚 ${results.length - 1} autre(s) résultat(s) trouvé(s). Précisez votre question pour affiner.</span>`;
+                }
+                return html;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════
+        // 🌐 LISTE DES PAYS DISPONIBLES (si question générale)
+        // ═══════════════════════════════════════════════════════
+        if (t.includes('pays') || t.includes('monde') || t.includes('mondial') || t.includes('international') || (t.includes('quel') && t.includes('droit'))) {
+            if (window.LegalDatabase) {
+                let countryList = '';
+                for (const [key, country] of Object.entries(window.LegalDatabase)) {
+                    if (typeof country === 'object' && country._flag && key !== 'search') {
+                        countryList += `• ${country._flag} ${country._name}<br>`;
+                    }
+                }
+                return `<strong>🌍 Base Juridique Mondiale</strong><br>Je couvre actuellement le droit de :<br>${countryList}<br>Précisez un <strong>pays</strong> et un <strong>thème</strong> (casque, permis, données, assurance...) pour obtenir les textes officiels.`;
+            }
+        }
+        
+        // ═══════════════════════════════════════════════════════
+        // 🇫🇷 FALLBACK : JURISPRUDENCE FRANÇAISE (Code de la route)
+        // ═══════════════════════════════════════════════════════
         if (t.includes('débrid') || t.includes('debride')) {
             return "<strong>Débridage (Art. L317-5)</strong><br>C'est un délit. Vous risquez jusqu'à <strong>135€ d'amende</strong> pour le propriétaire, mais surtout, <strong>votre assurance s'annule</strong> en cas d'accident corporel. Les assureurs se retournent contre vous pour payer les dommages aux victimes.";
         }
@@ -230,8 +274,8 @@ window.PocketLawyer = {
         if (t.includes('fuite') || t.includes('obtempérer')) {
             return "<strong>Refus d'obtempérer / Délit de fuite</strong><br>Cumuler ces délits entraîne des peines de prison fermes, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrôle de police.";
         }
-        
-        return "Désolé, ma base de jurisprudence est encore limitée sur ce point précis. Essayez de me parler de <em>débridage</em>, <em>stupéfiants</em>, <em>alcool</em> ou d'<em>assurance</em>.";
+
+        return "Ma base de jurisprudence couvre <strong>15 pays</strong> avec des sources officielles. Essayez :<br>• <em>Casque en France</em><br>• <em>Permis Indonésie</em><br>• <em>Protection données Brésil</em><br>• <em>Casque UK</em><br>• <em>CCPA USA</em><br>• Tapez <strong>pays</strong> pour voir la liste complète.";
     },
     
     startGPSScan: function() {
@@ -241,7 +285,7 @@ window.PocketLawyer = {
         this.addBotMessage('<div style="text-align: center;"><div style="width: 30px; height: 30px; border: 3px solid #333; border-top-color: #cca300; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div><p style="margin-top: 10px; font-size: 0.9rem;">Vérification GPS en cours...</p></div>');
         
         setTimeout(() => {
-            chatBox.removeChild(chatBox.lastChild); // Remove loading message
+            if (chatBox.lastChild) chatBox.removeChild(chatBox.lastChild); // Remove loading message
             
             const scenario = this.scenarios[Math.floor(Math.random() * this.scenarios.length)];
             this.currentScenarioTemplate = scenario.letterTemplate;
@@ -298,12 +342,17 @@ window.PocketLawyer = {
                 
                 const letter = this.currentScenarioTemplate || "Monsieur l'Officier du Ministère Public,\nJe conteste formellement ce PV.";
                 
-                navigator.clipboard.writeText(letter).then(() => {
-                    alert(`Paiement de ${price} Pts BVC accepté.\n\nLa lettre de contestation a été copiée dans votre presse-papiers ! Vous pouvez la coller sur le site de l'ANTAI.`);
-                    if(typeof speak === 'function') speak("Plaidoirie copiée dans le presse-papiers.");
-                }).catch(err => {
-                    alert("Erreur lors de la copie. Voici votre lettre :\n\n" + letter);
-                });
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(letter).then(function() {
+                        alert('Paiement de ' + price + ' Pts BVC accepté.\n\nLa lettre de contestation a été copiée dans votre presse-papiers ! Vous pouvez la coller sur le site de l\'ANTAI.');
+                        if(typeof speak === 'function') speak("Plaidoirie copiée dans le presse-papiers.");
+                    }).catch(function() {
+                        alert("Erreur lors de la copie. Voici votre lettre :\n\n" + letter);
+                    });
+                } else {
+                    // Fallback pour WebView Capacitor / HTTP
+                    alert('Paiement de ' + price + ' Pts BVC accepté.\n\nVoici votre lettre :\n\n' + letter);
+                }
                 
             } else {
                 alert(`Fonds insuffisants ! Vous avez besoin de ${price} Pts BVC. Roulez plus pour gagner des Pts BVC.`);

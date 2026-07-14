@@ -40,6 +40,7 @@ window.ConvoyManager = {
 
         try {
             await window.db.collection("convoys").doc(code).set({
+                leaderUid: window.session.uid,
                 leader: window.session.username,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 members: [window.session.username],

@@ -115,8 +115,13 @@ window.LootSystem = {
             }
             
             // Gamification
-            let pts = parseInt(localStorage.getItem('bvcPoints') || '0');
-            localStorage.setItem('bvcPoints', pts + 10);
+            if (window.session && window.session.uid) {
+                try {
+                    await firebase.firestore().collection("users").doc(window.session.uid).set({
+                        bvcPoints: firebase.firestore.FieldValue.increment(10)
+                    }, { merge: true });
+                } catch(e) { console.error(e); }
+            }
             
             alert("🎁 BUTIN RÉCUPÉRÉ !\n\nVous avez trouvé la caisse. +10 Points de Bonne Conduite BVC ajoutés !");
             

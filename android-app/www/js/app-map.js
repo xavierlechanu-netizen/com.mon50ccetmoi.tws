@@ -155,7 +155,7 @@ async function calculateRouteSansAutoroute(start, end) {
                         const issuesStr = weather.issues.join(" et ");
                         setTimeout(() => {
                             if (typeof speak === 'function') {
-                                speak(`Alerte Météo Safe Ride : ${issuesStr}. Ralentissez.`);
+                                speak(`Alerte Safe Ride : ${issuesStr} sur votre itinéraire. Équipez-vous et soyez très prudent avant de prendre la route.`);
                             }
                         }, 9000);
                         

@@ -8,11 +8,28 @@ window.fetchWeather = async function(lat, lon) {
         
         let icon = '<i class="fa-solid fa-cloud-sun"></i>';
         let alertMsg = "";
+        const wind = data.current_weather.windspeed;
+        window.isVigilanceRouge = false; // Reset
 
-        if (code >= 95) { alertMsg = "Alerte Orage : Prudence maximale conseillée."; icon = '<i class="fa-solid fa-cloud-bolt" style="color:#f1c40f;"></i>'; }
-        else if (code >= 80) { alertMsg = "Averses détectées : Route potentiellement glissante."; icon = '<i class="fa-solid fa-cloud-showers-heavy"></i>'; }
-        else if (code >= 61) { alertMsg = "Pluie signalée par satellite. Équipez-vous."; icon = '<i class="fa-solid fa-cloud-rain"></i>'; }
-        else if (code >= 71) { alertMsg = "Alerte Neige : Conditions de circulation difficiles."; icon = '<i class="fa-solid fa-snowflake"></i>'; }
+        // Détection mondiale Vigilance Rouge (Canicule ou Tempête)
+        if (temp >= 38 || wind >= 70 || code === 99 || code === 77) {
+            window.isVigilanceRouge = true;
+            alertMsg = "VIGILANCE ROUGE DÉTECTÉE : Conditions météorologiques extrêmes.";
+            icon = '<i class="fa-solid fa-triangle-exclamation" style="color:#ff0000; animation: flash 1s infinite;"></i>';
+            const banner = document.getElementById("vigilance-rouge-banner");
+            const textEl = document.getElementById("vigilance-rouge-text");
+            if (banner && textEl) {
+                textEl.innerHTML = `🚨 <strong>VIGILANCE ROUGE (MONDIALE) :</strong> Température ${temp}°C, Vent ${wind}km/h. Soyez extrêmement prudents !`;
+                banner.style.display = "block";
+            }
+        }
+
+        if (!window.isVigilanceRouge) {
+            if (code >= 95) { alertMsg = "Alerte Orage : Prudence maximale conseillée."; icon = '<i class="fa-solid fa-cloud-bolt" style="color:#f1c40f;"></i>'; }
+            else if (code >= 80) { alertMsg = "Averses détectées : Route potentiellement glissante."; icon = '<i class="fa-solid fa-cloud-showers-heavy"></i>'; }
+            else if (code >= 61) { alertMsg = "Pluie signalée par satellite. Équipez-vous."; icon = '<i class="fa-solid fa-cloud-rain"></i>'; }
+            else if (code >= 71) { alertMsg = "Alerte Neige : Conditions de circulation difficiles."; icon = '<i class="fa-solid fa-snowflake"></i>'; }
+        }
 
         const wHud = document.getElementById('weather-hud');
         if(wHud) {
@@ -782,17 +799,25 @@ setInterval(() => {
         window.blackIceAlerted = true;
     }
 
-    // IA Wingman (Temps de conduite)
+    // IA Wingman (Temps de conduite et rappels réguliers)
     if (window.isRiding) {
         if (!window.rideStartTime) window.rideStartTime = Date.now();
         const rideDuration = (Date.now() - window.rideStartTime) / 60000; // minutes
-        if (rideDuration > 45 && !window.wingmanAlerted) {
-            speak("Vous roulez depuis 45 minutes. Température moteur optimale atteinte, mais attention à la fatigue. Envisagez une pause bientôt.");
-            window.wingmanAlerted = true;
+        
+        window.wingmanAlertCount = window.wingmanAlertCount || 0;
+        const currentPeriod = Math.floor(rideDuration / 45); // Vérifie chaque tranche de 45 min
+        
+        if (currentPeriod > window.wingmanAlertCount) {
+            if (window.isVigilanceRouge) {
+                speak("Vigilance rouge détectée. Vous roulez depuis 45 minutes supplémentaires. Jarvis vous demande d'effectuer une pause immédiate et de vous hydrater abondamment !");
+            } else {
+                speak("Vous roulez depuis 45 minutes. Température moteur optimale atteinte, mais attention à la fatigue. Envisagez une pause bientôt.");
+            }
+            window.wingmanAlertCount = currentPeriod;
         }
     } else {
         window.rideStartTime = null;
-        window.wingmanAlerted = false;
+        window.wingmanAlertCount = 0;
         window.blackIceAlerted = false;
     }
 }, 30000); // Check toutes les 30s
@@ -865,3 +890,137 @@ window.generateTacticalExploration = function() {
 
 
 // ============================================================
+// --- 6. VIGILANCE ROUGE MÉTÉO-FRANCE (OPENDATA) ---
+// ============================================================
+window.checkVigilanceRouge = async function() {
+    try {
+        // API Publique OpenDataSoft pour Météo-France (Filtre: Vigilance Rouge uniquement)
+        const url = "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/vigilance-meteorologique/records?limit=100&refine=etat_de_vigilance%3A%22Rouge%22";
+        const response = await fetch(url);
+        
+        if (!response.ok) throw new Error("API Vigilance Inaccessible");
+        
+        const data = await response.json();
+        const alerts = data.results || [];
+        const banner = document.getElementById("vigilance-rouge-banner");
+        const textEl = document.getElementById("vigilance-rouge-text");
+        
+        if (alerts.length > 0 && banner && textEl) {
+            // Regrouper les départements en alerte
+            const deptsList = alerts.map(a => `${a.nom_dept || a.departement || "Département inconnu"} (${a.risque || "Danger imminent"})`).join(" | ");
+            textEl.innerHTML = `🚨 <strong>VIGILANCE ROUGE MÉTÉO-FRANCE :</strong> ${deptsList}. Soyez extrêmement prudents, limitez vos déplacements en 2-roues.`;
+            banner.style.display = "block";
+            
+            // Notification vocale (uniquement si ce n'est pas déjà affiché pour éviter le spam)
+            if (banner.dataset.alerted !== "true" && typeof speak === "function") {
+                speak("Alerte de sécurité absolue. Vigilance Rouge Météo France en cours.");
+                banner.dataset.alerted = "true";
+            }
+        } else if (banner) {
+            banner.style.display = "none";
+            banner.dataset.alerted = "false";
+        }
+    } catch(err) {
+        console.warn("[Vigilance] Erreur de récupération :", err);
+    }
+};
+
+// Initialisation et Polling (Toutes les 5 minutes)
+setTimeout(() => {
+    if (typeof window.checkVigilanceRouge === "function") {
+        window.checkVigilanceRouge();
+        setInterval(window.checkVigilanceRouge, 300000); // 5 minutes
+    }
+}, 5000); // Lancement 5 secondes après le chargement de l'app
+
+// ============================================================
+// --- 7. BOÎTE NOIRE (TÉLÉMÉTRIE D'ASSURANCE) ---
+// ============================================================
+window.BlackBox = [];
+setInterval(() => {
+    if (window.isRiding && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const data = {
+                t: new Date().toISOString(),
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+                spd: pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0,
+                acc: pos.coords.accuracy,
+                w: window.isVigilanceRouge ? 'ROUGE' : 'NORMAL'
+            };
+            window.BlackBox.push(data);
+            if (window.BlackBox.length > 300) window.BlackBox.shift(); // Garde 5 minutes (300 sec)
+        }, () => {}, { enableHighAccuracy: true, maximumAge: 0 });
+    }
+}, 1000);
+
+window.exportBlackBox = function() {
+    if (window.BlackBox.length === 0) {
+        alert("La boîte noire est vide. Vous devez rouler pour enregistrer des données.");
+        return;
+    }
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(window.BlackBox, null, 2));
+    const dlAnchorElem = document.createElement('a');
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", `Boite_Noire_mon50cc_${new Date().getTime()}.json`);
+    document.body.appendChild(dlAnchorElem);
+    dlAnchorElem.click();
+    dlAnchorElem.remove();
+    speak("Rapport de boîte noire exporté avec succès.");
+};
+
+// ============================================================
+// --- 8. RADAR CONVOI (ESCOUADE FIRESTORE) ---
+// ============================================================
+window.convoyMarkers = {};
+window.currentSquadId = null;
+
+window.joinSquad = function() {
+    const code = prompt("Entrez le code secret de l'escouade (4 chiffres) :");
+    if (!code || code.length < 3) return;
+    window.currentSquadId = code;
+    speak(`Escouade ${code} rejointe. Activation du radar partagé.`);
+    
+    // Upload de position toutes les 10 secondes
+    setInterval(() => {
+        if (window.currentSquadId && window.isRiding && window.db && window.user) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                window.db.collection('convoys').doc(window.currentSquadId).collection('positions').doc(window.user.uid).set({
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            });
+        }
+    }, 10000);
+
+    // Écoute des alliés
+    if (window.db) {
+        window.db.collection('convoys').doc(window.currentSquadId).collection('positions').onSnapshot(snapshot => {
+            snapshot.docChanges().forEach(change => {
+                const data = change.doc.data();
+                const uid = change.doc.id;
+                if (uid === (window.user && window.user.uid)) return; // Ignorer soi-même
+
+                if (change.type === "added" || change.type === "modified") {
+                    const pos = new google.maps.LatLng(data.lat, data.lng);
+                    if (!window.convoyMarkers[uid]) {
+                        window.convoyMarkers[uid] = new google.maps.Marker({
+                            position: pos,
+                            map: window.map,
+                            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor: '#00d2ff', fillOpacity: 1, strokeWeight: 2, strokeColor: '#fff' },
+                            title: 'Pilote Allié'
+                        });
+                        speak("Nouvel allié détecté sur le radar.");
+                    } else {
+                        window.convoyMarkers[uid].setPosition(pos);
+                    }
+                }
+                if (change.type === "removed" && window.convoyMarkers[uid]) {
+                    window.convoyMarkers[uid].setMap(null);
+                    delete window.convoyMarkers[uid];
+                }
+            });
+        });
+    }
+};

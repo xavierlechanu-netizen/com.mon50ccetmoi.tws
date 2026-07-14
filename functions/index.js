@@ -422,3 +422,64 @@ exports.triggerAntiTheftAlert = onRequest(
         }
     }
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. sendWelcomeEmail (Automated email after beta signup)
+// ─────────────────────────────────────────────────────────────────────────────
+const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const nodemailer = require("nodemailer");
+const SMTP_PASSWORD = defineSecret("SMTP_PASSWORD");
+
+exports.sendWelcomeEmail = onDocumentCreated(
+    { document: "beta_testers/{docId}", region: "europe-west1", secrets: [SMTP_PASSWORD] },
+    async (event) => {
+        const snapshot = event.data;
+        if (!snapshot) return;
+
+        const data = snapshot.data();
+        const email = data.email;
+        
+        if (!email) {
+            console.log("No email found, skipping.");
+            return;
+        }
+
+        const transporter = nodemailer.createTransport({
+            host: "authsmtp.amen.fr", // Serveur SMTP par défaut d'Amen
+            port: 465,
+            secure: true,
+            auth: {
+                user: "contact@mon50ccetmoi.com",
+                pass: SMTP_PASSWORD.value()
+            }
+        });
+
+        const mailOptions = {
+            from: '"mon50ccetmoi" <contact@mon50ccetmoi.com>',
+            to: email,
+            subject: "🎆 Joyeux 14 Juillet & Bienvenue sur mon50ccetmoi ! 🇫🇷",
+            text: "Merci de nous avoir rejoints dans la Bêta !\n\nJoyeuse Fête Nationale !\nBonne route et soyez prudents.\n\nL'équipe mon50ccetmoi",
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px; border-radius: 10px; border-top: 5px solid #0055A4; border-bottom: 5px solid #EF4135;">
+                    <div style="text-align: center; font-size: 40px; margin-bottom: 10px;">🇫🇷 🎆 🎇 🇫🇷</div>
+                    <h2 style="color: #0055A4; text-align: center;">Joyeuse Fête Nationale !</h2>
+                    <h3 style="color: #ffb703; text-align: center;">Et bienvenue sur mon50ccetmoi ! 🏍️</h3>
+                    <p style="color: #333; font-size: 16px;">Salut !</p>
+                    <p style="color: #333; font-size: 16px;">En ce 14 juillet festif, ton inscription à la Bêta a bien été enregistrée.</p>
+                    <p style="color: #333; font-size: 16px;">Nous avons hâte de te faire découvrir l'application. Tu vas très bientôt recevoir ton accès pour rouler avec nous.</p>
+                    <br/>
+                    <p style="color: #EF4135; font-size: 16px; font-weight: bold; text-align: center;">Profite bien des feux d'artifice, bonne route et sois prudent !</p>
+                    <hr style="border: none; border-top: 1px solid #ccc; margin: 20px 0;">
+                    <p style="color: #777; font-size: 12px; text-align: center;">L'équipe mon50ccetmoi</p>
+                </div>
+            `
+        };
+
+        try {
+            await transporter.sendMail(mailOptions);
+            console.log(`Welcome email sent to ${email}`);
+        } catch (error) {
+            console.error("Error sending email:", error);
+        }
+    }
+);

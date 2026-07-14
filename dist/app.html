@@ -32,21 +32,26 @@
             }
         } catch(e) { console.warn("Session locale non disponible"); }
 
-        function openMarketplaceCheck() {
-            let userPoints = parseInt(localStorage.getItem('bvcPoints') || '0');
-            if(userPoints >= 5) {
-                window.location.href = 'marketplace.html';
-            } else {
-                alert("🔒 Accès restreint.\n\nIl vous faut au moins 5 points de bonne conduite pour débloquer la Marketplace.\nVous avez actuellement : " + userPoints + " point(s).\n\nContinuez à rouler prudemment !");
+        async function openMarketplaceCheck() {
+            if (!window.session || !window.session.uid) {
+                alert("Vous devez être connecté.");
+                return;
+            }
+            try {
+                const doc = await firebase.firestore().collection("users").doc(window.session.uid).get();
+                let userPoints = doc.exists ? (doc.data().bvcPoints || 0) : 0;
+                
+                if(userPoints >= 5) {
+                    window.location.href = 'marketplace.html';
+                } else {
+                    alert("🔒 Accès restreint.\n\nIl vous faut au moins 5 points de bonne conduite pour débloquer la Marketplace.\nVous avez actuellement : " + userPoints + " point(s).\n\nContinuez à rouler prudemment !");
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Erreur de vérification des points.");
             }
         }
 
-        // Commande de test pour la console
-        window.testAddPoints = function(pts = 5) {
-            let current = parseInt(localStorage.getItem('bvcPoints') || '0');
-            localStorage.setItem('bvcPoints', current + pts);
-            alert("Vous avez reçu " + pts + " points !\nTotal: " + (current + pts));
-        };
     </script>
     <!-- Premium CSS -->
     <link rel="stylesheet" href="css/premium.css">
@@ -55,7 +60,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="/assets/icon-192x192-CsrcJCmh.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
     
     <!-- SEO & Social Sharing (Open Graph) -->
     <meta name="description" content="La premiÃ¨re communautÃ© de scooters 50cc. Navigation sans autoroute, alertes radars et dÃ©tection de chute.">
@@ -245,7 +250,7 @@
     <link id="leaflet-css" rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="css/style.min.css?v=70004">
-    <link rel="icon" type="image/png" href="/assets/icon-192x192-CsrcJCmh.png">
+    <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
     <!-- Firebase SDK (v9 Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -508,6 +513,10 @@
 
     </nav>
 
+    <!-- BANNIÈRE VIGILANCE ROUGE (Cachée par défaut) -->
+    <div id="vigilance-rouge-banner" style="display: none; background: #ff0000; color: #fff; text-align: center; padding: 10px; font-weight: bold; position: fixed; top: 0; left: 0; width: 100%; z-index: 100000; box-shadow: 0 5px 15px rgba(255,0,0,0.5);">
+        <marquee scrollamount="6" id="vigilance-rouge-text" style="font-size: 1rem;"></marquee>
+    </div>
     <!-- Style for Hover Effects and Dock Layout -->
     <style>
         #apple-smart-dock {
@@ -764,8 +773,8 @@
             <button onclick="window.PocketLawyer.open()" style="padding: 15px 40px; background: linear-gradient(90deg, #cca300, #ffaa00); border: none; border-radius: 30px; color: #000; font-weight: 900; font-size: 1.1rem; box-shadow: 0 5px 20px rgba(204,163,0,0.4); cursor: pointer;">
                 <i class="fa-solid fa-scale-balanced"></i> PAYER AVOCAT DE POCHE (5 Pts BVC)
             </button>
-            <button style="padding: 15px 40px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 30px; color: #aaa; font-weight: bold; font-size: 0.9rem; cursor: not-allowed;">
-                CONVERTIR EN GOODIES (Bientôt)
+            <button onclick="alert('Boutique en cours d\'approvisionnement !')" style="padding: 15px 40px; background: rgba(255,183,3,0.2); border: 1px solid #ffb703; border-radius: 30px; color: #ffb703; font-weight: bold; font-size: 0.9rem; cursor: pointer;">
+                CONVERTIR EN GOODIES
             </button>
         </div>
     </div>
@@ -1372,6 +1381,7 @@ function updateHoloVehicle(type) {
     <script src="js/safe-rider.js"></script>
     <script src="js/convoy.js"></script>
     <script src="js/exchange.js"></script>
+    <script src="js/legal-database.js"></script>
     <script src="js/pocket-lawyer.js"></script>
 </body>
 </html>

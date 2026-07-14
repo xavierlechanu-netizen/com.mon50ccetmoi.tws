@@ -95,7 +95,49 @@
 
     <p style="color:#aaa;">Échangez vos Brave Coins (BVC) gagnés en conduisant prudemment contre des pièces détachées ou des réductions partenaires.</p>
 
-    <div class="grid-market">
+    <!-- MARCHÉ NOIR DE JARVIS (VOIX IA) -->
+    <div style="margin-top: 40px; border-top: 1px solid rgba(255,0,255,0.2); padding-top: 30px;">
+        <h2 style="margin:0 0 20px 0; color:#ff00ff; text-shadow:0 0 10px rgba(255,0,255,0.5);"><i class="fa-solid fa-robot"></i> Marché Noir IA (Skins Vocaux)</h2>
+        <div class="grid-market">
+            
+            <!-- Voix 1 -->
+            <div class="product-card" style="border-color: #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.2);">
+                <div class="product-img" style="color: #ff00ff;">
+                    <i class="fa-solid fa-microchip"></i>
+                </div>
+                <h3>Jarvis (Classique)</h3>
+                <p style="color:#888; font-size:0.9rem;">Voix de base.</p>
+                <div class="price-tag">Gratuit</div>
+                <button class="buy-btn" style="background: linear-gradient(135deg,#ff00ff,#8a2be2);" onclick="setVoiceMode('standard')">Activer</button>
+            </div>
+
+            <!-- Voix 2 -->
+            <div class="product-card" style="border-color: #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.2);">
+                <div class="product-img" style="color: #ff00ff;">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <h3>Cyberpunk</h3>
+                <p style="color:#888; font-size:0.9rem;">Voix grave et robotique.</p>
+                <div class="price-tag">100 BVC</div>
+                <button class="buy-btn" style="background: linear-gradient(135deg,#ff00ff,#8a2be2);" onclick="buyVoiceMode('cyberpunk', 100)">Débloquer</button>
+            </div>
+
+            <!-- Voix 3 -->
+            <div class="product-card" style="border-color: #ff00ff; box-shadow: 0 0 10px rgba(255,0,255,0.2);">
+                <div class="product-img" style="color: #ff00ff;">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                </div>
+                <h3>Pilote de Rallye</h3>
+                <p style="color:#888; font-size:0.9rem;">Voix rapide et agressive.</p>
+                <div class="price-tag">150 BVC</div>
+                <button class="buy-btn" style="background: linear-gradient(135deg,#ff00ff,#8a2be2);" onclick="buyVoiceMode('rally', 150)">Débloquer</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BOURSE D'ÉCHANGE COMMUNAUTAIRE -->
+    <div class="grid-market" style="margin-top:40px;">
         <!-- Produit 1 -->
         <div class="product-card">
             <div class="product-img">
@@ -130,5 +172,23 @@
         </div>
     </div>
 
+<script>
+    // Fonctions Marché Noir IA
+    function setVoiceMode(mode) {
+        localStorage.setItem('jarvisVoiceMode', mode);
+        alert(`Skin Vocal [${mode}] activé avec succès.`);
+    }
+
+    function buyVoiceMode(mode, cost) {
+        let currentBVC = parseInt(localStorage.getItem('bvc_points')) || 0;
+        if (currentBVC >= cost) {
+            currentBVC -= cost;
+            localStorage.setItem('bvc_points', currentBVC);
+            setVoiceMode(mode);
+        } else {
+            alert(`Fonds insuffisants. Il vous manque ${cost - currentBVC} BVC pour débloquer cette voix.`);
+        }
+    }
+</script>
 </body>
 </html>

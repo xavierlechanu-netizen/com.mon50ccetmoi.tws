@@ -1706,8 +1706,20 @@ async function speak(phraseKey) {
     if (voice) utterance.voice = voice;
     
     utterance.lang = navigator.language;
-    utterance.rate = 0.95;
-    utterance.pitch = (window.OracleEngine && window.OracleEngine.gender === 'female') ? 1.05 : 0.9;
+    
+    // Voice Modes (Marché Noir BVC)
+    let rate = 0.95;
+    let pitch = (window.OracleEngine && window.OracleEngine.gender === 'female') ? 1.05 : 0.9;
+    
+    const voiceMode = localStorage.getItem('jarvisVoiceMode') || 'standard';
+    if (voiceMode === 'cyberpunk') {
+        rate = 0.85; pitch = 0.4;
+    } else if (voiceMode === 'rally') {
+        rate = 1.3; pitch = 1.2;
+    }
+
+    utterance.rate = rate;
+    utterance.pitch = pitch;
     
     window.speechSynthesis.speak(utterance);
     if ('vibrate' in navigator && navigator.userActivation && navigator.userActivation.hasBeenActive) {
@@ -1729,6 +1741,16 @@ function checkNightMode() {
     }
 }
 // --- NEW v25: TELEMETRY & LEAN ANGLE ---
+// --- BACKGROUND MODE SURVIVAL ---
+document.addEventListener('deviceready', () => {
+    // Si le plugin de background-mode est installé (Cordova/Capacitor)
+    if (window.cordova && cordova.plugins && cordova.plugins.backgroundMode) {
+        cordova.plugins.backgroundMode.enable();
+        cordova.plugins.backgroundMode.on('activate', function() {
+            cordova.plugins.backgroundMode.disableWebViewOptimizations(); 
+        });
+    }
+}, false);
 window.addEventListener('deviceorientation', (e) => {
     if(!window.isRiding) return;
     
