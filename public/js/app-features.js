@@ -759,6 +759,9 @@ window.triggerRegionalWelcome = function(lat, lng) {
                     }
                 }
             }
+            if (window.OracleEngine) {
+                window.OracleEngine.currentRegion = regionKey;
+            }
             speak(REGION_MESSAGES[regionKey]);
         })
         .catch(err => {

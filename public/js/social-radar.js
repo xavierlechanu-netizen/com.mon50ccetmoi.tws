@@ -3,33 +3,6 @@
  * v1.0
  */
 
-// 1. Regional Welcome (Reverse Geocoding)
-window.triggerRegionalWelcome = async function(lat, lng) {
-    try {
-        // Interrogation de l'API Nominatim (OpenStreetMap)
-        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`, {
-            headers: {
-                'Accept-Language': 'fr'
-            }
-        });
-        const data = await response.json();
-        
-        let region = "inconnue";
-        if (data && data.address) {
-            region = data.address.state || data.address.region || data.address.county || data.address.city || "votre région";
-        }
-        
-        if (typeof speak === 'function') {
-            speak(`Bienvenue pilote. Systèmes activés dans la région ${region}. Prêt pour le départ.`);
-        }
-    } catch (err) {
-        console.error("Erreur de Reverse Geocoding :", err);
-        if (typeof speak === 'function') {
-            speak("Bienvenue pilote. Systèmes activés. Prêt pour le départ.");
-        }
-    }
-};
-
 // 2. Social Radar (Ghost Rider Mode)
 class SocialRadarManager {
     constructor() {

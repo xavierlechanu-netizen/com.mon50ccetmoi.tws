@@ -1714,6 +1714,34 @@ async function speak(phraseKey) {
     let pitch = (window.OracleEngine && window.OracleEngine.gender === 'female') ? 1.05 : 0.9;
     
     const voiceMode = localStorage.getItem('jarvisVoiceMode') || 'standard';
+
+    // Simulation d'accents régionaux (pitch/rate)
+    if (region && voiceMode === 'standard') {
+        switch (region) {
+            case "provence-alpes-côte d'azur":
+            case "occitanie":
+                rate = 0.85; pitch = pitch * 1.2; // Sud : plus lent, plus chantant
+                break;
+            case "hauts-de-france":
+                rate = 1.1; pitch = pitch * 0.85; // Nord : plus rapide, un peu plus grave
+                break;
+            case "île-de-france":
+                rate = 1.15; // Paris : parle vite
+                break;
+            case "auvergne-rhône-alpes":
+                rate = 0.88; pitch = pitch * 0.95; // Rhône-Alpes : posé, calme
+                break;
+            case "bretagne":
+            case "normandie":
+                pitch = pitch * 1.1; // Ouest
+                break;
+            case "grand est":
+            case "bourgogne-franche-comté":
+                rate = 0.92; pitch = pitch * 1.05;
+                break;
+        }
+    }
+    
     if (voiceMode === 'cyberpunk') {
         rate = 0.85; pitch = 0.4;
     } else if (voiceMode === 'rally') {
