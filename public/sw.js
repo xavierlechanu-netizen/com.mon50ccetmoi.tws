@@ -1,25 +1,19 @@
-const CACHE_NAME = 'mon50cc-cache-v1008001';
+const CACHE_NAME = 'mon50cc-cache-v1008002';
 const urlsToCache = [
   '/',
-  '/index.html?v=80000',
-  '/app.html?v=80000',
+  '/index.html?v=1008002',
+  '/app.html?v=1008002',
   '/offline.html',
-  '/css/premium.css?v=80000',
-  '/css/style.css?v=80000',
-  '/js/config.js?v=80000',
-  '/js/infallible.js?v=80000',
-  '/js/crypto-native.js?v=80000',
-  '/js/app-core.js?v=80000',
-  '/js/app-map.js?v=80000',
-  '/js/app-ui.js?v=80000',
-  '/js/app-features.js?v=80000',
-  '/js/app-wallet.js?v=80000',
-  '/js/app-garage.js?v=80000',
-  '/js/i18n.js?v=80000',
-  '/js/auth.js?v=80000',
-  '/js/database.js?v=80000',
-  '/js/silicon-valley.js?v=80000',
-  '/js/obd-bluetooth.js?v=80000'
+  '/css/premium.css?v=1008002',
+  '/css/style.min.css?v=1008002',
+  '/js/config.js?v=1008002',
+  '/js/infallible.js?v=1008002',
+  '/js/error-tracking.js?v=1008002',
+  '/js/oracle-voice.js?v=1008002',
+  '/js/crypto-native.js?v=1008002',
+  '/js/auth.js?v=1008002',
+  '/js/database.js?v=1008002',
+  '/js/mon50cc-bundle.js'
 ];
 
 self.addEventListener('install', event => {
