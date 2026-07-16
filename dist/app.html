@@ -269,15 +269,13 @@
     <!-- FUN MODE / SENSATION BUTTON -->
     
 
-    <!-- CORE MODULAR APP (BUNDLED) -->
-    <script defer src="js/app-bundle.min.js?v=1008000"></script>
+    <!-- MODULES ADDITIONNELS (defer = chargés après le DOM) -->
     <script defer src="js/crews-territory.js"></script>
     <script defer src="js/loot-drops.js"></script>
     <script defer src="js/cortege-mode.js"></script>
     <script defer src="js/safe-ride.js"></script>
     <script defer src="js/garage-market.js"></script>
     <script defer src="js/sos-community.js"></script>
-    <script defer src="js/leaderboard.js"></script>
     <script defer src="js/roadbooks.js"></script>
     <script defer src="js/pit-stops.js"></script>
     <script defer src="js/privacy-manager.js"></script>
@@ -937,6 +935,13 @@
         </script>
     </div>
 </div>
+
+    <!-- CORE APP (chargé en premier, sans defer) -->
+    <script src="js/app-core.js"></script>
+    <script src="js/app-map.js"></script>
+    <script src="js/app-features.js"></script>
+    <script src="js/app-ui.js"></script>
+    <script src="js/app-wallet.js"></script>
 
     <script src="js/silicon-valley.js"></script>
     <script src="js/jarvis-voice.js"></script>

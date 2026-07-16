@@ -1637,6 +1637,9 @@ window.OracleEngine = {
     },
 
     updateRegion: function(lat, lng) {
+        // Ne pas écraser la région si triggerRegionalWelcome (Nominatim) l'a déjà définie
+        if (this._regionSetByNominatim) return;
+
         if (lat > 43.1 && lat < 43.4 && lng > 5.2 && lng < 5.6) this.currentRegion = 'marseille';
         else if (lat > 45 && lat < 47 && lng > -74 && lng < -71) this.currentRegion = 'quebec';
         else if (lat > 50.5 && lat < 50.8 && lng > 5.3 && lng < 5.8) this.currentRegion = 'liege';
@@ -1716,17 +1719,24 @@ async function speak(phraseKey) {
     const voiceMode = localStorage.getItem('jarvisVoiceMode') || 'standard';
 
     // Simulation d'accents régionaux (pitch/rate)
-    if (region && voiceMode === 'standard') {
+    if (region && region !== 'standard' && voiceMode === 'standard') {
         switch (region) {
+            // Système A — Régions administratives (Nominatim)
             case "provence-alpes-côte d'azur":
             case "occitanie":
+            // Système B — Villes/zones (GPS)
+            case "marseille":
+            case "reunion":
                 rate = 0.85; pitch = pitch * 1.2; // Sud : plus lent, plus chantant
                 break;
             case "hauts-de-france":
+            case "liege":
+            case "charleroi":
                 rate = 1.1; pitch = pitch * 0.85; // Nord : plus rapide, un peu plus grave
                 break;
             case "île-de-france":
-                rate = 1.15; // Paris : parle vite
+            case "brussels":
+                rate = 1.15; // Paris/Bruxelles : parle vite
                 break;
             case "auvergne-rhône-alpes":
                 rate = 0.88; pitch = pitch * 0.95; // Rhône-Alpes : posé, calme
@@ -1737,7 +1747,14 @@ async function speak(phraseKey) {
                 break;
             case "grand est":
             case "bourgogne-franche-comté":
+            case "flanders":
                 rate = 0.92; pitch = pitch * 1.05;
+                break;
+            case "quebec":
+                rate = 0.90; pitch = pitch * 1.15; // Québécois : chantant, plus lent
+                break;
+            case "andalucia":
+                rate = 1.05; pitch = pitch * 1.1; // Espagnol du sud
                 break;
         }
     }

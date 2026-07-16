@@ -761,6 +761,7 @@ window.triggerRegionalWelcome = function(lat, lng) {
             }
             if (window.OracleEngine) {
                 window.OracleEngine.currentRegion = regionKey;
+                window.OracleEngine._regionSetByNominatim = (regionKey !== 'default');
             }
             speak(REGION_MESSAGES[regionKey]);
         })

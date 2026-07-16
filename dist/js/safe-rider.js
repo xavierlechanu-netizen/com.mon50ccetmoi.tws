@@ -70,13 +70,13 @@ window.SafeRider = {
             animation: slideDown 0.5s ease-out, fadeOut 0.5s ease-in 4s forwards;
             display: flex; align-items: center; gap: 15px;
         `;
-        popup.innerHTML = \`<i class="fa-solid fa-trophy" style="font-size: 1.5rem;"></i> <span>\${message}</span>\`;
+        popup.innerHTML = `<i class="fa-solid fa-trophy" style="font-size: 1.5rem;"></i> <span>${message}</span>`;
         
         const style = document.createElement('style');
-        style.innerHTML = \`
+        style.innerHTML = `
             @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
             @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; display: none; } }
-        \`;
+        `;
         document.head.appendChild(style);
         document.body.appendChild(popup);
         
