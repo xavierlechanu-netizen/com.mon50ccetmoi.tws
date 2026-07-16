@@ -1250,14 +1250,26 @@ function updatePosition(position) {
     }
 }
 
+// Fonction utilitaire pour calculer la distance (Formule de Haversine)
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // mètres
+    const p1 = lat1 * Math.PI/180;
+    const p2 = lat2 * Math.PI/180;
+    const dp = (lat2-lat1) * Math.PI/180;
+    const dl = (lon2-lon1) * Math.PI/180;
+    const a = Math.sin(dp/2) * Math.sin(dp/2) +
+              Math.cos(p1) * Math.cos(p2) *
+              Math.sin(dl/2) * Math.sin(dl/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
 function checkHazardProximity(lat, lng) {
     const raw = secureGetItem('hazards');
     const hazards = raw ? JSON.parse(raw) : [];
-    const p1 = new google.maps.LatLng(lat, lng);
     
     hazards.forEach((h, index) => {
-        const p2 = new google.maps.LatLng(h.lat, h.lon);
-        const dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
+        const dist = getDistance(lat, lng, h.lat, h.lon);
         
         // --- ALERTE ROUGE (GHOST CAR) ---
         if (h.type === 'danger_immediat') {
