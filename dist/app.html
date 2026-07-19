@@ -40,7 +40,7 @@
             try {
                 const doc = await firebase.firestore().collection("users").doc(window.session.uid).get();
                 let userPoints = doc.exists ? (doc.data().bvcPoints || 0) : 0;
-                
+
                 if(userPoints >= 5) {
                     window.location.href = 'marketplace.html';
                 } else {
@@ -55,13 +55,13 @@
     </script>
     <!-- Premium CSS -->
     <link rel="stylesheet" href="css/premium.css">
-    
+
     <!-- Android Retrocompatibility & PWA -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="/assets/icon-192x192-CsrcJCmh.png">
-    
+
     <!-- SEO & Social Sharing (Open Graph) -->
     <meta name="description" content="La premiÃ¨re communautÃ© de scooters 50cc. Navigation sans autoroute, alertes radars et dÃ©tection de chute.">
     <meta property="og:title" content="mon 50cc et moi | GPS & SÃ©curitÃ© Scooter">
@@ -123,7 +123,7 @@
     <!-- Chargeur Dynamique Google Maps avec Gestion d'Erreur -->
     <script>
         window.mapsSDKLoaded = false;
-        
+
         window.initMap = function() {
             console.log("mon50cc Maps : SDK ChargÃ© avec succÃ¨s.");
             window.mapsSDKLoaded = true;
@@ -135,7 +135,7 @@
         function loadMapsSDK() {
             const isAndroid = /Android/i.test(navigator.userAgent);
             const selectedKey = (typeof CONFIG !== 'undefined' && CONFIG.MAPS) ? (isAndroid ? CONFIG.MAPS.ANDROID : CONFIG.MAPS.PC) : "";
-            
+
             if (!selectedKey) {
                 console.error("mon50cc Loader : ClÃ© API Maps manquante !");
                 forceStartApp("ERREUR_CONFIG_API");
@@ -160,10 +160,10 @@
                 window.fallbackMapInitialized = true;
                 const mapEl = document.getElementById('map');
                 if(!mapEl) return;
-                
+
                 mapEl.innerHTML = '';
                 const map = L.map('map', {zoomControl: false, attributionControl: false}).setView([48.8566, 2.3522], 14);
-                
+
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                     maxZoom: 19
                 }).addTo(map);
@@ -184,7 +184,7 @@
             console.warn("mon50cc : DÃ©marrage forcÃ© (" + reason + ")");
             const statusEl = document.getElementById('loader-status');
             if(statusEl) statusEl.textContent = "Lancement (Mode DÃ©gradÃ©)...";
-            
+
             // On s'assure que checkAuth est dÃ©fini (fail-safe)
             if (typeof window.checkAuth !== "function") {
                 window.checkAuth = () => { return { username: "Pilote", isGuest: true }; };
@@ -234,7 +234,7 @@
                     setTimeout(() => loader.style.visibility = 'hidden', 800);
                 }
             }, 2000);
-            
+
             setTimeout(() => {
                 if (typeof window.startApp === "function") window.startApp();
             }, 1000);
@@ -255,36 +255,23 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
+
     <!-- Revolut Merchant SDK -->
     <script src="https://merchant.revolut.com/embed.js" async></script>
-    <script src="js/vehicle-config.js"></script>
-    <script src="js/beyond-maps.js"></script>
-    <script src="js/social-map.js"></script>
-    <script src="js/self-evolution.js"></script>
+    <script defer src="js/mon50cc-bundle.js"></script>
 
     <!-- SOCIAL RADAR BUTTON -->
-    
 
     <!-- FUN MODE / SENSATION BUTTON -->
-    
 
     <!-- MODULES ADDITIONNELS (defer = chargés après le DOM) -->
-    <script defer src="js/crews-territory.js"></script>
-    <script defer src="js/loot-drops.js"></script>
-    <script defer src="js/cortege-mode.js"></script>
-    <script defer src="js/safe-ride.js"></script>
-    <script defer src="js/garage-market.js"></script>
-    <script defer src="js/sos-community.js"></script>
-    <script defer src="js/roadbooks.js"></script>
-    <script defer src="js/pit-stops.js"></script>
-    <script defer src="js/privacy-manager.js"></script>
+
     <script>
         try {
             window.session = (typeof checkAuth === "function") ? checkAuth(false) : { username: "Pilote", isGuest: true };
         } catch(e) {}
     </script>
-    
+
 </head>
 <body style="margin:0; padding:0; background:#000; overflow:hidden;">
     <!-- APEX SENTINEL: Holographic Quantum Background -->
@@ -297,12 +284,12 @@
     </div>
 
     <div id="map" style="position:relative; width: 100vw; height: 100vh; z-index: 10; transition: opacity 0.5s;"></div>
-    
+
     <!-- Lien Espace Assureur (Accès Rapide) -->
     <a href="assureur.html" target="_blank" class="insurer-quick-link" aria-label="Accéder à l'espace assureur B2B">
         <i class="fa-solid fa-user-tie" aria-hidden="true"></i> Espace Assureur
     </a>
-    
+
     <style>
         .insurer-quick-link {
             position: fixed; top: 20px; right: 20px; z-index: 10000;
@@ -334,17 +321,17 @@
             100% { box-shadow: 0 0 25px rgba(0, 210, 255, 0.5); border-color: rgba(0, 210, 255, 0.6); }
         }
     </style>
-    
+
     <div id="guardian-halo" class="guardian-halo hidden"></div>
 
     <!-- APPLE SMART DOCK (A11y Compliant) -->
     <nav aria-label="Menu principal" id="apple-smart-dock" style="position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; gap: 20px; padding: 15px 25px; border-radius: 40px; background: rgba(25, 25, 35, 0.4); backdrop-filter: blur(25px) saturate(200%); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.2); max-width: 90vw; overflow-x: auto; align-items: center;">
-        
+
         <!-- SOS / Ange Gardien -->
         <button id="dock-btn-sos" aria-label="Déclencher une alerte SOS médicale" role="button" onclick="if(typeof triggerFallAlert === 'function') triggerFallAlert(true);" style="background: none; border: none; color: #ff0055; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
             <i class="fa-solid fa-truck-medical" aria-hidden="true" style="filter: drop-shadow(0 0 5px #ff0055);"></i>
         </button>
-        
+
         <!-- Avocat de Poche -->
         <button id="dock-btn-lawyer" aria-label="Ouvrir l'Avocat de Poche (IA)" role="button" onclick="if(window.PocketLawyer) window.PocketLawyer.toggleLawyer()" style="background: none; border: none; color: #cca300; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
             <i class="fa-solid fa-scale-balanced" aria-hidden="true" style="filter: drop-shadow(0 0 5px #cca300);"></i>
@@ -432,7 +419,7 @@
         <button id="dock-btn-trophy" aria-label="Voir le classement" role="button" onclick="window.showLeaderboard()" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;">
             <i class="fa-solid fa-trophy" aria-hidden="true" style="filter: drop-shadow(0 0 5px #ffb703);"></i>
         </button>
-  
+
         <!-- Portail Assureur (B2B) -->
         <button id="dock-btn-insurer" onclick="window.InsurerPortal.open()" style="background: none; border: none; color: #ff0055; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding: 5px;" title="Portail Assureur B2B">
             <i class="fa-solid fa-building-shield" style="filter: drop-shadow(0 0 5px #ff0055);"></i>
@@ -539,7 +526,7 @@
   <!-- NIS2 SECURITY SETTINGS SCREEN -->
   <div id="security-settings-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #051410 0%, #000 100%); color: #fff; z-index: 35000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
       <button onclick="document.getElementById('security-settings-screen').classList.add('hidden')" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #10a37f; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
-      
+
       <div style="margin-top: 50px; text-align: center;">
           <i class="fa-solid fa-shield-check" style="font-size: 4rem; color: #10a37f; filter: drop-shadow(0 0 20px #10a37f); margin-bottom: 20px;"></i>
           <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Sécurité & Confidentialité</h1>
@@ -578,7 +565,7 @@
       </div>
 
       </div>
-  
+
       <div style="margin: 40px auto; width: 90%; max-width: 400px; background: rgba(255,255,255,0.05); border: 1px solid rgba(16, 163, 127, 0.3); border-radius: 20px; padding: 40px 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
           <h3 style="color: #aaa; margin: 0 0 20px 0; font-size: 1.2rem;">Authentification Forte (FIDO2)</h3>
           <p style="color: #ddd; font-size: 0.9rem; margin-bottom: 30px;">
@@ -633,7 +620,7 @@
           <div style="font-size: 2.2rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 10px #ff4d4d;"><span id="obd-val-temp" class="hud-neon-active">--</span><span style="font-size: 1rem; color:#aaa;">°C</span></div>
       </div>
   </div>
-  
+
   <script>
       window.triggerHUDGlitch = function() {
           const hud = document.getElementById('obd-hud-screen');
@@ -676,14 +663,11 @@
     <p style="font-size: 1rem; color: #888; margin-top: 10px;">Merci de préserver la planète.</p>
 </div>
 
-<script src="js/tim-cook.js"></script>
-
-
 <!-- INSURER PORTAL SCREEN (B2B) -->
 <div id="insurer-portal-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #050a15 0%, #0a1128 100%); color: #fff; z-index: 40000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
     <div style="position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle at 50% -20%, rgba(0,210,255,0.1) 0%, transparent 70%); pointer-events:none;"></div>
     <button onclick="window.InsurerPortal.close()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius:50%; width: 40px; height: 40px; color: #fff; font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fa-solid fa-xmark"></i></button>
-    
+
     <div style="margin-top: 60px; text-align: center; position:relative; z-index:2;">
         <i class="fa-solid fa-building-shield" style="font-size: 4.5rem; color: #00d2ff; filter: drop-shadow(0 0 30px rgba(0,210,255,0.8)); margin-bottom: 20px;"></i>
         <h1 style="margin: 0; font-size: 2.5rem; font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, #fff 0%, #00d2ff 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">INSUR'TECH</h1>
@@ -695,7 +679,7 @@
         <h3 style="color: #94a3b8; margin: 0 0 25px 0; font-size: 1.2rem; font-weight:400;">Espace <span style="color:#fff; font-weight:600;">Professionnel</span></h3>
         <input type="text" id="insurer-id-input" class="cyber-input" placeholder="Identifiant Assureur (Ex: AXA-001)" style="text-align:center; font-size:1.2rem; margin-bottom: 15px; text-transform:uppercase;">
         <input type="password" id="insurer-pwd-input" class="cyber-input" placeholder="Mot de passe" style="text-align:center; font-size:1.2rem; margin-bottom: 30px;">
-        
+
         <button class="btn-neon-action" onclick="window.InsurerPortal.login()" style="width:100%; margin-bottom: 15px;"><i class="fa-solid fa-right-to-bracket" style="margin-right:10px;"></i> Connexion</button>
         <button class="btn-neon-action" onclick="window.InsurerPortal.signup()" style="width:100%; background: rgba(255,255,255,0.1); box-shadow: none; border-color: rgba(255,255,255,0.2);"><i class="fa-solid fa-user-plus" style="margin-right:10px;"></i> Créer un compte</button>
     </div>
@@ -708,11 +692,11 @@
         <button class="btn-neon-action" onclick="window.InsurerPortal.verifyCode()" style="width:100%;"><i class="fa-solid fa-magnifying-glass" style="margin-right:10px;"></i> Rechercher le dossier</button>
         <button class="btn-neon-action" onclick="window.InsurerPortal.logout()" style="width:100%; background: transparent; box-shadow: none; border-color: #ff0055; color: #ff0055; margin-top: 15px;"><i class="fa-solid fa-right-from-bracket" style="margin-right:10px;"></i> Déconnexion</button>
     </div>
-    
+
     <!-- Pricing Box -->
     <div id="insurer-pricing-box" class="hidden" style="margin: 20px auto; width: 95%; max-width: 600px; position:relative; z-index:2;">
         <h3 style="text-align:center; color:#fff; margin-bottom:30px; font-size:1.5rem; font-weight:300;">Sélectionnez le niveau d'expertise</h3>
-        
+
         <div class="glass-card-premium" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; padding: 25px;">
             <div>
                 <strong style="font-size:1.3rem; color:#e2e8f0;">Data Standard</strong><br>
@@ -720,7 +704,7 @@
             </div>
             <button class="btn-neon-action" onclick="window.InsurerPortal.buyReport('Standard', 49.99, 5)" style="background: rgba(255,255,255,0.1); box-shadow:none;">49.99 €</button>
         </div>
-        
+
         <div class="glass-card-premium" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; padding: 25px; border-color:rgba(0,210,255,0.4);">
             <div>
                 <strong style="font-size:1.4rem; color:#00d2ff;"><i class="fa-solid fa-gauge-high"></i> Data Intermédiaire</strong><br>
@@ -728,7 +712,7 @@
             </div>
             <button class="btn-neon-action" onclick="window.InsurerPortal.buyReport('Intermédiaire', 89.99, 10)">89.99 €</button>
         </div>
-        
+
         <div class="glass-card-premium" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; padding: 25px; border-color:rgba(183,0,255,0.6); box-shadow: 0 10px 40px rgba(183,0,255,0.2), inset 0 1px 1px rgba(255,255,255,0.1); transform: scale(1.02);">
             <div style="position:absolute; top:-10px; right:20px; background:#b700ff; color:#fff; font-size:0.7rem; font-weight:900; padding:4px 10px; border-radius:10px; text-transform:uppercase;">Recommandé IA</div>
             <div>
@@ -737,7 +721,7 @@
             </div>
             <button class="btn-neon-action" onclick="window.InsurerPortal.buyReport('Expert', 199.99, 20)" style="background: linear-gradient(135deg, #b700ff 0%, #ff0055 100%); box-shadow: 0 0 20px rgba(183,0,255,0.6);">199.99 €</button>
         </div>
-        
+
         <p style="text-align: center; color: #64748b; font-size: 0.85rem; margin-top: 30px; font-family:'JetBrains Mono', monospace;">
             <i class="fa-solid fa-lock"></i> SECURISÉ PAR BLOCKCHAIN POLYGON<br><br>
             Conformément à nos CGV B2B, les rapports cryptographiques sont définitifs.<br>
@@ -746,11 +730,10 @@
     </div>
 </div>
 
-
 <!-- LOYALTY PROGRAM SCREEN -->
 <div id="crypto-wallet-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #0f172a 0%, #000 100%); color: #fff; z-index: 35000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
     <button onclick="window.hideCryptoWallet()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #ff0055; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
-    
+
     <div style="margin-top: 50px; text-align: center;">
         <i class="fa-solid fa-gift" style="font-size: 4rem; color: #b700ff; filter: drop-shadow(0 0 20px #b700ff); margin-bottom: 20px;"></i>
         <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Fidélité & Récompenses</h1>
@@ -762,7 +745,7 @@
         <div id="crypto-balance" style="font-size: 3.5rem; font-weight: 900; color: #b700ff; text-shadow: 0 0 20px #b700ff;">0 Pts BVC</div>
         <div style="color: #fff; font-size: 1.2rem; margin-top: 10px; opacity: 0.7;">Brave Coins (Non monétaires)</div>
     </div>
-    
+
     <div style="text-align: center; margin-top: 30px;">
         <h3 style="color: #fff; margin-bottom: 15px;">Avantages Exclusifs</h3>
         <div style="display:flex; flex-direction:column; gap:10px; align-items:center; margin-bottom:20px;">
@@ -798,7 +781,7 @@
             <i class="fa-solid fa-trophy"></i> Hall of Fame
         </h2>
         <p style="text-align: center; color: #aaa; margin-bottom: 10px; font-size: 0.9rem;">Classement Mensuel - Points de Fidélité (BVC)</p>
-        
+
         <div style="background: rgba(255,0,85,0.1); border: 1px solid rgba(255,0,85,0.3); border-radius: 8px; padding: 10px; margin-bottom: 30px; font-size: 0.7rem; color: #ccc; text-align: center;">
             <i class="fa-solid fa-circle-info" style="color: #ff0055;"></i> <b>Note Juridique :</b> Les Brave Coins (BVC) sont des points de fidélité virtuels sans aucune valeur monétaire réelle. Ils ne peuvent être ni vendus, ni échangés contre de la cryptomonnaie ou de l'argent fiduciaire (euro).
         </div>
@@ -822,7 +805,7 @@
     .lb-podium-name { color: #fff; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; text-align: center; word-break: break-all; }
     .lb-podium-score { color: #00d2ff; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; text-align: center; }
     .lb-podium-badge { position: absolute; top: -35px; left: 50%; transform: translateX(-50%); font-size: 2rem; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-    
+
     .lb-rank-1 { height: 120px; background: linear-gradient(180deg, #ffd700 0%, #b8860b 100%); box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
     .lb-rank-2 { height: 90px; background: linear-gradient(180deg, #c0c0c0 0%, #808080 100%); }
     .lb-rank-3 { height: 70px; background: linear-gradient(180deg, #cd7f32 0%, #8b4513 100%); }
@@ -830,7 +813,7 @@
     .lb-list-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; transition: transform 0.2s; border: 1px solid rgba(255,255,255,0.05); }
     .lb-list-item:hover { background: rgba(255,255,255,0.1); transform: scale(1.02); }
     .lb-list-item.is-me { background: rgba(0, 210, 255, 0.15); border: 1px solid #00d2ff; box-shadow: 0 0 15px rgba(0, 210, 255, 0.3); }
-    
+
     .lb-list-rank { font-size: 1.2rem; font-weight: 900; color: #555; width: 30px; text-align: center; }
     .lb-list-info { flex-grow: 1; padding-left: 15px; }
     .lb-list-name { color: #fff; font-weight: bold; font-size: 1rem; }
@@ -845,7 +828,7 @@
         <button onclick="document.getElementById('community-gas-hud').classList.add('hidden')" style="background: none; border: none; color: #aaa; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div style="font-size: 0.75rem; color: #10a37f; margin-bottom: 10px; font-weight: bold;"><i class="fa-solid fa-building-columns"></i> Source: Data Gouv.fr & Communauté</div>
-    
+
     <div id="gas-stations-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">
         <!-- Injecté via JS -->
     </div>
@@ -891,7 +874,7 @@
 <!-- AI PREDICTIVE DASHBOARD SCREEN -->
 <div id="ai-diagnostic-modal" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #020617 0%, #000 100%); color: #fff; z-index: 36000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
     <button onclick="document.getElementById('ai-diagnostic-modal').classList.add('hidden')" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius:50%; width: 40px; height: 40px; color: #fff; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
-    
+
     <div style="margin-top: 50px; text-align: center;">
         <i class="fa-solid fa-microchip" style="font-size: 4rem; color: #00d2ff; filter: drop-shadow(0 0 20px #00d2ff); margin-bottom: 10px;"></i>
         <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Diagnostic IA</h1>
@@ -937,33 +920,9 @@
 </div>
 
     <!-- CORE APP (chargé en premier, sans defer) -->
-    <script src="js/app-core.js"></script>
-    <script src="js/app-map.js"></script>
-    <script src="js/app-features.js"></script>
-    <script src="js/app-ui.js"></script>
-    <script src="js/app-wallet.js"></script>
 
-    <script src="js/silicon-valley.js"></script>
-    <script src="js/jarvis-voice.js"></script>
-    <script src="js/community-gas.js"></script>
-    <script src="js/leaderboard.js"></script>
-    <script src="js/v3-smartcity.js"></script>
-    <script src="js/carbon-trading.js"></script>
-    <script src="js/rgpd-cnil.js"></script>
-    <script src="js/litigation-ai.js"></script>
-    <script src="js/insurance-portal.js"></script>
-    <script src="js/anti-theft.js"></script>
-    <script src="js/meca-wizard.js"></script>
-    <script src="js/obd-bluetooth.js"></script>
-    <script src="js/ar-navigation.js"></script>
-    <script src="js/social-radar.js"></script>
-    <script src="js/referral.js"></script>
     <!-- Nouveaux modules InsurTech & Sécurité -->
-    <script src="js/driving-score.js"></script>
-    <script src="js/danger-zones.js"></script>
-    <script src="js/accident-report.js"></script>
-    <script src="js/weather-alert.js"></script>
-    
+
     <!-- MECA-WIZARD MODAL -->
     <div id="meca-result-modal" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 60000; display: flex; align-items: center; justify-content: center;">
         <div style="width: 100%; max-width: 400px; position: relative;">
@@ -973,21 +932,18 @@
             <div id="meca-result"></div>
         </div>
     </div>
-    
+
     <!-- ANTI-THEFT GLITCH OVERLAY -->
     <div id="glitch-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:red; z-index:99999; pointer-events:none;"></div>
-    
+
     <!-- CORE MODULES -->
-    <script src="js/web4-mining.js"></script>
-    <script src="js/insurer-portal.js"></script>
-    <script src="js/zero-trust.js"></script>
 
     <script>
         // INIT APEX SENTINEL
         window.addEventListener('load', () => {
             if(window.QuantumCrypto) window.QuantumCrypto.init();
             if(window.ZeroTrust) window.ZeroTrust.init();
-            
+
             // Firebase Analytics — Track user engagement
             try {
                 if(typeof firebase !== 'undefined' && firebase.analytics) {
@@ -998,7 +954,7 @@
                     console.log('mon50cc : Firebase Analytics initialisé.');
                 }
             } catch(e) { console.warn('Analytics init skipped:', e.message); }
-            
+
             // WebGL / Canvas Holographic Effect (Simplified for performance)
             const canvas = document.getElementById('quantum-bg');
             if(canvas) {
@@ -1035,7 +991,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js?v=80000').then(registration => {
+                navigator.serviceWorker.register('sw.js?v=1008003').then(registration => {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
                 }, err => {
                     console.log('ServiceWorker registration failed: ', err);
@@ -1129,7 +1085,7 @@
 <!-- BATTERY HEALTH SCREEN -->
 <div id="battery-health-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #051410 0%, #000 100%); color: #fff; z-index: 35000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
     <button onclick="document.getElementById('battery-health-screen').classList.add('hidden')" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #00ffcc; font-size: 2rem; cursor: pointer; transition: transform 0.2s ease;"><i class="fa-solid fa-xmark"></i></button>
-    
+
     <div style="margin-top: 50px; text-align: center;">
         <i class="fa-solid fa-car-battery" style="font-size: 4rem; color: #00ffcc; filter: drop-shadow(0 0 20px #00ffcc); margin-bottom: 20px;"></i>
         <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Santé Batterie (SOH)</h1>
@@ -1210,7 +1166,7 @@
         <button onclick="document.getElementById('battery-manual-screen').classList.add('hidden')" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
         <h2 style="margin-top: 0; color: #00ffcc;"><i class="fa-solid fa-keyboard"></i> Saisie Manuelle</h2>
         <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 25px;">Saisissez les données connues de votre batterie. L'IA estimera votre SOH.</p>
-        
+
         <div style="display:flex; flex-direction:column; gap:15px; margin-bottom: 25px;">
             <div>
                 <label style="color:#aaa; font-size:0.8rem;">Kilométrage du véhicule (km)</label>
@@ -1233,7 +1189,7 @@
                 </select>
             </div>
         </div>
-        
+
         <button onclick="if(window.Certificate) window.Certificate.submitManualData()" style="background: #00ffcc; color: #000; border: none; border-radius: 8px; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(0,255,204,0.3);">
             Lancer l'estimation SOH
         </button>
@@ -1243,7 +1199,7 @@
 <!-- BATTERY PRICING SCREEN -->
 <div id="battery-pricing-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #0f172a 0%, #000 100%); color: #fff; z-index: 36000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
     <button onclick="document.getElementById('battery-pricing-screen').classList.add('hidden')" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; transition: transform 0.2s ease;"><i class="fa-solid fa-xmark"></i></button>
-    
+
     <div style="margin-top: 60px; text-align: center;">
         <i class="fa-solid fa-file-invoice-dollar" style="font-size: 4rem; color: #00d2ff; filter: drop-shadow(0 0 20px #00d2ff); margin-bottom: 20px;"></i>
         <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Certificat de Revente</h1>
@@ -1299,7 +1255,7 @@
 <!-- VEHICLE CONFIG SCREEN (GARAGE VIRTUEL B2C) -->
 <div id="vehicle-config-screen" class="hidden fullscreen-overlay" style="background: linear-gradient(135deg, #050a15 0%, #000 100%); color: #fff; z-index: 38000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
     <button onclick="document.getElementById('vehicle-config-screen').classList.add('hidden')" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius:50%; width: 40px; height: 40px; color: #fff; font-size: 1.2rem; cursor: pointer; transition: all 0.3s ease;"><i class="fa-solid fa-xmark"></i></button>
-    
+
     <div style="margin-top: 50px; text-align: center;">
         <i class="fa-solid fa-motorcycle" style="font-size: 4rem; color: #00d2ff; filter: drop-shadow(0 0 20px #00d2ff); margin-bottom: 10px;"></i>
         <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff;">Garage Virtuel</h1>
@@ -1327,7 +1283,7 @@
     <!-- Leads / Sponsoring Section (B2B Integration) -->
     <div style="margin: 30px auto; width: 90%; max-width: 400px;">
         <h3 style="color: #fff; font-size: 1.1rem; margin-bottom: 15px; display:flex; align-items:center; gap: 10px;"><i class="fa-solid fa-gift" style="color:#b700ff;"></i> Offres Partenaires (Leads)</h3>
-        
+
         <!-- Offre 1 -->
         <div style="background: rgba(183,0,255,0.1); border: 1px solid #b700ff; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 0 15px rgba(183,0,255,0.2);">
             <div>
@@ -1358,11 +1314,11 @@
 function updateHoloVehicle(type) {
     const icon = document.getElementById('holo-vehicle-icon');
     if(!icon) return;
-    
+
     // Add glitch effect
     icon.style.opacity = '0';
     icon.style.transform = 'scale(0.8)';
-    
+
     setTimeout(() => {
         let html = '';
         if(type === 'vsp') {
@@ -1391,11 +1347,17 @@ function updateHoloVehicle(type) {
 }
 </style>
 
-    <script src="js/garage.js"></script>
-    <script src="js/safe-rider.js"></script>
-    <script src="js/convoy.js"></script>
-    <script src="js/exchange.js"></script>
-    <script src="js/legal-database.js"></script>
-    <script src="js/pocket-lawyer.js"></script>
+    <!-- Jarvis Security: Masquage OBD-II pour les US (Conformité matérielle) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (Intl.DateTimeFormat().resolvedOptions().timeZone.startsWith('America/')) {
+                const obdBtn = document.getElementById('dock-btn-obd');
+                if (obdBtn) {
+                    obdBtn.style.display = 'none';
+                    console.log('[Jarvis Security] OBD-II module hidden for US region.');
+                }
+            }
+        });
+    </script>
 </body>
 </html>

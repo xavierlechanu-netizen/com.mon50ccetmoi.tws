@@ -1397,5 +1397,18 @@ function updateHoloVehicle(type) {
     <script src="js/exchange.js"></script>
     <script src="js/legal-database.js"></script>
     <script src="js/pocket-lawyer.js"></script>
+
+    <!-- Jarvis Security: Masquage OBD-II pour les US (Conformité matérielle) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (Intl.DateTimeFormat().resolvedOptions().timeZone.startsWith('America/')) {
+                const obdBtn = document.getElementById('dock-btn-obd');
+                if (obdBtn) {
+                    obdBtn.style.display = 'none';
+                    console.log('[Jarvis Security] OBD-II module hidden for US region.');
+                }
+            }
+        });
+    </script>
 </body>
 </html>

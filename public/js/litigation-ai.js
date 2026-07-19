@@ -353,6 +353,12 @@ window.LitigationAI = {
                     En envoyant cette proposition, votre assureur reçoit le résumé et vous contactera pour valider le type de rapport définitif.
                 </p>
 
+                <!-- AVERTISSEMENT AI ACT (Obligatoire) -->
+                <p class="litigation-ai-act-disclaimer" style="color: #ffaa00; font-weight: bold; margin-bottom: 15px; border: 1px solid #ffaa00; padding: 10px; border-radius: 8px;">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    ⚠️ GÉNÉRÉ PAR L'IA : Ce rapport est une proposition d'assistance. Une supervision et validation humaine par l'utilisateur sont obligatoires avant le traitement juridique.
+                </p>
+
                 <div class="litigation-actions">
                     ${proposal.type === 'EXPERT_COMPLET' ? `
                     <button class="btn-litigation-start" onclick="if(window.CertifiedCamera) window.CertifiedCamera.open('${caseCode}'); else alert('Module de caméra non disponible');" style="background:#ffb703; color:#000; margin-bottom:10px;">
