@@ -187,8 +187,18 @@ service cloud.firestore {
     match /crews/{crewId} {
       allow read: if true;
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && (isOwner(resource.data.leaderUid) || isAdmin());
+      // Le leader peut tout modifier. Un utilisateur peut modifier pour rejoindre (s'il s'ajoute aux membres et ne change pas le leader)
+      allow update: if isSignedIn() && (isOwner(resource.data.leaderUid) || (request.resource.data.leaderUid == resource.data.leaderUid && request.auth.uid in request.resource.data.members) || isAdmin());
       allow delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // CREW CHATS (Messagerie privée des groupes)
+    // ─────────────────────────────────────────────────────────────
+    match /crew_chats/{crewId}/messages/{messageId} {
+      // Seuls les membres actuels du crew peuvent lire et écrire (OWASP A01)
+      allow read, create: if isSignedIn() && (request.auth.uid in get(/databases/$(database)/documents/crews/$(crewId)).data.members);
+      allow update, delete: if false; // Messages inaltérables
     }
 
     match /territory_sectors/{sectorId} {

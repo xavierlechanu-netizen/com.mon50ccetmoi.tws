@@ -1,4 +1,8 @@
 
+/* --- mon50cc-bundle.js --- */
+
+/* --- mon50cc-bundle.js --- */
+
 /* --- vehicle-config.js --- */
 window.setCrewMode = function(mode) {
     window.session = window.session || {};
@@ -13284,4 +13288,6 @@ window.PocketLawyer = {
 };
 
 console.log("[PocketLawyer] Module Avocat de Poche chargé.");
+
+
 

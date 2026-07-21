@@ -13,8 +13,8 @@ if not exist "%JARSIGNER%" (
     exit /b 1
 )
 
-set "AAB_UNSIGNED=android-app\android\app\build\outputs\bundle\release\app-release.aab"
-set "AAB_SIGNED=C:\Users\xavie\Desktop\mon50ccetmoi_v100.60.05_SIGNED.aab"
+set "AAB_UNSIGNED=app\build\outputs\bundle\release\app-release.aab"
+set "AAB_SIGNED=C:\Users\xavie\Desktop\mon50ccetmoi_v100.70.09_SIGNED.aab"
 set "KEYSTORE_PATH=new-upload-keystore.jks"
 set "KEYSTORE_ALIAS=upload"
 
@@ -38,6 +38,6 @@ echo.
 echo ======================================================================
 echo [SUCCES] Signature terminee ! 
 echo Votre fichier SIGNE se trouve sur votre bureau :
-echo mon50ccetmoi_v100.60.05_SIGNED.aab
+echo mon50ccetmoi_v100.70.09_SIGNED.aab
 echo ======================================================================
 endlocal

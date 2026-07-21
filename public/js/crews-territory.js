@@ -220,6 +220,54 @@ window.CrewSystem = {
         }
     },
     
+    joinCrew: async function(crewId) {
+        if (!window.session || !crewId) return;
+        try {
+            const docRef = firebase.firestore().collection("crews").doc(crewId);
+            const doc = await docRef.get();
+            if (!doc.exists) return alert("Crew introuvable ! Vérifiez le code secret.");
+            
+            const crewData = doc.data();
+            let members = crewData.members || [];
+            if (members.includes(window.session.uid)) {
+                return alert("Vous êtes déjà membre de ce Crew.");
+            }
+            members.push(window.session.uid);
+            
+            await docRef.update({ members: members });
+            await firebase.firestore().collection("users").doc(window.session.uid).update({ crewId: crewId });
+            
+            window.session.crewId = crewId;
+            secureSetItem('session', JSON.stringify(window.session));
+            
+            await this.loadMyCrew();
+            alert("Vous avez rejoint le Crew " + crewData.name + " !");
+            
+            const modal = document.getElementById("crew-modal");
+            if (modal) modal.style.display = "none";
+        } catch(e) {
+            console.error("[CrewSystem] Join Crew error", e);
+            alert("Erreur lors de l'intégration au Crew.");
+        }
+    },
+    
+    kickMember: async function(memberUid) {
+        if (!this.currentCrew || this.currentCrew.leaderUid !== window.session.uid) return;
+        if (memberUid === window.session.uid) return alert("Vous ne pouvez pas vous expulser vous-même.");
+        if (!confirm("Voulez-vous vraiment expulser ce membre ?")) return;
+        
+        try {
+            let members = this.currentCrew.members.filter(uid => uid !== memberUid);
+            await firebase.firestore().collection("crews").doc(this.currentCrew.id).update({ members: members });
+            await firebase.firestore().collection("users").doc(memberUid).update({ crewId: firebase.firestore.FieldValue.delete() });
+            this.currentCrew.members = members;
+            this.showModal(); // refresh UI
+        } catch(e) {
+            console.error("[CrewSystem] Kick Member error", e);
+            alert("Erreur lors de l'expulsion.");
+        }
+    },
+
     showModal: function() {
         let modal = document.getElementById("crew-modal");
         if (!modal) {
@@ -231,10 +279,23 @@ window.CrewSystem = {
         }
         
         if (this.currentCrew) {
+            let membersCount = this.currentCrew.members ? this.currentCrew.members.length : 1;
             modal.innerHTML = `
-                <div style="background:rgba(20,20,20,0.9); border:1px solid ${this.currentCrew.color}; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
-                    <h2 style="color:${this.currentCrew.color}; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-crown"></i> ${this.currentCrew.name}</h2>
-                    <p style="color:#aaa; margin-bottom:20px;">Vous êtes membre de ce Crew. Roulez dans différents codes postaux pour les capturer !</p>
+                <div style="background:rgba(20,20,20,0.9); border:1px solid ${this.currentCrew.color}; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center; max-height:80vh; overflow-y:auto;">
+                    <h2 style="color:${this.currentCrew.color}; margin-bottom:10px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-crown"></i> ${this.currentCrew.name}</h2>
+                    <p style="color:#aaa; margin-bottom:20px;">Vous êtes membre de ce Crew. Roulez pour capturer des codes postaux !</p>
+                    
+                    <button onclick="if(window.CrewChat) window.CrewChat.open(); document.getElementById('crew-modal').style.display='none'" style="width:100%; background:linear-gradient(135deg, ${this.currentCrew.color}, #111); border:none; color:#fff; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-bottom:15px; font-family:'Outfit', sans-serif; box-shadow: 0 4px 15px ${this.currentCrew.color}66;"><i class="fa-solid fa-comments"></i> Ouvrir le Chat Privé</button>
+                    
+                    <div style="background:rgba(0,0,0,0.5); padding:10px; border-radius:10px; margin-bottom:15px; border:1px solid #333;">
+                        <h4 style="color:#fff; margin-bottom:10px;"><i class="fa-solid fa-users"></i> Membres (${membersCount})</h4>
+                        ${this.currentCrew.leaderUid === window.session.uid ? 
+                            `<p style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">Code d'invitation secret : <br><strong style="color:${this.currentCrew.color}; user-select:all;">${this.currentCrew.id}</strong></p>` : ''}
+                        
+                        <div id="crew-members-list" style="text-align:left; max-height:150px; overflow-y:auto; color:#fff; font-size:0.9rem;">
+                            <!-- Membres chargés dynamiquement -->
+                        </div>
+                    </div>
                     
                     ${this.currentCrew.leaderUid === window.session.uid ? 
                         `<button onclick="window.CrewSystem.setQG()" style="width:100%; background:#111; border:1px solid ${this.currentCrew.color}; color:#fff; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-bottom:15px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-map-pin"></i> Poser le QG ici</button>` 
@@ -243,14 +304,42 @@ window.CrewSystem = {
                     <button onclick="document.getElementById('crew-modal').style.display='none'" style="background:transparent; border:1px solid #aaa; color:#fff; padding:10px 20px; border-radius:20px; cursor:pointer; font-family:'Outfit', sans-serif;">Fermer</button>
                 </div>
             `;
+            
+            // Charger les noms des membres (optimisation : en prod on pourrait cacher ça)
+            const listDiv = document.getElementById("crew-members-list");
+            listDiv.innerHTML = "<small>Chargement...</small>";
+            if (this.currentCrew.members) {
+                Promise.all(this.currentCrew.members.map(uid => firebase.firestore().collection("users").doc(uid).get())).then(docs => {
+                    listDiv.innerHTML = docs.map(d => {
+                        if (!d.exists) return "";
+                        let isLeader = d.id === this.currentCrew.leaderUid;
+                        let kickBtn = (this.currentCrew.leaderUid === window.session.uid && !isLeader) 
+                                        ? `<i class="fa-solid fa-times" style="color:red; cursor:pointer; float:right;" onclick="window.CrewSystem.kickMember('${d.id}')" title="Expulser"></i>` : '';
+                        return `<div style="padding:5px 0; border-bottom:1px solid #333;">
+                                    ${isLeader ? '<i class="fa-solid fa-crown" style="color:gold;"></i>' : '<i class="fa-solid fa-motorcycle"></i>'} 
+                                    ${d.data().username || 'Pilote inconnu'} 
+                                    ${kickBtn}
+                                </div>`;
+                    }).join("");
+                });
+            }
+            
         } else {
             modal.innerHTML = `
                 <div style="background:rgba(20,20,20,0.9); border:1px solid #00d2ff; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
-                    <h2 style="color:#00d2ff; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-flag"></i> Fonder un Crew</h2>
-                    <p style="color:#aaa; margin-bottom:20px; font-size:0.9rem;">Créez votre gang, roulez dans votre ville et dominez les codes postaux sur la carte mondiale !</p>
-                    <input type="text" id="crew-name-input" placeholder="Nom du Crew (ex: NightRiders)" style="width:100%; padding:10px; margin-bottom:15px; background:rgba(0,0,0,0.5); border:1px solid #333; color:#fff; border-radius:8px;">
-                    <input type="color" id="crew-color-input" value="#ff0055" style="width:100%; height:40px; margin-bottom:20px; border:none; border-radius:8px; cursor:pointer;">
-                    <button onclick="window.CrewSystem.createCrew(document.getElementById('crew-name-input').value, document.getElementById('crew-color-input').value)" style="width:100%; background:linear-gradient(135deg, #00d2ff, #0077ff); border:none; color:#fff; padding:12px; border-radius:20px; font-weight:bold; cursor:pointer; margin-bottom:10px;">Fonder le Crew</button>
+                    <h2 style="color:#00d2ff; margin-bottom:10px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-flag"></i> Fonder un Crew</h2>
+                    <p style="color:#aaa; margin-bottom:20px; font-size:0.9rem;">Créez votre gang et dominez la ville !</p>
+                    <input type="text" id="crew-name-input" placeholder="Nom du Crew" style="width:100%; padding:10px; margin-bottom:10px; background:rgba(0,0,0,0.5); border:1px solid #333; color:#fff; border-radius:8px;">
+                    <input type="color" id="crew-color-input" value="#ff0055" style="width:100%; height:40px; margin-bottom:15px; border:none; border-radius:8px; cursor:pointer;">
+                    <button onclick="window.CrewSystem.createCrew(document.getElementById('crew-name-input').value, document.getElementById('crew-color-input').value)" style="width:100%; background:linear-gradient(135deg, #00d2ff, #0077ff); border:none; color:#fff; padding:12px; border-radius:20px; font-weight:bold; cursor:pointer; margin-bottom:20px;">Fonder le Crew</button>
+                    
+                    <hr style="border-color:#333; margin-bottom:20px;">
+                    
+                    <h2 style="color:#00f2ff; margin-bottom:10px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-users"></i> Rejoindre un Crew</h2>
+                    <p style="color:#aaa; margin-bottom:15px; font-size:0.9rem;">Entrez le code secret fourni par le leader du Crew.</p>
+                    <input type="text" id="crew-join-input" placeholder="Code secret (ID du Crew)" style="width:100%; padding:10px; margin-bottom:10px; background:rgba(0,0,0,0.5); border:1px solid #333; color:#fff; border-radius:8px;">
+                    <button onclick="window.CrewSystem.joinCrew(document.getElementById('crew-join-input').value)" style="width:100%; background:transparent; border:1px solid #00f2ff; color:#00f2ff; padding:12px; border-radius:20px; font-weight:bold; cursor:pointer; margin-bottom:20px;">Rejoindre le Crew</button>
+
                     <button onclick="document.getElementById('crew-modal').style.display='none'" style="width:100%; background:transparent; border:1px solid #aaa; color:#fff; padding:10px; border-radius:20px; cursor:pointer;">Annuler</button>
                 </div>
             `;

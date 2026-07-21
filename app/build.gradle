@@ -53,14 +53,17 @@ def twaManifest = [
 ]
 
 android {
+    buildFeatures {
+        resValues true
+    }
     compileSdkVersion 36
     namespace "com.mon50ccetmoi.twa"
     defaultConfig {
         applicationId "com.mon50ccetmoi.twa"
         minSdkVersion 23
         targetSdkVersion 35
-        versionCode 1000009
-        versionName "100.00.09"
+        versionCode 1007009
+        versionName "100.70.09"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -152,6 +155,8 @@ android {
     buildTypes {
         release {
             minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
