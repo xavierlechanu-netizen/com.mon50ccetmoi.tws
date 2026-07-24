@@ -42,7 +42,9 @@ while ((match = scriptRegex.exec(htmlContent)) !== null) {
     const scriptPath = path.join(distDir, 'js', cleanName);
     
     if (fs.existsSync(scriptPath)) {
-        scriptsToBundle.push({ tag: fullTag, path: scriptPath, name: cleanName });
+        if (!scriptsToBundle.some(s => s.name === cleanName)) {
+            scriptsToBundle.push({ tag: fullTag, path: scriptPath, name: cleanName });
+        }
     }
 }
 

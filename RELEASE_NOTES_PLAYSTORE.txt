@@ -1,0 +1,184 @@
+<fr-FR>
+Mon50ccetMoi v100.80.00 :
+• Navigation GPS 50cc optimisée (contournement d'autoroutes).
+• Radar social & détection communautaire en temps réel.
+• Assistant IA vocal Jarvis & assistance dépannage.
+• Détection de chute et SOS Urgence avec géolocalisation.
+• Optimisation globale des performances et correctifs de sécurité.
+</fr-FR>
+<en-US>
+Mon50ccetMoi v100.80.00:
+• Optimized 50cc GPS navigation avoiding highways.
+• Real-time social radar & community rider detection.
+• Jarvis AI voice assistant & breakdown assistance.
+• Fall detection and emergency SOS with location sharing.
+• Global performance optimizations and security fixes.
+</en-US>
+<es-ES>
+Mon50ccetMoi v100.80.00:
+• Navegación GPS 50cc optimizada evitando autopistas.
+• Radar social y detección de motoristas en tiempo real.
+• Asistente de voz IA Jarvis y asistencia en carretera.
+• Detección de caídas y SOS de emergencia con ubicación.
+• Optimización global del rendimiento y mejoras de seguridad.
+</es-ES>
+<es-419>
+Mon50ccetMoi v100.80.00:
+• Navegación GPS para 50cc optimizada sin autopistas.
+• Radar social y detección de motociclistas en tiempo real.
+• Asistente de voz IA Jarvis y auxilio mecánico.
+• Detección de caídas y SOS de emergencia con localización.
+• Mejoras generales de rendimiento y correcciones de seguridad.
+</es-419>
+<de-DE>
+Mon50ccetMoi v100.80.00:
+• Optimierte 50ccm GPS-Navigation ohne Autobahnen.
+• Soziales Radar & Echtzeit-Fahrererkennung.
+• Sprachassistent Jarvis AI & Pannenhilfe.
+• Sturzerkennung und Notfall-SOS mit Standortfreigabe.
+• Leistungswertoptimierungen und Sicherheitsfixes.
+</de-DE>
+<it-IT>
+Mon50ccetMoi v100.80.00:
+• Navigazione GPS 50cc ottimizzata senza autostrade.
+• Radar sociale e rilevamento guidatori in tempo reale.
+• Assistente vocale IA Jarvis e assistenza stradale.
+• Rilevamento cadute e SOS di emergenza con posizione.
+• Ottimizzazioni delle prestazioni e correzioni di sicurezza.
+</it-IT>
+<pt-PT>
+Mon50ccetMoi v100.80.00:
+• Navegação GPS 50cc otimizada evitando autoestradas.
+• Radar social e deteção de condutores em tempo real.
+• Assistente de voz IA Jarvis e assistência na estrada.
+• Deteção de quedas e SOS de emergência com localização.
+• Otimização global de desempenho e correções de segurança.
+</pt-PT>
+<pt-BR>
+Mon50ccetMoi v100.80.00:
+• Navegação GPS para 50cc otimizada sem rodovias.
+• Radar social e detecção de pilotos em tempo real.
+• Assistente de voz IA Jarvis e socorro mecânico.
+• Detecção de quedas e SOS de emergência com localização.
+• Melhorias de desempenho e correções de segurança.
+</pt-BR>
+<nl-NL>
+Mon50ccetMoi v100.80.00:
+• Geoptimaliseerde 50cc GPS-navigatie zonder snelwegen.
+• Sociaal radar & realtime detectie van rijders.
+• Spraakassistent Jarvis AI & pechhulp.
+• Valdetectie en nood-SOS met locatiebepaling.
+• Prestatie-optimalisaties en beveiligingsupdates.
+</nl-NL>
+<pl-PL>
+Mon50ccetMoi v100.80.00:
+• Zoptymalizowana nawigacja GPS dla 50cc z ominięciem autostrad.
+• Radar społecznościowy i wykrywanie kierowców w czasie rzeczywistym.
+• Asystent głosowy AI Jarvis i pomoc drogowa.
+• Wykrywanie upadku i SOS z udostępnianiem lokalizacji.
+• Ogólna optymalizacja wydajności i poprawki bezpieczeństwa.
+</pl-PL>
+<ro>
+Mon50ccetMoi v100.80.00:
+• Navigație GPS optimizată pentru 50cc fără autostrăzi.
+• Radar social și detectare în timp real a riderilor.
+• Asistent vocal IA Jarvis și asistență rutieră.
+• Detectare cădere și SOS de urgență cu localizare.
+• Optimizări globale de performanță și securitate.
+</ro>
+<tr-TR>
+Mon50ccetMoi v100.80.00:
+• Otoyollardan kaçınan optimize edilmiş 50cc GPS navigasyonu.
+• Sosyal radar ve gerçek zamanlı sürücü tespiti.
+• Jarvis yapay zeka sesli asistanı ve yol yardımı.
+• Düşme tespiti ve konum paylaşımlı acil SOS.
+• Performans optimizasyonları ve güvenlik düzeltmeleri.
+</tr-TR>
+<ar>
+Mon50ccetMoi v100.80.00:
+• نظام ملاحة GPS مخصص لـ 50cc وتجنب الطرق السريعة.
+• رادار اجتماعي واكتشاف السائقين في الوقت الفعلي.
+• مساعد صوتي بالذكاء الاصطناعي Jarvis ومساعدة على الطريق.
+• اكتشاف السقوط وطلب نجدة SOS طارئ مع مشاركة الموقع.
+• تحسينات شاملة للأداء وإصلاحات أمنية.
+</ar>
+<zh-CN>
+Mon50ccetMoi v100.80.00：
+• 专为50cc优化的GPS导航，自动避开高速公路。
+• 实时社交雷达与骑行者检测。
+• Jarvis AI语音助手与道路救援。
+• 跌倒检测与带定位的紧急SOS。
+• 全局性能优化与安全修复。
+</zh-CN>
+<zh-TW>
+Mon50ccetMoi v100.80.00：
+• 專為50cc優化的GPS導航，自動避開高速公路。
+• 即時社交雷達與騎士偵測。
+• Jarvis AI語音助理與道路救援。
+• 跌倒偵測與附位置的緊急SOS。
+• 全局效能優化與安全性修正。
+</zh-TW>
+<ja-JP>
+Mon50ccetMoi v100.80.00:
+• 高速道路を回避する50cc向け最適化GPSナビゲーション。
+• リアルタイムソーシャルレーダーとライダー検出。
+• Jarvis AI音声アシスタントとロードサービス。
+• 転倒検知と位置共有機能付き緊急SOS。
+• 全般的なパフォーマンス最適化とセキュリティ修正。
+</ja-JP>
+<ko-KR>
+Mon50ccetMoi v100.80.00:
+• 고속도로를 우회하는 50cc 맞춤형 GPS 내비게이션.
+• 실시간 소셜 레이더 및 라이더 감지.
+• Jarvis AI 음성 비서 및 긴급 출동 서비스.
+• 낙상 감지 및 위치 공유 기능이 포함된 긴급 SOS.
+• 전체적인 성능 최적화 및 보안 패치.
+</ko-KR>
+<ru-RU>
+Mon50ccetMoi v100.80.00:
+• Оптимизированная GPS-навигация 50cc в объезд автомагистралей.
+• Социальный радар и обнаружение райдеров в реальном времени.
+• Голосовой ИИ-помощник Jarvis и помощь на дороге.
+• Детекция падения и экстренный SOS с локацией.
+• Оптимизация производительности и исправления безопасности.
+</ru-RU>
+<uk>
+Mon50ccetMoi v100.80.00:
+• Оптимізована GPS-навігація 50cc в об'їзд автомагістралей.
+• Соціальний радар та виявлення водіїв у реальному часі.
+• Голосовий ШІ-помічник Jarvis та допомога на дорозі.
+• Детекція падіння та екстрений SOS з локацією.
+• Загальна оптимізація продуктивності та виправлення безпеки.
+</uk>
+<cs-CZ>
+Mon50ccetMoi v100.80.00:
+• Optimalizovaná GPS navigace pro 50cc mimo dálnice.
+• Sociální radar a detekce jezdců v reálném čase.
+• Hlasový AI asistent Jarvis a silniční asistence.
+• Detekce pádu a nouzové SOS se sdílením polohy.
+• Celková optimalizace výkonu a bezpečnostní opravy.
+</cs-CZ>
+<el-GR>
+Mon50ccetMoi v100.80.00:
+• Βελτιστοποιημένη πλοήγηση GPS 50cc αποφεύγοντας τους αυτοκινητοδρόμους.
+• Κοινωνικό ραντάρ & εντοπισμός αναβατών σε πραγματικό χρόνο.
+• Φωνητικός βοηθός AI Jarvis & οδική βοήθεια.
+• Ανίχνευση πτώσης και SOS έκτακτης ανάγκης με τοποθεσία.
+• Βελτιώσεις απόδοσης και διορθώσεις ασφαλείας.
+</el-GR>
+<hu-HU>
+Mon50ccetMoi v100.80.00:
+• Optimalizált 50ccm GPS navigáció autópályák elkerülésével.
+• Közösségi radar és valós idejű motoros észlelés.
+• Jarvis AI hangasszisztens és közúti segítségnyújtás.
+• Esésérzékelés és helymeghatározós vészhívó SOS.
+• Általános teljesítmény-optimalizálás és biztonsági javítások.
+</hu-HU>
+<sv-SE>
+Mon50ccetMoi v100.80.00:
+• Optimerad 50cc GPS-navigering utan motorvägar.
+• Social radar och realtidssökning av förare.
+• Jarvis AI-röstassistent och vägassistans.
+• Falldetektering och nödfalls-SOS med platsdelning.
+• Prestandaoptimeringar och säkerhetsuppdateringar.
+</sv-SE>
