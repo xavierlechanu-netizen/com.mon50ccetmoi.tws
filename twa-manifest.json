@@ -40,7 +40,8 @@
   "webManifestUrl": "https://mon50ccetmoi.com/manifest.json",
   "fallbackType": "customtabs",
   "features": {
-    "location": {}
+    "location": {},
+    "microphone": {}
   },
   "alphaDependencies": {
     "enabled": false
@@ -48,8 +49,8 @@
   "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
-  "minSdkVersion": 21,
-  "orientation": "portrait",
+  "minSdkVersion": 23,
+  "orientation": "any",
   "fingerprints": [
     "A7:15:6D:CF:51:56:B1:DF:B8:D3:95:AF:70:F9:2A:42:1D:7C:92:7E:1C:06:E3:16:E0:93:DD:79:42:0D:B3:41"
   ],

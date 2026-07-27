@@ -1,192 +1,220 @@
-/**
- * 🔄 BOURSE D'ÉCHANGE
- * Marketplace communautaire de pièces d'occasion via Firebase Firestore.
- * Sécurité : Validation des entrées, modération GuardianBot, textContent pour l'affichage.
+﻿/**
+ * ðŸ”„ BOURSE D'Ã‰CHANGE
+ * Marketplace communautaire de piÃ¨ces d'occasion via Firebase Firestore.
+ * SÃ©curitÃ© : Validation des entrÃ©es, modÃ©ration GuardianBot, textContent pour l'affichage.
  */
 
 window.ExchangeMarket = {
+  listings: [],
+  firestoreUnsubscribe: null,
 
-    listings: [],
-    firestoreUnsubscribe: null,
+  init: function () {
+    this.listenToListings();
+  },
 
-    init: function() {
-        this.listenToListings();
-        console.log("[ExchangeMarket] Module chargé.");
-    },
+  /**
+   * Ã‰coute en temps rÃ©el les annonces de la communautÃ©.
+   * Limite Ã  50 annonces pour Ã©viter surcharge (A11 OWASP - DoS).
+   */
+  listenToListings: function () {
+    if (!window.db) {
+      console.warn("[ExchangeMarket] Firestore non disponible.");
+      return;
+    }
 
-    /**
-     * Écoute en temps réel les annonces de la communauté.
-     * Limite à 50 annonces pour éviter surcharge (A11 OWASP - DoS).
-     */
-    listenToListings: function() {
-        if (!window.db) {
-            console.warn("[ExchangeMarket] Firestore non disponible.");
-            return;
-        }
+    if (this.firestoreUnsubscribe) this.firestoreUnsubscribe();
 
-        if (this.firestoreUnsubscribe) this.firestoreUnsubscribe();
+    this.firestoreUnsubscribe = window.db
+      .collection("exchange_listings")
+      .orderBy("createdAt", "desc")
+      .limit(50)
+      .onSnapshot((snapshot) => {
+        this.listings = [];
+        snapshot.forEach((doc) => {
+          this.listings.push({ id: doc.id, ...doc.data() });
+        });
+        this.renderListings();
+      });
+  },
 
-        this.firestoreUnsubscribe = window.db.collection("exchange_listings")
-            .orderBy("createdAt", "desc")
-            .limit(50)
-            .onSnapshot((snapshot) => {
-                this.listings = [];
-                snapshot.forEach((doc) => {
-                    this.listings.push({ id: doc.id, ...doc.data() });
-                });
-                this.renderListings();
-            });
-    },
+  /**
+   * Publie une nouvelle annonce.
+   * @param {string} title - Titre de la piÃ¨ce
+   * @param {string} description - Description
+   * @param {string} priceType - "bvc" ou "euro"
+   * @param {number} price - Prix
+   * @param {string} category - CatÃ©gorie (carenage, pot, galets, variateur, pneus, autre)
+   */
+  publishListing: async function (
+    title,
+    description,
+    priceType,
+    price,
+    category,
+  ) {
+    if (!window.db) {
+      alert("Connexion Firestore requise.");
+      return;
+    }
+    if (!window.session || window.session.isGuest) {
+      alert("Vous devez Ãªtre connectÃ© pour publier.");
+      return;
+    }
 
-    /**
-     * Publie une nouvelle annonce.
-     * @param {string} title - Titre de la pièce
-     * @param {string} description - Description
-     * @param {string} priceType - "bvc" ou "euro"
-     * @param {number} price - Prix
-     * @param {string} category - Catégorie (carenage, pot, galets, variateur, pneus, autre)
-     */
-    publishListing: async function(title, description, priceType, price, category) {
-        if (!window.db) { alert("Connexion Firestore requise."); return; }
-        if (!window.session || window.session.isGuest) { alert("Vous devez être connecté pour publier."); return; }
+    // Validation des entrÃ©es (CIS 16.10 - Never trust user input)
+    title = (title || "").trim();
+    description = (description || "").trim();
+    price = parseFloat(price) || 0;
 
-        // Validation des entrées (CIS 16.10 - Never trust user input)
-        title = (title || '').trim();
-        description = (description || '').trim();
-        price = parseFloat(price) || 0;
+    if (!title || title.length < 3 || title.length > 100) {
+      alert("Le titre doit faire entre 3 et 100 caractÃ¨res.");
+      return;
+    }
+    if (description.length > 500) {
+      alert("La description ne peut pas dÃ©passer 500 caractÃ¨res.");
+      return;
+    }
+    if (price <= 0 || price > 50000) {
+      alert("Le prix doit Ãªtre entre 1 et 50 000.");
+      return;
+    }
 
-        if (!title || title.length < 3 || title.length > 100) {
-            alert("Le titre doit faire entre 3 et 100 caractères.");
-            return;
-        }
-        if (description.length > 500) {
-            alert("La description ne peut pas dépasser 500 caractères.");
-            return;
-        }
-        if (price <= 0 || price > 50000) {
-            alert("Le prix doit être entre 1 et 50 000.");
-            return;
-        }
+    const listing = {
+      title: title,
+      description: description,
+      priceType: priceType === "bvc" ? "bvc" : "euro",
+      price: price,
+      category: category || "autre",
+      seller: window.session.username,
+      status: "active",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
 
-        const listing = {
-            title: title,
-            description: description,
-            priceType: priceType === 'bvc' ? 'bvc' : 'euro',
-            price: price,
-            category: category || 'autre',
-            seller: window.session.username,
-            status: 'active',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
+    // ModÃ©ration GuardianBot
+    if (
+      window.GuardianBot &&
+      !window.GuardianBot.analyzeContent(
+        "Annonce",
+        listing,
+        window.session.username,
+      )
+    ) {
+      return;
+    }
 
-        // Modération GuardianBot
-        if (window.GuardianBot && !window.GuardianBot.analyzeContent("Annonce", listing, window.session.username)) {
-            return;
-        }
+    try {
+      await window.db.collection("exchange_listings").add(listing);
+      alert("Annonce publiÃ©e avec succÃ¨s !");
+      this.closePublishForm();
+    } catch (e) {
+      console.error("[ExchangeMarket] Publication Ã©chouÃ©e :", e);
+      alert("Erreur lors de la publication.");
+    }
+  },
 
-        try {
-            await window.db.collection("exchange_listings").add(listing);
-            alert("Annonce publiée avec succès !");
-            this.closePublishForm();
-        } catch (e) {
-            console.error("[ExchangeMarket] Publication échouée :", e);
-            alert("Erreur lors de la publication.");
-        }
-    },
+  /**
+   * Supprime une annonce (uniquement par son auteur).
+   * @param {string} listingId
+   * @param {string} seller
+   */
+  deleteListing: async function (listingId, seller) {
+    if (!window.session || window.session.username !== seller) {
+      alert("Vous ne pouvez supprimer que vos propres annonces.");
+      return;
+    }
+    if (!confirm("Supprimer cette annonce ?")) return;
 
-    /**
-     * Supprime une annonce (uniquement par son auteur).
-     * @param {string} listingId
-     * @param {string} seller
-     */
-    deleteListing: async function(listingId, seller) {
-        if (!window.session || window.session.username !== seller) {
-            alert("Vous ne pouvez supprimer que vos propres annonces.");
-            return;
-        }
-        if (!confirm("Supprimer cette annonce ?")) return;
+    try {
+      await window.db.collection("exchange_listings").doc(listingId).delete();
+    } catch (e) {
+      console.error("[ExchangeMarket] Suppression Ã©chouÃ©e :", e);
+    }
+  },
 
-        try {
-            await window.db.collection("exchange_listings").doc(listingId).delete();
-        } catch(e) {
-            console.error("[ExchangeMarket] Suppression échouée :", e);
-        }
-    },
+  /**
+   * Contacte le vendeur via un message dans Firestore.
+   */
+  contactSeller: async function (listingId, sellerName) {
+    if (!window.session || window.session.isGuest) {
+      alert("Connectez-vous d'abord.");
+      return;
+    }
+    if (window.session.username === sellerName) {
+      alert("C'est votre annonce !");
+      return;
+    }
 
-    /**
-     * Contacte le vendeur via un message dans Firestore.
-     */
-    contactSeller: async function(listingId, sellerName) {
-        if (!window.session || window.session.isGuest) { alert("Connectez-vous d'abord."); return; }
-        if (window.session.username === sellerName) { alert("C'est votre annonce !"); return; }
+    try {
+      await window.db.collection("exchange_messages").add({
+        listingId: listingId,
+        from: window.session.username,
+        to: sellerName,
+        message: `Salut ! Je suis intÃ©ressÃ©(e) par ton annonce. On en discute ?`,
+        read: false,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      alert("Message envoyÃ© au vendeur ! Il sera notifiÃ©.");
+    } catch (e) {
+      console.error("[ExchangeMarket] Contact fail :", e);
+      alert("Erreur lors de l'envoi.");
+    }
+  },
 
-        try {
-            await window.db.collection("exchange_messages").add({
-                listingId: listingId,
-                from: window.session.username,
-                to: sellerName,
-                message: `Salut ! Je suis intéressé(e) par ton annonce. On en discute ?`,
-                read: false,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert("Message envoyé au vendeur ! Il sera notifié.");
-        } catch(e) {
-            console.error("[ExchangeMarket] Contact fail :", e);
-            alert("Erreur lors de l'envoi.");
-        }
-    },
+  // ==================== UI ====================
 
-    // ==================== UI ====================
+  getCategoryIcon: function (cat) {
+    const icons = {
+      carenage: "fa-shield-halved",
+      pot: "fa-wind",
+      galets: "fa-gear",
+      variateur: "fa-gears",
+      pneus: "fa-circle-dot",
+      autre: "fa-box-open",
+    };
+    return icons[cat] || icons.autre;
+  },
 
-    getCategoryIcon: function(cat) {
-        const icons = {
-            carenage: 'fa-shield-halved',
-            pot: 'fa-wind',
-            galets: 'fa-gear',
-            variateur: 'fa-gears',
-            pneus: 'fa-circle-dot',
-            autre: 'fa-box-open'
-        };
-        return icons[cat] || icons.autre;
-    },
+  getCategoryLabel: function (cat) {
+    const labels = {
+      carenage: "CarÃ©nage",
+      pot: "Pot d'Ã©chappement",
+      galets: "Galets",
+      variateur: "Variateur",
+      pneus: "Pneus",
+      autre: "Autre",
+    };
+    return labels[cat] || "Autre";
+  },
 
-    getCategoryLabel: function(cat) {
-        const labels = {
-            carenage: 'Carénage',
-            pot: 'Pot d\'échappement',
-            galets: 'Galets',
-            variateur: 'Variateur',
-            pneus: 'Pneus',
-            autre: 'Autre'
-        };
-        return labels[cat] || 'Autre';
-    },
+  renderListings: function () {
+    const container = document.getElementById("exchange-listings-container");
+    if (!container) return;
 
-    renderListings: function() {
-        const container = document.getElementById('exchange-listings-container');
-        if (!container) return;
-
-        if (this.listings.length === 0) {
-            container.innerHTML = `
+    if (this.listings.length === 0) {
+      container.innerHTML = `
                 <div style="text-align:center; padding:40px; color:#666;">
                     <i class="fa-solid fa-box-open" style="font-size:3rem; margin-bottom:15px;"></i>
-                    <p>Aucune annonce pour le moment. Soyez le premier à publier !</p>
+                    <p>Aucune annonce pour le moment. Soyez le premier Ã  publier !</p>
                 </div>
             `;
-            return;
-        }
+      return;
+    }
 
-        let html = '';
-        this.listings.forEach(listing => {
-            const icon = this.getCategoryIcon(listing.category);
-            const catLabel = this.getCategoryLabel(listing.category);
-            const priceLabel = listing.priceType === 'bvc'
-                ? `${listing.price} Pts BVC`
-                : `${listing.price} €`;
-            const isOwner = window.session && window.session.username === listing.seller;
-            const date = listing.createdAt?.toDate ? listing.createdAt.toDate().toLocaleDateString('fr-FR') : '';
+    let html = "";
+    this.listings.forEach((listing) => {
+      const icon = this.getCategoryIcon(listing.category);
+      const catLabel = this.getCategoryLabel(listing.category);
+      const priceLabel =
+        listing.priceType === "bvc"
+          ? `${listing.price} Pts BVC`
+          : `${listing.price} â‚¬`;
+      const isOwner =
+        window.session && window.session.username === listing.seller;
+      const date = listing.createdAt?.toDate
+        ? listing.createdAt.toDate().toLocaleDateString("fr-FR")
+        : "";
 
-            html += `
+      html += `
                 <div class="product-card" style="position:relative;">
                     <div class="product-img">
                         <i class="fa-solid ${icon}"></i>
@@ -196,60 +224,64 @@ window.ExchangeMarket = {
                     <p style="color:#888; font-size:0.85rem;" id="listing-desc-${listing.id}"></p>
                     <div class="price-tag">${priceLabel}</div>
                     <p style="color:#555; font-size:0.75rem; margin-bottom:10px;">
-                        <i class="fa-solid fa-user"></i> <span id="listing-seller-${listing.id}"></span> ${date ? `• ${date}` : ''}
+                        <i class="fa-solid fa-user"></i> <span id="listing-seller-${listing.id}"></span> ${date ? `â€¢ ${date}` : ""}
                     </p>
-                    ${isOwner
+                    ${
+                      isOwner
                         ? `<button class="buy-btn" style="background:#ff4d4d;" onclick="ExchangeMarket.deleteListing('${listing.id}', '${listing.seller}')"><i class="fa-solid fa-trash"></i> Supprimer</button>`
                         : `<button class="buy-btn" onclick="ExchangeMarket.contactSeller('${listing.id}', '${listing.seller}')"><i class="fa-solid fa-envelope"></i> Contacter</button>`
                     }
                 </div>
             `;
-        });
+    });
 
-        container.innerHTML = html;
+    container.innerHTML = html;
 
-        // Injection sécurisée via textContent (A03 OWASP - XSS Prevention)
-        this.listings.forEach(listing => {
-            const titleEl = document.getElementById(`listing-title-${listing.id}`);
-            const descEl = document.getElementById(`listing-desc-${listing.id}`);
-            const sellerEl = document.getElementById(`listing-seller-${listing.id}`);
-            if (titleEl) titleEl.textContent = listing.title;
-            if (descEl) descEl.textContent = listing.description;
-            if (sellerEl) sellerEl.textContent = listing.seller;
-        });
-    },
+    // Injection sÃ©curisÃ©e via textContent (A03 OWASP - XSS Prevention)
+    this.listings.forEach((listing) => {
+      const titleEl = document.getElementById(`listing-title-${listing.id}`);
+      const descEl = document.getElementById(`listing-desc-${listing.id}`);
+      const sellerEl = document.getElementById(`listing-seller-${listing.id}`);
+      if (titleEl) titleEl.textContent = listing.title;
+      if (descEl) descEl.textContent = listing.description;
+      if (sellerEl) sellerEl.textContent = listing.seller;
+    });
+  },
 
-    openPublishForm: function() {
-        let form = document.getElementById('exchange-publish-form');
-        if (form) { form.style.display = 'block'; return; }
+  openPublishForm: function () {
+    let form = document.getElementById("exchange-publish-form");
+    if (form) {
+      form.style.display = "block";
+      return;
+    }
 
-        form = document.createElement('div');
-        form.id = 'exchange-publish-form';
-        form.style = `
+    form = document.createElement("div");
+    form.id = "exchange-publish-form";
+    form.style = `
             position:fixed; top:0; left:0; width:100vw; height:100vh;
             background:rgba(10,15,25,0.95); z-index:50000;
             display:flex; flex-direction:column; align-items:center; justify-content:center;
             color:#fff; font-family:'Inter',sans-serif; backdrop-filter:blur(15px);
         `;
-        form.innerHTML = `
+    form.innerHTML = `
             <button onclick="ExchangeMarket.closePublishForm()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-tag" style="font-size:2.5rem; color:#00d2ff; margin-bottom:10px;"></i>
             <h2 style="color:#00d2ff; margin-bottom:20px;">Publier une Annonce</h2>
             <div style="width:90%; max-width:400px;">
                 <input type="text" id="ex-title" placeholder="Titre (ex: Galets Malossi 6.5g)" maxlength="100" style="width:100%; background:#222; border:1px solid #444; color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; margin-bottom:10px; outline:none;">
-                <textarea id="ex-desc" placeholder="Description (état, compatibilité...)" maxlength="500" rows="3" style="width:100%; background:#222; border:1px solid #444; color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; margin-bottom:10px; outline:none; resize:none;"></textarea>
+                <textarea id="ex-desc" placeholder="Description (Ã©tat, compatibilitÃ©...)" maxlength="500" rows="3" style="width:100%; background:#222; border:1px solid #444; color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; margin-bottom:10px; outline:none; resize:none;"></textarea>
                 <select id="ex-category" style="width:100%; background:#222; border:1px solid #444; color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; margin-bottom:10px; outline:none;">
                     <option value="galets">Galets</option>
                     <option value="variateur">Variateur</option>
-                    <option value="pot">Pot d'échappement</option>
-                    <option value="carenage">Carénage</option>
+                    <option value="pot">Pot d'Ã©chappement</option>
+                    <option value="carenage">CarÃ©nage</option>
                     <option value="pneus">Pneus</option>
                     <option value="autre">Autre</option>
                 </select>
                 <div style="display:flex; gap:10px; margin-bottom:10px;">
                     <input type="number" id="ex-price" placeholder="Prix" min="1" style="flex:1; background:#222; border:1px solid #444; color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
                     <select id="ex-price-type" style="width:120px; background:#222; border:1px solid #444; color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
-                        <option value="euro">Euros (€)</option>
+                        <option value="euro">Euros (â‚¬)</option>
                         <option value="bvc">Pts BVC</option>
                     </select>
                 </div>
@@ -264,18 +296,18 @@ window.ExchangeMarket = {
                 </button>
             </div>
         `;
-        document.body.appendChild(form);
-    },
+    document.body.appendChild(form);
+  },
 
-    closePublishForm: function() {
-        const form = document.getElementById('exchange-publish-form');
-        if (form) form.style.display = 'none';
-    }
+  closePublishForm: function () {
+    const form = document.getElementById("exchange-publish-form");
+    if (form) form.style.display = "none";
+  },
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Délai pour laisser Firebase s'initialiser
-    setTimeout(() => {
-        ExchangeMarket.init();
-    }, 1500);
+document.addEventListener("DOMContentLoaded", () => {
+  // DÃ©lai pour laisser Firebase s'initialiser
+  setTimeout(() => {
+    ExchangeMarket.init();
+  }, 1500);
 });

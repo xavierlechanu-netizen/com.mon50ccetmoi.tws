@@ -1,322 +1,394 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>Accès Beta VIP — mon 50cc et moi</title>
-    <meta name="theme-color" content="#000000">
-    <link rel="icon" type="image/png" href="/assets/icon-192x192-CsrcJCmh.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" type="image/png" href="/assets/icon-192x192-CsrcJCmh.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
     <!-- Firebase SDK (v9 Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="js/config.js"></script>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #05080f;
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow-x: hidden;
-            position: relative;
-        }
-        
-        /* Grid Background */
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: 
-                linear-gradient(rgba(255, 183, 3, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 183, 3, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
-            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
-            animation: grid-move 10s linear infinite;
-            z-index: 0;
-            opacity: 0.8;
-        }
-        @keyframes grid-move {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(40px) translateZ(-200px); }
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: #05080f;
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow-x: hidden;
+        position: relative;
+      }
 
-        .container {
-            position: relative;
-            z-index: 2;
-            background: rgba(10, 15, 25, 0.85);
-            border: 1px solid rgba(255, 183, 3, 0.3);
-            border-radius: 20px;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 0 50px rgba(255, 183, 3, 0.15), inset 0 0 20px rgba(255, 183, 3, 0.05);
-            width: 90%;
-            max-width: 450px;
-            padding: 40px 30px;
-            text-align: center;
+      /* Grid Background */
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background:
+          linear-gradient(rgba(255, 183, 3, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 183, 3, 0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+        transform: perspective(500px) rotateX(60deg) translateY(-100px)
+          translateZ(-200px);
+        animation: grid-move 10s linear infinite;
+        z-index: 0;
+        opacity: 0.8;
+      }
+      @keyframes grid-move {
+        0% {
+          transform: perspective(500px) rotateX(60deg) translateY(0)
+            translateZ(-200px);
         }
+        100% {
+          transform: perspective(500px) rotateX(60deg) translateY(40px)
+            translateZ(-200px);
+        }
+      }
 
-        .logo-icon {
-            font-size: 3.5rem;
-            color: #ffb703;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 0 15px rgba(255, 183, 3, 0.5));
-        }
+      .container {
+        position: relative;
+        z-index: 2;
+        background: rgba(10, 15, 25, 0.85);
+        border: 1px solid rgba(255, 183, 3, 0.3);
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        box-shadow:
+          0 0 50px rgba(255, 183, 3, 0.15),
+          inset 0 0 20px rgba(255, 183, 3, 0.05);
+        width: 90%;
+        max-width: 450px;
+        padding: 40px 30px;
+        text-align: center;
+      }
 
-        h1 {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: #fff;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+      .logo-icon {
+        font-size: 3.5rem;
+        color: #ffb703;
+        margin-bottom: 15px;
+        filter: drop-shadow(0 0 15px rgba(255, 183, 3, 0.5));
+      }
 
-        .vip-badge {
-            display: inline-block;
-            background: linear-gradient(90deg, #ffb703, #ff8c00);
-            color: #000;
-            font-size: 0.75rem;
-            font-weight: 900;
-            padding: 4px 12px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 15px rgba(255, 183, 3, 0.4);
-        }
+      h1 {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #fff;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
 
-        p.desc {
-            font-size: 0.95rem;
-            color: #94a3b8;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
+      .vip-badge {
+        display: inline-block;
+        background: linear-gradient(90deg, #ffb703, #ff8c00);
+        color: #000;
+        font-size: 0.75rem;
+        font-weight: 900;
+        padding: 4px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        box-shadow: 0 0 15px rgba(255, 183, 3, 0.4);
+      }
 
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
+      p.desc {
+        font-size: 0.95rem;
+        color: #94a3b8;
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
 
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: #ffb703;
-            margin-bottom: 8px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
 
-        .form-control {
-            width: 100%;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 183, 3, 0.3);
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1rem;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.3s;
-        }
+      .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        color: #ffb703;
+        margin-bottom: 8px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
 
-        .form-control:focus {
-            outline: none;
-            border-color: #ffb703;
-            box-shadow: 0 0 15px rgba(255, 183, 3, 0.3);
-            background: rgba(0, 0, 0, 0.8);
-        }
+      .form-control {
+        width: 100%;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 183, 3, 0.3);
+        border-radius: 10px;
+        color: #fff;
+        font-size: 1rem;
+        font-family: "Inter", sans-serif;
+        transition: all 0.3s;
+      }
 
-        .btn-submit {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #ffb703, #ff8c00);
-            color: #000;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 900;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
+      .form-control:focus {
+        outline: none;
+        border-color: #ffb703;
+        box-shadow: 0 0 15px rgba(255, 183, 3, 0.3);
+        background: rgba(0, 0, 0, 0.8);
+      }
 
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255, 183, 3, 0.4);
-        }
+      .btn-submit {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #ffb703, #ff8c00);
+        color: #000;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 900;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
 
-        .btn-submit:active {
-            transform: translateY(0);
-        }
+      .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(255, 183, 3, 0.4);
+      }
 
-        .btn-submit:disabled {
-            background: #333;
-            color: #666;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
+      .btn-submit:active {
+        transform: translateY(0);
+      }
 
-        #success-message {
-            display: none;
-            background: rgba(0, 230, 118, 0.1);
-            border: 1px solid #00e676;
-            color: #00e676;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
+      .btn-submit:disabled {
+        background: #333;
+        color: #666;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+      }
 
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-            margin-bottom: 20px;
-            overflow: hidden;
-            position: relative;
-        }
+      #success-message {
+        display: none;
+        background: rgba(0, 230, 118, 0.1);
+        border: 1px solid #00e676;
+        color: #00e676;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+      }
 
-        .progress-fill {
-            position: absolute;
-            top: 0; left: 0; height: 100%;
-            background: #ffb703;
-            width: 0%;
-            transition: width 1s ease-out;
-            box-shadow: 0 0 10px #ffb703;
-        }
+      .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        position: relative;
+      }
 
-        .spots-left {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-        }
+      .progress-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: #ffb703;
+        width: 0%;
+        transition: width 1s ease-out;
+        box-shadow: 0 0 10px #ffb703;
+      }
+
+      .spots-left {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="container">
-        <div class="logo-icon">
-            <i class="fa-solid fa-motorcycle"></i>
-        </div>
-        <h1>mon 50cc et moi</h1>
-        <div class="vip-badge">Accès Beta Fondateur</div>
+      <div class="logo-icon">
+        <i class="fa-solid fa-motorcycle"></i>
+      </div>
+      <h1>mon 50cc et moi</h1>
+      <div class="vip-badge">Accès Beta Fondateur</div>
 
-        <p class="desc">
-            Nous avons besoin de 20 pilotes passionnés pour tester l'application (GPS sans voies rapides, Ange Gardien) avant sa sortie officielle sur le Google Play Store.
+      <p class="desc">
+        Nous avons besoin de 20 pilotes passionnés pour tester l'application
+        (GPS sans voies rapides, Ange Gardien) avant sa sortie officielle sur le
+        Google Play Store.
+      </p>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="spots-left">
+        <span>Places disponibles :</span>
+        <strong style="color: #ffb703" id="spots-text">Chargement...</strong>
+      </div>
+
+      <form id="betaForm">
+        <div class="form-group">
+          <label for="email">Adresse E-mail Google (Play Store)</label>
+          <input
+            type="email"
+            id="email"
+            class="form-control"
+            placeholder="pilote@gmail.com"
+            required
+          />
+        </div>
+        <div
+          class="form-group"
+          style="
+            display: flex;
+            align-items: start;
+            gap: 10px;
+            margin-bottom: 20px;
+          "
+        >
+          <input
+            type="checkbox"
+            id="rgpdConsent"
+            required
+            style="margin-top: 4px"
+          />
+          <label
+            for="rgpdConsent"
+            style="
+              font-size: 0.8rem;
+              color: rgba(255, 255, 255, 0.7);
+              font-weight: normal;
+              margin-bottom: 0;
+            "
+          >
+            J'accepte que mon adresse e-mail soit conservée afin de recevoir
+            l'accès à la Bêta fermée sur Google Play. Mes données ne seront pas
+            partagées à des tiers et je peux demander leur suppression à tout
+            moment. (<a href="mentions-legales.html" style="color: #00d2ff"
+              >Mentions légales & CGU</a
+            >)
+          </label>
+        </div>
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <i class="fa-solid fa-rocket"></i> Demander l'accès
+        </button>
+      </form>
+
+      <div id="success-message">
+        <i
+          class="fa-solid fa-check-circle"
+          style="font-size: 2rem; margin-bottom: 10px"
+        ></i>
+        <h3 style="margin-bottom: 10px">Accès Réservé !</h3>
+        <p style="font-size: 0.9rem">
+          Ton adresse a bien été enregistrée. Surveille ta boîte mail, tu vas
+          bientôt recevoir le lien officiel Google Play pour télécharger
+          l'application.
         </p>
-
-        <div class="progress-bar">
-            <div class="progress-fill" id="progress-fill"></div>
-        </div>
-        <div class="spots-left">
-            <span>Places disponibles :</span>
-            <strong style="color: #ffb703;" id="spots-text">Chargement...</strong>
-        </div>
-
-        <form id="betaForm">
-            <div class="form-group">
-                <label for="email">Adresse E-mail Google (Play Store)</label>
-                <input type="email" id="email" class="form-control" placeholder="pilote@gmail.com" required>
-            </div>
-            <div class="form-group" style="display: flex; align-items: start; gap: 10px; margin-bottom: 20px;">
-                <input type="checkbox" id="rgpdConsent" required style="margin-top: 4px;">
-                <label for="rgpdConsent" style="font-size: 0.8rem; color: rgba(255,255,255,0.7); font-weight: normal; margin-bottom: 0;">
-                    J'accepte que mon adresse e-mail soit conservée afin de recevoir l'accès à la Bêta fermée sur Google Play. Mes données ne seront pas partagées à des tiers et je peux demander leur suppression à tout moment. (<a href="mentions-legales.html" style="color: #00d2ff;">Mentions légales & CGU</a>)
-                </label>
-            </div>
-            <button type="submit" class="btn-submit" id="submitBtn">
-                <i class="fa-solid fa-rocket"></i> Demander l'accès
-            </button>
-        </form>
-
-        <div id="success-message">
-            <i class="fa-solid fa-check-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
-            <h3 style="margin-bottom: 10px;">Accès Réservé !</h3>
-            <p style="font-size: 0.9rem;">Ton adresse a bien été enregistrée. Surveille ta boîte mail, tu vas bientôt recevoir le lien officiel Google Play pour télécharger l'application.</p>
-        </div>
+      </div>
     </div>
 
     <script>
-        // Check slots availability on load
-        async function checkSpots() {
-            try {
-                const db = firebase.firestore();
-                const snapshot = await db.collection('beta_testers').get();
-                const count = snapshot.size;
-                const totalSpots = 20;
-                let remaining = totalSpots - count;
-                
-                if (remaining <= 0) remaining = 0;
-                
-                document.getElementById('spots-text').textContent = `${remaining} / ${totalSpots}`;
-                const fillPercent = ((totalSpots - remaining) / totalSpots) * 100;
-                document.getElementById('progress-fill').style.width = `${fillPercent}%`;
+      // Check slots availability on load
+      async function checkSpots() {
+        try {
+          const db = firebase.firestore();
+          const snapshot = await db.collection("beta_testers").get();
+          const count = snapshot.size;
+          const totalSpots = 20;
+          let remaining = totalSpots - count;
 
-                if (remaining === 0) {
-                    document.getElementById('betaForm').innerHTML = `
+          if (remaining <= 0) remaining = 0;
+
+          document.getElementById("spots-text").textContent =
+            `${remaining} / ${totalSpots}`;
+          const fillPercent = ((totalSpots - remaining) / totalSpots) * 100;
+          document.getElementById("progress-fill").style.width =
+            `${fillPercent}%`;
+
+          if (remaining === 0) {
+            document.getElementById("betaForm").innerHTML = `
                         <div style="background: rgba(255,0,85,0.1); border: 1px solid #ff0055; padding: 15px; border-radius: 10px; color: #ff0055;">
                             La Beta est malheureusement complète !
                         </div>`;
-                }
-            } catch (e) {
-                console.error("Erreur lecture places:", e);
-                document.getElementById('spots-text').textContent = "Places limitées";
-            }
+          }
+        } catch (e) {
+          console.error("Erreur lecture places:", e);
+          document.getElementById("spots-text").textContent = "Places limitées";
         }
+      }
 
-        // Initialize and check spots
-        if(typeof firebase !== 'undefined') {
-            checkSpots();
-        }
+      // Initialize and check spots
+      if (typeof firebase !== "undefined") {
+        checkSpots();
+      }
 
-        // Handle form submission
-        document.getElementById('betaForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const emailInput = document.getElementById('email');
-            const email = emailInput.value.trim().toLowerCase();
+      // Handle form submission
+      document
+        .getElementById("betaForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById("submitBtn");
+          const emailInput = document.getElementById("email");
+          const email = emailInput.value.trim().toLowerCase();
 
-            if (!email) return;
+          if (!email) return;
 
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Traitement...';
+          btn.disabled = true;
+          btn.innerHTML =
+            '<i class="fa-solid fa-spinner fa-spin"></i> Traitement...';
 
-            try {
-                const db = firebase.firestore();
-                
-                // Add to firestore with timestamp
-                await db.collection('beta_testers').add({
-                    email: email,
-                    registeredAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    userAgent: navigator.userAgent
-                });
+          try {
+            const db = firebase.firestore();
 
-                // Show success UI
-                document.getElementById('betaForm').style.display = 'none';
-                document.getElementById('success-message').style.display = 'block';
+            // Add to firestore with timestamp
+            await db.collection("beta_testers").add({
+              email: email,
+              registeredAt: firebase.firestore.FieldValue.serverTimestamp(),
+              userAgent: navigator.userAgent,
+            });
 
-            } catch (error) {
-                console.error('Erreur :', error);
-                alert('Une erreur est survenue. Veuillez réessayer.');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-rocket"></i> Demander l\'accès';
-            }
+            // Show success UI
+            document.getElementById("betaForm").style.display = "none";
+            document.getElementById("success-message").style.display = "block";
+          } catch (error) {
+            console.error("Erreur :", error);
+            alert("Une erreur est survenue. Veuillez réessayer.");
+            btn.disabled = false;
+            btn.innerHTML =
+              '<i class="fa-solid fa-rocket"></i> Demander l\'accès';
+          }
         });
     </script>
-</body>
+  </body>
 </html>

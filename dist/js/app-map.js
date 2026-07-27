@@ -4,773 +4,978 @@ let currentRoutePolylines = [];
 let currentRouteMarkers = [];
 
 async function calculateRouteSansAutoroute(start, end) {
-    if (!start || !end) {
-        console.error("mon50cc Maps : Points de départ ou d'arrivée invalides.", {start, end});
-        if (!start) speak("Signal GPS insuffisant pour démarrer l'itinéraire.");
-        return;
-    }
-
-    window.currentRouteDestination = end; // Store for GO button
-
-    // Nettoyage des tracés précédents
-    currentRoutePolylines.forEach(p => p.setMap(null));
-    currentRoutePolylines = [];
-    currentRouteMarkers.forEach(m => m.setMap(null));
-    currentRouteMarkers = [];
-
-    if (!directionsService || !directionsRenderer) {
-        speak("Le moteur de routage n'est pas disponible pour le moment.");
-        return;
-    }
-
-    if (directionsRenderer) directionsRenderer.setMap(null);
-
-    const legacyRequest = {
-        origin: start,
-        destination: end,
-        travelMode: 'DRIVING',
-        avoidHighways: true,
-        avoidTolls: true,
-        provideRouteAlternatives: window.isRodageActive
-    };
-
-    console.log("mon50cc Routes : Calcul via DirectionsService...");
-    directionsService.route(legacyRequest, (result, status) => {
-        if (status === 'OK') {
-            if (directionsRenderer) {
-                directionsRenderer.setMap(map);
-                directionsRenderer.setDirections(result);
-            }
-            
-            const leg = result.routes[0].legs[0];
-            const infoBar = document.getElementById('nav-info-bar');
-            if (infoBar) {
-                infoBar.style.setProperty('display', 'flex', 'important');
-            }
-            
-            const btnStop = document.getElementById('btn-stop-nav');
-            if (btnStop) btnStop.classList.remove('hidden');
-
-            const distEl = document.getElementById('nav-dist');
-            const timeEl = document.getElementById('nav-time');
-            const etaEl = document.getElementById('nav-eta');
-            if(typeof window.startPremiumNavigation === 'function') window.startPremiumNavigation(leg);
-
-            if (distEl) distEl.textContent = leg.distance.text;
-
-            let durationSec = leg.duration.value;
-            const distanceMeters = leg.distance.value;
-
-            // --- AJUSTEMENT 50cc ---
-            durationSec = Math.round(durationSec * 1.20); // +20% pour scooter 50cc en ville
-            const maxSpeedMs = 32 / 3.6; // Vitesse moyenne réaliste pour un 50cc (32 km/h) avec les arrêts
-            const googleSpeedMs = distanceMeters / durationSec;
-            if (googleSpeedMs > maxSpeedMs) {
-                durationSec = Math.round(distanceMeters / maxSpeedMs);
-                if (window.Telemetry) window.Telemetry.addLog("INFO", `ETA ajusté pour 50cc.`);
-            }
-            
-            const destNameLegacy = document.getElementById('route-search').value || 'ITINÉRAIRE 50CC';
-            const titleElLegacy = document.querySelector('.route-title');
-            if (titleElLegacy) titleElLegacy.textContent = destNameLegacy.toUpperCase();
-
-            // Activer le panneau de guidage interne (Waze-killer)
-            const navInstruction = document.getElementById('nav-instruction');
-            const nextStepName = document.getElementById('next-step-name');
-            const nextStepDist = document.getElementById('next-step-dist');
-            const navIcon = document.querySelector('.nav-icon i');
-
-            if (navInstruction) navInstruction.classList.remove('hidden');
-
-            const nextStep = leg.steps[0];
-            if (nextStep) {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = nextStep.instructions;
-                let instructionText = tempDiv.textContent || tempDiv.innerText || "";
-                if (nextStepName) nextStepName.textContent = instructionText;
-                if (nextStepDist) nextStepDist.textContent = nextStep.distance.text;
-
-                if (navIcon) {
-                    const lowerInst = instructionText.toLowerCase();
-                    if (lowerInst.includes('gauche')) {
-                        navIcon.className = 'fa-solid fa-arrow-turn-up';
-                        navIcon.style.transform = 'scaleX(-1) rotate(90deg)';
-                    } else if (lowerInst.includes('droite')) {
-                        navIcon.className = 'fa-solid fa-arrow-turn-up';
-                        navIcon.style.transform = 'rotate(90deg)';
-                    } else if (lowerInst.includes('rond-point')) {
-                        navIcon.className = 'fa-solid fa-arrows-spin';
-                        navIcon.style.transform = 'rotate(0deg)';
-                    } else {
-                        navIcon.className = 'fa-solid fa-arrow-up';
-                        navIcon.style.transform = 'rotate(0deg)';
-                    }
-                }
-                
-                // JARVIS : Annonce vocale de l'instruction de guidage
-                setTimeout(() => {
-                    if (typeof speak === 'function') {
-                        speak('Guidage interne démarré. Dans ' + nextStep.distance.text + ', ' + instructionText);
-                    }
-                }, 6000); // Décalé de 6 secondes pour laisser Jarvis annoncer l'ETA en premier
-            }
-
-            let durationTextStr;
-            const totalMins = Math.floor(durationSec / 60);
-            if (totalMins >= 60) {
-                durationTextStr = `${Math.floor(totalMins/60)} h ${totalMins%60} min`;
-            } else {
-                durationTextStr = `${totalMins} min`;
-            }
-
-            if (timeEl) timeEl.textContent = durationTextStr;
-            if (etaEl) {
-                const arrivalTime = new Date(Date.now() + durationSec * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                etaEl.textContent = arrivalTime;
-            }
-
-            // Détection ferry (Legacy)
-            window.routeFerries = leg.steps.filter(s => 
-                s.instructions.toLowerCase().includes('ferry') || 
-                (s.maneuver && s.maneuver.toLowerCase().includes('ferry'))
-            );
-            lastSpokenFerryIndex = -1;
-
-            if (window.routeFerries.length > 0) {
-                setTimeout(() => speak('ferry_detected'), 4000);
-                if (window.NeuralHUD && typeof window.NeuralHUD.logToConsole === "function") {
-                    window.NeuralHUD.logToConsole(`NAV_INTEL: FERRY_CROSSING_AHEAD (${window.routeFerries.length})`);
-                }
-            }
-            
-            const etaText = etaEl ? etaEl.textContent : '';
-            speak(window.getLocalizedRouteMsg(leg.distance.text, etaText, window.isRodageActive));
-
-            // SAFE RIDE : Vérification Météo
-            if (window.SafeRide) {
-                const destLat = typeof end.lat === 'function' ? end.lat() : end.lat;
-                const destLng = typeof end.lng === 'function' ? end.lng() : end.lng;
-                window.SafeRide.checkWeatherForRoute(destLat, destLng).then(weather => {
-                    if (weather.isDangerous) {
-                        const issuesStr = weather.issues.join(" et ");
-                        setTimeout(() => {
-                            if (typeof speak === 'function') {
-                                speak(`Alerte Safe Ride : ${issuesStr} sur votre itinéraire. Équipez-vous et soyez très prudent avant de prendre la route.`);
-                            }
-                        }, 9000);
-                        
-                        // Modifier l'ETA visuellement (+20% temps pour danger)
-                        if (etaEl && timeEl) {
-                            const newDurationSec = durationSec * 1.20;
-                            const newTotalMins = Math.floor(newDurationSec / 60);
-                            timeEl.textContent = newTotalMins >= 60 ? `${Math.floor(newTotalMins/60)} h ${newTotalMins%60} min (Météo)` : `${newTotalMins} min (Météo)`;
-                            timeEl.style.color = '#ff4d4d'; // Rouge danger
-                            
-                            const newArrivalTime = new Date(Date.now() + newDurationSec * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                            etaEl.textContent = newArrivalTime;
-                            etaEl.style.color = '#ff4d4d';
-                        }
-                    }
-                });
-            }
-
-            if(destinationMarker) destinationMarker.setMap(null);
-            destinationMarker = new google.maps.Marker({
-                position: end,
-                map: map,
-                icon: {
-                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                    scale: 6,
-                    fillColor: "white",
-                    fillOpacity: 1,
-                    strokeWeight: 2
-                }
-            });
-            currentRouteMarkers.push(destinationMarker);
-        } else if (status === 'ZERO_RESULTS') {
-            speak("Aucun itinéraire trouvé vers cette destination.");
-        } else { 
-            console.error("Routage impossible: " + status);
-            speak("Erreur de calcul d'itinéraire.");
-        }
+  if (!start || !end) {
+    console.error("mon50cc Maps : Points de dÃ©part ou d'arrivÃ©e invalides.", {
+      start,
+      end,
     });
+    if (!start) speak("Signal GPS insuffisant pour dÃ©marrer l'itinÃ©raire.");
+    return;
+  }
+
+  window.currentRouteDestination = end; // Store for GO button
+
+  // Nettoyage des tracÃ©s prÃ©cÃ©dents
+  currentRoutePolylines.forEach((p) => p.setMap(null));
+  currentRoutePolylines = [];
+  currentRouteMarkers.forEach((m) => m.setMap(null));
+  currentRouteMarkers = [];
+
+  if (!directionsService || !directionsRenderer) {
+    speak("Le moteur de routage n'est pas disponible pour le moment.");
+    return;
+  }
+
+  if (directionsRenderer) directionsRenderer.setMap(null);
+
+  const legacyRequest = {
+    origin: start,
+    destination: end,
+    travelMode: "DRIVING",
+    avoidHighways: true,
+    avoidTolls: true,
+    provideRouteAlternatives: window.isRodageActive,
+  };
+
+  directionsService.route(legacyRequest, (result, status) => {
+    if (status === "OK") {
+      if (directionsRenderer) {
+        directionsRenderer.setMap(map);
+        directionsRenderer.setDirections(result);
+      }
+
+      const leg = result.routes[0].legs[0];
+      const infoBar = document.getElementById("nav-info-bar");
+      if (infoBar) {
+        infoBar.style.setProperty("display", "flex", "important");
+      }
+
+      const btnStop = document.getElementById("btn-stop-nav");
+      if (btnStop) btnStop.classList.remove("hidden");
+
+      const distEl = document.getElementById("nav-dist");
+      const timeEl = document.getElementById("nav-time");
+      const etaEl = document.getElementById("nav-eta");
+      if (typeof window.startPremiumNavigation === "function")
+        window.startPremiumNavigation(leg);
+
+      if (distEl) distEl.textContent = leg.distance.text;
+
+      let durationSec = leg.duration.value;
+      const distanceMeters = leg.distance.value;
+
+      // --- AJUSTEMENT 50cc ---
+      durationSec = Math.round(durationSec * 1.2); // +20% pour scooter 50cc en ville
+      const maxSpeedMs = 32 / 3.6; // Vitesse moyenne rÃ©aliste pour un 50cc (32 km/h) avec les arrÃªts
+      const googleSpeedMs = distanceMeters / durationSec;
+      if (googleSpeedMs > maxSpeedMs) {
+        durationSec = Math.round(distanceMeters / maxSpeedMs);
+        if (window.Telemetry)
+          window.Telemetry.addLog("INFO", `ETA ajustÃ© pour 50cc.`);
+      }
+
+      const destNameLegacy =
+        document.getElementById("route-search").value || "ITINÃ‰RAIRE 50CC";
+      const titleElLegacy = document.querySelector(".route-title");
+      if (titleElLegacy)
+        titleElLegacy.textContent = destNameLegacy.toUpperCase();
+
+      // Activer le panneau de guidage interne (Waze-killer)
+      const navInstruction = document.getElementById("nav-instruction");
+      const nextStepName = document.getElementById("next-step-name");
+      const nextStepDist = document.getElementById("next-step-dist");
+      const navIcon = document.querySelector(".nav-icon i");
+
+      if (navInstruction) navInstruction.classList.remove("hidden");
+
+      const nextStep = leg.steps[0];
+      if (nextStep) {
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = nextStep.instructions;
+        let instructionText = tempDiv.textContent || tempDiv.innerText || "";
+        if (nextStepName) nextStepName.textContent = instructionText;
+        if (nextStepDist) nextStepDist.textContent = nextStep.distance.text;
+
+        if (navIcon) {
+          const lowerInst = instructionText.toLowerCase();
+          if (lowerInst.includes("gauche")) {
+            navIcon.className = "fa-solid fa-arrow-turn-up";
+            navIcon.style.transform = "scaleX(-1) rotate(90deg)";
+          } else if (lowerInst.includes("droite")) {
+            navIcon.className = "fa-solid fa-arrow-turn-up";
+            navIcon.style.transform = "rotate(90deg)";
+          } else if (lowerInst.includes("rond-point")) {
+            navIcon.className = "fa-solid fa-arrows-spin";
+            navIcon.style.transform = "rotate(0deg)";
+          } else {
+            navIcon.className = "fa-solid fa-arrow-up";
+            navIcon.style.transform = "rotate(0deg)";
+          }
+        }
+
+        // JARVIS : Annonce vocale de l'instruction de guidage
+        setTimeout(() => {
+          if (typeof speak === "function") {
+            speak(
+              "Guidage interne dÃ©marrÃ©. Dans " +
+                nextStep.distance.text +
+                ", " +
+                instructionText,
+            );
+          }
+        }, 6000); // DÃ©calÃ© de 6 secondes pour laisser Jarvis annoncer l'ETA en premier
+      }
+
+      let durationTextStr;
+      const totalMins = Math.floor(durationSec / 60);
+      if (totalMins >= 60) {
+        durationTextStr = `${Math.floor(totalMins / 60)} h ${totalMins % 60} min`;
+      } else {
+        durationTextStr = `${totalMins} min`;
+      }
+
+      if (timeEl) timeEl.textContent = durationTextStr;
+      if (etaEl) {
+        const arrivalTime = new Date(
+          Date.now() + durationSec * 1000,
+        ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        etaEl.textContent = arrivalTime;
+      }
+
+      // DÃ©tection ferry (Legacy)
+      window.routeFerries = leg.steps.filter(
+        (s) =>
+          s.instructions.toLowerCase().includes("ferry") ||
+          (s.maneuver && s.maneuver.toLowerCase().includes("ferry")),
+      );
+      lastSpokenFerryIndex = -1;
+
+      if (window.routeFerries.length > 0) {
+        setTimeout(() => speak("ferry_detected"), 4000);
+        if (
+          window.NeuralHUD &&
+          typeof window.NeuralHUD.logToConsole === "function"
+        ) {
+          window.NeuralHUD.logToConsole(
+            `NAV_INTEL: FERRY_CROSSING_AHEAD (${window.routeFerries.length})`,
+          );
+        }
+      }
+
+      const etaText = etaEl ? etaEl.textContent : "";
+      speak(
+        window.getLocalizedRouteMsg(
+          leg.distance.text,
+          etaText,
+          window.isRodageActive,
+        ),
+      );
+
+      // SAFE RIDE : VÃ©rification MÃ©tÃ©o
+      if (window.SafeRide) {
+        const destLat = typeof end.lat === "function" ? end.lat() : end.lat;
+        const destLng = typeof end.lng === "function" ? end.lng() : end.lng;
+        window.SafeRide.checkWeatherForRoute(destLat, destLng).then(
+          (weather) => {
+            if (weather.isDangerous) {
+              const issuesStr = weather.issues.join(" et ");
+              setTimeout(() => {
+                if (typeof speak === "function") {
+                  speak(
+                    `Alerte Safe Ride : ${issuesStr} sur votre itinÃ©raire. Ã‰quipez-vous et soyez trÃ¨s prudent avant de prendre la route.`,
+                  );
+                }
+              }, 9000);
+
+              // Modifier l'ETA visuellement (+20% temps pour danger)
+              if (etaEl && timeEl) {
+                const newDurationSec = durationSec * 1.2;
+                const newTotalMins = Math.floor(newDurationSec / 60);
+                timeEl.textContent =
+                  newTotalMins >= 60
+                    ? `${Math.floor(newTotalMins / 60)} h ${newTotalMins % 60} min (MÃ©tÃ©o)`
+                    : `${newTotalMins} min (MÃ©tÃ©o)`;
+                timeEl.style.color = "#ff4d4d"; // Rouge danger
+
+                const newArrivalTime = new Date(
+                  Date.now() + newDurationSec * 1000,
+                ).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+                etaEl.textContent = newArrivalTime;
+                etaEl.style.color = "#ff4d4d";
+              }
+            }
+          },
+        );
+      }
+
+      if (destinationMarker) destinationMarker.setMap(null);
+      destinationMarker = new google.maps.Marker({
+        position: end,
+        map: map,
+        icon: {
+          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+          scale: 6,
+          fillColor: "white",
+          fillOpacity: 1,
+          strokeWeight: 2,
+        },
+      });
+      currentRouteMarkers.push(destinationMarker);
+    } else if (status === "ZERO_RESULTS") {
+      speak("Aucun itinÃ©raire trouvÃ© vers cette destination.");
+    } else {
+      console.error("Routage impossible: " + status);
+      speak("Erreur de calcul d'itinÃ©raire.");
+    }
+  });
 }
 
-window.cancelRoute = function() {
-    if (directionsRenderer) directionsRenderer.setDirections({routes: []});
-    if(destinationMarker) { destinationMarker.setMap(null); destinationMarker = null; }
-    
-    document.getElementById('nav-instruction').classList.add('hidden');
-    document.getElementById('nav-info-bar').style.display = 'none'; // On cache le bandeau
-    document.getElementById('btn-stop-nav').classList.add('hidden');
-    document.getElementById('btn-reroute').classList.add('hidden');
-    
-    document.getElementById('route-search').value = "";
-}
+window.cancelRoute = function () {
+  if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+  if (destinationMarker) {
+    destinationMarker.setMap(null);
+    destinationMarker = null;
+  }
+
+  document.getElementById("nav-instruction").classList.add("hidden");
+  document.getElementById("nav-info-bar").style.display = "none"; // On cache le bandeau
+  document.getElementById("btn-stop-nav").classList.add("hidden");
+  document.getElementById("btn-reroute").classList.add("hidden");
+
+  document.getElementById("route-search").value = "";
+};
 
 window.pendingDestination = null;
 
-window.toggleManualStart = function() {
-    const box = document.getElementById('manual-start-box');
-    box.classList.toggle('hidden');
-    if(!box.classList.contains('hidden')) {
-        const startEl = document.getElementById('route-start-gmp') || document.getElementById('route-start');
-        startEl.focus();
-    }
-}
+window.toggleManualStart = function () {
+  const box = document.getElementById("manual-start-box");
+  box.classList.toggle("hidden");
+  if (!box.classList.contains("hidden")) {
+    const startEl =
+      document.getElementById("route-start-gmp") ||
+      document.getElementById("route-start");
+    startEl.focus();
+  }
+};
 
-window.searchDestination = function() {
-    const searchEl = document.getElementById('route-search-gmp') || document.getElementById('route-search');
-    const startEl = document.getElementById('route-start-gmp') || document.getElementById('route-start');
-    
-    const query = searchEl ? (searchEl.inputValue !== undefined ? searchEl.inputValue : searchEl.value) : "";
-    const startQuery = startEl ? (startEl.inputValue !== undefined ? startEl.inputValue : startEl.value) : "";
-    
-    if (!query) return;
+window.searchDestination = function () {
+  const searchEl =
+    document.getElementById("route-search-gmp") ||
+    document.getElementById("route-search");
+  const startEl =
+    document.getElementById("route-start-gmp") ||
+    document.getElementById("route-start");
 
-    if (!geocoder || !map) {
-        speak("Carte en cours de chargement, veuillez patienter.");
-        return;
-    }
+  const query = searchEl
+    ? searchEl.inputValue !== undefined
+      ? searchEl.inputValue
+      : searchEl.value
+    : "";
+  const startQuery = startEl
+    ? startEl.inputValue !== undefined
+      ? startEl.inputValue
+      : startEl.value
+    : "";
 
-    // SI DEPART MANUEL
-    if (startQuery.trim() !== "") {
-        geocoder.geocode({ address: startQuery }, (resStart, statusStart) => {
-            if (statusStart === "OK") {
-                const startPos = resStart[0].geometry.location;
-                geocoder.geocode({ address: query }, (resEnd, statusEnd) => {
-                    if (statusEnd === "OK") {
-                        calculateRouteSansAutoroute(startPos, resEnd[0].geometry.location);
-                    } else { speak("Destination introuvable."); }
-                });
-            } else { speak("Lieu de départ introuvable."); }
-        });
-        return;
-    }
+  if (!query) return;
 
-    // SINON GPS CLASSIQUE
-    if (!currentPosition) {
-        speak("Recherche de votre position GPS. L'itinéraire démarrera automatiquement dès que possible.");
-        window.pendingDestinationName = query; 
-        return;
-    }
+  if (!geocoder || !map) {
+    speak("Carte en cours de chargement, veuillez patienter.");
+    return;
+  }
 
-    geocoder.geocode({ address: query }, (res, status) => {
-        if (status === "OK") {
-            const dest = res[0].geometry.location;
-            calculateRouteSansAutoroute(currentPosition, dest);
-            map.panTo(dest);
-            const btnCancel = document.getElementById('btn-cancel-route');
-            if (btnCancel) btnCancel.classList.remove('hidden');
-        } else {
+  // SI DEPART MANUEL
+  if (startQuery.trim() !== "") {
+    geocoder.geocode({ address: startQuery }, (resStart, statusStart) => {
+      if (statusStart === "OK") {
+        const startPos = resStart[0].geometry.location;
+        geocoder.geocode({ address: query }, (resEnd, statusEnd) => {
+          if (statusEnd === "OK") {
+            calculateRouteSansAutoroute(startPos, resEnd[0].geometry.location);
+          } else {
             speak("Destination introuvable.");
-        }
+          }
+        });
+      } else {
+        speak("Lieu de dÃ©part introuvable.");
+      }
     });
-}
+    return;
+  }
 
-window.launchNativeGPS = function() {
-    if (!window.currentRouteDestination) return;
-    const lat = typeof window.currentRouteDestination.lat === 'function' ? window.currentRouteDestination.lat() : window.currentRouteDestination.lat;
-    const lng = typeof window.currentRouteDestination.lng === 'function' ? window.currentRouteDestination.lng() : window.currentRouteDestination.lng;
-    const isWazeInstalled = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    // Default to Google Maps which supports avoidHighways via dirflg=h (partially)
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving&dirflg=h`;
-    window.open(url, '_blank');
+  // SINON GPS CLASSIQUE
+  if (!currentPosition) {
+    speak(
+      "Recherche de votre position GPS. L'itinÃ©raire dÃ©marrera automatiquement dÃ¨s que possible.",
+    );
+    window.pendingDestinationName = query;
+    return;
+  }
+
+  geocoder.geocode({ address: query }, (res, status) => {
+    if (status === "OK") {
+      const dest = res[0].geometry.location;
+      calculateRouteSansAutoroute(currentPosition, dest);
+      map.panTo(dest);
+      const btnCancel = document.getElementById("btn-cancel-route");
+      if (btnCancel) btnCancel.classList.remove("hidden");
+    } else {
+      speak("Destination introuvable.");
+    }
+  });
+};
+
+window.launchNativeGPS = function () {
+  if (!window.currentRouteDestination) return;
+  const lat =
+    typeof window.currentRouteDestination.lat === "function"
+      ? window.currentRouteDestination.lat()
+      : window.currentRouteDestination.lat;
+  const lng =
+    typeof window.currentRouteDestination.lng === "function"
+      ? window.currentRouteDestination.lng()
+      : window.currentRouteDestination.lng;
+  const isWazeInstalled = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  // Default to Google Maps which supports avoidHighways via dirflg=h (partially)
+  const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving&dirflg=h`;
+  window.open(url, "_blank");
 };
 
 // --- 4. SERVICES COMMUNAUTAIRES (SIGNALEMENTS) ---
-window.toggleHazardMenu = function() {
-    const opts = document.getElementById('hazard-options');
-    const mainBtn = document.getElementById('btn-hazard-quick') || document.getElementById('btn-hazard-main');
-    if(!opts) return;
-    if(opts.classList.contains('hidden')) {
-        opts.classList.remove('hidden');
-        if(mainBtn) mainBtn.style.transform = 'rotate(45deg)';
-    } else {
-        opts.classList.add('hidden');
-        if(mainBtn) mainBtn.style.transform = 'rotate(0deg)';
-    }
+window.toggleHazardMenu = function () {
+  const opts = document.getElementById("hazard-options");
+  const mainBtn =
+    document.getElementById("btn-hazard-quick") ||
+    document.getElementById("btn-hazard-main");
+  if (!opts) return;
+  if (opts.classList.contains("hidden")) {
+    opts.classList.remove("hidden");
+    if (mainBtn) mainBtn.style.transform = "rotate(45deg)";
+  } else {
+    opts.classList.add("hidden");
+    if (mainBtn) mainBtn.style.transform = "rotate(0deg)";
+  }
 };
 
-window.saveHazard = function(type, description = "") {
-    if(!currentPosition) return;
+window.saveHazard = function (type, description = "") {
+  if (!currentPosition) return;
 
-    // VERIFICATION DU BAN
-    if (typeof isUserBanned === "function" && isUserBanned()) {
-        const remaining = Math.ceil((window.session.bannedUntil - Date.now()) / 60000);
-        alert(`🚨 Action Interdite : Votre compte est suspendu pour faux signalements répétés. Fin de la sanction dans ${remaining} minutes.`);
-        return;
-    }
+  // VERIFICATION DU BAN
+  if (typeof isUserBanned === "function" && isUserBanned()) {
+    const remaining = Math.ceil(
+      (window.session.bannedUntil - Date.now()) / 60000,
+    );
+    alert(
+      `ðŸš¨ Action Interdite : Votre compte est suspendu pour faux signalements rÃ©pÃ©tÃ©s. Fin de la sanction dans ${remaining} minutes.`,
+    );
+    return;
+  }
 
-    const h = { 
-        lat: currentPosition.lat, 
-        lon: currentPosition.lng, 
-        type: type, 
-        description: description,
-        author: window.session ? window.session.username : 'Anonyme',
-        date: new Date().toISOString()
-    };
-    
-    // 1. Sauvegarde Locale (Fallback)
-    let dbLocal = JSON.parse(secureGetItem('hazards') || '[]');
-    dbLocal.push(h);
-    secureSetItem('hazards', JSON.stringify(dbLocal));
-    
-    // 2. Publication Cloud (Temps réel pour la communauté)
-    if (typeof publishHazardCloud === "function") {
-        publishHazardCloud(h).then(success => {
-            if(success) console.log("Signalement synchronisé sur le Cloud.");
-        });
-    }
+  const h = {
+    lat: currentPosition.lat,
+    lon: currentPosition.lng,
+    type: type,
+    description: description,
+    author: window.session ? window.session.username : "Anonyme",
+    date: new Date().toISOString(),
+  };
 
-    alert(`Signalement: ${escapeHTML(type)} enregistré ! Merci à vous.`);
-    
-    // GAMIFICATION: +50 XP pour le signalement communautaire
-    if (typeof window.updateXP === "function") {
-        window.updateXP(5); // +50 XP (updateXP multiplie par 10)
-        if(typeof speak === "function") speak("Signalement validé. Vous gagnez de l'expérience.");
-    }
-    
-    toggleHazardMenu();
-    loadHazards();
+  // 1. Sauvegarde Locale (Fallback)
+  let dbLocal = JSON.parse(secureGetItem("hazards") || "[]");
+  dbLocal.push(h);
+  secureSetItem("hazards", JSON.stringify(dbLocal));
+
+  // 2. Publication Cloud (Temps rÃ©el pour la communautÃ©)
+  if (typeof publishHazardCloud === "function") {
+    publishHazardCloud(h).then((success) => {});
+  }
+
+  alert(`Signalement: ${escapeHTML(type)} enregistrÃ© ! Merci Ã  vous.`);
+
+  // GAMIFICATION: +50 XP pour le signalement communautaire
+  if (typeof window.updateXP === "function") {
+    window.updateXP(5); // +50 XP (updateXP multiplie par 10)
+    if (typeof speak === "function")
+      speak("Signalement validÃ©. Vous gagnez de l'expÃ©rience.");
+  }
+
+  toggleHazardMenu();
+  loadHazards();
 };
 
 function loadHazards() {
-    if (typeof google === 'undefined' || !google.maps || !google.maps.Marker) return;
-    const raw = secureGetItem('hazards');
-    let hazards = raw ? JSON.parse(raw) : [];
-    
-    // Filtrage éphémère Animaux (> 30 mins = expiré)
-    hazards = hazards.filter(h => {
-        if ((h.type === 'animal' || h.type === 'chien') && h.date) {
-            const ageMins = (Date.now() - new Date(h.date).getTime()) / 60000;
-            return ageMins <= 30;
-        }
-        return true;
-    });
+  if (typeof google === "undefined" || !google.maps || !google.maps.Marker)
+    return;
+  const raw = secureGetItem("hazards");
+  let hazards = raw ? JSON.parse(raw) : [];
 
-    hazardMarkers.forEach(m => m.setMap(null));
-    hazardMarkers = [];
-    
-    const listContainer = document.getElementById('live-hazards-list');
-    if(listContainer) {
-        if(hazards.length === 0) {
-            listContainer.innerHTML = '<p style="font-size:0.8rem; color:#666; text-align:center; padding:10px;">Aucun danger signalé.</p>';
-        } else {
-            listContainer.innerHTML = '';
-            hazards.reverse(); // Voir les plus récents en premier dans la liste
-        }
+  // Filtrage Ã©phÃ©mÃ¨re Animaux (> 30 mins = expirÃ©)
+  hazards = hazards.filter((h) => {
+    if ((h.type === "animal" || h.type === "chien") && h.date) {
+      const ageMins = (Date.now() - new Date(h.date).getTime()) / 60000;
+      return ageMins <= 30;
     }
+    return true;
+  });
 
-    hazards.forEach((h, index) => {
-        const isAnimal = (h.type === 'animal' || h.type === 'chien');
-        const hColor = h.type === 'Police' ? '#00d2ff' : (h.type === 'Route Dégradée' ? '#f1c40f' : (isAnimal ? '#e67e22' : '#ff4d4d'));
-        const marker = new google.maps.Marker({
-            position: { lat: h.lat, lng: h.lon },
-            map: map,
-            icon: { path: google.maps.SymbolPath.CIRCLE, fillColor: hColor, fillOpacity: 0.9, scale: 9, strokeColor: 'white', strokeWeight: 2 }
-        });
-        const info = new google.maps.InfoWindow({ content: `<b>${isAnimal ? '🐾 ' : ''}${escapeHTML(h.type)}</b><br><small>${escapeHTML(h.author)}</small>` });
-        marker.addListener("click", () => info.open(map, marker));
-        hazardMarkers.push(marker);
+  hazardMarkers.forEach((m) => m.setMap(null));
+  hazardMarkers = [];
 
-        // Ajout à la liste sidebar
-        if(listContainer && index < 5) { // On affiche les 5 derniers max
-            const div = document.createElement('div');
-            div.className = 'hazard-alert';
-            div.style.cursor = 'pointer';
-            div.innerHTML = `<div><i class="fa-solid fa-${isAnimal ? 'paw' : 'triangle-exclamation'}"></i> <strong>${escapeHTML(h.type)}</strong><br><span>Par ${escapeHTML(h.author)}</span></div><i class="fa-solid fa-chevron-right" style="font-size:0.6rem; color:#444;"></i>`;
-            div.onclick = () => {
-                map.setCenter({ lat: h.lat, lng: h.lon });
-                map.setZoom(17);
-                info.open(map, marker);
-                toggleMenu(); 
-            };
-            listContainer.appendChild(div);
-        }
+  const listContainer = document.getElementById("live-hazards-list");
+  if (listContainer) {
+    if (hazards.length === 0) {
+      listContainer.innerHTML =
+        '<p style="font-size:0.8rem; color:#666; text-align:center; padding:10px;">Aucun danger signalÃ©.</p>';
+    } else {
+      listContainer.innerHTML = "";
+      hazards.reverse(); // Voir les plus rÃ©cents en premier dans la liste
+    }
+  }
+
+  hazards.forEach((h, index) => {
+    const isAnimal = h.type === "animal" || h.type === "chien";
+    const hColor =
+      h.type === "Police"
+        ? "#00d2ff"
+        : h.type === "Route DÃ©gradÃ©e"
+          ? "#f1c40f"
+          : isAnimal
+            ? "#e67e22"
+            : "#ff4d4d";
+    const marker = new google.maps.Marker({
+      position: { lat: h.lat, lng: h.lon },
+      map: map,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: hColor,
+        fillOpacity: 0.9,
+        scale: 9,
+        strokeColor: "white",
+        strokeWeight: 2,
+      },
     });
+    const info = new google.maps.InfoWindow({
+      content: `<b>${isAnimal ? "ðŸ¾ " : ""}${escapeHTML(h.type)}</b><br><small>${escapeHTML(h.author)}</small>`,
+    });
+    marker.addListener("click", () => info.open(map, marker));
+    hazardMarkers.push(marker);
+
+    // Ajout Ã  la liste sidebar
+    if (listContainer && index < 5) {
+      // On affiche les 5 derniers max
+      const div = document.createElement("div");
+      div.className = "hazard-alert";
+      div.style.cursor = "pointer";
+      div.innerHTML = `<div><i class="fa-solid fa-${isAnimal ? "paw" : "triangle-exclamation"}"></i> <strong>${escapeHTML(h.type)}</strong><br><span>Par ${escapeHTML(h.author)}</span></div><i class="fa-solid fa-chevron-right" style="font-size:0.6rem; color:#444;"></i>`;
+      div.onclick = () => {
+        map.setCenter({ lat: h.lat, lng: h.lon });
+        map.setZoom(17);
+        info.open(map, marker);
+        toggleMenu();
+      };
+      listContainer.appendChild(div);
+    }
+  });
 }
 
 // --- 5. SONAR RADAR (POI SCAN) ---
 const poiConfig = {
-    'fuel': { icon: 'fa-gas-pump', label: 'Essence', color: '#cca000', radius: 5000 },
-    'doctors': { icon: 'fa-briefcase-medical', label: 'Santé & Pharmacie', color: '#e74c3c', radius: 3000 },
-    'atm': { icon: 'fa-money-bill-1', label: 'DAB', color: '#2ecc71', radius: 3000 },
-    'mechanic': { icon: 'fa-wrench', label: 'Garages', color: '#ffa500', radius: 8000 },
-    'tourist_attraction': { icon: 'fa-landmark', label: 'Lieux Historiques', color: '#e67e22', radius: 10000 }
+  fuel: {
+    icon: "fa-gas-pump",
+    label: "Essence",
+    color: "#cca000",
+    radius: 5000,
+  },
+  doctors: {
+    icon: "fa-briefcase-medical",
+    label: "SantÃ© & Pharmacie",
+    color: "#e74c3c",
+    radius: 3000,
+  },
+  atm: {
+    icon: "fa-money-bill-1",
+    label: "DAB",
+    color: "#2ecc71",
+    radius: 3000,
+  },
+  mechanic: {
+    icon: "fa-wrench",
+    label: "Garages",
+    color: "#ffa500",
+    radius: 8000,
+  },
+  tourist_attraction: {
+    icon: "fa-landmark",
+    label: "Lieux Historiques",
+    color: "#e67e22",
+    radius: 10000,
+  },
 };
 
-window.toggleRadarMenu = function() {
-    const r = document.getElementById('radar-options');
-    if(r) r.classList.toggle('hidden');
-}
+window.toggleRadarMenu = function () {
+  const r = document.getElementById("radar-options");
+  if (r) r.classList.toggle("hidden");
+};
 
-window.scanRadar = function(type) {
-    if(!currentPosition) return;
-    toggleRadarMenu();
-    const config = poiConfig[type];
-    const radarBtn = document.getElementById('btn-radar-quick') || document.getElementById('btn-radar-main');
-    const oldHtml = radarBtn ? radarBtn.innerHTML : '';
-    if(radarBtn) radarBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-    
-    if (type === 'fuel') {
-        // --- NEW: Government Data Integration ---
-        fetchFuelPricesUsingGovAPI(currentPosition.lat, currentPosition.lng, config, radarBtn, oldHtml);
-    } else if (type === 'mechanic') {
-        // --- NEW: Google Places Garage Integration ---
-        fetchGaragesUsingPlacesAPI(currentPosition.lat, currentPosition.lng, config, radarBtn, oldHtml);
-    } else {
-        // Standard Overpass Search for other POIs
-        const lat = currentPosition.lat;
-        const lon = currentPosition.lng;
-        // MEDICAL includes doctors, clinics, hospitals AND pharmacy
-        const medicalTags = 'clinic|hospital|doctors|pharmacy';
-        const query = `[out:json][timeout:15];(nwr["amenity"~"${type === 'doctors' ? medicalTags : type}"](around:${config.radius},${lat},${lon}););out center;`;
-        const url = `https://lz4.overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
-        
-        fetch(url).then(r => r.json()).then(data => {
-            renderPoiMarkers(data.elements, config);
-        }).finally(() => { if(radarBtn) radarBtn.innerHTML = oldHtml; });
-    }
-}
+window.scanRadar = function (type) {
+  if (!currentPosition) return;
+  toggleRadarMenu();
+  const config = poiConfig[type];
+  const radarBtn =
+    document.getElementById("btn-radar-quick") ||
+    document.getElementById("btn-radar-main");
+  const oldHtml = radarBtn ? radarBtn.innerHTML : "";
+  if (radarBtn)
+    radarBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+  if (type === "fuel") {
+    // --- NEW: Government Data Integration ---
+    fetchFuelPricesUsingGovAPI(
+      currentPosition.lat,
+      currentPosition.lng,
+      config,
+      radarBtn,
+      oldHtml,
+    );
+  } else if (type === "mechanic") {
+    // --- NEW: Google Places Garage Integration ---
+    fetchGaragesUsingPlacesAPI(
+      currentPosition.lat,
+      currentPosition.lng,
+      config,
+      radarBtn,
+      oldHtml,
+    );
+  } else {
+    // Standard Overpass Search for other POIs
+    const lat = currentPosition.lat;
+    const lon = currentPosition.lng;
+    // MEDICAL includes doctors, clinics, hospitals AND pharmacy
+    const medicalTags = "clinic|hospital|doctors|pharmacy";
+    const query = `[out:json][timeout:15];(nwr["amenity"~"${type === "doctors" ? medicalTags : type}"](around:${config.radius},${lat},${lon}););out center;`;
+    const url = `https://lz4.overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
+
+    fetch(url)
+      .then((r) => r.json())
+      .then((data) => {
+        renderPoiMarkers(data.elements, config);
+      })
+      .finally(() => {
+        if (radarBtn) radarBtn.innerHTML = oldHtml;
+      });
+  }
+};
 
 async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
-    // API OpenData Gouv: Prix des carburants
-    const url = `https://data.economie.gouv.fr/api/records/1.0/search/?dataset=prix-des-carburants-en-france-flux-instantane-v2&q=&geofilter.distance=${lat},${lng},5000&rows=20`;
-    
-    try {
-        const blacklist = typeof getBlacklist === "function" ? await getBlacklist() : [];
-        const today = new Date().toISOString().split('T')[0];
-        const reportsSnap = await db.collection("reports_abuse").where("lastUpdate", ">=", new Date(today)).get();
-        const reportCounts = {};
-        reportsSnap.forEach(doc => { reportCounts[doc.data().stationId] = doc.data().count; });
+  // API OpenData Gouv: Prix des carburants
+  const url = `https://data.economie.gouv.fr/api/records/1.0/search/?dataset=prix-des-carburants-en-france-flux-instantane-v2&q=&geofilter.distance=${lat},${lng},5000&rows=20`;
 
-        const res = await fetch(url);
-        const data = await res.json();
-        officialPoiMarkers.forEach(m => m.setMap(null));
-        officialPoiMarkers = [];
+  try {
+    const blacklist =
+      typeof getBlacklist === "function" ? await getBlacklist() : [];
+    const today = new Date().toISOString().split("T")[0];
+    const reportsSnap = await db
+      .collection("reports_abuse")
+      .where("lastUpdate", ">=", new Date(today))
+      .get();
+    const reportCounts = {};
+    reportsSnap.forEach((doc) => {
+      reportCounts[doc.data().stationId] = doc.data().count;
+    });
 
-        if (data.records) {
-            data.records.forEach(record => {
-                const fields = record.fields;
-                const coords = record.geometry.coordinates;
-                const stationId = record.recordid;
+    const res = await fetch(url);
+    const data = await res.json();
+    officialPoiMarkers.forEach((m) => m.setMap(null));
+    officialPoiMarkers = [];
 
-                // Masquer si blacklistée
-                if (blacklist.includes(stationId)) {
-                    console.log("Station ignorée (Blacklistée par la communauté) :", fields.vile);
-                    return;
-                }
-                
-                // Extraction des prix
-                let pricesHtml = "";
-                try {
-                    const priceList = JSON.parse(fields.prix || "[]");
-                    priceList.forEach(p => {
-                        // Ignorer le gazole (pas pour les 50cc)
-                        if (p["@nom"] === "Gazole") return;
-                        
-                        pricesHtml += `<div style="display:flex; justify-content:space-between; gap:10px;">
-                            <strong>${p["@nom"]}</strong> <span>${parseFloat(p["@valeur"]).toFixed(3)}€</span>
+    if (data.records) {
+      data.records.forEach((record) => {
+        const fields = record.fields;
+        const coords = record.geometry.coordinates;
+        const stationId = record.recordid;
+
+        // Masquer si blacklistÃ©e
+        if (blacklist.includes(stationId)) {
+          return;
+        }
+
+        // Extraction des prix
+        let pricesHtml = "";
+        try {
+          const priceList = JSON.parse(fields.prix || "[]");
+          priceList.forEach((p) => {
+            // Ignorer le gazole (pas pour les 50cc)
+            if (p["@nom"] === "Gazole") return;
+
+            pricesHtml += `<div style="display:flex; justify-content:space-between; gap:10px;">
+                            <strong>${p["@nom"]}</strong> <span>${parseFloat(p["@valeur"]).toFixed(3)}â‚¬</span>
                         </div>`;
-                    });
-                } catch(e) { pricesHtml = "Prix non disponibles"; }
+          });
+        } catch (e) {
+          pricesHtml = "Prix non disponibles";
+        }
 
-                const marker = new google.maps.Marker({
-                    position: { lat: coords[1], lng: coords[0] },
-                    map: map,
-                    icon: { path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, fillColor: "#cca000", fillOpacity: 1, scale: 6, strokeColor: 'white' }
-                });
+        const marker = new google.maps.Marker({
+          position: { lat: coords[1], lng: coords[0] },
+          map: map,
+          icon: {
+            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+            fillColor: "#cca000",
+            fillOpacity: 1,
+            scale: 6,
+            strokeColor: "white",
+          },
+        });
 
-                // Compteur de signalements
-                const currentReports = reportCounts[stationId] || 0;
-                const reportBadge = currentReports > 0 ? `<div style="color:#ff4d4d; font-size:0.7rem; font-weight:bold; margin-top:5px;"><i class="fa-solid fa-triangle-exclamation"></i> ${currentReports}/10 signalements</div>` : "";
+        // Compteur de signalements
+        const currentReports = reportCounts[stationId] || 0;
+        const reportBadge =
+          currentReports > 0
+            ? `<div style="color:#ff4d4d; font-size:0.7rem; font-weight:bold; margin-top:5px;"><i class="fa-solid fa-triangle-exclamation"></i> ${currentReports}/10 signalements</div>`
+            : "";
 
-                // Bouton de signalement pour les membres
-                const isGuest = !window.session || window.session.isGuest;
-                const reportBtn = isGuest ? "" : `
+        // Bouton de signalement pour les membres
+        const isGuest = !window.session || window.session.isGuest;
+        const reportBtn = isGuest
+          ? ""
+          : `
                     <button onclick="triggerPhotoReport('${stationId}', '${fields.vile || fields.adresse}')" 
                         style="width:100%; margin-top:5px; background:#ff4d4d; color:white; border:none; padding:5px; border-radius:5px; font-size:0.7rem; cursor:pointer;">
-                        🚨 Signaler Abus Prix (+Photo)
+                        ðŸš¨ Signaler Abus Prix (+Photo)
                     </button>`;
 
-                const info = new google.maps.InfoWindow({
-                    content: `<div style="color:black; min-width:150px;">
+        const info = new google.maps.InfoWindow({
+          content: `<div style="color:black; min-width:150px;">
                         <b style="font-size:1rem;">${escapeHTML(fields.vile || "Station")}</b><br>
                         <small>${escapeHTML(fields.adresse)}</small>
                         <hr style="border:0; border-top:1px solid #eee; margin:5px 0;">
                         ${pricesHtml}
                         ${reportBadge}
                         ${reportBtn}
-                    </div>`
-                });
-                marker.addListener("click", () => info.open(map, marker));
-                officialPoiMarkers.push(marker);
-            });
-        }
-    } catch (e) {
-        console.error("Gov API fail", e);
-        alert("Erreur lors de la récupération des prix.");
-    } finally {
-        btn.innerHTML = oldHtml;
+                    </div>`,
+        });
+        marker.addListener("click", () => info.open(map, marker));
+        officialPoiMarkers.push(marker);
+      });
     }
+  } catch (e) {
+    console.error("Gov API fail", e);
+    alert("Erreur lors de la rÃ©cupÃ©ration des prix.");
+  } finally {
+    btn.innerHTML = oldHtml;
+  }
 }
 async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
-    if(!google.maps.places) {
-        alert("Services de lieux non disponibles.");
-        btn.innerHTML = oldHtml;
-        return;
-    }
-    
-    const service = new google.maps.places.PlacesService(map);
-    const request = {
-        location: new google.maps.LatLng(lat, lng),
-        radius: config.radius,
-        keyword: 'garage scooter 50cc moto'
-    };
+  if (!google.maps.places) {
+    alert("Services de lieux non disponibles.");
+    btn.innerHTML = oldHtml;
+    return;
+  }
 
-    service.nearbySearch(request, (results, status) => {
-        btn.innerHTML = oldHtml;
-        if (status === google.maps.places.PlacesServiceStatus.OK) {
-            officialPoiMarkers.forEach(m => m.setMap(null));
-            officialPoiMarkers = [];
-            
-            // FILTRAGE : Uniquement ceux avec note >= 3.3
-            const filtered = results.filter(r => (r.rating || 0) >= 3.3);
-            
-            filtered.forEach(async (place) => {
-                // DONNEES COMMUNAUTAIRES
-                const internalInfo = typeof getGarageInternalInfo === "function" ? await getGarageInternalInfo(place.place_id) : null;
-                const isPro = (internalInfo?.count || 0) >= 1000;
-                const proBadge = isPro ? `<div style="background:#ffd700; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-trophy"></i> BADGE PRO CERTIFIÉ</div>` : "";
-                const qualityBadge = (place.rating > 3.9) ? `<div style="background:#f1c40f; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-certificate"></i> QUALITÉ CERTIFIÉE (>3.9)</div>` : "";
-                const communityRating = internalInfo ? `<div style="font-size:0.7rem; color:#00d2ff; margin-top:3px;">Label Scooter : ⭐ ${internalInfo.avgRating}/5 (${internalInfo.count} avis)</div>` : "";
+  const service = new google.maps.places.PlacesService(map);
+  const request = {
+    location: new google.maps.LatLng(lat, lng),
+    radius: config.radius,
+    keyword: "garage scooter 50cc moto",
+  };
 
-                const marker = new google.maps.Marker({
-                    position: place.geometry.location,
-                    map: map,
-                    icon: { 
-                        path: google.maps.SymbolPath.CIRCLE, 
-                        scale: 10, 
-                        fillColor: (place.rating > 3.9) ? "#f1c40f" : (isPro ? "#ffd700" : config.color), 
-                        fillOpacity: 1, 
-                        strokeColor: 'white',
-                        strokeWeight: (place.rating > 3.9) ? 3 : 1
-                    }
-                });
+  service.nearbySearch(request, (results, status) => {
+    btn.innerHTML = oldHtml;
+    if (status === google.maps.places.PlacesServiceStatus.OK) {
+      officialPoiMarkers.forEach((m) => m.setMap(null));
+      officialPoiMarkers = [];
 
-                // Étoiles de notation
-                const isGuest = !window.session || window.session.isGuest;
-                const safePlaceName = (place.name || "").replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                const starBtns = isGuest ? "" : `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:5px;">
-                    <small>Évaluer ce garage :</small><br>
-                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 1)">⭐</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 2)">⭐</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 3)">⭐</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 4)">⭐</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 5)">⭐</span>
+      // FILTRAGE : Uniquement ceux avec note >= 3.3
+      const filtered = results.filter((r) => (r.rating || 0) >= 3.3);
+
+      filtered.forEach(async (place) => {
+        // DONNEES COMMUNAUTAIRES
+        const internalInfo =
+          typeof getGarageInternalInfo === "function"
+            ? await getGarageInternalInfo(place.place_id)
+            : null;
+        const isPro = (internalInfo?.count || 0) >= 1000;
+        const proBadge = isPro
+          ? `<div style="background:#ffd700; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-trophy"></i> BADGE PRO CERTIFIÃ‰</div>`
+          : "";
+        const qualityBadge =
+          place.rating > 3.9
+            ? `<div style="background:#f1c40f; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-certificate"></i> QUALITÃ‰ CERTIFIÃ‰E (>3.9)</div>`
+            : "";
+        const communityRating = internalInfo
+          ? `<div style="font-size:0.7rem; color:#00d2ff; margin-top:3px;">Label Scooter : â­ ${internalInfo.avgRating}/5 (${internalInfo.count} avis)</div>`
+          : "";
+
+        const marker = new google.maps.Marker({
+          position: place.geometry.location,
+          map: map,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillColor:
+              place.rating > 3.9 ? "#f1c40f" : isPro ? "#ffd700" : config.color,
+            fillOpacity: 1,
+            strokeColor: "white",
+            strokeWeight: place.rating > 3.9 ? 3 : 1,
+          },
+        });
+
+        // Ã‰toiles de notation
+        const isGuest = !window.session || window.session.isGuest;
+        const safePlaceName = (place.name || "")
+          .replace(/\\/g, "\\\\")
+          .replace(/'/g, "\\'")
+          .replace(/"/g, "&quot;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        const starBtns = isGuest
+          ? ""
+          : `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:5px;">
+                    <small>Ã‰valuer ce garage :</small><br>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 1)">â­</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 2)">â­</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 3)">â­</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 4)">â­</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 5)">â­</span>
                 </div>`;
 
-                const info = new google.maps.InfoWindow({
-                    content: `<div style="color:black; min-width:180px;">
+        const info = new google.maps.InfoWindow({
+          content: `<div style="color:black; min-width:180px;">
                         <b style="font-size:1rem;">${escapeHTML(place.name)}</b><br>
-                        ⭐ Google: ${place.rating || "N/A"}/5 (${place.user_ratings_total || 0})<br>
+                        â­ Google: ${place.rating || "N/A"}/5 (${place.user_ratings_total || 0})<br>
                         ${qualityBadge}
                         ${communityRating}
                         ${proBadge}
                         ${starBtns}
-                    </div>`
-                });
+                    </div>`,
+        });
 
-                marker.addListener("click", () => info.open(map, marker));
-                officialPoiMarkers.push(marker);
-            });
-            alert(`${filtered.length} garages certifiés (Note > 3.3) trouvés.`);
-        } else {
-            alert("Aucun garage trouvé dans cette zone.");
-        }
-    });
+        marker.addListener("click", () => info.open(map, marker));
+        officialPoiMarkers.push(marker);
+      });
+      alert(`${filtered.length} garages certifiÃ©s (Note > 3.3) trouvÃ©s.`);
+    } else {
+      alert("Aucun garage trouvÃ© dans cette zone.");
+    }
+  });
 }
-window.triggerPhotoReport = function(id, name) {
-    const input = document.getElementById('abuse-photo-input');
-    input.onchange = async (e) => {
-        const file = e.target.files[0];
-        if(!file) return;
-        
-        // Notification
-        alert("Traitement de la preuve photo en cours...");
-        
-        // Lecture en base64 pour le stockage Firestore (ou upload Storage si configuré)
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const photoData = event.target.result;
-            if (typeof reportStationAbuse === "function") {
-                reportStationAbuse(id, name, photoData);
-            }
-        };
-        reader.readAsDataURL(file);
+window.triggerPhotoReport = function (id, name) {
+  const input = document.getElementById("abuse-photo-input");
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Notification
+    alert("Traitement de la preuve photo en cours...");
+
+    // Lecture en base64 pour le stockage Firestore (ou upload Storage si configurÃ©)
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const photoData = event.target.result;
+      if (typeof reportStationAbuse === "function") {
+        reportStationAbuse(id, name, photoData);
+      }
     };
-    input.click(); // Ouvrir l'appareil photo
+    reader.readAsDataURL(file);
+  };
+  input.click(); // Ouvrir l'appareil photo
 };
 
 function renderPoiMarkers(elements, config) {
-    officialPoiMarkers.forEach(m => m.setMap(null));
-    officialPoiMarkers = [];
-    if(elements?.length > 0) {
-        elements.forEach(item => {
-            const marker = new google.maps.Marker({
-                position: { lat: item.lat || item.center.lat, lng: item.lon || item.center.lon },
-                map: map,
-                icon: { path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, fillColor: config.color, fillOpacity: 1, scale: 5, strokeColor: 'white' }
-            });
-            const info = new google.maps.InfoWindow({ content: `<div style="color:black"><b>${escapeHTML(item.tags?.name || config.label)}</b></div>` });
-            marker.addListener("click", () => info.open(map, marker));
-            officialPoiMarkers.push(marker);
-        });
-    }
-    alert(`${elements?.length || 0} résultat(s) trouvés.`);
+  officialPoiMarkers.forEach((m) => m.setMap(null));
+  officialPoiMarkers = [];
+  if (elements?.length > 0) {
+    elements.forEach((item) => {
+      const marker = new google.maps.Marker({
+        position: {
+          lat: item.lat || item.center.lat,
+          lng: item.lon || item.center.lon,
+        },
+        map: map,
+        icon: {
+          path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+          fillColor: config.color,
+          fillOpacity: 1,
+          scale: 5,
+          strokeColor: "white",
+        },
+      });
+      const info = new google.maps.InfoWindow({
+        content: `<div style="color:black"><b>${escapeHTML(item.tags?.name || config.label)}</b></div>`,
+      });
+      marker.addListener("click", () => info.open(map, marker));
+      officialPoiMarkers.push(marker);
+    });
+  }
+  alert(`${elements?.length || 0} rÃ©sultat(s) trouvÃ©s.`);
 }
 
 // --- 6. SIMULATIONS ET CHRONO ---
 let tripSeconds = 0;
 setInterval(() => {
-    if(window.isRiding) tripSeconds++;
-    const tEl = document.getElementById('trip-timer');
-    if(tEl) {
-        const str = new Date(tripSeconds * 1000).toISOString().substring(11, 19);
-        tEl.textContent = str.startsWith("00:") ? str.substring(3) : str;
-    }
+  if (window.isRiding) tripSeconds++;
+  const tEl = document.getElementById("trip-timer");
+  if (tEl) {
+    const str = new Date(tripSeconds * 1000).toISOString().substring(11, 19);
+    tEl.textContent = str.startsWith("00:") ? str.substring(3) : str;
+  }
 }, 1000);
 
 // --- COMMUNITY LIVE RENDERING (MOBILE HUD ENGINE) ---
 let communityMarkers = [];
-window.renderCommunityMarkers = function() {
-    if(!map || !window.communityMembers) return;
-    
-    // Clear old markers
-    communityMarkers.forEach(m => m.setMap(null));
-    communityMarkers = [];
+window.renderCommunityMarkers = function () {
+  if (!map || !window.communityMembers) return;
 
-    window.communityMembers.forEach(member => {
-        const m = new google.maps.Marker({
-            position: { lat: member.lat, lng: member.lng },
-            map: map,
-            icon: { 
-                path: google.maps.SymbolPath.CIRCLE, 
-                scale: 6, 
-                fillColor: '#00d2ff', 
-                fillOpacity: 0.8, 
-                strokeColor: 'white', 
-                strokeWeight: 2,
-                labelOrigin: new google.maps.Point(0, -2)
-            },
-            title: member.username
-        });
+  // Clear old markers
+  communityMarkers.forEach((m) => m.setMap(null));
+  communityMarkers = [];
 
-        const info = new google.maps.InfoWindow({ 
-            content: `<div style="color:black"><b>${escapeHTML(member.username)}</b><br><small>${escapeHTML(member.brand)} - ${escapeHTML(member.status)}</small></div>` 
-        });
-        m.addListener("click", () => info.open(map, m));
-        communityMarkers.push(m);
+  window.communityMembers.forEach((member) => {
+    const m = new google.maps.Marker({
+      position: { lat: member.lat, lng: member.lng },
+      map: map,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 6,
+        fillColor: "#00d2ff",
+        fillOpacity: 0.8,
+        strokeColor: "white",
+        strokeWeight: 2,
+        labelOrigin: new google.maps.Point(0, -2),
+      },
+      title: member.username,
     });
-}
 
-window.simulateLiveFleet = function() {
-    if(!currentPosition || !map) return;
-    const ghostNames = ["Rider_Z", "Nitro50", "BoostPowa", "StuntMan", "RoadRunner"];
-    const ghostBrands = ["Yamaha Bw's", "MBK Booster", "Piaggio Zip", "Peugeot Speedfight", "Derbi Senda"];
-    
-    ghostNames.forEach((name, i) => {
-        const offsetLat = (Math.random() - 0.5) * 0.01;
-        const offsetLng = (Math.random() - 0.5) * 0.01;
-        const ghostPos = { lat: currentPosition.lat + offsetLat, lng: currentPosition.lng + offsetLng };
-        
-        const m = new google.maps.Marker({
-            position: ghostPos,
-            map: map,
-            icon: { 
-                path: google.maps.SymbolPath.CIRCLE, 
-                scale: 5, 
-                fillColor: '#666', 
-                fillOpacity: 0.5, 
-                strokeColor: 'white', 
-                strokeWeight: 1 
-            },
-            title: name
-        });
-        
-        const info = new google.maps.InfoWindow({ 
-            content: `<div style="color:black"><b>${name} [IA]</b><br><small>${ghostBrands[i]}</small></div>` 
-        });
-        m.addListener("click", () => info.open(map, m));
-        communityMarkers.push(m);
+    const info = new google.maps.InfoWindow({
+      content: `<div style="color:black"><b>${escapeHTML(member.username)}</b><br><small>${escapeHTML(member.brand)} - ${escapeHTML(member.status)}</small></div>`,
     });
-    console.log("mon50cc Fleet : Ghost riders deployed.");
-}
+    m.addListener("click", () => info.open(map, m));
+    communityMarkers.push(m);
+  });
+};
+
+window.simulateLiveFleet = function () {
+  if (!currentPosition || !map) return;
+  const ghostNames = [
+    "Rider_Z",
+    "Nitro50",
+    "BoostPowa",
+    "StuntMan",
+    "RoadRunner",
+  ];
+  const ghostBrands = [
+    "Yamaha Bw's",
+    "MBK Booster",
+    "Piaggio Zip",
+    "Peugeot Speedfight",
+    "Derbi Senda",
+  ];
+
+  ghostNames.forEach((name, i) => {
+    const offsetLat = (Math.random() - 0.5) * 0.01;
+    const offsetLng = (Math.random() - 0.5) * 0.01;
+    const ghostPos = {
+      lat: currentPosition.lat + offsetLat,
+      lng: currentPosition.lng + offsetLng,
+    };
+
+    const m = new google.maps.Marker({
+      position: ghostPos,
+      map: map,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 5,
+        fillColor: "#666",
+        fillOpacity: 0.5,
+        strokeColor: "white",
+        strokeWeight: 1,
+      },
+      title: name,
+    });
+
+    const info = new google.maps.InfoWindow({
+      content: `<div style="color:black"><b>${name} [IA]</b><br><small>${ghostBrands[i]}</small></div>`,
+    });
+    m.addListener("click", () => info.open(map, m));
+    communityMarkers.push(m);
+  });
+};
 
 // --- 7. TERRITORY WARS (CREWS) ---
 window.MapSystem = window.MapSystem || {};
 window.MapSystem.territoryShapes = {}; // zipCode -> google.maps.Circle
 
-window.MapSystem.updateTerritoryLayer = function(zipCode, data) {
-    if (!map) return;
-    
-    const color = data.color || '#ffffff';
-    
-    // Si on l'a déjà dessiné, on met juste à jour la couleur
-    if (this.territoryShapes[zipCode]) {
-        this.territoryShapes[zipCode].setOptions({ fillColor: color, strokeColor: color });
-        return;
-    }
-    
-    // Sinon on tente de géocoder le code postal pour trouver le centre de la zone (en France)
-    if (typeof geocoder !== 'undefined' && geocoder) {
-        geocoder.geocode({ address: zipCode + " France" }, (res, status) => {
-            if (status === "OK" && res[0]) {
-                const center = res[0].geometry.location;
-                // Dessiner un grand cercle pour représenter le territoire
-                const circle = new google.maps.Circle({
-                    strokeColor: color,
-                    strokeOpacity: 0.8,
-                    strokeWeight: 2,
-                    fillColor: color,
-                    fillOpacity: 0.35,
-                    map: map,
-                    center: center,
-                    radius: 2000 // 2km radius approximation
-                });
-                
-                // Ajouter une InfoWindow
-                const info = new google.maps.InfoWindow({
-                    content: `<div style="color:black; font-family:'Outfit', sans-serif;">
-                                <h3 style="margin:0; color:${color};"><i class="fa-solid fa-flag"></i> Secteur ${zipCode}</h3>
-                                <p style="margin:5px 0;">Dominé par: <b>${data.dominantCrewName || 'Inconnu'}</b></p>
-                              </div>`
-                });
-                
-                circle.addListener("click", (ev) => {
-                    info.setPosition(ev.latLng);
-                    info.open(map);
-                });
-                
-                this.territoryShapes[zipCode] = circle;
-            }
+window.MapSystem.updateTerritoryLayer = function (zipCode, data) {
+  if (!map) return;
+
+  const color = data.color || "#ffffff";
+
+  // Si on l'a dÃ©jÃ  dessinÃ©, on met juste Ã  jour la couleur
+  if (this.territoryShapes[zipCode]) {
+    this.territoryShapes[zipCode].setOptions({
+      fillColor: color,
+      strokeColor: color,
+    });
+    return;
+  }
+
+  // Sinon on tente de gÃ©ocoder le code postal pour trouver le centre de la zone (en France)
+  if (typeof geocoder !== "undefined" && geocoder) {
+    geocoder.geocode({ address: zipCode + " France" }, (res, status) => {
+      if (status === "OK" && res[0]) {
+        const center = res[0].geometry.location;
+        // Dessiner un grand cercle pour reprÃ©senter le territoire
+        const circle = new google.maps.Circle({
+          strokeColor: color,
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: color,
+          fillOpacity: 0.35,
+          map: map,
+          center: center,
+          radius: 2000, // 2km radius approximation
         });
-    }
+
+        // Ajouter une InfoWindow
+        const info = new google.maps.InfoWindow({
+          content: `<div style="color:black; font-family:'Outfit', sans-serif;">
+                                <h3 style="margin:0; color:${color};"><i class="fa-solid fa-flag"></i> Secteur ${zipCode}</h3>
+                                <p style="margin:5px 0;">DominÃ© par: <b>${data.dominantCrewName || "Inconnu"}</b></p>
+                              </div>`,
+        });
+
+        circle.addListener("click", (ev) => {
+          info.setPosition(ev.latLng);
+          info.open(map);
+        });
+
+        this.territoryShapes[zipCode] = circle;
+      }
+    });
+  }
 };
 
 // Tracking fake de km sur le code postal actuel si en mouvement
 setInterval(() => {
-    // Si on roule, toutes les minutes on ajoute des kms virtuels au territoire actuel
-    if (window.isRiding && window.currentPosition && typeof geocoder !== 'undefined') {
-        geocoder.geocode({ location: window.currentPosition }, (res, status) => {
-            if (status === "OK" && res[0]) {
-                const zipComp = res[0].address_components.find(c => c.types.includes("postal_code"));
-                if (zipComp && window.CrewSystem && window.CrewSystem.currentCrew) {
-                    window.CrewSystem.addKmToTerritory(zipComp.short_name, 0.5); // +0.5 km simulés
-                }
-            }
-        });
-    }
+  // Si on roule, toutes les minutes on ajoute des kms virtuels au territoire actuel
+  if (
+    window.isRiding &&
+    window.currentPosition &&
+    typeof geocoder !== "undefined"
+  ) {
+    geocoder.geocode({ location: window.currentPosition }, (res, status) => {
+      if (status === "OK" && res[0]) {
+        const zipComp = res[0].address_components.find((c) =>
+          c.types.includes("postal_code"),
+        );
+        if (zipComp && window.CrewSystem && window.CrewSystem.currentCrew) {
+          window.CrewSystem.addKmToTerritory(zipComp.short_name, 0.5); // +0.5 km simulÃ©s
+        }
+      }
+    });
+  }
 }, 60000);

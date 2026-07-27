@@ -22,7 +22,21 @@ echo ======================================================================
 echo    SIGNATURE DE L'APP BUNDLE POUR GOOGLE PLAY
 echo ======================================================================
 echo.
-set "KEYPASS=Mon50cc2026!"
+
+REM Sécurité OWASP A02 : Le mot de passe n'est JAMAIS codé en dur.
+REM Il est lu depuis la variable d'environnement MON50CC_KEYSTORE_PASS
+REM ou demandé interactivement à l'utilisateur.
+if defined MON50CC_KEYSTORE_PASS (
+    set "KEYPASS=%MON50CC_KEYSTORE_PASS%"
+    echo [INFO] Mot de passe lu depuis la variable d'environnement.
+) else (
+    set /p KEYPASS="Entrez le mot de passe du keystore : "
+)
+
+if "%KEYPASS%"=="" (
+    echo [ERREUR] Aucun mot de passe fourni. Abandon.
+    exit /b 1
+)
 
 echo.
 echo [INFO] Signature en cours...

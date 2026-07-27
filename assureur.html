@@ -1,299 +1,534 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr-FR" dir="ltr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Portail Expert | mon50ccetmoi</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
     <script src="https://merchant.revolut.com/embed.js" async></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
+
     <script src="js/config.js"></script>
     <script src="js/database.js"></script>
     <script>
-        // Initialiser Firebase et la base de données (db)
-        firebase.initializeApp(CONFIG.FIREBASE);
-        initDatabase();
+      // Initialiser Firebase et la base de données (db)
+      firebase.initializeApp(CONFIG.FIREBASE);
+      initDatabase();
     </script>
-    
+
     <style>
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Inter', monospace;
-            background: #050a15;
-            color: #e2e8f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-image: radial-gradient(circle at 50% -20%, rgba(0, 210, 255, 0.1) 0%, transparent 70%);
-        }
-        .container {
-            width: 100%;
-            max-width: 650px;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(15px);
-            border-radius: 16px;
-            border: 1px solid rgba(0, 210, 255, 0.2);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.1);
-            padding: 40px;
-            box-sizing: border-box;
-            position: relative;
-            overflow: hidden;
-        }
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 4px;
-            background: linear-gradient(90deg, #00d2ff, #ff0055);
-        }
-        h1 {
-            color: #fff;
-            text-align: center;
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Inter", monospace;
+        background: #050a15;
+        color: #e2e8f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-image: radial-gradient(
+          circle at 50% -20%,
+          rgba(0, 210, 255, 0.1) 0%,
+          transparent 70%
+        );
+      }
+      .container {
+        width: 100%;
+        max-width: 650px;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(15px);
+        border-radius: 16px;
+        border: 1px solid rgba(0, 210, 255, 0.2);
+        box-shadow:
+          0 10px 40px rgba(0, 0, 0, 0.8),
+          inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        padding: 40px;
+        box-sizing: border-box;
+        position: relative;
+        overflow: hidden;
+      }
+      .container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #00d2ff, #ff0055);
+      }
+      h1 {
+        color: #fff;
+        text-align: center;
+        margin-bottom: 5px;
+        font-size: 2rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+      }
+      p.subtitle {
+        text-align: center;
+        color: #94a3b8;
+        margin-bottom: 30px;
+      }
+      .search-box {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+      }
+      .search-box input {
+        flex: 1;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        border: 2px solid #1e293b;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-family: monospace;
+        outline: none;
+        transition: all 0.3s;
+      }
+      .search-box input:focus {
+        border-color: #00d2ff;
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+      }
+      .search-box button {
+        background: linear-gradient(135deg, #00d2ff, #0056b3);
+        color: white;
+        border: none;
+        padding: 0 25px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+      }
+      .search-box button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(0, 210, 255, 0.6);
+      }
+
+      .report-options {
+        display: none;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .report-card {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .report-card:hover {
+        border-color: #ffb703;
+        background: rgba(255, 183, 3, 0.05);
+      }
+      .report-card.selected {
+        border-color: #00ffcc;
+        background: rgba(0, 255, 204, 0.1);
+        box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+      }
+      .report-info h3 {
+        margin: 0 0 5px 0;
+        font-size: 1.2rem;
+        color: #fff;
+      }
+      .report-info p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #94a3b8;
+      }
+      .report-price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #00ffcc;
+        text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+      }
+
+      .btn-pay {
+        display: none;
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #b700ff 0%, #ff0055 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-top: 20px;
+        cursor: pointer;
+        text-transform: uppercase;
+        box-shadow: 0 0 20px rgba(183, 0, 255, 0.6);
+        transition: transform 0.2s;
+      }
+      .btn-pay:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(255, 0, 85, 0.8);
+      }
+
+      .status-msg {
+        text-align: center;
+        margin-top: 15px;
+        font-weight: 600;
+        font-family: monospace;
+      }
+      .error {
+        color: #ff3333;
+        text-shadow: 0 0 5px #ff3333;
+      }
+      .success {
+        color: #00ffcc;
+        text-shadow: 0 0 5px #00ffcc;
+      }
+      .info {
+        color: #00d2ff;
+        text-shadow: 0 0 5px #00d2ff;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NOUVEL ÉCRAN DE CONNEXION -->
+    <div id="login-screen" class="container" style="max-width: 450px">
+      <h1><i class="fa-solid fa-lock"></i> Accès B2B</h1>
+      <p class="subtitle">Authentification Expert Requise</p>
+
+      <div style="margin-bottom: 20px">
+        <label
+          style="
+            display: block;
             margin-bottom: 5px;
-            font-size: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
-        }
-        p.subtitle {
-            text-align: center;
             color: #94a3b8;
-            margin-bottom: 30px;
-        }
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-        .search-box input {
-            flex: 1;
+            font-size: 0.9rem;
+          "
+          >Identifiant Agence / Expert</label
+        >
+        <input
+          type="text"
+          id="insurer-username"
+          placeholder="Ex: AXA-PRO-01"
+          style="
+            width: 100%;
             padding: 15px;
-            background: rgba(0,0,0,0.5);
-            color: #fff;
+            background: rgba(0, 0, 0, 0.5);
             border: 2px solid #1e293b;
             border-radius: 8px;
-            font-size: 1.1rem;
-            font-family: monospace;
-            outline: none;
-            transition: all 0.3s;
-        }
-        .search-box input:focus {
-            border-color: #00d2ff;
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
-        }
-        .search-box button {
-            background: linear-gradient(135deg, #00d2ff, #0056b3);
-            color: white;
-            border: none;
-            padding: 0 25px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
-        }
-        .search-box button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(0, 210, 255, 0.6);
-        }
-        
-        .report-options {
-            display: none;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .report-card {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .report-card:hover {
-            border-color: #ffb703;
-            background: rgba(255, 183, 3, 0.05);
-        }
-        .report-card.selected {
-            border-color: #00ffcc;
-            background: rgba(0, 255, 204, 0.1);
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
-        }
-        .report-info h3 {
-            margin: 0 0 5px 0;
-            font-size: 1.2rem;
             color: #fff;
-        }
-        .report-info p {
-            margin: 0;
-            font-size: 0.85rem;
+            font-size: 1.1rem;
+            outline: none;
+            box-sizing: border-box;
+          "
+        />
+      </div>
+
+      <div style="margin-bottom: 20px">
+        <label
+          style="
+            display: block;
+            margin-bottom: 5px;
             color: #94a3b8;
-        }
-        .report-price {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #00ffcc;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
-        }
-        
-        .btn-pay {
-            display: none;
+            font-size: 0.9rem;
+          "
+          >Mot de passe Haute Sécurité</label
+        >
+        <input
+          type="password"
+          id="insurer-password"
+          placeholder="Mot de passe"
+          style="
             width: 100%;
             padding: 15px;
-            background: linear-gradient(135deg, #b700ff 0%, #ff0055 100%);
-            color: #fff;
-            border: none;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #1e293b;
             border-radius: 8px;
+            color: #fff;
             font-size: 1.1rem;
-            font-weight: bold;
-            margin-top: 20px;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 0 0 20px rgba(183,0,255,0.6);
-            transition: transform 0.2s;
-        }
-        .btn-pay:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(255,0,85,0.8);
-        }
-        
-        .status-msg {
-            text-align: center;
-            margin-top: 15px;
-            font-weight: 600;
-            font-family: monospace;
-        }
-        .error { color: #ff3333; text-shadow: 0 0 5px #ff3333; }
-        .success { color: #00ffcc; text-shadow: 0 0 5px #00ffcc; }
-        .info { color: #00d2ff; text-shadow: 0 0 5px #00d2ff; }
-    </style>
-</head>
-<body>
+            outline: none;
+            box-sizing: border-box;
+          "
+          onkeyup="if (event.key === 'Enter') authenticateInsurer();"
+        />
+        <div
+          style="
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 8px;
+            line-height: 1.4;
+          "
+        >
+          <i class="fa-solid fa-shield-halved"></i>
+          <strong>Règles de sécurité :</strong><br />
+          - Minimum 20 caractères<br />
+          - Au moins 1 lettre majuscule<br />
+          - Au moins 1 caractère spécial
+        </div>
+      </div>
 
-    <!-- NOUVEL ÉCRAN DE CONNEXION -->
-    <div id="login-screen" class="container" style="max-width: 450px;">
-        <h1><i class="fa-solid fa-lock"></i> Accès B2B</h1>
-        <p class="subtitle">Authentification Expert Requise</p>
-        
-        <div style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:5px; color:#94a3b8; font-size:0.9rem;">Identifiant Agence / Expert</label>
-            <input type="text" id="insurer-username" placeholder="Ex: AXA-PRO-01" style="width:100%; padding:15px; background:rgba(0,0,0,0.5); border:2px solid #1e293b; border-radius:8px; color:#fff; font-size:1.1rem; outline:none; box-sizing:border-box;">
-        </div>
-        
-        <div style="margin-bottom: 20px;">
-            <label style="display:block; margin-bottom:5px; color:#94a3b8; font-size:0.9rem;">Mot de passe Haute Sécurité</label>
-            <input type="password" id="insurer-password" placeholder="Mot de passe" style="width:100%; padding:15px; background:rgba(0,0,0,0.5); border:2px solid #1e293b; border-radius:8px; color:#fff; font-size:1.1rem; outline:none; box-sizing:border-box;" onkeyup="if(event.key === 'Enter') authenticateInsurer()">
-            <div style="font-size:0.75rem; color:#666; margin-top:8px; line-height:1.4;">
-                <i class="fa-solid fa-shield-halved"></i> <strong>Règles de sécurité :</strong><br>
-                - Minimum 20 caractères<br>
-                - Au moins 1 lettre majuscule<br>
-                - Au moins 1 caractère spécial
-            </div>
-        </div>
-        
-        <button onclick="authenticateInsurer()" class="btn-pay" style="display:block; width:100%;">SE CONNECTER</button>
-        <div id="login-error" class="status-msg error" style="display:none; font-size:0.85rem; margin-top:15px; padding:10px; background:rgba(255,0,0,0.1); border-radius:5px; border:1px solid #ff3333;"></div>
+      <button
+        onclick="authenticateInsurer()"
+        class="btn-pay"
+        style="display: block; width: 100%"
+      >
+        SE CONNECTER
+      </button>
+      <div
+        id="login-error"
+        class="status-msg error"
+        style="
+          display: none;
+          font-size: 0.85rem;
+          margin-top: 15px;
+          padding: 10px;
+          background: rgba(255, 0, 0, 0.1);
+          border-radius: 5px;
+          border: 1px solid #ff3333;
+        "
+      ></div>
     </div>
 
     <!-- CONTENU DU PORTAIL EXPERT (Caché au départ) -->
-    <div id="portal-content" class="container" style="display: none;">
-        <h1><i class="fa-solid fa-shield-halved"></i> Portail Expert</h1>
-        <p class="subtitle">Accès sécurisé aux rapports Blackbox certifiés.</p>
-        
-        <div class="search-box">
-            <input type="text" id="input-case-code" placeholder="Ex: LITIGE-XXXXXX" onkeyup="if(event.key === 'Enter') searchCase()">
-            <button onclick="searchCase()"><i class="fa-solid fa-search"></i> Rechercher</button>
-        </div>
-        
-        <div id="status-display" class="status-msg"></div>
+    <div id="portal-content" class="container" style="display: none">
+      <h1><i class="fa-solid fa-shield-halved"></i> Portail Expert</h1>
+      <p class="subtitle">Accès sécurisé aux rapports Blackbox certifiés.</p>
 
-        <div id="report-options" class="report-options">
-            <div class="report-card" onclick="selectReport('SIMPLE', 49.90)">
-                <div class="report-info">
-                    <h3>Rapport Simple</h3>
-                    <p>Télémétrie de base (Vitesse, GPS).</p>
+      <div class="search-box">
+        <input
+          type="text"
+          id="input-case-code"
+          placeholder="Ex: LITIGE-XXXXXX"
+          onkeyup="if (event.key === 'Enter') searchCase();"
+        />
+        <button onclick="searchCase()">
+          <i class="fa-solid fa-search"></i> Rechercher
+        </button>
+      </div>
+
+      <div id="status-display" class="status-msg"></div>
+
+      <div id="report-options" class="report-options">
+        <div class="report-card" onclick="selectReport('SIMPLE', 49.9)">
+          <div class="report-info">
+            <h3>Rapport Simple</h3>
+            <p>Télémétrie de base (Vitesse, GPS).</p>
+          </div>
+          <div class="report-price">49.90€</div>
+        </div>
+
+        <div class="report-card" onclick="selectReport('INTERMEDIAIRE', 89.99)">
+          <div class="report-info">
+            <h3>Rapport Intermédiaire</h3>
+            <p>Détection de choc, G-Force et inclinaison.</p>
+          </div>
+          <div class="report-price">89.99€</div>
+        </div>
+
+        <div
+          class="report-card selected"
+          onclick="selectReport('EXPERT', 199.99)"
+        >
+          <div class="report-info">
+            <h3>Expertise Complète</h3>
+            <p>Replay 3D certifié, signature SHA-256 et données HF.</p>
+          </div>
+          <div class="report-price">199.99€</div>
+        </div>
+
+        <button id="btn-pay" class="btn-pay" onclick="payReport()">
+          Payer par virement (Revolut) <span id="btn-price">199.99€</span>
+        </button>
+
+        <p
+          style="
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 15px;
+            line-height: 1.4;
+            padding: 0 10px;
+          "
+        >
+          <i class="fa-solid fa-circle-info"></i> Conformément à la législation
+          sur les contenus numériques immatériels, vous renoncez expressément à
+          votre droit de rétractation.
+          <strong
+            >Aucun remboursement ne pourra être exigé après la livraison
+            numérique et le déverrouillage du rapport.</strong
+          >
+        </p>
+      </div>
+
+      <!-- EXPERT DASHBOARD (Hidden until paid) -->
+      <div id="expert-dashboard" style="display: none; margin-top: 20px">
+        <div
+          style="
+            background: #111;
+            color: #00ffcc;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #0056b3;
+            font-family: monospace;
+            position: relative;
+            overflow: hidden;
+          "
+        >
+          <!-- BACKGROUND WATERMARK -->
+          <div
+            style="
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%) rotate(-35deg);
+              font-size: 4rem;
+              font-weight: 800;
+              color: rgba(255, 183, 3, 0.1);
+              white-space: nowrap;
+              pointer-events: none;
+              z-index: 0;
+              text-align: center;
+              line-height: 1.2;
+            "
+          >
+            CERTIFICATION<br />mon50cc.com
+          </div>
+
+          <div style="position: relative; z-index: 1">
+            <h3 style="margin-top: 0; color: #00d2ff">
+              <i class="fa-solid fa-satellite-dish"></i> TÉLÉMÉTRIE BLACKBOX :
+              <span id="telemetry-id"></span>
+            </h3>
+
+            <div style="display: flex; gap: 15px; margin-bottom: 20px">
+              <div
+                style="
+                  flex: 1;
+                  background: #222;
+                  padding: 15px;
+                  border-radius: 6px;
+                  text-align: center;
+                "
+              >
+                <div style="font-size: 0.8rem; color: #aaa">
+                  VITESSE À L'IMPACT
                 </div>
-                <div class="report-price">49.90€</div>
-            </div>
-            
-            <div class="report-card" onclick="selectReport('INTERMEDIAIRE', 89.99)">
-                <div class="report-info">
-                    <h3>Rapport Intermédiaire</h3>
-                    <p>Détection de choc, G-Force et inclinaison.</p>
+                <div
+                  style="font-size: 1.5rem; font-weight: bold; color: #ff3333"
+                  id="telemetry-speed"
+                >
+                  -- km/h
                 </div>
-                <div class="report-price">89.99€</div>
-            </div>
-            
-            <div class="report-card selected" onclick="selectReport('EXPERT', 199.99)">
-                <div class="report-info">
-                    <h3>Expertise Complète</h3>
-                    <p>Replay 3D certifié, signature SHA-256 et données HF.</p>
+              </div>
+              <div
+                style="
+                  flex: 1;
+                  background: #222;
+                  padding: 15px;
+                  border-radius: 6px;
+                  text-align: center;
+                "
+              >
+                <div style="font-size: 0.8rem; color: #aaa">FORCE G (CHOC)</div>
+                <div
+                  style="font-size: 1.5rem; font-weight: bold; color: #ff9900"
+                  id="telemetry-g"
+                >
+                  -- G
                 </div>
-                <div class="report-price">199.99€</div>
+              </div>
+              <div
+                style="
+                  flex: 1;
+                  background: #222;
+                  padding: 15px;
+                  border-radius: 6px;
+                  text-align: center;
+                "
+              >
+                <div style="font-size: 0.8rem; color: #aaa">INCLINAISON</div>
+                <div
+                  style="font-size: 1.5rem; font-weight: bold; color: #00ffcc"
+                  id="telemetry-lean"
+                >
+                  -- °
+                </div>
+              </div>
             </div>
-            
-            <button id="btn-pay" class="btn-pay" onclick="payReport()">
-                Payer par virement (Revolut) <span id="btn-price">199.99€</span>
+
+            <div
+              style="
+                background: #222;
+                padding: 15px;
+                border-radius: 6px;
+                font-size: 0.9rem;
+                line-height: 1.5;
+              "
+            >
+              <div>
+                <i class="fa-solid fa-clock"></i> <strong>Horodatage :</strong>
+                <span id="telemetry-time"></span>
+              </div>
+              <div>
+                <i class="fa-solid fa-location-dot"></i>
+                <strong>Coordonnées GPS :</strong>
+                <span id="telemetry-gps"></span>
+              </div>
+              <div>
+                <i class="fa-solid fa-shield-halved"></i>
+                <strong>Signature Cryptographique (SHA-256) :</strong>
+              </div>
+              <div
+                style="
+                  font-size: 0.7rem;
+                  color: #666;
+                  word-break: break-all;
+                  margin-top: 5px;
+                "
+                id="telemetry-hash"
+              ></div>
+            </div>
+
+            <button
+              onclick="window.print()"
+              style="
+                margin-top: 20px;
+                width: 100%;
+                padding: 12px;
+                background: #00d2ff;
+                color: #000;
+                border: none;
+                border-radius: 6px;
+                font-weight: bold;
+                cursor: pointer;
+              "
+            >
+              <i class="fa-solid fa-file-pdf"></i> Générer l'Attestation
+              Officielle (PDF)
             </button>
-            
-            <p style="font-size: 0.75rem; color: #94a3b8; text-align: center; margin-top: 15px; line-height: 1.4; padding: 0 10px;">
-                <i class="fa-solid fa-circle-info"></i> Conformément à la législation sur les contenus numériques immatériels, vous renoncez expressément à votre droit de rétractation. <strong>Aucun remboursement ne pourra être exigé après la livraison numérique et le déverrouillage du rapport.</strong>
-            </p>
+          </div>
+          <!-- END OF Z-INDEX:1 -->
         </div>
-
-        <!-- EXPERT DASHBOARD (Hidden until paid) -->
-        <div id="expert-dashboard" style="display: none; margin-top: 20px;">
-            <div style="background: #111; color: #00ffcc; padding: 20px; border-radius: 8px; border: 1px solid #0056b3; font-family: monospace; position: relative; overflow: hidden;">
-                
-                <!-- BACKGROUND WATERMARK -->
-                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 4rem; font-weight: 800; color: rgba(255, 183, 3, 0.1); white-space: nowrap; pointer-events: none; z-index: 0; text-align: center; line-height: 1.2;">
-                    CERTIFICATION<br>mon50cc.com
-                </div>
-
-                <div style="position: relative; z-index: 1;">
-                    <h3 style="margin-top: 0; color: #00d2ff;"><i class="fa-solid fa-satellite-dish"></i> TÉLÉMÉTRIE BLACKBOX : <span id="telemetry-id"></span></h3>
-                
-                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-                    <div style="flex: 1; background: #222; padding: 15px; border-radius: 6px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: #aaa;">VITESSE À L'IMPACT</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: #ff3333;" id="telemetry-speed">-- km/h</div>
-                    </div>
-                    <div style="flex: 1; background: #222; padding: 15px; border-radius: 6px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: #aaa;">FORCE G (CHOC)</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: #ff9900;" id="telemetry-g">-- G</div>
-                    </div>
-                    <div style="flex: 1; background: #222; padding: 15px; border-radius: 6px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: #aaa;">INCLINAISON</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: #00ffcc;" id="telemetry-lean">-- °</div>
-                    </div>
-                </div>
-
-                <div style="background: #222; padding: 15px; border-radius: 6px; font-size: 0.9rem; line-height: 1.5;">
-                    <div><i class="fa-solid fa-clock"></i> <strong>Horodatage :</strong> <span id="telemetry-time"></span></div>
-                    <div><i class="fa-solid fa-location-dot"></i> <strong>Coordonnées GPS :</strong> <span id="telemetry-gps"></span></div>
-                    <div><i class="fa-solid fa-shield-halved"></i> <strong>Signature Cryptographique (SHA-256) :</strong></div>
-                    <div style="font-size: 0.7rem; color: #666; word-break: break-all; margin-top: 5px;" id="telemetry-hash"></div>
-                </div>
-
-                <button onclick="window.print()" style="margin-top: 20px; width: 100%; padding: 12px; background: #00d2ff; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
-                    <i class="fa-solid fa-file-pdf"></i> Générer l'Attestation Officielle (PDF)
-                </button>
-                </div> <!-- END OF Z-INDEX:1 -->
-            </div>
-        </div>
-    </div> <!-- Fin portal-content -->
+      </div>
+    </div>
+    <!-- Fin portal-content -->
 
     <script src="js/assureur.js?v=2"></script>
-
-</body>
+  </body>
 </html>

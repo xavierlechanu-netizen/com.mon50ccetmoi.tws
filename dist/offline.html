@@ -1,246 +1,302 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>Signal Perdu — mon 50cc et moi</title>
-    <meta name="theme-color" content="#000000">
-    <link rel="icon" type="image/png" href="/assets/icon-192x192-CsrcJCmh.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer">
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" type="image/png" href="/assets/icon-192x192-CsrcJCmh.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      referrerpolicy="no-referrer"
+    />
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #05080f;
-            color: #fff;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        /* Grid Background */
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: 
-                linear-gradient(rgba(0, 210, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 210, 255, 0.05) 1px, transparent 1px);
-            background-size: 30px 30px;
-            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
-            animation: grid-move 10s linear infinite;
-            z-index: 0;
-            opacity: 0.5;
-        }
-        @keyframes grid-move {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(30px) translateZ(-200px); }
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: #05080f;
+        color: #fff;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+      }
 
-        .container {
-            text-align: center;
-            z-index: 2;
-            padding: 40px;
-            background: rgba(10, 15, 25, 0.8);
-            border: 1px solid rgba(0, 210, 255, 0.3);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 40px rgba(0, 210, 255, 0.1);
-            max-width: 90%;
-            width: 400px;
+      /* Grid Background */
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background:
+          linear-gradient(rgba(0, 210, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 210, 255, 0.05) 1px, transparent 1px);
+        background-size: 30px 30px;
+        transform: perspective(500px) rotateX(60deg) translateY(-100px)
+          translateZ(-200px);
+        animation: grid-move 10s linear infinite;
+        z-index: 0;
+        opacity: 0.5;
+      }
+      @keyframes grid-move {
+        0% {
+          transform: perspective(500px) rotateX(60deg) translateY(0)
+            translateZ(-200px);
         }
+        100% {
+          transform: perspective(500px) rotateX(60deg) translateY(30px)
+            translateZ(-200px);
+        }
+      }
 
-        .radar-container {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 30px;
-        }
+      .container {
+        text-align: center;
+        z-index: 2;
+        padding: 40px;
+        background: rgba(10, 15, 25, 0.8);
+        border: 1px solid rgba(0, 210, 255, 0.3);
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 40px rgba(0, 210, 255, 0.1);
+        max-width: 90%;
+        width: 400px;
+      }
 
-        .radar {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid rgba(0, 210, 255, 0.5);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2), inset 0 0 20px rgba(0, 210, 255, 0.2);
-        }
+      .radar-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 30px;
+      }
 
-        .radar::before {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 100%; height: 100%;
-            background: conic-gradient(from 0deg, transparent 70%, rgba(0, 210, 255, 0.8) 100%);
-            transform-origin: 0 0;
-            animation: scan 2s linear infinite;
-        }
+      .radar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 2px solid rgba(0, 210, 255, 0.5);
+        position: relative;
+        overflow: hidden;
+        box-shadow:
+          0 0 20px rgba(0, 210, 255, 0.2),
+          inset 0 0 20px rgba(0, 210, 255, 0.2);
+      }
 
-        .radar::after {
-            content: '\f1eb';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2rem;
-            color: #00d2ff;
-        }
+      .radar::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        background: conic-gradient(
+          from 0deg,
+          transparent 70%,
+          rgba(0, 210, 255, 0.8) 100%
+        );
+        transform-origin: 0 0;
+        animation: scan 2s linear infinite;
+      }
 
-        @keyframes scan {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+      .radar::after {
+        content: "\f1eb";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2rem;
+        color: #00d2ff;
+      }
 
-        .status-title {
-            font-size: 1.8rem;
-            font-weight: 900;
-            margin-bottom: 10px;
-            color: #00d2ff;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+      @keyframes scan {
+        0% {
+          transform: rotate(0deg);
         }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
-        .status-desc {
-            font-size: 0.95rem;
-            color: #94a3b8;
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
+      .status-title {
+        font-size: 1.8rem;
+        font-weight: 900;
+        margin-bottom: 10px;
+        color: #00d2ff;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
 
-        .ping-status {
-            display: inline-block;
-            background: rgba(0, 210, 255, 0.1);
-            border: 1px solid rgba(0, 210, 255, 0.3);
-            padding: 8px 15px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            color: #00d2ff;
-            font-family: monospace;
-            margin-bottom: 25px;
-        }
+      .status-desc {
+        font-size: 0.95rem;
+        color: #94a3b8;
+        margin-bottom: 25px;
+        line-height: 1.5;
+      }
 
-        .ping-status i {
-            margin-right: 5px;
-            animation: pulse 1.5s infinite;
-        }
+      .ping-status {
+        display: inline-block;
+        background: rgba(0, 210, 255, 0.1);
+        border: 1px solid rgba(0, 210, 255, 0.3);
+        padding: 8px 15px;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        color: #00d2ff;
+        font-family: monospace;
+        margin-bottom: 25px;
+      }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
+      .ping-status i {
+        margin-right: 5px;
+        animation: pulse 1.5s infinite;
+      }
 
-        .btn-retry {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #00d2ff, #0077ff);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.5;
         }
+        50% {
+          opacity: 1;
+        }
+      }
 
-        .btn-retry:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 210, 255, 0.4);
-        }
-        .btn-retry:active { transform: translateY(0); }
+      .btn-retry {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #00d2ff, #0077ff);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
 
-        .scanline {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.2) 51%);
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 10;
-        }
+      .btn-retry:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0, 210, 255, 0.4);
+      }
+      .btn-retry:active {
+        transform: translateY(0);
+      }
+
+      .scanline {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          to bottom,
+          transparent 50%,
+          rgba(0, 0, 0, 0.2) 51%
+        );
+        background-size: 100% 4px;
+        pointer-events: none;
+        z-index: 10;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="scanline"></div>
     <div class="container">
-        <div class="radar-container">
-            <div class="radar"></div>
-        </div>
-        
-        <h1 class="status-title">Liaison Perdue</h1>
-        <p class="status-desc">
-            Vous avez traversé une zone blanche. La télémétrie locale est toujours active en arrière-plan.<br><br>
-            En attente du rétablissement du signal satellite...
-        </p>
+      <div class="radar-container">
+        <div class="radar"></div>
+      </div>
 
-        <div class="ping-status" id="ping-badge">
-            <i class="fa-solid fa-satellite-dish"></i> <span id="ping-text">Recherche de réseau...</span>
-        </div>
+      <h1 class="status-title">Liaison Perdue</h1>
+      <p class="status-desc">
+        Vous avez traversé une zone blanche. La télémétrie locale est toujours
+        active en arrière-plan.<br /><br />
+        En attente du rétablissement du signal satellite...
+      </p>
 
-        <button class="btn-retry" onclick="manualRetry()">
-            <i class="fa-solid fa-rotate-right"></i> Forcer la reconnexion
-        </button>
+      <div class="ping-status" id="ping-badge">
+        <i class="fa-solid fa-satellite-dish"></i>
+        <span id="ping-text">Recherche de réseau...</span>
+      </div>
+
+      <button class="btn-retry" onclick="manualRetry()">
+        <i class="fa-solid fa-rotate-right"></i> Forcer la reconnexion
+      </button>
     </div>
 
     <script>
-        let checkInterval;
-        const pingText = document.getElementById('ping-text');
-        const pingBadge = document.getElementById('ping-badge');
+      let checkInterval;
+      const pingText = document.getElementById("ping-text");
+      const pingBadge = document.getElementById("ping-badge");
 
-        // Check connection by pinging a tiny reliable file
-        async function checkConnection() {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 2000);
-                
-                // Ping favicon to avoid CORS and caching issues (adding timestamp)
-                const res = await fetch('/assets/icons/icon-192x192.png?ping=' + Date.now(), { 
-                    method: 'HEAD',
-                    signal: controller.signal
-                });
-                
-                clearTimeout(timeoutId);
+      // Check connection by pinging a tiny reliable file
+      async function checkConnection() {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-                if (res.ok) {
-                    clearInterval(checkInterval);
-                    pingText.textContent = "Signal rétabli ! Reconnexion...";
-                    pingBadge.style.color = "#00e676";
-                    pingBadge.style.borderColor = "#00e676";
-                    pingBadge.style.background = "rgba(0, 230, 118, 0.1)";
-                    document.querySelector('.radar').style.borderColor = "#00e676";
-                    
-                    // Small delay to let the user see the success state
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                }
-            } catch (error) {
-                // Still offline
-                console.log("Toujours hors ligne...");
-            }
+          // Ping favicon to avoid CORS and caching issues (adding timestamp)
+          const res = await fetch(
+            "/assets/icons/icon-192x192.png?ping=" + Date.now(),
+            {
+              method: "HEAD",
+              signal: controller.signal,
+            },
+          );
+
+          clearTimeout(timeoutId);
+
+          if (res.ok) {
+            clearInterval(checkInterval);
+            pingText.textContent = "Signal rétabli ! Reconnexion...";
+            pingBadge.style.color = "#00e676";
+            pingBadge.style.borderColor = "#00e676";
+            pingBadge.style.background = "rgba(0, 230, 118, 0.1)";
+            document.querySelector(".radar").style.borderColor = "#00e676";
+
+            // Small delay to let the user see the success state
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }
+        } catch (error) {
+          // Still offline
+          console.log("Toujours hors ligne...");
         }
+      }
 
-        function manualRetry() {
-            pingText.textContent = "Tentative manuelle...";
-            checkConnection();
-        }
+      function manualRetry() {
+        pingText.textContent = "Tentative manuelle...";
+        checkConnection();
+      }
 
-        // Auto-check every 3 seconds
-        checkInterval = setInterval(checkConnection, 3000);
+      // Auto-check every 3 seconds
+      checkInterval = setInterval(checkConnection, 3000);
 
-        // Also listen to browser online event for instant reaction
-        window.addEventListener('online', () => {
-            pingText.textContent = "Réseau détecté ! Vérification...";
-            checkConnection();
-        });
+      // Also listen to browser online event for instant reaction
+      window.addEventListener("online", () => {
+        pingText.textContent = "Réseau détecté ! Vérification...";
+        checkConnection();
+      });
     </script>
-</body>
+  </body>
 </html>

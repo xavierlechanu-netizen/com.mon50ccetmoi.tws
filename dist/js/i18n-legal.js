@@ -1,1218 +1,1752 @@
-const I18N_LEGAL = {
-    fr: {
-        privacy_title: "Politique de Confidentialité",
-        privacy_last_update: "Dernière mise à jour : 29 avril 2026",
-        privacy_intro: "L'application <strong>mon50ccetmoi</strong>, opérée par Xavier Le Chanu (SIRET : 891 912 503 00036 | TVA : FR87891912503), s'engage à protéger la vie privée des utilisateurs de sa communauté de scooters 50cc.",
-        privacy_h1: "1. Données collectées et Utilisation",
-        privacy_p1: "Nous collectons les données suivantes pour assurer le bon fonctionnement de l'application. Conformément à l'Article 13 du RGPD, chaque traitement est justifié par une base légale :",
-        privacy_li1: "<span class='highlight'>Position GPS (Précise) :</span> Utilisée pour la navigation, l'odomètre, la détection de chute et le scan juridique.<br><em>Base légale : Consentement. Caractère : Obligatoire pour l'usage de ces modules.</em>",
-        privacy_li2: "<span class='highlight'>Données en arrière-plan :</span> Accès à la position écran éteint indispensable pour vous alerter en cas d'accident.<br><em>Base légale : Consentement (protection vitale). Caractère : Obligatoire pour Guardian Angel.</em>",
-        privacy_li3: "<span class='highlight'>Photos et Métadonnées (Litigation AI) :</span> Traitées pour générer des rapports d'assurance certifiés.<br><em>Base légale : Exécution du contrat. Caractère : Obligatoire pour la création du rapport.</em>",
-        privacy_li4: "<span class='highlight'>Contacts d'Urgence :</span> Sauvegardés localement pour l'envoi de SMS automatiques en cas de chute.<br><em>Base légale : Intérêt légitime (sécurité). Caractère : Facultatif.</em>",
-        privacy_h2: "2. Partage et Transferts des données",
-        privacy_p2: "Vos données de localisation précises ne sont jamais vendues ni cédées à des tiers. Les partages suivants peuvent avoir lieu :",
-        privacy_li_share1: "<span class='highlight'>Signalements de dangers :</span> Partagés anonymement avec la communauté.",
-        privacy_li_share2: "<span class='highlight'>Portail Assureur :</span> Vos rapports de sinistres et photos certifiées ne sont accessibles à votre compagnie d'assurance <strong>que si vous leur fournissez volontairement votre code PIN unique à 6 chiffres</strong>. Sans ce code, aucune donnée de sinistre n'est partagée.",
-        privacy_li_share3: "<span class='highlight'>Transferts hors UE (Google/Firebase) :</span> Pour gérer l'authentification et la base de données sécurisée, nous utilisons les services de Google (Firebase). Vos données d'identification peuvent transiter par des serveurs situés aux États-Unis. Ce transfert est sécurisé et encadré par des garanties appropriées (Clauses Contractuelles Types).",
-        privacy_h3: "3. Conservation des données et Droits RGPD",
-        privacy_p3: "Vos données sont conservées tant que votre compte est actif. Conformément au <strong>Règlement (UE) 2016/679 (RGPD)</strong> et à la <strong>Loi n° 78-17 du 6 janvier 1978 modifiée (Informatique et Libertés)</strong>, vous disposez à tout moment des droits suivants sur vos données personnelles :",
-        privacy_li_right1: "<span class='highlight'>Droit d'accès (Article 15 RGPD) :</span> Obtenir une copie des données que nous détenons sur vous.",
-        privacy_li_right2: "<span class='highlight'>Droit de rectification (Article 16 RGPD) :</span> Corriger des données inexactes ou incomplètes.",
-        privacy_li_right3: "<span class='highlight'>Droit à l'effacement (Article 17 RGPD) :</span> Demander la suppression complète de votre compte et de toutes vos données (faisable directement depuis les paramètres de l'application).",
-        privacy_li_right4: "<span class='highlight'>Droit à la limitation du traitement (Article 18 RGPD) :</span> Geler temporairement l'utilisation de vos données.",
-        privacy_li_right5: "<span class='highlight'>Droit à la portabilité (Article 20 RGPD) :</span> Récupérer vos données dans un format structuré et lisible par machine.",
-        privacy_li_right6: "<span class='highlight'>Droit d'opposition (Article 21 RGPD) :</span> Vous opposer à l'utilisation de vos données à certaines fins.",
-        privacy_h4: "4. Sécurité",
-        privacy_p4: "L'application utilise un chiffrement AES-256 (via CryptoJS) pour le stockage local des rapports sensibles et des sessions utilisateur. L'authentification est assurée par Firebase Authentication (Google) avec support optionnel de la biométrie FIDO2/WebAuthn. Nous mettons en œuvre toutes les mesures techniques et organisationnelles nécessaires pour garantir la sécurité et la confidentialité de vos données conformément à l'<strong>Article 32 du RGPD</strong>.",
-        privacy_h5: "5. Responsable de Traitement et Contact",
-        privacy_p5_1: "Le Responsable de Traitement des données de cette application est Xavier Le Chanu.",
-        privacy_p5_2: "Pour exercer vos droits RGPD, pour toute question concernant cette politique, ou pour contacter notre point de contact unique (utilisateurs et autorités) dans le cadre du DSA, veuillez envoyer un e-mail à : <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Si vous estimez, après nous avoir contactés, que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à la CNIL (cnil.fr).",
-        privacy_h6: "6. Politique des Cookies et Stockage Local",
-        privacy_p6_1: "Pour faire fonctionner l'application (notamment pour vous garder connecté et sauvegarder vos préférences), nous utilisons des \"cookies\" et le stockage local de votre appareil (Local Storage).",
-        privacy_li_cookie1: "<span class='highlight'>Cookies Essentiels :</span> Utilisés par notre fournisseur Firebase pour gérer votre authentification sécurisée.",
-        privacy_li_cookie2: "<span class='highlight'>Stockage Local :</span> Utilisé pour sauvegarder vos réglages (thème, paramètres de la moto) afin que l'application soit prête à l'emploi à chaque ouverture.",
-        privacy_p6_2: "Aucun cookie de ciblage publicitaire intrusif n'est utilisé. En utilisant l'application, vous consentez à l'utilisation de ces cookies essentiels au bon fonctionnement du service.",
-        privacy_h7: "7. Conformité au Règlement Européen sur l'IA (AI Act)",
-        privacy_p7: "Conformément à la législation européenne sur l'Intelligence Artificielle (AI Act), nous tenons à faire preuve d'une transparence totale concernant l'usage de nos algorithmes au sein de l'application :",
-        privacy_li_ai1: "<span class='highlight'>Transparence (Risque Limité) :</span> En utilisant les fonctionnalités <strong>Meca Wizard</strong>, <strong>Pocket Lawyer</strong>, <strong>Litigation AI</strong> et <strong>Oracle Voice</strong>, vous êtes expressément informé que vous interagissez avec des systèmes d'Intelligence Artificielle générative et analytique.",
-        privacy_li_ai2: "<span class='highlight'>Supervision Humaine :</span> Les rapports générés par notre IA (notamment pour les assurances via Litigation AI) et les conseils juridiques/mécaniques sont fournis à titre d'assistance. <strong>Aucune décision automatisée ayant un effet juridique n'est prise sans supervision humaine</strong>. L'utilisateur et l'assureur gardent toujours le pouvoir final de validation.",
-        privacy_li_ai3: "<span class='highlight'>Garantie & Biais :</span> Nos modèles d'apprentissage (\"Self-Evolution Engine\") sont entraînés pour être neutres et sécurisés. Cependant, les conseils fournis par l'IA ne remplacent pas l'expertise d'un professionnel humain assermenté (avocat ou mécanicien certifié).",
-        privacy_h8: "8. Conformité pour les Utilisateurs aux États-Unis (US Privacy Laws)",
-        privacy_p8: "Bien qu'il n'existe pas de loi fédérale unique et globale sur la protection des données aux États-Unis, <strong>mon50ccetmoi</strong> s'engage à respecter les réglementations étatiques et sectorielles applicables :",
-        privacy_li_us1: "<span class='highlight'>Droits des consommateurs (CCPA / CPRA) :</span> Les résidents de Californie bénéficient de droits de confidentialité étendus (droit de savoir, suppression, refus de vente). <strong>Nous confirmons formellement que nous ne vendons aucune donnée personnelle.</strong> L'application est disponible aux États-Unis, mais la 'Boîte noire' matérielle n'y est pas distribuée.",
-        privacy_li_us2: "<span class='highlight'>Protection des mineurs (COPPA) :</span> L'application n'est pas destinée aux enfants. Nous ne collectons pas sciemment de données personnelles auprès de mineurs sans le consentement des parents.",
-        privacy_li_us3: "<span class='highlight'>Santé & Finance (HIPAA / GLBA) :</span> Bien que non soumis strictement à ces lois sectorielles, nous appliquons des standards de chiffrement (AES-256) maximaux pour protéger toute donnée relative à la santé (rythme cardiaque local) ou financière.",
-        privacy_li_us4: "<span class='highlight'>Transparence B2B (Buy American Act & IOR) :</span> Dans le cadre d'un déploiement institutionnel ou de marchés publics aux États-Unis, notre infrastructure logicielle et nos conditions garantissent une transparence totale pour répondre aux obligations de divulgation accrues des importateurs (Importer of Record).",
-        privacy_h9: "9. Conformité pour les Utilisateurs en République Populaire de Chine (PIPL & DSL)",
-        privacy_p9: "Conformément à la Loi sur la protection des informations personnelles (PIPL) et à la Loi sur la sécurité des données (DSL), <strong>mon50ccetmoi</strong> applique des mesures strictes pour les résidents chinois :",
-        privacy_li_cn1: "<span class='highlight'>Transparence et Minimisation :</span> Nous collectons uniquement les données strictement nécessaires au fonctionnement du service, avec le consentement explicite de l'utilisateur.",
-        privacy_li_cn2: "<span class='highlight'>Transferts Transfrontaliers :</span> Les données des utilisateurs sont traitées avec des mécanismes de sécurité robustes pour empêcher toute fuite, et tout transfert éventuel hors de Chine requiert un consentement spécifique.",
-        privacy_li_cn3: "<span class='highlight'>Sécurité des Données (DSL) :</span> Aucune donnée collectée (trajets, sinistres) n'est classifiée comme critique pour la sécurité nationale. Il s'agit de données à usage strictement civil et privé (B2C/B2B).",
-        privacy_h10: "10. Conformité pour les Utilisateurs en Afrique (POPIA & Convention de Malabo)",
-        privacy_p10: "Conformément à la loi POPIA (Afrique du Sud) et aux principes de la Convention de Malabo (Union Africaine), nous nous engageons à protéger les données personnelles de nos utilisateurs africains :",
-        privacy_li_af1: "<span class='highlight'>Responsabilité et Limitation :</span> Vos données GPS ne sont collectées que pour l'usage direct de l'application. Vous gardez le contrôle total sur leur suppression.",
-        privacy_li_af2: "<span class='highlight'>Sécurité :</span> Les données sont chiffrées selon les standards internationaux pour prévenir tout accès non autorisé.",
-        privacy_h11: "11. Sanctions Internationales et Territoires Exclus",
-        privacy_p11: "En raison des réglementations internationales et des sanctions en vigueur, l'application <strong>mon50ccetmoi</strong> n'est ni disponible, ni destinée à être utilisée en <strong>Corée du Nord (RPDC)</strong>. Aucune donnée n'est traitée depuis ce territoire."
-    },
-    en: {
-        privacy_title: "Privacy Policy",
-        privacy_last_update: "Last updated: April 29, 2026",
-        privacy_intro: "The <strong>mon50ccetmoi</strong> application, operated by Xavier Le Chanu (SIRET: 891 912 503 00036 | VAT: FR87891912503), is committed to protecting the privacy of its 50cc scooter community users.",
-        privacy_h1: "1. Data Collected and Usage",
-        privacy_p1: "We collect the following data to ensure the proper functioning of the application. In accordance with Article 13 of the GDPR, each processing is justified by a legal basis:",
-        privacy_li1: "<span class='highlight'>GPS Position (Precise):</span> Used for navigation, odometer, fall detection and legal scan.<br><em>Legal basis: Consent. Nature: Mandatory to use these modules.</em>",
-        privacy_li2: "<span class='highlight'>Background Data:</span> Access to location with screen off, essential for accident alerts.<br><em>Legal basis: Consent (vital protection). Nature: Mandatory for the Guardian Angel module.</em>",
-        privacy_li3: "<span class='highlight'>Photos and Metadata (Litigation AI):</span> Processed to generate certified insurance reports.<br><em>Legal basis: Contract execution. Nature: Mandatory for report creation.</em>",
-        privacy_li4: "<span class='highlight'>Emergency Contacts:</span> Saved locally for automatic SMS in case of a fall.<br><em>Legal basis: Legitimate interest (security). Nature: Optional.</em>",
-        privacy_h2: "2. Data Sharing and Transfers",
-        privacy_p2: "Your precise location data is never sold or transferred to third parties. The following sharing may occur:",
-        privacy_li_share1: "<span class='highlight'>Hazard Reports:</span> Shared anonymously with the community.",
-        privacy_li_share2: "<span class='highlight'>Insurer Portal:</span> Your claim reports and certified photos are only accessible to your insurance company <strong>if you voluntarily provide them your unique 6-digit PIN</strong>. Without this code, no claim data is shared.",
-        privacy_li_share3: "<span class='highlight'>Transfers outside the EU (Google/Firebase):</span> To manage your authentication and secure database, we use Google (Firebase) services. Your identification data may pass through servers located in the United States. This transfer is secure and framed by appropriate safeguards (Standard Contractual Clauses of the European Commission).",
-        privacy_h3: "3. Data Retention and GDPR Rights",
-        privacy_p3: "Your data is retained as long as your account is active. In accordance with the <strong>Regulation (EU) 2016/679 (GDPR)</strong>, you have the following rights over your personal data at any time:",
-        privacy_li_right1: "<span class='highlight'>Right of Access (Article 15 GDPR):</span> Obtain a copy of the data we hold about you.",
-        privacy_li_right2: "<span class='highlight'>Right to Rectification (Article 16 GDPR):</span> Correct inaccurate or incomplete data.",
-        privacy_li_right3: "<span class='highlight'>Right to Erasure (Article 17 GDPR):</span> Request the complete deletion of your account and all your data (doable directly from the app settings).",
-        privacy_li_right4: "<span class='highlight'>Right to Restriction of Processing (Article 18 GDPR):</span> Temporarily freeze the use of your data.",
-        privacy_li_right5: "<span class='highlight'>Right to Data Portability (Article 20 GDPR):</span> Retrieve your data in a structured, machine-readable format.",
-        privacy_li_right6: "<span class='highlight'>Right to Object (Article 21 GDPR):</span> Object to the use of your data for certain purposes.",
-        privacy_h4: "4. Security",
-        privacy_p4: "The application uses AES-256 encryption (via CryptoJS) for local storage of sensitive reports and user sessions. Authentication is provided by Firebase Authentication (Google) with optional support for FIDO2/WebAuthn biometrics. We implement all necessary technical and organizational measures to ensure the security and confidentiality of your data in accordance with <strong>Article 32 of the GDPR</strong>.",
-        privacy_h5: "5. Data Controller and Contact",
-        privacy_p5_1: "The Data Controller for this application is Xavier Le Chanu.",
-        privacy_p5_2: "To exercise your GDPR rights, for any questions regarding this policy, or to contact our single point of contact (users and authorities) under the DSA, please send an email to: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "If you feel, after contacting us, that your rights are not respected, you can submit a complaint to the CNIL (cnil.fr).",
-        privacy_h6: "6. Cookies and Local Storage Policy",
-        privacy_p6_1: "To operate the application (notably to keep you logged in and save your preferences), we use \"cookies\" and your device's local storage.",
-        privacy_li_cookie1: "<span class='highlight'>Essential Cookies:</span> Used by our provider Firebase to manage your secure authentication.",
-        privacy_li_cookie2: "<span class='highlight'>Local Storage:</span> Used to save your settings (theme, motorcycle parameters) so that the application is ready to use every time you open it.",
-        privacy_p6_2: "No intrusive advertising targeting cookies are used. By using the application, you consent to the use of these essential cookies for the proper functioning of the service.",
-        privacy_h7: "7. Compliance with the European AI Act",
-        privacy_p7: "In accordance with the European legislation on Artificial Intelligence (AI Act), we want to demonstrate full transparency regarding the use of our algorithms within the application:",
-        privacy_li_ai1: "<span class='highlight'>Transparency (Limited Risk):</span> By using the <strong>Meca Wizard</strong>, <strong>Pocket Lawyer</strong>, <strong>Litigation AI</strong> and <strong>Oracle Voice</strong> features, you are expressly informed that you are interacting with generative and analytical Artificial Intelligence systems.",
-        privacy_li_ai2: "<span class='highlight'>Human Oversight:</span> Reports generated by our AI (especially for insurance via Litigation AI) and legal/mechanical advice are provided for assistance. <strong>No automated decision with legal effect is taken without human oversight</strong>. The user and the insurer always keep the final validation power.",
-        privacy_li_ai3: "<span class='highlight'>Warranty & Bias:</span> Our learning models (\"Self-Evolution Engine\") are trained to be neutral and secure. However, advice provided by AI does not replace the expertise of a sworn human professional (lawyer or certified mechanic).",
-        privacy_h8: "8. Compliance for Users in the United States (US Privacy Laws)",
-        privacy_p8: "Although there is no single comprehensive federal data protection law in the United States, <strong>mon50ccetmoi</strong> is committed to complying with applicable state and sectoral regulations:",
-        privacy_li_us1: "<span class='highlight'>Consumer Rights (CCPA / CPRA):</span> California residents enjoy extended privacy rights (right to know, deletion, opt-out of sale). <strong>We formally confirm that we do not sell any personal data.</strong> The application is available in the United States, but the hardware 'Black Box' is not distributed there.",
-        privacy_li_us2: "<span class='highlight'>Minors' Protection (COPPA):</span> The application is not intended for children. We do not knowingly collect personal data from minors without parental consent.",
-        privacy_li_us3: "<span class='highlight'>Health & Finance (HIPAA / GLBA):</span> Although not strictly subject to these sectoral laws, we apply maximum encryption standards (AES-256) to protect any health-related (local heart rate) or financial data.",
-        privacy_li_us4: "<span class='highlight'>B2B Transparency (Buy American Act & IOR):</span> In the context of an institutional deployment or public procurement in the United States, our software infrastructure and terms guarantee full transparency to meet the increased disclosure obligations for Importers of Record.",
-        privacy_h9: "9. Compliance for Users in the People's Republic of China (PIPL & DSL)",
-        privacy_p9: "In accordance with the Personal Information Protection Law (PIPL) and the Data Security Law (DSL), <strong>mon50ccetmoi</strong> applies strict measures for Chinese residents:",
-        privacy_li_cn1: "<span class='highlight'>Transparency and Minimization:</span> We only collect data strictly necessary for the service to function, with the explicit consent of the user.",
-        privacy_li_cn2: "<span class='highlight'>Cross-border Transfers:</span> User data is treated with robust security mechanisms to prevent leaks, and any potential transfer outside China requires specific consent.",
-        privacy_li_cn3: "<span class='highlight'>Data Security (DSL):</span> No data collected (trips, claims) is classified as critical for national security. It is strictly civil and private use data (B2C/B2B).",
-        privacy_h10: "10. Compliance for Users in Africa (POPIA & Malabo Convention)",
-        privacy_p10: "In accordance with POPIA (South Africa) and the principles of the Malabo Convention (African Union), we are committed to protecting the personal data of our African users:",
-        privacy_li_af1: "<span class='highlight'>Accountability & Limitation:</span> Your GPS data is collected only for the direct use of the application. You retain full control over its deletion.",
-        privacy_li_af2: "<span class='highlight'>Security:</span> Data is encrypted using international standards to prevent unauthorized access.",
-        privacy_h11: "11. International Sanctions & Excluded Territories",
-        privacy_p11: "Due to international regulations and active sanctions, the <strong>mon50ccetmoi</strong> application is neither available nor intended for use in <strong>North Korea (DPRK)</strong>. No data is processed from this territory."
-    },
-    es: {
-        privacy_title: "Política de Privacidad",
-        privacy_last_update: "Última actualización: 29 de abril de 2026",
-        privacy_intro: "La aplicación <strong>mon50ccetmoi</strong>, operada por Xavier Le Chanu (SIRET: 891 912 503 00036 | IVA: FR87891912503), se compromete a proteger la privacidad de los usuarios de su comunidad de scooters 50cc.",
-        privacy_h1: "1. Datos recopilados y Uso",
-        privacy_p1: "Recopilamos los siguientes datos para garantizar el buen funcionamiento de la aplicación:",
-        privacy_li1: "<span class='highlight'>Posición GPS (Precisa):</span> Utilizada para la navegación, el odómetro, la detección de caídas (Guardian Angel) y el escaneo legal de estacionamiento (Pocket Lawyer).",
-        privacy_li2: "<span class='highlight'>Datos en segundo plano:</span> Si utiliza la navegación o el detector de caídas, la aplicación accede a su ubicación incluso con la pantalla apagada. Esto es esencial para alertarle en caso de accidente.",
-        privacy_li3: "<span class='highlight'>Fotos y Metadatos (Litigation AI):</span> Las fotos tomadas a través de la aplicación para el Portal Experto se procesan para generar informes de seguro certificados. Estas fotos se almacenan de forma segura.",
-        privacy_li4: "<span class='highlight'>Contactos de Emergencia:</span> Los números de teléfono de sus \"Ángeles Guardianes\" se guardan localmente en su dispositivo y solo se utilizan para enviar SMS automáticos en caso de detectar una caída grave.",
-        privacy_h2: "2. Intercambio de datos",
-        privacy_p2: "Sus datos de ubicación precisa nunca se venden ni se ceden a terceros. Puede producirse el siguiente intercambio:",
-        privacy_li_share1: "<span class='highlight'>Reportes de peligro:</span> Compartidos de forma anónima con la comunidad.",
-        privacy_li_share2: "<span class='highlight'>Portal del Asegurador:</span> Sus informes de siniestros y fotos certificadas solo son accesibles para su compañía de seguros <strong>si les proporciona voluntariamente su código PIN único de 6 dígitos</strong>. Sin este código, no se comparten datos.",
-        privacy_h3: "3. Retención de datos y Derechos RGPD",
-        privacy_p3: "Sus datos se conservan mientras su cuenta esté activa. De acuerdo con el <strong>Reglamento (UE) 2016/679 (RGPD)</strong>, tiene en todo momento los siguientes derechos sobre sus datos:",
-        privacy_li_right1: "<span class='highlight'>Derecho de Acceso (Art. 15 RGPD):</span> Obtener una copia de sus datos.",
-        privacy_li_right2: "<span class='highlight'>Derecho de Rectificación (Art. 16 RGPD):</span> Corregir datos inexactos.",
-        privacy_li_right3: "<span class='highlight'>Derecho de Supresión (Art. 17 RGPD):</span> Solicitar la eliminación completa de su cuenta y de todos sus datos.",
-        privacy_li_right4: "<span class='highlight'>Derecho a la Limitación del Tratamiento (Art. 18 RGPD):</span> Congelar temporalmente el uso de sus datos.",
-        privacy_li_right5: "<span class='highlight'>Derecho a la Portabilidad (Art. 20 RGPD):</span> Recuperar sus datos en un formato estructurado.",
-        privacy_li_right6: "<span class='highlight'>Derecho de Oposición (Art. 21 RGPD):</span> Oponerse al uso de sus datos para ciertos fines.",
-        privacy_h4: "4. Seguridad",
-        privacy_p4: "La aplicación utiliza cifrado AES-256 (vía CryptoJS) para el almacenamiento local de informes sensibles. La autenticación está a cargo de Firebase (Google) con soporte opcional de biometría FIDO2/WebAuthn. Implementamos todas las medidas necesarias para garantizar la seguridad de sus datos (Art. 32 del RGPD).",
-        privacy_h5: "5. Responsable del Tratamiento y Contacto",
-        privacy_p5_1: "El Responsable del Tratamiento de datos de esta aplicación es Xavier Le Chanu.",
-        privacy_p5_2: "Para ejercer sus derechos RGPD o para el DSA, envíe un correo a: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Si considera que no se respetan sus derechos, puede presentar una reclamación ante su autoridad local de protección de datos.",
-        privacy_h6: "6. Política de Cookies y Almacenamiento Local",
-        privacy_p6_1: "Para operar la aplicación, utilizamos \"cookies\" y el almacenamiento local de su dispositivo.",
-        privacy_li_cookie1: "<span class='highlight'>Cookies Esenciales:</span> Utilizadas por Firebase para su autenticación segura.",
-        privacy_li_cookie2: "<span class='highlight'>Almacenamiento Local:</span> Utilizado para guardar sus ajustes (tema, parámetros) para que la aplicación esté lista al abrirla.",
-        privacy_p6_2: "No se utilizan cookies publicitarias intrusivas. Al usar la app, consiente el uso de estas cookies esenciales.",
-        privacy_h7: "7. Cumplimiento con el Reglamento Europeo de IA (AI Act)",
-        privacy_p7: "De acuerdo con el Reglamento de Inteligencia Artificial (AI Act), somos transparentes sobre el uso de nuestros algoritmos:",
-        privacy_li_ai1: "<span class='highlight'>Transparencia (Riesgo Limitado):</span> Al usar Meca Wizard, Pocket Lawyer, Litigation AI u Oracle Voice, se le informa que interactúa con IA.",
-        privacy_li_ai2: "<span class='highlight'>Supervisión Humana:</span> Los consejos de la IA son de asistencia. <strong>No se toman decisiones automatizadas con efectos legales sin revisión humana.</strong>",
-        privacy_li_ai3: "<span class='highlight'>Garantía y Sesgo:</span> Nuestros modelos están entrenados para ser neutrales. Sin embargo, no reemplazan a un profesional certificado.",
-        privacy_h8: "8. Cumplimiento para Usuarios en los Estados Unidos (US Privacy Laws)",
-        privacy_p8: "Aunque no hay una ley federal única, respetamos las regulaciones estatales y sectoriales:",
-        privacy_li_us1: "<span class='highlight'>Derechos del consumidor (CCPA / CPRA):</span> Confirmamos formalmente que no vendemos datos personales.",
-        privacy_li_us2: "<span class='highlight'>Protección de menores (COPPA):</span> No recopilamos datos de menores sin consentimiento.",
-        privacy_li_us3: "<span class='highlight'>Salud y Finanzas (HIPAA / GLBA):</span> Aplicamos cifrado máximo (AES-256) para proteger datos de salud (ritmo cardíaco).",
-        privacy_li_us4: "<span class='highlight'>Transparencia B2B (Buy American Act & IOR):</span> Garantizamos transparencia total para obligaciones de importadores.",
-        privacy_h9: "9. Cumplimiento para Usuarios en China (PIPL & DSL)",
-        privacy_p9: "De acuerdo con PIPL y DSL, aplicamos medidas estrictas:",
-        privacy_li_cn1: "<span class='highlight'>Transparencia:</span> Solo recopilamos los datos estrictamente necesarios con consentimiento explícito.",
-        privacy_li_cn2: "<span class='highlight'>Transferencias:</span> Tratamos los datos con mecanismos robustos contra fugas.",
-        privacy_li_cn3: "<span class='highlight'>Seguridad (DSL):</span> Ningún dato recopilado se clasifica como crítico para la seguridad nacional."
-    },
-    it: {
-        privacy_title: "Informativa sulla Privacy",
-        privacy_last_update: "Ultimo aggiornamento: 29 aprile 2026",
-        privacy_intro: "L'applicazione <strong>mon50ccetmoi</strong>, gestita da Xavier Le Chanu, si impegna a proteggere la privacy degli utenti della sua comunità di scooter 50cc.",
-        privacy_h1: "1. Dati raccolti e Utilizzo",
-        privacy_p1: "Raccogliamo i seguenti dati per garantire il corretto funzionamento dell'applicazione:",
-        privacy_li1: "<span class='highlight'>Posizione GPS (Precisa):</span> Utilizzata per la navigazione, rilevamento cadute e Pocket Lawyer.",
-        privacy_li2: "<span class='highlight'>Dati in background:</span> L'app accede alla posizione anche a schermo spento per avvisare in caso di incidente.",
-        privacy_li3: "<span class='highlight'>Foto (Litigation AI):</span> Generate per rapporti assicurativi certificati e archiviate in modo sicuro.",
-        privacy_li4: "<span class='highlight'>Contatti di emergenza:</span> Salvati localmente e usati solo per inviare SMS in caso di caduta grave.",
-        privacy_h2: "2. Condivisione dei dati",
-        privacy_p2: "I tuoi dati di posizione non vengono mai venduti. Le seguenti condivisioni possono verificarsi:",
-        privacy_li_share1: "<span class='highlight'>Segnalazioni pericoli:</span> Condivise in modo anonimo.",
-        privacy_li_share2: "<span class='highlight'>Portale Assicuratore:</span> Accessibile all'assicurazione <strong>solo se fornisci volontariamente il PIN a 6 cifre</strong>.",
-        privacy_h3: "3. Conservazione dei dati e Diritti GDPR",
-        privacy_p3: "Ai sensi del <strong>Regolamento (UE) 2016/679 (GDPR)</strong>, hai i seguenti diritti:",
-        privacy_li_right1: "<span class='highlight'>Diritto di Accesso (Art. 15):</span> Ottenere una copia dei tuoi dati.",
-        privacy_li_right2: "<span class='highlight'>Diritto di Rettifica (Art. 16):</span> Correggere i dati inesatti.",
-        privacy_li_right3: "<span class='highlight'>Diritto alla Cancellazione (Art. 17):</span> Richiedere l'eliminazione completa dell'account.",
-        privacy_li_right4: "<span class='highlight'>Diritto di Limitazione (Art. 18):</span> Congelare l'uso dei tuoi dati.",
-        privacy_li_right5: "<span class='highlight'>Diritto alla Portabilità (Art. 20):</span> Recuperare i tuoi dati in formato strutturato.",
-        privacy_li_right6: "<span class='highlight'>Diritto di Opposizione (Art. 21):</span> Opporti all'uso dei tuoi dati.",
-        privacy_h4: "4. Sicurezza",
-        privacy_p4: "Usiamo la crittografia AES-256 (tramite CryptoJS) per l'archiviazione locale e Firebase Authentication. Implementiamo le misure necessarie (Art. 32 GDPR).",
-        privacy_h5: "5. Titolare del Trattamento e Contatti",
-        privacy_p5_1: "Il Titolare del Trattamento è Xavier Le Chanu.",
-        privacy_p5_2: "Per esercitare i tuoi diritti GDPR, invia un'email a: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Se ritieni che i tuoi diritti non siano rispettati, puoi presentare un reclamo all'autorità locale per la protezione dei dati.",
-        privacy_h6: "6. Politica sui Cookie e Archiviazione Locale",
-        privacy_p6_1: "Utilizziamo cookie essenziali e archiviazione locale per far funzionare l'app.",
-        privacy_li_cookie1: "<span class='highlight'>Cookie Essenziali:</span> Usati da Firebase per l'autenticazione sicura.",
-        privacy_li_cookie2: "<span class='highlight'>Archiviazione Locale:</span> Usata per salvare le tue impostazioni.",
-        privacy_p6_2: "Non vengono utilizzati cookie pubblicitari intrusivi.",
-        privacy_h7: "7. Conformità al Regolamento Europeo sull'IA (AI Act)",
-        privacy_p7: "Nel rispetto della normativa, siamo trasparenti sull'uso dell'IA:",
-        privacy_li_ai1: "<span class='highlight'>Trasparenza:</span> Sei informato che interagisci con IA.",
-        privacy_li_ai2: "<span class='highlight'>Supervisione Umana:</span> <strong>Nessuna decisione legale viene presa senza revisione umana.</strong>",
-        privacy_li_ai3: "<span class='highlight'>Garanzia:</span> L'IA non sostituisce un professionista umano.",
-        privacy_h8: "8. Conformità (Stati Uniti)",
-        privacy_p8: "Rispettiamo le normative statali applicabili:",
-        privacy_li_us1: "<span class='highlight'>CCPA / CPRA:</span> Confermiamo di non vendere dati personali.",
-        privacy_li_us2: "<span class='highlight'>COPPA:</span> Non raccogliamo dati di minori senza consenso.",
-        privacy_li_us3: "<span class='highlight'>HIPAA / GLBA:</span> Applichiamo standard massimi di crittografia.",
-        privacy_li_us4: "<span class='highlight'>Trasparenza B2B:</span> Garantiamo trasparenza totale.",
-        privacy_h9: "9. Conformità (Cina PIPL & DSL)",
-        privacy_p9: "Ai sensi della PIPL e DSL, applichiamo misure rigorose:",
-        privacy_li_cn1: "<span class='highlight'>Trasparenza:</span> Raccogliamo solo i dati necessari.",
-        privacy_li_cn2: "<span class='highlight'>Trasferimenti:</span> Preveniamo attivamente le fughe di dati.",
-        privacy_li_cn3: "<span class='highlight'>Sicurezza:</span> Nessun dato è classificato come critico per la sicurezza nazionale."
-    },
-    de: {
-        privacy_title: "Datenschutzrichtlinie",
-        privacy_last_update: "Letzte Aktualisierung: 29. April 2026",
-        privacy_intro: "Die App <strong>mon50ccetmoi</strong>, betrieben von Xavier Le Chanu, verpflichtet sich, die Privatsphäre der Nutzer ihrer 50cc-Roller-Community zu schützen.",
-        privacy_h1: "1. Gesammelte Daten und Nutzung",
-        privacy_p1: "Wir sammeln folgende Daten für den Betrieb der App:",
-        privacy_li1: "<span class='highlight'>GPS-Position (Präzise):</span> Für Navigation, Sturzerkennung und rechtlichen Park-Scan.",
-        privacy_li2: "<span class='highlight'>Hintergrunddaten:</span> Zugriff auf den Standort auch bei ausgeschaltetem Bildschirm für Notfallwarnungen.",
-        privacy_li3: "<span class='highlight'>Fotos (Litigation AI):</span> Werden sicher für zertifizierte Versicherungsberichte gespeichert.",
-        privacy_li4: "<span class='highlight'>Notfallkontakte:</span> Lokal gespeichert, nur für automatische SMS bei schweren Stürzen verwendet.",
-        privacy_h2: "2. Datenweitergabe",
-        privacy_p2: "Ihre genauen Standortdaten werden niemals verkauft. Folgende Weitergaben können erfolgen:",
-        privacy_li_share1: "<span class='highlight'>Gefahrenmeldungen:</span> Anonym mit der Community geteilt.",
-        privacy_li_share2: "<span class='highlight'>Versicherungsportal:</span> Nur zugänglich, <strong>wenn Sie Ihren 6-stelligen PIN freiwillig weitergeben</strong>.",
-        privacy_h3: "3. Datenspeicherung und DSGVO-Rechte",
-        privacy_p3: "Gemäß <strong>DSGVO</strong> haben Sie folgende Rechte:",
-        privacy_li_right1: "<span class='highlight'>Auskunftsrecht (Art. 15 DSGVO):</span> Kopie Ihrer Daten anfordern.",
-        privacy_li_right2: "<span class='highlight'>Recht auf Berichtigung (Art. 16 DSGVO):</span> Falsche Daten korrigieren.",
-        privacy_li_right3: "<span class='highlight'>Recht auf Löschung (Art. 17 DSGVO):</span> Komplette Löschung des Kontos anfordern.",
-        privacy_li_right4: "<span class='highlight'>Recht auf Einschränkung (Art. 18 DSGVO):</span> Nutzung der Daten einfrieren.",
-        privacy_li_right5: "<span class='highlight'>Recht auf Datenübertragbarkeit (Art. 20 DSGVO):</span> Daten strukturiert erhalten.",
-        privacy_li_right6: "<span class='highlight'>Widerspruchsrecht (Art. 21 DSGVO):</span> Der Nutzung widersprechen.",
-        privacy_h4: "4. Sicherheit",
-        privacy_p4: "Die App verwendet AES-256 Verschlüsselung für lokale Speicherung und Firebase für Authentifizierung (Art. 32 DSGVO).",
-        privacy_h5: "5. Verantwortlicher und Kontakt",
-        privacy_p5_1: "Verantwortlicher ist Xavier Le Chanu.",
-        privacy_p5_2: "Zur Ausübung Ihrer Rechte kontaktieren Sie: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Sie können sich jederzeit an eine Datenschutzbehörde wenden.",
-        privacy_h6: "6. Cookies und lokale Speicherung",
-        privacy_p6_1: "Wir verwenden essenzielle Cookies und lokalen Speicher.",
-        privacy_li_cookie1: "<span class='highlight'>Essenzielle Cookies:</span> Für die sichere Firebase-Authentifizierung.",
-        privacy_li_cookie2: "<span class='highlight'>Lokaler Speicher:</span> Um Ihre Einstellungen zu speichern.",
-        privacy_p6_2: "Es werden keine Werbecookies verwendet.",
-        privacy_h7: "7. KI-Verordnung (AI Act)",
-        privacy_p7: "Gemäß dem AI Act sind wir transparent:",
-        privacy_li_ai1: "<span class='highlight'>Transparenz:</span> Sie interagieren mit KI in bestimmten Modulen.",
-        privacy_li_ai2: "<span class='highlight'>Menschliche Aufsicht:</span> Keine rechtlichen Entscheidungen ohne menschliche Prüfung.",
-        privacy_li_ai3: "<span class='highlight'>Garantie:</span> KI ersetzt keinen zertifizierten Fachmann.",
-        privacy_h8: "8. US-Compliance (CCPA / HIPAA)",
-        privacy_p8: "Wir erfüllen staatliche US-Regeln:",
-        privacy_li_us1: "<span class='highlight'>Verbraucherrechte:</span> Keine Daten werden verkauft.",
-        privacy_li_us2: "<span class='highlight'>Minderjährige:</span> Keine Datenerfassung von Kindern ohne Zustimmung.",
-        privacy_li_us3: "<span class='highlight'>Sicherheit:</span> Maximale Verschlüsselung für sensible Daten.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Volle Transparenz gewährleistet.",
-        privacy_h9: "9. China-Compliance (PIPL & DSL)",
-        privacy_p9: "Wir befolgen PIPL und DSL:",
-        privacy_li_cn1: "<span class='highlight'>Transparenz:</span> Nur absolut notwendige Datenerfassung.",
-        privacy_li_cn2: "<span class='highlight'>Transfers:</span> Strikter Schutz vor Datenlecks.",
-        privacy_li_cn3: "<span class='highlight'>Sicherheit:</span> Keine national sicherheitsrelevanten Daten."
-    },
-    pt: {
-        privacy_title: "Política de Privacidade",
-        privacy_last_update: "Última atualização: 29 de abril de 2026",
-        privacy_intro: "O aplicativo <strong>mon50ccetmoi</strong>, operado por Xavier Le Chanu, compromete-se a proteger a privacidade da sua comunidade de scooters.",
-        privacy_h1: "1. Dados Recolhidos e Utilização",
-        privacy_p1: "Recolhemos os seguintes dados:",
-        privacy_li1: "<span class='highlight'>GPS (Preciso):</span> Para navegação e deteção de quedas.",
-        privacy_li2: "<span class='highlight'>Segundo Plano:</span> Acesso em segundo plano para alertas de acidentes.",
-        privacy_li3: "<span class='highlight'>Fotos (IA):</span> Para relatórios de seguros.",
-        privacy_li4: "<span class='highlight'>Contactos de Emergência:</span> Salvos localmente para SMS de emergência.",
-        privacy_h2: "2. Partilha de Dados",
-        privacy_p2: "Os seus dados nunca são vendidos.",
-        privacy_li_share1: "<span class='highlight'>Perigos:</span> Partilhados de forma anónima.",
-        privacy_li_share2: "<span class='highlight'>Seguradora:</span> Acessível <strong>apenas com o seu PIN de 6 dígitos</strong>.",
-        privacy_h3: "3. Direitos RGPD",
-        privacy_p3: "De acordo com o <strong>RGPD</strong>, tem os seguintes direitos:",
-        privacy_li_right1: "<span class='highlight'>Acesso (Art. 15):</span> Obter uma cópia.",
-        privacy_li_right2: "<span class='highlight'>Retificação (Art. 16):</span> Corrigir dados.",
-        privacy_li_right3: "<span class='highlight'>Apagamento (Art. 17):</span> Eliminar a sua conta.",
-        privacy_li_right4: "<span class='highlight'>Limitação (Art. 18):</span> Congelar os dados.",
-        privacy_li_right5: "<span class='highlight'>Portabilidade (Art. 20):</span> Recuperar os dados.",
-        privacy_li_right6: "<span class='highlight'>Oposição (Art. 21):</span> Opor-se ao uso.",
-        privacy_h4: "4. Segurança",
-        privacy_p4: "Criptografia AES-256 e Firebase Auth (Art. 32 RGPD).",
-        privacy_h5: "5. Contacto",
-        privacy_p5_1: "Responsável: Xavier Le Chanu.",
-        privacy_p5_2: "Email: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Pode apresentar reclamação à autoridade competente.",
-        privacy_h6: "6. Cookies",
-        privacy_p6_1: "Usamos cookies essenciais.",
-        privacy_li_cookie1: "<span class='highlight'>Essenciais:</span> Para autenticação.",
-        privacy_li_cookie2: "<span class='highlight'>Armazenamento Local:</span> Para definições.",
-        privacy_p6_2: "Sem cookies de publicidade.",
-        privacy_h7: "7. IA (AI Act)",
-        privacy_p7: "Transparência total:",
-        privacy_li_ai1: "<span class='highlight'>Transparência:</span> Interação com IA assinalada.",
-        privacy_li_ai2: "<span class='highlight'>Supervisão:</span> Decisões requerem validação humana.",
-        privacy_li_ai3: "<span class='highlight'>Garantia:</span> IA não substitui profissionais.",
-        privacy_h8: "8. EUA",
-        privacy_p8: "Cumprimento das normas dos EUA:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> Não vendemos dados.",
-        privacy_li_us2: "<span class='highlight'>COPPA:</span> Sem dados de menores sem consentimento.",
-        privacy_li_us3: "<span class='highlight'>Segurança:</span> Criptografia máxima.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Transparência total.",
-        privacy_h9: "9. China (PIPL)",
-        privacy_p9: "Conformidade com a PIPL:",
-        privacy_li_cn1: "<span class='highlight'>Minimização:</span> Apenas dados necessários.",
-        privacy_li_cn2: "<span class='highlight'>Transferências:</span> Proteção robusta.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Dados civis e privados."
-    },
-    nl: {
-        privacy_title: "Privacybeleid",
-        privacy_last_update: "Laatst bijgewerkt: 29 april 2026",
-        privacy_intro: "De app <strong>mon50ccetmoi</strong> doet er alles aan om uw privacy te beschermen.",
-        privacy_h1: "1. Gegevens en Gebruik",
-        privacy_p1: "We verzamelen:",
-        privacy_li1: "<span class='highlight'>GPS:</span> Voor navigatie en valdetectie.",
-        privacy_li2: "<span class='highlight'>Achtergrond:</span> Voor noodmeldingen.",
-        privacy_li3: "<span class='highlight'>Foto's:</span> Voor verzekeringsrapporten.",
-        privacy_li4: "<span class='highlight'>Noodcontacten:</span> Lokaal opgeslagen voor SMS.",
-        privacy_h2: "2. Delen van Gegevens",
-        privacy_p2: "Nooit verkocht.",
-        privacy_li_share1: "<span class='highlight'>Gevaren:</span> Anoniem gedeeld.",
-        privacy_li_share2: "<span class='highlight'>Verzekeraar:</span> <strong>Alleen met uw 6-cijferige PIN</strong>.",
-        privacy_h3: "3. AVG / GDPR",
-        privacy_p3: "Uw rechten:",
-        privacy_li_right1: "<span class='highlight'>Inzage:</span> Kopie krijgen.",
-        privacy_li_right2: "<span class='highlight'>Correctie:</span> Aanpassen.",
-        privacy_li_right3: "<span class='highlight'>Verwijdering:</span> Account wissen.",
-        privacy_li_right4: "<span class='highlight'>Beperking:</span> Gebruik bevriezen.",
-        privacy_li_right5: "<span class='highlight'>Portabiliteit:</span> Gegevens ophalen.",
-        privacy_li_right6: "<span class='highlight'>Bezwaar:</span> Bezwaar maken.",
-        privacy_h4: "4. Veiligheid",
-        privacy_p4: "AES-256 encryptie gebruikt.",
-        privacy_h5: "5. Contact",
-        privacy_p5_1: "Verantwoordelijke: Xavier Le Chanu.",
-        privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Klachten bij de Autoriteit Persoonsgegevens.",
-        privacy_h6: "6. Cookies",
-        privacy_p6_1: "Essentiële cookies gebruikt.",
-        privacy_li_cookie1: "<span class='highlight'>Essentieel:</span> Voor login.",
-        privacy_li_cookie2: "<span class='highlight'>Lokaal:</span> Voor instellingen.",
-        privacy_p6_2: "Geen reclame.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "Transparantie over AI:",
-        privacy_li_ai1: "<span class='highlight'>Transparantie:</span> U gebruikt AI.",
-        privacy_li_ai2: "<span class='highlight'>Menselijk:</span> Geen besluiten zonder mens.",
-        privacy_li_ai3: "<span class='highlight'>Garantie:</span> Geen vervanging van experts.",
-        privacy_h8: "8. VS",
-        privacy_p8: "VS wetgeving:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> Geen verkoop.",
-        privacy_li_us2: "<span class='highlight'>COPPA:</span> Geen kinderen.",
-        privacy_li_us3: "<span class='highlight'>Encryptie:</span> Maximaal beveiligd.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Transparant.",
-        privacy_h9: "9. China",
-        privacy_p9: "PIPL naleving:",
-        privacy_li_cn1: "<span class='highlight'>Minimaal:</span> Alleen nodig.",
-        privacy_li_cn2: "<span class='highlight'>Transfer:</span> Veilig.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Niet kritiek."
-    },
-    pl: {
-        privacy_title: "Polityka Prywatności",
-        privacy_last_update: "Ostatnia aktualizacja: 29 kwietnia 2026",
-        privacy_intro: "Aplikacja <strong>mon50ccetmoi</strong> dba o ochronę Twojej prywatności.",
-        privacy_h1: "1. Gromadzone dane",
-        privacy_p1: "Gromadzimy:",
-        privacy_li1: "<span class='highlight'>GPS:</span> Do nawigacji i wykrywania upadków.",
-        privacy_li2: "<span class='highlight'>Tło:</span> Dla alertów awaryjnych.",
-        privacy_li3: "<span class='highlight'>Zdjęcia:</span> Dla raportów ubezpieczeniowych.",
-        privacy_li4: "<span class='highlight'>Kontakty:</span> Lokalnie zapisane dla SMS.",
-        privacy_h2: "2. Udostępnianie",
-        privacy_p2: "Dane nie są sprzedawane.",
-        privacy_li_share1: "<span class='highlight'>Zagrożenia:</span> Anonimowo.",
-        privacy_li_share2: "<span class='highlight'>Ubezpieczyciel:</span> <strong>Tylko z kodem PIN</strong>.",
-        privacy_h3: "3. RODO (GDPR)",
-        privacy_p3: "Twoje prawa:",
-        privacy_li_right1: "<span class='highlight'>Dostęp:</span> Kopia danych.",
-        privacy_li_right2: "<span class='highlight'>Sprostowanie:</span> Poprawa błędów.",
-        privacy_li_right3: "<span class='highlight'>Usunięcie:</span> Usunięcie konta.",
-        privacy_li_right4: "<span class='highlight'>Ograniczenie:</span> Zamrożenie.",
-        privacy_li_right5: "<span class='highlight'>Przenoszenie:</span> Odbiór danych.",
-        privacy_li_right6: "<span class='highlight'>Sprzeciw:</span> Zablokowanie użycia.",
-        privacy_h4: "4. Bezpieczeństwo",
-        privacy_p4: "Szyfrowanie AES-256.",
-        privacy_h5: "5. Kontakt",
-        privacy_p5_1: "Administrator: Xavier Le Chanu.",
-        privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Skargi do organu nadzoru.",
-        privacy_h6: "6. Ciasteczka (Cookies)",
-        privacy_p6_1: "Używamy tylko niezbędnych.",
-        privacy_li_cookie1: "<span class='highlight'>Niezbędne:</span> Do logowania.",
-        privacy_li_cookie2: "<span class='highlight'>Lokalne:</span> Ustawienia.",
-        privacy_p6_2: "Brak reklam.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "Pełna przejrzystość:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> Używasz sztucznej inteligencji.",
-        privacy_li_ai2: "<span class='highlight'>Nadzór:</span> Decyzje weryfikowane przez człowieka.",
-        privacy_li_ai3: "<span class='highlight'>Gwarancja:</span> AI nie zastępuje eksperta.",
-        privacy_h8: "8. USA",
-        privacy_p8: "Zgodność z USA:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> Brak sprzedaży.",
-        privacy_li_us2: "<span class='highlight'>COPPA:</span> Brak nieletnich.",
-        privacy_li_us3: "<span class='highlight'>HIPAA:</span> Szyfrowanie.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Transparentność.",
-        privacy_h9: "9. Chiny",
-        privacy_p9: "Zgodność PIPL:",
-        privacy_li_cn1: "<span class='highlight'>Minimalizacja:</span> Tylko niezbędne.",
-        privacy_li_cn2: "<span class='highlight'>Transfery:</span> Chronione.",
-        privacy_li_cn3: "<span class='highlight'>Bezpieczeństwo:</span> Brak zagrożeń."
-    },
-    zh: {
-        privacy_title: "隐私政策",
-        privacy_last_update: "最后更新：2026年4月29日",
-        privacy_intro: "<strong>mon50ccetmoi</strong> 致力于保护您的隐私。",
-        privacy_h1: "1. 数据收集",
-        privacy_p1: "我们收集：",
-        privacy_li1: "<span class='highlight'>GPS:</span> 导航与跌倒检测。",
-        privacy_li2: "<span class='highlight'>后台:</span> 用于紧急警报。",
-        privacy_li3: "<span class='highlight'>照片:</span> 用于保险报告。",
-        privacy_li4: "<span class='highlight'>联系人:</span> 本地存储用于发送短信。",
-        privacy_h2: "2. 数据共享",
-        privacy_p2: "绝不作销售。",
-        privacy_li_share1: "<span class='highlight'>危险报告:</span> 匿名共享。",
-        privacy_li_share2: "<span class='highlight'>保险公司:</span> <strong>仅在您提供PIN码时可见</strong>。",
-        privacy_h3: "3. GDPR 与您的权利",
-        privacy_p3: "您的权利：",
-        privacy_li_right1: "<span class='highlight'>访问:</span> 获取副本。",
-        privacy_li_right2: "<span class='highlight'>更正:</span> 修改错误。",
-        privacy_li_right3: "<span class='highlight'>删除:</span> 销毁账户。",
-        privacy_li_right4: "<span class='highlight'>限制:</span> 冻结使用。",
-        privacy_li_right5: "<span class='highlight'>迁移:</span> 导出数据。",
-        privacy_li_right6: "<span class='highlight'>拒绝:</span> 反对处理。",
-        privacy_h4: "4. 安全",
-        privacy_p4: "AES-256 加密。",
-        privacy_h5: "5. 联系我们",
-        privacy_p5_1: "负责人: Xavier Le Chanu。",
-        privacy_p5_2: "邮箱: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "可向监管机构投诉。",
-        privacy_h6: "6. Cookies",
-        privacy_p6_1: "仅限必要。",
-        privacy_li_cookie1: "<span class='highlight'>必要:</span> 登录验证。",
-        privacy_li_cookie2: "<span class='highlight'>本地:</span> 偏好设置。",
-        privacy_p6_2: "无广告。",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "AI 透明度：",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> 您正在使用AI服务。",
-        privacy_li_ai2: "<span class='highlight'>人工:</span> 无完全自动化法律决定。",
-        privacy_li_ai3: "<span class='highlight'>提示:</span> AI不能替代专家。",
-        privacy_h8: "8. 美国合规",
-        privacy_p8: "遵守 CCPA 等：",
-        privacy_li_us1: "<span class='highlight'>不销售:</span> 我们不出售数据。",
-        privacy_li_us2: "<span class='highlight'>儿童:</span> 不收集儿童数据。",
-        privacy_li_us3: "<span class='highlight'>加密:</span> 军用级加密。",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> 高透明度。",
-        privacy_h9: "9. 中国 PIPL 合规",
-        privacy_p9: "严格遵守：",
-        privacy_li_cn1: "<span class='highlight'>最小化:</span> 仅限必须数据。",
-        privacy_li_cn2: "<span class='highlight'>传输:</span> 防止泄露。",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> 非国家安全数据。"
-    },
-    ja: {
-        privacy_title: "プライバシーポリシー",
-        privacy_last_update: "最終更新日：2026年4月29日",
-        privacy_intro: "<strong>mon50ccetmoi</strong> はプライバシーの保護に努めています。",
-        privacy_h1: "1. データ収集",
-        privacy_p1: "収集するデータ：",
-        privacy_li1: "<span class='highlight'>GPS:</span> ナビと転倒検知。",
-        privacy_li2: "<span class='highlight'>バックグラウンド:</span> 緊急アラート用。",
-        privacy_li3: "<span class='highlight'>写真:</span> 保険レポート用。",
-        privacy_li4: "<span class='highlight'>連絡先:</span> SMS用のローカル保存。",
-        privacy_h2: "2. データ共有",
-        privacy_p2: "販売はしません。",
-        privacy_li_share1: "<span class='highlight'>危険報告:</span> 匿名で共有。",
-        privacy_li_share2: "<span class='highlight'>保険会社:</span> <strong>PINを提供した場合のみ</strong>。",
-        privacy_h3: "3. GDPRと権利",
-        privacy_p3: "あなたの権利：",
-        privacy_li_right1: "<span class='highlight'>アクセス:</span> コピーの取得。",
-        privacy_li_right2: "<span class='highlight'>訂正:</span> 修正。",
-        privacy_li_right3: "<span class='highlight'>削除:</span> アカウント削除。",
-        privacy_li_right4: "<span class='highlight'>制限:</span> 使用の凍結。",
-        privacy_li_right5: "<span class='highlight'>ポータビリティ:</span> データの抽出。",
-        privacy_li_right6: "<span class='highlight'>拒否:</span> 反対。",
-        privacy_h4: "4. セキュリティ",
-        privacy_p4: "AES-256暗号化。",
-        privacy_h5: "5. 連絡先",
-        privacy_p5_1: "責任者: Xavier Le Chanu。",
-        privacy_p5_2: "メール: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "監督機関に苦情を申し立て可能。",
-        privacy_h6: "6. Cookie",
-        privacy_p6_1: "必須のみ使用。",
-        privacy_li_cookie1: "<span class='highlight'>必須:</span> ログイン用。",
-        privacy_li_cookie2: "<span class='highlight'>ローカル:</span> 設定用。",
-        privacy_p6_2: "広告なし。",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "AIの透明性：",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> AIとやり取りします。",
-        privacy_li_ai2: "<span class='highlight'>人間:</span> 自動決定には人間のチェックが必要。",
-        privacy_li_ai3: "<span class='highlight'>保証:</span> 専門家の代わりにはなりません。",
-        privacy_h8: "8. 米国",
-        privacy_p8: "CCPA等に準拠：",
-        privacy_li_us1: "<span class='highlight'>販売なし:</span> データを販売しません。",
-        privacy_li_us2: "<span class='highlight'>子供:</span> 意図的に収集しません。",
-        privacy_li_us3: "<span class='highlight'>暗号化:</span> 最大の保護。",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> 透明性。",
-        privacy_h9: "9. 中国 PIPL",
-        privacy_p9: "厳格な措置：",
-        privacy_li_cn1: "<span class='highlight'>最小化:</span> 必要なデータのみ。",
-        privacy_li_cn2: "<span class='highlight'>転送:</span> 漏洩防止。",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> 国家安全保障には関係なし。"
-    },
-    no: {
-        privacy_title: "Personvernerklæring",
-        privacy_last_update: "Sist oppdatert: 29. april 2026",
-        privacy_intro: "Appen <strong>mon50ccetmoi</strong> er forpliktet til å beskytte personvernet ditt.",
-        privacy_h1: "1. Datainnsamling",
-        privacy_p1: "Vi samler inn:",
-        privacy_li1: "<span class='highlight'>GPS:</span> For navigasjon og falldeteksjon.",
-        privacy_li2: "<span class='highlight'>Bakgrunn:</span> For nødalarm.",
-        privacy_li3: "<span class='highlight'>Bilder:</span> For forsikringsrapporter.",
-        privacy_li4: "<span class='highlight'>Kontakter:</span> Lagres lokalt for SMS.",
-        privacy_h2: "2. Datadeling",
-        privacy_p2: "Selges aldri.",
-        privacy_li_share1: "<span class='highlight'>Farer:</span> Deles anonymt.",
-        privacy_li_share2: "<span class='highlight'>Forsikring:</span> <strong>Kun hvis du oppgir PIN</strong>.",
-        privacy_h3: "3. GDPR-rettigheter",
-        privacy_p3: "Dine rettigheter:",
-        privacy_li_right1: "<span class='highlight'>Innsyn:</span> Få kopi.",
-        privacy_li_right2: "<span class='highlight'>Retting:</span> Korriger feil.",
-        privacy_li_right3: "<span class='highlight'>Sletting:</span> Slett konto.",
-        privacy_li_right4: "<span class='highlight'>Begrensning:</span> Frys data.",
-        privacy_li_right5: "<span class='highlight'>Portabilitet:</span> Eksporter data.",
-        privacy_li_right6: "<span class='highlight'>Protest:</span> Stopp bruk.",
-        privacy_h4: "4. Sikkerhet",
-        privacy_p4: "AES-256 kryptering.",
-        privacy_h5: "5. Kontakt",
-        privacy_p5_1: "Ansvarlig: Xavier Le Chanu.",
-        privacy_p5_2: "E-post: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Klag til datatilsynet.",
-        privacy_h6: "6. Informasjonskapsler",
-        privacy_p6_1: "Kun essensielle cookies.",
-        privacy_li_cookie1: "<span class='highlight'>Essensielle:</span> For pålogging.",
-        privacy_li_cookie2: "<span class='highlight'>Lokalt:</span> For innstillinger.",
-        privacy_p6_2: "Ingen annonser.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "AI-gjennomsiktighet:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> Du bruker AI.",
-        privacy_li_ai2: "<span class='highlight'>Menneskelig:</span> Sjekkes av mennesker.",
-        privacy_li_ai3: "<span class='highlight'>Garanti:</span> Erstatter ikke eksperter.",
-        privacy_h8: "8. USA",
-        privacy_p8: "USA-kompatibel:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> Selger ikke data.",
-        privacy_li_us2: "<span class='highlight'>Barn:</span> Ingen innsamling.",
-        privacy_li_us3: "<span class='highlight'>Sikkerhet:</span> Kryptert.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Transparent.",
-        privacy_h9: "9. Kina (PIPL)",
-        privacy_p9: "Følger PIPL:",
-        privacy_li_cn1: "<span class='highlight'>Minimering:</span> Kun nødvendig.",
-        privacy_li_cn2: "<span class='highlight'>Overføring:</span> Sikret.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Ikke kritisk data."
-    },
-    ko: {
-        privacy_title: "개인정보 처리방침",
-        privacy_last_update: "최종 업데이트: 2026년 4월 29일",
-        privacy_intro: "<strong>mon50ccetmoi</strong> 앱은 개인정보 보호를 위해 최선을 다합니다.",
-        privacy_h1: "1. 데이터 수집",
-        privacy_p1: "우리가 수집하는 데이터:",
-        privacy_li1: "<span class='highlight'>GPS:</span> 내비게이션 및 낙상 감지.",
-        privacy_li2: "<span class='highlight'>백그라운드:</span> 긴급 알림용.",
-        privacy_li3: "<span class='highlight'>사진:</span> 보험 보고서용.",
-        privacy_li4: "<span class='highlight'>연락처:</span> SMS용 로컬 저장.",
-        privacy_h2: "2. 데이터 공유",
-        privacy_p2: "데이터는 판매되지 않습니다.",
-        privacy_li_share1: "<span class='highlight'>위험 보고:</span> 익명으로 공유.",
-        privacy_li_share2: "<span class='highlight'>보험사:</span> <strong>PIN을 제공한 경우에만</strong>.",
-        privacy_h3: "3. GDPR 권리",
-        privacy_p3: "귀하의 권리:",
-        privacy_li_right1: "<span class='highlight'>접근권:</span> 사본 요청.",
-        privacy_li_right2: "<span class='highlight'>정정권:</span> 오류 수정.",
-        privacy_li_right3: "<span class='highlight'>삭제권:</span> 계정 삭제.",
-        privacy_li_right4: "<span class='highlight'>제한권:</span> 사용 중지.",
-        privacy_li_right5: "<span class='highlight'>이동권:</span> 데이터 내보내기.",
-        privacy_li_right6: "<span class='highlight'>반대권:</span> 처리 거부.",
-        privacy_h4: "4. 보안",
-        privacy_p4: "AES-256 암호화 적용.",
-        privacy_h5: "5. 연락처",
-        privacy_p5_1: "책임자: Xavier Le Chanu.",
-        privacy_p5_2: "이메일: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "감독 기관에 불만 제기 가능.",
-        privacy_h6: "6. 쿠키",
-        privacy_p6_1: "필수 쿠키만 사용.",
-        privacy_li_cookie1: "<span class='highlight'>필수:</span> 로그인 인증용.",
-        privacy_li_cookie2: "<span class='highlight'>로컬:</span> 설정 저장.",
-        privacy_p6_2: "광고 없음.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "AI 투명성:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> AI 시스템을 사용 중입니다.",
-        privacy_li_ai2: "<span class='highlight'>인간 감독:</span> 자동화된 법적 결정 없음.",
-        privacy_li_ai3: "<span class='highlight'>보증:</span> 전문가를 대체하지 않음.",
-        privacy_h8: "8. 미국 규정",
-        privacy_p8: "CCPA 등 준수:",
-        privacy_li_us1: "<span class='highlight'>판매 금지:</span> 데이터를 판매하지 않음.",
-        privacy_li_us2: "<span class='highlight'>아동:</span> 의도적 수집 없음.",
-        privacy_li_us3: "<span class='highlight'>보안:</span> 최고 수준 암호화.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> 투명성 보장.",
-        privacy_h9: "9. 중국 규정 (PIPL)",
-        privacy_p9: "엄격한 준수:",
-        privacy_li_cn1: "<span class='highlight'>최소화:</span> 필수 데이터만 수집.",
-        privacy_li_cn2: "<span class='highlight'>전송:</span> 정보 유출 방지.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> 국가 안보와 무관."
-    },
-    he: {
-        privacy_title: "מדיניות פרטיות",
-        privacy_last_update: "עדכון אחרון: 29 באפריל 2026",
-        privacy_intro: "האפליקציה <strong>mon50ccetmoi</strong> מחויבת להגנה על פרטיותך.",
-        privacy_h1: "1. איסוף נתונים",
-        privacy_p1: "אנו אוספים:",
-        privacy_li1: "<span class='highlight'>GPS:</span> לניווט וזיהוי נפילות.",
-        privacy_li2: "<span class='highlight'>רקע:</span> להתרעות חירום.",
-        privacy_li3: "<span class='highlight'>תמונות:</span> לדוחות ביטוח.",
-        privacy_li4: "<span class='highlight'>אנשי קשר:</span> שמור מקומית ל-SMS.",
-        privacy_h2: "2. שיתוף נתונים",
-        privacy_p2: "הנתונים לעולם לא נמכרים.",
-        privacy_li_share1: "<span class='highlight'>סכנות:</span> משותף באנונימיות.",
-        privacy_li_share2: "<span class='highlight'>ביטוח:</span> <strong>רק עם קוד PIN</strong>.",
-        privacy_h3: "3. זכויות GDPR",
-        privacy_p3: "הזכויות שלך:",
-        privacy_li_right1: "<span class='highlight'>גישה:</span> קבלת עותק.",
-        privacy_li_right2: "<span class='highlight'>תיקון:</span> עדכון נתונים.",
-        privacy_li_right3: "<span class='highlight'>מחיקה:</span> מחיקת חשבון.",
-        privacy_li_right4: "<span class='highlight'>הגבלה:</span> הקפאת שימוש.",
-        privacy_li_right5: "<span class='highlight'>ניידות:</span> ייצוא נתונים.",
-        privacy_li_right6: "<span class='highlight'>התנגדות:</span> עצירת עיבוד.",
-        privacy_h4: "4. אבטחה",
-        privacy_p4: "הצפנת AES-256.",
-        privacy_h5: "5. יצירת קשר",
-        privacy_p5_1: "אחראי: Xavier Le Chanu.",
-        privacy_p5_2: "דוא\"ל: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "ניתן להגיש תלונה לרשות הפיקוח.",
-        privacy_h6: "6. עוגיות",
-        privacy_p6_1: "עוגיות הכרחיות בלבד.",
-        privacy_li_cookie1: "<span class='highlight'>הכרחי:</span> לאימות.",
-        privacy_li_cookie2: "<span class='highlight'>מקומי:</span> להגדרות.",
-        privacy_p6_2: "ללא פרסומות.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "שקיפות AI:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> אתה משתמש ב-AI.",
-        privacy_li_ai2: "<span class='highlight'>פיקוח:</span> נדרש אישור אנושי.",
-        privacy_li_ai3: "<span class='highlight'>אחריות:</span> לא מחליף מומחה.",
-        privacy_h8: "8. ארה\"ב",
-        privacy_p8: "תאימות CCPA:",
-        privacy_li_us1: "<span class='highlight'>אין מכירה:</span> לא מוכרים נתונים.",
-        privacy_li_us2: "<span class='highlight'>ילדים:</span> אין איסוף מילדים.",
-        privacy_li_us3: "<span class='highlight'>אבטחה:</span> מוצפן היטב.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> שקוף.",
-        privacy_h9: "9. סין",
-        privacy_p9: "תאימות PIPL:",
-        privacy_li_cn1: "<span class='highlight'>מינימום:</span> רק מה שצריך.",
-        privacy_li_cn2: "<span class='highlight'>העברה:</span> מאובטחת.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> לא נתונים רגישים."
-    },
-    id: {
-        privacy_title: "Kebijakan Privasi",
-        privacy_last_update: "Terakhir diperbarui: 29 April 2026",
-        privacy_intro: "Aplikasi <strong>mon50ccetmoi</strong> berkomitmen untuk melindungi privasi Anda.",
-        privacy_h1: "1. Pengumpulan Data",
-        privacy_p1: "Kami mengumpulkan:",
-        privacy_li1: "<span class='highlight'>GPS:</span> Untuk navigasi dan deteksi jatuh.",
-        privacy_li2: "<span class='highlight'>Latar Belakang:</span> Untuk peringatan darurat.",
-        privacy_li3: "<span class='highlight'>Foto:</span> Untuk laporan asuransi.",
-        privacy_li4: "<span class='highlight'>Kontak:</span> Disimpan lokal untuk SMS.",
-        privacy_h2: "2. Berbagi Data",
-        privacy_p2: "Tidak pernah dijual.",
-        privacy_li_share1: "<span class='highlight'>Bahaya:</span> Dibagikan secara anonim.",
-        privacy_li_share2: "<span class='highlight'>Asuransi:</span> <strong>Hanya dengan PIN Anda</strong>.",
-        privacy_h3: "3. Hak GDPR",
-        privacy_p3: "Hak Anda:",
-        privacy_li_right1: "<span class='highlight'>Akses:</span> Dapatkan salinan.",
-        privacy_li_right2: "<span class='highlight'>Perbaikan:</span> Koreksi data.",
-        privacy_li_right3: "<span class='highlight'>Penghapusan:</span> Hapus akun.",
-        privacy_li_right4: "<span class='highlight'>Pembatasan:</span> Bekukan data.",
-        privacy_li_right5: "<span class='highlight'>Portabilitas:</span> Ambil data.",
-        privacy_li_right6: "<span class='highlight'>Keberatan:</span> Tolak penggunaan.",
-        privacy_h4: "4. Keamanan",
-        privacy_p4: "Enkripsi AES-256.",
-        privacy_h5: "5. Kontak",
-        privacy_p5_1: "Penanggung Jawab: Xavier Le Chanu.",
-        privacy_p5_2: "Email: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Anda dapat mengadu ke otoritas terkait.",
-        privacy_h6: "6. Cookies",
-        privacy_p6_1: "Hanya yang penting.",
-        privacy_li_cookie1: "<span class='highlight'>Penting:</span> Untuk masuk.",
-        privacy_li_cookie2: "<span class='highlight'>Lokal:</span> Pengaturan.",
-        privacy_p6_2: "Tanpa iklan.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "Transparansi AI:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> Berinteraksi dengan AI.",
-        privacy_li_ai2: "<span class='highlight'>Manusia:</span> Keputusan divalidasi manusia.",
-        privacy_li_ai3: "<span class='highlight'>Garansi:</span> Bukan pengganti ahli.",
-        privacy_h8: "8. AS",
-        privacy_p8: "Kepatuhan AS:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> Tidak ada penjualan.",
-        privacy_li_us2: "<span class='highlight'>COPPA:</span> Tidak ada anak-anak.",
-        privacy_li_us3: "<span class='highlight'>Keamanan:</span> Enkripsi kuat.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Transparan.",
-        privacy_h9: "9. Tiongkok",
-        privacy_p9: "Kepatuhan PIPL:",
-        privacy_li_cn1: "<span class='highlight'>Minimal:</span> Hanya yang diperlukan.",
-        privacy_li_cn2: "<span class='highlight'>Transfer:</span> Dilindungi.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Aman."
-    },
-    hu: {
-        privacy_title: "Adatvédelmi Irányelvek",
-        privacy_last_update: "Utolsó frissítés: 2026. április 29.",
-        privacy_intro: "A <strong>mon50ccetmoi</strong> elkötelezett az Ön magánéletének védelme iránt.",
-        privacy_h1: "1. Adatgyűjtés",
-        privacy_p1: "Ezeket gyűjtjük:",
-        privacy_li1: "<span class='highlight'>GPS:</span> Navigáció és esésérzékelés.",
-        privacy_li2: "<span class='highlight'>Háttér:</span> Vészjelzésekhez.",
-        privacy_li3: "<span class='highlight'>Fotók:</span> Biztosítási jelentésekhez.",
-        privacy_li4: "<span class='highlight'>Névjegyek:</span> Helyi tárolás SMS-hez.",
-        privacy_h2: "2. Adatmegosztás",
-        privacy_p2: "Soha nem adjuk el.",
-        privacy_li_share1: "<span class='highlight'>Veszélyek:</span> Névtelenül osztva.",
-        privacy_li_share2: "<span class='highlight'>Biztosító:</span> <strong>Csak PIN kóddal</strong>.",
-        privacy_h3: "3. GDPR Jogok",
-        privacy_p3: "Az Ön jogai:",
-        privacy_li_right1: "<span class='highlight'>Hozzáférés:</span> Másolat kérése.",
-        privacy_li_right2: "<span class='highlight'>Helyesbítés:</span> Hibák javítása.",
-        privacy_li_right3: "<span class='highlight'>Törlés:</span> Fiók törlése.",
-        privacy_li_right4: "<span class='highlight'>Korlátozás:</span> Fagyasztás.",
-        privacy_li_right5: "<span class='highlight'>Hordozhatóság:</span> Adatok exportálása.",
-        privacy_li_right6: "<span class='highlight'>Tiltakozás:</span> Használat leállítása.",
-        privacy_h4: "4. Biztonság",
-        privacy_p4: "AES-256 titkosítás.",
-        privacy_h5: "5. Kapcsolat",
-        privacy_p5_1: "Felelős: Xavier Le Chanu.",
-        privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Panasztétel a hatóságnál.",
-        privacy_h6: "6. Sütik (Cookies)",
-        privacy_p6_1: "Csak alapvető sütik.",
-        privacy_li_cookie1: "<span class='highlight'>Alapvető:</span> Bejelentkezéshez.",
-        privacy_li_cookie2: "<span class='highlight'>Helyi:</span> Beállításokhoz.",
-        privacy_p6_2: "Nincs reklám.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "AI átláthatóság:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> Mesterséges intelligencia használata.",
-        privacy_li_ai2: "<span class='highlight'>Emberi:</span> Nincs ember nélküli döntés.",
-        privacy_li_ai3: "<span class='highlight'>Garancia:</span> Nem pótolja a szakembert.",
-        privacy_h8: "8. USA",
-        privacy_p8: "USA szabályok:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> Nincs eladás.",
-        privacy_li_us2: "<span class='highlight'>Gyermekek:</span> Nincs adatgyűjtés.",
-        privacy_li_us3: "<span class='highlight'>Biztonság:</span> Titkosított.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Átlátható.",
-        privacy_h9: "9. Kína (PIPL)",
-        privacy_p9: "Szigorú megfelelés:",
-        privacy_li_cn1: "<span class='highlight'>Minimalizálás:</span> Csak a szükséges.",
-        privacy_li_cn2: "<span class='highlight'>Transzfer:</span> Védett.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Nem érzékeny."
-    },
-    hi: {
-        privacy_title: "गोपनीयता नीति",
-        privacy_last_update: "अंतिम अपडेट: 29 अप्रैल 2026",
-        privacy_intro: "<strong>mon50ccetmoi</strong> ऐप आपकी गोपनीयता की रक्षा के लिए प्रतिबद्ध है।",
-        privacy_h1: "1. डेटा संग्रह",
-        privacy_p1: "हम एकत्र करते हैं:",
-        privacy_li1: "<span class='highlight'>GPS:</span> नेविगेशन और गिरावट का पता लगाने के लिए।",
-        privacy_li2: "<span class='highlight'>बैकग्राउंड:</span> आपातकालीन अलर्ट के लिए।",
-        privacy_li3: "<span class='highlight'>तस्वीरें:</span> बीमा रिपोर्ट के लिए।",
-        privacy_li4: "<span class='highlight'>संपर्क:</span> SMS के लिए स्थानीय रूप से सहेजा गया।",
-        privacy_h2: "2. डेटा साझा करना",
-        privacy_p2: "कभी नहीं बेचा जाता।",
-        privacy_li_share1: "<span class='highlight'>खतरे:</span> गुमनाम रूप से साझा किया गया।",
-        privacy_li_share2: "<span class='highlight'>बीमाकर्ता:</span> <strong>केवल आपके 6-अंकीय पिन के साथ</strong>।",
-        privacy_h3: "3. GDPR अधिकार",
-        privacy_p3: "आपके अधिकार:",
-        privacy_li_right1: "<span class='highlight'>पहुंच:</span> कॉपी प्राप्त करें।",
-        privacy_li_right2: "<span class='highlight'>सुधार:</span> गलतियों को ठीक करें।",
-        privacy_li_right3: "<span class='highlight'>हटाना:</span> खाता हटाएं।",
-        privacy_li_right4: "<span class='highlight'>प्रतिबंध:</span> उपयोग रोकें।",
-        privacy_li_right5: "<span class='highlight'>पोर्टेबिलिटी:</span> डेटा प्राप्त करें।",
-        privacy_li_right6: "<span class='highlight'>आपत्ति:</span> उपयोग का विरोध करें।",
-        privacy_h4: "4. सुरक्षा",
-        privacy_p4: "AES-256 एन्क्रिप्शन।",
-        privacy_h5: "5. संपर्क करें",
-        privacy_p5_1: "प्रभारी: ज़ेवियर ले चानू।",
-        privacy_p5_2: "ईमेल: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "आप प्राधिकरण से शिकायत कर सकते हैं।",
-        privacy_h6: "6. कुकीज़",
-        privacy_p6_1: "केवल आवश्यक कुकीज़।",
-        privacy_li_cookie1: "<span class='highlight'>आवश्यक:</span> लॉगिन के लिए।",
-        privacy_li_cookie2: "<span class='highlight'>स्थानीय:</span> सेटिंग्स के लिए।",
-        privacy_p6_2: "कोई विज्ञापन नहीं।",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "AI पारदर्शिता:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> आप AI के साथ बातचीत करते हैं।",
-        privacy_li_ai2: "<span class='highlight'>मानव:</span> निर्णय मानव द्वारा मान्य होते हैं।",
-        privacy_li_ai3: "<span class='highlight'>गारंटी:</span> विशेषज्ञ का विकल्प नहीं।",
-        privacy_h8: "8. USA",
-        privacy_p8: "USA अनुपालन:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> कोई बिक्री नहीं।",
-        privacy_li_us2: "<span class='highlight'>बच्चे:</span> कोई संग्रह नहीं।",
-        privacy_li_us3: "<span class='highlight'>सुरक्षा:</span> एन्क्रिप्टेड।",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> पारदर्शी।",
-        privacy_h9: "9. चीन (PIPL)",
-        privacy_p9: "PIPL अनुपालन:",
-        privacy_li_cn1: "<span class='highlight'>न्यूनीकरण:</span> केवल आवश्यक।",
-        privacy_li_cn2: "<span class='highlight'>स्थानांतरण:</span> संरक्षित।",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> महत्वपूर्ण डेटा नहीं।"
-    },
-    fi: {
-        privacy_title: "Tietosuojakäytäntö",
-        privacy_last_update: "Päivitetty: 29. huhtikuuta 2026",
-        privacy_intro: "<strong>mon50ccetmoi</strong> on sitoutunut suojelemaan yksityisyyttäsi.",
-        privacy_h1: "1. Tiedonkeruu",
-        privacy_p1: "Keräämme:",
-        privacy_li1: "<span class='highlight'>GPS:</span> Navigointiin ja kaatumisen tunnistukseen.",
-        privacy_li2: "<span class='highlight'>Tausta:</span> Hätäilmoituksiin.",
-        privacy_li3: "<span class='highlight'>Kuvat:</span> Vakuutusraportteihin.",
-        privacy_li4: "<span class='highlight'>Yhteystiedot:</span> Tallennetaan paikallisesti SMS-viestejä varten.",
-        privacy_h2: "2. Tietojen jakaminen",
-        privacy_p2: "Ei koskaan myydä.",
-        privacy_li_share1: "<span class='highlight'>Vaarat:</span> Jaetaan nimettömästi.",
-        privacy_li_share2: "<span class='highlight'>Vakuutus:</span> <strong>Vain PIN-koodillasi</strong>.",
-        privacy_h3: "3. GDPR Oikeudet",
-        privacy_p3: "Oikeutesi:",
-        privacy_li_right1: "<span class='highlight'>Pääsy:</span> Hanki kopio.",
-        privacy_li_right2: "<span class='highlight'>Oikaisu:</span> Korjaa virheet.",
-        privacy_li_right3: "<span class='highlight'>Poisto:</span> Poista tili.",
-        privacy_li_right4: "<span class='highlight'>Rajoitus:</span> Jäädytä käyttö.",
-        privacy_li_right5: "<span class='highlight'>Siirrettävyys:</span> Hae tiedot.",
-        privacy_li_right6: "<span class='highlight'>Vastus:</span> Lopeta käsittely.",
-        privacy_h4: "4. Turvallisuus",
-        privacy_p4: "AES-256-salaus.",
-        privacy_h5: "5. Yhteystiedot",
-        privacy_p5_1: "Vastuuhenkilö: Xavier Le Chanu.",
-        privacy_p5_2: "Sähköposti: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Voit tehdä valituksen viranomaiselle.",
-        privacy_h6: "6. Evästeet",
-        privacy_p6_1: "Vain välttämättömät evästeet.",
-        privacy_li_cookie1: "<span class='highlight'>Välttämätön:</span> Kirjautumiseen.",
-        privacy_li_cookie2: "<span class='highlight'>Paikallinen:</span> Asetuksille.",
-        privacy_p6_2: "Ei mainoksia.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "AI-läpinäkyvyys:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> Olet vuorovaikutuksessa AI:n kanssa.",
-        privacy_li_ai2: "<span class='highlight'>Ihminen:</span> Ihmisen vahvistamat päätökset.",
-        privacy_li_ai3: "<span class='highlight'>Takuu:</span> Ei korvaa asiantuntijaa.",
-        privacy_h8: "8. USA",
-        privacy_p8: "CCPA-yhteensopiva:",
-        privacy_li_us1: "<span class='highlight'>Ei myyntiä:</span> Emme myy tietoja.",
-        privacy_li_us2: "<span class='highlight'>Lapset:</span> Ei lasten tietoja.",
-        privacy_li_us3: "<span class='highlight'>Turvallisuus:</span> Salattu.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Läpinäkyvä.",
-        privacy_h9: "9. Kiina (PIPL)",
-        privacy_p9: "PIPL-yhteensopiva:",
-        privacy_li_cn1: "<span class='highlight'>Minimointi:</span> Vain tarvittava.",
-        privacy_li_cn2: "<span class='highlight'>Siirto:</span> Suojattu.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Ei herkkää dataa."
-    },
-    da: {
-        privacy_title: "Privatlivspolitik",
-        privacy_last_update: "Sidst opdateret: 29. april 2026",
-        privacy_intro: "Appen <strong>mon50ccetmoi</strong> er forpligtet til at beskytte dit privatliv.",
-        privacy_h1: "1. Dataindsamling",
-        privacy_p1: "Vi indsamler:",
-        privacy_li1: "<span class='highlight'>GPS:</span> Til navigation og falddetektion.",
-        privacy_li2: "<span class='highlight'>Baggrund:</span> Til nødalarm.",
-        privacy_li3: "<span class='highlight'>Billeder:</span> Til forsikringsrapporter.",
-        privacy_li4: "<span class='highlight'>Kontakter:</span> Gemt lokalt til SMS.",
-        privacy_h2: "2. Datadeling",
-        privacy_p2: "Sælges aldrig.",
-        privacy_li_share1: "<span class='highlight'>Farer:</span> Deles anonymt.",
-        privacy_li_share2: "<span class='highlight'>Forsikring:</span> <strong>Kun med din PIN-kode</strong>.",
-        privacy_h3: "3. GDPR Rettigheder",
-        privacy_p3: "Dine rettigheder:",
-        privacy_li_right1: "<span class='highlight'>Indsigt:</span> Få en kopi.",
-        privacy_li_right2: "<span class='highlight'>Rettelse:</span> Ret fejl.",
-        privacy_li_right3: "<span class='highlight'>Sletning:</span> Slet konto.",
-        privacy_li_right4: "<span class='highlight'>Begrænsning:</span> Frys data.",
-        privacy_li_right5: "<span class='highlight'>Portabilitet:</span> Eksporter data.",
-        privacy_li_right6: "<span class='highlight'>Indsigelse:</span> Stop brug.",
-        privacy_h4: "4. Sikkerhed",
-        privacy_p4: "AES-256 kryptering.",
-        privacy_h5: "5. Kontakt",
-        privacy_p5_1: "Ansvarlig: Xavier Le Chanu.",
-        privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Du kan klage til tilsynsmyndigheden.",
-        privacy_h6: "6. Cookies",
-        privacy_p6_1: "Kun nødvendige cookies.",
-        privacy_li_cookie1: "<span class='highlight'>Nødvendig:</span> Til login.",
-        privacy_li_cookie2: "<span class='highlight'>Lokal:</span> Til indstillinger.",
-        privacy_p6_2: "Ingen annoncer.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "AI gennemsigtighed:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> Du bruger AI.",
-        privacy_li_ai2: "<span class='highlight'>Menneskelig:</span> Tjekkes af mennesker.",
-        privacy_li_ai3: "<span class='highlight'>Garanti:</span> Erstatter ikke eksperter.",
-        privacy_h8: "8. USA",
-        privacy_p8: "USA-kompatibel:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> Ingen salg af data.",
-        privacy_li_us2: "<span class='highlight'>Børn:</span> Ingen indsamling.",
-        privacy_li_us3: "<span class='highlight'>Sikkerhed:</span> Krypteret.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Transparent.",
-        privacy_h9: "9. Kina (PIPL)",
-        privacy_p9: "Følger PIPL:",
-        privacy_li_cn1: "<span class='highlight'>Minimering:</span> Kun nødvendigt.",
-        privacy_li_cn2: "<span class='highlight'>Overførsel:</span> Sikret.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Ikke kritisk data."
-    },
-    ro: {
-        privacy_title: "Politica de Confidențialitate",
-        privacy_last_update: "Ultima actualizare: 29 aprilie 2026",
-        privacy_intro: "Aplicația <strong>mon50ccetmoi</strong> se angajează să vă protejeze confidențialitatea.",
-        privacy_h1: "1. Colectarea datelor",
-        privacy_p1: "Colectăm:",
-        privacy_li1: "<span class='highlight'>GPS:</span> Pentru navigație și detectarea căderilor.",
-        privacy_li2: "<span class='highlight'>Fundal:</span> Pentru alerte de urgență.",
-        privacy_li3: "<span class='highlight'>Fotografii:</span> Pentru rapoarte de asigurare.",
-        privacy_li4: "<span class='highlight'>Contacte:</span> Salvate local pentru SMS.",
-        privacy_h2: "2. Partajarea datelor",
-        privacy_p2: "Nu sunt vândute niciodată.",
-        privacy_li_share1: "<span class='highlight'>Pericole:</span> Partajate anonim.",
-        privacy_li_share2: "<span class='highlight'>Asigurător:</span> <strong>Doar cu codul dvs. PIN</strong>.",
-        privacy_h3: "3. Drepturi GDPR",
-        privacy_p3: "Drepturile dvs.:",
-        privacy_li_right1: "<span class='highlight'>Acces:</span> Obțineți o copie.",
-        privacy_li_right2: "<span class='highlight'>Rectificare:</span> Corectați greșelile.",
-        privacy_li_right3: "<span class='highlight'>Ștergere:</span> Ștergeți contul.",
-        privacy_li_right4: "<span class='highlight'>Restricționare:</span> Înghețați datele.",
-        privacy_li_right5: "<span class='highlight'>Portabilitate:</span> Exportați datele.",
-        privacy_li_right6: "<span class='highlight'>Opoziție:</span> Opriți utilizarea.",
-        privacy_h4: "4. Securitate",
-        privacy_p4: "Criptare AES-256.",
-        privacy_h5: "5. Contact",
-        privacy_p5_1: "Responsabil: Xavier Le Chanu.",
-        privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Puteți depune o plângere la autoritate.",
-        privacy_h6: "6. Cookie-uri",
-        privacy_p6_1: "Doar cele esențiale.",
-        privacy_li_cookie1: "<span class='highlight'>Esențial:</span> Pentru autentificare.",
-        privacy_li_cookie2: "<span class='highlight'>Local:</span> Pentru setări.",
-        privacy_p6_2: "Fără reclame.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "Transparență AI:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> Interacționați cu AI.",
-        privacy_li_ai2: "<span class='highlight'>Uman:</span> Decizii validate uman.",
-        privacy_li_ai3: "<span class='highlight'>Garanție:</span> Nu înlocuiește expertul.",
-        privacy_h8: "8. SUA",
-        privacy_p8: "Conformitate SUA:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> Fără vânzări.",
-        privacy_li_us2: "<span class='highlight'>Copii:</span> Fără colectare.",
-        privacy_li_us3: "<span class='highlight'>Securitate:</span> Criptat.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Transparent.",
-        privacy_h9: "9. China (PIPL)",
-        privacy_p9: "Conform PIPL:",
-        privacy_li_cn1: "<span class='highlight'>Minimizare:</span> Doar necesar.",
-        privacy_li_cn2: "<span class='highlight'>Transfer:</span> Securizat.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Nu e critic."
-    },
-    sk: {
-        privacy_title: "Zásady Ochrany Osobných Údajov",
-        privacy_last_update: "Posledná aktualizácia: 29. apríla 2026",
-        privacy_intro: "Aplikácia <strong>mon50ccetmoi</strong> sa zaviazala chrániť vaše súkromie.",
-        privacy_h1: "1. Zber Dát",
-        privacy_p1: "Zhromažďujeme:",
-        privacy_li1: "<span class='highlight'>GPS:</span> Pre navigáciu a detekciu pádu.",
-        privacy_li2: "<span class='highlight'>Pozadie:</span> Pre núdzové upozornenia.",
-        privacy_li3: "<span class='highlight'>Fotky:</span> Pre poistné udalosti.",
-        privacy_li4: "<span class='highlight'>Kontakty:</span> Uložené lokálne pre SMS.",
-        privacy_h2: "2. Zdieľanie Dát",
-        privacy_p2: "Nikdy sa nepredávajú.",
-        privacy_li_share1: "<span class='highlight'>Nebezpečenstvá:</span> Zdieľané anonymne.",
-        privacy_li_share2: "<span class='highlight'>Poisťovňa:</span> <strong>Len s vaším PIN kódom</strong>.",
-        privacy_h3: "3. Práva GDPR",
-        privacy_p3: "Vaše práva:",
-        privacy_li_right1: "<span class='highlight'>Prístup:</span> Získajte kópiu.",
-        privacy_li_right2: "<span class='highlight'>Oprava:</span> Opravte chyby.",
-        privacy_li_right3: "<span class='highlight'>Vymazanie:</span> Zmažte účet.",
-        privacy_li_right4: "<span class='highlight'>Obmedzenie:</span> Zmrazte údaje.",
-        privacy_li_right5: "<span class='highlight'>Prenosnosť:</span> Exportujte dáta.",
-        privacy_li_right6: "<span class='highlight'>Námietka:</span> Zastavte použitie.",
-        privacy_h4: "4. Bezpečnosť",
-        privacy_p4: "Šifrovanie AES-256.",
-        privacy_h5: "5. Kontakt",
-        privacy_p5_1: "Zodpovedná osoba: Xavier Le Chanu.",
-        privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Môžete podať sťažnosť na úrad.",
-        privacy_h6: "6. Cookies",
-        privacy_p6_1: "Len nevyhnutné súbory cookie.",
-        privacy_li_cookie1: "<span class='highlight'>Nevyhnutné:</span> Pre prihlásenie.",
-        privacy_li_cookie2: "<span class='highlight'>Lokálne:</span> Pre nastavenia.",
-        privacy_p6_2: "Žiadne reklamy.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "Transparentnosť AI:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> Používate umelú inteligenciu.",
-        privacy_li_ai2: "<span class='highlight'>Ľudský:</span> Rozhodnutia overujú ľudia.",
-        privacy_li_ai3: "<span class='highlight'>Záruka:</span> Nenahrádza experta.",
-        privacy_h8: "8. USA",
-        privacy_p8: "V súlade s CCPA:",
-        privacy_li_us1: "<span class='highlight'>Zákaz predaja:</span> Nepredávame údaje.",
-        privacy_li_us2: "<span class='highlight'>Deti:</span> Nezhromažďujeme údaje.",
-        privacy_li_us3: "<span class='highlight'>Bezpečnosť:</span> Šifrované.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Transparentné.",
-        privacy_h9: "9. Čína (PIPL)",
-        privacy_p9: "V súlade s PIPL:",
-        privacy_li_cn1: "<span class='highlight'>Minimalizácia:</span> Len to nevyhnutné.",
-        privacy_li_cn2: "<span class='highlight'>Prenos:</span> Zabezpečené.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Nie citlivé."
-    },
-    sv: {
-        privacy_title: "Integritetspolicy",
-        privacy_last_update: "Senast uppdaterad: 29 april 2026",
-        privacy_intro: "Appen <strong>mon50ccetmoi</strong> har åtagit sig att skydda din integritet.",
-        privacy_h1: "1. Datainsamling",
-        privacy_p1: "Vi samlar in:",
-        privacy_li1: "<span class='highlight'>GPS:</span> För navigering och falldetektering.",
-        privacy_li2: "<span class='highlight'>Bakgrund:</span> För nödlarm.",
-        privacy_li3: "<span class='highlight'>Foton:</span> För försäkringsrapporter.",
-        privacy_li4: "<span class='highlight'>Kontakter:</span> Spara lokalt för SMS.",
-        privacy_h2: "2. Datadelning",
-        privacy_p2: "Säljs aldrig.",
-        privacy_li_share1: "<span class='highlight'>Faror:</span> Delas anonymt.",
-        privacy_li_share2: "<span class='highlight'>Försäkring:</span> <strong>Endast med din PIN-kod</strong>.",
-        privacy_h3: "3. GDPR-rättigheter",
-        privacy_p3: "Dina rättigheter:",
-        privacy_li_right1: "<span class='highlight'>Tillgång:</span> Få en kopia.",
-        privacy_li_right2: "<span class='highlight'>Rättelse:</span> Rätta fel.",
-        privacy_li_right3: "<span class='highlight'>Radering:</span> Radera konto.",
-        privacy_li_right4: "<span class='highlight'>Begränsning:</span> Frys data.",
-        privacy_li_right5: "<span class='highlight'>Portabilitet:</span> Exportera data.",
-        privacy_li_right6: "<span class='highlight'>Invändning:</span> Stoppa användning.",
-        privacy_h4: "4. Säkerhet",
-        privacy_p4: "AES-256-kryptering.",
-        privacy_h5: "5. Kontakt",
-        privacy_p5_1: "Ansvarig: Xavier Le Chanu.",
-        privacy_p5_2: "E-post: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Du kan klaga till datainspektionen.",
-        privacy_h6: "6. Cookies",
-        privacy_p6_1: "Endast viktiga cookies.",
-        privacy_li_cookie1: "<span class='highlight'>Viktiga:</span> För inloggning.",
-        privacy_li_cookie2: "<span class='highlight'>Lokala:</span> För inställningar.",
-        privacy_p6_2: "Inga annonser.",
-        privacy_h7: "7. AI Act",
-        privacy_p7: "AI-transparens:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> Du interagerar med AI.",
-        privacy_li_ai2: "<span class='highlight'>Människa:</span> Mänsklig validering krävs.",
-        privacy_li_ai3: "<span class='highlight'>Garanti:</span> Ersätter inte experter.",
-        privacy_h8: "8. USA",
-        privacy_p8: "USA-kompatibel:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> Ingen försäljning.",
-        privacy_li_us2: "<span class='highlight'>Barn:</span> Ingen insamling.",
-        privacy_li_us3: "<span class='highlight'>Säkerhet:</span> Krypterat.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Transparent.",
-        privacy_h9: "9. Kina (PIPL)",
-        privacy_p9: "Följer PIPL:",
-        privacy_li_cn1: "<span class='highlight'>Minimering:</span> Endast nödvändigt.",
-        privacy_li_cn2: "<span class='highlight'>Överföring:</span> Säkrad.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Inte kritisk data."
-    },
-    th: {
-        privacy_title: "นโยบายความเป็นส่วนตัว",
-        privacy_last_update: "อัปเดตล่าสุด: 29 เมษายน 2026",
-        privacy_intro: "แอป <strong>mon50ccetmoi</strong> มุ่งมั่นที่จะปกป้องความเป็นส่วนตัวของคุณ",
-        privacy_h1: "1. การเก็บข้อมูล",
-        privacy_p1: "เราเก็บรวบรวม:",
-        privacy_li1: "<span class='highlight'>GPS:</span> สำหรับการนำทางและตรวจจับการล้ม",
-        privacy_li2: "<span class='highlight'>พื้นหลัง:</span> สำหรับการแจ้งเตือนฉุกเฉิน",
-        privacy_li3: "<span class='highlight'>รูปภาพ:</span> สำหรับรายงานประกันภัย",
-        privacy_li4: "<span class='highlight'>รายชื่อติดต่อ:</span> บันทึกในเครื่องเพื่อส่ง SMS",
-        privacy_h2: "2. การแบ่งปันข้อมูล",
-        privacy_p2: "ไม่เคยถูกขาย",
-        privacy_li_share1: "<span class='highlight'>อันตราย:</span> แบ่งปันโดยไม่ระบุชื่อ",
-        privacy_li_share2: "<span class='highlight'>ประกันภัย:</span> <strong>เฉพาะเมื่อคุณให้ PIN</strong>",
-        privacy_h3: "3. สิทธิ์ GDPR",
-        privacy_p3: "สิทธิ์ของคุณ:",
-        privacy_li_right1: "<span class='highlight'>การเข้าถึง:</span> รับสำเนา",
-        privacy_li_right2: "<span class='highlight'>การแก้ไข:</span> แก้ไขข้อผิดพลาด",
-        privacy_li_right3: "<span class='highlight'>การลบ:</span> ลบบัญชี",
-        privacy_li_right4: "<span class='highlight'>การจำกัด:</span> ระงับข้อมูล",
-        privacy_li_right5: "<span class='highlight'>การพกพา:</span> ส่งออกข้อมูล",
-        privacy_li_right6: "<span class='highlight'>คัดค้าน:</span> หยุดการใช้งาน",
-        privacy_h4: "4. ความปลอดภัย",
-        privacy_p4: "การเข้ารหัส AES-256",
-        privacy_h5: "5. ติดต่อ",
-        privacy_p5_1: "ผู้รับผิดชอบ: Xavier Le Chanu",
-        privacy_p5_2: "อีเมล: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "คุณสามารถร้องเรียนต่อหน่วยงานได้",
-        privacy_h6: "6. คุกกี้",
-        privacy_p6_1: "เฉพาะคุกกี้ที่จำเป็น",
-        privacy_li_cookie1: "<span class='highlight'>จำเป็น:</span> สำหรับการเข้าสู่ระบบ",
-        privacy_li_cookie2: "<span class='highlight'>ในเครื่อง:</span> สำหรับการตั้งค่า",
-        privacy_p6_2: "ไม่มีโฆษณา",
-        privacy_h7: "7. พ.ร.บ. AI",
-        privacy_p7: "ความโปร่งใสของ AI:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> คุณโต้ตอบกับ AI",
-        privacy_li_ai2: "<span class='highlight'>มนุษย์:</span> ตรวจสอบโดยมนุษย์",
-        privacy_li_ai3: "<span class='highlight'>การรับประกัน:</span> ไม่แทนที่ผู้เชี่ยวชาญ",
-        privacy_h8: "8. สหรัฐอเมริกา",
-        privacy_p8: "การปฏิบัติตามของสหรัฐฯ:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> ไม่มีการขายข้อมูล",
-        privacy_li_us2: "<span class='highlight'>เด็ก:</span> ไม่มีการเก็บข้อมูลเด็ก",
-        privacy_li_us3: "<span class='highlight'>ความปลอดภัย:</span> เข้ารหัส",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> โปร่งใส",
-        privacy_h9: "9. จีน (PIPL)",
-        privacy_p9: "สอดคล้องกับ PIPL:",
-        privacy_li_cn1: "<span class='highlight'>ย่อขนาด:</span> เฉพาะที่จำเป็น",
-        privacy_li_cn2: "<span class='highlight'>โอน:</span> ป้องกันแล้ว",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> ไม่ใช่ข้อมูลสำคัญ"
-    },
-    tr: {
-        privacy_title: "Gizlilik Politikası",
-        privacy_last_update: "Son güncelleme: 29 Nisan 2026",
-        privacy_intro: "<strong>mon50ccetmoi</strong> uygulaması gizliliğinizi korumaya kararlıdır.",
-        privacy_h1: "1. Veri Toplama",
-        privacy_p1: "Topladıklarımız:",
-        privacy_li1: "<span class='highlight'>GPS:</span> Navigasyon ve düşme tespiti için.",
-        privacy_li2: "<span class='highlight'>Arka Plan:</span> Acil durum uyarıları için.",
-        privacy_li3: "<span class='highlight'>Fotoğraflar:</span> Sigorta raporları için.",
-        privacy_li4: "<span class='highlight'>Kişiler:</span> SMS için yerel olarak kaydedilir.",
-        privacy_h2: "2. Veri Paylaşımı",
-        privacy_p2: "Asla satılmaz.",
-        privacy_li_share1: "<span class='highlight'>Tehlikeler:</span> Anonim olarak paylaşılır.",
-        privacy_li_share2: "<span class='highlight'>Sigortacı:</span> <strong>Yalnızca PIN'inizle</strong>.",
-        privacy_h3: "3. GDPR Hakları",
-        privacy_p3: "Haklarınız:",
-        privacy_li_right1: "<span class='highlight'>Erişim:</span> Bir kopya alın.",
-        privacy_li_right2: "<span class='highlight'>Düzeltme:</span> Hataları düzeltin.",
-        privacy_li_right3: "<span class='highlight'>Silme:</span> Hesabı silin.",
-        privacy_li_right4: "<span class='highlight'>Kısıtlama:</span> Verileri dondurun.",
-        privacy_li_right5: "<span class='highlight'>Taşınabilirlik:</span> Verileri dışa aktarın.",
-        privacy_li_right6: "<span class='highlight'>İtiraz:</span> Kullanımı durdurun.",
-        privacy_h4: "4. Güvenlik",
-        privacy_p4: "AES-256 şifreleme.",
-        privacy_h5: "5. İletişim",
-        privacy_p5_1: "Sorumlu: Xavier Le Chanu.",
-        privacy_p5_2: "E-posta: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Yetkili kuruma şikayette bulunabilirsiniz.",
-        privacy_h6: "6. Çerezler",
-        privacy_p6_1: "Yalnızca temel çerezler.",
-        privacy_li_cookie1: "<span class='highlight'>Temel:</span> Oturum açmak için.",
-        privacy_li_cookie2: "<span class='highlight'>Yerel:</span> Ayarlar için.",
-        privacy_p6_2: "Reklam yok.",
-        privacy_h7: "7. AI Yasası",
-        privacy_p7: "Yapay Zeka Şeffaflığı:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> Yapay zeka kullanıyorsunuz.",
-        privacy_li_ai2: "<span class='highlight'>İnsan:</span> Kararlar insan onaylıdır.",
-        privacy_li_ai3: "<span class='highlight'>Garanti:</span> Uzmanın yerini tutmaz.",
-        privacy_h8: "8. ABD",
-        privacy_p8: "ABD uyumluluğu:",
-        privacy_li_us1: "<span class='highlight'>CCPA:</span> Satış yok.",
-        privacy_li_us2: "<span class='highlight'>Çocuklar:</span> Veri toplanmaz.",
-        privacy_li_us3: "<span class='highlight'>Güvenlik:</span> Şifrelenmiş.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Şeffaf.",
-        privacy_h9: "9. Çin (PIPL)",
-        privacy_p9: "PIPL'ye uygun:",
-        privacy_li_cn1: "<span class='highlight'>Küçültme:</span> Yalnızca gerekli olanlar.",
-        privacy_li_cn2: "<span class='highlight'>Aktarım:</span> Korumalı.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Kritik veri değil."
-    },
-    cs: {
-        privacy_title: "Zásady ochrany osobních údajů",
-        privacy_last_update: "Poslední aktualizace: 29. dubna 2026",
-        privacy_intro: "Aplikace <strong>mon50ccetmoi</strong> se zavázala chránit vaše soukromí.",
-        privacy_h1: "1. Sběr dat",
-        privacy_p1: "Shromažďujeme:",
-        privacy_li1: "<span class='highlight'>GPS:</span> Pro navigaci a detekci pádu.",
-        privacy_li2: "<span class='highlight'>Pozadí:</span> Pro nouzová upozornění.",
-        privacy_li3: "<span class='highlight'>Fotky:</span> Pro zprávy o pojištění.",
-        privacy_li4: "<span class='highlight'>Kontakty:</span> Uloženo lokálně pro SMS.",
-        privacy_h2: "2. Sdílení dat",
-        privacy_p2: "Nikdy se neprodává.",
-        privacy_li_share1: "<span class='highlight'>Nebezpečí:</span> Sdíleno anonymně.",
-        privacy_li_share2: "<span class='highlight'>Pojišťovna:</span> <strong>Pouze s vaším PINem</strong>.",
-        privacy_h3: "3. Práva GDPR",
-        privacy_p3: "Vaše práva:",
-        privacy_li_right1: "<span class='highlight'>Přístup:</span> Získejte kopii.",
-        privacy_li_right2: "<span class='highlight'>Oprava:</span> Opravte chyby.",
-        privacy_li_right3: "<span class='highlight'>Výmaz:</span> Smažte účet.",
-        privacy_li_right4: "<span class='highlight'>Omezení:</span> Zmrazte data.",
-        privacy_li_right5: "<span class='highlight'>Přenositelnost:</span> Exportujte data.",
-        privacy_li_right6: "<span class='highlight'>Námitka:</span> Zastavte zpracování.",
-        privacy_h4: "4. Bezpečnost",
-        privacy_p4: "Šifrování AES-256.",
-        privacy_h5: "5. Kontakt",
-        privacy_p5_1: "Odpovědná osoba: Xavier Le Chanu.",
-        privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
-        privacy_p5_3: "Můžete podat stížnost úřadu.",
-        privacy_h6: "6. Cookies",
-        privacy_p6_1: "Pouze nezbytné cookies.",
-        privacy_li_cookie1: "<span class='highlight'>Nezbytné:</span> Pro přihlášení.",
-        privacy_li_cookie2: "<span class='highlight'>Lokální:</span> Pro nastavení.",
-        privacy_p6_2: "Žádné reklamy.",
-        privacy_h7: "7. Zákon o AI",
-        privacy_p7: "Transparentnost AI:",
-        privacy_li_ai1: "<span class='highlight'>AI:</span> Používáte umělou inteligenci.",
-        privacy_li_ai2: "<span class='highlight'>Lidský:</span> Rozhodnutí schvalují lidé.",
-        privacy_li_ai3: "<span class='highlight'>Záruka:</span> Nenahrazuje odborníka.",
-        privacy_h8: "8. USA",
-        privacy_p8: "V souladu s CCPA:",
-        privacy_li_us1: "<span class='highlight'>Zákaz prodeje:</span> Neprodáváme data.",
-        privacy_li_us2: "<span class='highlight'>Děti:</span> Neshromažďujeme data.",
-        privacy_li_us3: "<span class='highlight'>Bezpečnost:</span> Šifrováno.",
-        privacy_li_us4: "<span class='highlight'>B2B:</span> Transparentní.",
-        privacy_h9: "9. Čína (PIPL)",
-        privacy_p9: "V souladu s PIPL:",
-        privacy_li_cn1: "<span class='highlight'>Minimalizace:</span> Jen to nutné.",
-        privacy_li_cn2: "<span class='highlight'>Přenos:</span> Zabezpečeno.",
-        privacy_li_cn3: "<span class='highlight'>DSL:</span> Není kritické."
-    }
+﻿const I18N_LEGAL = {
+  fr: {
+    privacy_title: "Politique de ConfidentialitÃ©",
+    privacy_last_update: "DerniÃ¨re mise Ã  jour : 29 avril 2026",
+    privacy_intro:
+      "L'application <strong>mon50ccetmoi</strong>, opÃ©rÃ©e par Xavier Le Chanu (SIRET : 891 912 503 00036 | TVA : FR87891912503), s'engage Ã  protÃ©ger la vie privÃ©e des utilisateurs de sa communautÃ© de scooters 50cc.",
+    privacy_h1: "1. DonnÃ©es collectÃ©es et Utilisation",
+    privacy_p1:
+      "Nous collectons les donnÃ©es suivantes pour assurer le bon fonctionnement de l'application. ConformÃ©ment Ã  l'Article 13 du RGPD, chaque traitement est justifiÃ© par une base lÃ©gale :",
+    privacy_li1:
+      "<span class='highlight'>Position GPS (PrÃ©cise) :</span> UtilisÃ©e pour la navigation, l'odomÃ¨tre, la dÃ©tection de chute et le scan juridique.<br><em>Base lÃ©gale : Consentement. CaractÃ¨re : Obligatoire pour l'usage de ces modules.</em>",
+    privacy_li2:
+      "<span class='highlight'>DonnÃ©es en arriÃ¨re-plan :</span> AccÃ¨s Ã  la position Ã©cran Ã©teint indispensable pour vous alerter en cas d'accident.<br><em>Base lÃ©gale : Consentement (protection vitale). CaractÃ¨re : Obligatoire pour Guardian Angel.</em>",
+    privacy_li3:
+      "<span class='highlight'>Photos et MÃ©tadonnÃ©es (Litigation AI) :</span> TraitÃ©es pour gÃ©nÃ©rer des rapports d'assurance certifiÃ©s.<br><em>Base lÃ©gale : ExÃ©cution du contrat. CaractÃ¨re : Obligatoire pour la crÃ©ation du rapport.</em>",
+    privacy_li4:
+      "<span class='highlight'>Contacts d'Urgence :</span> SauvegardÃ©s localement pour l'envoi de SMS automatiques en cas de chute.<br><em>Base lÃ©gale : IntÃ©rÃªt lÃ©gitime (sÃ©curitÃ©). CaractÃ¨re : Facultatif.</em>",
+    privacy_h2: "2. Partage et Transferts des donnÃ©es",
+    privacy_p2:
+      "Vos donnÃ©es de localisation prÃ©cises ne sont jamais vendues ni cÃ©dÃ©es Ã  des tiers. Les partages suivants peuvent avoir lieu :",
+    privacy_li_share1:
+      "<span class='highlight'>Signalements de dangers :</span> PartagÃ©s anonymement avec la communautÃ©.",
+    privacy_li_share2:
+      "<span class='highlight'>Portail Assureur :</span> Vos rapports de sinistres et photos certifiÃ©es ne sont accessibles Ã  votre compagnie d'assurance <strong>que si vous leur fournissez volontairement votre code PIN unique Ã  6 chiffres</strong>. Sans ce code, aucune donnÃ©e de sinistre n'est partagÃ©e.",
+    privacy_li_share3:
+      "<span class='highlight'>Transferts hors UE (Google/Firebase) :</span> Pour gÃ©rer l'authentification et la base de donnÃ©es sÃ©curisÃ©e, nous utilisons les services de Google (Firebase). Vos donnÃ©es d'identification peuvent transiter par des serveurs situÃ©s aux Ã‰tats-Unis. Ce transfert est sÃ©curisÃ© et encadrÃ© par des garanties appropriÃ©es (Clauses Contractuelles Types).",
+    privacy_h3: "3. Conservation des donnÃ©es et Droits RGPD",
+    privacy_p3:
+      "Vos donnÃ©es sont conservÃ©es tant que votre compte est actif. ConformÃ©ment au <strong>RÃ¨glement (UE) 2016/679 (RGPD)</strong> et Ã  la <strong>Loi nÂ° 78-17 du 6 janvier 1978 modifiÃ©e (Informatique et LibertÃ©s)</strong>, vous disposez Ã  tout moment des droits suivants sur vos donnÃ©es personnelles :",
+    privacy_li_right1:
+      "<span class='highlight'>Droit d'accÃ¨s (Article 15 RGPD) :</span> Obtenir une copie des donnÃ©es que nous dÃ©tenons sur vous.",
+    privacy_li_right2:
+      "<span class='highlight'>Droit de rectification (Article 16 RGPD) :</span> Corriger des donnÃ©es inexactes ou incomplÃ¨tes.",
+    privacy_li_right3:
+      "<span class='highlight'>Droit Ã  l'effacement (Article 17 RGPD) :</span> Demander la suppression complÃ¨te de votre compte et de toutes vos donnÃ©es (faisable directement depuis les paramÃ¨tres de l'application).",
+    privacy_li_right4:
+      "<span class='highlight'>Droit Ã  la limitation du traitement (Article 18 RGPD) :</span> Geler temporairement l'utilisation de vos donnÃ©es.",
+    privacy_li_right5:
+      "<span class='highlight'>Droit Ã  la portabilitÃ© (Article 20 RGPD) :</span> RÃ©cupÃ©rer vos donnÃ©es dans un format structurÃ© et lisible par machine.",
+    privacy_li_right6:
+      "<span class='highlight'>Droit d'opposition (Article 21 RGPD) :</span> Vous opposer Ã  l'utilisation de vos donnÃ©es Ã  certaines fins.",
+    privacy_h4: "4. SÃ©curitÃ©",
+    privacy_p4:
+      "L'application utilise un chiffrement AES-256 (via CryptoJS) pour le stockage local des rapports sensibles et des sessions utilisateur. L'authentification est assurÃ©e par Firebase Authentication (Google) avec support optionnel de la biomÃ©trie FIDO2/WebAuthn. Nous mettons en Å“uvre toutes les mesures techniques et organisationnelles nÃ©cessaires pour garantir la sÃ©curitÃ© et la confidentialitÃ© de vos donnÃ©es conformÃ©ment Ã  l'<strong>Article 32 du RGPD</strong>.",
+    privacy_h5: "5. Responsable de Traitement et Contact",
+    privacy_p5_1:
+      "Le Responsable de Traitement des donnÃ©es de cette application est Xavier Le Chanu.",
+    privacy_p5_2:
+      "Pour exercer vos droits RGPD, pour toute question concernant cette politique, ou pour contacter notre point de contact unique (utilisateurs et autoritÃ©s) dans le cadre du DSA, veuillez envoyer un e-mail Ã  : <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3:
+      "Si vous estimez, aprÃ¨s nous avoir contactÃ©s, que vos droits ne sont pas respectÃ©s, vous pouvez adresser une rÃ©clamation Ã  la CNIL (cnil.fr).",
+    privacy_h6: "6. Politique des Cookies et Stockage Local",
+    privacy_p6_1:
+      'Pour faire fonctionner l\'application (notamment pour vous garder connectÃ© et sauvegarder vos prÃ©fÃ©rences), nous utilisons des "cookies" et le stockage local de votre appareil (Local Storage).',
+    privacy_li_cookie1:
+      "<span class='highlight'>Cookies Essentiels :</span> UtilisÃ©s par notre fournisseur Firebase pour gÃ©rer votre authentification sÃ©curisÃ©e.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Stockage Local :</span> UtilisÃ© pour sauvegarder vos rÃ©glages (thÃ¨me, paramÃ¨tres de la moto) afin que l'application soit prÃªte Ã  l'emploi Ã  chaque ouverture.",
+    privacy_p6_2:
+      "Aucun cookie de ciblage publicitaire intrusif n'est utilisÃ©. En utilisant l'application, vous consentez Ã  l'utilisation de ces cookies essentiels au bon fonctionnement du service.",
+    privacy_h7: "7. ConformitÃ© au RÃ¨glement EuropÃ©en sur l'IA (AI Act)",
+    privacy_p7:
+      "ConformÃ©ment Ã  la lÃ©gislation europÃ©enne sur l'Intelligence Artificielle (AI Act), nous tenons Ã  faire preuve d'une transparence totale concernant l'usage de nos algorithmes au sein de l'application :",
+    privacy_li_ai1:
+      "<span class='highlight'>Transparence (Risque LimitÃ©) :</span> En utilisant les fonctionnalitÃ©s <strong>Meca Wizard</strong>, <strong>Pocket Lawyer</strong>, <strong>Litigation AI</strong> et <strong>Oracle Voice</strong>, vous Ãªtes expressÃ©ment informÃ© que vous interagissez avec des systÃ¨mes d'Intelligence Artificielle gÃ©nÃ©rative et analytique.",
+    privacy_li_ai2:
+      "<span class='highlight'>Supervision Humaine :</span> Les rapports gÃ©nÃ©rÃ©s par notre IA (notamment pour les assurances via Litigation AI) et les conseils juridiques/mÃ©caniques sont fournis Ã  titre d'assistance. <strong>Aucune dÃ©cision automatisÃ©e ayant un effet juridique n'est prise sans supervision humaine</strong>. L'utilisateur et l'assureur gardent toujours le pouvoir final de validation.",
+    privacy_li_ai3:
+      "<span class='highlight'>Garantie & Biais :</span> Nos modÃ¨les d'apprentissage (\"Self-Evolution Engine\") sont entraÃ®nÃ©s pour Ãªtre neutres et sÃ©curisÃ©s. Cependant, les conseils fournis par l'IA ne remplacent pas l'expertise d'un professionnel humain assermentÃ© (avocat ou mÃ©canicien certifiÃ©).",
+    privacy_h8:
+      "8. ConformitÃ© pour les Utilisateurs aux Ã‰tats-Unis (US Privacy Laws)",
+    privacy_p8:
+      "Bien qu'il n'existe pas de loi fÃ©dÃ©rale unique et globale sur la protection des donnÃ©es aux Ã‰tats-Unis, <strong>mon50ccetmoi</strong> s'engage Ã  respecter les rÃ©glementations Ã©tatiques et sectorielles applicables :",
+    privacy_li_us1:
+      "<span class='highlight'>Droits des consommateurs (CCPA / CPRA) :</span> Les rÃ©sidents de Californie bÃ©nÃ©ficient de droits de confidentialitÃ© Ã©tendus (droit de savoir, suppression, refus de vente). <strong>Nous confirmons formellement que nous ne vendons aucune donnÃ©e personnelle.</strong> L'application est disponible aux Ã‰tats-Unis, mais la 'BoÃ®te noire' matÃ©rielle n'y est pas distribuÃ©e.",
+    privacy_li_us2:
+      "<span class='highlight'>Protection des mineurs (COPPA) :</span> L'application n'est pas destinÃ©e aux enfants. Nous ne collectons pas sciemment de donnÃ©es personnelles auprÃ¨s de mineurs sans le consentement des parents.",
+    privacy_li_us3:
+      "<span class='highlight'>SantÃ© & Finance (HIPAA / GLBA) :</span> Bien que non soumis strictement Ã  ces lois sectorielles, nous appliquons des standards de chiffrement (AES-256) maximaux pour protÃ©ger toute donnÃ©e relative Ã  la santÃ© (rythme cardiaque local) ou financiÃ¨re.",
+    privacy_li_us4:
+      "<span class='highlight'>Transparence B2B (Buy American Act & IOR) :</span> Dans le cadre d'un dÃ©ploiement institutionnel ou de marchÃ©s publics aux Ã‰tats-Unis, notre infrastructure logicielle et nos conditions garantissent une transparence totale pour rÃ©pondre aux obligations de divulgation accrues des importateurs (Importer of Record).",
+    privacy_h9:
+      "9. ConformitÃ© pour les Utilisateurs en RÃ©publique Populaire de Chine (PIPL & DSL)",
+    privacy_p9:
+      "ConformÃ©ment Ã  la Loi sur la protection des informations personnelles (PIPL) et Ã  la Loi sur la sÃ©curitÃ© des donnÃ©es (DSL), <strong>mon50ccetmoi</strong> applique des mesures strictes pour les rÃ©sidents chinois :",
+    privacy_li_cn1:
+      "<span class='highlight'>Transparence et Minimisation :</span> Nous collectons uniquement les donnÃ©es strictement nÃ©cessaires au fonctionnement du service, avec le consentement explicite de l'utilisateur.",
+    privacy_li_cn2:
+      "<span class='highlight'>Transferts Transfrontaliers :</span> Les donnÃ©es des utilisateurs sont traitÃ©es avec des mÃ©canismes de sÃ©curitÃ© robustes pour empÃªcher toute fuite, et tout transfert Ã©ventuel hors de Chine requiert un consentement spÃ©cifique.",
+    privacy_li_cn3:
+      "<span class='highlight'>SÃ©curitÃ© des DonnÃ©es (DSL) :</span> Aucune donnÃ©e collectÃ©e (trajets, sinistres) n'est classifiÃ©e comme critique pour la sÃ©curitÃ© nationale. Il s'agit de donnÃ©es Ã  usage strictement civil et privÃ© (B2C/B2B).",
+    privacy_h10:
+      "10. ConformitÃ© pour les Utilisateurs en Afrique (POPIA & Convention de Malabo)",
+    privacy_p10:
+      "ConformÃ©ment Ã  la loi POPIA (Afrique du Sud) et aux principes de la Convention de Malabo (Union Africaine), nous nous engageons Ã  protÃ©ger les donnÃ©es personnelles de nos utilisateurs africains :",
+    privacy_li_af1:
+      "<span class='highlight'>ResponsabilitÃ© et Limitation :</span> Vos donnÃ©es GPS ne sont collectÃ©es que pour l'usage direct de l'application. Vous gardez le contrÃ´le total sur leur suppression.",
+    privacy_li_af2:
+      "<span class='highlight'>SÃ©curitÃ© :</span> Les donnÃ©es sont chiffrÃ©es selon les standards internationaux pour prÃ©venir tout accÃ¨s non autorisÃ©.",
+    privacy_h11: "11. Sanctions Internationales et Territoires Exclus",
+    privacy_p11:
+      "En raison des rÃ©glementations internationales et des sanctions en vigueur, l'application <strong>mon50ccetmoi</strong> n'est ni disponible, ni destinÃ©e Ã  Ãªtre utilisÃ©e en <strong>CorÃ©e du Nord (RPDC)</strong>. Aucune donnÃ©e n'est traitÃ©e depuis ce territoire.",
+  },
+  en: {
+    privacy_title: "Privacy Policy",
+    privacy_last_update: "Last updated: April 29, 2026",
+    privacy_intro:
+      "The <strong>mon50ccetmoi</strong> application, operated by Xavier Le Chanu (SIRET: 891 912 503 00036 | VAT: FR87891912503), is committed to protecting the privacy of its 50cc scooter community users.",
+    privacy_h1: "1. Data Collected and Usage",
+    privacy_p1:
+      "We collect the following data to ensure the proper functioning of the application. In accordance with Article 13 of the GDPR, each processing is justified by a legal basis:",
+    privacy_li1:
+      "<span class='highlight'>GPS Position (Precise):</span> Used for navigation, odometer, fall detection and legal scan.<br><em>Legal basis: Consent. Nature: Mandatory to use these modules.</em>",
+    privacy_li2:
+      "<span class='highlight'>Background Data:</span> Access to location with screen off, essential for accident alerts.<br><em>Legal basis: Consent (vital protection). Nature: Mandatory for the Guardian Angel module.</em>",
+    privacy_li3:
+      "<span class='highlight'>Photos and Metadata (Litigation AI):</span> Processed to generate certified insurance reports.<br><em>Legal basis: Contract execution. Nature: Mandatory for report creation.</em>",
+    privacy_li4:
+      "<span class='highlight'>Emergency Contacts:</span> Saved locally for automatic SMS in case of a fall.<br><em>Legal basis: Legitimate interest (security). Nature: Optional.</em>",
+    privacy_h2: "2. Data Sharing and Transfers",
+    privacy_p2:
+      "Your precise location data is never sold or transferred to third parties. The following sharing may occur:",
+    privacy_li_share1:
+      "<span class='highlight'>Hazard Reports:</span> Shared anonymously with the community.",
+    privacy_li_share2:
+      "<span class='highlight'>Insurer Portal:</span> Your claim reports and certified photos are only accessible to your insurance company <strong>if you voluntarily provide them your unique 6-digit PIN</strong>. Without this code, no claim data is shared.",
+    privacy_li_share3:
+      "<span class='highlight'>Transfers outside the EU (Google/Firebase):</span> To manage your authentication and secure database, we use Google (Firebase) services. Your identification data may pass through servers located in the United States. This transfer is secure and framed by appropriate safeguards (Standard Contractual Clauses of the European Commission).",
+    privacy_h3: "3. Data Retention and GDPR Rights",
+    privacy_p3:
+      "Your data is retained as long as your account is active. In accordance with the <strong>Regulation (EU) 2016/679 (GDPR)</strong>, you have the following rights over your personal data at any time:",
+    privacy_li_right1:
+      "<span class='highlight'>Right of Access (Article 15 GDPR):</span> Obtain a copy of the data we hold about you.",
+    privacy_li_right2:
+      "<span class='highlight'>Right to Rectification (Article 16 GDPR):</span> Correct inaccurate or incomplete data.",
+    privacy_li_right3:
+      "<span class='highlight'>Right to Erasure (Article 17 GDPR):</span> Request the complete deletion of your account and all your data (doable directly from the app settings).",
+    privacy_li_right4:
+      "<span class='highlight'>Right to Restriction of Processing (Article 18 GDPR):</span> Temporarily freeze the use of your data.",
+    privacy_li_right5:
+      "<span class='highlight'>Right to Data Portability (Article 20 GDPR):</span> Retrieve your data in a structured, machine-readable format.",
+    privacy_li_right6:
+      "<span class='highlight'>Right to Object (Article 21 GDPR):</span> Object to the use of your data for certain purposes.",
+    privacy_h4: "4. Security",
+    privacy_p4:
+      "The application uses AES-256 encryption (via CryptoJS) for local storage of sensitive reports and user sessions. Authentication is provided by Firebase Authentication (Google) with optional support for FIDO2/WebAuthn biometrics. We implement all necessary technical and organizational measures to ensure the security and confidentiality of your data in accordance with <strong>Article 32 of the GDPR</strong>.",
+    privacy_h5: "5. Data Controller and Contact",
+    privacy_p5_1:
+      "The Data Controller for this application is Xavier Le Chanu.",
+    privacy_p5_2:
+      "To exercise your GDPR rights, for any questions regarding this policy, or to contact our single point of contact (users and authorities) under the DSA, please send an email to: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3:
+      "If you feel, after contacting us, that your rights are not respected, you can submit a complaint to the CNIL (cnil.fr).",
+    privacy_h6: "6. Cookies and Local Storage Policy",
+    privacy_p6_1:
+      'To operate the application (notably to keep you logged in and save your preferences), we use "cookies" and your device\'s local storage.',
+    privacy_li_cookie1:
+      "<span class='highlight'>Essential Cookies:</span> Used by our provider Firebase to manage your secure authentication.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Local Storage:</span> Used to save your settings (theme, motorcycle parameters) so that the application is ready to use every time you open it.",
+    privacy_p6_2:
+      "No intrusive advertising targeting cookies are used. By using the application, you consent to the use of these essential cookies for the proper functioning of the service.",
+    privacy_h7: "7. Compliance with the European AI Act",
+    privacy_p7:
+      "In accordance with the European legislation on Artificial Intelligence (AI Act), we want to demonstrate full transparency regarding the use of our algorithms within the application:",
+    privacy_li_ai1:
+      "<span class='highlight'>Transparency (Limited Risk):</span> By using the <strong>Meca Wizard</strong>, <strong>Pocket Lawyer</strong>, <strong>Litigation AI</strong> and <strong>Oracle Voice</strong> features, you are expressly informed that you are interacting with generative and analytical Artificial Intelligence systems.",
+    privacy_li_ai2:
+      "<span class='highlight'>Human Oversight:</span> Reports generated by our AI (especially for insurance via Litigation AI) and legal/mechanical advice are provided for assistance. <strong>No automated decision with legal effect is taken without human oversight</strong>. The user and the insurer always keep the final validation power.",
+    privacy_li_ai3:
+      "<span class='highlight'>Warranty & Bias:</span> Our learning models (\"Self-Evolution Engine\") are trained to be neutral and secure. However, advice provided by AI does not replace the expertise of a sworn human professional (lawyer or certified mechanic).",
+    privacy_h8:
+      "8. Compliance for Users in the United States (US Privacy Laws)",
+    privacy_p8:
+      "Although there is no single comprehensive federal data protection law in the United States, <strong>mon50ccetmoi</strong> is committed to complying with applicable state and sectoral regulations:",
+    privacy_li_us1:
+      "<span class='highlight'>Consumer Rights (CCPA / CPRA):</span> California residents enjoy extended privacy rights (right to know, deletion, opt-out of sale). <strong>We formally confirm that we do not sell any personal data.</strong> The application is available in the United States, but the hardware 'Black Box' is not distributed there.",
+    privacy_li_us2:
+      "<span class='highlight'>Minors' Protection (COPPA):</span> The application is not intended for children. We do not knowingly collect personal data from minors without parental consent.",
+    privacy_li_us3:
+      "<span class='highlight'>Health & Finance (HIPAA / GLBA):</span> Although not strictly subject to these sectoral laws, we apply maximum encryption standards (AES-256) to protect any health-related (local heart rate) or financial data.",
+    privacy_li_us4:
+      "<span class='highlight'>B2B Transparency (Buy American Act & IOR):</span> In the context of an institutional deployment or public procurement in the United States, our software infrastructure and terms guarantee full transparency to meet the increased disclosure obligations for Importers of Record.",
+    privacy_h9:
+      "9. Compliance for Users in the People's Republic of China (PIPL & DSL)",
+    privacy_p9:
+      "In accordance with the Personal Information Protection Law (PIPL) and the Data Security Law (DSL), <strong>mon50ccetmoi</strong> applies strict measures for Chinese residents:",
+    privacy_li_cn1:
+      "<span class='highlight'>Transparency and Minimization:</span> We only collect data strictly necessary for the service to function, with the explicit consent of the user.",
+    privacy_li_cn2:
+      "<span class='highlight'>Cross-border Transfers:</span> User data is treated with robust security mechanisms to prevent leaks, and any potential transfer outside China requires specific consent.",
+    privacy_li_cn3:
+      "<span class='highlight'>Data Security (DSL):</span> No data collected (trips, claims) is classified as critical for national security. It is strictly civil and private use data (B2C/B2B).",
+    privacy_h10:
+      "10. Compliance for Users in Africa (POPIA & Malabo Convention)",
+    privacy_p10:
+      "In accordance with POPIA (South Africa) and the principles of the Malabo Convention (African Union), we are committed to protecting the personal data of our African users:",
+    privacy_li_af1:
+      "<span class='highlight'>Accountability & Limitation:</span> Your GPS data is collected only for the direct use of the application. You retain full control over its deletion.",
+    privacy_li_af2:
+      "<span class='highlight'>Security:</span> Data is encrypted using international standards to prevent unauthorized access.",
+    privacy_h11: "11. International Sanctions & Excluded Territories",
+    privacy_p11:
+      "Due to international regulations and active sanctions, the <strong>mon50ccetmoi</strong> application is neither available nor intended for use in <strong>North Korea (DPRK)</strong>. No data is processed from this territory.",
+  },
+  es: {
+    privacy_title: "PolÃ­tica de Privacidad",
+    privacy_last_update: "Ãšltima actualizaciÃ³n: 29 de abril de 2026",
+    privacy_intro:
+      "La aplicaciÃ³n <strong>mon50ccetmoi</strong>, operada por Xavier Le Chanu (SIRET: 891 912 503 00036 | IVA: FR87891912503), se compromete a proteger la privacidad de los usuarios de su comunidad de scooters 50cc.",
+    privacy_h1: "1. Datos recopilados y Uso",
+    privacy_p1:
+      "Recopilamos los siguientes datos para garantizar el buen funcionamiento de la aplicaciÃ³n:",
+    privacy_li1:
+      "<span class='highlight'>PosiciÃ³n GPS (Precisa):</span> Utilizada para la navegaciÃ³n, el odÃ³metro, la detecciÃ³n de caÃ­das (Guardian Angel) y el escaneo legal de estacionamiento (Pocket Lawyer).",
+    privacy_li2:
+      "<span class='highlight'>Datos en segundo plano:</span> Si utiliza la navegaciÃ³n o el detector de caÃ­das, la aplicaciÃ³n accede a su ubicaciÃ³n incluso con la pantalla apagada. Esto es esencial para alertarle en caso de accidente.",
+    privacy_li3:
+      "<span class='highlight'>Fotos y Metadatos (Litigation AI):</span> Las fotos tomadas a travÃ©s de la aplicaciÃ³n para el Portal Experto se procesan para generar informes de seguro certificados. Estas fotos se almacenan de forma segura.",
+    privacy_li4:
+      "<span class='highlight'>Contactos de Emergencia:</span> Los nÃºmeros de telÃ©fono de sus \"Ãngeles Guardianes\" se guardan localmente en su dispositivo y solo se utilizan para enviar SMS automÃ¡ticos en caso de detectar una caÃ­da grave.",
+    privacy_h2: "2. Intercambio de datos",
+    privacy_p2:
+      "Sus datos de ubicaciÃ³n precisa nunca se venden ni se ceden a terceros. Puede producirse el siguiente intercambio:",
+    privacy_li_share1:
+      "<span class='highlight'>Reportes de peligro:</span> Compartidos de forma anÃ³nima con la comunidad.",
+    privacy_li_share2:
+      "<span class='highlight'>Portal del Asegurador:</span> Sus informes de siniestros y fotos certificadas solo son accesibles para su compaÃ±Ã­a de seguros <strong>si les proporciona voluntariamente su cÃ³digo PIN Ãºnico de 6 dÃ­gitos</strong>. Sin este cÃ³digo, no se comparten datos.",
+    privacy_h3: "3. RetenciÃ³n de datos y Derechos RGPD",
+    privacy_p3:
+      "Sus datos se conservan mientras su cuenta estÃ© activa. De acuerdo con el <strong>Reglamento (UE) 2016/679 (RGPD)</strong>, tiene en todo momento los siguientes derechos sobre sus datos:",
+    privacy_li_right1:
+      "<span class='highlight'>Derecho de Acceso (Art. 15 RGPD):</span> Obtener una copia de sus datos.",
+    privacy_li_right2:
+      "<span class='highlight'>Derecho de RectificaciÃ³n (Art. 16 RGPD):</span> Corregir datos inexactos.",
+    privacy_li_right3:
+      "<span class='highlight'>Derecho de SupresiÃ³n (Art. 17 RGPD):</span> Solicitar la eliminaciÃ³n completa de su cuenta y de todos sus datos.",
+    privacy_li_right4:
+      "<span class='highlight'>Derecho a la LimitaciÃ³n del Tratamiento (Art. 18 RGPD):</span> Congelar temporalmente el uso de sus datos.",
+    privacy_li_right5:
+      "<span class='highlight'>Derecho a la Portabilidad (Art. 20 RGPD):</span> Recuperar sus datos en un formato estructurado.",
+    privacy_li_right6:
+      "<span class='highlight'>Derecho de OposiciÃ³n (Art. 21 RGPD):</span> Oponerse al uso de sus datos para ciertos fines.",
+    privacy_h4: "4. Seguridad",
+    privacy_p4:
+      "La aplicaciÃ³n utiliza cifrado AES-256 (vÃ­a CryptoJS) para el almacenamiento local de informes sensibles. La autenticaciÃ³n estÃ¡ a cargo de Firebase (Google) con soporte opcional de biometrÃ­a FIDO2/WebAuthn. Implementamos todas las medidas necesarias para garantizar la seguridad de sus datos (Art. 32 del RGPD).",
+    privacy_h5: "5. Responsable del Tratamiento y Contacto",
+    privacy_p5_1:
+      "El Responsable del Tratamiento de datos de esta aplicaciÃ³n es Xavier Le Chanu.",
+    privacy_p5_2:
+      "Para ejercer sus derechos RGPD o para el DSA, envÃ­e un correo a: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3:
+      "Si considera que no se respetan sus derechos, puede presentar una reclamaciÃ³n ante su autoridad local de protecciÃ³n de datos.",
+    privacy_h6: "6. PolÃ­tica de Cookies y Almacenamiento Local",
+    privacy_p6_1:
+      'Para operar la aplicaciÃ³n, utilizamos "cookies" y el almacenamiento local de su dispositivo.',
+    privacy_li_cookie1:
+      "<span class='highlight'>Cookies Esenciales:</span> Utilizadas por Firebase para su autenticaciÃ³n segura.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Almacenamiento Local:</span> Utilizado para guardar sus ajustes (tema, parÃ¡metros) para que la aplicaciÃ³n estÃ© lista al abrirla.",
+    privacy_p6_2:
+      "No se utilizan cookies publicitarias intrusivas. Al usar la app, consiente el uso de estas cookies esenciales.",
+    privacy_h7: "7. Cumplimiento con el Reglamento Europeo de IA (AI Act)",
+    privacy_p7:
+      "De acuerdo con el Reglamento de Inteligencia Artificial (AI Act), somos transparentes sobre el uso de nuestros algoritmos:",
+    privacy_li_ai1:
+      "<span class='highlight'>Transparencia (Riesgo Limitado):</span> Al usar Meca Wizard, Pocket Lawyer, Litigation AI u Oracle Voice, se le informa que interactÃºa con IA.",
+    privacy_li_ai2:
+      "<span class='highlight'>SupervisiÃ³n Humana:</span> Los consejos de la IA son de asistencia. <strong>No se toman decisiones automatizadas con efectos legales sin revisiÃ³n humana.</strong>",
+    privacy_li_ai3:
+      "<span class='highlight'>GarantÃ­a y Sesgo:</span> Nuestros modelos estÃ¡n entrenados para ser neutrales. Sin embargo, no reemplazan a un profesional certificado.",
+    privacy_h8:
+      "8. Cumplimiento para Usuarios en los Estados Unidos (US Privacy Laws)",
+    privacy_p8:
+      "Aunque no hay una ley federal Ãºnica, respetamos las regulaciones estatales y sectoriales:",
+    privacy_li_us1:
+      "<span class='highlight'>Derechos del consumidor (CCPA / CPRA):</span> Confirmamos formalmente que no vendemos datos personales.",
+    privacy_li_us2:
+      "<span class='highlight'>ProtecciÃ³n de menores (COPPA):</span> No recopilamos datos de menores sin consentimiento.",
+    privacy_li_us3:
+      "<span class='highlight'>Salud y Finanzas (HIPAA / GLBA):</span> Aplicamos cifrado mÃ¡ximo (AES-256) para proteger datos de salud (ritmo cardÃ­aco).",
+    privacy_li_us4:
+      "<span class='highlight'>Transparencia B2B (Buy American Act & IOR):</span> Garantizamos transparencia total para obligaciones de importadores.",
+    privacy_h9: "9. Cumplimiento para Usuarios en China (PIPL & DSL)",
+    privacy_p9: "De acuerdo con PIPL y DSL, aplicamos medidas estrictas:",
+    privacy_li_cn1:
+      "<span class='highlight'>Transparencia:</span> Solo recopilamos los datos estrictamente necesarios con consentimiento explÃ­cito.",
+    privacy_li_cn2:
+      "<span class='highlight'>Transferencias:</span> Tratamos los datos con mecanismos robustos contra fugas.",
+    privacy_li_cn3:
+      "<span class='highlight'>Seguridad (DSL):</span> NingÃºn dato recopilado se clasifica como crÃ­tico para la seguridad nacional.",
+  },
+  it: {
+    privacy_title: "Informativa sulla Privacy",
+    privacy_last_update: "Ultimo aggiornamento: 29 aprile 2026",
+    privacy_intro:
+      "L'applicazione <strong>mon50ccetmoi</strong>, gestita da Xavier Le Chanu, si impegna a proteggere la privacy degli utenti della sua comunitÃ  di scooter 50cc.",
+    privacy_h1: "1. Dati raccolti e Utilizzo",
+    privacy_p1:
+      "Raccogliamo i seguenti dati per garantire il corretto funzionamento dell'applicazione:",
+    privacy_li1:
+      "<span class='highlight'>Posizione GPS (Precisa):</span> Utilizzata per la navigazione, rilevamento cadute e Pocket Lawyer.",
+    privacy_li2:
+      "<span class='highlight'>Dati in background:</span> L'app accede alla posizione anche a schermo spento per avvisare in caso di incidente.",
+    privacy_li3:
+      "<span class='highlight'>Foto (Litigation AI):</span> Generate per rapporti assicurativi certificati e archiviate in modo sicuro.",
+    privacy_li4:
+      "<span class='highlight'>Contatti di emergenza:</span> Salvati localmente e usati solo per inviare SMS in caso di caduta grave.",
+    privacy_h2: "2. Condivisione dei dati",
+    privacy_p2:
+      "I tuoi dati di posizione non vengono mai venduti. Le seguenti condivisioni possono verificarsi:",
+    privacy_li_share1:
+      "<span class='highlight'>Segnalazioni pericoli:</span> Condivise in modo anonimo.",
+    privacy_li_share2:
+      "<span class='highlight'>Portale Assicuratore:</span> Accessibile all'assicurazione <strong>solo se fornisci volontariamente il PIN a 6 cifre</strong>.",
+    privacy_h3: "3. Conservazione dei dati e Diritti GDPR",
+    privacy_p3:
+      "Ai sensi del <strong>Regolamento (UE) 2016/679 (GDPR)</strong>, hai i seguenti diritti:",
+    privacy_li_right1:
+      "<span class='highlight'>Diritto di Accesso (Art. 15):</span> Ottenere una copia dei tuoi dati.",
+    privacy_li_right2:
+      "<span class='highlight'>Diritto di Rettifica (Art. 16):</span> Correggere i dati inesatti.",
+    privacy_li_right3:
+      "<span class='highlight'>Diritto alla Cancellazione (Art. 17):</span> Richiedere l'eliminazione completa dell'account.",
+    privacy_li_right4:
+      "<span class='highlight'>Diritto di Limitazione (Art. 18):</span> Congelare l'uso dei tuoi dati.",
+    privacy_li_right5:
+      "<span class='highlight'>Diritto alla PortabilitÃ  (Art. 20):</span> Recuperare i tuoi dati in formato strutturato.",
+    privacy_li_right6:
+      "<span class='highlight'>Diritto di Opposizione (Art. 21):</span> Opporti all'uso dei tuoi dati.",
+    privacy_h4: "4. Sicurezza",
+    privacy_p4:
+      "Usiamo la crittografia AES-256 (tramite CryptoJS) per l'archiviazione locale e Firebase Authentication. Implementiamo le misure necessarie (Art. 32 GDPR).",
+    privacy_h5: "5. Titolare del Trattamento e Contatti",
+    privacy_p5_1: "Il Titolare del Trattamento Ã¨ Xavier Le Chanu.",
+    privacy_p5_2:
+      "Per esercitare i tuoi diritti GDPR, invia un'email a: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3:
+      "Se ritieni che i tuoi diritti non siano rispettati, puoi presentare un reclamo all'autoritÃ  locale per la protezione dei dati.",
+    privacy_h6: "6. Politica sui Cookie e Archiviazione Locale",
+    privacy_p6_1:
+      "Utilizziamo cookie essenziali e archiviazione locale per far funzionare l'app.",
+    privacy_li_cookie1:
+      "<span class='highlight'>Cookie Essenziali:</span> Usati da Firebase per l'autenticazione sicura.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Archiviazione Locale:</span> Usata per salvare le tue impostazioni.",
+    privacy_p6_2: "Non vengono utilizzati cookie pubblicitari intrusivi.",
+    privacy_h7: "7. ConformitÃ  al Regolamento Europeo sull'IA (AI Act)",
+    privacy_p7:
+      "Nel rispetto della normativa, siamo trasparenti sull'uso dell'IA:",
+    privacy_li_ai1:
+      "<span class='highlight'>Trasparenza:</span> Sei informato che interagisci con IA.",
+    privacy_li_ai2:
+      "<span class='highlight'>Supervisione Umana:</span> <strong>Nessuna decisione legale viene presa senza revisione umana.</strong>",
+    privacy_li_ai3:
+      "<span class='highlight'>Garanzia:</span> L'IA non sostituisce un professionista umano.",
+    privacy_h8: "8. ConformitÃ  (Stati Uniti)",
+    privacy_p8: "Rispettiamo le normative statali applicabili:",
+    privacy_li_us1:
+      "<span class='highlight'>CCPA / CPRA:</span> Confermiamo di non vendere dati personali.",
+    privacy_li_us2:
+      "<span class='highlight'>COPPA:</span> Non raccogliamo dati di minori senza consenso.",
+    privacy_li_us3:
+      "<span class='highlight'>HIPAA / GLBA:</span> Applichiamo standard massimi di crittografia.",
+    privacy_li_us4:
+      "<span class='highlight'>Trasparenza B2B:</span> Garantiamo trasparenza totale.",
+    privacy_h9: "9. ConformitÃ  (Cina PIPL & DSL)",
+    privacy_p9: "Ai sensi della PIPL e DSL, applichiamo misure rigorose:",
+    privacy_li_cn1:
+      "<span class='highlight'>Trasparenza:</span> Raccogliamo solo i dati necessari.",
+    privacy_li_cn2:
+      "<span class='highlight'>Trasferimenti:</span> Preveniamo attivamente le fughe di dati.",
+    privacy_li_cn3:
+      "<span class='highlight'>Sicurezza:</span> Nessun dato Ã¨ classificato come critico per la sicurezza nazionale.",
+  },
+  de: {
+    privacy_title: "Datenschutzrichtlinie",
+    privacy_last_update: "Letzte Aktualisierung: 29. April 2026",
+    privacy_intro:
+      "Die App <strong>mon50ccetmoi</strong>, betrieben von Xavier Le Chanu, verpflichtet sich, die PrivatsphÃ¤re der Nutzer ihrer 50cc-Roller-Community zu schÃ¼tzen.",
+    privacy_h1: "1. Gesammelte Daten und Nutzung",
+    privacy_p1: "Wir sammeln folgende Daten fÃ¼r den Betrieb der App:",
+    privacy_li1:
+      "<span class='highlight'>GPS-Position (PrÃ¤zise):</span> FÃ¼r Navigation, Sturzerkennung und rechtlichen Park-Scan.",
+    privacy_li2:
+      "<span class='highlight'>Hintergrunddaten:</span> Zugriff auf den Standort auch bei ausgeschaltetem Bildschirm fÃ¼r Notfallwarnungen.",
+    privacy_li3:
+      "<span class='highlight'>Fotos (Litigation AI):</span> Werden sicher fÃ¼r zertifizierte Versicherungsberichte gespeichert.",
+    privacy_li4:
+      "<span class='highlight'>Notfallkontakte:</span> Lokal gespeichert, nur fÃ¼r automatische SMS bei schweren StÃ¼rzen verwendet.",
+    privacy_h2: "2. Datenweitergabe",
+    privacy_p2:
+      "Ihre genauen Standortdaten werden niemals verkauft. Folgende Weitergaben kÃ¶nnen erfolgen:",
+    privacy_li_share1:
+      "<span class='highlight'>Gefahrenmeldungen:</span> Anonym mit der Community geteilt.",
+    privacy_li_share2:
+      "<span class='highlight'>Versicherungsportal:</span> Nur zugÃ¤nglich, <strong>wenn Sie Ihren 6-stelligen PIN freiwillig weitergeben</strong>.",
+    privacy_h3: "3. Datenspeicherung und DSGVO-Rechte",
+    privacy_p3: "GemÃ¤ÃŸ <strong>DSGVO</strong> haben Sie folgende Rechte:",
+    privacy_li_right1:
+      "<span class='highlight'>Auskunftsrecht (Art. 15 DSGVO):</span> Kopie Ihrer Daten anfordern.",
+    privacy_li_right2:
+      "<span class='highlight'>Recht auf Berichtigung (Art. 16 DSGVO):</span> Falsche Daten korrigieren.",
+    privacy_li_right3:
+      "<span class='highlight'>Recht auf LÃ¶schung (Art. 17 DSGVO):</span> Komplette LÃ¶schung des Kontos anfordern.",
+    privacy_li_right4:
+      "<span class='highlight'>Recht auf EinschrÃ¤nkung (Art. 18 DSGVO):</span> Nutzung der Daten einfrieren.",
+    privacy_li_right5:
+      "<span class='highlight'>Recht auf DatenÃ¼bertragbarkeit (Art. 20 DSGVO):</span> Daten strukturiert erhalten.",
+    privacy_li_right6:
+      "<span class='highlight'>Widerspruchsrecht (Art. 21 DSGVO):</span> Der Nutzung widersprechen.",
+    privacy_h4: "4. Sicherheit",
+    privacy_p4:
+      "Die App verwendet AES-256 VerschlÃ¼sselung fÃ¼r lokale Speicherung und Firebase fÃ¼r Authentifizierung (Art. 32 DSGVO).",
+    privacy_h5: "5. Verantwortlicher und Kontakt",
+    privacy_p5_1: "Verantwortlicher ist Xavier Le Chanu.",
+    privacy_p5_2:
+      "Zur AusÃ¼bung Ihrer Rechte kontaktieren Sie: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3:
+      "Sie kÃ¶nnen sich jederzeit an eine DatenschutzbehÃ¶rde wenden.",
+    privacy_h6: "6. Cookies und lokale Speicherung",
+    privacy_p6_1: "Wir verwenden essenzielle Cookies und lokalen Speicher.",
+    privacy_li_cookie1:
+      "<span class='highlight'>Essenzielle Cookies:</span> FÃ¼r die sichere Firebase-Authentifizierung.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Lokaler Speicher:</span> Um Ihre Einstellungen zu speichern.",
+    privacy_p6_2: "Es werden keine Werbecookies verwendet.",
+    privacy_h7: "7. KI-Verordnung (AI Act)",
+    privacy_p7: "GemÃ¤ÃŸ dem AI Act sind wir transparent:",
+    privacy_li_ai1:
+      "<span class='highlight'>Transparenz:</span> Sie interagieren mit KI in bestimmten Modulen.",
+    privacy_li_ai2:
+      "<span class='highlight'>Menschliche Aufsicht:</span> Keine rechtlichen Entscheidungen ohne menschliche PrÃ¼fung.",
+    privacy_li_ai3:
+      "<span class='highlight'>Garantie:</span> KI ersetzt keinen zertifizierten Fachmann.",
+    privacy_h8: "8. US-Compliance (CCPA / HIPAA)",
+    privacy_p8: "Wir erfÃ¼llen staatliche US-Regeln:",
+    privacy_li_us1:
+      "<span class='highlight'>Verbraucherrechte:</span> Keine Daten werden verkauft.",
+    privacy_li_us2:
+      "<span class='highlight'>MinderjÃ¤hrige:</span> Keine Datenerfassung von Kindern ohne Zustimmung.",
+    privacy_li_us3:
+      "<span class='highlight'>Sicherheit:</span> Maximale VerschlÃ¼sselung fÃ¼r sensible Daten.",
+    privacy_li_us4:
+      "<span class='highlight'>B2B:</span> Volle Transparenz gewÃ¤hrleistet.",
+    privacy_h9: "9. China-Compliance (PIPL & DSL)",
+    privacy_p9: "Wir befolgen PIPL und DSL:",
+    privacy_li_cn1:
+      "<span class='highlight'>Transparenz:</span> Nur absolut notwendige Datenerfassung.",
+    privacy_li_cn2:
+      "<span class='highlight'>Transfers:</span> Strikter Schutz vor Datenlecks.",
+    privacy_li_cn3:
+      "<span class='highlight'>Sicherheit:</span> Keine national sicherheitsrelevanten Daten.",
+  },
+  pt: {
+    privacy_title: "PolÃ­tica de Privacidade",
+    privacy_last_update: "Ãšltima atualizaÃ§Ã£o: 29 de abril de 2026",
+    privacy_intro:
+      "O aplicativo <strong>mon50ccetmoi</strong>, operado por Xavier Le Chanu, compromete-se a proteger a privacidade da sua comunidade de scooters.",
+    privacy_h1: "1. Dados Recolhidos e UtilizaÃ§Ã£o",
+    privacy_p1: "Recolhemos os seguintes dados:",
+    privacy_li1:
+      "<span class='highlight'>GPS (Preciso):</span> Para navegaÃ§Ã£o e deteÃ§Ã£o de quedas.",
+    privacy_li2:
+      "<span class='highlight'>Segundo Plano:</span> Acesso em segundo plano para alertas de acidentes.",
+    privacy_li3:
+      "<span class='highlight'>Fotos (IA):</span> Para relatÃ³rios de seguros.",
+    privacy_li4:
+      "<span class='highlight'>Contactos de EmergÃªncia:</span> Salvos localmente para SMS de emergÃªncia.",
+    privacy_h2: "2. Partilha de Dados",
+    privacy_p2: "Os seus dados nunca sÃ£o vendidos.",
+    privacy_li_share1:
+      "<span class='highlight'>Perigos:</span> Partilhados de forma anÃ³nima.",
+    privacy_li_share2:
+      "<span class='highlight'>Seguradora:</span> AcessÃ­vel <strong>apenas com o seu PIN de 6 dÃ­gitos</strong>.",
+    privacy_h3: "3. Direitos RGPD",
+    privacy_p3:
+      "De acordo com o <strong>RGPD</strong>, tem os seguintes direitos:",
+    privacy_li_right1:
+      "<span class='highlight'>Acesso (Art. 15):</span> Obter uma cÃ³pia.",
+    privacy_li_right2:
+      "<span class='highlight'>RetificaÃ§Ã£o (Art. 16):</span> Corrigir dados.",
+    privacy_li_right3:
+      "<span class='highlight'>Apagamento (Art. 17):</span> Eliminar a sua conta.",
+    privacy_li_right4:
+      "<span class='highlight'>LimitaÃ§Ã£o (Art. 18):</span> Congelar os dados.",
+    privacy_li_right5:
+      "<span class='highlight'>Portabilidade (Art. 20):</span> Recuperar os dados.",
+    privacy_li_right6:
+      "<span class='highlight'>OposiÃ§Ã£o (Art. 21):</span> Opor-se ao uso.",
+    privacy_h4: "4. SeguranÃ§a",
+    privacy_p4: "Criptografia AES-256 e Firebase Auth (Art. 32 RGPD).",
+    privacy_h5: "5. Contacto",
+    privacy_p5_1: "ResponsÃ¡vel: Xavier Le Chanu.",
+    privacy_p5_2: "Email: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "Pode apresentar reclamaÃ§Ã£o Ã  autoridade competente.",
+    privacy_h6: "6. Cookies",
+    privacy_p6_1: "Usamos cookies essenciais.",
+    privacy_li_cookie1:
+      "<span class='highlight'>Essenciais:</span> Para autenticaÃ§Ã£o.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Armazenamento Local:</span> Para definiÃ§Ãµes.",
+    privacy_p6_2: "Sem cookies de publicidade.",
+    privacy_h7: "7. IA (AI Act)",
+    privacy_p7: "TransparÃªncia total:",
+    privacy_li_ai1:
+      "<span class='highlight'>TransparÃªncia:</span> InteraÃ§Ã£o com IA assinalada.",
+    privacy_li_ai2:
+      "<span class='highlight'>SupervisÃ£o:</span> DecisÃµes requerem validaÃ§Ã£o humana.",
+    privacy_li_ai3:
+      "<span class='highlight'>Garantia:</span> IA nÃ£o substitui profissionais.",
+    privacy_h8: "8. EUA",
+    privacy_p8: "Cumprimento das normas dos EUA:",
+    privacy_li_us1: "<span class='highlight'>CCPA:</span> NÃ£o vendemos dados.",
+    privacy_li_us2:
+      "<span class='highlight'>COPPA:</span> Sem dados de menores sem consentimento.",
+    privacy_li_us3:
+      "<span class='highlight'>SeguranÃ§a:</span> Criptografia mÃ¡xima.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> TransparÃªncia total.",
+    privacy_h9: "9. China (PIPL)",
+    privacy_p9: "Conformidade com a PIPL:",
+    privacy_li_cn1:
+      "<span class='highlight'>MinimizaÃ§Ã£o:</span> Apenas dados necessÃ¡rios.",
+    privacy_li_cn2:
+      "<span class='highlight'>TransferÃªncias:</span> ProteÃ§Ã£o robusta.",
+    privacy_li_cn3:
+      "<span class='highlight'>DSL:</span> Dados civis e privados.",
+  },
+  nl: {
+    privacy_title: "Privacybeleid",
+    privacy_last_update: "Laatst bijgewerkt: 29 april 2026",
+    privacy_intro:
+      "De app <strong>mon50ccetmoi</strong> doet er alles aan om uw privacy te beschermen.",
+    privacy_h1: "1. Gegevens en Gebruik",
+    privacy_p1: "We verzamelen:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> Voor navigatie en valdetectie.",
+    privacy_li2:
+      "<span class='highlight'>Achtergrond:</span> Voor noodmeldingen.",
+    privacy_li3:
+      "<span class='highlight'>Foto's:</span> Voor verzekeringsrapporten.",
+    privacy_li4:
+      "<span class='highlight'>Noodcontacten:</span> Lokaal opgeslagen voor SMS.",
+    privacy_h2: "2. Delen van Gegevens",
+    privacy_p2: "Nooit verkocht.",
+    privacy_li_share1:
+      "<span class='highlight'>Gevaren:</span> Anoniem gedeeld.",
+    privacy_li_share2:
+      "<span class='highlight'>Verzekeraar:</span> <strong>Alleen met uw 6-cijferige PIN</strong>.",
+    privacy_h3: "3. AVG / GDPR",
+    privacy_p3: "Uw rechten:",
+    privacy_li_right1: "<span class='highlight'>Inzage:</span> Kopie krijgen.",
+    privacy_li_right2: "<span class='highlight'>Correctie:</span> Aanpassen.",
+    privacy_li_right3:
+      "<span class='highlight'>Verwijdering:</span> Account wissen.",
+    privacy_li_right4:
+      "<span class='highlight'>Beperking:</span> Gebruik bevriezen.",
+    privacy_li_right5:
+      "<span class='highlight'>Portabiliteit:</span> Gegevens ophalen.",
+    privacy_li_right6: "<span class='highlight'>Bezwaar:</span> Bezwaar maken.",
+    privacy_h4: "4. Veiligheid",
+    privacy_p4: "AES-256 encryptie gebruikt.",
+    privacy_h5: "5. Contact",
+    privacy_p5_1: "Verantwoordelijke: Xavier Le Chanu.",
+    privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "Klachten bij de Autoriteit Persoonsgegevens.",
+    privacy_h6: "6. Cookies",
+    privacy_p6_1: "EssentiÃ«le cookies gebruikt.",
+    privacy_li_cookie1:
+      "<span class='highlight'>Essentieel:</span> Voor login.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Lokaal:</span> Voor instellingen.",
+    privacy_p6_2: "Geen reclame.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "Transparantie over AI:",
+    privacy_li_ai1:
+      "<span class='highlight'>Transparantie:</span> U gebruikt AI.",
+    privacy_li_ai2:
+      "<span class='highlight'>Menselijk:</span> Geen besluiten zonder mens.",
+    privacy_li_ai3:
+      "<span class='highlight'>Garantie:</span> Geen vervanging van experts.",
+    privacy_h8: "8. VS",
+    privacy_p8: "VS wetgeving:",
+    privacy_li_us1: "<span class='highlight'>CCPA:</span> Geen verkoop.",
+    privacy_li_us2: "<span class='highlight'>COPPA:</span> Geen kinderen.",
+    privacy_li_us3:
+      "<span class='highlight'>Encryptie:</span> Maximaal beveiligd.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> Transparant.",
+    privacy_h9: "9. China",
+    privacy_p9: "PIPL naleving:",
+    privacy_li_cn1: "<span class='highlight'>Minimaal:</span> Alleen nodig.",
+    privacy_li_cn2: "<span class='highlight'>Transfer:</span> Veilig.",
+    privacy_li_cn3: "<span class='highlight'>DSL:</span> Niet kritiek.",
+  },
+  pl: {
+    privacy_title: "Polityka PrywatnoÅ›ci",
+    privacy_last_update: "Ostatnia aktualizacja: 29 kwietnia 2026",
+    privacy_intro:
+      "Aplikacja <strong>mon50ccetmoi</strong> dba o ochronÄ™ Twojej prywatnoÅ›ci.",
+    privacy_h1: "1. Gromadzone dane",
+    privacy_p1: "Gromadzimy:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> Do nawigacji i wykrywania upadkÃ³w.",
+    privacy_li2:
+      "<span class='highlight'>TÅ‚o:</span> Dla alertÃ³w awaryjnych.",
+    privacy_li3:
+      "<span class='highlight'>ZdjÄ™cia:</span> Dla raportÃ³w ubezpieczeniowych.",
+    privacy_li4:
+      "<span class='highlight'>Kontakty:</span> Lokalnie zapisane dla SMS.",
+    privacy_h2: "2. UdostÄ™pnianie",
+    privacy_p2: "Dane nie sÄ… sprzedawane.",
+    privacy_li_share1: "<span class='highlight'>ZagroÅ¼enia:</span> Anonimowo.",
+    privacy_li_share2:
+      "<span class='highlight'>Ubezpieczyciel:</span> <strong>Tylko z kodem PIN</strong>.",
+    privacy_h3: "3. RODO (GDPR)",
+    privacy_p3: "Twoje prawa:",
+    privacy_li_right1: "<span class='highlight'>DostÄ™p:</span> Kopia danych.",
+    privacy_li_right2:
+      "<span class='highlight'>Sprostowanie:</span> Poprawa bÅ‚Ä™dÃ³w.",
+    privacy_li_right3:
+      "<span class='highlight'>UsuniÄ™cie:</span> UsuniÄ™cie konta.",
+    privacy_li_right4:
+      "<span class='highlight'>Ograniczenie:</span> ZamroÅ¼enie.",
+    privacy_li_right5:
+      "<span class='highlight'>Przenoszenie:</span> OdbiÃ³r danych.",
+    privacy_li_right6:
+      "<span class='highlight'>Sprzeciw:</span> Zablokowanie uÅ¼ycia.",
+    privacy_h4: "4. BezpieczeÅ„stwo",
+    privacy_p4: "Szyfrowanie AES-256.",
+    privacy_h5: "5. Kontakt",
+    privacy_p5_1: "Administrator: Xavier Le Chanu.",
+    privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "Skargi do organu nadzoru.",
+    privacy_h6: "6. Ciasteczka (Cookies)",
+    privacy_p6_1: "UÅ¼ywamy tylko niezbÄ™dnych.",
+    privacy_li_cookie1:
+      "<span class='highlight'>NiezbÄ™dne:</span> Do logowania.",
+    privacy_li_cookie2: "<span class='highlight'>Lokalne:</span> Ustawienia.",
+    privacy_p6_2: "Brak reklam.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "PeÅ‚na przejrzystoÅ›Ä‡:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> UÅ¼ywasz sztucznej inteligencji.",
+    privacy_li_ai2:
+      "<span class='highlight'>NadzÃ³r:</span> Decyzje weryfikowane przez czÅ‚owieka.",
+    privacy_li_ai3:
+      "<span class='highlight'>Gwarancja:</span> AI nie zastÄ™puje eksperta.",
+    privacy_h8: "8. USA",
+    privacy_p8: "ZgodnoÅ›Ä‡ z USA:",
+    privacy_li_us1: "<span class='highlight'>CCPA:</span> Brak sprzedaÅ¼y.",
+    privacy_li_us2: "<span class='highlight'>COPPA:</span> Brak nieletnich.",
+    privacy_li_us3: "<span class='highlight'>HIPAA:</span> Szyfrowanie.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> TransparentnoÅ›Ä‡.",
+    privacy_h9: "9. Chiny",
+    privacy_p9: "ZgodnoÅ›Ä‡ PIPL:",
+    privacy_li_cn1:
+      "<span class='highlight'>Minimalizacja:</span> Tylko niezbÄ™dne.",
+    privacy_li_cn2: "<span class='highlight'>Transfery:</span> Chronione.",
+    privacy_li_cn3:
+      "<span class='highlight'>BezpieczeÅ„stwo:</span> Brak zagroÅ¼eÅ„.",
+  },
+  zh: {
+    privacy_title: "éšç§æ”¿ç­–",
+    privacy_last_update: "æœ€åŽæ›´æ–°ï¼š2026å¹´4æœˆ29æ—¥",
+    privacy_intro: "<strong>mon50ccetmoi</strong> è‡´åŠ›äºŽä¿æŠ¤æ‚¨çš„éšç§ã€‚",
+    privacy_h1: "1. æ•°æ®æ”¶é›†",
+    privacy_p1: "æˆ‘ä»¬æ”¶é›†ï¼š",
+    privacy_li1: "<span class='highlight'>GPS:</span> å¯¼èˆªä¸Žè·Œå€’æ£€æµ‹ã€‚",
+    privacy_li2: "<span class='highlight'>åŽå°:</span> ç”¨äºŽç´§æ€¥è­¦æŠ¥ã€‚",
+    privacy_li3: "<span class='highlight'>ç…§ç‰‡:</span> ç”¨äºŽä¿é™©æŠ¥å‘Šã€‚",
+    privacy_li4:
+      "<span class='highlight'>è”ç³»äºº:</span> æœ¬åœ°å­˜å‚¨ç”¨äºŽå‘é€çŸ­ä¿¡ã€‚",
+    privacy_h2: "2. æ•°æ®å…±äº«",
+    privacy_p2: "ç»ä¸ä½œé”€å”®ã€‚",
+    privacy_li_share1:
+      "<span class='highlight'>å±é™©æŠ¥å‘Š:</span> åŒ¿åå…±äº«ã€‚",
+    privacy_li_share2:
+      "<span class='highlight'>ä¿é™©å…¬å¸:</span> <strong>ä»…åœ¨æ‚¨æä¾›PINç æ—¶å¯è§</strong>ã€‚",
+    privacy_h3: "3. GDPR ä¸Žæ‚¨çš„æƒåˆ©",
+    privacy_p3: "æ‚¨çš„æƒåˆ©ï¼š",
+    privacy_li_right1: "<span class='highlight'>è®¿é—®:</span> èŽ·å–å‰¯æœ¬ã€‚",
+    privacy_li_right2: "<span class='highlight'>æ›´æ­£:</span> ä¿®æ”¹é”™è¯¯ã€‚",
+    privacy_li_right3: "<span class='highlight'>åˆ é™¤:</span> é”€æ¯è´¦æˆ·ã€‚",
+    privacy_li_right4: "<span class='highlight'>é™åˆ¶:</span> å†»ç»“ä½¿ç”¨ã€‚",
+    privacy_li_right5: "<span class='highlight'>è¿ç§»:</span> å¯¼å‡ºæ•°æ®ã€‚",
+    privacy_li_right6: "<span class='highlight'>æ‹’ç»:</span> åå¯¹å¤„ç†ã€‚",
+    privacy_h4: "4. å®‰å…¨",
+    privacy_p4: "AES-256 åŠ å¯†ã€‚",
+    privacy_h5: "5. è”ç³»æˆ‘ä»¬",
+    privacy_p5_1: "è´Ÿè´£äºº: Xavier Le Chanuã€‚",
+    privacy_p5_2: "é‚®ç®±: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "å¯å‘ç›‘ç®¡æœºæž„æŠ•è¯‰ã€‚",
+    privacy_h6: "6. Cookies",
+    privacy_p6_1: "ä»…é™å¿…è¦ã€‚",
+    privacy_li_cookie1: "<span class='highlight'>å¿…è¦:</span> ç™»å½•éªŒè¯ã€‚",
+    privacy_li_cookie2: "<span class='highlight'>æœ¬åœ°:</span> åå¥½è®¾ç½®ã€‚",
+    privacy_p6_2: "æ— å¹¿å‘Šã€‚",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "AI é€æ˜Žåº¦ï¼š",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> æ‚¨æ­£åœ¨ä½¿ç”¨AIæœåŠ¡ã€‚",
+    privacy_li_ai2:
+      "<span class='highlight'>äººå·¥:</span> æ— å®Œå…¨è‡ªåŠ¨åŒ–æ³•å¾‹å†³å®šã€‚",
+    privacy_li_ai3:
+      "<span class='highlight'>æç¤º:</span> AIä¸èƒ½æ›¿ä»£ä¸“å®¶ã€‚",
+    privacy_h8: "8. ç¾Žå›½åˆè§„",
+    privacy_p8: "éµå®ˆ CCPA ç­‰ï¼š",
+    privacy_li_us1:
+      "<span class='highlight'>ä¸é”€å”®:</span> æˆ‘ä»¬ä¸å‡ºå”®æ•°æ®ã€‚",
+    privacy_li_us2:
+      "<span class='highlight'>å„¿ç«¥:</span> ä¸æ”¶é›†å„¿ç«¥æ•°æ®ã€‚",
+    privacy_li_us3: "<span class='highlight'>åŠ å¯†:</span> å†›ç”¨çº§åŠ å¯†ã€‚",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> é«˜é€æ˜Žåº¦ã€‚",
+    privacy_h9: "9. ä¸­å›½ PIPL åˆè§„",
+    privacy_p9: "ä¸¥æ ¼éµå®ˆï¼š",
+    privacy_li_cn1:
+      "<span class='highlight'>æœ€å°åŒ–:</span> ä»…é™å¿…é¡»æ•°æ®ã€‚",
+    privacy_li_cn2: "<span class='highlight'>ä¼ è¾“:</span> é˜²æ­¢æ³„éœ²ã€‚",
+    privacy_li_cn3:
+      "<span class='highlight'>DSL:</span> éžå›½å®¶å®‰å…¨æ•°æ®ã€‚",
+  },
+  ja: {
+    privacy_title: "ãƒ—ãƒ©ã‚¤ãƒã‚·ãƒ¼ãƒãƒªã‚·ãƒ¼",
+    privacy_last_update: "æœ€çµ‚æ›´æ–°æ—¥ï¼š2026å¹´4æœˆ29æ—¥",
+    privacy_intro:
+      "<strong>mon50ccetmoi</strong> ã¯ãƒ—ãƒ©ã‚¤ãƒã‚·ãƒ¼ã®ä¿è­·ã«åŠªã‚ã¦ã„ã¾ã™ã€‚",
+    privacy_h1: "1. ãƒ‡ãƒ¼ã‚¿åŽé›†",
+    privacy_p1: "åŽé›†ã™ã‚‹ãƒ‡ãƒ¼ã‚¿ï¼š",
+    privacy_li1: "<span class='highlight'>GPS:</span> ãƒŠãƒ“ã¨è»¢å€’æ¤œçŸ¥ã€‚",
+    privacy_li2:
+      "<span class='highlight'>ãƒãƒƒã‚¯ã‚°ãƒ©ã‚¦ãƒ³ãƒ‰:</span> ç·Šæ€¥ã‚¢ãƒ©ãƒ¼ãƒˆç”¨ã€‚",
+    privacy_li3:
+      "<span class='highlight'>å†™çœŸ:</span> ä¿é™ºãƒ¬ãƒãƒ¼ãƒˆç”¨ã€‚",
+    privacy_li4:
+      "<span class='highlight'>é€£çµ¡å…ˆ:</span> SMSç”¨ã®ãƒ­ãƒ¼ã‚«ãƒ«ä¿å­˜ã€‚",
+    privacy_h2: "2. ãƒ‡ãƒ¼ã‚¿å…±æœ‰",
+    privacy_p2: "è²©å£²ã¯ã—ã¾ã›ã‚“ã€‚",
+    privacy_li_share1:
+      "<span class='highlight'>å±é™ºå ±å‘Š:</span> åŒ¿åã§å…±æœ‰ã€‚",
+    privacy_li_share2:
+      "<span class='highlight'>ä¿é™ºä¼šç¤¾:</span> <strong>PINã‚’æä¾›ã—ãŸå ´åˆã®ã¿</strong>ã€‚",
+    privacy_h3: "3. GDPRã¨æ¨©åˆ©",
+    privacy_p3: "ã‚ãªãŸã®æ¨©åˆ©ï¼š",
+    privacy_li_right1:
+      "<span class='highlight'>ã‚¢ã‚¯ã‚»ã‚¹:</span> ã‚³ãƒ”ãƒ¼ã®å–å¾—ã€‚",
+    privacy_li_right2: "<span class='highlight'>è¨‚æ­£:</span> ä¿®æ­£ã€‚",
+    privacy_li_right3:
+      "<span class='highlight'>å‰Šé™¤:</span> ã‚¢ã‚«ã‚¦ãƒ³ãƒˆå‰Šé™¤ã€‚",
+    privacy_li_right4: "<span class='highlight'>åˆ¶é™:</span> ä½¿ç”¨ã®å‡çµã€‚",
+    privacy_li_right5:
+      "<span class='highlight'>ãƒãƒ¼ã‚¿ãƒ“ãƒªãƒ†ã‚£:</span> ãƒ‡ãƒ¼ã‚¿ã®æŠ½å‡ºã€‚",
+    privacy_li_right6: "<span class='highlight'>æ‹’å¦:</span> åå¯¾ã€‚",
+    privacy_h4: "4. ã‚»ã‚­ãƒ¥ãƒªãƒ†ã‚£",
+    privacy_p4: "AES-256æš—å·åŒ–ã€‚",
+    privacy_h5: "5. é€£çµ¡å…ˆ",
+    privacy_p5_1: "è²¬ä»»è€…: Xavier Le Chanuã€‚",
+    privacy_p5_2: "ãƒ¡ãƒ¼ãƒ«: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "ç›£ç£æ©Ÿé–¢ã«è‹¦æƒ…ã‚’ç”³ã—ç«‹ã¦å¯èƒ½ã€‚",
+    privacy_h6: "6. Cookie",
+    privacy_p6_1: "å¿…é ˆã®ã¿ä½¿ç”¨ã€‚",
+    privacy_li_cookie1:
+      "<span class='highlight'>å¿…é ˆ:</span> ãƒ­ã‚°ã‚¤ãƒ³ç”¨ã€‚",
+    privacy_li_cookie2:
+      "<span class='highlight'>ãƒ­ãƒ¼ã‚«ãƒ«:</span> è¨­å®šç”¨ã€‚",
+    privacy_p6_2: "åºƒå‘Šãªã—ã€‚",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "AIã®é€æ˜Žæ€§ï¼š",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> AIã¨ã‚„ã‚Šå–ã‚Šã—ã¾ã™ã€‚",
+    privacy_li_ai2:
+      "<span class='highlight'>äººé–“:</span> è‡ªå‹•æ±ºå®šã«ã¯äººé–“ã®ãƒã‚§ãƒƒã‚¯ãŒå¿…è¦ã€‚",
+    privacy_li_ai3:
+      "<span class='highlight'>ä¿è¨¼:</span> å°‚é–€å®¶ã®ä»£ã‚ã‚Šã«ã¯ãªã‚Šã¾ã›ã‚“ã€‚",
+    privacy_h8: "8. ç±³å›½",
+    privacy_p8: "CCPAç­‰ã«æº–æ‹ ï¼š",
+    privacy_li_us1:
+      "<span class='highlight'>è²©å£²ãªã—:</span> ãƒ‡ãƒ¼ã‚¿ã‚’è²©å£²ã—ã¾ã›ã‚“ã€‚",
+    privacy_li_us2:
+      "<span class='highlight'>å­ä¾›:</span> æ„å›³çš„ã«åŽé›†ã—ã¾ã›ã‚“ã€‚",
+    privacy_li_us3: "<span class='highlight'>æš—å·åŒ–:</span> æœ€å¤§ã®ä¿è­·ã€‚",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> é€æ˜Žæ€§ã€‚",
+    privacy_h9: "9. ä¸­å›½ PIPL",
+    privacy_p9: "åŽ³æ ¼ãªæŽªç½®ï¼š",
+    privacy_li_cn1:
+      "<span class='highlight'>æœ€å°åŒ–:</span> å¿…è¦ãªãƒ‡ãƒ¼ã‚¿ã®ã¿ã€‚",
+    privacy_li_cn2: "<span class='highlight'>è»¢é€:</span> æ¼æ´©é˜²æ­¢ã€‚",
+    privacy_li_cn3:
+      "<span class='highlight'>DSL:</span> å›½å®¶å®‰å…¨ä¿éšœã«ã¯é–¢ä¿‚ãªã—ã€‚",
+  },
+  no: {
+    privacy_title: "PersonvernerklÃ¦ring",
+    privacy_last_update: "Sist oppdatert: 29. april 2026",
+    privacy_intro:
+      "Appen <strong>mon50ccetmoi</strong> er forpliktet til Ã¥ beskytte personvernet ditt.",
+    privacy_h1: "1. Datainnsamling",
+    privacy_p1: "Vi samler inn:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> For navigasjon og falldeteksjon.",
+    privacy_li2: "<span class='highlight'>Bakgrunn:</span> For nÃ¸dalarm.",
+    privacy_li3:
+      "<span class='highlight'>Bilder:</span> For forsikringsrapporter.",
+    privacy_li4:
+      "<span class='highlight'>Kontakter:</span> Lagres lokalt for SMS.",
+    privacy_h2: "2. Datadeling",
+    privacy_p2: "Selges aldri.",
+    privacy_li_share1: "<span class='highlight'>Farer:</span> Deles anonymt.",
+    privacy_li_share2:
+      "<span class='highlight'>Forsikring:</span> <strong>Kun hvis du oppgir PIN</strong>.",
+    privacy_h3: "3. GDPR-rettigheter",
+    privacy_p3: "Dine rettigheter:",
+    privacy_li_right1: "<span class='highlight'>Innsyn:</span> FÃ¥ kopi.",
+    privacy_li_right2: "<span class='highlight'>Retting:</span> Korriger feil.",
+    privacy_li_right3: "<span class='highlight'>Sletting:</span> Slett konto.",
+    privacy_li_right4: "<span class='highlight'>Begrensning:</span> Frys data.",
+    privacy_li_right5:
+      "<span class='highlight'>Portabilitet:</span> Eksporter data.",
+    privacy_li_right6: "<span class='highlight'>Protest:</span> Stopp bruk.",
+    privacy_h4: "4. Sikkerhet",
+    privacy_p4: "AES-256 kryptering.",
+    privacy_h5: "5. Kontakt",
+    privacy_p5_1: "Ansvarlig: Xavier Le Chanu.",
+    privacy_p5_2: "E-post: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "Klag til datatilsynet.",
+    privacy_h6: "6. Informasjonskapsler",
+    privacy_p6_1: "Kun essensielle cookies.",
+    privacy_li_cookie1:
+      "<span class='highlight'>Essensielle:</span> For pÃ¥logging.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Lokalt:</span> For innstillinger.",
+    privacy_p6_2: "Ingen annonser.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "AI-gjennomsiktighet:",
+    privacy_li_ai1: "<span class='highlight'>AI:</span> Du bruker AI.",
+    privacy_li_ai2:
+      "<span class='highlight'>Menneskelig:</span> Sjekkes av mennesker.",
+    privacy_li_ai3:
+      "<span class='highlight'>Garanti:</span> Erstatter ikke eksperter.",
+    privacy_h8: "8. USA",
+    privacy_p8: "USA-kompatibel:",
+    privacy_li_us1: "<span class='highlight'>CCPA:</span> Selger ikke data.",
+    privacy_li_us2: "<span class='highlight'>Barn:</span> Ingen innsamling.",
+    privacy_li_us3: "<span class='highlight'>Sikkerhet:</span> Kryptert.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> Transparent.",
+    privacy_h9: "9. Kina (PIPL)",
+    privacy_p9: "FÃ¸lger PIPL:",
+    privacy_li_cn1:
+      "<span class='highlight'>Minimering:</span> Kun nÃ¸dvendig.",
+    privacy_li_cn2: "<span class='highlight'>OverfÃ¸ring:</span> Sikret.",
+    privacy_li_cn3: "<span class='highlight'>DSL:</span> Ikke kritisk data.",
+  },
+  ko: {
+    privacy_title: "ê°œì¸ì •ë³´ ì²˜ë¦¬ë°©ì¹¨",
+    privacy_last_update: "ìµœì¢… ì—…ë°ì´íŠ¸: 2026ë…„ 4ì›” 29ì¼",
+    privacy_intro:
+      "<strong>mon50ccetmoi</strong> ì•±ì€ ê°œì¸ì •ë³´ ë³´í˜¸ë¥¼ ìœ„í•´ ìµœì„ ì„ ë‹¤í•©ë‹ˆë‹¤.",
+    privacy_h1: "1. ë°ì´í„° ìˆ˜ì§‘",
+    privacy_p1: "ìš°ë¦¬ê°€ ìˆ˜ì§‘í•˜ëŠ” ë°ì´í„°:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> ë‚´ë¹„ê²Œì´ì…˜ ë° ë‚™ìƒ ê°ì§€.",
+    privacy_li2:
+      "<span class='highlight'>ë°±ê·¸ë¼ìš´ë“œ:</span> ê¸´ê¸‰ ì•Œë¦¼ìš©.",
+    privacy_li3: "<span class='highlight'>ì‚¬ì§„:</span> ë³´í—˜ ë³´ê³ ì„œìš©.",
+    privacy_li4:
+      "<span class='highlight'>ì—°ë½ì²˜:</span> SMSìš© ë¡œì»¬ ì €ìž¥.",
+    privacy_h2: "2. ë°ì´í„° ê³µìœ ",
+    privacy_p2: "ë°ì´í„°ëŠ” íŒë§¤ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.",
+    privacy_li_share1:
+      "<span class='highlight'>ìœ„í—˜ ë³´ê³ :</span> ìµëª…ìœ¼ë¡œ ê³µìœ .",
+    privacy_li_share2:
+      "<span class='highlight'>ë³´í—˜ì‚¬:</span> <strong>PINì„ ì œê³µí•œ ê²½ìš°ì—ë§Œ</strong>.",
+    privacy_h3: "3. GDPR ê¶Œë¦¬",
+    privacy_p3: "ê·€í•˜ì˜ ê¶Œë¦¬:",
+    privacy_li_right1:
+      "<span class='highlight'>ì ‘ê·¼ê¶Œ:</span> ì‚¬ë³¸ ìš”ì²­.",
+    privacy_li_right2:
+      "<span class='highlight'>ì •ì •ê¶Œ:</span> ì˜¤ë¥˜ ìˆ˜ì •.",
+    privacy_li_right3:
+      "<span class='highlight'>ì‚­ì œê¶Œ:</span> ê³„ì • ì‚­ì œ.",
+    privacy_li_right4:
+      "<span class='highlight'>ì œí•œê¶Œ:</span> ì‚¬ìš© ì¤‘ì§€.",
+    privacy_li_right5:
+      "<span class='highlight'>ì´ë™ê¶Œ:</span> ë°ì´í„° ë‚´ë³´ë‚´ê¸°.",
+    privacy_li_right6:
+      "<span class='highlight'>ë°˜ëŒ€ê¶Œ:</span> ì²˜ë¦¬ ê±°ë¶€.",
+    privacy_h4: "4. ë³´ì•ˆ",
+    privacy_p4: "AES-256 ì•”í˜¸í™” ì ìš©.",
+    privacy_h5: "5. ì—°ë½ì²˜",
+    privacy_p5_1: "ì±…ìž„ìž: Xavier Le Chanu.",
+    privacy_p5_2: "ì´ë©”ì¼: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "ê°ë… ê¸°ê´€ì— ë¶ˆë§Œ ì œê¸° ê°€ëŠ¥.",
+    privacy_h6: "6. ì¿ í‚¤",
+    privacy_p6_1: "í•„ìˆ˜ ì¿ í‚¤ë§Œ ì‚¬ìš©.",
+    privacy_li_cookie1:
+      "<span class='highlight'>í•„ìˆ˜:</span> ë¡œê·¸ì¸ ì¸ì¦ìš©.",
+    privacy_li_cookie2: "<span class='highlight'>ë¡œì»¬:</span> ì„¤ì • ì €ìž¥.",
+    privacy_p6_2: "ê´‘ê³  ì—†ìŒ.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "AI íˆ¬ëª…ì„±:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> AI ì‹œìŠ¤í…œì„ ì‚¬ìš© ì¤‘ìž…ë‹ˆë‹¤.",
+    privacy_li_ai2:
+      "<span class='highlight'>ì¸ê°„ ê°ë…:</span> ìžë™í™”ëœ ë²•ì  ê²°ì • ì—†ìŒ.",
+    privacy_li_ai3:
+      "<span class='highlight'>ë³´ì¦:</span> ì „ë¬¸ê°€ë¥¼ ëŒ€ì²´í•˜ì§€ ì•ŠìŒ.",
+    privacy_h8: "8. ë¯¸êµ­ ê·œì •",
+    privacy_p8: "CCPA ë“± ì¤€ìˆ˜:",
+    privacy_li_us1:
+      "<span class='highlight'>íŒë§¤ ê¸ˆì§€:</span> ë°ì´í„°ë¥¼ íŒë§¤í•˜ì§€ ì•ŠìŒ.",
+    privacy_li_us2:
+      "<span class='highlight'>ì•„ë™:</span> ì˜ë„ì  ìˆ˜ì§‘ ì—†ìŒ.",
+    privacy_li_us3:
+      "<span class='highlight'>ë³´ì•ˆ:</span> ìµœê³  ìˆ˜ì¤€ ì•”í˜¸í™”.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> íˆ¬ëª…ì„± ë³´ìž¥.",
+    privacy_h9: "9. ì¤‘êµ­ ê·œì • (PIPL)",
+    privacy_p9: "ì—„ê²©í•œ ì¤€ìˆ˜:",
+    privacy_li_cn1:
+      "<span class='highlight'>ìµœì†Œí™”:</span> í•„ìˆ˜ ë°ì´í„°ë§Œ ìˆ˜ì§‘.",
+    privacy_li_cn2:
+      "<span class='highlight'>ì „ì†¡:</span> ì •ë³´ ìœ ì¶œ ë°©ì§€.",
+    privacy_li_cn3:
+      "<span class='highlight'>DSL:</span> êµ­ê°€ ì•ˆë³´ì™€ ë¬´ê´€.",
+  },
+  he: {
+    privacy_title: "×ž×“×™× ×™×•×ª ×¤×¨×˜×™×•×ª",
+    privacy_last_update: "×¢×“×›×•×Ÿ ××—×¨×•×Ÿ: 29 ×‘××¤×¨×™×œ 2026",
+    privacy_intro:
+      "×”××¤×œ×™×§×¦×™×” <strong>mon50ccetmoi</strong> ×ž×—×•×™×‘×ª ×œ×”×’× ×” ×¢×œ ×¤×¨×˜×™×•×ª×š.",
+    privacy_h1: "1. ××™×¡×•×£ × ×ª×•× ×™×",
+    privacy_p1: "×× ×• ××•×¡×¤×™×:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> ×œ× ×™×•×•×˜ ×•×–×™×”×•×™ × ×¤×™×œ×•×ª.",
+    privacy_li2:
+      "<span class='highlight'>×¨×§×¢:</span> ×œ×”×ª×¨×¢×•×ª ×—×™×¨×•×.",
+    privacy_li3:
+      "<span class='highlight'>×ª×ž×•× ×•×ª:</span> ×œ×“×•×—×•×ª ×‘×™×˜×•×—.",
+    privacy_li4:
+      "<span class='highlight'>×× ×©×™ ×§×©×¨:</span> ×©×ž×•×¨ ×ž×§×•×ž×™×ª ×œ-SMS.",
+    privacy_h2: "2. ×©×™×ª×•×£ × ×ª×•× ×™×",
+    privacy_p2: "×”× ×ª×•× ×™× ×œ×¢×•×œ× ×œ× × ×ž×›×¨×™×.",
+    privacy_li_share1:
+      "<span class='highlight'>×¡×›× ×•×ª:</span> ×ž×©×•×ª×£ ×‘×× ×•× ×™×ž×™×•×ª.",
+    privacy_li_share2:
+      "<span class='highlight'>×‘×™×˜×•×—:</span> <strong>×¨×§ ×¢× ×§×•×“ PIN</strong>.",
+    privacy_h3: "3. ×–×›×•×™×•×ª GDPR",
+    privacy_p3: "×”×–×›×•×™×•×ª ×©×œ×š:",
+    privacy_li_right1:
+      "<span class='highlight'>×’×™×©×”:</span> ×§×‘×œ×ª ×¢×•×ª×§.",
+    privacy_li_right2:
+      "<span class='highlight'>×ª×™×§×•×Ÿ:</span> ×¢×“×›×•×Ÿ × ×ª×•× ×™×.",
+    privacy_li_right3:
+      "<span class='highlight'>×ž×—×™×§×”:</span> ×ž×—×™×§×ª ×—×©×‘×•×Ÿ.",
+    privacy_li_right4:
+      "<span class='highlight'>×”×’×‘×œ×”:</span> ×”×§×¤××ª ×©×™×ž×•×©.",
+    privacy_li_right5:
+      "<span class='highlight'>× ×™×™×“×•×ª:</span> ×™×™×¦×•× × ×ª×•× ×™×.",
+    privacy_li_right6:
+      "<span class='highlight'>×”×ª× ×’×“×•×ª:</span> ×¢×¦×™×¨×ª ×¢×™×‘×•×“.",
+    privacy_h4: "4. ××‘×˜×—×”",
+    privacy_p4: "×”×¦×¤× ×ª AES-256.",
+    privacy_h5: "5. ×™×¦×™×¨×ª ×§×©×¨",
+    privacy_p5_1: "××—×¨××™: Xavier Le Chanu.",
+    privacy_p5_2: '×“×•×"×œ: <strong>contact@mon50ccetmoi.com</strong>',
+    privacy_p5_3: "× ×™×ª×Ÿ ×œ×”×’×™×© ×ª×œ×•× ×” ×œ×¨×©×•×ª ×”×¤×™×§×•×—.",
+    privacy_h6: "6. ×¢×•×’×™×•×ª",
+    privacy_p6_1: "×¢×•×’×™×•×ª ×”×›×¨×—×™×•×ª ×‘×œ×‘×“.",
+    privacy_li_cookie1:
+      "<span class='highlight'>×”×›×¨×—×™:</span> ×œ××™×ž×•×ª.",
+    privacy_li_cookie2:
+      "<span class='highlight'>×ž×§×•×ž×™:</span> ×œ×”×’×“×¨×•×ª.",
+    privacy_p6_2: "×œ×œ× ×¤×¨×¡×•×ž×•×ª.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "×©×§×™×¤×•×ª AI:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> ××ª×” ×ž×©×ª×ž×© ×‘-AI.",
+    privacy_li_ai2:
+      "<span class='highlight'>×¤×™×§×•×—:</span> × ×“×¨×© ××™×©×•×¨ ×× ×•×©×™.",
+    privacy_li_ai3:
+      "<span class='highlight'>××—×¨×™×•×ª:</span> ×œ× ×ž×—×œ×™×£ ×ž×•×ž×—×”.",
+    privacy_h8: '8. ××¨×”"×‘',
+    privacy_p8: "×ª××™×ž×•×ª CCPA:",
+    privacy_li_us1:
+      "<span class='highlight'>××™×Ÿ ×ž×›×™×¨×”:</span> ×œ× ×ž×•×›×¨×™× × ×ª×•× ×™×.",
+    privacy_li_us2:
+      "<span class='highlight'>×™×œ×“×™×:</span> ××™×Ÿ ××™×¡×•×£ ×ž×™×œ×“×™×.",
+    privacy_li_us3:
+      "<span class='highlight'>××‘×˜×—×”:</span> ×ž×•×¦×¤×Ÿ ×”×™×˜×‘.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> ×©×§×•×£.",
+    privacy_h9: "9. ×¡×™×Ÿ",
+    privacy_p9: "×ª××™×ž×•×ª PIPL:",
+    privacy_li_cn1:
+      "<span class='highlight'>×ž×™× ×™×ž×•×:</span> ×¨×§ ×ž×” ×©×¦×¨×™×š.",
+    privacy_li_cn2: "<span class='highlight'>×”×¢×‘×¨×”:</span> ×ž××•×‘×˜×—×ª.",
+    privacy_li_cn3:
+      "<span class='highlight'>DSL:</span> ×œ× × ×ª×•× ×™× ×¨×’×™×©×™×.",
+  },
+  id: {
+    privacy_title: "Kebijakan Privasi",
+    privacy_last_update: "Terakhir diperbarui: 29 April 2026",
+    privacy_intro:
+      "Aplikasi <strong>mon50ccetmoi</strong> berkomitmen untuk melindungi privasi Anda.",
+    privacy_h1: "1. Pengumpulan Data",
+    privacy_p1: "Kami mengumpulkan:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> Untuk navigasi dan deteksi jatuh.",
+    privacy_li2:
+      "<span class='highlight'>Latar Belakang:</span> Untuk peringatan darurat.",
+    privacy_li3: "<span class='highlight'>Foto:</span> Untuk laporan asuransi.",
+    privacy_li4:
+      "<span class='highlight'>Kontak:</span> Disimpan lokal untuk SMS.",
+    privacy_h2: "2. Berbagi Data",
+    privacy_p2: "Tidak pernah dijual.",
+    privacy_li_share1:
+      "<span class='highlight'>Bahaya:</span> Dibagikan secara anonim.",
+    privacy_li_share2:
+      "<span class='highlight'>Asuransi:</span> <strong>Hanya dengan PIN Anda</strong>.",
+    privacy_h3: "3. Hak GDPR",
+    privacy_p3: "Hak Anda:",
+    privacy_li_right1:
+      "<span class='highlight'>Akses:</span> Dapatkan salinan.",
+    privacy_li_right2:
+      "<span class='highlight'>Perbaikan:</span> Koreksi data.",
+    privacy_li_right3:
+      "<span class='highlight'>Penghapusan:</span> Hapus akun.",
+    privacy_li_right4:
+      "<span class='highlight'>Pembatasan:</span> Bekukan data.",
+    privacy_li_right5:
+      "<span class='highlight'>Portabilitas:</span> Ambil data.",
+    privacy_li_right6:
+      "<span class='highlight'>Keberatan:</span> Tolak penggunaan.",
+    privacy_h4: "4. Keamanan",
+    privacy_p4: "Enkripsi AES-256.",
+    privacy_h5: "5. Kontak",
+    privacy_p5_1: "Penanggung Jawab: Xavier Le Chanu.",
+    privacy_p5_2: "Email: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "Anda dapat mengadu ke otoritas terkait.",
+    privacy_h6: "6. Cookies",
+    privacy_p6_1: "Hanya yang penting.",
+    privacy_li_cookie1: "<span class='highlight'>Penting:</span> Untuk masuk.",
+    privacy_li_cookie2: "<span class='highlight'>Lokal:</span> Pengaturan.",
+    privacy_p6_2: "Tanpa iklan.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "Transparansi AI:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> Berinteraksi dengan AI.",
+    privacy_li_ai2:
+      "<span class='highlight'>Manusia:</span> Keputusan divalidasi manusia.",
+    privacy_li_ai3:
+      "<span class='highlight'>Garansi:</span> Bukan pengganti ahli.",
+    privacy_h8: "8. AS",
+    privacy_p8: "Kepatuhan AS:",
+    privacy_li_us1: "<span class='highlight'>CCPA:</span> Tidak ada penjualan.",
+    privacy_li_us2:
+      "<span class='highlight'>COPPA:</span> Tidak ada anak-anak.",
+    privacy_li_us3: "<span class='highlight'>Keamanan:</span> Enkripsi kuat.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> Transparan.",
+    privacy_h9: "9. Tiongkok",
+    privacy_p9: "Kepatuhan PIPL:",
+    privacy_li_cn1:
+      "<span class='highlight'>Minimal:</span> Hanya yang diperlukan.",
+    privacy_li_cn2: "<span class='highlight'>Transfer:</span> Dilindungi.",
+    privacy_li_cn3: "<span class='highlight'>DSL:</span> Aman.",
+  },
+  hu: {
+    privacy_title: "AdatvÃ©delmi IrÃ¡nyelvek",
+    privacy_last_update: "UtolsÃ³ frissÃ­tÃ©s: 2026. Ã¡prilis 29.",
+    privacy_intro:
+      "A <strong>mon50ccetmoi</strong> elkÃ¶telezett az Ã–n magÃ¡nÃ©letÃ©nek vÃ©delme irÃ¡nt.",
+    privacy_h1: "1. AdatgyÅ±jtÃ©s",
+    privacy_p1: "Ezeket gyÅ±jtjÃ¼k:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> NavigÃ¡ciÃ³ Ã©s esÃ©sÃ©rzÃ©kelÃ©s.",
+    privacy_li2: "<span class='highlight'>HÃ¡ttÃ©r:</span> VÃ©szjelzÃ©sekhez.",
+    privacy_li3:
+      "<span class='highlight'>FotÃ³k:</span> BiztosÃ­tÃ¡si jelentÃ©sekhez.",
+    privacy_li4:
+      "<span class='highlight'>NÃ©vjegyek:</span> Helyi tÃ¡rolÃ¡s SMS-hez.",
+    privacy_h2: "2. AdatmegosztÃ¡s",
+    privacy_p2: "Soha nem adjuk el.",
+    privacy_li_share1:
+      "<span class='highlight'>VeszÃ©lyek:</span> NÃ©vtelenÃ¼l osztva.",
+    privacy_li_share2:
+      "<span class='highlight'>BiztosÃ­tÃ³:</span> <strong>Csak PIN kÃ³ddal</strong>.",
+    privacy_h3: "3. GDPR Jogok",
+    privacy_p3: "Az Ã–n jogai:",
+    privacy_li_right1:
+      "<span class='highlight'>HozzÃ¡fÃ©rÃ©s:</span> MÃ¡solat kÃ©rÃ©se.",
+    privacy_li_right2:
+      "<span class='highlight'>HelyesbÃ­tÃ©s:</span> HibÃ¡k javÃ­tÃ¡sa.",
+    privacy_li_right3:
+      "<span class='highlight'>TÃ¶rlÃ©s:</span> FiÃ³k tÃ¶rlÃ©se.",
+    privacy_li_right4:
+      "<span class='highlight'>KorlÃ¡tozÃ¡s:</span> FagyasztÃ¡s.",
+    privacy_li_right5:
+      "<span class='highlight'>HordozhatÃ³sÃ¡g:</span> Adatok exportÃ¡lÃ¡sa.",
+    privacy_li_right6:
+      "<span class='highlight'>TiltakozÃ¡s:</span> HasznÃ¡lat leÃ¡llÃ­tÃ¡sa.",
+    privacy_h4: "4. BiztonsÃ¡g",
+    privacy_p4: "AES-256 titkosÃ­tÃ¡s.",
+    privacy_h5: "5. Kapcsolat",
+    privacy_p5_1: "FelelÅ‘s: Xavier Le Chanu.",
+    privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "PanasztÃ©tel a hatÃ³sÃ¡gnÃ¡l.",
+    privacy_h6: "6. SÃ¼tik (Cookies)",
+    privacy_p6_1: "Csak alapvetÅ‘ sÃ¼tik.",
+    privacy_li_cookie1:
+      "<span class='highlight'>AlapvetÅ‘:</span> BejelentkezÃ©shez.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Helyi:</span> BeÃ¡llÃ­tÃ¡sokhoz.",
+    privacy_p6_2: "Nincs reklÃ¡m.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "AI Ã¡tlÃ¡thatÃ³sÃ¡g:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> MestersÃ©ges intelligencia hasznÃ¡lata.",
+    privacy_li_ai2:
+      "<span class='highlight'>Emberi:</span> Nincs ember nÃ©lkÃ¼li dÃ¶ntÃ©s.",
+    privacy_li_ai3:
+      "<span class='highlight'>Garancia:</span> Nem pÃ³tolja a szakembert.",
+    privacy_h8: "8. USA",
+    privacy_p8: "USA szabÃ¡lyok:",
+    privacy_li_us1: "<span class='highlight'>CCPA:</span> Nincs eladÃ¡s.",
+    privacy_li_us2:
+      "<span class='highlight'>Gyermekek:</span> Nincs adatgyÅ±jtÃ©s.",
+    privacy_li_us3: "<span class='highlight'>BiztonsÃ¡g:</span> TitkosÃ­tott.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> ÃtlÃ¡thatÃ³.",
+    privacy_h9: "9. KÃ­na (PIPL)",
+    privacy_p9: "SzigorÃº megfelelÃ©s:",
+    privacy_li_cn1:
+      "<span class='highlight'>MinimalizÃ¡lÃ¡s:</span> Csak a szÃ¼ksÃ©ges.",
+    privacy_li_cn2: "<span class='highlight'>Transzfer:</span> VÃ©dett.",
+    privacy_li_cn3: "<span class='highlight'>DSL:</span> Nem Ã©rzÃ©keny.",
+  },
+  hi: {
+    privacy_title: "à¤—à¥‹à¤ªà¤¨à¥€à¤¯à¤¤à¤¾ à¤¨à¥€à¤¤à¤¿",
+    privacy_last_update:
+      "à¤…à¤‚à¤¤à¤¿à¤® à¤…à¤ªà¤¡à¥‡à¤Ÿ: 29 à¤…à¤ªà¥à¤°à¥ˆà¤² 2026",
+    privacy_intro:
+      "<strong>mon50ccetmoi</strong> à¤à¤ª à¤†à¤ªà¤•à¥€ à¤—à¥‹à¤ªà¤¨à¥€à¤¯à¤¤à¤¾ à¤•à¥€ à¤°à¤•à¥à¤·à¤¾ à¤•à¥‡ à¤²à¤¿à¤ à¤ªà¥à¤°à¤¤à¤¿à¤¬à¤¦à¥à¤§ à¤¹à¥ˆà¥¤",
+    privacy_h1: "1. à¤¡à¥‡à¤Ÿà¤¾ à¤¸à¤‚à¤—à¥à¤°à¤¹",
+    privacy_p1: "à¤¹à¤® à¤à¤•à¤¤à¥à¤° à¤•à¤°à¤¤à¥‡ à¤¹à¥ˆà¤‚:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> à¤¨à¥‡à¤µà¤¿à¤—à¥‡à¤¶à¤¨ à¤”à¤° à¤—à¤¿à¤°à¤¾à¤µà¤Ÿ à¤•à¤¾ à¤ªà¤¤à¤¾ à¤²à¤—à¤¾à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤à¥¤",
+    privacy_li2:
+      "<span class='highlight'>à¤¬à¥ˆà¤•à¤—à¥à¤°à¤¾à¤‰à¤‚à¤¡:</span> à¤†à¤ªà¤¾à¤¤à¤•à¤¾à¤²à¥€à¤¨ à¤…à¤²à¤°à¥à¤Ÿ à¤•à¥‡ à¤²à¤¿à¤à¥¤",
+    privacy_li3:
+      "<span class='highlight'>à¤¤à¤¸à¥à¤µà¥€à¤°à¥‡à¤‚:</span> à¤¬à¥€à¤®à¤¾ à¤°à¤¿à¤ªà¥‹à¤°à¥à¤Ÿ à¤•à¥‡ à¤²à¤¿à¤à¥¤",
+    privacy_li4:
+      "<span class='highlight'>à¤¸à¤‚à¤ªà¤°à¥à¤•:</span> SMS à¤•à¥‡ à¤²à¤¿à¤ à¤¸à¥à¤¥à¤¾à¤¨à¥€à¤¯ à¤°à¥‚à¤ª à¤¸à¥‡ à¤¸à¤¹à¥‡à¤œà¤¾ à¤—à¤¯à¤¾à¥¤",
+    privacy_h2: "2. à¤¡à¥‡à¤Ÿà¤¾ à¤¸à¤¾à¤à¤¾ à¤•à¤°à¤¨à¤¾",
+    privacy_p2: "à¤•à¤­à¥€ à¤¨à¤¹à¥€à¤‚ à¤¬à¥‡à¤šà¤¾ à¤œà¤¾à¤¤à¤¾à¥¤",
+    privacy_li_share1:
+      "<span class='highlight'>à¤–à¤¤à¤°à¥‡:</span> à¤—à¥à¤®à¤¨à¤¾à¤® à¤°à¥‚à¤ª à¤¸à¥‡ à¤¸à¤¾à¤à¤¾ à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾à¥¤",
+    privacy_li_share2:
+      "<span class='highlight'>à¤¬à¥€à¤®à¤¾à¤•à¤°à¥à¤¤à¤¾:</span> <strong>à¤•à¥‡à¤µà¤² à¤†à¤ªà¤•à¥‡ 6-à¤…à¤‚à¤•à¥€à¤¯ à¤ªà¤¿à¤¨ à¤•à¥‡ à¤¸à¤¾à¤¥</strong>à¥¤",
+    privacy_h3: "3. GDPR à¤…à¤§à¤¿à¤•à¤¾à¤°",
+    privacy_p3: "à¤†à¤ªà¤•à¥‡ à¤…à¤§à¤¿à¤•à¤¾à¤°:",
+    privacy_li_right1:
+      "<span class='highlight'>à¤ªà¤¹à¥à¤‚à¤š:</span> à¤•à¥‰à¤ªà¥€ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤•à¤°à¥‡à¤‚à¥¤",
+    privacy_li_right2:
+      "<span class='highlight'>à¤¸à¥à¤§à¤¾à¤°:</span> à¤—à¤²à¤¤à¤¿à¤¯à¥‹à¤‚ à¤•à¥‹ à¤ à¥€à¤• à¤•à¤°à¥‡à¤‚à¥¤",
+    privacy_li_right3:
+      "<span class='highlight'>à¤¹à¤Ÿà¤¾à¤¨à¤¾:</span> à¤–à¤¾à¤¤à¤¾ à¤¹à¤Ÿà¤¾à¤à¤‚à¥¤",
+    privacy_li_right4:
+      "<span class='highlight'>à¤ªà¥à¤°à¤¤à¤¿à¤¬à¤‚à¤§:</span> à¤‰à¤ªà¤¯à¥‹à¤— à¤°à¥‹à¤•à¥‡à¤‚à¥¤",
+    privacy_li_right5:
+      "<span class='highlight'>à¤ªà¥‹à¤°à¥à¤Ÿà¥‡à¤¬à¤¿à¤²à¤¿à¤Ÿà¥€:</span> à¤¡à¥‡à¤Ÿà¤¾ à¤ªà¥à¤°à¤¾à¤ªà¥à¤¤ à¤•à¤°à¥‡à¤‚à¥¤",
+    privacy_li_right6:
+      "<span class='highlight'>à¤†à¤ªà¤¤à¥à¤¤à¤¿:</span> à¤‰à¤ªà¤¯à¥‹à¤— à¤•à¤¾ à¤µà¤¿à¤°à¥‹à¤§ à¤•à¤°à¥‡à¤‚à¥¤",
+    privacy_h4: "4. à¤¸à¥à¤°à¤•à¥à¤·à¤¾",
+    privacy_p4: "AES-256 à¤à¤¨à¥à¤•à¥à¤°à¤¿à¤ªà¥à¤¶à¤¨à¥¤",
+    privacy_h5: "5. à¤¸à¤‚à¤ªà¤°à¥à¤• à¤•à¤°à¥‡à¤‚",
+    privacy_p5_1:
+      "à¤ªà¥à¤°à¤­à¤¾à¤°à¥€: à¤œà¤¼à¥‡à¤µà¤¿à¤¯à¤° à¤²à¥‡ à¤šà¤¾à¤¨à¥‚à¥¤",
+    privacy_p5_2: "à¤ˆà¤®à¥‡à¤²: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3:
+      "à¤†à¤ª à¤ªà¥à¤°à¤¾à¤§à¤¿à¤•à¤°à¤£ à¤¸à¥‡ à¤¶à¤¿à¤•à¤¾à¤¯à¤¤ à¤•à¤° à¤¸à¤•à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤",
+    privacy_h6: "6. à¤•à¥à¤•à¥€à¤œà¤¼",
+    privacy_p6_1: "à¤•à¥‡à¤µà¤² à¤†à¤µà¤¶à¥à¤¯à¤• à¤•à¥à¤•à¥€à¤œà¤¼à¥¤",
+    privacy_li_cookie1:
+      "<span class='highlight'>à¤†à¤µà¤¶à¥à¤¯à¤•:</span> à¤²à¥‰à¤—à¤¿à¤¨ à¤•à¥‡ à¤²à¤¿à¤à¥¤",
+    privacy_li_cookie2:
+      "<span class='highlight'>à¤¸à¥à¤¥à¤¾à¤¨à¥€à¤¯:</span> à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸ à¤•à¥‡ à¤²à¤¿à¤à¥¤",
+    privacy_p6_2: "à¤•à¥‹à¤ˆ à¤µà¤¿à¤œà¥à¤žà¤¾à¤ªà¤¨ à¤¨à¤¹à¥€à¤‚à¥¤",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "AI à¤ªà¤¾à¤°à¤¦à¤°à¥à¤¶à¤¿à¤¤à¤¾:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> à¤†à¤ª AI à¤•à¥‡ à¤¸à¤¾à¤¥ à¤¬à¤¾à¤¤à¤šà¥€à¤¤ à¤•à¤°à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤",
+    privacy_li_ai2:
+      "<span class='highlight'>à¤®à¤¾à¤¨à¤µ:</span> à¤¨à¤¿à¤°à¥à¤£à¤¯ à¤®à¤¾à¤¨à¤µ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤®à¤¾à¤¨à¥à¤¯ à¤¹à¥‹à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤",
+    privacy_li_ai3:
+      "<span class='highlight'>à¤—à¤¾à¤°à¤‚à¤Ÿà¥€:</span> à¤µà¤¿à¤¶à¥‡à¤·à¤œà¥à¤ž à¤•à¤¾ à¤µà¤¿à¤•à¤²à¥à¤ª à¤¨à¤¹à¥€à¤‚à¥¤",
+    privacy_h8: "8. USA",
+    privacy_p8: "USA à¤…à¤¨à¥à¤ªà¤¾à¤²à¤¨:",
+    privacy_li_us1:
+      "<span class='highlight'>CCPA:</span> à¤•à¥‹à¤ˆ à¤¬à¤¿à¤•à¥à¤°à¥€ à¤¨à¤¹à¥€à¤‚à¥¤",
+    privacy_li_us2:
+      "<span class='highlight'>à¤¬à¤šà¥à¤šà¥‡:</span> à¤•à¥‹à¤ˆ à¤¸à¤‚à¤—à¥à¤°à¤¹ à¤¨à¤¹à¥€à¤‚à¥¤",
+    privacy_li_us3:
+      "<span class='highlight'>à¤¸à¥à¤°à¤•à¥à¤·à¤¾:</span> à¤à¤¨à¥à¤•à¥à¤°à¤¿à¤ªà¥à¤Ÿà¥‡à¤¡à¥¤",
+    privacy_li_us4:
+      "<span class='highlight'>B2B:</span> à¤ªà¤¾à¤°à¤¦à¤°à¥à¤¶à¥€à¥¤",
+    privacy_h9: "9. à¤šà¥€à¤¨ (PIPL)",
+    privacy_p9: "PIPL à¤…à¤¨à¥à¤ªà¤¾à¤²à¤¨:",
+    privacy_li_cn1:
+      "<span class='highlight'>à¤¨à¥à¤¯à¥‚à¤¨à¥€à¤•à¤°à¤£:</span> à¤•à¥‡à¤µà¤² à¤†à¤µà¤¶à¥à¤¯à¤•à¥¤",
+    privacy_li_cn2:
+      "<span class='highlight'>à¤¸à¥à¤¥à¤¾à¤¨à¤¾à¤‚à¤¤à¤°à¤£:</span> à¤¸à¤‚à¤°à¤•à¥à¤·à¤¿à¤¤à¥¤",
+    privacy_li_cn3:
+      "<span class='highlight'>DSL:</span> à¤®à¤¹à¤¤à¥à¤µà¤ªà¥‚à¤°à¥à¤£ à¤¡à¥‡à¤Ÿà¤¾ à¤¨à¤¹à¥€à¤‚à¥¤",
+  },
+  fi: {
+    privacy_title: "TietosuojakÃ¤ytÃ¤ntÃ¶",
+    privacy_last_update: "PÃ¤ivitetty: 29. huhtikuuta 2026",
+    privacy_intro:
+      "<strong>mon50ccetmoi</strong> on sitoutunut suojelemaan yksityisyyttÃ¤si.",
+    privacy_h1: "1. Tiedonkeruu",
+    privacy_p1: "KerÃ¤Ã¤mme:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> Navigointiin ja kaatumisen tunnistukseen.",
+    privacy_li2: "<span class='highlight'>Tausta:</span> HÃ¤tÃ¤ilmoituksiin.",
+    privacy_li3: "<span class='highlight'>Kuvat:</span> Vakuutusraportteihin.",
+    privacy_li4:
+      "<span class='highlight'>Yhteystiedot:</span> Tallennetaan paikallisesti SMS-viestejÃ¤ varten.",
+    privacy_h2: "2. Tietojen jakaminen",
+    privacy_p2: "Ei koskaan myydÃ¤.",
+    privacy_li_share1:
+      "<span class='highlight'>Vaarat:</span> Jaetaan nimettÃ¶mÃ¤sti.",
+    privacy_li_share2:
+      "<span class='highlight'>Vakuutus:</span> <strong>Vain PIN-koodillasi</strong>.",
+    privacy_h3: "3. GDPR Oikeudet",
+    privacy_p3: "Oikeutesi:",
+    privacy_li_right1: "<span class='highlight'>PÃ¤Ã¤sy:</span> Hanki kopio.",
+    privacy_li_right2:
+      "<span class='highlight'>Oikaisu:</span> Korjaa virheet.",
+    privacy_li_right3: "<span class='highlight'>Poisto:</span> Poista tili.",
+    privacy_li_right4:
+      "<span class='highlight'>Rajoitus:</span> JÃ¤Ã¤dytÃ¤ kÃ¤yttÃ¶.",
+    privacy_li_right5:
+      "<span class='highlight'>SiirrettÃ¤vyys:</span> Hae tiedot.",
+    privacy_li_right6:
+      "<span class='highlight'>Vastus:</span> Lopeta kÃ¤sittely.",
+    privacy_h4: "4. Turvallisuus",
+    privacy_p4: "AES-256-salaus.",
+    privacy_h5: "5. Yhteystiedot",
+    privacy_p5_1: "VastuuhenkilÃ¶: Xavier Le Chanu.",
+    privacy_p5_2: "SÃ¤hkÃ¶posti: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "Voit tehdÃ¤ valituksen viranomaiselle.",
+    privacy_h6: "6. EvÃ¤steet",
+    privacy_p6_1: "Vain vÃ¤lttÃ¤mÃ¤ttÃ¶mÃ¤t evÃ¤steet.",
+    privacy_li_cookie1:
+      "<span class='highlight'>VÃ¤lttÃ¤mÃ¤tÃ¶n:</span> Kirjautumiseen.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Paikallinen:</span> Asetuksille.",
+    privacy_p6_2: "Ei mainoksia.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "AI-lÃ¤pinÃ¤kyvyys:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> Olet vuorovaikutuksessa AI:n kanssa.",
+    privacy_li_ai2:
+      "<span class='highlight'>Ihminen:</span> Ihmisen vahvistamat pÃ¤Ã¤tÃ¶kset.",
+    privacy_li_ai3:
+      "<span class='highlight'>Takuu:</span> Ei korvaa asiantuntijaa.",
+    privacy_h8: "8. USA",
+    privacy_p8: "CCPA-yhteensopiva:",
+    privacy_li_us1:
+      "<span class='highlight'>Ei myyntiÃ¤:</span> Emme myy tietoja.",
+    privacy_li_us2: "<span class='highlight'>Lapset:</span> Ei lasten tietoja.",
+    privacy_li_us3: "<span class='highlight'>Turvallisuus:</span> Salattu.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> LÃ¤pinÃ¤kyvÃ¤.",
+    privacy_h9: "9. Kiina (PIPL)",
+    privacy_p9: "PIPL-yhteensopiva:",
+    privacy_li_cn1:
+      "<span class='highlight'>Minimointi:</span> Vain tarvittava.",
+    privacy_li_cn2: "<span class='highlight'>Siirto:</span> Suojattu.",
+    privacy_li_cn3: "<span class='highlight'>DSL:</span> Ei herkkÃ¤Ã¤ dataa.",
+  },
+  da: {
+    privacy_title: "Privatlivspolitik",
+    privacy_last_update: "Sidst opdateret: 29. april 2026",
+    privacy_intro:
+      "Appen <strong>mon50ccetmoi</strong> er forpligtet til at beskytte dit privatliv.",
+    privacy_h1: "1. Dataindsamling",
+    privacy_p1: "Vi indsamler:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> Til navigation og falddetektion.",
+    privacy_li2: "<span class='highlight'>Baggrund:</span> Til nÃ¸dalarm.",
+    privacy_li3:
+      "<span class='highlight'>Billeder:</span> Til forsikringsrapporter.",
+    privacy_li4:
+      "<span class='highlight'>Kontakter:</span> Gemt lokalt til SMS.",
+    privacy_h2: "2. Datadeling",
+    privacy_p2: "SÃ¦lges aldrig.",
+    privacy_li_share1: "<span class='highlight'>Farer:</span> Deles anonymt.",
+    privacy_li_share2:
+      "<span class='highlight'>Forsikring:</span> <strong>Kun med din PIN-kode</strong>.",
+    privacy_h3: "3. GDPR Rettigheder",
+    privacy_p3: "Dine rettigheder:",
+    privacy_li_right1: "<span class='highlight'>Indsigt:</span> FÃ¥ en kopi.",
+    privacy_li_right2: "<span class='highlight'>Rettelse:</span> Ret fejl.",
+    privacy_li_right3: "<span class='highlight'>Sletning:</span> Slet konto.",
+    privacy_li_right4:
+      "<span class='highlight'>BegrÃ¦nsning:</span> Frys data.",
+    privacy_li_right5:
+      "<span class='highlight'>Portabilitet:</span> Eksporter data.",
+    privacy_li_right6: "<span class='highlight'>Indsigelse:</span> Stop brug.",
+    privacy_h4: "4. Sikkerhed",
+    privacy_p4: "AES-256 kryptering.",
+    privacy_h5: "5. Kontakt",
+    privacy_p5_1: "Ansvarlig: Xavier Le Chanu.",
+    privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "Du kan klage til tilsynsmyndigheden.",
+    privacy_h6: "6. Cookies",
+    privacy_p6_1: "Kun nÃ¸dvendige cookies.",
+    privacy_li_cookie1: "<span class='highlight'>NÃ¸dvendig:</span> Til login.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Lokal:</span> Til indstillinger.",
+    privacy_p6_2: "Ingen annoncer.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "AI gennemsigtighed:",
+    privacy_li_ai1: "<span class='highlight'>AI:</span> Du bruger AI.",
+    privacy_li_ai2:
+      "<span class='highlight'>Menneskelig:</span> Tjekkes af mennesker.",
+    privacy_li_ai3:
+      "<span class='highlight'>Garanti:</span> Erstatter ikke eksperter.",
+    privacy_h8: "8. USA",
+    privacy_p8: "USA-kompatibel:",
+    privacy_li_us1: "<span class='highlight'>CCPA:</span> Ingen salg af data.",
+    privacy_li_us2: "<span class='highlight'>BÃ¸rn:</span> Ingen indsamling.",
+    privacy_li_us3: "<span class='highlight'>Sikkerhed:</span> Krypteret.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> Transparent.",
+    privacy_h9: "9. Kina (PIPL)",
+    privacy_p9: "FÃ¸lger PIPL:",
+    privacy_li_cn1:
+      "<span class='highlight'>Minimering:</span> Kun nÃ¸dvendigt.",
+    privacy_li_cn2: "<span class='highlight'>OverfÃ¸rsel:</span> Sikret.",
+    privacy_li_cn3: "<span class='highlight'>DSL:</span> Ikke kritisk data.",
+  },
+  ro: {
+    privacy_title: "Politica de ConfidenÈ›ialitate",
+    privacy_last_update: "Ultima actualizare: 29 aprilie 2026",
+    privacy_intro:
+      "AplicaÈ›ia <strong>mon50ccetmoi</strong> se angajeazÄƒ sÄƒ vÄƒ protejeze confidenÈ›ialitatea.",
+    privacy_h1: "1. Colectarea datelor",
+    privacy_p1: "ColectÄƒm:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> Pentru navigaÈ›ie È™i detectarea cÄƒderilor.",
+    privacy_li2:
+      "<span class='highlight'>Fundal:</span> Pentru alerte de urgenÈ›Äƒ.",
+    privacy_li3:
+      "<span class='highlight'>Fotografii:</span> Pentru rapoarte de asigurare.",
+    privacy_li4:
+      "<span class='highlight'>Contacte:</span> Salvate local pentru SMS.",
+    privacy_h2: "2. Partajarea datelor",
+    privacy_p2: "Nu sunt vÃ¢ndute niciodatÄƒ.",
+    privacy_li_share1:
+      "<span class='highlight'>Pericole:</span> Partajate anonim.",
+    privacy_li_share2:
+      "<span class='highlight'>AsigurÄƒtor:</span> <strong>Doar cu codul dvs. PIN</strong>.",
+    privacy_h3: "3. Drepturi GDPR",
+    privacy_p3: "Drepturile dvs.:",
+    privacy_li_right1:
+      "<span class='highlight'>Acces:</span> ObÈ›ineÈ›i o copie.",
+    privacy_li_right2:
+      "<span class='highlight'>Rectificare:</span> CorectaÈ›i greÈ™elile.",
+    privacy_li_right3:
+      "<span class='highlight'>È˜tergere:</span> È˜tergeÈ›i contul.",
+    privacy_li_right4:
+      "<span class='highlight'>RestricÈ›ionare:</span> ÃŽngheÈ›aÈ›i datele.",
+    privacy_li_right5:
+      "<span class='highlight'>Portabilitate:</span> ExportaÈ›i datele.",
+    privacy_li_right6:
+      "<span class='highlight'>OpoziÈ›ie:</span> OpriÈ›i utilizarea.",
+    privacy_h4: "4. Securitate",
+    privacy_p4: "Criptare AES-256.",
+    privacy_h5: "5. Contact",
+    privacy_p5_1: "Responsabil: Xavier Le Chanu.",
+    privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "PuteÈ›i depune o plÃ¢ngere la autoritate.",
+    privacy_h6: "6. Cookie-uri",
+    privacy_p6_1: "Doar cele esenÈ›iale.",
+    privacy_li_cookie1:
+      "<span class='highlight'>EsenÈ›ial:</span> Pentru autentificare.",
+    privacy_li_cookie2: "<span class='highlight'>Local:</span> Pentru setÄƒri.",
+    privacy_p6_2: "FÄƒrÄƒ reclame.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "TransparenÈ›Äƒ AI:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> InteracÈ›ionaÈ›i cu AI.",
+    privacy_li_ai2:
+      "<span class='highlight'>Uman:</span> Decizii validate uman.",
+    privacy_li_ai3:
+      "<span class='highlight'>GaranÈ›ie:</span> Nu Ã®nlocuieÈ™te expertul.",
+    privacy_h8: "8. SUA",
+    privacy_p8: "Conformitate SUA:",
+    privacy_li_us1: "<span class='highlight'>CCPA:</span> FÄƒrÄƒ vÃ¢nzÄƒri.",
+    privacy_li_us2: "<span class='highlight'>Copii:</span> FÄƒrÄƒ colectare.",
+    privacy_li_us3: "<span class='highlight'>Securitate:</span> Criptat.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> Transparent.",
+    privacy_h9: "9. China (PIPL)",
+    privacy_p9: "Conform PIPL:",
+    privacy_li_cn1: "<span class='highlight'>Minimizare:</span> Doar necesar.",
+    privacy_li_cn2: "<span class='highlight'>Transfer:</span> Securizat.",
+    privacy_li_cn3: "<span class='highlight'>DSL:</span> Nu e critic.",
+  },
+  sk: {
+    privacy_title: "ZÃ¡sady Ochrany OsobnÃ½ch Ãšdajov",
+    privacy_last_update: "PoslednÃ¡ aktualizÃ¡cia: 29. aprÃ­la 2026",
+    privacy_intro:
+      "AplikÃ¡cia <strong>mon50ccetmoi</strong> sa zaviazala chrÃ¡niÅ¥ vaÅ¡e sÃºkromie.",
+    privacy_h1: "1. Zber DÃ¡t",
+    privacy_p1: "ZhromaÅ¾Äujeme:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> Pre navigÃ¡ciu a detekciu pÃ¡du.",
+    privacy_li2:
+      "<span class='highlight'>Pozadie:</span> Pre nÃºdzovÃ© upozornenia.",
+    privacy_li3: "<span class='highlight'>Fotky:</span> Pre poistnÃ© udalosti.",
+    privacy_li4:
+      "<span class='highlight'>Kontakty:</span> UloÅ¾enÃ© lokÃ¡lne pre SMS.",
+    privacy_h2: "2. ZdieÄ¾anie DÃ¡t",
+    privacy_p2: "Nikdy sa nepredÃ¡vajÃº.",
+    privacy_li_share1:
+      "<span class='highlight'>NebezpeÄenstvÃ¡:</span> ZdieÄ¾anÃ© anonymne.",
+    privacy_li_share2:
+      "<span class='highlight'>PoisÅ¥ovÅˆa:</span> <strong>Len s vaÅ¡Ã­m PIN kÃ³dom</strong>.",
+    privacy_h3: "3. PrÃ¡va GDPR",
+    privacy_p3: "VaÅ¡e prÃ¡va:",
+    privacy_li_right1:
+      "<span class='highlight'>PrÃ­stup:</span> ZÃ­skajte kÃ³piu.",
+    privacy_li_right2: "<span class='highlight'>Oprava:</span> Opravte chyby.",
+    privacy_li_right3:
+      "<span class='highlight'>Vymazanie:</span> ZmaÅ¾te ÃºÄet.",
+    privacy_li_right4:
+      "<span class='highlight'>Obmedzenie:</span> Zmrazte Ãºdaje.",
+    privacy_li_right5:
+      "<span class='highlight'>PrenosnosÅ¥:</span> Exportujte dÃ¡ta.",
+    privacy_li_right6:
+      "<span class='highlight'>NÃ¡mietka:</span> Zastavte pouÅ¾itie.",
+    privacy_h4: "4. BezpeÄnosÅ¥",
+    privacy_p4: "Å ifrovanie AES-256.",
+    privacy_h5: "5. Kontakt",
+    privacy_p5_1: "ZodpovednÃ¡ osoba: Xavier Le Chanu.",
+    privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "MÃ´Å¾ete podaÅ¥ sÅ¥aÅ¾nosÅ¥ na Ãºrad.",
+    privacy_h6: "6. Cookies",
+    privacy_p6_1: "Len nevyhnutnÃ© sÃºbory cookie.",
+    privacy_li_cookie1:
+      "<span class='highlight'>NevyhnutnÃ©:</span> Pre prihlÃ¡senie.",
+    privacy_li_cookie2:
+      "<span class='highlight'>LokÃ¡lne:</span> Pre nastavenia.",
+    privacy_p6_2: "Å½iadne reklamy.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "TransparentnosÅ¥ AI:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> PouÅ¾Ã­vate umelÃº inteligenciu.",
+    privacy_li_ai2:
+      "<span class='highlight'>Ä½udskÃ½:</span> Rozhodnutia overujÃº Ä¾udia.",
+    privacy_li_ai3:
+      "<span class='highlight'>ZÃ¡ruka:</span> NenahrÃ¡dza experta.",
+    privacy_h8: "8. USA",
+    privacy_p8: "V sÃºlade s CCPA:",
+    privacy_li_us1:
+      "<span class='highlight'>ZÃ¡kaz predaja:</span> NepredÃ¡vame Ãºdaje.",
+    privacy_li_us2:
+      "<span class='highlight'>Deti:</span> NezhromaÅ¾Äujeme Ãºdaje.",
+    privacy_li_us3: "<span class='highlight'>BezpeÄnosÅ¥:</span> Å ifrovanÃ©.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> TransparentnÃ©.",
+    privacy_h9: "9. ÄŒÃ­na (PIPL)",
+    privacy_p9: "V sÃºlade s PIPL:",
+    privacy_li_cn1:
+      "<span class='highlight'>MinimalizÃ¡cia:</span> Len to nevyhnutnÃ©.",
+    privacy_li_cn2: "<span class='highlight'>Prenos:</span> ZabezpeÄenÃ©.",
+    privacy_li_cn3: "<span class='highlight'>DSL:</span> Nie citlivÃ©.",
+  },
+  sv: {
+    privacy_title: "Integritetspolicy",
+    privacy_last_update: "Senast uppdaterad: 29 april 2026",
+    privacy_intro:
+      "Appen <strong>mon50ccetmoi</strong> har Ã¥tagit sig att skydda din integritet.",
+    privacy_h1: "1. Datainsamling",
+    privacy_p1: "Vi samlar in:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> FÃ¶r navigering och falldetektering.",
+    privacy_li2: "<span class='highlight'>Bakgrund:</span> FÃ¶r nÃ¶dlarm.",
+    privacy_li3:
+      "<span class='highlight'>Foton:</span> FÃ¶r fÃ¶rsÃ¤kringsrapporter.",
+    privacy_li4:
+      "<span class='highlight'>Kontakter:</span> Spara lokalt fÃ¶r SMS.",
+    privacy_h2: "2. Datadelning",
+    privacy_p2: "SÃ¤ljs aldrig.",
+    privacy_li_share1: "<span class='highlight'>Faror:</span> Delas anonymt.",
+    privacy_li_share2:
+      "<span class='highlight'>FÃ¶rsÃ¤kring:</span> <strong>Endast med din PIN-kod</strong>.",
+    privacy_h3: "3. GDPR-rÃ¤ttigheter",
+    privacy_p3: "Dina rÃ¤ttigheter:",
+    privacy_li_right1:
+      "<span class='highlight'>TillgÃ¥ng:</span> FÃ¥ en kopia.",
+    privacy_li_right2: "<span class='highlight'>RÃ¤ttelse:</span> RÃ¤tta fel.",
+    privacy_li_right3: "<span class='highlight'>Radering:</span> Radera konto.",
+    privacy_li_right4:
+      "<span class='highlight'>BegrÃ¤nsning:</span> Frys data.",
+    privacy_li_right5:
+      "<span class='highlight'>Portabilitet:</span> Exportera data.",
+    privacy_li_right6:
+      "<span class='highlight'>InvÃ¤ndning:</span> Stoppa anvÃ¤ndning.",
+    privacy_h4: "4. SÃ¤kerhet",
+    privacy_p4: "AES-256-kryptering.",
+    privacy_h5: "5. Kontakt",
+    privacy_p5_1: "Ansvarig: Xavier Le Chanu.",
+    privacy_p5_2: "E-post: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "Du kan klaga till datainspektionen.",
+    privacy_h6: "6. Cookies",
+    privacy_p6_1: "Endast viktiga cookies.",
+    privacy_li_cookie1:
+      "<span class='highlight'>Viktiga:</span> FÃ¶r inloggning.",
+    privacy_li_cookie2:
+      "<span class='highlight'>Lokala:</span> FÃ¶r instÃ¤llningar.",
+    privacy_p6_2: "Inga annonser.",
+    privacy_h7: "7. AI Act",
+    privacy_p7: "AI-transparens:",
+    privacy_li_ai1: "<span class='highlight'>AI:</span> Du interagerar med AI.",
+    privacy_li_ai2:
+      "<span class='highlight'>MÃ¤nniska:</span> MÃ¤nsklig validering krÃ¤vs.",
+    privacy_li_ai3:
+      "<span class='highlight'>Garanti:</span> ErsÃ¤tter inte experter.",
+    privacy_h8: "8. USA",
+    privacy_p8: "USA-kompatibel:",
+    privacy_li_us1: "<span class='highlight'>CCPA:</span> Ingen fÃ¶rsÃ¤ljning.",
+    privacy_li_us2: "<span class='highlight'>Barn:</span> Ingen insamling.",
+    privacy_li_us3: "<span class='highlight'>SÃ¤kerhet:</span> Krypterat.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> Transparent.",
+    privacy_h9: "9. Kina (PIPL)",
+    privacy_p9: "FÃ¶ljer PIPL:",
+    privacy_li_cn1:
+      "<span class='highlight'>Minimering:</span> Endast nÃ¶dvÃ¤ndigt.",
+    privacy_li_cn2: "<span class='highlight'>Ã–verfÃ¶ring:</span> SÃ¤krad.",
+    privacy_li_cn3: "<span class='highlight'>DSL:</span> Inte kritisk data.",
+  },
+  th: {
+    privacy_title:
+      "à¸™à¹‚à¸¢à¸šà¸²à¸¢à¸„à¸§à¸²à¸¡à¹€à¸›à¹‡à¸™à¸ªà¹ˆà¸§à¸™à¸•à¸±à¸§",
+    privacy_last_update:
+      "à¸­à¸±à¸›à¹€à¸”à¸•à¸¥à¹ˆà¸²à¸ªà¸¸à¸”: 29 à¹€à¸¡à¸©à¸²à¸¢à¸™ 2026",
+    privacy_intro:
+      "à¹à¸­à¸› <strong>mon50ccetmoi</strong> à¸¡à¸¸à¹ˆà¸‡à¸¡à¸±à¹ˆà¸™à¸—à¸µà¹ˆà¸ˆà¸°à¸›à¸à¸›à¹‰à¸­à¸‡à¸„à¸§à¸²à¸¡à¹€à¸›à¹‡à¸™à¸ªà¹ˆà¸§à¸™à¸•à¸±à¸§à¸‚à¸­à¸‡à¸„à¸¸à¸“",
+    privacy_h1: "1. à¸à¸²à¸£à¹€à¸à¹‡à¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥",
+    privacy_p1: "à¹€à¸£à¸²à¹€à¸à¹‡à¸šà¸£à¸§à¸šà¸£à¸§à¸¡:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> à¸ªà¸³à¸«à¸£à¸±à¸šà¸à¸²à¸£à¸™à¸³à¸—à¸²à¸‡à¹à¸¥à¸°à¸•à¸£à¸§à¸ˆà¸ˆà¸±à¸šà¸à¸²à¸£à¸¥à¹‰à¸¡",
+    privacy_li2:
+      "<span class='highlight'>à¸žà¸·à¹‰à¸™à¸«à¸¥à¸±à¸‡:</span> à¸ªà¸³à¸«à¸£à¸±à¸šà¸à¸²à¸£à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™à¸‰à¸¸à¸à¹€à¸‰à¸´à¸™",
+    privacy_li3:
+      "<span class='highlight'>à¸£à¸¹à¸›à¸ à¸²à¸ž:</span> à¸ªà¸³à¸«à¸£à¸±à¸šà¸£à¸²à¸¢à¸‡à¸²à¸™à¸›à¸£à¸°à¸à¸±à¸™à¸ à¸±à¸¢",
+    privacy_li4:
+      "<span class='highlight'>à¸£à¸²à¸¢à¸Šà¸·à¹ˆà¸­à¸•à¸´à¸”à¸•à¹ˆà¸­:</span> à¸šà¸±à¸™à¸—à¸¶à¸à¹ƒà¸™à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¹€à¸žà¸·à¹ˆà¸­à¸ªà¹ˆà¸‡ SMS",
+    privacy_h2: "2. à¸à¸²à¸£à¹à¸šà¹ˆà¸‡à¸›à¸±à¸™à¸‚à¹‰à¸­à¸¡à¸¹à¸¥",
+    privacy_p2: "à¹„à¸¡à¹ˆà¹€à¸„à¸¢à¸–à¸¹à¸à¸‚à¸²à¸¢",
+    privacy_li_share1:
+      "<span class='highlight'>à¸­à¸±à¸™à¸•à¸£à¸²à¸¢:</span> à¹à¸šà¹ˆà¸‡à¸›à¸±à¸™à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸£à¸°à¸šà¸¸à¸Šà¸·à¹ˆà¸­",
+    privacy_li_share2:
+      "<span class='highlight'>à¸›à¸£à¸°à¸à¸±à¸™à¸ à¸±à¸¢:</span> <strong>à¹€à¸‰à¸žà¸²à¸°à¹€à¸¡à¸·à¹ˆà¸­à¸„à¸¸à¸“à¹ƒà¸«à¹‰ PIN</strong>",
+    privacy_h3: "3. à¸ªà¸´à¸—à¸˜à¸´à¹Œ GDPR",
+    privacy_p3: "à¸ªà¸´à¸—à¸˜à¸´à¹Œà¸‚à¸­à¸‡à¸„à¸¸à¸“:",
+    privacy_li_right1:
+      "<span class='highlight'>à¸à¸²à¸£à¹€à¸‚à¹‰à¸²à¸–à¸¶à¸‡:</span> à¸£à¸±à¸šà¸ªà¸³à¹€à¸™à¸²",
+    privacy_li_right2:
+      "<span class='highlight'>à¸à¸²à¸£à¹à¸à¹‰à¹„à¸‚:</span> à¹à¸à¹‰à¹„à¸‚à¸‚à¹‰à¸­à¸œà¸´à¸”à¸žà¸¥à¸²à¸”",
+    privacy_li_right3:
+      "<span class='highlight'>à¸à¸²à¸£à¸¥à¸š:</span> à¸¥à¸šà¸šà¸±à¸à¸Šà¸µ",
+    privacy_li_right4:
+      "<span class='highlight'>à¸à¸²à¸£à¸ˆà¸³à¸à¸±à¸”:</span> à¸£à¸°à¸‡à¸±à¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥",
+    privacy_li_right5:
+      "<span class='highlight'>à¸à¸²à¸£à¸žà¸à¸žà¸²:</span> à¸ªà¹ˆà¸‡à¸­à¸­à¸à¸‚à¹‰à¸­à¸¡à¸¹à¸¥",
+    privacy_li_right6:
+      "<span class='highlight'>à¸„à¸±à¸”à¸„à¹‰à¸²à¸™:</span> à¸«à¸¢à¸¸à¸”à¸à¸²à¸£à¹ƒà¸Šà¹‰à¸‡à¸²à¸™",
+    privacy_h4: "4. à¸„à¸§à¸²à¸¡à¸›à¸¥à¸­à¸”à¸ à¸±à¸¢",
+    privacy_p4: "à¸à¸²à¸£à¹€à¸‚à¹‰à¸²à¸£à¸«à¸±à¸ª AES-256",
+    privacy_h5: "5. à¸•à¸´à¸”à¸•à¹ˆà¸­",
+    privacy_p5_1: "à¸œà¸¹à¹‰à¸£à¸±à¸šà¸œà¸´à¸”à¸Šà¸­à¸š: Xavier Le Chanu",
+    privacy_p5_2: "à¸­à¸µà¹€à¸¡à¸¥: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3:
+      "à¸„à¸¸à¸“à¸ªà¸²à¸¡à¸²à¸£à¸–à¸£à¹‰à¸­à¸‡à¹€à¸£à¸µà¸¢à¸™à¸•à¹ˆà¸­à¸«à¸™à¹ˆà¸§à¸¢à¸‡à¸²à¸™à¹„à¸”à¹‰",
+    privacy_h6: "6. à¸„à¸¸à¸à¸à¸µà¹‰",
+    privacy_p6_1: "à¹€à¸‰à¸žà¸²à¸°à¸„à¸¸à¸à¸à¸µà¹‰à¸—à¸µà¹ˆà¸ˆà¸³à¹€à¸›à¹‡à¸™",
+    privacy_li_cookie1:
+      "<span class='highlight'>à¸ˆà¸³à¹€à¸›à¹‡à¸™:</span> à¸ªà¸³à¸«à¸£à¸±à¸šà¸à¸²à¸£à¹€à¸‚à¹‰à¸²à¸ªà¸¹à¹ˆà¸£à¸°à¸šà¸š",
+    privacy_li_cookie2:
+      "<span class='highlight'>à¹ƒà¸™à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡:</span> à¸ªà¸³à¸«à¸£à¸±à¸šà¸à¸²à¸£à¸•à¸±à¹‰à¸‡à¸„à¹ˆà¸²",
+    privacy_p6_2: "à¹„à¸¡à¹ˆà¸¡à¸µà¹‚à¸†à¸©à¸“à¸²",
+    privacy_h7: "7. à¸ž.à¸£.à¸š. AI",
+    privacy_p7: "à¸„à¸§à¸²à¸¡à¹‚à¸›à¸£à¹ˆà¸‡à¹ƒà¸ªà¸‚à¸­à¸‡ AI:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> à¸„à¸¸à¸“à¹‚à¸•à¹‰à¸•à¸­à¸šà¸à¸±à¸š AI",
+    privacy_li_ai2:
+      "<span class='highlight'>à¸¡à¸™à¸¸à¸©à¸¢à¹Œ:</span> à¸•à¸£à¸§à¸ˆà¸ªà¸­à¸šà¹‚à¸”à¸¢à¸¡à¸™à¸¸à¸©à¸¢à¹Œ",
+    privacy_li_ai3:
+      "<span class='highlight'>à¸à¸²à¸£à¸£à¸±à¸šà¸›à¸£à¸°à¸à¸±à¸™:</span> à¹„à¸¡à¹ˆà¹à¸—à¸™à¸—à¸µà¹ˆà¸œà¸¹à¹‰à¹€à¸Šà¸µà¹ˆà¸¢à¸§à¸Šà¸²à¸",
+    privacy_h8: "8. à¸ªà¸«à¸£à¸±à¸à¸­à¹€à¸¡à¸£à¸´à¸à¸²",
+    privacy_p8:
+      "à¸à¸²à¸£à¸›à¸à¸´à¸šà¸±à¸•à¸´à¸•à¸²à¸¡à¸‚à¸­à¸‡à¸ªà¸«à¸£à¸±à¸à¸¯:",
+    privacy_li_us1:
+      "<span class='highlight'>CCPA:</span> à¹„à¸¡à¹ˆà¸¡à¸µà¸à¸²à¸£à¸‚à¸²à¸¢à¸‚à¹‰à¸­à¸¡à¸¹à¸¥",
+    privacy_li_us2:
+      "<span class='highlight'>à¹€à¸”à¹‡à¸:</span> à¹„à¸¡à¹ˆà¸¡à¸µà¸à¸²à¸£à¹€à¸à¹‡à¸šà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹€à¸”à¹‡à¸",
+    privacy_li_us3:
+      "<span class='highlight'>à¸„à¸§à¸²à¸¡à¸›à¸¥à¸­à¸”à¸ à¸±à¸¢:</span> à¹€à¸‚à¹‰à¸²à¸£à¸«à¸±à¸ª",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> à¹‚à¸›à¸£à¹ˆà¸‡à¹ƒà¸ª",
+    privacy_h9: "9. à¸ˆà¸µà¸™ (PIPL)",
+    privacy_p9: "à¸ªà¸­à¸”à¸„à¸¥à¹‰à¸­à¸‡à¸à¸±à¸š PIPL:",
+    privacy_li_cn1:
+      "<span class='highlight'>à¸¢à¹ˆà¸­à¸‚à¸™à¸²à¸”:</span> à¹€à¸‰à¸žà¸²à¸°à¸—à¸µà¹ˆà¸ˆà¸³à¹€à¸›à¹‡à¸™",
+    privacy_li_cn2:
+      "<span class='highlight'>à¹‚à¸­à¸™:</span> à¸›à¹‰à¸­à¸‡à¸à¸±à¸™à¹à¸¥à¹‰à¸§",
+    privacy_li_cn3:
+      "<span class='highlight'>DSL:</span> à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸ªà¸³à¸„à¸±à¸",
+  },
+  tr: {
+    privacy_title: "Gizlilik PolitikasÄ±",
+    privacy_last_update: "Son gÃ¼ncelleme: 29 Nisan 2026",
+    privacy_intro:
+      "<strong>mon50ccetmoi</strong> uygulamasÄ± gizliliÄŸinizi korumaya kararlÄ±dÄ±r.",
+    privacy_h1: "1. Veri Toplama",
+    privacy_p1: "TopladÄ±klarÄ±mÄ±z:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> Navigasyon ve dÃ¼ÅŸme tespiti iÃ§in.",
+    privacy_li2:
+      "<span class='highlight'>Arka Plan:</span> Acil durum uyarÄ±larÄ± iÃ§in.",
+    privacy_li3:
+      "<span class='highlight'>FotoÄŸraflar:</span> Sigorta raporlarÄ± iÃ§in.",
+    privacy_li4:
+      "<span class='highlight'>KiÅŸiler:</span> SMS iÃ§in yerel olarak kaydedilir.",
+    privacy_h2: "2. Veri PaylaÅŸÄ±mÄ±",
+    privacy_p2: "Asla satÄ±lmaz.",
+    privacy_li_share1:
+      "<span class='highlight'>Tehlikeler:</span> Anonim olarak paylaÅŸÄ±lÄ±r.",
+    privacy_li_share2:
+      "<span class='highlight'>SigortacÄ±:</span> <strong>YalnÄ±zca PIN'inizle</strong>.",
+    privacy_h3: "3. GDPR HaklarÄ±",
+    privacy_p3: "HaklarÄ±nÄ±z:",
+    privacy_li_right1:
+      "<span class='highlight'>EriÅŸim:</span> Bir kopya alÄ±n.",
+    privacy_li_right2:
+      "<span class='highlight'>DÃ¼zeltme:</span> HatalarÄ± dÃ¼zeltin.",
+    privacy_li_right3: "<span class='highlight'>Silme:</span> HesabÄ± silin.",
+    privacy_li_right4:
+      "<span class='highlight'>KÄ±sÄ±tlama:</span> Verileri dondurun.",
+    privacy_li_right5:
+      "<span class='highlight'>TaÅŸÄ±nabilirlik:</span> Verileri dÄ±ÅŸa aktarÄ±n.",
+    privacy_li_right6:
+      "<span class='highlight'>Ä°tiraz:</span> KullanÄ±mÄ± durdurun.",
+    privacy_h4: "4. GÃ¼venlik",
+    privacy_p4: "AES-256 ÅŸifreleme.",
+    privacy_h5: "5. Ä°letiÅŸim",
+    privacy_p5_1: "Sorumlu: Xavier Le Chanu.",
+    privacy_p5_2: "E-posta: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "Yetkili kuruma ÅŸikayette bulunabilirsiniz.",
+    privacy_h6: "6. Ã‡erezler",
+    privacy_p6_1: "YalnÄ±zca temel Ã§erezler.",
+    privacy_li_cookie1:
+      "<span class='highlight'>Temel:</span> Oturum aÃ§mak iÃ§in.",
+    privacy_li_cookie2: "<span class='highlight'>Yerel:</span> Ayarlar iÃ§in.",
+    privacy_p6_2: "Reklam yok.",
+    privacy_h7: "7. AI YasasÄ±",
+    privacy_p7: "Yapay Zeka ÅžeffaflÄ±ÄŸÄ±:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> Yapay zeka kullanÄ±yorsunuz.",
+    privacy_li_ai2:
+      "<span class='highlight'>Ä°nsan:</span> Kararlar insan onaylÄ±dÄ±r.",
+    privacy_li_ai3:
+      "<span class='highlight'>Garanti:</span> UzmanÄ±n yerini tutmaz.",
+    privacy_h8: "8. ABD",
+    privacy_p8: "ABD uyumluluÄŸu:",
+    privacy_li_us1: "<span class='highlight'>CCPA:</span> SatÄ±ÅŸ yok.",
+    privacy_li_us2: "<span class='highlight'>Ã‡ocuklar:</span> Veri toplanmaz.",
+    privacy_li_us3: "<span class='highlight'>GÃ¼venlik:</span> ÅžifrelenmiÅŸ.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> Åžeffaf.",
+    privacy_h9: "9. Ã‡in (PIPL)",
+    privacy_p9: "PIPL'ye uygun:",
+    privacy_li_cn1:
+      "<span class='highlight'>KÃ¼Ã§Ã¼ltme:</span> YalnÄ±zca gerekli olanlar.",
+    privacy_li_cn2: "<span class='highlight'>AktarÄ±m:</span> KorumalÄ±.",
+    privacy_li_cn3: "<span class='highlight'>DSL:</span> Kritik veri deÄŸil.",
+  },
+  cs: {
+    privacy_title: "ZÃ¡sady ochrany osobnÃ­ch ÃºdajÅ¯",
+    privacy_last_update: "PoslednÃ­ aktualizace: 29. dubna 2026",
+    privacy_intro:
+      "Aplikace <strong>mon50ccetmoi</strong> se zavÃ¡zala chrÃ¡nit vaÅ¡e soukromÃ­.",
+    privacy_h1: "1. SbÄ›r dat",
+    privacy_p1: "ShromaÅ¾Äujeme:",
+    privacy_li1:
+      "<span class='highlight'>GPS:</span> Pro navigaci a detekci pÃ¡du.",
+    privacy_li2:
+      "<span class='highlight'>PozadÃ­:</span> Pro nouzovÃ¡ upozornÄ›nÃ­.",
+    privacy_li3:
+      "<span class='highlight'>Fotky:</span> Pro zprÃ¡vy o pojiÅ¡tÄ›nÃ­.",
+    privacy_li4:
+      "<span class='highlight'>Kontakty:</span> UloÅ¾eno lokÃ¡lnÄ› pro SMS.",
+    privacy_h2: "2. SdÃ­lenÃ­ dat",
+    privacy_p2: "Nikdy se neprodÃ¡vÃ¡.",
+    privacy_li_share1:
+      "<span class='highlight'>NebezpeÄÃ­:</span> SdÃ­leno anonymnÄ›.",
+    privacy_li_share2:
+      "<span class='highlight'>PojiÅ¡Å¥ovna:</span> <strong>Pouze s vaÅ¡Ã­m PINem</strong>.",
+    privacy_h3: "3. PrÃ¡va GDPR",
+    privacy_p3: "VaÅ¡e prÃ¡va:",
+    privacy_li_right1:
+      "<span class='highlight'>PÅ™Ã­stup:</span> ZÃ­skejte kopii.",
+    privacy_li_right2: "<span class='highlight'>Oprava:</span> Opravte chyby.",
+    privacy_li_right3: "<span class='highlight'>VÃ½maz:</span> SmaÅ¾te ÃºÄet.",
+    privacy_li_right4: "<span class='highlight'>OmezenÃ­:</span> Zmrazte data.",
+    privacy_li_right5:
+      "<span class='highlight'>PÅ™enositelnost:</span> Exportujte data.",
+    privacy_li_right6:
+      "<span class='highlight'>NÃ¡mitka:</span> Zastavte zpracovÃ¡nÃ­.",
+    privacy_h4: "4. BezpeÄnost",
+    privacy_p4: "Å ifrovÃ¡nÃ­ AES-256.",
+    privacy_h5: "5. Kontakt",
+    privacy_p5_1: "OdpovÄ›dnÃ¡ osoba: Xavier Le Chanu.",
+    privacy_p5_2: "E-mail: <strong>contact@mon50ccetmoi.com</strong>",
+    privacy_p5_3: "MÅ¯Å¾ete podat stÃ­Å¾nost ÃºÅ™adu.",
+    privacy_h6: "6. Cookies",
+    privacy_p6_1: "Pouze nezbytnÃ© cookies.",
+    privacy_li_cookie1:
+      "<span class='highlight'>NezbytnÃ©:</span> Pro pÅ™ihlÃ¡Å¡enÃ­.",
+    privacy_li_cookie2:
+      "<span class='highlight'>LokÃ¡lnÃ­:</span> Pro nastavenÃ­.",
+    privacy_p6_2: "Å½Ã¡dnÃ© reklamy.",
+    privacy_h7: "7. ZÃ¡kon o AI",
+    privacy_p7: "Transparentnost AI:",
+    privacy_li_ai1:
+      "<span class='highlight'>AI:</span> PouÅ¾Ã­vÃ¡te umÄ›lou inteligenci.",
+    privacy_li_ai2:
+      "<span class='highlight'>LidskÃ½:</span> RozhodnutÃ­ schvalujÃ­ lidÃ©.",
+    privacy_li_ai3:
+      "<span class='highlight'>ZÃ¡ruka:</span> Nenahrazuje odbornÃ­ka.",
+    privacy_h8: "8. USA",
+    privacy_p8: "V souladu s CCPA:",
+    privacy_li_us1:
+      "<span class='highlight'>ZÃ¡kaz prodeje:</span> NeprodÃ¡vÃ¡me data.",
+    privacy_li_us2:
+      "<span class='highlight'>DÄ›ti:</span> NeshromaÅ¾Äujeme data.",
+    privacy_li_us3: "<span class='highlight'>BezpeÄnost:</span> Å ifrovÃ¡no.",
+    privacy_li_us4: "<span class='highlight'>B2B:</span> TransparentnÃ­.",
+    privacy_h9: "9. ÄŒÃ­na (PIPL)",
+    privacy_p9: "V souladu s PIPL:",
+    privacy_li_cn1:
+      "<span class='highlight'>Minimalizace:</span> Jen to nutnÃ©.",
+    privacy_li_cn2: "<span class='highlight'>PÅ™enos:</span> ZabezpeÄeno.",
+    privacy_li_cn3: "<span class='highlight'>DSL:</span> NenÃ­ kritickÃ©.",
+  },
 };
 
 window.I18N_LEGAL = I18N_LEGAL;
