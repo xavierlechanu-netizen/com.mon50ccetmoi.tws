@@ -6,30 +6,14 @@ Mon50ccetMoi v100.90.01 :
 • Synchronisation fluide du suivi GPS & correctifs carte Leaflet.
 • Sécurité renforcée et conformité globale.
 </fr-FR>
-<en-US>
+<da-DK>
 Mon50ccetMoi v100.90.01:
-• Official Android 16 (API 36) compatibility.
-• Major performance optimizations & source code cleanup.
-• Enhanced Oracle / Jarvis voice assistant stability & mic permission fixes.
-• Smooth GPS tracking synchronization & Leaflet map bug fixes.
-• Reinforced security & global privacy compliance.
-</en-US>
-<es-ES>
-Mon50ccetMoi v100.90.01:
-• Compatibilidad oficial con Android 16 (API 36).
-• Gran optimización de rendimiento y limpieza de código fuente.
-• Mejora en la estabilidad del asistente vocal Oracle / Jarvis y micrófono.
-• Sincronización fluida del seguimiento GPS y correcciones en el mapa.
-• Seguridad reforzada y cumplimiento normativo.
-</es-ES>
-<es-419>
-Mon50ccetMoi v100.90.01:
-• Compatibilidad oficial con Android 16 (API 36).
-• Gran optimización de rendimiento y limpieza de código.
-• Estabilidad mejorada del asistente de voz Oracle / Jarvis y micrófono.
-• Sincronización fluida del GPS y correcciones en el mapa.
-• Seguridad reforzada y cumplimiento normativo.
-</es-419>
+• Officiel Android 16 (API 36) kompatibilitet.
+• Omfattende ydeevneoptimering og oprydning af kildekode.
+• Forbedret Oracle / Jarvis stemmeassistent stabilitet.
+• Jævn GPS-sporingssynkronisering og kortrettelser.
+• Forstærket sikkerhed og global overholdelse.
+</da-DK>
 <de-DE>
 Mon50ccetMoi v100.90.01:
 • Offizielle Android 16 (API 36) Kompatibilität.
@@ -38,6 +22,54 @@ Mon50ccetMoi v100.90.01:
 • Reibungslose GPS-Tracking-Synchronisierung & Karten-Korrekturen.
 • Erhöhte Sicherheit und globale Compliance.
 </de-DE>
+<es-419>
+Mon50ccetMoi v100.90.01:
+• Compatibilidad oficial con Android 16 (API 36).
+• Gran optimización de rendimiento y limpieza de código.
+• Estabilidad mejorada del asistente de voz Oracle / Jarvis y micrófono.
+• Sincronización fluida del GPS y correcciones en el mapa.
+• Seguridad reforzada y cumplimiento normativo.
+</es-419>
+<es-ES>
+Mon50ccetMoi v100.90.01:
+• Compatibilidad oficial con Android 16 (API 36).
+• Gran optimización de rendimiento y limpieza de código fuente.
+• Mejora en la estabilidad del asistente vocal Oracle / Jarvis y micrófono.
+• Sincronización fluida del seguimiento GPS y correcciones en el mapa.
+• Seguridad reforzada y cumplimiento normativo.
+</es-ES>
+<fi-FI>
+Mon50ccetMoi v100.90.01:
+• Virallinen Android 16 (API 36) -yhteensopivuus.
+• Suuri suorituskyvyn optimointi ja lähdekoodin puhdistus.
+• Parannettu Oracle / Jarvis -ääniavustajan vakavuus.
+• Sujuva GPS-seurannan synchronointi ja karttakorjaukset.
+• Vahvistettu turvallisuus ja maailmanlaajuinen vaatimustenmukaisuus.
+</fi-FI>
+<hi-IN>
+Mon50ccetMoi v100.90.01:
+• आधिकारिक एंड्रॉइड 16 (API 36) अनुकूलता।
+• प्रमुख प्रदर्शन अनुकूलन और स्रोत कोड सफाई।
+• ओरेकल / जार्विस वॉयस असिस्टेंट स्थिरता में सुधार।
+• निर्बाध जीपीएस ट्रैकिंग सिंक्रोनाइज़ेशन और मानचित्र सुधार।
+• सुदृढ़ सुरक्षा और वैश्विक अनुपालन।
+</hi-IN>
+<hu-HU>
+Mon50ccetMoi v100.90.01:
+• Hivatalos Android 16 (API 36) kompatibilitás.
+• Jelentős teljesítmény-optimalizálás és forráskód-tisztítás.
+• Fejlesztett Oracle / Jarvis hangasszisztens stabilitás.
+• Sima GPS-követési szinkronizálás és térképjavítások.
+• Megerősített biztonság és globális megfelelőség.
+</hu-HU>
+<id>
+Mon50ccetMoi v100.90.01:
+• Kompatibilitas resmi Android 16 (API 36).
+• Optimasi kinerja besar & pembersihan kode sumber.
+• Peningkatan stabilitas asisten suara Oracle / Jarvis.
+• Sinkronisasi pelacakan GPS yang lancar & perbaikan peta.
+• Keamanan diperkuat & kepatuhan global.
+</id>
 <it-IT>
 Mon50ccetMoi v100.90.01:
 • Compatibilità ufficiale Android 16 (API 36).
@@ -46,22 +78,30 @@ Mon50ccetMoi v100.90.01:
 • Sincronizzazione fluida del tracciamento GPS e correzioni alla mappa.
 • Sicurezza rafforzata e conformità globale.
 </it-IT>
-<pt-PT>
+<iw-IL>
 Mon50ccetMoi v100.90.01:
-• Compatibilidade oficial com Android 16 (API 36).
-• Grande otimização de desempenho e limpeza do código fonte.
-• Melhoria da estabilidade do assistente de voz Oracle / Jarvis.
-• Sincronização fluida do rastreamento GPS e correções no mapa.
-• Segurança reforçada e conformidade global.
-</pt-PT>
-<pt-BR>
+• תאימות רשמית לאנדרואיד 16 (API 36).
+• אופטימיזציה משמעותית בביצועים וניקוי קוד מקור.
+• שיפור יציבות עוזר הקול Oracle / Jarvis.
+• סנכרון מעקב GPS חלק ותיקוני מפה.
+• אבטחה משודרגת ועמידה בתקנים עולמיים.
+</iw-IL>
+<ja-JP>
 Mon50ccetMoi v100.90.01:
-• Compatibilidade oficial com Android 16 (API 36).
-• Grande otimização de desempenho e limpeza de código.
-• Melhoria na estabilidade do assistente de voz Oracle / Jarvis.
-• Sincronização fluida do rastreamento GPS e correções no mapa.
-• Segurança reforçada e conformidade global.
-</pt-BR>
+• 公式Android 16（API 36）互換性。
+• 大幅なパフォーマンス最適化とソースコードのクリーンアップ。
+• Oracle / Jarvis音声アシスタントの安定性向上。
+• スムーズなGPSトラッキング同期とマップの修正。
+• セキュリティの強化とグローバルコンプライアンス。
+</ja-JP>
+<ko-KR>
+Mon50ccetMoi v100.90.01:
+• 공식 Android 16 (API 36) 호환성.
+• 대대적인 성능 최적화 및 소스 코드 정돈.
+• Oracle / Jarvis 음성 비서 안정성 향상.
+• 매끄러운 GPS 추적 동기화 및 지도 오류 수정.
+• 보안 강화 및 글로벌 규정 준수.
+</ko-KR>
 <nl-NL>
 Mon50ccetMoi v100.90.01:
 • Officiële Android 16 (API 36) compatibiliteit.
@@ -70,6 +110,14 @@ Mon50ccetMoi v100.90.01:
 • Soepele GPS-tracking synchronisatie & kaartoplossingen.
 • Versterkte beveiliging en wereldwijde naleving.
 </nl-NL>
+<no-NO>
+Mon50ccetMoi v100.90.01:
+• Offisiell Android 16 (API 36) kompatibilitet.
+• Omfattende ytelsesoptimalisering og opprydding i kildekode.
+• Forbedret Oracle / Jarvis stemmeassistent-stabilitet.
+• Jevn GPS-sporingssynkronisering og kartrettelser.
+• Styrket sikkerhet og global samsvar.
+</no-NO>
 <pl-PL>
 Mon50ccetMoi v100.90.01:
 • Oficjalna kompatybilność z Android 16 (API 36).
@@ -78,3 +126,59 @@ Mon50ccetMoi v100.90.01:
 • Płynna synchronizacja śledzenia GPS i poprawki mapy.
 • Wzmocnione bezpieczeństwo i zgodność z przepisami.
 </pl-PL>
+<pt-BR>
+Mon50ccetMoi v100.90.01:
+• Compatibilidade oficial com Android 16 (API 36).
+• Grande otimização de desempenho e limpeza de código.
+• Melhoria na estabilidade do assistente de voz Oracle / Jarvis.
+• Sincronização fluida do rastreamento GPS e correções no mapa.
+• Segurança reforçada e conformidade global.
+</pt-BR>
+<ro>
+Mon50ccetMoi v100.90.01:
+• Compatibilitate oficială cu Android 16 (API 36).
+• Optimizare majoră a performanței și curățarea codului sursă.
+• Stabilitate îmbunătățită a asistentului vocal Oracle / Jarvis.
+• Sincronizare lină a urmăririi GPS și remedieri de hartă.
+• Securitate consolidată și conformitate globală.
+</ro>
+<sk>
+Mon50ccetMoi v100.90.01:
+• Oficiálna kompatibilita s Android 16 (API 36).
+• Významná optimalizácia výkonu a vyčistenie zdrojového kódu.
+• Vylepšená stabilita hlasového asistenta Oracle / Jarvis.
+• Plynulá synchronizácia GPS sledovania a opravy mapy.
+• Posilnená bezpečnosť a globálna zhoda.
+</sk>
+<sv-SE>
+Mon50ccetMoi v100.90.01:
+• Officiell Android 16 (API 36) kompatibilitet.
+• Stor prestandaoptimering och rensning av källkod.
+• Förbättrad stabilitet för Oracle / Jarvis röstassistent.
+• Smidig GPS-spårningssynkronisering och kartkorrigeringar.
+• Förstärkt säkerhet och global efterlevnad.
+</sv-SE>
+<th>
+Mon50ccetMoi v100.90.01:
+• รองรับ Android 16 (API 36) อย่างเป็นทางการ
+• เพิ่มประสิทธิภาพการทำงานและทำความสะอาดโค้ดอย่างมาก
+• ปรับปรุงความเสถียรของระบบสั่งการด้วยเสียง Oracle / Jarvis
+• ซิงค์การติดตาม GPS ที่ราบรื่นและการแก้ไขแผนที่
+• เพิ่มความปลอดภัยและการปฏิบัติตามมาตรฐานสากล
+</th>
+<tr-TR>
+Mon50ccetMoi v100.90.01:
+• Resmi Android 16 (API 36) uyumluluğu.
+• Büyük performans optimizasyonu ve kaynak kod temizliği.
+• Geliştirilmiş Oracle / Jarvis sesli asistan kararlılığı.
+• Sorunsuz GPS takip senkronizasyonu ve harita düzeltmeleri.
+• Güçlendirilmiş güvenlik ve küresel uyumluluk.
+</tr-TR>
+<zh-CN>
+Mon50ccetMoi v100.90.01：
+• 官方支持 Android 16 (API 36)。
+• 重大性能优化与源代码清理。
+• 提升 Oracle / Jarvis 语音助手稳定性。
+• 流畅的 GPS 追踪同步与地图修复。
+• 强化安全性与全球合规性。
+</zh-CN>
