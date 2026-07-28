@@ -1,6 +1,6 @@
 ﻿/**
  * AR Navigation Module (v85.0)
- * GÃ¨re l'affichage vidÃ©o de la camÃ©ra et la superposition holographique
+ * Gère l'affichage vidéo de la caméra et la superposition holographique
  */
 class ARNavigationManager {
   constructor() {
@@ -89,7 +89,7 @@ class ARNavigationManager {
 
       if (typeof speak === "function") {
         speak(
-          "SystÃ¨me optique enclenchÃ©. Affichage tÃªte haute opÃ©rationnel. Attention, ce mode consomme beaucoup d'Ã©nergie, veuillez brancher le tÃ©lÃ©phone si possible.",
+          "Système optique enclenché. Affichage tête haute opérationnel. Attention, ce mode consomme beaucoup d'énergie, veuillez brancher le téléphone si possible.",
         );
       }
       if (
@@ -99,8 +99,8 @@ class ARNavigationManager {
         window.NeuralHUD.logToConsole("AR_SYSTEM: ENGAGED - HUD ACTIVE");
       }
     } catch (err) {
-      console.error("Impossible de dÃ©marrer la camÃ©ra AR:", err);
-      alert("AccÃ¨s Ã  la camÃ©ra refusÃ© ou non disponible.");
+      console.error("Impossible de démarrer la caméra AR:", err);
+      alert("Accès à la caméra refusé ou non disponible.");
     }
   }
 
@@ -125,7 +125,7 @@ class ARNavigationManager {
 
     if (typeof speak === "function")
       speak(
-        "Affichage tÃªte haute dÃ©sactivÃ©. Retour Ã  la navigation standard.",
+        "Affichage tête haute désactivé. Retour à la navigation standard.",
       );
     if (
       window.NeuralHUD &&

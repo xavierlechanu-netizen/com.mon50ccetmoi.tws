@@ -124,7 +124,7 @@ window.startPremiumNavigation = function (leg) {
   // Voice Announcement
   if (typeof speak === "function") {
     speak(
-      "ItinÃ©raire calculÃ©. Dans " +
+      "Itinéraire calculé. Dans " +
         nextStep.distance.text +
         ", " +
         instructionText,

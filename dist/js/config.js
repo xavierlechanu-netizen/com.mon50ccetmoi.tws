@@ -1,13 +1,13 @@
 ﻿/**
  * CONFIGURATION GLOBALE - mon50ccetmoi
- * Centralisation des clÃ©s et configurations sensibles.
+ * Centralisation des clés et configurations sensibles.
  */
 const CONFIG = {
   // Google Maps API Keys
   MAPS: {
     PC: atob("QUl6YVN5Q05fZmV2VGlHOEF2V1B1RFMyS2NfV3B3bFlmRHk0azRN"),
     ANDROID: atob("QUl6YVN5Q05fZmV2VGlHOEF2V1B1RFMyS2NfV3B3bFlmRHk0azRN"),
-    MAP_ID: "", // Laisser vide si non configurÃ© sur Google Cloud
+    MAP_ID: "", // Laisser vide si non configuré sur Google Cloud
   },
 
   // Auth Configuration
@@ -31,37 +31,37 @@ const CONFIG = {
 
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // REVOLUT BUSINESS â€” Paiements Merchant
-  // ClÃ© publique Merchant (pk_...) â€” sans danger cÃ´tÃ© client
-  // La clÃ© secrÃ¨te (sk_...) ne va JAMAIS ici â€” Firebase Functions uniquement
+  // Clé publique Merchant (pk_...) â€” sans danger côté client
+  // La clé secrète (sk_...) ne va JAMAIS ici â€” Firebase Functions uniquement
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   REVOLUT: {
-    PUBLIC_KEY: "pk_kkwSOEhfQdseB6OVcsYEIpdAwxNxY0JvSUtgtQlLuNlFpNED", // ClÃ© Merchant publique
-    PAYMENT_LINK: "", // Laisser vide â€” on utilise le SDK embarquÃ©
+    PUBLIC_KEY: "pk_kkwSOEhfQdseB6OVcsYEIpdAwxNxY0JvSUtgtQlLuNlFpNED", // Clé Merchant publique
+    PAYMENT_LINK: "", // Laisser vide â€” on utilise le SDK embarqué
     MERCHANT_ID: "", // Rempli automatiquement par l'API
     CURRENCY: "EUR",
-    AMOUNT_CENTS: 4999, // 49,99 â‚¬
+    AMOUNT_CENTS: 4999, // 49,99 €
     SUCCESS_REDIRECT: "https://mon50ccetmoi.com/?payment=success",
     FAIL_REDIRECT: "https://mon50ccetmoi.com/?payment=failed",
   },
 
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // PORTAIL ASSURANCE â€” ParamÃ¨tres IA litige
+  // PORTAIL ASSURANCE â€” Paramètres IA litige
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   INSURANCE: {
     FIRESTORE_COLLECTION: "litigation_proposals", // Collection Firestore des propositions
     REPORT_PRICE_EUR: 49.99,
-    // Seuils IA pour la sÃ©lection automatique du type de rapport
+    // Seuils IA pour la sélection automatique du type de rapport
     AI_THRESHOLDS: {
-      IMPACT_G: 3.5, // Au-dessus â†’ Rapport Impact
-      EXPERT_G: 5.0, // Au-dessus â†’ Rapport Expertise ComplÃ¨te
-      HIGH_SPEED_KMH: 60, // Vitesse considÃ©rÃ©e Ã©levÃ©e pour le contexte 50cc
+      IMPACT_G: 3.5, // Au-dessus ←’ Rapport Impact
+      EXPERT_G: 5.0, // Au-dessus ←’ Rapport Expertise Complète
+      HIGH_SPEED_KMH: 60, // Vitesse considérée élevée pour le contexte 50cc
       LEAN_ANGLE_DEG: 35, // Angle d'inclinaison critique
     },
   },
 };
 
-// --- FALLBACK SÃ‰CURISÃ‰ GLOBAL ---
-// UtilisÃ© pour assurer que les fonctions existent avant le chargement des autres scripts
+// --- FALLBACK SÉCURISÉ GLOBAL ---
+// Utilisé pour assurer que les fonctions existent avant le chargement des autres scripts
 if (typeof window.secureSetItem === "undefined") {
   window.secureSetItem = function (key, value) {
     try {

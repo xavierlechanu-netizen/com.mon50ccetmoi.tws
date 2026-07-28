@@ -11,7 +11,7 @@ window.Telemetry = {
   init: function () {
     this.createHUD();
     this.hijackConsole();
-    // this.trackGps(); // DÃ©sactivÃ© temporairement pour Ã©viter les conflits GPS avec app.js
+    // this.trackGps(); // Désactivé temporairement pour éviter les conflits GPS avec app.js
     this.trackPerformance();
     this.trackBattery();
 
@@ -22,7 +22,7 @@ window.Telemetry = {
     setTimeout(() => {
       this.addLog(
         "SUCCESS",
-        "Connexion Ã©tablie. Masquage automatique pour plus de fluiditÃ©.",
+        "Connexion établie. Masquage automatique pour plus de fluidité.",
       );
       setTimeout(() => {
         if (this.isVisible) this.toggle();
@@ -95,10 +95,10 @@ window.Telemetry = {
   },
 
   trackGps: function () {
-    // GARDE : ne pas accÃ©der au GPS sans consentement de l'utilisateur
+    // GARDE : ne pas accéder au GPS sans consentement de l'utilisateur
     if (localStorage.getItem("location_consent_accepted") !== "true") {
       console.warn(
-        "mon50cc Telemetry : GPS bloquÃ© â€” consentement non accordÃ©.",
+        "mon50cc Telemetry : GPS bloqué â€” consentement non accordé.",
       );
       return;
     }
@@ -212,10 +212,10 @@ window.toggleARMode = async function () {
       if (mapContainer) mapContainer.style.opacity = "0.3"; // Semi-transparent map overlay
       if (arBtn) arBtn.style.color = "#ff0055";
       window.isARMode = true;
-      if (typeof speak === "function") speak("RÃ©alitÃ© AugmentÃ©e activÃ©e.");
+      if (typeof speak === "function") speak("Réalité Augmentée activée.");
     } catch (err) {
       console.error("AR Camera error:", err);
-      alert("Impossible d'accÃ©der Ã  la camÃ©ra pour le mode AR.");
+      alert("Impossible d'accéder à la caméra pour le mode AR.");
     }
   } else {
     if (videoObj && videoObj.srcObject) {
@@ -226,7 +226,7 @@ window.toggleARMode = async function () {
     if (arBtn) arBtn.style.color = "#fff";
     window.isARMode = false;
     if (typeof speak === "function")
-      speak("RÃ©alitÃ© AugmentÃ©e dÃ©sactivÃ©e.");
+      speak("Réalité Augmentée désactivée.");
   }
 };
 
@@ -249,7 +249,7 @@ window.initAdvancedTelemetry = function () {
         horizonLine.style.transform = "rotate(" + lean + "deg)";
       }
       if (leanText) {
-        leanText.textContent = Math.abs(Math.round(lean)) + "Â°";
+        leanText.textContent = Math.abs(Math.round(lean)) + "°";
         if (Math.abs(lean) > 40) leanText.style.color = "#ff0055";
         else leanText.style.color = "#00d2ff";
       }

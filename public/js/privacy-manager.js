@@ -33,17 +33,17 @@ window.PrivacyManager = {
 
     banner.innerHTML = `
             <div style="max-width:600px; font-family:'Outfit', sans-serif;">
-                <h3 style="color:#00ffcc; margin-top:0;"><i class="fa-solid fa-shield-halved"></i> Vos donnÃ©es, Vos rÃ¨gles (RGPD)</h3>
+                <h3 style="color:#00ffcc; margin-top:0;"><i class="fa-solid fa-shield-halved"></i> Vos données, Vos règles (RGPD)</h3>
                 <p style="font-size:0.9rem; margin-bottom:15px; line-height:1.4;">
-                    Pour vous afficher sur la carte sociale et vous permettre d'interagir avec la communautÃ© (CortÃ¨ge, S.O.S, Crews), "mon 50cc et moi" a besoin de collecter et partager vos donnÃ©es de localisation GPS en arriÃ¨re-plan.<br>
-                    <strong>Acceptez-vous le partage de votre position ?</strong> Vous pourrez passer en "Mode FantÃ´me" Ã  tout moment.
+                    Pour vous afficher sur la carte sociale et vous permettre d'interagir avec la communauté (Cortège, S.O.S, Crews), "mon 50cc et moi" a besoin de collecter et partager vos données de localisation GPS en arrière-plan.<br>
+                    <strong>Acceptez-vous le partage de votre position ?</strong> Vous pourrez passer en "Mode Fantôme" à tout moment.
                 </p>
                 <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
                     <button onclick="window.PrivacyManager.setConsent(true)" style="background:#00ffcc; color:black; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-check"></i> J'accepte</button>
                     <button onclick="window.PrivacyManager.setConsent(false)" style="background:transparent; color:#aaa; border:1px solid #aaa; padding:10px 20px; border-radius:20px; cursor:pointer;"><i class="fa-solid fa-xmark"></i> Je refuse (GPS Local)</button>
                 </div>
                 <div style="margin-top:15px; font-size:0.8rem;">
-                    <a href="#" onclick="window.PrivacyManager.showPrivacyPolicy(); return false;" style="color:#00ffcc; text-decoration:underline;">Lire la Politique de ConfidentialitÃ©</a>
+                    <a href="#" onclick="window.PrivacyManager.showPrivacyPolicy(); return false;" style="color:#00ffcc; text-decoration:underline;">Lire la Politique de Confidentialité</a>
                 </div>
             </div>
         `;
@@ -58,14 +58,14 @@ window.PrivacyManager = {
 
     if (!agreed) {
       alert(
-        "Vous avez refusÃ©. L'application fonctionnera en mode restreint. Vous n'apparaÃ®trez pas sur la carte des autres pilotes.",
+        "Vous avez refusé. L'application fonctionnera en mode restreint. Vous n'apparaîtrez pas sur la carte des autres pilotes.",
       );
       this.toggleGhostMode(true); // Force invisible
     } else {
       this.toggleGhostMode(false);
       if (typeof speak === "function")
         speak(
-          "ParamÃ¨tres de confidentialitÃ© enregistrÃ©s. Bienvenue dans la communautÃ©.",
+          "Paramètres de confidentialité enregistrés. Bienvenue dans la communauté.",
         );
     }
   },
@@ -73,7 +73,7 @@ window.PrivacyManager = {
   toggleGhostMode: function (forceState = null) {
     if (!this.consentGiven && forceState === false) {
       alert(
-        "Vous devez d'abord accepter le partage GPS pour dÃ©sactiver le mode fantÃ´me.",
+        "Vous devez d'abord accepter le partage GPS pour désactiver le mode fantôme.",
       );
       this.showConsentBanner();
       return;
@@ -105,8 +105,8 @@ window.PrivacyManager = {
     if (forceState === null && typeof speak === "function") {
       speak(
         this.ghostModeActive
-          ? "Mode fantÃ´me activÃ©. Vous Ãªtes invisible."
-          : "Mode fantÃ´me dÃ©sactivÃ©. Vous Ãªtes visible.",
+          ? "Mode fantôme activé. Vous êtes invisible."
+          : "Mode fantôme désactivé. Vous êtes visible.",
       );
     }
   },
@@ -117,7 +117,7 @@ window.PrivacyManager = {
       if (this.ghostModeActive) {
         btn.style.color = "#ff0055";
         btn.style.borderColor = "#ff0055";
-        btn.innerHTML = `<i class="fa-solid fa-ghost"></i> FantÃ´me`;
+        btn.innerHTML = `<i class="fa-solid fa-ghost"></i> Fantôme`;
       } else {
         btn.style.color = "#00ffcc";
         btn.style.borderColor = "#00ffcc";
@@ -138,16 +138,16 @@ window.PrivacyManager = {
 
     modal.innerHTML = `
             <div style="background:#111; border:1px solid #555; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center; color:white;">
-                <h2 style="color:white; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-gear"></i> ParamÃ¨tres & RGPD</h2>
+                <h2 style="color:white; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-gear"></i> Paramètres & RGPD</h2>
                 
                 <div style="margin-bottom:20px; text-align:left; background:#222; padding:15px; border-radius:10px;">
-                    <p><b>Statut GPS CommunautÃ© :</b> ${this.consentGiven ? '<span style="color:#00ffcc">AcceptÃ©</span>' : '<span style="color:#ff0055">RefusÃ©</span>'}</p>
+                    <p><b>Statut GPS Communauté :</b> ${this.consentGiven ? '<span style="color:#00ffcc">Accepté</span>' : '<span style="color:#ff0055">Refusé</span>'}</p>
                     <button onclick="window.PrivacyManager.showConsentBanner(); document.getElementById('privacy-modal').style.display='none';" style="margin-top:10px; width:100%; background:transparent; border:1px solid #00ffcc; color:#00ffcc; padding:8px; border-radius:5px; cursor:pointer;">Modifier le consentement</button>
                 </div>
                 
                 <div style="margin-bottom:20px; border-top:1px solid #333; padding-top:20px;">
-                    <h3 style="color:#ff0055; margin-top:0;">Zone de Danger (Droit Ã  l'oubli)</h3>
-                    <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">ConformÃ©ment aux lois internationales de protection des donnÃ©es (RGPD/Europe, CCPA/USA, APPI/PDPA/Asie, POPIA/Convention de Malabo/Afrique), vous pouvez demander la suppression immÃ©diate et dÃ©finitive de votre compte et de toutes les donnÃ©es associÃ©es.</p>
+                    <h3 style="color:#ff0055; margin-top:0;">Zone de Danger (Droit à l'oubli)</h3>
+                    <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Conformément aux lois internationales de protection des données (RGPD/Europe, CCPA/USA, APPI/PDPA/Asie, POPIA/Convention de Malabo/Afrique), vous pouvez demander la suppression immédiate et définitive de votre compte et de toutes les données associées.</p>
                     <button onclick="window.PrivacyManager.deleteMyData()" style="width:100%; background:#ff0055; color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-trash-can"></i> Supprimer mon compte</button>
                 </div>
                 
@@ -159,14 +159,14 @@ window.PrivacyManager = {
 
   showPrivacyPolicy: function () {
     alert(
-      "Politique Globale de ConfidentialitÃ© (RGPD, CCPA, APPI, POPIA) :\n\n- DonnÃ©es collectÃ©es : Position GPS, Email (si authentifiÃ©).\n- FinalitÃ© : Affichage sur la carte sociale communautaire, alerte SOS, calcul itinÃ©raires.\n- Partage tiers : AUCUN. Vos donnÃ©es ne sont pas revendues.\n- DurÃ©e de conservation : Les donnÃ©es GPS temps-rÃ©el sont Ã©phÃ©mÃ¨res. Les traces Roadbooks et SOS sont conservÃ©es jusqu'Ã  leur suppression.\n- Vos droits mondiaux : AccÃ¨s, Rectification, Effacement (bouton dans les paramÃ¨tres), Mode FantÃ´me.",
+      "Politique Globale de Confidentialité (RGPD, CCPA, APPI, POPIA) :\n\n- Données collectées : Position GPS, Email (si authentifié).\n- Finalité : Affichage sur la carte sociale communautaire, alerte SOS, calcul itinéraires.\n- Partage tiers : AUCUN. Vos données ne sont pas revendues.\n- Durée de conservation : Les données GPS temps-réel sont éphémères. Les traces Roadbooks et SOS sont conservées jusqu'à leur suppression.\n- Vos droits mondiaux : Accès, Rectification, Effacement (bouton dans les paramètres), Mode Fantôme.",
     );
   },
 
   deleteMyData: async function () {
     if (
       !confirm(
-        "âš ï¸ ATTENTION âš ï¸\nCette action est irrÃ©versible. Votre compte, vos points BVC, vos territoires et vos traces seront dÃ©finitivement supprimÃ©s.\n\nÃŠtes-vous absolument sÃ»r(e) de vouloir tout supprimer ?",
+        "âš ï¸ ATTENTION âš ï¸\nCette action est irréversible. Votre compte, vos points BVC, vos territoires et vos traces seront définitivement supprimés.\n\nÊtes-vous absolument sûr(e) de vouloir tout supprimer ?",
       )
     ) {
       return;
@@ -177,7 +177,7 @@ window.PrivacyManager = {
       !window.session ||
       !window.session.uid
     ) {
-      alert("Vous n'Ãªtes pas connectÃ© ou erreur systÃ¨me.");
+      alert("Vous n'êtes pas connecté ou erreur système.");
       return;
     }
 
@@ -191,14 +191,14 @@ window.PrivacyManager = {
       localStorage.clear();
 
       alert(
-        "âœ… Vos donnÃ©es ont Ã©tÃ© supprimÃ©es avec succÃ¨s (Droit Ã  l'oubli). Vous allez Ãªtre dÃ©connectÃ©.",
+        "✅ Vos données ont été supprimées avec succès (Droit à l'oubli). Vous allez être déconnecté.",
       );
 
       // 3. Reload page to enforce logout
       window.location.reload();
     } catch (e) {
       console.error(e);
-      alert("Erreur lors de la suppression de vos donnÃ©es : " + e.message);
+      alert("Erreur lors de la suppression de vos données : " + e.message);
     }
   },
 };

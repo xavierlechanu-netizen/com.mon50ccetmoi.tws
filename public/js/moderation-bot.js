@@ -1,16 +1,16 @@
 ﻿// --- GUARDIAN 50CC BOT v1.0 ---
-// Le bot autonome qui surveille la communautÃ© mon50ccetmoi
+// Le bot autonome qui surveille la communauté mon50ccetmoi
 
 window.GuardianBot = {
   name: "Guardian 50cc",
   status: "Active",
 
-  // Surveillance en temps rÃ©el (Logique de filtrage)
+  // Surveillance en temps réel (Logique de filtrage)
   analyzeContent: function (type, data, author) {
     const isProfane = Moderation.isProfane(JSON.stringify(data));
 
     if (isProfane) {
-      this.takeAction(type, author, "Langage inappropriÃ© dÃ©tectÃ©");
+      this.takeAction(type, author, "Langage inapproprié détecté");
       return false;
     }
 
@@ -19,7 +19,7 @@ window.GuardianBot = {
 
   takeAction: function (type, author, reason) {
     console.warn(
-      `[${this.name}] ðŸš¨ LOGIQUE DE BAN : Action punitive contre ${author} pour ${reason} sur ${type}.`,
+      `[${this.name}] 🚨 LOGIQUE DE BAN : Action punitive contre ${author} pour ${reason} sur ${type}.`,
     );
 
     // Notification Admin
@@ -34,11 +34,11 @@ window.GuardianBot = {
     }
 
     alert(
-      `[Guardian Bot] ðŸ¤– DÃ©solÃ© @${author}, ton contenu sur ${type} a Ã©tÃ© censurÃ© car il ne respecte pas les rÃ¨gles de la communautÃ©.`,
+      `[Guardian Bot] ðŸ¤– Désolé @${author}, ton contenu sur ${type} a été censuré car il ne respecte pas les règles de la communauté.`,
     );
   },
 
-  // MÃ©thode pour scanner le Ticker Social (Moods) en temps rÃ©el
+  // Méthode pour scanner le Ticker Social (Moods) en temps réel
   monitorSocialTicker: function () {
     if (typeof db === "undefined") return;
 
@@ -50,10 +50,10 @@ window.GuardianBot = {
         snap.forEach((doc) => {
           const m = doc.data();
           if (!this.analyzeContent("Humeur", m.text, m.username)) {
-            // Si pas safe, on masque immÃ©diatement l'Ã©lÃ©ment DOM si possible
+            // Si pas safe, on masque immédiatement l'élément DOM si possible
             const ticker = document.getElementById("ticker-text");
             if (ticker)
-              ticker.textContent = "[Message censurÃ© par Guardian Bot ðŸ¤–]";
+              ticker.textContent = "[Message censuré par Guardian Bot ðŸ¤–]";
           }
         });
       });

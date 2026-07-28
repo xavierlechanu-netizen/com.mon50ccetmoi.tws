@@ -14,7 +14,7 @@ window.initEcoTelemetry = function () {
     const currentSpeed = window.lastKnownSpeedKmh || 0;
     const delta = Math.abs(currentSpeed - lastSpeed);
 
-    // Si freinage brutal ou accÃ©lÃ©ration violente (> 15 km/h en 1s)
+    // Si freinage brutal ou accélération violente (> 15 km/h en 1s)
     if (delta > 15) {
       window.ecoScore -= 2;
       if (window.ecoScore < 0) window.ecoScore = 0;
@@ -50,7 +50,7 @@ window.generateEcoReport = function () {
     certScreen.classList.remove("hidden");
     if (typeof speak === "function")
       speak(
-        "Trajet terminÃ©. Score Ã©cologique excellent. Certificat d'Ã©conomie d'Ã©nergie gÃ©nÃ©rÃ© avec succÃ¨s.",
+        "Trajet terminé. Score écologique excellent. Certificat d'économie d'énergie généré avec succès.",
       );
 
     // Update Wallet Badge if exists
@@ -59,7 +59,7 @@ window.generateEcoReport = function () {
   } else {
     if (typeof speak === "function")
       speak(
-        "Trajet terminÃ©. Conduite trop agressive, aucun certificat carbone dÃ©livrÃ©.",
+        "Trajet terminé. Conduite trop agressive, aucun certificat carbone délivré.",
       );
   }
 };
@@ -80,13 +80,13 @@ window.openTradingFloor = function () {
 
   if (typeof speak === "function")
     speak(
-      "AccÃ¨s Ã  la salle de marchÃ© du carbone. Des mÃ©gacorporations attendent d'acheter vos certificats.",
+      "Accès à la salle de marché du carbone. Des mégacorporations attendent d'acheter vos certificats.",
     );
 
   // Simulation du cours de la bourse
   window.tradingInterval = setInterval(() => {
     const price = (14.5 + (Math.random() * 5 - 2.5)).toFixed(2);
-    stockPrice.innerText = price + " â‚¬";
+    stockPrice.innerText = price + " €";
     if (price > 16) stockPrice.style.color = "#00ff00";
     else stockPrice.style.color = "#ff0055";
   }, 2000);
@@ -112,7 +112,7 @@ window.sellCEE = function () {
 
     if (typeof speak === "function")
       speak(
-        "Transaction validÃ©e. Certificats vendus aux industries polluantes. Fonds transfÃ©rÃ©s sur votre portefeuille.",
+        "Transaction validée. Certificats vendus aux industries polluantes. Fonds transférés sur votre portefeuille.",
       );
 
     const button = document.getElementById("sell-cee-btn");
@@ -124,7 +124,7 @@ window.sellCEE = function () {
     }, 3000);
   } else {
     if (typeof speak === "function")
-      speak("Vous ne possÃ©dez aucun certificat Ã  vendre.");
+      speak("Vous ne possédez aucun certificat à vendre.");
   }
 };
 

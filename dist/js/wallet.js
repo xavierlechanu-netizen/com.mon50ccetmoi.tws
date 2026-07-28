@@ -30,7 +30,7 @@ window.Wallet = {
         const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
         this.docs = JSON.parse(decryptedData);
       } catch (e) {
-        console.error("Erreur de dÃ©chiffrement du coffre-fort:", e);
+        console.error("Erreur de déchiffrement du coffre-fort:", e);
         this.docs = {};
       }
     } else {
@@ -57,10 +57,10 @@ window.Wallet = {
     if (window.session.isGuest) {
       if (typeof speak === "function")
         speak(
-          "AccÃ¨s refusÃ©. Le Coffre-Fort certifiÃ© est rÃ©servÃ© aux membres.",
+          "Accès refusé. Le Coffre-Fort certifié est réservé aux membres.",
         );
       alert(
-        "ðŸ”’ Le Coffre-Fort certifiÃ© est rÃ©servÃ© aux membres inscrits.",
+        "ðŸ”’ Le Coffre-Fort certifié est réservé aux membres inscrits.",
       );
       return;
     }
@@ -68,23 +68,23 @@ window.Wallet = {
     this.docs[type] = {
       data: data,
       date: new Date().toISOString(),
-      status: "CERTIFIÃ‰ SENTINEL",
+      status: "CERTIFIÉ SENTINEL",
     };
     this.saveEncrypted();
     if (typeof speak === "function")
       speak(
-        "Document chiffrÃ© et enregistrÃ© dans votre coffre-fort numÃ©rique.",
+        "Document chiffré et enregistré dans votre coffre-fort numérique.",
       );
   },
 
   unlock: function (callback) {
     if (this.isUnlocked) return callback(true);
 
-    // Simulation visuelle du scan biomÃ©trique dans le HUD
+    // Simulation visuelle du scan biométrique dans le HUD
     if (window.NeuralHUD) {
       window.NeuralHUD.logToConsole("WALLET_ACCESS: INITIATING_BIO_SCAN...");
       if (typeof speak === "function")
-        speak("VÃ©rification biomÃ©trique pour accÃ¨s au coffre-fort.");
+        speak("Vérification biométrique pour accès au coffre-fort.");
 
       setTimeout(() => {
         window.NeuralHUD.logToConsole("BIO_MATCH: IDENTITY_CONFIRMED");
@@ -98,7 +98,7 @@ window.Wallet = {
   },
 
   getSafetyPassport: function () {
-    // GÃ©nÃ¨re un rÃ©sumÃ© pour l'administration (ANTS / Assurances)
+    // Génère un résumé pour l'administration (ANTS / Assurances)
     return {
       vMax_History: window.session.vMax || 0,
       maintenance_count: JSON.parse(secureGetItem("maint_history") || "[]")

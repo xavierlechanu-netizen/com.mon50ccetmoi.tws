@@ -1,18 +1,18 @@
 ﻿/**
  * LITIGATION AI v1.0 â€” PORTAIL ASSURANCE INTELLIGENT
- * Analyse automatique des donnÃ©es Blackbox pour les dossiers de litige.
- * GÃ©nÃ¨re un code dossier unique, sÃ©lectionne le type de rapport adaptÃ©,
- * et envoie une proposition structurÃ©e Ã  l'assureur via Firestore.
+ * Analyse automatique des données Blackbox pour les dossiers de litige.
+ * Génère un code dossier unique, sélectionne le type de rapport adapté,
+ * et envoie une proposition structurée à l'assureur via Firestore.
  */
 
 window.LitigationAI = {
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // 1. GÃ‰NÃ‰RATION DU CODE DOSSIER
+  // 1. GÉNÉRATION DU CODE DOSSIER
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
-   * GÃ©nÃ¨re un code de dossier unique au format LITIGE-XXXXXX
-   * basÃ© sur timestamp + uid utilisateur pour unicitÃ© garantie.
+   * Génère un code de dossier unique au format LITIGE-XXXXXX
+   * basé sur timestamp + uid utilisateur pour unicité garantie.
    */
   generateCaseCode() {
     const uid = window.session?.uid || "GUEST";
@@ -26,10 +26,10 @@ window.LitigationAI = {
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
-   * Analyse les donnÃ©es de la Blackbox et retourne une Ã©valuation IA :
-   * - type de rapport recommandÃ©
-   * - score de sÃ©vÃ©ritÃ©
-   * - rÃ©sumÃ© des facteurs clÃ©s
+   * Analyse les données de la Blackbox et retourne une évaluation IA :
+   * - type de rapport recommandé
+   * - score de sévérité
+   * - résumé des facteurs clés
    */
   analyzeBlackboxData() {
     const thresholds = CONFIG?.INSURANCE?.AI_THRESHOLDS || {
@@ -43,7 +43,7 @@ window.LitigationAI = {
     const buffer = blackbox?.buffer || [];
     const hfBuffer = blackbox?.hfBuffer || [];
 
-    // â€” Calcul du G-Force maximum enregistrÃ©
+    // â€” Calcul du G-Force maximum enregistré
     let maxG = 0;
     for (const entry of hfBuffer) {
       const ax = parseFloat(entry.ax) || 0;
@@ -53,7 +53,7 @@ window.LitigationAI = {
       if (g > maxG) maxG = g;
     }
 
-    // â€” Vitesse max enregistrÃ©e
+    // â€” Vitesse max enregistrée
     let maxSpeed = 0;
     for (const entry of buffer) {
       const spd = parseFloat(entry.speed) || 0;
@@ -67,10 +67,10 @@ window.LitigationAI = {
       if (lean > maxLean) maxLean = lean;
     }
 
-    // â€” CoordonnÃ©es GPS de l'incident (dernier point connu)
+    // â€” Coordonnées GPS de l'incident (dernier point connu)
     const lastGps = buffer.length > 0 ? buffer[buffer.length - 1] : null;
 
-    // â€” Score de sÃ©vÃ©ritÃ© (0â€“100)
+    // â€” Score de sévérité (0â€“100)
     let severity = 0;
     if (maxG > thresholds.EXPERT_G) severity += 50;
     else if (maxG > thresholds.IMPACT_G) severity += 30;
@@ -78,27 +78,27 @@ window.LitigationAI = {
     if (maxLean > thresholds.LEAN_ANGLE_DEG) severity += 15;
     severity = Math.min(severity, 100);
 
-    // â€” SÃ©lection automatique du type de rapport
+    // â€” Sélection automatique du type de rapport
     let reportType, reportLabel, reportIcon, reportDescription;
 
     if (maxG >= thresholds.EXPERT_G || severity >= 70) {
       reportType = "EXPERT_COMPLET";
-      reportLabel = "Expertise ComplÃ¨te";
-      reportIcon = "ðŸ›¡ï¸";
+      reportLabel = "Expertise Complète";
+      reportIcon = "🛡ï¸";
       reportDescription =
-        "TÃ©lÃ©mÃ©trie + G-Force + GPS + Replay 3D certifiÃ© + Signature SHA-256";
+        "Télémétrie + G-Force + GPS + Replay 3D certifié + Signature SHA-256";
     } else if (maxG >= thresholds.IMPACT_G || severity >= 35) {
       reportType = "IMPACT";
       reportLabel = "Rapport Impact";
       reportIcon = "âš¡";
       reportDescription =
-        "DÃ©tection de choc + AccÃ©lÃ©romÃ©trie haute frÃ©quence + GPS";
+        "Détection de choc + Accélérométrie haute fréquence + GPS";
     } else {
       reportType = "STANDARD";
       reportLabel = "Rapport Standard";
       reportIcon = "ðŸ“Š";
       reportDescription =
-        "TÃ©lÃ©mÃ©trie gÃ©nÃ©rale + Vitesse + CoordonnÃ©es GPS";
+        "Télémétrie générale + Vitesse + Coordonnées GPS";
     }
 
     return {
@@ -122,7 +122,7 @@ window.LitigationAI = {
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
-   * Construit un objet de proposition complet destinÃ© Ã  l'assureur.
+   * Construit un objet de proposition complet destiné à l'assureur.
    */
   buildInsuranceProposal(caseCode, analysis) {
     const now = new Date();
@@ -143,7 +143,7 @@ window.LitigationAI = {
         minute: "2-digit",
       }),
 
-      // DÃ©cision IA
+      // Décision IA
       ai: {
         recommendedReport: analysis.reportType,
         reportLabel: analysis.reportLabel,
@@ -157,7 +157,7 @@ window.LitigationAI = {
               : "STANDARD",
       },
 
-      // DonnÃ©es techniques clÃ©s
+      // Données techniques clés
       telemetry: {
         maxG_force: parseFloat(analysis.maxG),
         maxSpeed_kmh: parseFloat(analysis.maxSpeed),
@@ -212,23 +212,23 @@ window.LitigationAI = {
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
-   * Point d'entrÃ©e principal.
-   * GÃ©nÃ¨re le code, analyse la blackbox, construit et envoie la proposition,
-   * puis affiche le rÃ©sultat dans l'interface.
+   * Point d'entrée principal.
+   * Génère le code, analyse la blackbox, construit et envoie la proposition,
+   * puis affiche le résultat dans l'interface.
    */
   async runWizard() {
-    // Ã‰tape 1 â€” GÃ©nÃ©ration du code
+    // Étape 1 â€” Génération du code
     const caseCode = this.generateCaseCode();
     this.renderWizardStep("analyzing", caseCode, null);
 
-    // Ã‰tape 2 â€” Analyse IA (simuler dÃ©lai traitement)
+    // Étape 2 â€” Analyse IA (simuler délai traitement)
     await new Promise((r) => setTimeout(r, 1800));
     const analysis = this.analyzeBlackboxData();
 
-    // Ã‰tape 3 â€” Construction de la proposition
+    // Étape 3 â€” Construction de la proposition
     const proposal = this.buildInsuranceProposal(caseCode, analysis);
 
-    // Ã‰tape 4 â€” Affichage du rÃ©sultat + confirmation
+    // Étape 4 â€” Affichage du résultat + confirmation
     this.renderWizardResult(caseCode, analysis, proposal);
   },
 
@@ -256,14 +256,14 @@ window.LitigationAI = {
                 <div class="litigation-header">
                     <i class="fa-solid fa-shield-halved litigation-icon-pulse"></i>
                     <h3>Portail Litige Assurance</h3>
-                    <p class="litigation-sub">L'IA va analyser votre Blackbox et prÃ©parer une proposition pour votre assureur.</p>
+                    <p class="litigation-sub">L'IA va analyser votre Blackbox et préparer une proposition pour votre assureur.</p>
                 </div>
 
                 <div class="litigation-checklist">
-                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Blackbox chiffrÃ©e AES-256</div>
-                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> TÃ©lÃ©mÃ©trie haute frÃ©quence (10Hz)</div>
-                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> CoordonnÃ©es GPS certifiÃ©es</div>
-                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Signature SHA-256 d'intÃ©gritÃ©</div>
+                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Blackbox chiffrée AES-256</div>
+                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Télémétrie haute fréquence (10Hz)</div>
+                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Coordonnées GPS certifiées</div>
+                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Signature SHA-256 d'intégrité</div>
                 </div>
 
                 <div class="litigation-actions">
@@ -289,12 +289,12 @@ window.LitigationAI = {
                     <div class="ai-spinner">
                         <i class="fa-solid fa-brain fa-spin-pulse"></i>
                     </div>
-                    <h3>Analyse IA en coursâ€¦</h3>
-                    <p class="case-code-display">Code dossier gÃ©nÃ©rÃ© : <strong>${caseCode}</strong></p>
+                    <h3>Analyse IA en cours…</h3>
+                    <p class="case-code-display">Code dossier généré : <strong>${caseCode}</strong></p>
                     <div class="ai-progress-bar">
                         <div class="ai-progress-fill"></div>
                     </div>
-                    <p class="ai-status-text">Lecture de la tÃ©lÃ©mÃ©trie Blackboxâ€¦</p>
+                    <p class="ai-status-text">Lecture de la télémétrie Blackbox…</p>
                 </div>
             `;
       // Animation de la barre de progression
@@ -302,13 +302,13 @@ window.LitigationAI = {
         const fill = content.querySelector(".ai-progress-fill");
         const txt = content.querySelector(".ai-status-text");
         if (fill) fill.style.width = "45%";
-        if (txt) txt.textContent = "Calcul des G-Forcesâ€¦";
+        if (txt) txt.textContent = "Calcul des G-Forces…";
       }, 500);
       setTimeout(() => {
         const fill = content.querySelector(".ai-progress-fill");
         const txt = content.querySelector(".ai-status-text");
         if (fill) fill.style.width = "80%";
-        if (txt) txt.textContent = "SÃ©lection du type de rapportâ€¦";
+        if (txt) txt.textContent = "Sélection du type de rapport…";
       }, 1200);
     }
   },
@@ -325,16 +325,16 @@ window.LitigationAI = {
           : "#00e676";
     const severityLabel =
       analysis.severity >= 70
-        ? "Ã‰LEVÃ‰E"
+        ? "ÉLEVÉE"
         : analysis.severity >= 35
-          ? "MODÃ‰RÃ‰E"
+          ? "MODÉRÉE"
           : "FAIBLE";
 
     content.innerHTML = `
             <div class="litigation-portal">
                 <div class="litigation-result-header">
                     <i class="fa-solid fa-brain" style="color:#7c4dff; font-size:2rem;"></i>
-                    <h3>Analyse IA TerminÃ©e</h3>
+                    <h3>Analyse IA Terminée</h3>
                 </div>
 
                 <div class="case-code-badge">
@@ -349,14 +349,14 @@ window.LitigationAI = {
                 <div class="report-recommendation">
                     <div class="report-icon">${analysis.reportIcon}</div>
                     <div class="report-info">
-                        <strong>Rapport recommandÃ© :</strong>
+                        <strong>Rapport recommandé :</strong>
                         <span class="report-label">${analysis.reportLabel}</span>
                         <p class="report-desc">${analysis.reportDescription}</p>
                     </div>
                 </div>
 
                 <div class="severity-block">
-                    <span class="severity-title">SÃ©vÃ©ritÃ© estimÃ©e :</span>
+                    <span class="severity-title">Sévérité estimée :</span>
                     <div class="severity-bar-bg">
                         <div class="severity-bar-fill" style="width:${analysis.severity}%; background:${severityColor};"></div>
                     </div>
@@ -366,36 +366,36 @@ window.LitigationAI = {
                 <div class="telemetry-summary">
                     <div class="tele-item"><i class="fa-solid fa-bolt"></i> G-Force max : <strong>${analysis.maxG} G</strong></div>
                     <div class="tele-item"><i class="fa-solid fa-gauge-high"></i> Vitesse max : <strong>${analysis.maxSpeed} km/h</strong></div>
-                    <div class="tele-item"><i class="fa-solid fa-rotate"></i> Inclinaison max : <strong>${analysis.maxLean}Â°</strong></div>
-                    <div class="tele-item"><i class="fa-solid fa-shield-halved"></i> IntÃ©gritÃ© chassis : <strong>${analysis.structuralScore}%</strong></div>
+                    <div class="tele-item"><i class="fa-solid fa-rotate"></i> Inclinaison max : <strong>${analysis.maxLean}°</strong></div>
+                    <div class="tele-item"><i class="fa-solid fa-shield-halved"></i> Intégrité chassis : <strong>${analysis.structuralScore}%</strong></div>
                     ${analysis.gpsIncident ? `<div class="tele-item"><i class="fa-solid fa-location-dot"></i> GPS : <strong>${analysis.gpsIncident.lat?.toFixed(5)}, ${analysis.gpsIncident.lng?.toFixed(5)}</strong></div>` : ""}
                 </div>
 
                 <p class="litigation-disclaimer">
                     <i class="fa-solid fa-circle-info"></i>
-                    En envoyant cette proposition, votre assureur reÃ§oit le rÃ©sumÃ© et vous contactera pour valider le type de rapport dÃ©finitif.
+                    En envoyant cette proposition, votre assureur reçoit le résumé et vous contactera pour valider le type de rapport définitif.
                 </p>
 
                 <!-- AVERTISSEMENT AI ACT (Obligatoire) -->
                 <p class="litigation-ai-act-disclaimer" style="color: #ffaa00; font-weight: bold; margin-bottom: 15px; border: 1px solid #ffaa00; padding: 10px; border-radius: 8px;">
                     <i class="fa-solid fa-scale-balanced"></i>
-                    âš ï¸ GÃ‰NÃ‰RÃ‰ PAR L'IA : Ce rapport est une proposition d'assistance. Une supervision et validation humaine par l'utilisateur sont obligatoires avant le traitement juridique.
+                    âš ï¸ GÉNÉRÉ PAR L'IA : Ce rapport est une proposition d'assistance. Une supervision et validation humaine par l'utilisateur sont obligatoires avant le traitement juridique.
                 </p>
 
                 <div class="litigation-actions">
                     ${
                       proposal.type === "EXPERT_COMPLET"
                         ? `
-                    <button class="btn-litigation-start" onclick="if(window.CertifiedCamera) window.CertifiedCamera.open('${caseCode}'); else alert('Module de camÃ©ra non disponible');" style="background:#ffb703; color:#000; margin-bottom:10px;">
+                    <button class="btn-litigation-start" onclick="if(window.CertifiedCamera) window.CertifiedCamera.open('${caseCode}'); else alert('Module de caméra non disponible');" style="background:#ffb703; color:#000; margin-bottom:10px;">
                         <i class="fa-solid fa-camera"></i>
-                        Ajouter Preuve Photo (HorodatÃ©e)
+                        Ajouter Preuve Photo (Horodatée)
                     </button>
                     `
                         : ""
                     }
                     <button class="btn-litigation-send" onclick='LitigationAI.confirmAndSend(' + JSON.stringify(proposal).replace(/"/g, "&quot;") + ')'>
                         <i class="fa-solid fa-paper-plane"></i>
-                        Envoyer Ã  l'assureur
+                        Envoyer à l'assureur
                     </button>
                     <button class="btn-close-litigation" onclick="document.getElementById('screen-overlay').classList.add('hidden')">
                         <i class="fa-solid fa-times"></i> Annuler
@@ -419,8 +419,8 @@ window.LitigationAI = {
     content.innerHTML = `
             <div class="litigation-portal litigation-sending">
                 <i class="fa-solid fa-lock fa-bounce" style="font-size:3rem; color:#7c4dff;"></i>
-                <h3>Verrouillage des donnÃ©es...</h3>
-                <p>CrÃ©ation du coffre-fort numÃ©rique...</p>
+                <h3>Verrouillage des données...</h3>
+                <p>Création du coffre-fort numérique...</p>
             </div>
         `;
 
@@ -429,8 +429,8 @@ window.LitigationAI = {
       content.innerHTML = `
                 <div class="litigation-portal litigation-success" style="padding: 20px;">
                     <i class="fa-solid fa-vault" style="font-size:4rem; color:#00e676; margin-bottom: 20px;"></i>
-                    <h3 style="color:#00e676; margin-bottom: 10px;">Coffre-Fort SÃ©curisÃ© !</h3>
-                    <p style="color:#aaa; margin-bottom: 20px;">Vos donnÃ©es certifiÃ©es sont cryptÃ©es et inaccessibles sans ce code.</p>
+                    <h3 style="color:#00e676; margin-bottom: 10px;">Coffre-Fort Sécurisé !</h3>
+                    <p style="color:#aaa; margin-bottom: 20px;">Vos données certifiées sont cryptées et inaccessibles sans ce code.</p>
                     
                     <div style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 15px; border: 2px dashed #00e676; display: inline-block; margin-bottom: 20px;">
                         <span style="display: block; font-size: 1rem; color: #888; margin-bottom: 10px;">CODE LITIGE Ã€ TRANSMETTRE Ã€ VOTRE ASSUREUR :</span>
@@ -439,7 +439,7 @@ window.LitigationAI = {
 
                     <p style="color:#ffaa00; font-weight: bold; margin-bottom: 30px;">
                         <i class="fa-solid fa-hand-holding-dollar"></i> 
-                        Vous recevrez une prime de 10 BVC dÃ¨s que votre assureur dÃ©bloquera ces donnÃ©es.
+                        Vous recevrez une prime de 10 BVC dès que votre assureur débloquera ces données.
                     </p>
 
                     <button class="btn-litigation-start" onclick="document.getElementById('screen-overlay').classList.add('hidden')">
@@ -449,14 +449,14 @@ window.LitigationAI = {
             `;
       if (typeof speak === "function")
         speak(
-          "Coffre-fort crÃ©Ã©. Transmettez ce code litige Ã  votre assureur.",
+          "Coffre-fort créé. Transmettez ce code litige à votre assureur.",
         );
     }, 2000);
   },
 
   copyCode(code) {
     navigator.clipboard.writeText(code).then(() => {
-      if (typeof speak === "function") speak("Code dossier copiÃ©.");
+      if (typeof speak === "function") speak("Code dossier copié.");
       const btn = document.querySelector(".btn-copy-code");
       if (btn) {
         btn.innerHTML = '<i class="fa-solid fa-check"></i>';

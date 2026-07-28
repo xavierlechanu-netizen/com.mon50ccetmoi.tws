@@ -67,7 +67,7 @@
       if (typeof speak === "function") {
         speak(
           connected
-            ? "Liaison tÃ©lÃ©mÃ©trique moteur Ã©tablie."
+            ? "Liaison télémétrique moteur établie."
             : "Alerte : Connexion moteur perdue.",
         );
       }
@@ -90,7 +90,7 @@
       } else if (data.type === "temp") {
         const tempEl = document.getElementById("weather-temp");
         if (tempEl) {
-          tempEl.textContent = data.value + "Â°C";
+          tempEl.textContent = data.value + "°C";
           tempEl.style.color = data.value > 90 ? "#ff4d4d" : "#00d2ff";
           const icon = tempEl.parentElement.querySelector("i");
           if (icon) {
@@ -114,7 +114,7 @@
       if (video.srcObject) {
         video.srcObject.getTracks().forEach((track) => track.stop());
       }
-      speak("Vision nocturne dÃ©sactivÃ©e.");
+      speak("Vision nocturne désactivée.");
     } else {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -123,10 +123,10 @@
         video.srcObject = stream;
         this.isNightVisionActive = true;
         document.body.classList.add("night-vision-active");
-        speak("Vision nocturne activÃ©e. Optimisation des contrastes route.");
+        speak("Vision nocturne activée. Optimisation des contrastes route.");
       } catch (err) {
         console.error("Camera AR failed:", err);
-        alert("AccÃ¨s camÃ©ra requis pour la Vision Nocturne.");
+        alert("Accès caméra requis pour la Vision Nocturne.");
       }
     }
   },
@@ -135,7 +135,7 @@
     this.logToConsole("BIOMETRIC: SCANNING...");
     setTimeout(() => {
       this.logToConsole("SIGNATURE: VERIFIED");
-      if (typeof speak === "function") speak("Signature neurale confirmÃ©e.");
+      if (typeof speak === "function") speak("Signature neurale confirmée.");
       this.updatePilotLevel();
     }, 2000);
   },
@@ -174,7 +174,7 @@
     this.logToConsole(`LEVEL UP: ${newLevel}`);
     const overlay = document.createElement("div");
     overlay.style = `position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.5); z-index:999999; text-align:center; color:#00d2ff; font-family:'JetBrains Mono', monospace; text-shadow:0 0 20px #00d2ff; pointer-events:none; transition:transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s; opacity:0;`;
-    overlay.innerHTML = `<i class="fa-solid fa-angles-up" style="font-size:4rem; margin-bottom:10px;"></i><h1 style="margin:0; font-size:3rem;">NIVEAU ${newLevel}</h1><p style="margin:0; font-size:1.5rem; color:#fff;">FÃ©licitations Pilote</p>`;
+    overlay.innerHTML = `<i class="fa-solid fa-angles-up" style="font-size:4rem; margin-bottom:10px;"></i><h1 style="margin:0; font-size:3rem;">NIVEAU ${newLevel}</h1><p style="margin:0; font-size:1.5rem; color:#fff;">Félicitations Pilote</p>`;
     document.body.appendChild(overlay);
 
     setTimeout(() => {
@@ -278,7 +278,7 @@
   triggerTacticalPulse: function () {
     this.logToConsole("TACTICAL_PULSE: INITIATED");
     if (typeof speak === "function")
-      speak("Impulsion tactique envoyÃ©e. Analyse de zone en cours.");
+      speak("Impulsion tactique envoyée. Analyse de zone en cours.");
 
     const core = document.getElementById("neural-core");
     core.style.transform = "translate(-50%, -50%) scale(1.5)";
@@ -297,28 +297,28 @@
   initOracle: function () {
     this.oraclePhrases = {
       start: [
-        "Core Universel stabilisÃ©. Bienvenue dans l'Omniscience, Pilote.",
-        "Liaison totale Ã©tablie. Vous Ãªtes la machine.",
+        "Core Universel stabilisé. Bienvenue dans l'Omniscience, Pilote.",
+        "Liaison totale établie. Vous êtes la machine.",
       ],
       speed: [
-        "Alerte : Distortion temporelle dÃ©tectÃ©e. Votre vitesse dÃ©fie la rÃ©alitÃ©.",
+        "Alerte : Distortion temporelle détectée. Votre vitesse défie la réalité.",
         "Ralentissez. L'horizon ne peut plus vous suivre.",
       ],
       threat_detected: [
-        "ANALYSE : Menace identifiÃ©e. Ã‰limination tactique ou Ã©vitement conseillÃ©.",
+        "ANALYSE : Menace identifiée. Élimination tactique ou évitement conseillé.",
       ],
       earnings: [
-        "Harmonie SÃ©curitÃ© : +5.00 $MON50 matÃ©rialisÃ©s dans votre Wallet.",
+        "Harmonie Sécurité : +5.00 $MON50 matérialisés dans votre Wallet.",
       ],
       squad_on: [
-        "Conscience de groupe activÃ©e. Vous ne roulez plus jamais seul.",
+        "Conscience de groupe activée. Vous ne roulez plus jamais seul.",
       ],
-      singularity: ["Point de SingularitÃ© atteint. Tout est UN."],
+      singularity: ["Point de Singularité atteint. Tout est UN."],
       god_view: [
-        "Radar Global : 50 000 pilotes dÃ©tectÃ©s dans la grille stellaire.",
+        "Radar Global : 50 000 pilotes détectés dans la grille stellaire.",
       ],
       integrity: [
-        "Note : Votre armure Sentinel vibre avec le cosmos. Ã‰tat nominal.",
+        "Note : Votre armure Sentinel vibre avec le cosmos. État nominal.",
       ],
     };
     setTimeout(() => this.speakOracle("start"), 3000);
@@ -391,7 +391,7 @@
 
   startNeuralLoop: function () {
     window.addEventListener("deviceorientation", (e) => {
-      // DÃ©sactivÃ© : EmpÃªche le HUD et le radar de "bouger tout seul" de faÃ§on erratique avec le gyroscope
+      // Désactivé : Empêche le HUD et le radar de "bouger tout seul" de façon erratique avec le gyroscope
       /*
             const hud = document.getElementById('hud');
             const radar = document.getElementById('radar-sweep');
@@ -443,7 +443,7 @@
 
     this.logToConsole("AEGIS: INITIATING FULL SYSTEM DIAGNOSTIC...");
     if (typeof speak === "function")
-      speak("Initialisation des diagnostics systÃ¨me Aegis.");
+      speak("Initialisation des diagnostics système Aegis.");
 
     const tests = [
       { msg: "NEURAL_LINK: STABLE", delay: 800 },
@@ -457,7 +457,7 @@
       setTimeout(() => {
         this.logToConsole(`AEGIS: ${t.msg}`);
         if (i === tests.length - 1 && typeof speak === "function") {
-          speak("Diagnostic terminÃ©. Tous les systÃ¨mes sont optimaux.");
+          speak("Diagnostic terminé. Tous les systèmes sont optimaux.");
         }
       }, t.delay);
     });
@@ -513,8 +513,8 @@ window.toggleHolographicMode = function () {
   const isActive = document.body.classList.contains("holographic-mode");
   speak(
     isActive
-      ? "Mode Projection Pare-brise activÃ©."
-      : "Mode HUD Standard activÃ©.",
+      ? "Mode Projection Pare-brise activé."
+      : "Mode HUD Standard activé.",
   );
 };
 
@@ -542,7 +542,7 @@ if (window.NeuralHUD) {
     if (tempEl) {
       // Fake realistic temp between 12 and 22
       const temp = Math.floor(Math.random() * 10) + 12;
-      tempEl.textContent = temp + "Â°C";
+      tempEl.textContent = temp + "°C";
       // Wind speed between 5 and 35 km/h
       const wind = Math.floor(Math.random() * 30) + 5;
       windEl.textContent = wind + " km/h";
@@ -560,7 +560,7 @@ if (window.NeuralHUD) {
       if (users > 0) {
         radarEl.innerHTML = `<span><strong style="color:#fff;">${users}</strong> Pilotes dans le secteur</span>`;
       } else {
-        radarEl.innerHTML = `<span style="color:#aaa;">Zone dÃ©gagÃ©e</span>`;
+        radarEl.innerHTML = `<span style="color:#aaa;">Zone dégagée</span>`;
       }
     }
   };

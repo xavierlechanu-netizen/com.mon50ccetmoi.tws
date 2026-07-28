@@ -1,12 +1,12 @@
-﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   CONFORMITÃ‰ GLOBALE : RGPD, CCPA, PIPL & GOOGLE PLAY CONSOLE
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+﻿/* ═══════════════════════════════════════════════════════════════
+   CONFORMITÉ GLOBALE : RGPD, CCPA, PIPL & GOOGLE PLAY CONSOLE
+   ═══════════════════════════════════════════════════════════════ */
 
 window.checkGlobalPrivacy = function () {
   const hasConsented = localStorage.getItem("global_privacy_consent");
 
   if (!hasConsented) {
-    // CNIL : Ne PAS auto-accepter. Afficher la banniÃ¨re et attendre le choix actif de l'utilisateur.
+    // CNIL : Ne PAS auto-accepter. Afficher la bannière et attendre le choix actif de l'utilisateur.
     window.preventAppLaunch = true;
     injectPrivacyBanner();
   } else {
@@ -26,20 +26,20 @@ function injectPrivacyBanner() {
         <div style="max-width: 500px; margin: 0 auto; padding-bottom: 50px;">
             <div style="text-align: center;">
                 <i class="fa-solid fa-shield-halved" style="font-size: 4rem; color: #00ffcc; margin-bottom: 20px;"></i>
-                <h2 style="margin: 0 0 10px 0; text-transform: uppercase;">Vos DonnÃ©es, Vos RÃ¨gles</h2>
+                <h2 style="margin: 0 0 10px 0; text-transform: uppercase;">Vos Données, Vos Règles</h2>
             </div>
             
             <div style="background: rgba(255,0,85,0.1); border-left: 4px solid #ff0055; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
-                <h3 style="margin: 0 0 10px 0; color: #ff0055; font-size: 1rem;"><i class="fa-brands fa-google-play"></i> DÃ©claration de ConfidentialitÃ©</h3>
+                <h3 style="margin: 0 0 10px 0; color: #ff0055; font-size: 1rem;"><i class="fa-brands fa-google-play"></i> Déclaration de Confidentialité</h3>
                 <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
-                    <strong>mon 50cc et moi</strong> collecte des donnÃ©es de localisation pour permettre la dÃ©tection automatique de chute, la navigation GPS Ã©tape par Ã©tape, et le signalement de dangers Ã  la communautÃ©, mÃªme lorsque l'application est fermÃ©e ou qu'elle n'est pas utilisÃ©e. L'accÃ¨s en arriÃ¨re-plan est indispensable au service.
+                    <strong>mon 50cc et moi</strong> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, même lorsque l'application est fermée ou qu'elle n'est pas utilisée. L'accès en arrière-plan est indispensable au service.
                 </p>
             </div>
 
             <div style="background: #111; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
                 <h3 style="color: #00b3ff; margin-top: 0; font-size: 1.1rem;">1. Europe (RGPD / CNIL)</h3>
                 <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px;">
-                    <span><i class="fa-solid fa-location-dot" style="color: #00b3ff;"></i> AccÃ¨s GPS (Obligatoire)</span>
+                    <span><i class="fa-solid fa-location-dot" style="color: #00b3ff;"></i> Accès GPS (Obligatoire)</span>
                     <input type="checkbox" id="privacy-gps" checked disabled style="transform: scale(1.5);">
                 </label>
                 <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px;">
@@ -47,7 +47,7 @@ function injectPrivacyBanner() {
                     <input type="checkbox" id="privacy-mic" checked style="transform: scale(1.5);">
                 </label>
                 <label style="display: flex; justify-content: space-between; align-items: center;">
-                    <span><i class="fa-solid fa-camera" style="color: #b700ff;"></i> CamÃ©ra (AR Vision)</span>
+                    <span><i class="fa-solid fa-camera" style="color: #b700ff;"></i> Caméra (AR Vision)</span>
                     <input type="checkbox" id="privacy-cam" checked style="transform: scale(1.5);">
                 </label>
             </div>
@@ -55,7 +55,7 @@ function injectPrivacyBanner() {
             <div style="background: #111; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
                 <h3 style="color: #ffb700; margin-top: 0; font-size: 1.1rem;">2. USA / Californie (CCPA)</h3>
                 <label style="display: flex; justify-content: space-between; align-items: center;">
-                    <span><i class="fa-solid fa-hand-holding-dollar" style="color: #ffb700;"></i> Ne pas vendre mes donnÃ©es<br><small style="color: #888;">"Do Not Sell My Personal Info"</small></span>
+                    <span><i class="fa-solid fa-hand-holding-dollar" style="color: #ffb700;"></i> Ne pas vendre mes données<br><small style="color: #888;">"Do Not Sell My Personal Info"</small></span>
                     <input type="checkbox" id="privacy-ccpa" checked style="transform: scale(1.5);">
                 </label>
             </div>
@@ -63,15 +63,15 @@ function injectPrivacyBanner() {
             <div style="background: #111; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                 <h3 style="color: #ff0055; margin-top: 0; font-size: 1.1rem;">3. Chine (PIPL)</h3>
                 <label style="display: flex; justify-content: space-between; align-items: center;">
-                    <span><i class="fa-solid fa-globe" style="color: #ff0055;"></i> Transfert Transfrontalier<br><small style="color: #888;">Autoriser l'envoi des donnÃ©es vers les serveurs sÃ©curisÃ©s en Europe.</small></span>
+                    <span><i class="fa-solid fa-globe" style="color: #ff0055;"></i> Transfert Transfrontalier<br><small style="color: #888;">Autoriser l'envoi des données vers les serveurs sécurisés en Europe.</small></span>
                     <input type="checkbox" id="privacy-pipl" checked style="transform: scale(1.5);">
                 </label>
             </div>
             
             <button onclick="window.acceptGlobalPrivacy()" style="width: 100%; padding: 15px; background: #00ffcc; color: #000; font-weight: 900; font-size: 1.2rem; border: none; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-bottom: 10px;">J'ACCEPTE TOUT</button>
-            <button onclick="window.refuseGlobalPrivacy()" style="width: 100%; padding: 15px; background: transparent; color: #fff; font-weight: 700; font-size: 1rem; border: 2px solid #fff; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-bottom: 15px;">REFUSER (fonctionnalitÃ©s limitÃ©es)</button>
+            <button onclick="window.refuseGlobalPrivacy()" style="width: 100%; padding: 15px; background: transparent; color: #fff; font-weight: 700; font-size: 1rem; border: 2px solid #fff; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-bottom: 15px;">REFUSER (fonctionnalités limitées)</button>
             <div style="text-align: center;">
-                <button onclick="window.openPrivacyPolicy()" style="background: none; border: none; color: #888; text-decoration: underline; cursor: pointer;">Lire la Politique de ConfidentialitÃ©</button>
+                <button onclick="window.openPrivacyPolicy()" style="background: none; border: none; color: #888; text-decoration: underline; cursor: pointer;">Lire la Politique de Confidentialité</button>
             </div>
         </div>
     </div>
@@ -79,20 +79,20 @@ function injectPrivacyBanner() {
     <!-- PRIVACY POLICY MODAL -->
     <div id="privacy-policy-modal" class="hidden fullscreen-overlay" style="background: #111; color: #fff; z-index: 95000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding: 30px; box-sizing: border-box; font-family: 'Inter', sans-serif;">
         <button onclick="window.closePrivacyPolicy()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-times"></i></button>
-        <h2>Politique de ConfidentialitÃ© Globale</h2>
-        <p>En accord avec les rÃ¨gles Google Play et les lois RGPD (Europe), CCPA (USA) et PIPL (Chine).</p>
+        <h2>Politique de Confidentialité Globale</h2>
+        <p>En accord avec les règles Google Play et les lois RGPD (Europe), CCPA (USA) et PIPL (Chine).</p>
         
-        <h3>1. AccÃ¨s Ã  la Localisation en ArriÃ¨re-plan (Google Play)</h3>
-        <p>Notre application accÃ¨de Ã  votre position GPS de maniÃ¨re continue, y compris lorsque l'application est en arriÃ¨re-plan, afin de calculer les distances parcourues pour le Score Ã‰co et le Radar Social. Ces donnÃ©es sont utilisÃ©es exclusivement pour la fonctionnalitÃ© principale du service et ne sont pas revendues.</p>
+        <h3>1. Accès à la Localisation en Arrière-plan (Google Play)</h3>
+        <p>Notre application accède à votre position GPS de manière continue, y compris lorsque l'application est en arrière-plan, afin de calculer les distances parcourues pour le Score Éco et le Radar Social. Ces données sont utilisées exclusivement pour la fonctionnalité principale du service et ne sont pas revendues.</p>
         
         <h3>2. Europe (RGPD) & Privacy by Design</h3>
-        <p>Vos donnÃ©es sont traitÃ©es de faÃ§on sÃ©curisÃ©e (AES-256). Vous disposez d'un droit inconditionnel Ã  l'oubli. La fonction "Supprimer mes donnÃ©es" Ã©crase vos donnÃ©es locales et purge irrÃ©vocablement votre compte sur le Cloud Firebase.</p>
+        <p>Vos données sont traitées de façon sécurisée (AES-256). Vous disposez d'un droit inconditionnel à l'oubli. La fonction "Supprimer mes données" écrase vos données locales et purge irrévocablement votre compte sur le Cloud Firebase.</p>
 
         <h3>3. USA (CCPA)</h3>
-        <p>Nous ne vendons AUCUNE de vos donnÃ©es personnelles Ã  des tiers. Vous pouvez exprimer votre choix en cochant la case "Do Not Sell".</p>
+        <p>Nous ne vendons AUCUNE de vos données personnelles à des tiers. Vous pouvez exprimer votre choix en cochant la case "Do Not Sell".</p>
 
         <h3>4. Chine (PIPL)</h3>
-        <p>Si vous rÃ©sidez en Chine, vous devez consentir explicitement au transfert transfrontalier de vos donnÃ©es vers nos serveurs situÃ©s en Europe.</p>
+        <p>Si vous résidez en Chine, vous devez consentir explicitement au transfert transfrontalier de vos données vers nos serveurs situés en Europe.</p>
     </div>
     `;
 
@@ -108,13 +108,13 @@ window.acceptGlobalPrivacy = function () {
 
   if (!gpsChecked) {
     alert(
-      "Attention : L'application nÃ©cessite obligatoirement l'accÃ¨s au GPS pour fonctionner.",
+      "Attention : L'application nécessite obligatoirement l'accès au GPS pour fonctionner.",
     );
     return;
   }
   if (!piplChecked) {
     alert(
-      "Information (PIPL) : L'application est hÃ©bergÃ©e en Europe. Si vous n'autorisez pas le transfert transfrontalier, le Cloud ne pourra pas fonctionner.",
+      "Information (PIPL) : L'application est hébergée en Europe. Si vous n'autorisez pas le transfert transfrontalier, le Cloud ne pourra pas fonctionner.",
     );
   }
 
@@ -146,7 +146,7 @@ window.acceptGlobalPrivacy = function () {
     setTimeout(window.initZeroClickDestiny, 2000);
 
   if (typeof speak === "function")
-    speak("ConformitÃ© internationale validÃ©e. Bienvenue.");
+    speak("Conformité internationale validée. Bienvenue.");
 };
 
 window.openPrivacyPolicy = function () {
@@ -178,7 +178,7 @@ window.refuseGlobalPrivacy = function () {
   window.preventAppLaunch = false;
 
   alert(
-    "Vous avez refusÃ© les cookies optionnels. L'application fonctionnera avec des fonctionnalitÃ©s limitÃ©es (pas de commandes vocales ni de rÃ©alitÃ© augmentÃ©e).",
+    "Vous avez refusé les cookies optionnels. L'application fonctionnera avec des fonctionnalités limitées (pas de commandes vocales ni de réalité augmentée).",
   );
 };
 
@@ -187,11 +187,11 @@ window.closePrivacyPolicy = function () {
   if (modal) modal.classList.add("hidden");
 };
 
-// â”€â”€â”€ Droit Ã  l'effacement (Droit Ã  l'oubli / Protocol Zero) â”€â”€
+// â”€â”€â”€ Droit à l'effacement (Droit à l'oubli / Protocol Zero) â”€â”€
 window.revokeAndEraseData = async function () {
   if (
     confirm(
-      "ATTENTION : Cette action est IRRÃ‰VERSIBLE. Toutes vos donnÃ©es locales ET sur le serveur Cloud (Firestore) seront dÃ©truites. Confirmer ?",
+      "ATTENTION : Cette action est IRRÉVERSIBLE. Toutes vos données locales ET sur le serveur Cloud (Firestore) seront détruites. Confirmer ?",
     )
   ) {
     let uid = null;
@@ -206,7 +206,7 @@ window.revokeAndEraseData = async function () {
       }
     }
 
-    // 1. DÃ©clencher le Protocol Zero (Suppression Backend via Cloud Function)
+    // 1. Déclencher le Protocol Zero (Suppression Backend via Cloud Function)
     if (uid) {
       try {
         const cloudFuncUrl =
@@ -221,7 +221,7 @@ window.revokeAndEraseData = async function () {
       }
     }
 
-    // 2. Effacer toutes les donnÃ©es locales
+    // 2. Effacer toutes les données locales
     localStorage.clear();
     sessionStorage.clear();
 
@@ -239,20 +239,20 @@ window.revokeAndEraseData = async function () {
     }
 
     alert(
-      "Toutes vos donnÃ©es (Locales et Serveur) ont Ã©tÃ© dÃ©truites de maniÃ¨re irrÃ©versible. L'application va se rÃ©initialiser.",
+      "Toutes vos données (Locales et Serveur) ont été détruites de manière irréversible. L'application va se réinitialiser.",
     );
     window.location.href = "login.html";
   }
 };
 
-// â”€â”€â”€ Export des donnÃ©es â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€â”€ Export des données â”€â”€â”€â”€â”€â”€â”€
 window.exportMyData = function () {
   try {
     const exportData = {
       _meta: {
         export_date: new Date().toISOString(),
         app: "mon50ccetmoi",
-        format: "JSON (Format structurÃ© portable)",
+        format: "JSON (Format structuré portable)",
       },
       consent: JSON.parse(
         localStorage.getItem("privacy_consent_record") || "{}",
@@ -305,7 +305,7 @@ window.exportMyData = function () {
     URL.revokeObjectURL(url);
 
     alert(
-      "âœ… Export terminÃ© ! Vos donnÃ©es locales ont Ã©tÃ© tÃ©lÃ©chargÃ©es.",
+      "✅ Export terminé ! Vos données locales ont été téléchargées.",
     );
   } catch (e) {
     console.error("Erreur export:", e);
@@ -313,7 +313,7 @@ window.exportMyData = function () {
   }
 };
 
-// â”€â”€â”€ VÃ©rification au chargement â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€â”€ Vérification au chargement â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.addEventListener("DOMContentLoaded", () => {
   if (!localStorage.getItem("global_privacy_consent")) {
     setTimeout(window.checkGlobalPrivacy, 500);

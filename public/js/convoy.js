@@ -1,7 +1,7 @@
 ﻿/**
  * ðŸ—ºï¸ MODE CONVOI
- * SystÃ¨me de balades en groupe avec partage de position en temps rÃ©el via Firebase Firestore.
- * SÃ©curitÃ© : request.auth.uid vÃ©rifiÃ© cÃ´tÃ© Firestore Rules, chiffrement E2EE via cloudEncrypt/cloudDecrypt.
+ * Système de balades en groupe avec partage de position en temps réel via Firebase Firestore.
+ * Sécurité : request.auth.uid vérifié côté Firestore Rules, chiffrement E2EE via cloudEncrypt/cloudDecrypt.
  */
 
 window.ConvoyManager = {
@@ -12,11 +12,11 @@ window.ConvoyManager = {
   firestoreUnsubscribe: null,
 
   /**
-   * GÃ©nÃ¨re un code convoi alÃ©atoire de 4 caractÃ¨res alphanumÃ©riques.
+   * Génère un code convoi aléatoire de 4 caractères alphanumériques.
    * @returns {string}
    */
   generateCode: function () {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Sans I/O/0/1 pour Ã©viter confusion
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Sans I/O/0/1 pour éviter confusion
     let code = "";
     const array = new Uint8Array(4);
     crypto.getRandomValues(array);
@@ -27,7 +27,7 @@ window.ConvoyManager = {
   },
 
   /**
-   * CrÃ©e un nouveau convoi. L'utilisateur devient le leader.
+   * Crée un nouveau convoi. L'utilisateur devient le leader.
    */
   createConvoy: async function () {
     if (!window.db) {
@@ -35,7 +35,7 @@ window.ConvoyManager = {
       return;
     }
     if (!window.session || window.session.isGuest) {
-      alert("Vous devez Ãªtre connectÃ© pour crÃ©er un convoi.");
+      alert("Vous devez être connecté pour créer un convoi.");
       return;
     }
 
@@ -60,10 +60,10 @@ window.ConvoyManager = {
       this.renderUI();
 
       if (typeof speak === "function")
-        speak(`Convoi crÃ©Ã© ! Le code est : ${code.split("").join(", ")}.`);
+        speak(`Convoi créé ! Le code est : ${code.split("").join(", ")}.`);
     } catch (e) {
-      console.error("[Convoy] CrÃ©ation Ã©chouÃ©e :", e);
-      alert("Erreur lors de la crÃ©ation du convoi.");
+      console.error("[Convoy] Création échouée :", e);
+      alert("Erreur lors de la création du convoi.");
     }
   },
 
@@ -77,11 +77,11 @@ window.ConvoyManager = {
       return;
     }
     if (!window.session || window.session.isGuest) {
-      alert("Vous devez Ãªtre connectÃ©.");
+      alert("Vous devez être connecté.");
       return;
     }
     if (!code || code.length !== 4) {
-      alert("Code convoi invalide (4 caractÃ¨res).");
+      alert("Code convoi invalide (4 caractères).");
       return;
     }
 
@@ -92,7 +92,7 @@ window.ConvoyManager = {
       const doc = await docRef.get();
 
       if (!doc.exists || doc.data().status !== "active") {
-        alert("Convoi introuvable ou expirÃ©.");
+        alert("Convoi introuvable ou expiré.");
         return;
       }
 
@@ -102,7 +102,7 @@ window.ConvoyManager = {
         return;
       }
       if (members.includes(window.session.username)) {
-        alert("Vous Ãªtes dÃ©jÃ  dans ce convoi !");
+        alert("Vous êtes déjà dans ce convoi !");
         this.convoyId = code;
         this.isLeader = false;
         this.listenToConvoy();
@@ -170,7 +170,7 @@ window.ConvoyManager = {
     this.membersList = [];
     this.renderUI();
 
-    if (typeof speak === "function") speak("Vous avez quittÃ© le convoi.");
+    if (typeof speak === "function") speak("Vous avez quitté le convoi.");
   },
 
   /**
@@ -209,7 +209,7 @@ window.ConvoyManager = {
   },
 
   /**
-   * Ã‰coute en temps rÃ©el les positions des membres du convoi.
+   * Écoute en temps réel les positions des membres du convoi.
    */
   listenToConvoy: function () {
     if (this.firestoreUnsubscribe) this.firestoreUnsubscribe();
@@ -294,7 +294,7 @@ window.ConvoyManager = {
     if (!overlay) return;
 
     if (this.convoyId) {
-      // Ã‰TAT : DANS UN CONVOI
+      // ÉTAT : DANS UN CONVOI
       let membersHTML = "";
       this.membersList.forEach((m) => {
         const speed = m.speed
@@ -308,24 +308,24 @@ window.ConvoyManager = {
                 `;
       });
       if (this.membersList.length === 0) {
-        membersHTML = `<p style="color:#666; text-align:center; padding:20px;">En attente que d'autres pilotes rejoignentâ€¦</p>`;
+        membersHTML = `<p style="color:#666; text-align:center; padding:20px;">En attente que d'autres pilotes rejoignent…</p>`;
       }
 
       overlay.innerHTML = `
                 <button onclick="ConvoyManager.closeUI()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
                 <i class="fa-solid fa-people-group" style="font-size:3rem; color:#00d2ff; filter:drop-shadow(0 0 10px #00d2ff); margin-bottom:10px;"></i>
                 <h1 style="font-size:1.5rem; margin:0; text-transform:uppercase; color:#00d2ff;">Mode Convoi</h1>
-                <p style="color:#aaa; margin-bottom:5px;">Vous Ãªtes ${this.isLeader ? 'le <strong style="color:#cca300;">Leader</strong>' : "membre"} du convoi</p>
+                <p style="color:#aaa; margin-bottom:5px;">Vous êtes ${this.isLeader ? 'le <strong style="color:#cca300;">Leader</strong>' : "membre"} du convoi</p>
                 
                 <div style="background:rgba(0,210,255,0.15); border:2px dashed #00d2ff; padding:20px; border-radius:20px; margin:15px 0; text-align:center;">
                     <p style="color:#aaa; font-size:0.8rem; margin:0 0 5px;">CODE DU CONVOI</p>
                     <p style="font-size:2.5rem; font-weight:900; letter-spacing:10px; color:#00d2ff; margin:0;">${this.convoyId}</p>
-                    <p style="color:#666; font-size:0.75rem; margin-top:5px;">Partagez ce code Ã  vos amis !</p>
+                    <p style="color:#666; font-size:0.75rem; margin-top:5px;">Partagez ce code à vos amis !</p>
                 </div>
 
                 <div style="width:90%; max-width:400px;">
                     <h3 style="color:#fff; margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:8px;">
-                        <i class="fa-solid fa-users"></i> Pilotes connectÃ©s (${this.membersList.length})
+                        <i class="fa-solid fa-users"></i> Pilotes connectés (${this.membersList.length})
                     </h3>
                     ${membersHTML}
                 </div>
@@ -335,16 +335,16 @@ window.ConvoyManager = {
                 </button>
             `;
     } else {
-      // Ã‰TAT : PAS DE CONVOI
+      // ÉTAT : PAS DE CONVOI
       overlay.innerHTML = `
                 <button onclick="ConvoyManager.closeUI()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
                 <i class="fa-solid fa-people-group" style="font-size:3rem; color:#00d2ff; filter:drop-shadow(0 0 10px #00d2ff); margin-bottom:10px;"></i>
                 <h1 style="font-size:1.5rem; margin:0; text-transform:uppercase; color:#00d2ff;">Mode Convoi</h1>
-                <p style="color:#aaa; margin-bottom:30px; text-align:center;">Roulez en groupe. Voyez vos amis sur la carte en temps rÃ©el.</p>
+                <p style="color:#aaa; margin-bottom:30px; text-align:center;">Roulez en groupe. Voyez vos amis sur la carte en temps réel.</p>
                 
                 <div style="width:90%; max-width:400px;">
                     <button onclick="ConvoyManager.createConvoy()" style="width:100%; background:linear-gradient(135deg, #00d2ff, #0090ff); color:#fff; border:none; padding:15px; border-radius:15px; font-weight:bold; font-size:1.1rem; cursor:pointer; margin-bottom:20px; box-shadow:0 5px 20px rgba(0,210,255,0.3);">
-                        <i class="fa-solid fa-plus"></i> CrÃ©er un Convoi
+                        <i class="fa-solid fa-plus"></i> Créer un Convoi
                     </button>
                     
                     <div style="text-align:center; color:#666; margin-bottom:15px;">â€” ou â€”</div>

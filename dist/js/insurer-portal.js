@@ -42,13 +42,13 @@ window.InsurerPortal = {
         .classList.remove("hidden");
     } catch (error) {
       console.error("Auth error:", error);
-      alert("AccÃ¨s refusÃ© : Identifiants invalides ou compte inexistant.");
+      alert("Accès refusé : Identifiants invalides ou compte inexistant.");
     }
   },
 
   signup: function () {
     alert(
-      "La crÃ©ation de compte Assureur est gÃ©rÃ©e manuellement par notre Ã©quipe pour des raisons de sÃ©curitÃ©. Veuillez nous contacter.",
+      "La création de compte Assureur est gérée manuellement par notre équipe pour des raisons de sécurité. Veuillez nous contacter.",
     );
   },
 
@@ -82,7 +82,7 @@ window.InsurerPortal = {
         const diffHours = (now - timestamp) / (1000 * 60 * 60);
         if (diffHours > 72) {
           alert(
-            "Code ExpirÃ©. Le code litige est valable uniquement 72h. Le pilote doit gÃ©nÃ©rer un nouveau code depuis son application.",
+            "Code Expiré. Le code litige est valable uniquement 72h. Le pilote doit générer un nouveau code depuis son application.",
           );
           return;
         }
@@ -98,7 +98,7 @@ window.InsurerPortal = {
   buyReport: function (type, price, rewardBvc) {
     if (
       confirm(
-        `[SÃ‰CURITÃ‰ ZERO-TRUST]\nConfirmez-vous l'achat du rapport [${type}] pour ${price}â‚¬ HT ?\n\nâš ï¸ CONDITIONS B2B : Les donnÃ©es chiffrÃ©es sont dÃ©finitives.\nLe paiement sera instantanÃ©ment prÃ©levÃ© via le Smart Contract.`,
+        `[SÉCURITÉ ZERO-TRUST]\nConfirmez-vous l'achat du rapport [${type}] pour ${price}€ HT ?\n\nâš ï¸ CONDITIONS B2B : Les données chiffrées sont définitives.\nLe paiement sera instantanément prélevé via le Smart Contract.`,
       )
     ) {
       // Premium WOW Effect for success
@@ -106,24 +106,24 @@ window.InsurerPortal = {
       pricingBox.innerHTML = `
                 <div style="text-align:center; padding: 40px;">
                     <i class="fa-solid fa-circle-check" style="font-size: 5rem; color: #00ffcc; text-shadow: 0 0 30px #00ffcc; margin-bottom:20px; animation: pulse 1s infinite;"></i>
-                    <h2 style="color:#fff; font-size:2rem; font-weight:900;">TRANSACTION VALIDÃ‰E</h2>
-                    <p style="color:#00d2ff; font-family:'JetBrains Mono', monospace;">ClÃ© de dÃ©chiffrement gÃ©nÃ©rÃ©e pour le dossier ${this.currentCode}</p>
+                    <h2 style="color:#fff; font-size:2rem; font-weight:900;">TRANSACTION VALIDÉE</h2>
+                    <p style="color:#00d2ff; font-family:'JetBrains Mono', monospace;">Clé de déchiffrement générée pour le dossier ${this.currentCode}</p>
                     <div style="margin-top:30px; background:rgba(0,255,204,0.1); border:1px solid #00ffcc; border-radius:12px; padding:15px; color:#fff;">
-                        <i class="fa-solid fa-envelope"></i> Le rapport a Ã©tÃ© envoyÃ© de maniÃ¨re sÃ©curisÃ©e Ã  votre adresse pro.
+                        <i class="fa-solid fa-envelope"></i> Le rapport a été envoyé de manière sécurisée à votre adresse pro.
                     </div>
                 </div>
             `;
 
       setTimeout(() => {
-        // DÃ©clenchement du Smart Contract Web4 : RÃ©tribution du pilote
+        // Déclenchement du Smart Contract Web4 : Rétribution du pilote
         if (window.Web4Economy && rewardBvc > 0) {
           window.Web4Economy.mineToken(
             rewardBvc,
-            `Smart Contract: L'assureur a achetÃ© le rapport (${type})`,
+            `Smart Contract: L'assureur a acheté le rapport (${type})`,
           );
           if (typeof speak === "function") {
             speak(
-              "Transaction confirmÃ©e. Votre assureur a consultÃ© le rapport. Les tokens ont Ã©tÃ© crÃ©ditÃ©s.",
+              "Transaction confirmée. Votre assureur a consulté le rapport. Les tokens ont été crédités.",
             );
           }
         }

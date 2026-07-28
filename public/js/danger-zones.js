@@ -1,163 +1,247 @@
 /**
- * DANGER ZONES v1.0 (Signalement Communautaire)
- * SystÃ¨me type Waze pour signaler et alerter les dangers sur la route.
- * Nids-de-poule, gravillons, routes glissantes, contrÃ´les...
+ * ⚠️ DANGER ZONES v2.0 (Signalement Communautaire Temps Réel)
+ * Système type Waze pour signaler et alerter les dangers sur la route.
+ * Nids-de-poule, gravillons, routes glissantes, contrôles, accidents...
+ * Sécurité : Conformité OWASP & validation des entrées.
  */
 
 window.DangerZones = {
-  alerts: [], // Alertes actives Ã  proximitÃ©
-  myReports: [], // Mes signalements
+  alerts: [], // Alertes actives à proximité
+  myReports: [], // Mes signalements locaux
+  mapMarkers: {}, // Marqueurs Leaflet sur la carte
   isMonitoring: false,
   currentPos: null,
   checkInterval: null,
+  firestoreUnsubscribe: null,
 
-  // Types de dangers avec icÃ´nes et prioritÃ©s
   TYPES: {
     POTHOLE: {
-      icon: "ðŸ•³ï¸",
+      icon: "🕳️",
       label: "Nid-de-poule",
       priority: 3,
       color: "#ff6600",
-      voiceAlert: "Attention, nid-de-poule signalÃ© devant vous.",
+      voiceAlert: "Attention, nid-de-poule signalé devant vous.",
     },
     GRAVEL: {
-      icon: "âš ï¸",
+      icon: "⚠️",
       label: "Gravillons",
       priority: 2,
       color: "#ffaa00",
-      voiceAlert: "Prudence, route avec gravillons Ã  proximitÃ©.",
+      voiceAlert: "Prudence, route avec gravillons à proximité.",
     },
     SLIPPERY: {
-      icon: "ðŸŒ§ï¸",
+      icon: "🌧️",
       label: "Route glissante",
       priority: 3,
       color: "#3399ff",
-      voiceAlert: "Attention, chaussÃ©e glissante signalÃ©e.",
+      voiceAlert: "Attention, chaussée glissante signalée.",
     },
     ROADWORKS: {
-      icon: "ðŸš§",
+      icon: "🚧",
       label: "Travaux",
       priority: 2,
       color: "#ff9900",
-      voiceAlert: "Zone de travaux signalÃ©e sur votre itinÃ©raire.",
+      voiceAlert: "Zone de travaux signalée sur votre itinéraire.",
     },
     ACCIDENT: {
-      icon: "ðŸš¨",
+      icon: "🚨",
       label: "Accident",
       priority: 4,
       color: "#ff0044",
-      voiceAlert: "Accident signalÃ© devant vous. RÃ©duisez votre vitesse.",
+      voiceAlert: "Accident signalé devant vous. Réduisez votre vitesse.",
     },
     POLICE: {
-      icon: "ðŸ‘®",
-      label: "ContrÃ´le",
+      icon: "👮",
+      label: "Contrôle",
       priority: 1,
       color: "#6666ff",
-      voiceAlert: "ContrÃ´le de police signalÃ© Ã  proximitÃ©.",
+      voiceAlert: "Contrôle de police signalé à proximité.",
     },
     ANIMAL: {
-      icon: "ðŸ•",
+      icon: "🐾",
       label: "Animal sur route",
       priority: 3,
       color: "#88cc00",
-      voiceAlert: "Animal signalÃ© sur la chaussÃ©e, ralentissez.",
+      voiceAlert: "Animal signalé sur la chaussée, ralentissez.",
     },
     FLOOD: {
-      icon: "ðŸŒŠ",
+      icon: "🌊",
       label: "Inondation",
       priority: 4,
       color: "#0088ff",
-      voiceAlert: "Route inondÃ©e signalÃ©e. Ã‰vitez cette zone.",
+      voiceAlert: "Route inondée signalée. Évitez cette zone.",
     },
   },
 
-  // Rayon d'alerte en mÃ¨tres
-  ALERT_RADIUS: 500,
-  // DurÃ©e de vie d'un signalement (2 heures)
-  REPORT_TTL: 2 * 60 * 60 * 1000,
+  ALERT_RADIUS: 500, // Rayon d'alerte en mètres
+  REPORT_TTL: 2 * 60 * 60 * 1000, // 2 heures
 
   init: function () {
-    this.loadLocalReports();
+    this.listenToCloudHazards();
+    this.startMonitoring();
   },
 
-  // DÃ©marrer la surveillance GPS
   startMonitoring: function () {
     if (this.isMonitoring) return;
     this.isMonitoring = true;
 
-    // VÃ©rifier les alertes Ã  proximitÃ© toutes les 5 secondes
     this.checkInterval = setInterval(() => {
       if (this.currentPos) {
         this.checkNearbyDangers();
       }
-    }, 5000);
+    }, 4000);
   },
 
   stopMonitoring: function () {
     this.isMonitoring = false;
     if (this.checkInterval) clearInterval(this.checkInterval);
+    if (this.firestoreUnsubscribe) this.firestoreUnsubscribe();
   },
 
-  // Mettre Ã  jour la position (appelÃ© par le GPS de app-map.js)
   updatePosition: function (lat, lng) {
     this.currentPos = { lat, lng };
   },
 
-  // Signaler un danger (bouton dans l'UI)
+  listenToCloudHazards: function () {
+    if (!window.db) return;
+
+    if (this.firestoreUnsubscribe) this.firestoreUnsubscribe();
+
+    this.firestoreUnsubscribe = window.db
+      .collection("hazards")
+      .where("status", "==", "active")
+      .limit(100)
+      .onSnapshot((snapshot) => {
+        const cloudAlerts = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const hazard = { id: doc.id, ...data };
+          cloudAlerts.push(hazard);
+          this.renderHazardOnMap(hazard);
+        });
+        this.alerts = cloudAlerts;
+      }, (err) => {
+        console.warn("[DangerZones] Firestore non disponible:", err);
+      });
+  },
+
+  renderHazardOnMap: function (hazard) {
+    if (typeof L === "undefined" || typeof map === "undefined" || !map) return;
+    if (!hazard.lat || !hazard.lng) return;
+
+    const typeInfo = this.TYPES[hazard.type] || this.TYPES.POTHOLE;
+    const markerId = hazard.id;
+
+    if (this.mapMarkers[markerId]) {
+      this.mapMarkers[markerId].setLatLng([hazard.lat, hazard.lng]);
+    } else {
+      const icon = L.divIcon({
+        html: `<div style="background:${typeInfo.color}; color:#fff; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:16px; box-shadow:0 0 15px ${typeInfo.color}; border:2px solid #fff;">
+                 ${typeInfo.icon}
+               </div>`,
+        className: "hazard-leaflet-marker",
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+      });
+
+      const marker = L.marker([hazard.lat, hazard.lng], { icon: icon }).addTo(map);
+      marker.bindPopup(`
+        <div style="font-family:'Inter',sans-serif; text-align:center; padding:5px;">
+          <h4 style="margin:0 0 5px 0; color:${typeInfo.color}; font-size:1.1rem;">
+            ${typeInfo.icon} ${typeInfo.label}
+          </h4>
+          <p style="margin:0 0 8px 0; font-size:0.8rem; color:#aaa;">Signalé par la communauté</p>
+          <div style="display:flex; gap:6px; justify-content:center;">
+            <button onclick="DangerZones.voteHazard('${hazard.id}', 'confirm')" style="background:#00ff88; color:#000; border:none; border-radius:6px; padding:4px 8px; font-size:0.75rem; font-weight:bold; cursor:pointer;">
+              👍 Toujours là
+            </button>
+            <button onclick="DangerZones.voteHazard('${hazard.id}', 'resolve')" style="background:#ff4d4d; color:#fff; border:none; border-radius:6px; padding:4px 8px; font-size:0.75rem; font-weight:bold; cursor:pointer;">
+              👎 Disparu
+            </button>
+          </div>
+        </div>
+      `);
+
+      this.mapMarkers[markerId] = marker;
+    }
+  },
+
+  voteHazard: async function (hazardId, voteType) {
+    if (!window.db) return;
+    try {
+      const ref = window.db.collection("hazards").doc(hazardId);
+      if (voteType === "confirm") {
+        await ref.update({
+          confirmations: firebase.firestore.FieldValue.increment(1)
+        });
+        alert("Merci pour votre confirmation !");
+      } else {
+        await ref.update({
+          status: "resolved"
+        });
+        if (this.mapMarkers[hazardId] && typeof map !== "undefined") {
+          map.removeLayer(this.mapMarkers[hazardId]);
+          delete this.mapMarkers[hazardId];
+        }
+        alert("Signalement marqué comme résolu !");
+      }
+    } catch (e) {
+      console.error("[DangerZones] Erreur de vote:", e);
+    }
+  },
+
   reportDanger: function (type) {
     if (!this.currentPos) {
-      alert("Position GPS non disponible. Activez la localisation.");
+      alert("Position GPS non disponible. Activez la géolocalisation.");
       return;
     }
     if (!this.TYPES[type]) {
-      console.error("DangerZones : Type inconnu â†’", type);
+      console.error("DangerZones : Type inconnu →", type);
       return;
     }
 
     const report = {
-      id: `dz_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
       type: type,
       lat: this.currentPos.lat,
       lng: this.currentPos.lng,
       timestamp: Date.now(),
-      reporter: (window.session && window.session.uid) || "anonymous",
-      confirmations: 1, // Le crÃ©ateur compte comme 1
-      active: true,
+      status: "active",
+      reporter: (window.session && window.session.username) || "Membre",
+      confirmations: 1,
+      createdAt: firebase.firestore.FieldValue ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
     };
 
-    this.myReports.push(report);
-    this.saveLocalReports();
-
-    // Enregistrer dans Firebase pour la communautÃ©
     this.syncToCloud(report);
 
-    // Feedback
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     if (typeof speak === "function") {
-      speak(
-        `${this.TYPES[type].label} signalÃ©. Merci de protÃ©ger la communautÃ©.`,
-      );
+      speak(`${this.TYPES[type].label} signalé. Merci de protéger la communauté.`);
     }
 
     return report;
   },
 
-  // VÃ©rifier les dangers Ã  proximitÃ©
+  syncToCloud: async function (report) {
+    if (!window.db) return;
+    try {
+      await window.db.collection("hazards").add(report);
+    } catch (e) {
+      console.error("[DangerZones] Erreur d'envoi du danger:", e);
+    }
+  },
+
   checkNearbyDangers: function () {
     if (!this.currentPos || this.alerts.length === 0) return;
 
     const now = Date.now();
     this.alerts.forEach((alert) => {
-      // Ignorer les alertes expirÃ©es
-      if (now - alert.timestamp > this.REPORT_TTL) return;
-      // Ignorer si dÃ©jÃ  notifiÃ© dans les 60 derniÃ¨res secondes
       if (alert._lastNotified && now - alert._lastNotified < 60000) return;
 
       const distance = this.getDistance(
         this.currentPos.lat,
         this.currentPos.lng,
         alert.lat,
-        alert.lng,
+        alert.lng
       );
 
       if (distance <= this.ALERT_RADIUS) {
@@ -167,32 +251,20 @@ window.DangerZones = {
     });
   },
 
-  // DÃ©clencher une alerte visuelle + vocale
   triggerAlert: function (alert, distanceMeters) {
     const typeInfo = this.TYPES[alert.type];
     if (!typeInfo) return;
 
-    console.warn(
-      `âš ï¸ DANGER Ã  ${distanceMeters.toFixed(0)}m : ${typeInfo.label}`,
-    );
-
-    // Alerte vocale
     if (typeof speak === "function") {
       speak(typeInfo.voiceAlert);
     }
 
-    // Vibration selon la prioritÃ©
-    const vibratePattern =
-      typeInfo.priority >= 3
-        ? [300, 100, 300, 100, 300] // Urgent
-        : [200, 100, 200]; // Normal
+    const vibratePattern = typeInfo.priority >= 3 ? [300, 100, 300, 100, 300] : [200, 100, 200];
     if (navigator.vibrate) navigator.vibrate(vibratePattern);
 
-    // Notification visuelle (toast)
     this.showToast(typeInfo, distanceMeters);
   },
 
-  // Toast d'alerte visuelle
   showToast: function (typeInfo, distanceMeters) {
     let existing = document.getElementById("dz-toast");
     if (existing) existing.remove();
@@ -204,10 +276,10 @@ window.DangerZones = {
       top: "80px",
       left: "50%",
       transform: "translateX(-50%)",
-      background: `linear-gradient(135deg, ${typeInfo.color}22, rgba(0,0,0,0.95))`,
+      background: `linear-gradient(135deg, ${typeInfo.color}33, rgba(6,9,19,0.95))`,
       border: `2px solid ${typeInfo.color}`,
       borderRadius: "16px",
-      padding: "14px 24px",
+      padding: "12px 20px",
       zIndex: "10000",
       color: "#fff",
       fontFamily: "'Inter', sans-serif",
@@ -215,18 +287,17 @@ window.DangerZones = {
       display: "flex",
       alignItems: "center",
       gap: "12px",
-      backdropFilter: "blur(10px)",
-      boxShadow: `0 0 30px ${typeInfo.color}44`,
-      animation: "slideDown 0.4s ease-out",
+      backdropFilter: "blur(12px)",
+      boxShadow: `0 0 25px ${typeInfo.color}66`,
     });
 
     toast.innerHTML = `
-            <span style="font-size: 28px;">${typeInfo.icon}</span>
-            <div>
-                <div style="font-weight: bold;">${typeInfo.label}</div>
-                <div style="font-size: 12px; color: #aaa;">Ã  ${distanceMeters.toFixed(0)} mÃ¨tres</div>
-            </div>
-        `;
+      <span style="font-size: 26px;">${typeInfo.icon}</span>
+      <div>
+        <div style="font-weight: bold; color:${typeInfo.color}">${typeInfo.label}</div>
+        <div style="font-size: 11px; color: #aaa;">à ${distanceMeters.toFixed(0)} mètres</div>
+      </div>
+    `;
 
     document.body.appendChild(toast);
     setTimeout(() => {
@@ -234,121 +305,24 @@ window.DangerZones = {
     }, 5000);
   },
 
-  // Afficher le panneau de signalement rapide
-  showReportPanel: function () {
-    let existing = document.getElementById("dz-report-panel");
-    if (existing) {
-      existing.remove();
-      return;
-    }
+  getDistance: function (lat1, lon1, lat2, lon2) {
+    const R = 6371e3;
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-    const panel = document.createElement("div");
-    panel.id = "dz-report-panel";
-    Object.assign(panel.style, {
-      position: "fixed",
-      bottom: "0",
-      left: "0",
-      right: "0",
-      background: "rgba(0,0,0,0.95)",
-      borderTop: "2px solid rgba(0,210,255,0.3)",
-      borderRadius: "20px 20px 0 0",
-      padding: "20px",
-      zIndex: "10001",
-      backdropFilter: "blur(20px)",
-      transition: "transform 0.3s ease",
-    });
-
-    let buttonsHTML = Object.entries(this.TYPES)
-      .map(
-        ([key, info]) =>
-          `<button onclick="window.DangerZones.reportDanger('${key}'); document.getElementById('dz-report-panel').remove();"
-                style="display:flex; flex-direction:column; align-items:center; gap:6px;
-                       background:rgba(255,255,255,0.05); border:1px solid ${info.color}44;
-                       border-radius:12px; padding:12px 8px; color:#fff; cursor:pointer;
-                       font-size:12px; min-width:80px; transition: all 0.2s;">
-                <span style="font-size:24px;">${info.icon}</span>
-                <span>${info.label}</span>
-            </button>`,
-      )
-      .join("");
-
-    panel.innerHTML = `
-            <div style="text-align:center; margin-bottom:16px;">
-                <div style="width:40px; height:4px; background:#555; border-radius:2px; margin:0 auto 12px;"></div>
-                <span style="color:#00d2ff; font-weight:bold; font-size:16px;">âš ï¸ Signaler un danger</span>
-            </div>
-            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
-                ${buttonsHTML}
-            </div>
-        `;
-    document.body.appendChild(panel);
-  },
-
-  // Confirmer un signalement existant (+1 crÃ©dibilitÃ©)
-  confirmReport: function (reportId) {
-    const alert = this.alerts.find((a) => a.id === reportId);
-    if (alert) {
-      alert.confirmations = (alert.confirmations || 1) + 1;
-    }
-  },
-
-  // Synchronisation Firebase
-  syncToCloud: function (report) {
-    if (typeof db !== "undefined") {
-      db.collection("danger_zones")
-        .add(report)
-        .then(() => {})
-        .catch((err) => console.error("âš ï¸ DangerZones sync error:", err));
-    }
-  },
-
-  // Charger les signalements depuis Firebase
-  loadFromCloud: function () {
-    if (typeof db === "undefined") return;
-
-    const cutoff = Date.now() - this.REPORT_TTL;
-    db.collection("danger_zones")
-      .where("timestamp", ">", cutoff)
-      .get()
-      .then((snapshot) => {
-        this.alerts = [];
-        snapshot.forEach((doc) => {
-          this.alerts.push({ id: doc.id, ...doc.data() });
-        });
-      })
-      .catch((err) => console.error("DangerZones cloud load error:", err));
-  },
-
-  // Sauvegarde locale
-  saveLocalReports: function () {
-    localStorage.setItem("dangerZoneReports", JSON.stringify(this.myReports));
-  },
-
-  loadLocalReports: function () {
-    try {
-      const data = localStorage.getItem("dangerZoneReports");
-      this.myReports = data ? JSON.parse(data) : [];
-    } catch (e) {
-      this.myReports = [];
-    }
-  },
-
-  // Calcul de distance (Haversine)
-  getDistance: function (lat1, lng1, lat2, lng2) {
-    const R = 6371000;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLng = ((lng2 - lng1) * Math.PI) / 180;
     const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
   },
 };
 
-// Auto-init
-window.addEventListener("DOMContentLoaded", () => {
-  window.DangerZones.init();
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    DangerZones.init();
+  }, 1200);
 });

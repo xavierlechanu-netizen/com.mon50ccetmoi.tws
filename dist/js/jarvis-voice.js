@@ -6,17 +6,17 @@ window.JarvisEngine = {
     userMood: "neutral",
   },
 
-  // RÃ©ponses dynamiques pour Ã©viter l'effet "robot"
+  // Réponses dynamiques pour éviter l'effet "robot"
   responses: {
     ack: [
-      "Bien reÃ§u.",
+      "Bien reçu.",
       "Je m'en occupe.",
       "Analyse en cours.",
       "Compris, pilote.",
     ],
     search: [
       "Je lance la recherche.",
-      "Recherche dans la base de donnÃ©es locale.",
+      "Recherche dans la base de données locale.",
       "Cartographie en cours.",
     ],
     error: [
@@ -25,9 +25,9 @@ window.JarvisEngine = {
       "Instruction non reconnue par mes protocoles.",
     ],
     jokes: [
-      "Que fait un motard quand il a froid ? Il se rapproche du pot d'Ã©chappement.",
-      "Pourquoi les motards sont-ils toujours heureux ? Parce qu'on ne peut pas pleurer avec un casque intÃ©gral.",
-      "Quel est le comble pour un mÃ©canicien scooter ? C'est de perdre la boule !",
+      "Que fait un motard quand il a froid ? Il se rapproche du pot d'échappement.",
+      "Pourquoi les motards sont-ils toujours heureux ? Parce qu'on ne peut pas pleurer avec un casque intégral.",
+      "Quel est le comble pour un mécanicien scooter ? C'est de perdre la boule !",
     ],
   },
 
@@ -42,8 +42,8 @@ window.JarvisEngine = {
     } else if ("speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "fr-FR";
-      utterance.pitch = 0.9; // Voix lÃ©gÃ¨rement plus grave
-      utterance.rate = 1.05; // Rythme naturel mais rÃ©actif
+      utterance.pitch = 0.9; // Voix légèrement plus grave
+      utterance.rate = 1.05; // Rythme naturel mais réactif
       window.speechSynthesis.speak(utterance);
     } else {
     }
@@ -52,7 +52,7 @@ window.JarvisEngine = {
   processQuery: function (transcript) {
     const t = transcript.toLowerCase();
 
-    // 1. DÃ©tection d'intentions complexes (Intent Parsing)
+    // 1. Détection d'intentions complexes (Intent Parsing)
 
     // Appel d'Urgence / SOS
     if (
@@ -69,17 +69,17 @@ window.JarvisEngine = {
     ) {
       return {
         action: "EMERGENCY_CALL",
-        reply: `Attention. Mode urgence activÃ©. Je prÃ©pare l'appel aux services de secours.`,
+        reply: `Attention. Mode urgence activé. Je prépare l'appel aux services de secours.`,
       };
     }
     // Comparaison Carburant
     else if (
       this.matchAny(t, ["essence", "carburant", "plein", "station", "sec"]) &&
-      this.matchAny(t, ["moins cher", "prix", "compare", "oÃ¹"])
+      this.matchAny(t, ["moins cher", "prix", "compare", "où"])
     ) {
       return {
         action: "COMPARE_GAS_PRICES",
-        reply: `Analyse des prix du carburant dans un rayon de 3 kilomÃ¨tres en cours.`,
+        reply: `Analyse des prix du carburant dans un rayon de 3 kilomètres en cours.`,
       };
     } else if (this.matchAny(t, ["essence", "station", "carburant", "sec"])) {
       return {
@@ -87,18 +87,18 @@ window.JarvisEngine = {
         reply: `${this.getRandomResponse("search")} J'affiche le radar communautaire des prix du carburant.`,
       };
     }
-    // Navigation SpÃ©cifique
+    // Navigation Spécifique
     else if (
       this.matchAny(t, [
-        "emmÃ¨ne-moi",
-        "itinÃ©raire vers",
-        "aller Ã ",
+        "emmène-moi",
+        "itinéraire vers",
+        "aller à",
         "guidage vers",
       ])
     ) {
       // Extraction basique de la destination
       let destination = "votre destination";
-      const navKeywords = ["vers", "Ã  "];
+      const navKeywords = ["vers", "à "];
       for (let kw of navKeywords) {
         if (t.includes(kw)) {
           destination = t.split(kw)[1].trim();
@@ -108,7 +108,7 @@ window.JarvisEngine = {
       return {
         action: "NAVIGATE_TO",
         payload: destination,
-        reply: `Calcul de l'itinÃ©raire optimal vers ${destination}.`,
+        reply: `Calcul de l'itinéraire optimal vers ${destination}.`,
       };
     }
     // Maison
@@ -122,19 +122,19 @@ window.JarvisEngine = {
     else if (this.matchAny(t, ["accident", "danger", "obstacle", "travaux"])) {
       return {
         action: "REPORT_HAZARD",
-        reply: `Danger signalÃ© Ã  la meute. Merci pour votre vigilance.`,
+        reply: `Danger signalé à la meute. Merci pour votre vigilance.`,
       };
     } else if (
       this.matchAny(t, ["animal", "animaux", "biche", "sanglier", "chien"])
     ) {
       return {
         action: "REPORT_ANIMAL",
-        reply: `PrÃ©sence animale confirmÃ©e et partagÃ©e. Soyez prudent.`,
+        reply: `Présence animale confirmée et partagée. Soyez prudent.`,
       };
-    } else if (this.matchAny(t, ["radar", "flics", "contrÃ´le", "police"])) {
+    } else if (this.matchAny(t, ["radar", "flics", "contrôle", "police"])) {
       return {
         action: "REPORT_POLICE",
-        reply: `Zone de contrÃ´le signalÃ©e sur le radar communautaire.`,
+        reply: `Zone de contrôle signalée sur le radar communautaire.`,
       };
     }
     // Social
@@ -150,7 +150,7 @@ window.JarvisEngine = {
     ) {
       return {
         action: "SOCIAL_RADAR",
-        reply: `Activation du balayage social. Recherche de pilotes alliÃ©s dans le secteur.`,
+        reply: `Activation du balayage social. Recherche de pilotes alliés dans le secteur.`,
       };
     }
     // Modes de conduite
@@ -159,29 +159,29 @@ window.JarvisEngine = {
     ) {
       return {
         action: "SENSATION_MODE",
-        reply: `Mode sensation engagÃ©. Optimisation de l'itinÃ©raire pour le plaisir de conduite.`,
+        reply: `Mode sensation engagé. Optimisation de l'itinéraire pour le plaisir de conduite.`,
       };
     }
     // Diagnostic Moto
     else if (
       this.matchAny(t, [
         "diagnostic",
-        "Ã©tat",
-        "santÃ©",
-        "mÃ©canique",
+        "état",
+        "santé",
+        "mécanique",
         "panne",
         "moteur",
       ])
     ) {
       return {
         action: "AI_DIAGNOSTIC",
-        reply: `J'ouvre le panneau de tÃ©lÃ©mÃ©trie prÃ©dictive de votre engin.`,
+        reply: `J'ouvre le panneau de télémétrie prédictive de votre engin.`,
       };
     }
-    // MÃ©tÃ©o
+    // Météo
     else if (
       this.matchAny(t, [
-        "mÃ©tÃ©o",
+        "météo",
         "temps",
         "pluie",
         "pleuvoir",
@@ -191,7 +191,7 @@ window.JarvisEngine = {
     ) {
       return {
         action: "WEATHER_CHECK",
-        reply: `Je vÃ©rifie les conditions mÃ©tÃ©orologiques sur votre parcours actuel.`,
+        reply: `Je vérifie les conditions météorologiques sur votre parcours actuel.`,
       };
     }
     // Profil
@@ -213,17 +213,17 @@ window.JarvisEngine = {
       this.matchAny(t, [
         "combien d'utilisateurs",
         "statistiques",
-        "tÃ©lÃ©chargements",
+        "téléchargements",
         "audience",
         "pays",
       ])
     ) {
       return {
         action: "APP_STATS",
-        reply: `D'aprÃ¨s mes derniÃ¨res analyses en date du 4 juillet 2026, l'application compte 4 installations uniques. 3 pilotes sont en France, et nous avons 1 pilote en IndonÃ©sie.`,
+        reply: `D'après mes dernières analyses en date du 4 juillet 2026, l'application compte 4 installations uniques. 3 pilotes sont en France, et nous avons 1 pilote en Indonésie.`,
       };
     }
-    // IdentitÃ© / Blague
+    // Identité / Blague
     else if (this.matchAny(t, ["blague", "humour", "fais-moi rire"])) {
       return { action: "JOKE", reply: this.getRandomResponse("jokes") };
     } else if (
@@ -236,25 +236,25 @@ window.JarvisEngine = {
     ) {
       return {
         action: "IDENTITY",
-        reply: `Je suis Jarvis, l'intelligence artificielle de Mon 50cc et Moi. Je suis connectÃ© Ã  votre tÃ©lÃ©mÃ©trie, au rÃ©seau communautaire et prÃªt Ã  vous assister sur la route.`,
+        reply: `Je suis Jarvis, l'intelligence artificielle de Mon 50cc et Moi. Je suis connecté à votre télémétrie, au réseau communautaire et prêt à vous assister sur la route.`,
       };
     } else if (
       this.matchAny(t, [
         "drogue",
-        "stupÃ©fiant",
-        "stupÃ©fiants",
+        "stupéfiant",
+        "stupéfiants",
         "positif",
-        "fumÃ©",
+        "fumé",
         "joint",
         "cannabis",
         "thc",
-        "dÃ©pistage",
+        "dépistage",
         "test",
       ])
     ) {
       return {
         action: "DRUGS_WARNING",
-        reply: `Conduire sous l'emprise de stupÃ©fiants avec un BSR ou Permis AM est un dÃ©lit grave. Pour une premiÃ¨re infraction, vous risquez jusqu'Ã  4500 euros d'amende, 2 ans de prison, l'immobilisation ou la confiscation de votre scooter, et la suspension de votre permis AM. Bien qu'il n'y ait pas de perte de points sur le BSR, les sanctions pÃ©nales sont trÃ¨s lourdes.`,
+        reply: `Conduire sous l'emprise de stupéfiants avec un BSR ou Permis AM est un délit grave. Pour une première infraction, vous risquez jusqu'à 4500 euros d'amende, 2 ans de prison, l'immobilisation ou la confiscation de votre scooter, et la suspension de votre permis AM. Bien qu'il n'y ait pas de perte de points sur le BSR, les sanctions pénales sont très lourdes.`,
       };
     } else {
       return { action: "UNKNOWN", reply: this.getRandomResponse("error") };
@@ -337,7 +337,7 @@ window.JarvisEngine = {
         break;
       case "DRUGS_WARNING":
         console.warn(
-          "[J.A.R.V.I.S 4.0] PrÃ©vention stupÃ©fiants dÃ©clenchÃ©e.",
+          "[J.A.R.V.I.S 4.0] Prévention stupéfiants déclenchée.",
         );
         break;
     }
@@ -349,7 +349,7 @@ window.initVoiceAI = function () {
     window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    console.warn("Reconnaissance vocale non supportÃ©e sur ce navigateur.");
+    console.warn("Reconnaissance vocale non supportée sur ce navigateur.");
     return;
   }
 
@@ -376,28 +376,28 @@ window.initVoiceAI = function () {
     if (
       jarvisFeedback &&
       !transcript.includes("oracle") &&
-      !transcript.includes("systÃ¨me") &&
+      !transcript.includes("système") &&
       !transcript.includes("jarvis")
     ) {
       jarvisFeedback.innerText = "Vous : " + transcript;
       jarvisFeedback.classList.add("visible");
     }
 
-    // Si le mot clÃ© de rÃ©veil est utilisÃ©
+    // Si le mot clé de réveil est utilisé
     if (
       transcript.includes("oracle") ||
-      transcript.includes("systÃ¨me") ||
+      transcript.includes("système") ||
       transcript.includes("jarvis")
     ) {
-      // Extraction de la commande aprÃ¨s le mot clÃ© pour plus de prÃ©cision
+      // Extraction de la commande après le mot clé pour plus de précision
       let command = transcript;
-      ["oracle", "systÃ¨me", "jarvis"].forEach((kw) => {
+      ["oracle", "système", "jarvis"].forEach((kw) => {
         if (transcript.includes(kw)) {
           command = transcript.split(kw)[1].trim() || transcript;
         }
       });
 
-      // Si la commande est vide aprÃ¨s "jarvis"
+      // Si la commande est vide après "jarvis"
       if (command.length < 2) {
         window.JarvisEngine.speak("Ã€ vos ordres, pilote.");
         return;
@@ -436,7 +436,7 @@ window.initVoiceAI = function () {
   try {
     window.voiceAI.start();
   } catch (e) {
-    console.error("Impossible de dÃ©marrer l'IA vocale : ", e);
+    console.error("Impossible de démarrer l'IA vocale : ", e);
   }
 };
 

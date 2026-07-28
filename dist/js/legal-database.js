@@ -1,117 +1,117 @@
 ﻿/**
- * âš–ï¸ BASE JURIDIQUE MONDIALE â€” POCKET LAWYER
+ * ⚖️ BASE JURIDIQUE MONDIALE â€” POCKET LAWYER
  * Sources officielles gouvernementales uniquement.
- * DerniÃ¨re mise Ã  jour : 14 juillet 2026
+ * Dernière mise à jour : 14 juillet 2026
  *
- * Structure : window.LegalDatabase[pays][thÃ¨me]
- * Chaque entrÃ©e contient : title, content, source, url
+ * Structure : window.LegalDatabase[pays][thème]
+ * Chaque entrée contient : title, content, source, url
  *
  * Avertissement (AI Act UE 2024/1689) : Ces informations sont fournies
- * Ã  titre indicatif et sont soumises Ã  contrÃ´le humain.
+ * à titre indicatif et sont soumises à contrôle humain.
  */
 
 window.LegalDatabase = {
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡«ðŸ‡· FRANCE â€” Source : LÃ©gifrance (legifrance.gouv.fr)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡«ðŸ‡· FRANCE â€” Source : Légifrance (legifrance.gouv.fr)
+  // ═══════════════════════════════════════════════════════════════
   france: {
     _flag: "ðŸ‡«ðŸ‡·",
     _name: "France",
-    _source: "LÃ©gifrance â€” legifrance.gouv.fr",
-    _keywords: ["france", "franÃ§ais", "francais", "lÃ©gifrance", "legifrance"],
+    _source: "Légifrance â€” legifrance.gouv.fr",
+    _keywords: ["france", "français", "francais", "légifrance", "legifrance"],
 
     casque: {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡«ðŸ‡· Port du Casque â€” Art. R431-1 Code de la Route",
       content:
-        "Le port du casque homologuÃ© <strong>ECE 22.06</strong> est obligatoire pour tout conducteur et passager de 2-roues motorisÃ©.<br><strong>Sanction :</strong> 135â‚¬ d'amende (contravention 4Ã¨me classe) + retrait de 3 points.",
-      source: "LÃ©gifrance â€” Art. R431-1 du Code de la Route",
+        "Le port du casque homologué <strong>ECE 22.06</strong> est obligatoire pour tout conducteur et passager de 2-roues motorisé.<br><strong>Sanction :</strong> 135€ d'amende (contravention 4ème classe) + retrait de 3 points.",
+      source: "Légifrance â€” Art. R431-1 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     debridage: {
-      keywords: ["dÃ©brid", "debride", "kitÃ©", "kit"],
-      title: "ðŸ‡«ðŸ‡· DÃ©bridage â€” Art. L317-5 Code de la Route",
+      keywords: ["débrid", "debride", "kité", "kit"],
+      title: "ðŸ‡«ðŸ‡· Débridage â€” Art. L317-5 Code de la Route",
       content:
-        "Le dÃ©bridage d'un cyclomoteur est un <strong>dÃ©lit</strong>. Vous risquez <strong>135â‚¬ d'amende</strong> pour le propriÃ©taire, mais surtout, <strong>votre assurance s'annule</strong> en cas d'accident corporel. Les assureurs se retournent contre vous pour payer les dommages aux victimes.",
-      source: "LÃ©gifrance â€” Art. L317-5 du Code de la Route",
+        "Le débridage d'un cyclomoteur est un <strong>délit</strong>. Vous risquez <strong>135€ d'amende</strong> pour le propriétaire, mais surtout, <strong>votre assurance s'annule</strong> en cas d'accident corporel. Les assureurs se retournent contre vous pour payer les dommages aux victimes.",
+      source: "Légifrance â€” Art. L317-5 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     stupefiants: {
-      keywords: ["stup", "drogue", "fumÃ©", "positif", "cannabis", "thc"],
-      title: "ðŸ‡«ðŸ‡· Conduite sous StupÃ©fiants (DÃ©lit)",
+      keywords: ["stup", "drogue", "fumé", "positif", "cannabis", "thc"],
+      title: "ðŸ‡«ðŸ‡· Conduite sous Stupéfiants (Délit)",
       content:
-        "MÃªme avec un BSR, vous risquez jusqu'Ã  <strong>4500â‚¬ d'amende</strong>, 2 ans de prison, et l'immobilisation du scooter. Il n'y a pas de perte de points sur un BSR. S'il s'agit d'une premiÃ¨re infraction, le juge peut faire preuve de clÃ©mence si vous montrez des preuves mÃ©dicales.",
-      source: "LÃ©gifrance â€” Art. L235-1 du Code de la Route",
+        "Même avec un BSR, vous risquez jusqu'à <strong>4500€ d'amende</strong>, 2 ans de prison, et l'immobilisation du scooter. Il n'y a pas de perte de points sur un BSR. S'il s'agit d'une première infraction, le juge peut faire preuve de clémence si vous montrez des preuves médicales.",
+      source: "Légifrance â€” Art. L235-1 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     alcool: {
-      keywords: ["alcool", "boire", "ivre", "alcoolÃ©mie"],
-      title: "ðŸ‡«ðŸ‡· AlcoolÃ©mie â€” Art. L234-1",
+      keywords: ["alcool", "boire", "ivre", "alcoolémie"],
+      title: "ðŸ‡«ðŸ‡· Alcoolémie â€” Art. L234-1",
       content:
-        "Pour un permis probatoire ou BSR, la limite lÃ©gale est de <strong>0,2 g/L</strong>. Vous risquez l'immobilisation immÃ©diate du cyclomoteur et de fortes amendes. Au-delÃ  de 0,8 g/L : dÃ©lit pÃ©nal (2 ans de prison, 4500â‚¬).",
-      source: "LÃ©gifrance â€” Art. L234-1 du Code de la Route",
+        "Pour un permis probatoire ou BSR, la limite légale est de <strong>0,2 g/L</strong>. Vous risquez l'immobilisation immédiate du cyclomoteur et de fortes amendes. Au-delà de 0,8 g/L : délit pénal (2 ans de prison, 4500€).",
+      source: "Légifrance â€” Art. L234-1 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     assurance: {
-      keywords: ["assurance", "assurÃ©"],
-      title: "ðŸ‡«ðŸ‡· DÃ©faut d'Assurance (DÃ©lit) â€” Art. L324-2",
+      keywords: ["assurance", "assuré"],
+      title: "ðŸ‡«ðŸ‡· Défaut d'Assurance (Délit) â€” Art. L324-2",
       content:
-        "Conduire sans assurance coÃ»te jusqu'Ã  <strong>3750â‚¬ d'amende</strong>. En cas d'accident, le Fonds de Garantie indemnise la victime mais <strong>vous rÃ©clamera le remboursement</strong>, potentiellement toute votre vie.",
-      source: "LÃ©gifrance â€” Art. L324-2 du Code de la Route",
+        "Conduire sans assurance coûte jusqu'à <strong>3750€ d'amende</strong>. En cas d'accident, le Fonds de Garantie indemnise la victime mais <strong>vous réclamera le remboursement</strong>, potentiellement toute votre vie.",
+      source: "Légifrance â€” Art. L324-2 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     fuite: {
-      keywords: ["fuite", "obtempÃ©rer", "obtemperer"],
-      title: "ðŸ‡«ðŸ‡· Refus d'ObtempÃ©rer / DÃ©lit de Fuite",
+      keywords: ["fuite", "obtempérer", "obtemperer"],
+      title: "ðŸ‡«ðŸ‡· Refus d'Obtempérer / Délit de Fuite",
       content:
-        "Cumuler ces dÃ©lits entraÃ®ne des peines de <strong>prison fermes</strong>, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrÃ´le de police.",
-      source: "LÃ©gifrance â€” Art. L233-1 & L231-1 du Code de la Route",
+        "Cumuler ces délits entraîne des peines de <strong>prison fermes</strong>, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrôle de police.",
+      source: "Légifrance â€” Art. L233-1 & L231-1 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     stationnement: {
-      keywords: ["stationn", "garÃ©", "parking", "trottoir", "fourriÃ¨re"],
+      keywords: ["stationn", "garé", "parking", "trottoir", "fourrière"],
       title: "ðŸ‡«ðŸ‡· Stationnement 2-Roues â€” Art. R417-10/11",
       content:
-        "Sur un <strong>trottoir</strong> : tolÃ©rÃ© si le passage piÃ©ton (>1,50m) n'est pas entravÃ©. Sur <strong>passage piÃ©ton/piste cyclable</strong> : 135â‚¬ + fourriÃ¨re immÃ©diate. Sur <strong>place auto</strong> : tolÃ©rÃ© si vous payez le stationnement.",
-      source: "LÃ©gifrance â€” Art. R417-10 et R417-11",
+        "Sur un <strong>trottoir</strong> : toléré si le passage piéton (>1,50m) n'est pas entravé. Sur <strong>passage piéton/piste cyclable</strong> : 135€ + fourrière immédiate. Sur <strong>place auto</strong> : toléré si vous payez le stationnement.",
+      source: "Légifrance â€” Art. R417-10 et R417-11",
       url: "legifrance.gouv.fr",
     },
     rgpd: {
       keywords: [
         "rgpd",
         "gdpr",
-        "donnÃ©es personnelles",
+        "données personnelles",
         "cnil",
-        "vie privÃ©e",
+        "vie privée",
       ],
-      title: "ðŸ‡«ðŸ‡· RGPD â€” RÃ¨glement (UE) 2016/679",
+      title: "ðŸ‡«ðŸ‡· RGPD â€” Règlement (UE) 2016/679",
       content:
-        "La protection des donnÃ©es personnelles est rÃ©gie par le <strong>RGPD</strong> (entrÃ© en vigueur le 25 mai 2018) et la <strong>Loi Informatique et LibertÃ©s</strong> (Loi nÂ°78-17 du 6 janvier 1978). La CNIL est l'autoritÃ© de contrÃ´le franÃ§aise.<br>Droits : AccÃ¨s (Art.15), Rectification (Art.16), Effacement (Art.17), PortabilitÃ© (Art.20), Opposition (Art.21).",
-      source: "LÃ©gifrance & EUR-Lex â€” RÃ¨glement (UE) 2016/679",
+        "La protection des données personnelles est régie par le <strong>RGPD</strong> (entré en vigueur le 25 mai 2018) et la <strong>Loi Informatique et Libertés</strong> (Loi n°78-17 du 6 janvier 1978). La CNIL est l'autorité de contrôle française.<br>Droits : Accès (Art.15), Rectification (Art.16), Effacement (Art.17), Portabilité (Art.20), Opposition (Art.21).",
+      source: "Légifrance & EUR-Lex â€” Règlement (UE) 2016/679",
       url: "legifrance.gouv.fr | eur-lex.europa.eu",
     },
     retractation: {
       keywords: [
         "remboursement",
-        "rÃ©tractation",
+        "rétractation",
         "retractation",
         "cgv",
-        "numÃ©rique",
+        "numérique",
         "digital",
       ],
       title:
-        "ðŸ‡«ðŸ‡· Droit de RÃ©tractation (Contenu NumÃ©rique) â€” Art. L221-28",
+        "ðŸ‡«ðŸ‡· Droit de Rétractation (Contenu Numérique) â€” Art. L221-28",
       content:
-        "Selon l'<strong>Article L221-28 (13Â°) du Code de la consommation</strong>, le droit de rÃ©tractation ne peut pas Ãªtre exercÃ© pour la fourniture d'un <strong>contenu numÃ©rique non fourni sur un support matÃ©riel</strong> dont l'exÃ©cution a commencÃ© aprÃ¨s accord prÃ©alable exprÃ¨s du consommateur et renoncement exprÃ¨s Ã  son droit de rÃ©tractation. Les rapports d'expertise gÃ©nÃ©rÃ©s ne sont donc <strong>pas remboursables</strong>.",
-      source: "LÃ©gifrance â€” Art. L221-28 du Code de la Consommation",
+        "Selon l'<strong>Article L221-28 (13°) du Code de la consommation</strong>, le droit de rétractation ne peut pas être exercé pour la fourniture d'un <strong>contenu numérique non fourni sur un support matériel</strong> dont l'exécution a commencé après accord préalable exprès du consommateur et renoncement exprès à son droit de rétractation. Les rapports d'expertise générés ne sont donc <strong>pas remboursables</strong>.",
+      source: "Légifrance â€” Art. L221-28 du Code de la Consommation",
       url: "legifrance.gouv.fr",
     },
     vice_cache: {
-      keywords: ["vice", "cachÃ©", "cache", "panne", "arnaque", "occasion"],
-      title: "ðŸ‡«ðŸ‡· Garantie des Vices CachÃ©s â€” Art. 1641 Code Civil",
+      keywords: ["vice", "caché", "cache", "panne", "arnaque", "occasion"],
+      title: "ðŸ‡«ðŸ‡· Garantie des Vices Cachés â€” Art. 1641 Code Civil",
       content:
-        "L'<strong>Article 1641 du Code civil</strong> prÃ©cise que le vendeur est tenu de la garantie Ã  raison des dÃ©fauts cachÃ©s de la chose vendue qui la rendent impropre Ã  l'usage auquel on la destine. L'acheteur a <strong>2 ans Ã  compter de la dÃ©couverte du vice</strong> pour agir.",
-      source: "LÃ©gifrance â€” Art. 1641 du Code Civil",
+        "L'<strong>Article 1641 du Code civil</strong> précise que le vendeur est tenu de la garantie à raison des défauts cachés de la chose vendue qui la rendent impropre à l'usage auquel on la destine. L'acheteur a <strong>2 ans à compter de la découverte du vice</strong> pour agir.",
+      source: "Légifrance â€” Art. 1641 du Code Civil",
       url: "legifrance.gouv.fr",
     },
     accident_assurance: {
@@ -124,69 +124,69 @@ window.LegalDatabase = {
       ],
       title: "ðŸ‡«ðŸ‡· Indemnisation des Victimes (Loi Badinter)",
       content:
-        "La <strong>Loi nÂ° 85-677 du 5 juillet 1985 (Loi Badinter)</strong> vise Ã  amÃ©liorer la situation des victimes d'accidents de la circulation et Ã  accÃ©lÃ©rer les procÃ©dures d'indemnisation. Si vous n'Ãªtes pas responsable, votre assureur doit vous indemniser intÃ©gralement de vos prÃ©judices corporels et matÃ©riels.",
-      source: "LÃ©gifrance â€” Loi Badinter",
+        "La <strong>Loi n° 85-677 du 5 juillet 1985 (Loi Badinter)</strong> vise à améliorer la situation des victimes d'accidents de la circulation et à accélérer les procédures d'indemnisation. Si vous n'êtes pas responsable, votre assureur doit vous indemniser intégralement de vos préjudices corporels et matériels.",
+      source: "Légifrance â€” Loi Badinter",
       url: "legifrance.gouv.fr",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡ªðŸ‡º UNION EUROPÃ‰ENNE â€” Source : EUR-Lex (eur-lex.europa.eu)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡ªðŸ‡º UNION EUROPÉENNE â€” Source : EUR-Lex (eur-lex.europa.eu)
+  // ═══════════════════════════════════════════════════════════════
   eu: {
     _flag: "ðŸ‡ªðŸ‡º",
-    _name: "Union EuropÃ©enne",
+    _name: "Union Européenne",
     _source: "EUR-Lex â€” eur-lex.europa.eu",
-    _keywords: ["europe", "europÃ©en", "europeen", "ue", "eu", "eur-lex"],
+    _keywords: ["europe", "européen", "europeen", "ue", "eu", "eur-lex"],
 
     rgpd: {
-      keywords: ["rgpd", "gdpr", "donnÃ©e", "privacy"],
-      title: "ðŸ‡ªðŸ‡º RGPD â€” RÃ¨glement (UE) 2016/679",
+      keywords: ["rgpd", "gdpr", "donnée", "privacy"],
+      title: "ðŸ‡ªðŸ‡º RGPD â€” Règlement (UE) 2016/679",
       content:
-        "Le RÃ¨glement GÃ©nÃ©ral sur la Protection des DonnÃ©es est le texte de rÃ©fÃ©rence en matiÃ¨re de protection des donnÃ©es personnelles dans l'UE. EntrÃ©e en vigueur : <strong>25 mai 2018</strong>.<br>Amende max : <strong>20Mâ‚¬ ou 4% du CA mondial</strong>.",
-      source: "EUR-Lex â€” RÃ¨glement (UE) 2016/679",
+        "Le Règlement Général sur la Protection des Données est le texte de référence en matière de protection des données personnelles dans l'UE. Entrée en vigueur : <strong>25 mai 2018</strong>.<br>Amende max : <strong>20M€ ou 4% du CA mondial</strong>.",
+      source: "EUR-Lex â€” Règlement (UE) 2016/679",
       url: "eur-lex.europa.eu",
     },
     ai_act: {
       keywords: ["ia act", "ai act", "intelligence artificielle", "ia"],
-      title: "ðŸ‡ªðŸ‡º AI Act â€” RÃ¨glement (UE) 2024/1689",
+      title: "ðŸ‡ªðŸ‡º AI Act â€” Règlement (UE) 2024/1689",
       content:
-        "Premier rÃ¨glement au monde sur l'IA. En vigueur depuis le <strong>1er aoÃ»t 2024</strong>. Approche par niveaux de risque :<br>â€¢ Risque inacceptable : <strong>Interdit</strong><br>â€¢ Haut risque : ConformitÃ© stricte obligatoire<br>â€¢ Risque limitÃ© : <strong>Obligation de transparence</strong> (notre catÃ©gorie)<br>â€¢ Risque minimal : Libre<br>Application complÃ¨te prÃ©vue pour <strong>aoÃ»t 2026</strong>.",
-      source: "EUR-Lex â€” RÃ¨glement (UE) 2024/1689",
+        "Premier règlement au monde sur l'IA. En vigueur depuis le <strong>1er août 2024</strong>. Approche par niveaux de risque :<br>• Risque inacceptable : <strong>Interdit</strong><br>• Haut risque : Conformité stricte obligatoire<br>• Risque limité : <strong>Obligation de transparence</strong> (notre catégorie)<br>• Risque minimal : Libre<br>Application complète prévue pour <strong>août 2026</strong>.",
+      source: "EUR-Lex â€” Règlement (UE) 2024/1689",
       url: "eur-lex.europa.eu",
     },
     dsa: {
-      keywords: ["dsa", "digital services", "modÃ©ration", "plateforme"],
-      title: "ðŸ‡ªðŸ‡º DSA â€” RÃ¨glement (UE) 2022/2065",
+      keywords: ["dsa", "digital services", "modération", "plateforme"],
+      title: "ðŸ‡ªðŸ‡º DSA â€” Règlement (UE) 2022/2065",
       content:
-        "Le Digital Services Act impose des obligations de <strong>modÃ©ration</strong> et de <strong>transparence</strong> aux plateformes numÃ©riques. Obligation de point de contact, mÃ©canisme de signalement (Art.16), et motivation des dÃ©cisions de modÃ©ration (Art.17).",
-      source: "EUR-Lex â€” RÃ¨glement (UE) 2022/2065",
+        "Le Digital Services Act impose des obligations de <strong>modération</strong> et de <strong>transparence</strong> aux plateformes numériques. Obligation de point de contact, mécanisme de signalement (Art.16), et motivation des décisions de modération (Art.17).",
+      source: "EUR-Lex â€” Règlement (UE) 2022/2065",
       url: "eur-lex.europa.eu",
     },
     casque_eu: {
       keywords: ["casque", "homologation", "ece", "unece"],
       title: "ðŸ‡ªðŸ‡º Homologation Casque â€” UNECE R22.06",
       content:
-        "Depuis juin 2024, seuls les casques homologuÃ©s <strong>ECE 22.06</strong> peuvent Ãªtre vendus dans l'UE. Les anciens ECE 22.05 restent utilisables mais ne sont plus fabriquÃ©s.",
+        "Depuis juin 2024, seuls les casques homologués <strong>ECE 22.06</strong> peuvent être vendus dans l'UE. Les anciens ECE 22.05 restent utilisables mais ne sont plus fabriqués.",
       source: "UNECE â€” Regulation No. 22 Rev.6",
       url: "unece.org",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡®ðŸ‡© INDONÃ‰SIE â€” Source : JDIH (jdih.kemenkumham.go.id)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡®ðŸ‡© INDONÉSIE â€” Source : JDIH (jdih.kemenkumham.go.id)
+  // ═══════════════════════════════════════════════════════════════
   indonesia: {
     _flag: "ðŸ‡®ðŸ‡©",
-    _name: "IndonÃ©sie",
+    _name: "Indonésie",
     _source: "JDIH â€” jdih.kemenkumham.go.id | peraturan.bpk.go.id",
-    _keywords: ["indonÃ©sie", "indonesie", "indonesia", "jdih"],
+    _keywords: ["indonésie", "indonesie", "indonesia", "jdih"],
 
     casque: {
       keywords: ["casque", "helm", "sni"],
       title: "ðŸ‡®ðŸ‡© Casque (Helm SNI) â€” UU 22/2009 Art.106(8)",
       content:
-        "Le port du casque homologuÃ© <strong>SNI</strong> (Standar Nasional Indonesia) est obligatoire pour le conducteur et le passager (Art. 57Â§2).<br><strong>Sanction :</strong> Jusqu'Ã  1 mois de prison ou <strong>Rp 250.000</strong> d'amende (Art. 291Â§1).",
+        "Le port du casque homologué <strong>SNI</strong> (Standar Nasional Indonesia) est obligatoire pour le conducteur et le passager (Art. 57Â§2).<br><strong>Sanction :</strong> Jusqu'à 1 mois de prison ou <strong>Rp 250.000</strong> d'amende (Art. 291Â§1).",
       source: "JDIH â€” UU No.22 Tahun 2009 (LLAJ)",
       url: "jdih.kemenkumham.go.id",
     },
@@ -194,7 +194,7 @@ window.LegalDatabase = {
       keywords: ["sim", "permis", "conduire"],
       title: "ðŸ‡®ðŸ‡© Permis de conduire (SIM) â€” UU 22/2009 Art.77",
       content:
-        "Tout conducteur doit possÃ©der un SIM correspondant Ã  son vÃ©hicule :<br>â€¢ <strong>SIM C</strong> : Moto â‰¤ 250cc<br>â€¢ <strong>SIM CI</strong> : Moto 250-500cc<br>â€¢ <strong>SIM CII</strong> : Moto > 500cc<br><strong>Sans SIM :</strong> 3 mois prison ou Rp 1.000.000 (Art.281).<br><strong>SIM non prÃ©sentÃ© :</strong> 1 mois ou Rp 250.000 (Art.288Â§2).",
+        "Tout conducteur doit posséder un SIM correspondant à son véhicule :<br>• <strong>SIM C</strong> : Moto â‰¤ 250cc<br>• <strong>SIM CI</strong> : Moto 250-500cc<br>• <strong>SIM CII</strong> : Moto > 500cc<br><strong>Sans SIM :</strong> 3 mois prison ou Rp 1.000.000 (Art.281).<br><strong>SIM non présenté :</strong> 1 mois ou Rp 250.000 (Art.288Â§2).",
       source: "JDIH â€” UU No.22 Tahun 2009",
       url: "jdih.kemenkumham.go.id",
     },
@@ -202,7 +202,7 @@ window.LegalDatabase = {
       keywords: ["route", "lalu lintas", "circulation", "code"],
       title: "ðŸ‡®ðŸ‡© Code de la Route â€” UU No.22 Tahun 2009 (LLAJ)",
       content:
-        "La loi sur la Circulation et les Transports Routiers rÃ©git l'ensemble du trafic en IndonÃ©sie. Obligations pour les 2-roues :<br>â€¢ Casque SNI obligatoire (Art.106Â§8)<br>â€¢ RÃ©troviseurs, feux, klaxon, compteur (Art.285Â§1)<br>â€¢ SIM C obligatoire (Art.77)<br>â€¢ STNK Ã  jour (Perpol 7/2021)",
+        "La loi sur la Circulation et les Transports Routiers régit l'ensemble du trafic en Indonésie. Obligations pour les 2-roues :<br>• Casque SNI obligatoire (Art.106Â§8)<br>• Rétroviseurs, feux, klaxon, compteur (Art.285Â§1)<br>• SIM C obligatoire (Art.77)<br>• STNK à jour (Perpol 7/2021)",
       source: "JDIH â€” Kementerian Perhubungan",
       url: "jdih.kemenkumham.go.id",
     },
@@ -210,15 +210,15 @@ window.LegalDatabase = {
       keywords: ["stnk", "enregistrement", "immatriculation", "pajak"],
       title: "ðŸ‡®ðŸ‡© Immatriculation (STNK) â€” Perpol 7/2021",
       content:
-        "Le STNK est le certificat d'immatriculation obligatoire. Si le STNK expire et n'est pas renouvelÃ© sous <strong>2 ans</strong>, les donnÃ©es du vÃ©hicule sont radiÃ©es.<br><strong>Opsen Pajak (2025) :</strong> Taxe additionnelle sur le PKB et BBN-KB (UU 1/2022).<br>Depuis 2026, le NIK (KTP) est intÃ©grÃ© au SIM.",
+        "Le STNK est le certificat d'immatriculation obligatoire. Si le STNK expire et n'est pas renouvelé sous <strong>2 ans</strong>, les données du véhicule sont radiées.<br><strong>Opsen Pajak (2025) :</strong> Taxe additionnelle sur le PKB et BBN-KB (UU 1/2022).<br>Depuis 2026, le NIK (KTP) est intégré au SIM.",
       source: "JDIH â€” Korlantas Polri",
       url: "korlantas.polri.go.id",
     },
     pdp: {
-      keywords: ["data", "donnÃ©e", "pdp", "pribadi", "privÃ©e"],
-      title: "ðŸ‡®ðŸ‡© Protection des DonnÃ©es â€” UU No.27/2022 (UU PDP)",
+      keywords: ["data", "donnée", "pdp", "pribadi", "privée"],
+      title: "ðŸ‡®ðŸ‡© Protection des Données â€” UU No.27/2022 (UU PDP)",
       content:
-        "En vigueur depuis le <strong>17 octobre 2024</strong>. PortÃ©e extraterritoriale.<br><strong>Sanctions admin. (Art.57) :</strong> Jusqu'Ã  <strong>2% du CA annuel</strong>.<br><strong>Sanctions pÃ©nales :</strong> 4-6 ans de prison + Rp 4-6 milliards.<br><strong>Korporasi :</strong> Amende Ã—10 + gel/dissolution.",
+        "En vigueur depuis le <strong>17 octobre 2024</strong>. Portée extraterritoriale.<br><strong>Sanctions admin. (Art.57) :</strong> Jusqu'à <strong>2% du CA annuel</strong>.<br><strong>Sanctions pénales :</strong> 4-6 ans de prison + Rp 4-6 milliards.<br><strong>Korporasi :</strong> Amende Ã—10 + gel/dissolution.",
       source: "JDIH â€” Komdigi (ex-Kominfo)",
       url: "jdih.kemenkumham.go.id",
     },
@@ -226,23 +226,23 @@ window.LegalDatabase = {
       keywords: ["contrat"],
       title: "ðŸ‡®ðŸ‡© Droit des Contrats",
       content:
-        "RÃ©gi par le <strong>Code civil indonÃ©sien</strong> (KUH Perdata), hÃ©ritÃ© du droit romano-hollandais. L'IndonÃ©sie n'a <strong>pas ratifiÃ©</strong> la Convention de Vienne (CISG).",
+        "Régi par le <strong>Code civil indonésien</strong> (KUH Perdata), hérité du droit romano-hollandais. L'Indonésie n'a <strong>pas ratifié</strong> la Convention de Vienne (CISG).",
       source: "JDIH â€” peraturan.bpk.go.id",
       url: "peraturan.bpk.go.id",
     },
     hierarchie: {
-      keywords: ["hiÃ©rarchie", "constitution", "norme", "loi"],
-      title: "ðŸ‡®ðŸ‡© HiÃ©rarchie des Normes â€” UU No.10/2004",
+      keywords: ["hiérarchie", "constitution", "norme", "loi"],
+      title: "ðŸ‡®ðŸ‡© Hiérarchie des Normes â€” UU No.10/2004",
       content:
-        "SystÃ¨me mixte (adat / romano-hollandais / national / musulman Ã  Aceh).<br>1. <strong>UUD 1945</strong> â€” Constitution<br>2. <strong>UU</strong> â€” Lois du Parlement<br>3. <strong>PP</strong> â€” RÃ¨glements gouvernementaux<br>4. <strong>Perpres</strong> â€” DÃ©crets prÃ©sidentiels<br>5. <strong>Perda</strong> â€” RÃ¨glements rÃ©gionaux",
+        "Système mixte (adat / romano-hollandais / national / musulman à Aceh).<br>1. <strong>UUD 1945</strong> â€” Constitution<br>2. <strong>UU</strong> â€” Lois du Parlement<br>3. <strong>PP</strong> â€” Règlements gouvernementaux<br>4. <strong>Perpres</strong> â€” Décrets présidentiels<br>5. <strong>Perda</strong> â€” Règlements régionaux",
       source: "JDIH â€” jdih.kemenkumham.go.id",
       url: "jdih.kemenkumham.go.id",
     },
     immobilier: {
       keywords: ["immobilier", "terre", "agraire", "hak"],
-      title: "ðŸ‡®ðŸ‡© Droit Immobilier â€” Loi Agraire nÂ°5/1960 (UUPA)",
+      title: "ðŸ‡®ðŸ‡© Droit Immobilier â€” Loi Agraire n°5/1960 (UUPA)",
       content:
-        "Les Ã©trangers ne peuvent possÃ©der de terres directement (<strong>Hak Milik</strong>), mais peuvent acquÃ©rir des droits d'usage (<strong>Hak Pakai</strong>) ou investir via des sociÃ©tÃ©s (<strong>PT PMA</strong>).",
+        "Les étrangers ne peuvent posséder de terres directement (<strong>Hak Milik</strong>), mais peuvent acquérir des droits d'usage (<strong>Hak Pakai</strong>) ou investir via des sociétés (<strong>PT PMA</strong>).",
       source: "JDIH â€” peraturan.bpk.go.id",
       url: "peraturan.bpk.go.id",
     },
@@ -250,34 +250,34 @@ window.LegalDatabase = {
       keywords: ["travail", "licenciement", "emploi"],
       title: "ðŸ‡®ðŸ‡© Droit du Travail â€” UU 13/2003 & Omnibus 11/2020",
       content:
-        "Loi nÂ°13/2003 = texte principal. ModifiÃ©e par la <strong>loi omnibus nÂ°11/2020</strong> (Cipta Kerja) pour faciliter l'investissement (contrats, licenciements, heures supplÃ©mentaires).",
+        "Loi n°13/2003 = texte principal. Modifiée par la <strong>loi omnibus n°11/2020</strong> (Cipta Kerja) pour faciliter l'investissement (contrats, licenciements, heures supplémentaires).",
       source: "JDIH â€” jdih.kemenkumham.go.id",
       url: "jdih.kemenkumham.go.id",
     },
     langue: {
-      keywords: ["langue", "Ã©ducation", "media", "bahasa"],
-      title: "ðŸ‡®ðŸ‡© RÃ©glementation Linguistique â€” UU 20/2003 & 32/2002",
+      keywords: ["langue", "éducation", "media", "bahasa"],
+      title: "ðŸ‡®ðŸ‡© Réglementation Linguistique â€” UU 20/2003 & 32/2002",
       content:
-        "L'indonÃ©sien (<em>Bahasa Indonesia</em>) est la langue officielle de l'Ã©ducation et des mÃ©dias. Les langues rÃ©gionales et Ã©trangÃ¨res sont autorisÃ©es sous conditions.",
+        "L'indonésien (<em>Bahasa Indonesia</em>) est la langue officielle de l'éducation et des médias. Les langues régionales et étrangères sont autorisées sous conditions.",
       source: "JDIH â€” Kemendikbudristek",
       url: "jdih.kemenkumham.go.id",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡ºðŸ‡¸ Ã‰TATS-UNIS â€” Sources : NHTSA, IIHS, Cornell LII
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡ºðŸ‡¸ ÉTATS-UNIS â€” Sources : NHTSA, IIHS, Cornell LII
+  // ═══════════════════════════════════════════════════════════════
   usa: {
     _flag: "ðŸ‡ºðŸ‡¸",
-    _name: "Ã‰tats-Unis",
+    _name: "États-Unis",
     _source: "NHTSA (nhtsa.gov) | Cornell LII (law.cornell.edu)",
     _keywords: [
       "usa",
-      "Ã©tats-unis",
+      "états-unis",
       "etats-unis",
-      "amÃ©rique",
+      "amérique",
       "amerique",
-      "amÃ©ricain",
+      "américain",
       "americain",
       "united states",
     ],
@@ -286,23 +286,23 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡ºðŸ‡¸ Casque Moto â€” FMVSS 218 (NHTSA)",
       content:
-        "La norme fÃ©dÃ©rale est le <strong>FMVSS 218</strong> (Federal Motor Vehicle Safety Standard). <strong>Attention :</strong> la loi varie par Ã‰tat !<br>â€¢ <strong>Universal law</strong> (19 Ã‰tats) : Casque obligatoire pour tous<br>â€¢ <strong>Partial law</strong> (28 Ã‰tats) : Obligatoire seulement pour les <18 ou <21 ans<br>â€¢ <strong>No law</strong> (3 Ã‰tats) : Illinois, Iowa, New Hampshire",
+        "La norme fédérale est le <strong>FMVSS 218</strong> (Federal Motor Vehicle Safety Standard). <strong>Attention :</strong> la loi varie par État !<br>• <strong>Universal law</strong> (19 États) : Casque obligatoire pour tous<br>• <strong>Partial law</strong> (28 États) : Obligatoire seulement pour les <18 ou <21 ans<br>• <strong>No law</strong> (3 États) : Illinois, Iowa, New Hampshire",
       source: "NHTSA â€” nhtsa.gov | IIHS â€” iihs.org",
       url: "nhtsa.gov",
     },
     assurance: {
       keywords: ["assurance", "insurance"],
-      title: "ðŸ‡ºðŸ‡¸ Assurance Moto â€” RÃ©glementation par Ã‰tat",
+      title: "ðŸ‡ºðŸ‡¸ Assurance Moto â€” Réglementation par État",
       content:
-        "L'assurance moto est obligatoire dans <strong>48 des 50 Ã‰tats</strong> (sauf Floride et Montana pour la responsabilitÃ© civile). Les minimums de couverture varient considÃ©rablement par Ã‰tat. En Californie : 15/30/5 (en milliers de $).",
+        "L'assurance moto est obligatoire dans <strong>48 des 50 États</strong> (sauf Floride et Montana pour la responsabilité civile). Les minimums de couverture varient considérablement par État. En Californie : 15/30/5 (en milliers de $).",
       source: "NHTSA â€” nhtsa.gov",
       url: "nhtsa.gov",
     },
     ccpa: {
-      keywords: ["ccpa", "cpra", "california", "donnÃ©e", "privacy"],
-      title: "ðŸ‡ºðŸ‡¸ CCPA/CPRA â€” Protection des DonnÃ©es (Californie)",
+      keywords: ["ccpa", "cpra", "california", "donnée", "privacy"],
+      title: "ðŸ‡ºðŸ‡¸ CCPA/CPRA â€” Protection des Données (Californie)",
       content:
-        "Le <strong>CCPA</strong> (California Consumer Privacy Act, 2020) et son amendement <strong>CPRA</strong> offrent aux rÃ©sidents californiens des droits proches du RGPD : droit de savoir, de suppression, de refus de vente. <strong>Amende :</strong> $2.500/violation, $7.500/violation intentionnelle.",
+        "Le <strong>CCPA</strong> (California Consumer Privacy Act, 2020) et son amendement <strong>CPRA</strong> offrent aux résidents californiens des droits proches du RGPD : droit de savoir, de suppression, de refus de vente. <strong>Amende :</strong> $2.500/violation, $7.500/violation intentionnelle.",
       source: "State of California â€” oag.ca.gov",
       url: "oag.ca.gov",
     },
@@ -310,15 +310,15 @@ window.LegalDatabase = {
       keywords: ["coppa", "mineur", "enfant"],
       title: "ðŸ‡ºðŸ‡¸ COPPA â€” Protection des Mineurs en Ligne",
       content:
-        "La <strong>Children's Online Privacy Protection Act</strong> interdit la collecte de donnÃ©es personnelles d'enfants de moins de 13 ans sans consentement parental vÃ©rifiable. <strong>Amende :</strong> jusqu'Ã  $50.120/violation (FTC).",
+        "La <strong>Children's Online Privacy Protection Act</strong> interdit la collecte de données personnelles d'enfants de moins de 13 ans sans consentement parental vérifiable. <strong>Amende :</strong> jusqu'à $50.120/violation (FTC).",
       source: "FTC â€” ftc.gov",
       url: "ftc.gov",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¬ðŸ‡§ ROYAUME-UNI â€” Source : legislation.gov.uk
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   uk: {
     _flag: "ðŸ‡¬ðŸ‡§",
     _name: "Royaume-Uni",
@@ -336,7 +336,7 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¬ðŸ‡§ Casque Moto â€” Road Traffic Act 1988 Â§16",
       content:
-        "Le port du casque homologuÃ© <strong>BS 6658:1985</strong> ou <strong>UNECE R22.05/22.06</strong> est obligatoire. Les Sikhs portant un turban sont exemptÃ©s (Â§16Â§2).<br><strong>Sanction :</strong> Fixed Penalty Notice de <strong>Â£100</strong>.",
+        "Le port du casque homologué <strong>BS 6658:1985</strong> ou <strong>UNECE R22.05/22.06</strong> est obligatoire. Les Sikhs portant un turban sont exemptés (Â§16Â§2).<br><strong>Sanction :</strong> Fixed Penalty Notice de <strong>Â£100</strong>.",
       source: "legislation.gov.uk â€” Road Traffic Act 1988 Â§16",
       url: "legislation.gov.uk",
     },
@@ -344,23 +344,23 @@ window.LegalDatabase = {
       keywords: ["permis", "licence", "cbt"],
       title: "ðŸ‡¬ðŸ‡§ Permis Moto â€” CBT / A1 / A2 / A",
       content:
-        "Formation obligatoire : <strong>CBT</strong> (Compulsory Basic Training). CatÃ©gories :<br>â€¢ <strong>AM</strong> : Cyclomoteur â‰¤ 50cc<br>â€¢ <strong>A1</strong> : â‰¤ 125cc (16+)<br>â€¢ <strong>A2</strong> : â‰¤ 35kW (19+)<br>â€¢ <strong>A</strong> : IllimitÃ© (24+ ou 21+ avec 2 ans d'A2)",
+        "Formation obligatoire : <strong>CBT</strong> (Compulsory Basic Training). Catégories :<br>• <strong>AM</strong> : Cyclomoteur â‰¤ 50cc<br>• <strong>A1</strong> : â‰¤ 125cc (16+)<br>• <strong>A2</strong> : â‰¤ 35kW (19+)<br>• <strong>A</strong> : Illimité (24+ ou 21+ avec 2 ans d'A2)",
       source: "GOV.UK â€” gov.uk/motorcycle-licence",
       url: "gov.uk",
     },
     uk_gdpr: {
-      keywords: ["gdpr", "donnÃ©e", "ico", "privacy", "data"],
+      keywords: ["gdpr", "donnée", "ico", "privacy", "data"],
       title: "ðŸ‡¬ðŸ‡§ UK GDPR & Data Protection Act 2018",
       content:
-        "Post-Brexit, le Royaume-Uni a conservÃ© les principes du RGPD via le <strong>UK GDPR</strong> et le <strong>Data Protection Act 2018</strong>. L'autoritÃ© de contrÃ´le est l'<strong>ICO</strong> (Information Commissioner's Office). Amende max : <strong>Â£17.5M ou 4% du CA</strong>.",
+        "Post-Brexit, le Royaume-Uni a conservé les principes du RGPD via le <strong>UK GDPR</strong> et le <strong>Data Protection Act 2018</strong>. L'autorité de contrôle est l'<strong>ICO</strong> (Information Commissioner's Office). Amende max : <strong>Â£17.5M ou 4% du CA</strong>.",
       source: "legislation.gov.uk â€” Data Protection Act 2018",
       url: "legislation.gov.uk",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¯ðŸ‡µ JAPON â€” Source : Japanese Law Translation (japaneselawtranslation.go.jp)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   japan: {
     _flag: "ðŸ‡¯ðŸ‡µ",
     _name: "Japon",
@@ -371,7 +371,7 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¯ðŸ‡µ Casque Moto â€” Road Traffic Act Art.71-4",
       content:
-        "Le port du casque homologuÃ© <strong>PSC/SG</strong> est obligatoire pour tous les conducteurs et passagers de 2-roues. Les casques doivent porter le marquage <strong>PSCãƒžãƒ¼ã‚¯</strong>.<br>Norme : <strong>JIS T 8133</strong>.",
+        "Le port du casque homologué <strong>PSC/SG</strong> est obligatoire pour tous les conducteurs et passagers de 2-roues. Les casques doivent porter le marquage <strong>PSCãƒžãƒ¼ã‚¯</strong>.<br>Norme : <strong>JIS T 8133</strong>.",
       source: "Japanese Law Translation â€” Road Traffic Act (é“è·¯äº¤é€šæ³•)",
       url: "japaneselawtranslation.go.jp",
     },
@@ -379,58 +379,58 @@ window.LegalDatabase = {
       keywords: ["permis", "licence", "conduire"],
       title: "ðŸ‡¯ðŸ‡µ Permis Moto (å…è¨±) â€” Road Traffic Act",
       content:
-        "CatÃ©gories :<br>â€¢ <strong>åŽŸä»˜</strong> (Gentsuki) : â‰¤ 50cc (16+)<br>â€¢ <strong>å°åž‹</strong> : â‰¤ 125cc<br>â€¢ <strong>æ™®é€š</strong> : â‰¤ 400cc<br>â€¢ <strong>å¤§åž‹</strong> : IllimitÃ© (18+)<br>Examen pratique obligatoire en circuit fermÃ©.",
+        "Catégories :<br>• <strong>åŽŸä»˜</strong> (Gentsuki) : â‰¤ 50cc (16+)<br>• <strong>å°åž‹</strong> : â‰¤ 125cc<br>• <strong>æ™®é€š</strong> : â‰¤ 400cc<br>• <strong>å¤§åž‹</strong> : Illimité (18+)<br>Examen pratique obligatoire en circuit fermé.",
       source: "Japanese Law Translation â€” é“è·¯äº¤é€šæ³•",
       url: "japaneselawtranslation.go.jp",
     },
     appi: {
-      keywords: ["appi", "donnÃ©e", "data", "ppc", "privacy"],
+      keywords: ["appi", "donnée", "data", "ppc", "privacy"],
       title: "ðŸ‡¯ðŸ‡µ APPI â€” Act on Protection of Personal Information",
       content:
-        "RÃ©visÃ©e en 2022. L'APPI est supervisÃ©e par la <strong>PPC</strong> (Personal Information Protection Commission). Le Japon bÃ©nÃ©ficie d'une <strong>dÃ©cision d'adÃ©quation</strong> avec l'UE (RGPD). Transferts transfrontaliers strictement encadrÃ©s.",
+        "Révisée en 2022. L'APPI est supervisée par la <strong>PPC</strong> (Personal Information Protection Commission). Le Japon bénéficie d'une <strong>décision d'adéquation</strong> avec l'UE (RGPD). Transferts transfrontaliers strictement encadrés.",
       source: "PPC â€” ppc.go.jp",
       url: "ppc.go.jp",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¨ðŸ‡³ CHINE â€” Source : NPC (npc.gov.cn)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   china: {
     _flag: "ðŸ‡¨ðŸ‡³",
     _name: "Chine",
-    _source: "NPC â€” npc.gov.cn | AssemblÃ©e Nationale Populaire",
-    _keywords: ["chine", "chinois", "china", "pÃ©kin", "beijing"],
+    _source: "NPC â€” npc.gov.cn | Assemblée Nationale Populaire",
+    _keywords: ["chine", "chinois", "china", "pékin", "beijing"],
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡¨ðŸ‡³ Casque Moto â€” Campagne Â« Un casque, une ceinture Â»",
+      title: "ðŸ‡¨ðŸ‡³ Casque Moto â€” Campagne « Un casque, une ceinture »",
       content:
-        "Depuis la campagne nationale de 2020, le port du casque est obligatoire pour les conducteurs et passagers de 2-roues dans toute la Chine. Norme obligatoire : <strong>GB 811-2022</strong> (mise Ã  jour de la norme nationale).",
+        "Depuis la campagne nationale de 2020, le port du casque est obligatoire pour les conducteurs et passagers de 2-roues dans toute la Chine. Norme obligatoire : <strong>GB 811-2022</strong> (mise à jour de la norme nationale).",
       source: "NPC â€” Road Traffic Safety Law (é“è·¯äº¤é€šå®‰å…¨æ³•)",
       url: "npc.gov.cn",
     },
     pipl: {
-      keywords: ["pipl", "donnÃ©e", "data", "privacy"],
+      keywords: ["pipl", "donnée", "data", "privacy"],
       title: "ðŸ‡¨ðŸ‡³ PIPL â€” Personal Information Protection Law (2021)",
       content:
-        "En vigueur depuis le <strong>1er novembre 2021</strong>. PortÃ©e extraterritoriale. Consentement sÃ©parÃ© requis pour les donnÃ©es sensibles. <strong>Amende :</strong> jusqu'Ã  <strong>50M RMB ou 5% du CA annuel</strong>. Transferts transfrontaliers soumis Ã  Ã©valuation de sÃ©curitÃ© obligatoire (CAC).",
+        "En vigueur depuis le <strong>1er novembre 2021</strong>. Portée extraterritoriale. Consentement séparé requis pour les données sensibles. <strong>Amende :</strong> jusqu'à <strong>50M RMB ou 5% du CA annuel</strong>. Transferts transfrontaliers soumis à évaluation de sécurité obligatoire (CAC).",
       source: "NPC â€” ä¸ªäººä¿¡æ¯ä¿æŠ¤æ³•",
       url: "npc.gov.cn",
     },
     dsl: {
-      keywords: ["dsl", "sÃ©curitÃ©", "securite", "cybersÃ©curitÃ©"],
+      keywords: ["dsl", "sécurité", "securite", "cybersécurité"],
       title: "ðŸ‡¨ðŸ‡³ DSL â€” Data Security Law (2021)",
       content:
-        "La Loi sur la SÃ©curitÃ© des DonnÃ©es (DSL) classe les donnÃ©es par niveau d'importance (national, important, gÃ©nÃ©ral). Les donnÃ©es Â« importantes Â» et Â« nationales Â» exigent des Ã©valuations de risque et des stockages localisÃ©s.",
+        "La Loi sur la Sécurité des Données (DSL) classe les données par niveau d'importance (national, important, général). Les données « importantes » et « nationales » exigent des évaluations de risque et des stockages localisés.",
       source: "NPC â€” æ•°æ®å®‰å…¨æ³•",
       url: "npc.gov.cn",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡®ðŸ‡³ INDE â€” Source : India Code (indiacode.nic.in)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   india: {
     _flag: "ðŸ‡®ðŸ‡³",
     _name: "Inde",
@@ -441,7 +441,7 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡®ðŸ‡³ Casque Moto â€” Motor Vehicles Act 1988 Â§129",
       content:
-        "Le port du casque homologuÃ© <strong>ISI (BIS)</strong> est obligatoire pour le conducteur et le passager. Norme : <strong>IS 4151:2015</strong>.<br><strong>Sanction :</strong> â‚¹1.000 d'amende + suspension du permis (3 mois).<br>Exception : Les Sikhs portant un turban sont exemptÃ©s dans certains Ã‰tats.",
+        "Le port du casque homologué <strong>ISI (BIS)</strong> est obligatoire pour le conducteur et le passager. Norme : <strong>IS 4151:2015</strong>.<br><strong>Sanction :</strong> â‚¹1.000 d'amende + suspension du permis (3 mois).<br>Exception : Les Sikhs portant un turban sont exemptés dans certains États.",
       source: "India Code â€” Motor Vehicles Act 1988 Â§129",
       url: "indiacode.nic.in",
     },
@@ -449,34 +449,34 @@ window.LegalDatabase = {
       keywords: ["permis", "licence", "conduire"],
       title: "ðŸ‡®ðŸ‡³ Permis Moto â€” Motor Vehicles Act Â§3",
       content:
-        "Deux catÃ©gories :<br>â€¢ <strong>MCWG</strong> (Motor Cycle With Gear) : Moto avec vitesses<br>â€¢ <strong>MCWOG</strong> : Scooter sans vitesses<br>Ã‚ge minimum : <strong>18 ans</strong> (16 ans pour les â‰¤50cc dans certains Ã‰tats).",
+        "Deux catégories :<br>• <strong>MCWG</strong> (Motor Cycle With Gear) : Moto avec vitesses<br>• <strong>MCWOG</strong> : Scooter sans vitesses<br>Ã‚ge minimum : <strong>18 ans</strong> (16 ans pour les â‰¤50cc dans certains États).",
       source: "India Code â€” Motor Vehicles Act 1988",
       url: "indiacode.nic.in",
     },
     dpdp: {
-      keywords: ["dpdp", "donnÃ©e", "data", "privacy"],
+      keywords: ["dpdp", "donnée", "data", "privacy"],
       title: "ðŸ‡®ðŸ‡³ DPDP â€” Digital Personal Data Protection Act 2023",
       content:
-        "En vigueur depuis <strong>2023</strong>. Droits des Â« Data Principals Â» : consentement, rectification, effacement. PossibilitÃ© de nommer un reprÃ©sentant lÃ©gal. <strong>Amende :</strong> jusqu'Ã  <strong>â‚¹250 crore</strong> (â‰ˆ 27Mâ‚¬). Supervision par le Data Protection Board of India.",
+        "En vigueur depuis <strong>2023</strong>. Droits des « Data Principals » : consentement, rectification, effacement. Possibilité de nommer un représentant légal. <strong>Amende :</strong> jusqu'à <strong>â‚¹250 crore</strong> (â‰ˆ 27M€). Supervision par le Data Protection Board of India.",
       source: "MeitY â€” meity.gov.in",
       url: "meity.gov.in",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡§ðŸ‡· BRÃ‰SIL â€” Source : Planalto (planalto.gov.br)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡§ðŸ‡· BRÉSIL â€” Source : Planalto (planalto.gov.br)
+  // ═══════════════════════════════════════════════════════════════
   brazil: {
     _flag: "ðŸ‡§ðŸ‡·",
-    _name: "BrÃ©sil",
+    _name: "Brésil",
     _source: "Planalto â€” planalto.gov.br",
-    _keywords: ["brÃ©sil", "bresil", "brazil", "brÃ©silien", "bresilien"],
+    _keywords: ["brésil", "bresil", "brazil", "brésilien", "bresilien"],
 
     casque: {
       keywords: ["casque", "capacete", "helmet"],
       title: "ðŸ‡§ðŸ‡· Casque Moto â€” CTB Art.244 (Lei 9.503/1997)",
       content:
-        "Le port du casque homologuÃ© <strong>INMETRO</strong> est obligatoire pour le conducteur et le passager de moto. Le viseur est aussi obligatoire.<br><strong>Sanction :</strong> Infraction grave â€” <strong>R$293,47</strong> + 7 points sur le CNH + rÃ©tention du vÃ©hicule.",
+        "Le port du casque homologué <strong>INMETRO</strong> est obligatoire pour le conducteur et le passager de moto. Le viseur est aussi obligatoire.<br><strong>Sanction :</strong> Infraction grave â€” <strong>R$293,47</strong> + 7 points sur le CNH + rétention du véhicule.",
       source: "Planalto â€” Lei 9.503/1997 (CTB) Art.244",
       url: "planalto.gov.br",
     },
@@ -484,23 +484,23 @@ window.LegalDatabase = {
       keywords: ["permis", "cnh", "conduire", "licence"],
       title: "ðŸ‡§ðŸ‡· Permis Moto (CNH) â€” CTB Art.140",
       content:
-        "CatÃ©gorie <strong>A</strong> obligatoire pour les 2-roues. Ã‚ge minimum : <strong>18 ans</strong>. Formation obligatoire incluant cours thÃ©oriques (45h) et pratiques (20h). SystÃ¨me de points : <strong>40 pts/an = suspension</strong>.",
+        "Catégorie <strong>A</strong> obligatoire pour les 2-roues. Ã‚ge minimum : <strong>18 ans</strong>. Formation obligatoire incluant cours théoriques (45h) et pratiques (20h). Système de points : <strong>40 pts/an = suspension</strong>.",
       source: "Planalto â€” Lei 9.503/1997 (CTB)",
       url: "planalto.gov.br",
     },
     lgpd: {
-      keywords: ["lgpd", "donnÃ©e", "data", "privacy"],
-      title: "ðŸ‡§ðŸ‡· LGPD â€” Lei Geral de ProteÃ§Ã£o de Dados (13.709/2018)",
+      keywords: ["lgpd", "donnée", "data", "privacy"],
+      title: "ðŸ‡§ðŸ‡· LGPD â€” Lei Geral de ProteçÃ£o de Dados (13.709/2018)",
       content:
-        "La LGPD est le Â« RGPD brÃ©silien Â». En vigueur depuis <strong>septembre 2020</strong>. SupervisÃ©e par l'<strong>ANPD</strong> (Autoridade Nacional de ProteÃ§Ã£o de Dados). <strong>Amende :</strong> jusqu'Ã  <strong>2% du CA au BrÃ©sil</strong>, plafonnÃ©e Ã  R$50M par infraction.",
+        "La LGPD est le « RGPD brésilien ». En vigueur depuis <strong>septembre 2020</strong>. Supervisée par l'<strong>ANPD</strong> (Autoridade Nacional de ProteçÃ£o de Dados). <strong>Amende :</strong> jusqu'à <strong>2% du CA au Brésil</strong>, plafonnée à R$50M par infraction.",
       source: "Planalto â€” Lei 13.709/2018",
       url: "planalto.gov.br",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¸ðŸ‡¬ SINGAPOUR â€” Source : Singapore Statutes Online (sso.agc.gov.sg)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   singapore: {
     _flag: "ðŸ‡¸ðŸ‡¬",
     _name: "Singapour",
@@ -511,23 +511,23 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¸ðŸ‡¬ Casque Moto â€” Road Traffic Act Â§22A",
       content:
-        "Le casque homologuÃ© <strong>PSB/Spring SG</strong> (ou UN R22) est obligatoire. <br><strong>Sanction :</strong> Amende jusqu'Ã  <strong>S$1.000</strong> et/ou 3 mois de prison.",
+        "Le casque homologué <strong>PSB/Spring SG</strong> (ou UN R22) est obligatoire. <br><strong>Sanction :</strong> Amende jusqu'à <strong>S$1.000</strong> et/ou 3 mois de prison.",
       source: "SSO â€” Road Traffic Act (Cap. 276)",
       url: "sso.agc.gov.sg",
     },
     pdpa: {
-      keywords: ["pdpa", "donnÃ©e", "data", "privacy"],
+      keywords: ["pdpa", "donnée", "data", "privacy"],
       title: "ðŸ‡¸ðŸ‡¬ PDPA â€” Personal Data Protection Act 2012",
       content:
-        "SupervisÃ©e par la <strong>PDPC</strong>. Consentement Ã©clairÃ© obligatoire. Droit d'accÃ¨s et de correction rapide.<br><strong>Amende :</strong> jusqu'Ã  <strong>S$1M ou 10% du CA annuel</strong> (depuis la rÃ©vision 2020).",
+        "Supervisée par la <strong>PDPC</strong>. Consentement éclairé obligatoire. Droit d'accès et de correction rapide.<br><strong>Amende :</strong> jusqu'à <strong>S$1M ou 10% du CA annuel</strong> (depuis la révision 2020).",
       source: "SSO â€” PDPA (No.26 of 2012)",
       url: "sso.agc.gov.sg",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¿ðŸ‡¦ AFRIQUE DU SUD â€” Source : gov.za
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   south_africa: {
     _flag: "ðŸ‡¿ðŸ‡¦",
     _name: "Afrique du Sud",
@@ -538,50 +538,50 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¿ðŸ‡¦ Casque Moto â€” NRTA 93/1996 Â§98",
       content:
-        "Le port du casque homologuÃ© <strong>SABS (SANS 55)</strong> est obligatoire pour tous les conducteurs et passagers de 2-roues.<br><strong>Sanction :</strong> Amende et points de dÃ©mÃ©rite.",
+        "Le port du casque homologué <strong>SABS (SANS 55)</strong> est obligatoire pour tous les conducteurs et passagers de 2-roues.<br><strong>Sanction :</strong> Amende et points de démérite.",
       source: "gov.za â€” National Road Traffic Act 93 of 1996",
       url: "gov.za",
     },
     popia: {
-      keywords: ["popia", "donnÃ©e", "data", "privacy"],
+      keywords: ["popia", "donnée", "data", "privacy"],
       title: "ðŸ‡¿ðŸ‡¦ POPIA â€” Protection of Personal Information Act 4/2013",
       content:
-        "En vigueur depuis <strong>juillet 2021</strong>. L'<strong>Information Regulator</strong> est l'autoritÃ© de contrÃ´le. Traitement licite et raisonnable obligatoire. Droit d'accÃ¨s, de correction, et de suppression.<br><strong>Amende :</strong> jusqu'Ã  <strong>R10M</strong> et/ou 10 ans de prison.",
+        "En vigueur depuis <strong>juillet 2021</strong>. L'<strong>Information Regulator</strong> est l'autorité de contrôle. Traitement licite et raisonnable obligatoire. Droit d'accès, de correction, et de suppression.<br><strong>Amende :</strong> jusqu'à <strong>R10M</strong> et/ou 10 ans de prison.",
       source: "Information Regulator â€” inforegulator.org.za",
       url: "inforegulator.org.za",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡³ðŸ‡¬ NIGÃ‰RIA â€” Source : FRSC / NITDA
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡³ðŸ‡¬ NIGÉRIA â€” Source : FRSC / NITDA
+  // ═══════════════════════════════════════════════════════════════
   nigeria: {
     _flag: "ðŸ‡³ðŸ‡¬",
-    _name: "NigÃ©ria",
+    _name: "Nigéria",
     _source: "FRSC â€” frsc.gov.ng | NITDA â€” nitda.gov.ng",
-    _keywords: ["nigÃ©ria", "nigeria"],
+    _keywords: ["nigéria", "nigeria"],
 
     casque: {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡³ðŸ‡¬ Casque Moto â€” Highway Code / FRSC",
       content:
-        "Le port du casque est obligatoire pour les conducteurs et passagers de motos (<em>Okada</em>). RÃ©glementation appliquÃ©e par le <strong>FRSC</strong> (Federal Road Safety Corps).<br><strong>Sanction :</strong> â‚¦2.000 d'amende.",
+        "Le port du casque est obligatoire pour les conducteurs et passagers de motos (<em>Okada</em>). Réglementation appliquée par le <strong>FRSC</strong> (Federal Road Safety Corps).<br><strong>Sanction :</strong> â‚¦2.000 d'amende.",
       source: "FRSC â€” frsc.gov.ng",
       url: "frsc.gov.ng",
     },
     ndpr: {
-      keywords: ["ndpr", "ndpa", "donnÃ©e", "data", "privacy"],
+      keywords: ["ndpr", "ndpa", "donnée", "data", "privacy"],
       title: "ðŸ‡³ðŸ‡¬ NDPA â€” Nigeria Data Protection Act 2023",
       content:
-        "Remplace le NDPR de 2019. CrÃ©e la <strong>NDPC</strong> (Nigeria Data Protection Commission) comme autoritÃ© indÃ©pendante. Consentement obligatoire. Notifications de violation sous <strong>72h</strong>.<br><strong>Amende :</strong> jusqu'Ã  <strong>2% du CA mondial</strong> ou â‚¦10M.",
+        "Remplace le NDPR de 2019. Crée la <strong>NDPC</strong> (Nigeria Data Protection Commission) comme autorité indépendante. Consentement obligatoire. Notifications de violation sous <strong>72h</strong>.<br><strong>Amende :</strong> jusqu'à <strong>2% du CA mondial</strong> ou â‚¦10M.",
       source: "NITDA â€” nitda.gov.ng",
       url: "nitda.gov.ng",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡²ðŸ‡¦ MAROC â€” Source : Bulletin Officiel (sgg.gov.ma)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   morocco: {
     _flag: "ðŸ‡²ðŸ‡¦",
     _name: "Maroc",
@@ -590,38 +590,38 @@ window.LegalDatabase = {
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡²ðŸ‡¦ Casque Moto â€” Loi nÂ°52-05 (Code de la Route)",
+      title: "ðŸ‡²ðŸ‡¦ Casque Moto â€” Loi n°52-05 (Code de la Route)",
       content:
-        "Le port du casque homologuÃ© est obligatoire pour les conducteurs et passagers de 2-roues motorisÃ©s.<br><strong>Sanction :</strong> Amende de <strong>400 Ã  700 DH</strong>, immobilisation du vÃ©hicule, et retrait de permis possible.",
-      source: "Bulletin Officiel â€” Loi nÂ°52-05 portant Code de la Route",
+        "Le port du casque homologué est obligatoire pour les conducteurs et passagers de 2-roues motorisés.<br><strong>Sanction :</strong> Amende de <strong>400 à 700 DH</strong>, immobilisation du véhicule, et retrait de permis possible.",
+      source: "Bulletin Officiel â€” Loi n°52-05 portant Code de la Route",
       url: "sgg.gov.ma",
     },
     permis: {
       keywords: ["permis", "conduire"],
-      title: "ðŸ‡²ðŸ‡¦ Permis Moto â€” Loi nÂ°52-05",
+      title: "ðŸ‡²ðŸ‡¦ Permis Moto â€” Loi n°52-05",
       content:
-        "CatÃ©gories :<br>â€¢ <strong>A1</strong> : Cyclomoteur â‰¤ 50cc (16+)<br>â€¢ <strong>A</strong> : Toute moto (18+)<br>SystÃ¨me de permis Ã  points depuis 2010.",
+        "Catégories :<br>• <strong>A1</strong> : Cyclomoteur â‰¤ 50cc (16+)<br>• <strong>A</strong> : Toute moto (18+)<br>Système de permis à points depuis 2010.",
       source: "Bulletin Officiel â€” Code de la Route",
       url: "sgg.gov.ma",
     },
     loi_0908: {
-      keywords: ["donnÃ©e", "data", "privacy", "cndp"],
-      title: "ðŸ‡²ðŸ‡¦ Loi nÂ°09-08 â€” Protection des DonnÃ©es Personnelles",
+      keywords: ["donnée", "data", "privacy", "cndp"],
+      title: "ðŸ‡²ðŸ‡¦ Loi n°09-08 â€” Protection des Données Personnelles",
       content:
-        "En vigueur depuis <strong>2009</strong>. SupervisÃ©e par la <strong>CNDP</strong> (Commission Nationale de ContrÃ´le de la Protection des DonnÃ©es). InspirÃ©e du modÃ¨le franÃ§ais (CNIL). Droits d'accÃ¨s, de rectification et d'opposition.",
-      source: "Bulletin Officiel â€” Loi nÂ°09-08",
+        "En vigueur depuis <strong>2009</strong>. Supervisée par la <strong>CNDP</strong> (Commission Nationale de Contrôle de la Protection des Données). Inspirée du modèle français (CNIL). Droits d'accès, de rectification et d'opposition.",
+      source: "Bulletin Officiel â€” Loi n°09-08",
       url: "cndp.ma",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¹ðŸ‡­ THAÃLANDE â€” Source : Royal Thai Police
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   thailand: {
     _flag: "ðŸ‡¹ðŸ‡­",
-    _name: "ThaÃ¯lande",
+    _name: "Thaïlande",
     _source: "Royal Thai Police â€” royalthaipolice.go.th",
-    _keywords: ["thaÃ¯lande", "thailande", "thailand", "thai"],
+    _keywords: ["thaïlande", "thailande", "thailand", "thai"],
 
     casque: {
       keywords: ["casque", "helmet"],
@@ -632,18 +632,18 @@ window.LegalDatabase = {
       url: "royalthaipolice.go.th",
     },
     pdpa_th: {
-      keywords: ["pdpa", "donnÃ©e", "data", "privacy"],
+      keywords: ["pdpa", "donnée", "data", "privacy"],
       title: "ðŸ‡¹ðŸ‡­ PDPA â€” Personal Data Protection Act B.E.2562 (2019)",
       content:
-        "En vigueur depuis <strong>juin 2022</strong>. TrÃ¨s inspirÃ©e du RGPD. Consentement explicite requis pour les donnÃ©es sensibles. <strong>Amende :</strong> jusqu'Ã  <strong>5M THB</strong> + sanctions pÃ©nales (1 an de prison et/ou 1M THB).",
+        "En vigueur depuis <strong>juin 2022</strong>. Très inspirée du RGPD. Consentement explicite requis pour les données sensibles. <strong>Amende :</strong> jusqu'à <strong>5M THB</strong> + sanctions pénales (1 an de prison et/ou 1M THB).",
       source: "PDPA Thailand â€” pdpathailand.com",
       url: "pdpathailand.com",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¦ðŸ‡º AUSTRALIE â€” Source : Federal Register of Legislation
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   australia: {
     _flag: "ðŸ‡¦ðŸ‡º",
     _name: "Australie",
@@ -654,42 +654,42 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¦ðŸ‡º Casque Moto â€” Australian Road Rules Rule 270",
       content:
-        "Le port du casque homologuÃ© <strong>AS/NZS 1698:2006</strong> (ou UNECE R22) est obligatoire dans tous les Ã‰tats et Territoires.<br><strong>Sanction :</strong> Varie par Ã‰tat. Ex NSW : <strong>A$349</strong> + 3 points de dÃ©mÃ©rite.",
+        "Le port du casque homologué <strong>AS/NZS 1698:2006</strong> (ou UNECE R22) est obligatoire dans tous les États et Territoires.<br><strong>Sanction :</strong> Varie par État. Ex NSW : <strong>A$349</strong> + 3 points de démérite.",
       source: "legislation.gov.au â€” Australian Road Rules",
       url: "legislation.gov.au",
     },
     privacy_act: {
-      keywords: ["privacy", "donnÃ©e", "data"],
-      title: "ðŸ‡¦ðŸ‡º Privacy Act 1988 â€” Protection des DonnÃ©es",
+      keywords: ["privacy", "donnée", "data"],
+      title: "ðŸ‡¦ðŸ‡º Privacy Act 1988 â€” Protection des Données",
       content:
-        "SupervisÃ©e par l'<strong>OAIC</strong> (Office of the Australian Information Commissioner). Les 13 <strong>Australian Privacy Principles (APPs)</strong> rÃ©gissent la collecte, l'utilisation et la sÃ©curitÃ© des donnÃ©es.<br><strong>Amende :</strong> jusqu'Ã  <strong>A$50M</strong>, 3Ã— le bÃ©nÃ©fice obtenu, ou 30% du CA (le plus Ã©levÃ©).",
+        "Supervisée par l'<strong>OAIC</strong> (Office of the Australian Information Commissioner). Les 13 <strong>Australian Privacy Principles (APPs)</strong> régissent la collecte, l'utilisation et la sécurité des données.<br><strong>Amende :</strong> jusqu'à <strong>A$50M</strong>, 3Ã— le bénéfice obtenu, ou 30% du CA (le plus élevé).",
       source: "legislation.gov.au â€” Privacy Act 1988",
       url: "legislation.gov.au",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¨ðŸ‡¦ CANADA â€” Source : Justice Laws (laws-lois.justice.gc.ca)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   canada: {
     _flag: "ðŸ‡¨ðŸ‡¦",
     _name: "Canada",
     _source: "Justice Laws â€” laws-lois.justice.gc.ca",
-    _keywords: ["canada", "canadien", "quÃ©bec", "quebec"],
+    _keywords: ["canada", "canadien", "québec", "quebec"],
 
     casque: {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¨ðŸ‡¦ Casque Moto â€” Highway Traffic Act (Provincial)",
       content:
-        "Le casque est obligatoire dans <strong>toutes les provinces</strong>. Normes acceptÃ©es : <strong>DOT (FMVSS 218)</strong>, <strong>Snell</strong>, <strong>ECE 22.05/22.06</strong>.<br><strong>Sanction :</strong> Varie par province. Ontario : <strong>C$110</strong>.",
+        "Le casque est obligatoire dans <strong>toutes les provinces</strong>. Normes acceptées : <strong>DOT (FMVSS 218)</strong>, <strong>Snell</strong>, <strong>ECE 22.05/22.06</strong>.<br><strong>Sanction :</strong> Varie par province. Ontario : <strong>C$110</strong>.",
       source: "laws-lois.justice.gc.ca + HTA provincial",
       url: "laws-lois.justice.gc.ca",
     },
     pipeda: {
-      keywords: ["pipeda", "donnÃ©e", "data", "privacy"],
+      keywords: ["pipeda", "donnée", "data", "privacy"],
       title: "ðŸ‡¨ðŸ‡¦ PIPEDA â€” Personal Information Protection Act",
       content:
-        "Loi fÃ©dÃ©rale sur la protection des renseignements personnels dans le secteur privÃ©. SupervisÃ©e par le <strong>Commissariat Ã  la protection de la vie privÃ©e</strong>. RemplacÃ©e progressivement au QuÃ©bec par la <strong>Loi 25</strong> (2023).<br><strong>Amende :</strong> jusqu'Ã  <strong>C$100.000</strong> (PIPEDA), C$25M ou 4% du CA (Loi 25 QC).",
+        "Loi fédérale sur la protection des renseignements personnels dans le secteur privé. Supervisée par le <strong>Commissariat à la protection de la vie privée</strong>. Remplacée progressivement au Québec par la <strong>Loi 25</strong> (2023).<br><strong>Amende :</strong> jusqu'à <strong>C$100.000</strong> (PIPEDA), C$25M ou 4% du CA (Loi 25 QC).",
       source: "laws-lois.justice.gc.ca â€” PIPEDA (S.C. 2000, c.5)",
       url: "laws-lois.justice.gc.ca",
     },
@@ -698,13 +698,13 @@ window.LegalDatabase = {
 
 /**
  * ðŸ” Moteur de recherche dans la base juridique mondiale
- * UtilisÃ© par PocketLawyer.processChatQuery()
+ * Utilisé par PocketLawyer.processChatQuery()
  */
 window.LegalDatabase.search = function (query) {
   const t = query.toLowerCase();
   const results = [];
 
-  // 1. Identifier le(s) pays ciblÃ©(s)
+  // 1. Identifier le(s) pays ciblé(s)
   let targetCountries = [];
   for (const [countryKey, country] of Object.entries(this)) {
     if (typeof country !== "object" || countryKey === "search") continue;
@@ -713,14 +713,14 @@ window.LegalDatabase.search = function (query) {
     }
   }
 
-  // Si aucun pays dÃ©tectÃ©, chercher dans tous
+  // Si aucun pays détecté, chercher dans tous
   if (targetCountries.length === 0) {
     targetCountries = Object.keys(this).filter(
       (k) => typeof this[k] === "object" && k !== "search",
     );
   }
 
-  // 2. Chercher par mots-clÃ©s dans les pays ciblÃ©s
+  // 2. Chercher par mots-clés dans les pays ciblés
   for (const countryKey of targetCountries) {
     const country = this[countryKey];
     if (!country || typeof country !== "object") continue;

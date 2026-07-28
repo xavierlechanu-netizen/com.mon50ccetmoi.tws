@@ -5,17 +5,17 @@ let currentRouteMarkers = [];
 
 async function calculateRouteSansAutoroute(start, end) {
   if (!start || !end) {
-    console.error("mon50cc Maps : Points de dÃ©part ou d'arrivÃ©e invalides.", {
+    console.error("mon50cc Maps : Points de départ ou d'arrivée invalides.", {
       start,
       end,
     });
-    if (!start) speak("Signal GPS insuffisant pour dÃ©marrer l'itinÃ©raire.");
+    if (!start) speak("Signal GPS insuffisant pour démarrer l'itinéraire.");
     return;
   }
 
   window.currentRouteDestination = end; // Store for GO button
 
-  // Nettoyage des tracÃ©s prÃ©cÃ©dents
+  // Nettoyage des tracés précédents
   currentRoutePolylines.forEach((p) => p.setMap(null));
   currentRoutePolylines = [];
   currentRouteMarkers.forEach((m) => m.setMap(null));
@@ -66,16 +66,16 @@ async function calculateRouteSansAutoroute(start, end) {
 
       // --- AJUSTEMENT 50cc ---
       durationSec = Math.round(durationSec * 1.2); // +20% pour scooter 50cc en ville
-      const maxSpeedMs = 32 / 3.6; // Vitesse moyenne rÃ©aliste pour un 50cc (32 km/h) avec les arrÃªts
+      const maxSpeedMs = 32 / 3.6; // Vitesse moyenne réaliste pour un 50cc (32 km/h) avec les arrêts
       const googleSpeedMs = distanceMeters / durationSec;
       if (googleSpeedMs > maxSpeedMs) {
         durationSec = Math.round(distanceMeters / maxSpeedMs);
         if (window.Telemetry)
-          window.Telemetry.addLog("INFO", `ETA ajustÃ© pour 50cc.`);
+          window.Telemetry.addLog("INFO", `ETA ajusté pour 50cc.`);
       }
 
       const destNameLegacy =
-        document.getElementById("route-search").value || "ITINÃ‰RAIRE 50CC";
+        document.getElementById("route-search").value || "ITINÉRAIRE 50CC";
       const titleElLegacy = document.querySelector(".route-title");
       if (titleElLegacy)
         titleElLegacy.textContent = destNameLegacy.toUpperCase();
@@ -117,13 +117,13 @@ async function calculateRouteSansAutoroute(start, end) {
         setTimeout(() => {
           if (typeof speak === "function") {
             speak(
-              "Guidage interne dÃ©marrÃ©. Dans " +
+              "Guidage interne démarré. Dans " +
                 nextStep.distance.text +
                 ", " +
                 instructionText,
             );
           }
-        }, 6000); // DÃ©calÃ© de 6 secondes pour laisser Jarvis annoncer l'ETA en premier
+        }, 6000); // Décalé de 6 secondes pour laisser Jarvis annoncer l'ETA en premier
       }
 
       let durationTextStr;
@@ -142,7 +142,7 @@ async function calculateRouteSansAutoroute(start, end) {
         etaEl.textContent = arrivalTime;
       }
 
-      // DÃ©tection ferry (Legacy)
+      // Détection ferry (Legacy)
       window.routeFerries = leg.steps.filter(
         (s) =>
           s.instructions.toLowerCase().includes("ferry") ||
@@ -171,7 +171,7 @@ async function calculateRouteSansAutoroute(start, end) {
         ),
       );
 
-      // SAFE RIDE : VÃ©rification MÃ©tÃ©o
+      // SAFE RIDE : Vérification Météo
       if (window.SafeRide) {
         const destLat = typeof end.lat === "function" ? end.lat() : end.lat;
         const destLng = typeof end.lng === "function" ? end.lng() : end.lng;
@@ -182,7 +182,7 @@ async function calculateRouteSansAutoroute(start, end) {
               setTimeout(() => {
                 if (typeof speak === "function") {
                   speak(
-                    `Alerte Safe Ride : ${issuesStr} sur votre itinÃ©raire. Ã‰quipez-vous et soyez trÃ¨s prudent avant de prendre la route.`,
+                    `Alerte Safe Ride : ${issuesStr} sur votre itinéraire. Équipez-vous et soyez très prudent avant de prendre la route.`,
                   );
                 }
               }, 9000);
@@ -193,8 +193,8 @@ async function calculateRouteSansAutoroute(start, end) {
                 const newTotalMins = Math.floor(newDurationSec / 60);
                 timeEl.textContent =
                   newTotalMins >= 60
-                    ? `${Math.floor(newTotalMins / 60)} h ${newTotalMins % 60} min (MÃ©tÃ©o)`
-                    : `${newTotalMins} min (MÃ©tÃ©o)`;
+                    ? `${Math.floor(newTotalMins / 60)} h ${newTotalMins % 60} min (Météo)`
+                    : `${newTotalMins} min (Météo)`;
                 timeEl.style.color = "#ff4d4d"; // Rouge danger
 
                 const newArrivalTime = new Date(
@@ -225,10 +225,10 @@ async function calculateRouteSansAutoroute(start, end) {
       });
       currentRouteMarkers.push(destinationMarker);
     } else if (status === "ZERO_RESULTS") {
-      speak("Aucun itinÃ©raire trouvÃ© vers cette destination.");
+      speak("Aucun itinéraire trouvé vers cette destination.");
     } else {
       console.error("Routage impossible: " + status);
-      speak("Erreur de calcul d'itinÃ©raire.");
+      speak("Erreur de calcul d'itinéraire.");
     }
   });
 }
@@ -300,7 +300,7 @@ window.searchDestination = function () {
           }
         });
       } else {
-        speak("Lieu de dÃ©part introuvable.");
+        speak("Lieu de départ introuvable.");
       }
     });
     return;
@@ -309,7 +309,7 @@ window.searchDestination = function () {
   // SINON GPS CLASSIQUE
   if (!currentPosition) {
     speak(
-      "Recherche de votre position GPS. L'itinÃ©raire dÃ©marrera automatiquement dÃ¨s que possible.",
+      "Recherche de votre position GPS. L'itinéraire démarrera automatiquement dès que possible.",
     );
     window.pendingDestinationName = query;
     return;
@@ -370,7 +370,7 @@ window.saveHazard = function (type, description = "") {
       (window.session.bannedUntil - Date.now()) / 60000,
     );
     alert(
-      `ðŸš¨ Action Interdite : Votre compte est suspendu pour faux signalements rÃ©pÃ©tÃ©s. Fin de la sanction dans ${remaining} minutes.`,
+      `🚨 Action Interdite : Votre compte est suspendu pour faux signalements répétés. Fin de la sanction dans ${remaining} minutes.`,
     );
     return;
   }
@@ -389,18 +389,18 @@ window.saveHazard = function (type, description = "") {
   dbLocal.push(h);
   secureSetItem("hazards", JSON.stringify(dbLocal));
 
-  // 2. Publication Cloud (Temps rÃ©el pour la communautÃ©)
+  // 2. Publication Cloud (Temps réel pour la communauté)
   if (typeof publishHazardCloud === "function") {
     publishHazardCloud(h).then((success) => {});
   }
 
-  alert(`Signalement: ${escapeHTML(type)} enregistrÃ© ! Merci Ã  vous.`);
+  alert(`Signalement: ${escapeHTML(type)} enregistré ! Merci à vous.`);
 
   // GAMIFICATION: +50 XP pour le signalement communautaire
   if (typeof window.updateXP === "function") {
     window.updateXP(5); // +50 XP (updateXP multiplie par 10)
     if (typeof speak === "function")
-      speak("Signalement validÃ©. Vous gagnez de l'expÃ©rience.");
+      speak("Signalement validé. Vous gagnez de l'expérience.");
   }
 
   toggleHazardMenu();
@@ -413,7 +413,7 @@ function loadHazards() {
   const raw = secureGetItem("hazards");
   let hazards = raw ? JSON.parse(raw) : [];
 
-  // Filtrage Ã©phÃ©mÃ¨re Animaux (> 30 mins = expirÃ©)
+  // Filtrage éphémère Animaux (> 30 mins = expiré)
   hazards = hazards.filter((h) => {
     if ((h.type === "animal" || h.type === "chien") && h.date) {
       const ageMins = (Date.now() - new Date(h.date).getTime()) / 60000;
@@ -429,10 +429,10 @@ function loadHazards() {
   if (listContainer) {
     if (hazards.length === 0) {
       listContainer.innerHTML =
-        '<p style="font-size:0.8rem; color:#666; text-align:center; padding:10px;">Aucun danger signalÃ©.</p>';
+        '<p style="font-size:0.8rem; color:#666; text-align:center; padding:10px;">Aucun danger signalé.</p>';
     } else {
       listContainer.innerHTML = "";
-      hazards.reverse(); // Voir les plus rÃ©cents en premier dans la liste
+      hazards.reverse(); // Voir les plus récents en premier dans la liste
     }
   }
 
@@ -441,7 +441,7 @@ function loadHazards() {
     const hColor =
       h.type === "Police"
         ? "#00d2ff"
-        : h.type === "Route DÃ©gradÃ©e"
+        : h.type === "Route Dégradée"
           ? "#f1c40f"
           : isAnimal
             ? "#e67e22"
@@ -464,7 +464,7 @@ function loadHazards() {
     marker.addListener("click", () => info.open(map, marker));
     hazardMarkers.push(marker);
 
-    // Ajout Ã  la liste sidebar
+    // Ajout à la liste sidebar
     if (listContainer && index < 5) {
       // On affiche les 5 derniers max
       const div = document.createElement("div");
@@ -492,7 +492,7 @@ const poiConfig = {
   },
   doctors: {
     icon: "fa-briefcase-medical",
-    label: "SantÃ© & Pharmacie",
+    label: "Santé & Pharmacie",
     color: "#e74c3c",
     radius: 3000,
   },
@@ -598,7 +598,7 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
         const coords = record.geometry.coordinates;
         const stationId = record.recordid;
 
-        // Masquer si blacklistÃ©e
+        // Masquer si blacklistée
         if (blacklist.includes(stationId)) {
           return;
         }
@@ -612,7 +612,7 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
             if (p["@nom"] === "Gazole") return;
 
             pricesHtml += `<div style="display:flex; justify-content:space-between; gap:10px;">
-                            <strong>${p["@nom"]}</strong> <span>${parseFloat(p["@valeur"]).toFixed(3)}â‚¬</span>
+                            <strong>${p["@nom"]}</strong> <span>${parseFloat(p["@valeur"]).toFixed(3)}€</span>
                         </div>`;
           });
         } catch (e) {
@@ -645,7 +645,7 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
           : `
                     <button onclick="triggerPhotoReport('${stationId}', '${fields.vile || fields.adresse}')" 
                         style="width:100%; margin-top:5px; background:#ff4d4d; color:white; border:none; padding:5px; border-radius:5px; font-size:0.7rem; cursor:pointer;">
-                        ðŸš¨ Signaler Abus Prix (+Photo)
+                        🚨 Signaler Abus Prix (+Photo)
                     </button>`;
 
         const info = new google.maps.InfoWindow({
@@ -664,7 +664,7 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
     }
   } catch (e) {
     console.error("Gov API fail", e);
-    alert("Erreur lors de la rÃ©cupÃ©ration des prix.");
+    alert("Erreur lors de la récupération des prix.");
   } finally {
     btn.innerHTML = oldHtml;
   }
@@ -700,11 +700,11 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
             : null;
         const isPro = (internalInfo?.count || 0) >= 1000;
         const proBadge = isPro
-          ? `<div style="background:#ffd700; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-trophy"></i> BADGE PRO CERTIFIÃ‰</div>`
+          ? `<div style="background:#ffd700; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-trophy"></i> BADGE PRO CERTIFIÉ</div>`
           : "";
         const qualityBadge =
           place.rating > 3.9
-            ? `<div style="background:#f1c40f; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-certificate"></i> QUALITÃ‰ CERTIFIÃ‰E (>3.9)</div>`
+            ? `<div style="background:#f1c40f; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-certificate"></i> QUALITÉ CERTIFIÉE (>3.9)</div>`
             : "";
         const communityRating = internalInfo
           ? `<div style="font-size:0.7rem; color:#00d2ff; margin-top:3px;">Label Scooter : â­ ${internalInfo.avgRating}/5 (${internalInfo.count} avis)</div>`
@@ -724,7 +724,7 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
           },
         });
 
-        // Ã‰toiles de notation
+        // Étoiles de notation
         const isGuest = !window.session || window.session.isGuest;
         const safePlaceName = (place.name || "")
           .replace(/\\/g, "\\\\")
@@ -735,7 +735,7 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
         const starBtns = isGuest
           ? ""
           : `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:5px;">
-                    <small>Ã‰valuer ce garage :</small><br>
+                    <small>Évaluer ce garage :</small><br>
                     <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 1)">â­</span>
                     <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 2)">â­</span>
                     <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 3)">â­</span>
@@ -757,9 +757,9 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
         marker.addListener("click", () => info.open(map, marker));
         officialPoiMarkers.push(marker);
       });
-      alert(`${filtered.length} garages certifiÃ©s (Note > 3.3) trouvÃ©s.`);
+      alert(`${filtered.length} garages certifiés (Note > 3.3) trouvés.`);
     } else {
-      alert("Aucun garage trouvÃ© dans cette zone.");
+      alert("Aucun garage trouvé dans cette zone.");
     }
   });
 }
@@ -772,7 +772,7 @@ window.triggerPhotoReport = function (id, name) {
     // Notification
     alert("Traitement de la preuve photo en cours...");
 
-    // Lecture en base64 pour le stockage Firestore (ou upload Storage si configurÃ©)
+    // Lecture en base64 pour le stockage Firestore (ou upload Storage si configuré)
     const reader = new FileReader();
     reader.onload = async (event) => {
       const photoData = event.target.result;
@@ -811,7 +811,7 @@ function renderPoiMarkers(elements, config) {
       officialPoiMarkers.push(marker);
     });
   }
-  alert(`${elements?.length || 0} rÃ©sultat(s) trouvÃ©s.`);
+  alert(`${elements?.length || 0} résultat(s) trouvés.`);
 }
 
 // --- 6. SIMULATIONS ET CHRONO ---
@@ -914,7 +914,7 @@ window.MapSystem.updateTerritoryLayer = function (zipCode, data) {
 
   const color = data.color || "#ffffff";
 
-  // Si on l'a dÃ©jÃ  dessinÃ©, on met juste Ã  jour la couleur
+  // Si on l'a déjà dessiné, on met juste à jour la couleur
   if (this.territoryShapes[zipCode]) {
     this.territoryShapes[zipCode].setOptions({
       fillColor: color,
@@ -923,12 +923,12 @@ window.MapSystem.updateTerritoryLayer = function (zipCode, data) {
     return;
   }
 
-  // Sinon on tente de gÃ©ocoder le code postal pour trouver le centre de la zone (en France)
+  // Sinon on tente de géocoder le code postal pour trouver le centre de la zone (en France)
   if (typeof geocoder !== "undefined" && geocoder) {
     geocoder.geocode({ address: zipCode + " France" }, (res, status) => {
       if (status === "OK" && res[0]) {
         const center = res[0].geometry.location;
-        // Dessiner un grand cercle pour reprÃ©senter le territoire
+        // Dessiner un grand cercle pour représenter le territoire
         const circle = new google.maps.Circle({
           strokeColor: color,
           strokeOpacity: 0.8,
@@ -944,7 +944,7 @@ window.MapSystem.updateTerritoryLayer = function (zipCode, data) {
         const info = new google.maps.InfoWindow({
           content: `<div style="color:black; font-family:'Outfit', sans-serif;">
                                 <h3 style="margin:0; color:${color};"><i class="fa-solid fa-flag"></i> Secteur ${zipCode}</h3>
-                                <p style="margin:5px 0;">DominÃ© par: <b>${data.dominantCrewName || "Inconnu"}</b></p>
+                                <p style="margin:5px 0;">Dominé par: <b>${data.dominantCrewName || "Inconnu"}</b></p>
                               </div>`,
         });
 
@@ -973,7 +973,7 @@ setInterval(() => {
           c.types.includes("postal_code"),
         );
         if (zipComp && window.CrewSystem && window.CrewSystem.currentCrew) {
-          window.CrewSystem.addKmToTerritory(zipComp.short_name, 0.5); // +0.5 km simulÃ©s
+          window.CrewSystem.addKmToTerritory(zipComp.short_name, 0.5); // +0.5 km simulés
         }
       }
     });

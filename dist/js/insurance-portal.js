@@ -1,10 +1,10 @@
 ﻿/**
  * PORTAIL ASSURANCE mon50ccetmoi
- * Paiements via Revolut Merchant API (SDK RevolutCheckout embarquÃ©)
- * Flow : client â†’ Firebase Function (crÃ©ation ordre) â†’ Revolut â†’ webhook â†’ Firestore
+ * Paiements via Revolut Merchant API (SDK RevolutCheckout embarqué)
+ * Flow : client ←’ Firebase Function (création ordre) ←’ Revolut ←’ webhook ←’ Firestore
  */
 window.InsurancePortal = {
-  // ClÃ© publique Merchant (config.js) â€” utilisÃ©e cÃ´tÃ© client uniquement
+  // Clé publique Merchant (config.js) â€” utilisée côté client uniquement
   get revolutPublicKey() {
     return CONFIG?.REVOLUT?.PUBLIC_KEY || "";
   },
@@ -17,7 +17,7 @@ window.InsurancePortal = {
 
   balance: 500.0, // Option 2: Portefeuille virtuel (Acompte)
   transactions: [], // Historique des transactions
-  cases: {}, // Liste des dossiers en attente ou dÃ©bloquÃ©s
+  cases: {}, // Liste des dossiers en attente ou débloqués
 
   init() {},
 
@@ -46,7 +46,7 @@ window.InsurancePortal = {
                 <h3><i class="fa-solid fa-building-shield"></i> Portail Pro Assurance</h3>
                 <div class="wallet-status">
                     <span>Votre Solde :</span>
-                    <strong id="portal-balance">${this.balance.toFixed(2)} â‚¬</strong>
+                    <strong id="portal-balance">${this.balance.toFixed(2)} €</strong>
                 </div>
 
                 <div class="case-header">
@@ -72,18 +72,18 @@ window.InsurancePortal = {
                 <i class="fa-solid fa-hourglass-half fa-spin" style="font-size:3rem; color:#00d2ff; margin-bottom:20px;"></i>
                 <h3 style="color:#fff; font-size:1.4rem;">En attente de l'Assurance</h3>
                 <p style="color:#aaa; font-size:0.9rem; line-height:1.5;">
-                    Veuillez transmettre ce code de dossier Ã  votre assureur :
+                    Veuillez transmettre ce code de dossier à votre assureur :
                 </p>
                 <div class="case-code-badge" style="justify-content:center; margin: 20px 0;">
                     <i class="fa-solid fa-hashtag"></i>
                     <strong style="font-size:1.3rem;">${caseId}</strong>
                 </div>
                 <p style="color:#aaa; font-size:0.9rem; line-height:1.5;">
-                    Votre assureur pourra dÃ©verrouiller le rapport depuis le <strong>Portail Expert</strong>.<br>
-                    Le rapport sera disponible ici automatiquement dÃ¨s validation du paiement.
+                    Votre assureur pourra déverrouiller le rapport depuis le <strong>Portail Expert</strong>.<br>
+                    Le rapport sera disponible ici automatiquement dès validation du paiement.
                 </p>
                 <button onclick="InsurancePortal.pollPaymentConfirmation('${caseId}')" class="btn-litigation-start" style="margin-top:20px;">
-                    <i class="fa-solid fa-rotate"></i> RafraÃ®chir le statut
+                    <i class="fa-solid fa-rotate"></i> Rafraîchir le statut
                 </button>
             </div>
         `;
@@ -92,9 +92,9 @@ window.InsurancePortal = {
   renderUnlockedView(caseId) {
     return `
             <div class="unlocked-view">
-                <p class="success-msg"><i class="fa-solid fa-circle-check"></i> Rapport dÃ©bloquÃ© avec succÃ¨s.</p>
+                <p class="success-msg"><i class="fa-solid fa-circle-check"></i> Rapport débloqué avec succès.</p>
                 <button onclick="window.BlackBoxInsurance.generateReport()" class="btn-download-report">
-                    <i class="fa-solid fa-file-pdf"></i> TÃ©lÃ©charger le Rapport CertifiÃ©
+                    <i class="fa-solid fa-file-pdf"></i> Télécharger le Rapport Certifié
                 </button>
                 <button onclick="window.BlackBoxReplay.replay()" class="btn-replay-report">
                     <i class="fa-solid fa-play"></i> Rejouer le Trajet en 3D
@@ -106,41 +106,41 @@ window.InsurancePortal = {
   getStatusLabel(status) {
     const labels = {
       pending_payment: "En attente de paiement",
-      waiting_for_funds: "Virement en cours (Attente rÃ©ception)",
-      pending_verification: "VÃ©rification de la preuve en cours",
-      unlocked: "AccÃ¨s AutorisÃ©",
+      waiting_for_funds: "Virement en cours (Attente réception)",
+      pending_verification: "Vérification de la preuve en cours",
+      unlocked: "Accès Autorisé",
     };
     return labels[status] || status;
   },
 
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // OPTION 1 : Paiement Revolut Merchant (flow complet)
-  // 1. Appel Firebase Function â†’ crÃ©ation ordre Revolut (clÃ© secrÃ¨te serveur)
-  // 2. RÃ©cupÃ©ration du order_token
+  // 1. Appel Firebase Function ←’ création ordre Revolut (clé secrète serveur)
+  // 2. Récupération du order_token
   // 3. RevolutCheckout(token).payWithPopup()
-  // 4. Webhook Revolut â†’ Firebase â†’ dÃ©blocage rapport
+  // 4. Webhook Revolut ←’ Firebase ←’ déblocage rapport
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async payInstant(caseId) {
     const pubKey = this.revolutPublicKey;
     if (!pubKey) {
-      alert("âš ï¸ ClÃ© publique Revolut manquante dans config.js");
+      alert("âš ï¸ Clé publique Revolut manquante dans config.js");
       return;
     }
 
-    // Ã‰tape 1 : Afficher le spinner de chargement
+    // Étape 1 : Afficher le spinner de chargement
     this.cases[caseId] = { status: "waiting_for_funds", unlocked: false };
     this.renderRevolutLoadingModal(caseId);
 
     try {
-      // Ã‰tape 2 : CrÃ©er l'ordre cÃ´tÃ© serveur via Firebase Function
-      speak("Initialisation du paiement sÃ©curisÃ© Revolut.");
+      // Étape 2 : Créer l'ordre côté serveur via Firebase Function
+      speak("Initialisation du paiement sécurisé Revolut.");
       const orderData = await this.createOrderViaFunction(caseId);
 
       if (!orderData?.order_token) {
-        throw new Error("Token de paiement Revolut non reÃ§u.");
+        throw new Error("Token de paiement Revolut non reçu.");
       }
 
-      // Ã‰tape 3 : Lancer le checkout Revolut avec le token
+      // Étape 3 : Lancer le checkout Revolut avec le token
       await this.launchRevolutCheckout(caseId, orderData);
     } catch (err) {
       console.error("[Revolut] Erreur paiement :", err);
@@ -148,7 +148,7 @@ window.InsurancePortal = {
     }
   },
 
-  // â”€ Appel Firebase Function : crÃ©ation de l'ordre Revolut â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€ Appel Firebase Function : création de l'ordre Revolut â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async createOrderViaFunction(caseId) {
     const url = `${this.functionBaseUrl}/createRevolutOrder`;
     const reportType =
@@ -176,25 +176,25 @@ window.InsurancePortal = {
     return await response.json();
   },
 
-  // â”€ Lance RevolutCheckout avec le token reÃ§u â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€ Lance RevolutCheckout avec le token reçu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async launchRevolutCheckout(caseId, orderData) {
     if (typeof RevolutCheckout !== "function") {
-      // SDK pas encore chargÃ© (async) â€” attendre 2s et rÃ©essayer
+      // SDK pas encore chargé (async) â€” attendre 2s et réessayer
       await new Promise((r) => setTimeout(r, 2000));
       if (typeof RevolutCheckout !== "function") {
-        throw new Error("SDK Revolut non chargÃ©. VÃ©rifiez votre connexion.");
+        throw new Error("SDK Revolut non chargé. Vérifiez votre connexion.");
       }
     }
 
     const instance = await RevolutCheckout(orderData.order_token, "prod");
-    // Mode production activÃ© â€” anciennement 'sandbox'
+    // Mode production activé â€” anciennement 'sandbox'
 
     instance.payWithPopup({
       onSuccess: () => {
-        speak("Paiement Revolut confirmÃ©. VÃ©rification en cours.");
+        speak("Paiement Revolut confirmé. Vérification en cours.");
         this.renderRevolutPendingConfirmation(caseId, orderData.order_id);
-        // Le webhook Revolut va dÃ©bloquer le rapport dans Firestore.
-        // On poll Firebase toutes les 3s pour dÃ©tecter la confirmation.
+        // Le webhook Revolut va débloquer le rapport dans Firestore.
+        // On poll Firebase toutes les 3s pour détecter la confirmation.
         this.pollPaymentConfirmation(caseId);
       },
       onError: (message) => {
@@ -202,20 +202,20 @@ window.InsurancePortal = {
         this.renderRevolutErrorModal(caseId, message);
       },
       onCancel: () => {
-        speak("Paiement annulÃ©.");
+        speak("Paiement annulé.");
         this.cases[caseId] = { status: "pending_payment", unlocked: false };
         this.showPortal(caseId);
       },
     });
   },
 
-  // â”€ Poll Firestore pour dÃ©tecter la confirmation webhook â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€ Poll Firestore pour détecter la confirmation webhook â”€â”€â”€â”€â”€â”€â”€â”€
   async pollPaymentConfirmation(caseId, attempts = 0) {
     if (attempts > 20) {
-      // Timeout aprÃ¨s ~60s
+      // Timeout après ~60s
       this.renderRevolutErrorModal(
         caseId,
-        "DÃ©lai de confirmation dÃ©passÃ©. Contactez le support.",
+        "Délai de confirmation dépassé. Contactez le support.",
       );
       return;
     }
@@ -223,7 +223,7 @@ window.InsurancePortal = {
     await new Promise((r) => setTimeout(r, 3000));
 
     try {
-      // VÃ©rifier dans Firestore si le webhook a confirmÃ© le paiement
+      // Vérifier dans Firestore si le webhook a confirmé le paiement
       if (typeof db !== "undefined") {
         const doc = await db
           .collection("payment_confirmations")
@@ -232,18 +232,18 @@ window.InsurancePortal = {
         if (doc.exists) {
           this.unlockCase(caseId, "revolut_webhook");
           this.renderRevolutSuccess(caseId);
-          speak("Rapport dÃ©bloquÃ© avec succÃ¨s. Bonne route.");
+          speak("Rapport débloqué avec succès. Bonne route.");
           return;
         }
       } else {
-        // Fallback : vÃ©rifier via la Cloud Function
+        // Fallback : vérifier via la Cloud Function
         const url = `${this.functionBaseUrl}/checkPaymentStatus?case_id=${caseId}&user_id=${window.session?.uid || ""}`;
         const resp = await fetch(url);
         const data = await resp.json();
         if (data.paid) {
           this.unlockCase(caseId, "revolut_webhook");
           this.renderRevolutSuccess(caseId);
-          speak("Rapport dÃ©bloquÃ© avec succÃ¨s.");
+          speak("Rapport débloqué avec succès.");
           return;
         }
       }
@@ -251,7 +251,7 @@ window.InsurancePortal = {
       console.warn("[Revolut Poll] Erreur :", e);
     }
 
-    // Continuer Ã  poller
+    // Continuer à poller
     this.pollPaymentConfirmation(caseId, attempts + 1);
   },
 
@@ -265,13 +265,13 @@ window.InsurancePortal = {
                     <div class="revolut-logo-ring" style="border-color: #00ff00; box-shadow: 0 0 30px rgba(0,255,0,0.5);">
                         <i class="fa-solid fa-unlock" style="color:#00ff00; font-size:2rem; animation: pulse-halo 2s infinite;"></i>
                     </div>
-                    <h3 style="color:#00ff00; font-size:1.5rem; margin-top:20px;">Paiement ValidÃ©</h3>
-                    <p style="color:#fff; font-size:0.9rem; margin-top:10px;">Le webhook Revolut a confirmÃ© la transaction.</p>
-                    <p style="color:#00d2ff; font-size:1rem; margin-top:5px; font-weight:bold;">Rapport DÃ©verrouillÃ©</p>
+                    <h3 style="color:#00ff00; font-size:1.5rem; margin-top:20px;">Paiement Validé</h3>
+                    <p style="color:#fff; font-size:0.9rem; margin-top:10px;">Le webhook Revolut a confirmé la transaction.</p>
+                    <p style="color:#00d2ff; font-size:1rem; margin-top:5px; font-weight:bold;">Rapport Déverrouillé</p>
                 </div>
             </div>`;
 
-    // AprÃ¨s 3 secondes, on affiche le portail complet
+    // Après 3 secondes, on affiche le portail complet
     setTimeout(() => {
       this.showPortal(caseId);
     }, 3000);
@@ -288,17 +288,17 @@ window.InsurancePortal = {
                         <div class="revolut-logo-ring">
                             <i class="fa-solid fa-lock" style="color:#7c4dff; font-size:1.8rem;"></i>
                         </div>
-                        <h3>Paiement SÃ©curisÃ©</h3>
-                        <p style="color:#aaa; font-size:0.82rem;">PrÃ©paration du checkout <strong style="color:#fff;">Revolut</strong>â€¦</p>
+                        <h3>Paiement Sécurisé</h3>
+                        <p style="color:#aaa; font-size:0.82rem;">Préparation du checkout <strong style="color:#fff;">Revolut</strong>…</p>
                     </div>
                     <div class="revolut-amount-badge">
-                        <span class="revolut-amount-value">${price.toFixed(2)} â‚¬</span>
-                        <span class="revolut-amount-label">Rapport Assurance certifiÃ© â€” ${caseId}</span>
+                        <span class="revolut-amount-value">${price.toFixed(2)} €</span>
+                        <span class="revolut-amount-label">Rapport Assurance certifié â€” ${caseId}</span>
                     </div>
                     <div class="ai-progress-bar" style="margin-top:20px;">
                         <div class="ai-progress-fill revolut-progress" style="width:30%;"></div>
                     </div>
-                    <p class="ai-status-text" id="revolut-status-txt">CrÃ©ation de l'ordre de paiementâ€¦</p>
+                    <p class="ai-status-text" id="revolut-status-txt">Création de l'ordre de paiement…</p>
                 </div>
             </div>`;
     // Animation de la barre
@@ -306,13 +306,13 @@ window.InsurancePortal = {
       const fill = content.querySelector(".revolut-progress");
       const txt = content.querySelector("#revolut-status-txt");
       if (fill) fill.style.width = "70%";
-      if (txt) txt.textContent = "Connexion Ã  Revolut Merchantâ€¦";
+      if (txt) txt.textContent = "Connexion à Revolut Merchant…";
     }, 800);
     setTimeout(() => {
       const fill = content.querySelector(".revolut-progress");
       const txt = content.querySelector("#revolut-status-txt");
       if (fill) fill.style.width = "90%";
-      if (txt) txt.textContent = "Ouverture du checkoutâ€¦";
+      if (txt) txt.textContent = "Ouverture du checkout…";
     }, 1800);
   },
 
@@ -322,9 +322,9 @@ window.InsurancePortal = {
     content.innerHTML = `
             <div class="litigation-portal litigation-sending">
                 <i class="fa-solid fa-satellite-dish fa-bounce" style="font-size:3rem; color:#7c4dff;"></i>
-                <h3 style="margin-top:15px;">Confirmation en coursâ€¦</h3>
+                <h3 style="margin-top:15px;">Confirmation en cours…</h3>
                 <p style="color:#888; font-size:0.83rem; margin-top:10px;">
-                    Votre paiement a Ã©tÃ© soumis. En attente de la confirmation Revolut.
+                    Votre paiement a été soumis. En attente de la confirmation Revolut.
                 </p>
                 <div class="case-code-badge" style="margin-top:20px;">
                     <i class="fa-solid fa-hashtag"></i>
@@ -337,7 +337,7 @@ window.InsurancePortal = {
                     <strong style="font-size:0.7rem;">${orderId}</strong>
                 </div>
                 <p style="font-size:0.7rem; color:#555; margin-top:15px;">
-                    <i class="fa-solid fa-clock"></i> VÃ©rification automatique toutes les 3 secondesâ€¦
+                    <i class="fa-solid fa-clock"></i> Vérification automatique toutes les 3 secondes…
                 </p>
             </div>`;
   },
@@ -352,7 +352,7 @@ window.InsurancePortal = {
                 <p style="color:#888; font-size:0.83rem; margin-top:10px;">${message || "Une erreur est survenue."}</p>
                 <div style="display:flex; gap:10px; margin-top:20px;">
                     <button class="btn-litigation-start" onclick="InsurancePortal.payInstant('${caseId}')" style="flex:1;">
-                        <i class="fa-solid fa-rotate-right"></i> RÃ©essayer
+                        <i class="fa-solid fa-rotate-right"></i> Réessayer
                     </button>
                     <button class="btn-close-litigation" onclick="document.getElementById('screen-overlay').classList.add('hidden')" style="flex:1;">
                         <i class="fa-solid fa-times"></i> Fermer
@@ -365,7 +365,7 @@ window.InsurancePortal = {
   openLitigationWizard(caseId) {
     if (typeof window.LitigationAI === "undefined") {
       alert(
-        "Module LitigationAI non chargÃ©. VÃ©rifiez que litigation-ai.js est inclus dans la page.",
+        "Module LitigationAI non chargé. Vérifiez que litigation-ai.js est inclus dans la page.",
       );
       return;
     }
@@ -378,7 +378,7 @@ window.InsurancePortal = {
       this.balance -= 49.99;
       this.unlockCase(caseId, "wallet_debit");
       this.showPortal(caseId); // Refresh
-      speak("DÃ©bit effectuÃ© sur votre compte pro. Rapport accessible.");
+      speak("Débit effectué sur votre compte pro. Rapport accessible.");
     } else {
       alert("Solde insuffisant sur votre portefeuille virtuel.");
       speak("Solde insuffisant.");
@@ -399,10 +399,10 @@ window.InsurancePortal = {
         };
         this.showPortal(caseId);
         speak(
-          "Preuve de virement reÃ§ue. Notre systÃ¨me vÃ©rifie le document.",
+          "Preuve de virement reçue. Notre système vérifie le document.",
         );
 
-        // Simulation de validation automatique aprÃ¨s 5s
+        // Simulation de validation automatique après 5s
         setTimeout(() => {
           this.unlockCase(caseId, "proof_validated");
           if (
@@ -412,7 +412,7 @@ window.InsurancePortal = {
           ) {
             this.showPortal(caseId);
           }
-          speak("Justificatif validÃ©. Le rapport est maintenant dÃ©bloquÃ©.");
+          speak("Justificatif validé. Le rapport est maintenant débloqué.");
         }, 5000);
       }
     };
@@ -431,7 +431,7 @@ window.InsurancePortal = {
                         (t) => `
                         <div class="transaction-item">
                             <span>${new Date(t.date).toLocaleTimeString()} - ${t.caseId}</span>
-                            <span class="t-amount">-${t.amount}â‚¬</span>
+                            <span class="t-amount">-${t.amount}€</span>
                         </div>
                     `,
                       )
@@ -457,6 +457,6 @@ window.InsurancePortal = {
       method: method,
     });
 
-    this.notify(`Transaction confirmÃ©e pour le dossier ${caseId}.`);
+    this.notify(`Transaction confirmée pour le dossier ${caseId}.`);
   },
 };

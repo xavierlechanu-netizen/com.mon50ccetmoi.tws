@@ -22,7 +22,7 @@ window.saveVehicleProfile = function () {
   if (screen) screen.classList.add("hidden");
 
   if (typeof speak === "function")
-    speak("Profil vÃ©hicule sauvegardÃ©. PrÃªt pour le dÃ©part.");
+    speak("Profil véhicule sauvegardé. Prêt pour le départ.");
 };
 
 // Override the startPremiumNavigation to include the warning and ETA adjustment
@@ -65,7 +65,7 @@ if (typeof window.startPremiumNavigation === "function") {
               setTimeout(
                 () =>
                   speak(
-                    "Mode Voiturette dÃ©tectÃ©. Temps de trajet ajustÃ© car vous ne pouvez pas remonter les files de trafic.",
+                    "Mode Voiturette détecté. Temps de trajet ajusté car vous ne pouvez pas remonter les files de trafic.",
                   ),
                 4000,
               );
@@ -73,7 +73,7 @@ if (typeof window.startPremiumNavigation === "function") {
               setTimeout(
                 () =>
                   speak(
-                    "Mode Duo dÃ©tectÃ©. Le temps de trajet a Ã©tÃ© augmentÃ© pour anticiper la perte de puissance en montÃ©e.",
+                    "Mode Duo détecté. Le temps de trajet a été augmenté pour anticiper la perte de puissance en montée.",
                   ),
                 4000,
               );
@@ -110,7 +110,7 @@ window.initPotholeScanner = function () {
       lastZ = z;
 
       if (deltaZ > shockThreshold && !cooldown) {
-        // Choc violent dÃ©tectÃ© !
+        // Choc violent détecté !
         cooldown = true;
 
         // Effet visuel
@@ -119,13 +119,13 @@ window.initPotholeScanner = function () {
 
         if (typeof speak === "function") {
           speak(
-            "Alerte choc violent dÃ©tectÃ©. Signalement automatique de route dÃ©gradÃ©e envoyÃ© Ã  la communautÃ©.",
+            "Alerte choc violent détecté. Signalement automatique de route dégradée envoyé à la communauté.",
           );
         }
 
-        // Ajouter un danger fictif sur la carte (simulÃ© ici)
+        // Ajouter un danger fictif sur la carte (simulé ici)
 
-        // Cooldown de 10 secondes pour Ã©viter le spam
+        // Cooldown de 10 secondes pour éviter le spam
         setTimeout(() => (cooldown = false), 10000);
       }
     });
@@ -136,7 +136,7 @@ window.initPotholeScanner = function () {
 window.checkPredictiveDanger = function (instructionText) {
   if (!instructionText) return;
 
-  // Mots clÃ©s d'intersections complexes
+  // Mots clés d'intersections complexes
   const dangerKeywords = [
     "rond-point",
     "carrefour",
@@ -148,7 +148,7 @@ window.checkPredictiveDanger = function (instructionText) {
   );
 
   if (isDangerous) {
-    // DÃ©clencher le HUD Rouge
+    // Déclencher le HUD Rouge
     const hud = document.getElementById("turn-by-turn-hud");
     if (hud) {
       hud.style.borderColor = "#ff0000";
@@ -159,13 +159,13 @@ window.checkPredictiveDanger = function (instructionText) {
         setTimeout(
           () =>
             speak(
-              "Attention, zone rouge dÃ©tectÃ©e. Risque d'accident Ã©levÃ©, ralentissez.",
+              "Attention, zone rouge détectée. Risque d'accident élevé, ralentissez.",
             ),
           3000,
         );
       }
 
-      // Revenir Ã  la normale aprÃ¨s 15 secondes
+      // Revenir à la normale après 15 secondes
       setTimeout(() => {
         hud.style.borderColor = "#00d2ff";
         hud.style.boxShadow =
@@ -209,7 +209,7 @@ window.toggleSensationMode = function () {
     }
     if (typeof speak === "function") {
       speak(
-        "Mode Sensation activÃ©. Je vais chercher les routes les plus sinueuses pour un maximum de plaisir de conduite.",
+        "Mode Sensation activé. Je vais chercher les routes les plus sinueuses pour un maximum de plaisir de conduite.",
       );
     }
   } else {
@@ -220,7 +220,7 @@ window.toggleSensationMode = function () {
     }
     if (typeof speak === "function") {
       speak(
-        "Mode Sensation dÃ©sactivÃ©. Retour Ã  la navigation la plus rapide.",
+        "Mode Sensation désactivé. Retour à la navigation la plus rapide.",
       );
     }
   }
@@ -266,7 +266,7 @@ window.initSocialRadar = function () {
     }
   }, 10000);
 
-  // Ã‰couter les positions des autres utilisateurs
+  // Écouter les positions des autres utilisateurs
   window.socialRadarUnsubscribe = db
     .collection("user_locations")
     .onSnapshot((snapshot) => {
@@ -278,12 +278,12 @@ window.initSocialRadar = function () {
         if (window.session && uid === window.session.uid) return;
 
         if (change.type === "added" || change.type === "modified") {
-          // Mettre Ã  jour ou crÃ©er
+          // Mettre à jour ou créer
           let existingRider = window.ghostRiders.find((r) => r.uid === uid);
           if (existingRider) {
             existingRider.marker.setPosition({ lat: data.lat, lng: data.lng });
           } else {
-            // CrÃ©er un nouveau marqueur
+            // Créer un nouveau marqueur
             let marker = new google.maps.Marker({
               position: { lat: data.lat, lng: data.lng },
               map: window.isSocialRadarActive ? window.map : null,
@@ -346,7 +346,7 @@ window.toggleSocialRadar = function () {
     window.ghostRiders.forEach((ghost) => ghost.marker.setMap(window.map));
 
     if (typeof speak === "function") {
-      speak("Radar Social activÃ©. Connexion au rÃ©seau des pilotes en cours.");
+      speak("Radar Social activé. Connexion au réseau des pilotes en cours.");
     }
   } else {
     if (btn) {
@@ -358,7 +358,7 @@ window.toggleSocialRadar = function () {
     window.ghostRiders.forEach((ghost) => ghost.marker.setMap(null));
 
     if (typeof speak === "function") {
-      speak("Radar Social dÃ©sactivÃ©.");
+      speak("Radar Social désactivé.");
     }
   }
 };
@@ -383,7 +383,7 @@ window.initSelfEvolution = function () {
 
   consoleOverlay.innerHTML = `
         <button onclick="document.getElementById('ai-evolution-console').classList.add('hidden')" style="position:absolute; top:20px; right:20px; background:none; border:none; color:#0f0; font-size:2rem; cursor:pointer;"><i class="fa-solid fa-power-off"></i></button>
-        <h2 style="margin-top:40px; text-transform:uppercase; letter-spacing:2px; text-shadow:0 0 10px #0f0;"><i class="fa-solid fa-microchip"></i> Moteur d'Ã‰volution Neuronale v1.0</h2>
+        <h2 style="margin-top:40px; text-transform:uppercase; letter-spacing:2px; text-shadow:0 0 10px #0f0;"><i class="fa-solid fa-microchip"></i> Moteur d'Évolution Neuronale v1.0</h2>
         <div id="ai-log-output" style="margin-top:20px; flex-grow:1; overflow-y:auto; border-left:2px solid #0f0; padding-left:15px; font-size: 1.1rem; line-height: 1.5;"></div>
         <div style="margin-top:20px; text-align:center; padding-bottom: 50px;">
             <div style="width: 100%; height: 5px; background: rgba(0,255,0,0.2);"><div id="ai-progress-bar" style="width:0%; height:5px; background:#0f0; box-shadow:0 0 15px #0f0; transition:width 0.5s;"></div></div>
@@ -412,7 +412,7 @@ window.startEvolutionProtocol = function () {
 
   if (typeof speak === "function")
     speak(
-      "Attention. Moteur d'Ã©volution neuronale activÃ©. L'application se rÃ©Ã©crit elle-mÃªme.",
+      "Attention. Moteur d'évolution neuronale activé. L'application se réécrit elle-même.",
     );
 
   let i = 0;
@@ -479,7 +479,7 @@ window.applyRandomMutation = function () {
   }
 
   if (typeof speak === "function")
-    speak("Mutation terminÃ©e. Mon code source a Ã©voluÃ© avec succÃ¨s.");
+    speak("Mutation terminée. Mon code source a évolué avec succès.");
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -488,6 +488,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- crews-territory.js --- */
+
+// Ajout pour la sécurité XSS
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>'"]/g, function(s) {
+    const entityMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+    return entityMap[s];
+  });
+}
+
 ﻿// --- CREWS & TERRITORY WARS (Postal Code Based) ---
 window.CrewSystem = {
   currentCrew: null,
@@ -551,7 +561,7 @@ window.CrewSystem = {
       alert(
         "Crew " +
           name +
-          " fondÃ© avec succÃ¨s ! Vous pouvez maintenant capturer des zones.",
+          " fondé avec succès ! Vous pouvez maintenant capturer des zones.",
       );
 
       // Close modal if open
@@ -574,7 +584,7 @@ window.CrewSystem = {
           const zipCode = change.doc.id;
 
           if (change.type === "added" || change.type === "modified") {
-            // DÃ©tection de la perte d'un territoire
+            // Détection de la perte d'un territoire
             if (change.type === "modified") {
               const oldData = this.territories[zipCode];
               if (
@@ -597,7 +607,7 @@ window.CrewSystem = {
                 const modal = document.createElement("div");
                 modal.style.cssText =
                   "position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(255,0,85,0.95);color:white;padding:15px 25px;border-radius:15px;z-index:99999;border:1px solid #ff0055;box-shadow:0 0 20px rgba(255,0,85,0.6);text-align:center;font-weight:bold;opacity:0;transition:opacity 0.5s;";
-                modal.innerHTML = `<i class="fa-solid fa-skull"></i> ALERTE TERRITOIRE <br><small>Le code postal ${zipCode} est passÃ© aux mains de ${data.dominantCrewName} !</small>`;
+                modal.innerHTML = `<i class="fa-solid fa-skull"></i> ALERTE TERRITOIRE <br><small>Le code postal ${zipCode} est passé aux mains de ${data.dominantCrewName} !</small>`;
                 document.body.appendChild(modal);
 
                 // Fade in
@@ -653,7 +663,7 @@ window.CrewSystem = {
             if (cKm > maxKm) {
               maxKm = cKm;
               dominantId = cId;
-              // Si c'est nous qui reprenons la tÃªte, on met nos infos.
+              // Si c'est nous qui reprenons la tête, on met nos infos.
               if (cId === this.currentCrew.id) {
                 dominantName = this.currentCrew.name;
                 dominantColor = this.currentCrew.color;
@@ -677,7 +687,7 @@ window.CrewSystem = {
   updateUI: function () {
     const btn = document.getElementById("crew-hud-btn");
     if (btn && this.currentCrew) {
-      btn.innerHTML = `<i class="fa-solid fa-users"></i> ${this.currentCrew.name}`;
+      btn.innerHTML = `<i class="fa-solid fa-users"></i> ${escapeHTML(this.currentCrew.name)}`;
       btn.style.color = this.currentCrew.color;
       btn.style.borderColor = this.currentCrew.color;
       btn.style.boxShadow = `0 0 10px ${this.currentCrew.color}66`;
@@ -719,7 +729,7 @@ window.CrewSystem = {
       !this.currentCrew ||
       this.currentCrew.leaderUid !== window.session.uid
     ) {
-      return alert("Seul le leader du Crew peut dÃ©finir le QG !");
+      return alert("Seul le leader du Crew peut définir le QG !");
     }
     if (!window.currentPosition) return alert("Le signal GPS est requis.");
 
@@ -736,7 +746,7 @@ window.CrewSystem = {
       this.currentCrew.qgLng = window.currentPosition.lng;
       this.drawQG(window.currentPosition.lat, window.currentPosition.lng);
       alert(
-        "Le Quartier GÃ©nÃ©ral de votre Crew a Ã©tÃ© Ã©tabli Ã  votre position actuelle ! Il est dÃ©sormais visible par tous vos membres.",
+        "Le Quartier Général de votre Crew a été établi à votre position actuelle ! Il est désormais visible par tous vos membres.",
       );
 
       const modal = document.getElementById("crew-modal");
@@ -753,12 +763,12 @@ window.CrewSystem = {
       const docRef = firebase.firestore().collection("crews").doc(crewId);
       const doc = await docRef.get();
       if (!doc.exists)
-        return alert("Crew introuvable ! VÃ©rifiez le code secret.");
+        return alert("Crew introuvable ! Vérifiez le code secret.");
 
       const crewData = doc.data();
       let members = crewData.members || [];
       if (members.includes(window.session.uid)) {
-        return alert("Vous Ãªtes dÃ©jÃ  membre de ce Crew.");
+        return alert("Vous êtes déjà membre de ce Crew.");
       }
       members.push(window.session.uid);
 
@@ -779,7 +789,7 @@ window.CrewSystem = {
       if (modal) modal.style.display = "none";
     } catch (e) {
       console.error("[CrewSystem] Join Crew error", e);
-      alert("Erreur lors de l'intÃ©gration au Crew.");
+      alert("Erreur lors de l'intégration au Crew.");
     }
   },
 
@@ -787,7 +797,7 @@ window.CrewSystem = {
     if (!this.currentCrew || this.currentCrew.leaderUid !== window.session.uid)
       return;
     if (memberUid === window.session.uid)
-      return alert("Vous ne pouvez pas vous expulser vous-mÃªme.");
+      return alert("Vous ne pouvez pas vous expulser vous-même.");
     if (!confirm("Voulez-vous vraiment expulser ce membre ?")) return;
 
     try {
@@ -813,7 +823,7 @@ window.CrewSystem = {
   showModal: function () {
     let modal = document.getElementById("crew-modal");
     if (!modal) {
-      // CrÃ©ation de la modale si elle n'existe pas
+      // Création de la modale si elle n'existe pas
       modal = document.createElement("div");
       modal.id = "crew-modal";
       modal.style.cssText =
@@ -828,9 +838,9 @@ window.CrewSystem = {
       modal.innerHTML = `
                 <div style="background:rgba(20,20,20,0.9); border:1px solid ${this.currentCrew.color}; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center; max-height:80vh; overflow-y:auto;">
                     <h2 style="color:${this.currentCrew.color}; margin-bottom:10px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-crown"></i> ${this.currentCrew.name}</h2>
-                    <p style="color:#aaa; margin-bottom:20px;">Vous Ãªtes membre de ce Crew. Roulez pour capturer des codes postaux !</p>
+                    <p style="color:#aaa; margin-bottom:20px;">Vous êtes membre de ce Crew. Roulez pour capturer des codes postaux !</p>
                     
-                    <button onclick="if(window.CrewChat) window.CrewChat.open(); document.getElementById('crew-modal').style.display='none'" style="width:100%; background:linear-gradient(135deg, ${this.currentCrew.color}, #111); border:none; color:#fff; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-bottom:15px; font-family:'Outfit', sans-serif; box-shadow: 0 4px 15px ${this.currentCrew.color}66;"><i class="fa-solid fa-comments"></i> Ouvrir le Chat PrivÃ©</button>
+                    <button onclick="if(window.CrewChat) window.CrewChat.open(); document.getElementById('crew-modal').style.display='none'" style="width:100%; background:linear-gradient(135deg, ${this.currentCrew.color}, #111); border:none; color:#fff; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-bottom:15px; font-family:'Outfit', sans-serif; box-shadow: 0 4px 15px ${this.currentCrew.color}66;"><i class="fa-solid fa-comments"></i> Ouvrir le Chat Privé</button>
                     
                     <div style="background:rgba(0,0,0,0.5); padding:10px; border-radius:10px; margin-bottom:15px; border:1px solid #333;">
                         <h4 style="color:#fff; margin-bottom:10px;"><i class="fa-solid fa-users"></i> Membres (${membersCount})</h4>
@@ -841,7 +851,7 @@ window.CrewSystem = {
                         }
                         
                         <div id="crew-members-list" style="text-align:left; max-height:150px; overflow-y:auto; color:#fff; font-size:0.9rem;">
-                            <!-- Membres chargÃ©s dynamiquement -->
+                            <!-- Membres chargés dynamiquement -->
                         </div>
                     </div>
                     
@@ -855,7 +865,7 @@ window.CrewSystem = {
                 </div>
             `;
 
-      // Charger les noms des membres (optimisation : en prod on pourrait cacher Ã§a)
+      // Charger les noms des membres (optimisation : en prod on pourrait cacher ça)
       const listDiv = document.getElementById("crew-members-list");
       listDiv.innerHTML = "<small>Chargement...</small>";
       if (this.currentCrew.members) {
@@ -885,7 +895,7 @@ window.CrewSystem = {
       modal.innerHTML = `
                 <div style="background:rgba(20,20,20,0.9); border:1px solid #00d2ff; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
                     <h2 style="color:#00d2ff; margin-bottom:10px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-flag"></i> Fonder un Crew</h2>
-                    <p style="color:#aaa; margin-bottom:20px; font-size:0.9rem;">CrÃ©ez votre gang et dominez la ville !</p>
+                    <p style="color:#aaa; margin-bottom:20px; font-size:0.9rem;">Créez votre gang et dominez la ville !</p>
                     <input type="text" id="crew-name-input" placeholder="Nom du Crew" style="width:100%; padding:10px; margin-bottom:10px; background:rgba(0,0,0,0.5); border:1px solid #333; color:#fff; border-radius:8px;">
                     <input type="color" id="crew-color-input" value="#ff0055" style="width:100%; height:40px; margin-bottom:15px; border:none; border-radius:8px; cursor:pointer;">
                     <button onclick="window.CrewSystem.createCrew(document.getElementById('crew-name-input').value, document.getElementById('crew-color-input').value)" style="width:100%; background:linear-gradient(135deg, #00d2ff, #0077ff); border:none; color:#fff; padding:12px; border-radius:20px; font-weight:bold; cursor:pointer; margin-bottom:20px;">Fonder le Crew</button>
@@ -914,17 +924,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- loot-drops.js --- */
-﻿// --- LOOT DROPS (Chasse au TrÃ©sor) ---
+﻿// --- LOOT DROPS (Chasse au Trésor) ---
 window.LootSystem = {
   lootMarkers: {}, // id -> google.maps.Marker
-  claimDistance: 50, // mÃ¨tres
+  claimDistance: 50, // mètres
 
   init: function () {
     if (!window.session || !window.session.uid) return;
 
     this.listenToLootDrops();
 
-    // Timer de vÃ©rification de distance si on a le GPS
+    // Timer de vérification de distance si on a le GPS
     setInterval(() => this.checkDistance(), 10000); // toutes les 10s
   },
 
@@ -932,7 +942,7 @@ window.LootSystem = {
     if (typeof firebase === "undefined") return;
 
     const now = Date.now();
-    // N'Ã©coute que les loots actifs et non expirÃ©s
+    // N'écoute que les loots actifs et non expirés
     firebase
       .firestore()
       .collection("loot_drops")
@@ -975,7 +985,7 @@ window.LootSystem = {
     const info = new google.maps.InfoWindow({
       content: `<div style="color:black; font-family:'Outfit', sans-serif;">
                         <h3 style="margin:0; color:#b700ff;"><i class="fa-solid fa-gift"></i> Butin Secret</h3>
-                        <p style="margin:5px 0; font-size:0.9rem;">Approchez-vous Ã  moins de 50m pour le rÃ©clamer !</p>
+                        <p style="margin:5px 0; font-size:0.9rem;">Approchez-vous à moins de 50m pour le réclamer !</p>
                       </div>`,
     });
 
@@ -1016,14 +1026,14 @@ window.LootSystem = {
     if (!window.session) return;
 
     try {
-      // Transaction pour Ã©viter double claim
+      // Transaction pour éviter double claim
       const docRef = firebase.firestore().collection("loot_drops").doc(lootId);
       await firebase.firestore().runTransaction(async (t) => {
         const doc = await t.get(docRef);
         if (!doc.exists) throw "Loot n'existe plus.";
         const data = doc.data();
-        if (data.isClaimed) throw "DÃ©jÃ  rÃ©clamÃ©.";
-        if (data.expiresAt < Date.now()) throw "Loot expirÃ©.";
+        if (data.isClaimed) throw "Déjà réclamé.";
+        if (data.expiresAt < Date.now()) throw "Loot expiré.";
 
         t.update(docRef, {
           isClaimed: true,
@@ -1032,10 +1042,10 @@ window.LootSystem = {
         });
       });
 
-      // SuccÃ¨s
+      // Succès
       this.removeLoot(lootId);
       if (typeof speak === "function") {
-        speak("FÃ©licitations, vous avez sÃ©curisÃ© un butin secret !");
+        speak("Félicitations, vous avez sécurisé un butin secret !");
       }
 
       // Gamification
@@ -1057,16 +1067,16 @@ window.LootSystem = {
       }
 
       alert(
-        "ðŸŽ BUTIN RÃ‰CUPÃ‰RÃ‰ !\n\nVous avez trouvÃ© la caisse. +10 Points de Bonne Conduite BVC ajoutÃ©s !",
+        "ðŸŽ BUTIN RÉCUPÉRÉ !\n\nVous avez trouvé la caisse. +10 Points de Bonne Conduite BVC ajoutés !",
       );
     } catch (e) {}
   },
 
-  // DEV ONLY: Fonction pour crÃ©er un faux drop autour de soi pour tester
+  // DEV ONLY: Fonction pour créer un faux drop autour de soi pour tester
   devSpawnLoot: function () {
     if (!window.currentPosition) return alert("Pas de GPS");
 
-    // Spawn Ã  100-200m
+    // Spawn à 100-200m
     const offsetLat = (Math.random() - 0.5) * 0.005;
     const offsetLng = (Math.random() - 0.5) * 0.005;
 
@@ -1091,12 +1101,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- cortege-mode.js --- */
-﻿// --- MODE CORTÃˆGE (Balade Synchro) ---
+// --- MODE CORTÃˆGE (Balade Synchro) ---
 window.CortegeSystem = {
   sessionId: null,
   members: {}, // uid -> data (lat, lng, name, color)
   markers: {}, // uid -> google.maps.Marker
-  maxDistanceWarning: 500, // mÃ¨tres
+  maxDistanceWarning: 500, // mètres
 
   init: function () {
     if (!window.session || !window.session.uid) return;
@@ -1105,7 +1115,7 @@ window.CortegeSystem = {
   createSession: async function () {
     if (!window.session) return;
     try {
-      const joinCode = Math.floor(1000 + Math.random() * 9000).toString(); // Code Ã  4 chiffres
+      const joinCode = Math.floor(1000 + Math.random() * 9000).toString(); // Code à 4 chiffres
 
       const docRef = await firebase
         .firestore()
@@ -1120,13 +1130,13 @@ window.CortegeSystem = {
 
       this.sessionId = docRef.id;
       alert(
-        `CortÃ¨ge crÃ©Ã© ! Le code secret pour rejoindre est : ${joinCode}`,
+        `Cortège créé ! Le code secret pour rejoindre est : ${joinCode}`,
       );
       this.startSharing();
       this.listenToMembers();
     } catch (e) {
       console.error(e);
-      alert("Erreur de crÃ©ation de cortÃ¨ge.");
+      alert("Erreur de création de cortège.");
     }
   },
 
@@ -1142,11 +1152,11 @@ window.CortegeSystem = {
         .get();
 
       if (snap.empty) {
-        return alert("CortÃ¨ge introuvable ou expirÃ© avec ce code.");
+        return alert("Cortège introuvable ou expiré avec ce code.");
       }
 
       this.sessionId = snap.docs[0].id;
-      alert(`CortÃ¨ge rejoint avec succÃ¨s !`);
+      alert(`Cortège rejoint avec succès !`);
       this.startSharing();
       this.listenToMembers();
     } catch (e) {
@@ -1267,7 +1277,7 @@ window.CortegeSystem = {
           member.lastWarned = Date.now();
           if (typeof speak === "function") {
             speak(
-              `Attention, ${member.name} est dÃ©crochÃ© Ã  plus de 500 mÃ¨tres derriÃ¨re vous.`,
+              `Attention, ${member.name} est décroché à plus de 500 mètres derrière vous.`,
             );
           }
           console.warn(
@@ -1285,7 +1295,7 @@ window.CortegeSystem = {
     }
 
     const code = prompt(
-      "CORTÃˆGE : Entrez le code secret Ã  4 chiffres d'un ami pour le rejoindre, ou laissez le champ vide et cliquez sur OK pour CRÃ‰ER votre propre cortÃ¨ge :",
+      "CORTÃˆGE : Entrez le code secret à 4 chiffres d'un ami pour le rejoindre, ou laissez le champ vide et cliquez sur OK pour CRÉER votre propre cortège :",
     );
     if (code === null) return;
 
@@ -1309,13 +1319,13 @@ window.CortegeSystem = {
     modal.innerHTML = `
             <div style="background:rgba(20,20,20,0.9); border:1px solid #00ffcc; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
                 <h2 style="color:#00ffcc; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-motorcycle"></i> Signaux Rapides</h2>
-                <p style="color:#aaa; margin-bottom:20px; font-size:0.9rem;">Envoyez un signal au cortÃ¨ge. Tous les membres seront notifiÃ©s instantanÃ©ment.</p>
+                <p style="color:#aaa; margin-bottom:20px; font-size:0.9rem;">Envoyez un signal au cortège. Tous les membres seront notifiés instantanément.</p>
                 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-                    <button onclick="window.CortegeSystem.sendSignal('â›½', 'Besoin d\\'essence')" style="background:#111; color:#fff; border:1px solid #ffaa00; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-gas-pump" style="color:#ffaa00;"></i> Essence</button>
-                    <button onclick="window.CortegeSystem.sendSignal('ðŸ“¸', 'Pause demandÃ©e')" style="background:#111; color:#fff; border:1px solid #00d2ff; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-camera" style="color:#00d2ff;"></i> Pause</button>
-                    <button onclick="window.CortegeSystem.sendSignal('ðŸ”§', 'ProblÃ¨me technique')" style="background:#111; color:#fff; border:1px solid #ff0055; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-wrench" style="color:#ff0055;"></i> Meca</button>
-                    <button onclick="window.CortegeSystem.sendSignal('ðŸ‘®', 'Danger signalÃ©')" style="background:#111; color:#fff; border:1px solid #ffeb3b; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-triangle-exclamation" style="color:#ffeb3b;"></i> Danger</button>
+                    <button onclick="window.CortegeSystem.sendSignal('⛽', 'Besoin d\\'essence')" style="background:#111; color:#fff; border:1px solid #ffaa00; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-gas-pump" style="color:#ffaa00;"></i> Essence</button>
+                    <button onclick="window.CortegeSystem.sendSignal('ðŸ“¸', 'Pause demandée')" style="background:#111; color:#fff; border:1px solid #00d2ff; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-camera" style="color:#00d2ff;"></i> Pause</button>
+                    <button onclick="window.CortegeSystem.sendSignal('ðŸ”§', 'Problème technique')" style="background:#111; color:#fff; border:1px solid #ff0055; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-wrench" style="color:#ff0055;"></i> Meca</button>
+                    <button onclick="window.CortegeSystem.sendSignal('ðŸ‘®', 'Danger signalé')" style="background:#111; color:#fff; border:1px solid #ffeb3b; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-triangle-exclamation" style="color:#ffeb3b;"></i> Danger</button>
                 </div>
                 
                 <button onclick="document.getElementById('cortege-signals-modal').style.display='none'" style="width:100%; background:transparent; border:1px solid #aaa; color:#fff; padding:10px; border-radius:20px; cursor:pointer; font-family:'Outfit', sans-serif;">Fermer</button>
@@ -1350,7 +1360,7 @@ window.CortegeSystem = {
     const toast = document.createElement("div");
     toast.style.cssText =
       "position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,255,204,0.9);color:#000;padding:15px 25px;border-radius:25px;z-index:99999;font-weight:bold;font-family:'Outfit', sans-serif;box-shadow:0 0 20px rgba(0,255,204,0.5);font-size:1.1rem;opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:10px;";
-    toast.innerHTML = `<span style="font-size:1.5rem;">${signal.icon}</span> <span><b>${senderName}</b> : ${signal.text}</span>`;
+    toast.innerHTML = `<span style="font-size:1.5rem;">${signal.icon}</span> <span><b>${escapeHTML(senderName)}</b> : ${escapeHTML(signal.text)}</span>`;
     document.body.appendChild(toast);
 
     setTimeout(() => {
@@ -1362,7 +1372,7 @@ window.CortegeSystem = {
     }, 5000);
 
     if (typeof speak === "function") {
-      speak(`CortÃ¨ge. ${senderName} signale : ${signal.text}`);
+      speak(`Cortège. ${senderName} signale : ${signal.text}`);
     }
   },
 };
@@ -1375,7 +1385,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- safe-ride.js --- */
-﻿// --- SAFE RIDE (MÃ©tÃ©o PrÃ©dictive) ---
+﻿// --- SAFE RIDE (Météo Prédictive) ---
 window.SafeRide = {
   checkWeatherForRoute: async function (lat, lng) {
     try {
@@ -1396,7 +1406,7 @@ window.SafeRide = {
           (weathercode >= 51 && weathercode <= 67) ||
           (weathercode >= 80 && weathercode <= 82)
         ) {
-          issues.push("Pluie dÃ©tectÃ©e");
+          issues.push("Pluie détectée");
           isDangerous = true;
         } else if (weathercode >= 71 && weathercode <= 77) {
           issues.push("Risque de Neige ou Verglas");
@@ -1407,8 +1417,8 @@ window.SafeRide = {
         }
 
         if (windspeed > 40) {
-          // Vent > 40 km/h (dangereux en 50cc lÃ©ger)
-          issues.push("Vents violents dÃ©tectÃ©s");
+          // Vent > 40 km/h (dangereux en 50cc léger)
+          issues.push("Vents violents détectés");
           isDangerous = true;
         }
 
@@ -1424,14 +1434,14 @@ window.SafeRide = {
 
 
 /* --- garage-market.js --- */
-﻿// --- GARAGE MARKET (Troc et Vente de piÃ¨ces) ---
+﻿// --- GARAGE MARKET (Troc et Vente de pièces) ---
 window.GarageMarket = {
   tradeMarkers: {},
 
   init: function () {
     if (!window.session || !window.session.uid) return;
 
-    // Attendre que la carte soit prÃªte pour Ã©viter de perdre les marqueurs initiaux
+    // Attendre que la carte soit prête pour éviter de perdre les marqueurs initiaux
     const checkDependencies = setInterval(() => {
       if (typeof map !== "undefined" && map) {
         clearInterval(checkDependencies);
@@ -1519,11 +1529,11 @@ window.GarageMarket = {
                 <h2 style="color:#ffaa00; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-wrench"></i> Troc de Garage</h2>
                 
                 <select id="market-type" style="width:100%; padding:10px; margin-bottom:10px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
-                    <option value="WTS">Je vends une piÃ¨ce</option>
-                    <option value="WTB">Je cherche une piÃ¨ce en urgence</option>
+                    <option value="WTS">Je vends une pièce</option>
+                    <option value="WTB">Je cherche une pièce en urgence</option>
                 </select>
                 
-                <input type="text" id="market-title" placeholder="Titre (ex: Gicleur 80, ClÃ© BTR...)" style="width:100%; padding:10px; margin-bottom:10px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
+                <input type="text" id="market-title" placeholder="Titre (ex: Gicleur 80, Clé BTR...)" style="width:100%; padding:10px; margin-bottom:10px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
                 <textarea id="market-desc" placeholder="Description courte..." style="width:100%; padding:10px; margin-bottom:20px; background:#111; color:white; border:1px solid #333; border-radius:5px; height:80px;"></textarea>
                 
                 <button onclick="window.GarageMarket.postTrade()" style="width:100%; background:#ffaa00; border:none; color:#000; padding:12px; border-radius:20px; font-weight:bold; cursor:pointer; margin-bottom:10px;">Publier sur la carte</button>
@@ -1555,7 +1565,7 @@ window.GarageMarket = {
         createdAt: Date.now(),
         isActive: true,
       });
-      alert("Annonce gÃ©olocalisÃ©e publiÃ©e avec succÃ¨s !");
+      alert("Annonce géolocalisée publiée avec succès !");
       document.getElementById("market-modal").style.display = "none";
     } catch (e) {
       console.error(e);
@@ -1573,7 +1583,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* --- crew-chat.js --- */
 ﻿/**
- * CREW CHAT (Messagerie PrivÃ©e SÃ©curisÃ©e)
+ * CREW CHAT (Messagerie Privée Sécurisée)
  */
 window.CrewChat = {
   isOpen: false,
@@ -1582,7 +1592,7 @@ window.CrewChat = {
   open: function () {
     if (!window.session || !window.session.crewId) {
       return alert(
-        "Vous devez Ãªtre dans un Crew pour utiliser le chat privÃ©.",
+        "Vous devez être dans un Crew pour utiliser le chat privé.",
       );
     }
 
@@ -1608,7 +1618,7 @@ window.CrewChat = {
                 </div>
             `;
 
-      // Envoyer avec la touche EntrÃ©e
+      // Envoyer avec la touche Entrée
       document
         .getElementById("crew-chat-input")
         .addEventListener("keypress", function (e) {
@@ -1665,7 +1675,7 @@ window.CrewChat = {
 
     const messagesDiv = document.getElementById("crew-chat-messages");
 
-    // Se dÃ©sabonner d'une Ã©ventuelle Ã©coute prÃ©cÃ©dente
+    // Se désabonner d'une éventuelle écoute précédente
     if (this.unsubscribe) this.unsubscribe();
 
     this.unsubscribe = firebase
@@ -1716,7 +1726,7 @@ window.CrewChat = {
 
 
 /* --- sos-community.js --- */
-﻿// --- S.O.S COMMUNAUTAIRE ---
+// --- S.O.S COMMUNAUTAIRE ---
 window.SosSystem = {
   sosMarkers: {},
   alertDistance: 10000, // 10 km
@@ -1731,7 +1741,7 @@ window.SosSystem = {
       this.audioCtx = new AudioContext();
     } catch (e) {}
 
-    // Attendre que la carte et la position soient prÃªtes
+    // Attendre que la carte et la position soient prêtes
     const checkDependencies = setInterval(() => {
       if (typeof map !== "undefined" && map && window.currentPosition) {
         clearInterval(checkDependencies);
@@ -1810,9 +1820,9 @@ window.SosSystem = {
     if (dist <= this.alertDistance) {
       this.drawAlert(alertId, data);
 
-      if (!this.sosMarkers[alertId]) return; // Par sÃ©curitÃ© si drawAlert Ã©choue
+      if (!this.sosMarkers[alertId]) return; // Par sécurité si drawAlert échoue
 
-      // Si c'est nouveau et que ce n'est pas nous, on prÃ©vient vocalement
+      // Si c'est nouveau et que ce n'est pas nous, on prévient vocalement
       if (
         data.authorUid !== window.session.uid &&
         !this.sosMarkers[alertId].warned
@@ -1824,17 +1834,17 @@ window.SosSystem = {
           setTimeout(
             () =>
               speak(
-                `Alerte SOS : Pilote en dÃ©tresse Ã  ${distKm} kilomÃ¨tres.`,
+                `Alerte SOS : Pilote en détresse à ${distKm} kilomètres.`,
               ),
             1000,
           );
         }
         alert(
-          `ðŸš¨ SOS DÃ‰TECTÃ‰ ðŸš¨\n\nUn pilote (${data.author}) a signalÃ© une urgence : ${data.type}\nDistance : ${distKm} km.\nRegardez la carte !`,
+          `🚨 SOS DÉTECTÉ 🚨\n\nUn pilote (${data.author}) a signalé une urgence : ${data.type}\nDistance : ${distKm} km.\nRegardez la carte !`,
         );
       }
 
-      // Si c'est NOTRE alerte, on Ã©coute les sauveurs !
+      // Si c'est NOTRE alerte, on écoute les sauveurs !
       if (
         data.authorUid === window.session.uid &&
         !this.sosMarkers[alertId].listeningHelpers
@@ -1906,12 +1916,12 @@ window.SosSystem = {
 
     const info = new google.maps.InfoWindow({
       content: `<div style="color:red; font-family:'Outfit', sans-serif; text-align:center; padding:10px;">
-                        <h3 style="margin:0; font-size:1.2rem;">ðŸš¨ S.O.S</h3>
+                        <h3 style="margin:0; font-size:1.2rem;">🚨 S.O.S</h3>
                         <p style="margin:5px 0;"><b>Pilote :</b> ${data.author}</p>
-                        <p style="margin:5px 0; color:#000;"><b>ProblÃ¨me :</b> ${data.type}</p>
+                        <p style="margin:5px 0; color:#000;"><b>Problème :</b> ${data.type}</p>
                         ${
                           data.authorUid === window.session.uid
-                            ? `<button onclick="window.SosSystem.resolveAlert('${alertId}')" style="background:green; color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">ProblÃ¨me RÃ©solu</button>`
+                            ? `<button onclick="window.SosSystem.resolveAlert('${alertId}')" style="background:green; color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">Problème Résolu</button>`
                             : `<button onclick="window.SosSystem.volunteerToHelp('${alertId}')" style="background:#00d2ff; color:black; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">J'arrive pour aider !</button>`
                         }
                       </div>`,
@@ -1945,12 +1955,12 @@ window.SosSystem = {
     modal.innerHTML = `
             <div style="background:#111; border:2px solid #ff0000; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center; color:white;">
                 <h2 style="color:#ff0000; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-triangle-exclamation"></i> LANCER UN S.O.S</h2>
-                <p style="margin-bottom:20px;">PrÃ©venez les pilotes autour de vous pour obtenir de l'aide.</p>
+                <p style="margin-bottom:20px;">Prévenez les pilotes autour de vous pour obtenir de l'aide.</p>
                 <select id="sos-type" style="width:100%; padding:15px; margin-bottom:20px; background:#222; color:white; border:1px solid #ff0000; border-radius:10px; font-size:1.1rem;">
-                    <option value="Panne d'essence">â›½ Panne d'essence</option>
+                    <option value="Panne d'essence">⛽ Panne d'essence</option>
                     <option value="Crevaison">ðŸ›ž Crevaison</option>
-                    <option value="Casse MÃ©canique">ðŸ”§ Casse MÃ©canique (Courroie, Serrage...)</option>
-                    <option value="Accident lÃ©ger">ðŸš‘ Accident lÃ©ger</option>
+                    <option value="Casse Mécanique">ðŸ”§ Casse Mécanique (Courroie, Serrage...)</option>
+                    <option value="Accident léger">ðŸš‘ Accident léger</option>
                 </select>
                 <button onclick="window.SosSystem.triggerAlert()" style="width:100%; background:#ff0000; color:white; border:none; padding:15px; border-radius:10px; font-weight:bold; font-size:1.2rem; cursor:pointer; margin-bottom:10px;">LANCER L'ALERTE</button>
                 <button onclick="document.getElementById('sos-modal').style.display='none'" style="width:100%; background:transparent; color:#aaa; border:1px solid #aaa; padding:10px; border-radius:10px; cursor:pointer;">Annuler</button>
@@ -1983,14 +1993,14 @@ window.SosSystem = {
       });
       this.lastAlertTime = Date.now();
       alert(
-        "Alerte SOS envoyÃ©e ! Restez prÃ¨s de votre scooter, l'aide arrive.",
+        "Alerte SOS envoyée ! Restez près de votre scooter, l'aide arrive.",
       );
       document.getElementById("sos-modal").style.display = "none";
       if (typeof speak === "function")
-        speak("Alerte de dÃ©tresse envoyÃ©e Ã  la communautÃ©.");
+        speak("Alerte de détresse envoyée à la communauté.");
     } catch (e) {
       console.error(e);
-      alert("Erreur rÃ©seau SOS.");
+      alert("Erreur réseau SOS.");
     }
   },
 
@@ -2001,7 +2011,7 @@ window.SosSystem = {
         .collection("sos_alerts")
         .doc(alertId)
         .update({ isActive: false });
-      alert("S.O.S clÃ´turÃ©. Bon retour sur la route !");
+      alert("S.O.S clôturé. Bon retour sur la route !");
     } catch (e) {
       console.error(e);
     }
@@ -2021,11 +2031,11 @@ window.SosSystem = {
           timestamp: Date.now(),
         });
       alert(
-        "Merci ! Le pilote en dÃ©tresse a Ã©tÃ© prÃ©venu que vous Ãªtes en route.",
+        "Merci ! Le pilote en détresse a été prévenu que vous êtes en route.",
       );
     } catch (e) {
       console.error(e);
-      alert("Erreur rÃ©seau.");
+      alert("Erreur réseau.");
     }
   },
 
@@ -2042,7 +2052,7 @@ window.SosSystem = {
           if (change.type === "added") {
             const helper = change.doc.data();
 
-            // Ignore si trÃ¨s vieux pour Ã©viter spam au rechargement
+            // Ignore si très vieux pour éviter spam au rechargement
             if (Date.now() - helper.timestamp < 3600000) {
               if (typeof speak === "function") {
                 speak(
@@ -2053,7 +2063,7 @@ window.SosSystem = {
               const toast = document.createElement("div");
               toast.style.cssText =
                 "position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,210,255,0.9);color:#000;padding:15px 25px;border-radius:25px;z-index:99999;font-weight:bold;font-family:'Outfit', sans-serif;box-shadow:0 0 20px rgba(0,210,255,0.5);font-size:1.1rem;opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:10px;";
-              toast.innerHTML = `<span style="font-size:1.5rem;">ðŸ¦¸â€â™‚ï¸</span> <span><b>${helper.name}</b> arrive pour vous aider !</span>`;
+              toast.innerHTML = `<span style="font-size:1.5rem;">ðŸ¦¸â€ â™‚ï¸ </span> <span><b>${escapeHTML(helper.name)}</b> arrive pour vous aider !</span>`;
               document.body.appendChild(toast);
 
               setTimeout(() => {
@@ -2078,7 +2088,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- roadbooks.js --- */
-﻿// --- ROADBOOKS & TRACÃ‰S ---
+﻿// --- ROADBOOKS & TRACÉS ---
 window.RoadbookSystem = {
   isRecording: false,
   currentPath: [],
@@ -2104,7 +2114,7 @@ window.RoadbookSystem = {
 
       if (this.currentPath.length > 5) {
         const title = prompt(
-          "Enregistrement terminÃ©. Entrez un nom pour votre Roadbook (ex: Balade en VallÃ©e de Chevreuse) :",
+          "Enregistrement terminé. Entrez un nom pour votre Roadbook (ex: Balade en Vallée de Chevreuse) :",
         );
         if (title) {
           this.saveRoadbook(title);
@@ -2112,7 +2122,7 @@ window.RoadbookSystem = {
           this.currentPath = [];
         }
       } else {
-        alert("TracÃ© trop court (moins de 5 points GPS), non sauvegardÃ©.");
+        alert("Tracé trop court (moins de 5 points GPS), non sauvegardé.");
         this.currentPath = [];
       }
     } else {
@@ -2125,7 +2135,7 @@ window.RoadbookSystem = {
       if (btn) btn.style.background = "#ff0055";
 
       if (typeof speak === "function")
-        speak("Enregistrement du tracÃ© activÃ©.");
+        speak("Enregistrement du tracé activé.");
 
       this.recordInterval = setInterval(() => {
         if (window.currentPosition) {
@@ -2149,7 +2159,7 @@ window.RoadbookSystem = {
         rating: 0,
         votes: 0,
       });
-      alert("Roadbook public sauvegardÃ© avec succÃ¨s sur la carte !");
+      alert("Roadbook public sauvegardé avec succès sur la carte !");
       this.currentPath = [];
     } catch (e) {
       console.error(e);
@@ -2284,9 +2294,9 @@ window.PitStopSystem = {
 
     const info = new google.maps.InfoWindow({
       content: `<div style="color:black; font-family:'Outfit';">
-                        <h3 style="margin:0;">${isGas ? "â›½" : "ðŸ”§"} ${data.name}</h3>
+                        <h3 style="margin:0;">${isGas ? "⛽" : "ðŸ”§"} ${data.name}</h3>
                         <p style="margin:5px 0;">${data.desc || ""}</p>
-                        <small>AjoutÃ© par: ${data.author}</small><br>
+                        <small>Ajouté par: ${data.author}</small><br>
                         <button onclick="window.calculateRoute(new google.maps.LatLng(${data.lat}, ${data.lng}))" style="margin-top:5px; background:#111; color:white; padding:5px 10px; border:none; border-radius:5px; cursor:pointer;">Y aller</button>
                       </div>`,
     });
@@ -2314,15 +2324,15 @@ window.PitStopSystem = {
 
     modal.innerHTML = `
             <div style="background:#111; border:1px solid #ff0055; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
-                <h2 style="color:#ff0055; margin-bottom:20px; font-family:'Outfit', sans-serif;">Ajouter un Point d'IntÃ©rÃªt</h2>
+                <h2 style="color:#ff0055; margin-bottom:20px; font-family:'Outfit', sans-serif;">Ajouter un Point d'Intérêt</h2>
                 
                 <select id="pitstop-type" style="width:100%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #333; border-radius:5px;">
-                    <option value="gas">â›½ Station Service (Friendly 50cc)</option>
+                    <option value="gas">⛽ Station Service (Friendly 50cc)</option>
                     <option value="garage">ðŸ”§ Garage 2-Roues de confiance</option>
                 </select>
                 
                 <input type="text" id="pitstop-name" placeholder="Nom du lieu (ex: Total Access)" style="width:100%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #333; border-radius:5px;">
-                <textarea id="pitstop-desc" placeholder="DÃ©tails (ex: SP98 pas cher, compresseur gratuit...)" style="width:100%; padding:10px; margin-bottom:20px; background:#222; color:white; border:1px solid #333; border-radius:5px; height:60px;"></textarea>
+                <textarea id="pitstop-desc" placeholder="Détails (ex: SP98 pas cher, compresseur gratuit...)" style="width:100%; padding:10px; margin-bottom:20px; background:#222; color:white; border:1px solid #333; border-radius:5px; height:60px;"></textarea>
                 
                 <button onclick="window.PitStopSystem.addPitStop()" style="width:100%; background:#ff0055; border:none; color:white; padding:12px; border-radius:20px; font-weight:bold; cursor:pointer; margin-bottom:10px;">Enregistrer ma position</button>
                 <button onclick="document.getElementById('pitstop-modal').style.display='none'" style="width:100%; background:transparent; border:1px solid #aaa; color:#fff; padding:10px; border-radius:20px; cursor:pointer;">Annuler</button>
@@ -2351,15 +2361,15 @@ window.PitStopSystem = {
         lng: window.currentPosition.lng,
         createdAt: Date.now(),
       });
-      alert("Pit Stop ajoutÃ© sur la carte globale !");
+      alert("Pit Stop ajouté sur la carte globale !");
       document.getElementById("pitstop-modal").style.display = "none";
     } catch (e) {
       console.error(e);
-      alert("Erreur rÃ©seau.");
+      alert("Erreur réseau.");
     }
   },
 
-  // Simulateur d'OBD pour faire baisser l'essence et dÃ©clencher l'alerte
+  // Simulateur d'OBD pour faire baisser l'essence et déclencher l'alerte
   simulateOBDFuelCheck: function () {
     if (window.obdFuelLevel === undefined) window.obdFuelLevel = 100;
 
@@ -2372,7 +2382,7 @@ window.PitStopSystem = {
         this.isFuelLow = true;
         if (typeof speak === "function") {
           speak(
-            "Alerte O B D. Niveau de carburant critique, infÃ©rieur Ã  15 pourcents. Voulez-vous que je vous guide vers la station la plus proche ?",
+            "Alerte O B D. Niveau de carburant critique, inférieur à 15 pourcents. Voulez-vous que je vous guide vers la station la plus proche ?",
           );
         }
 
@@ -2400,7 +2410,7 @@ window.PitStopSystem = {
         const uiHtml = `
                     <div id="fuel-alert" style="position:fixed; top:80px; left:50%; transform:translateX(-50%); background:rgba(255,165,0,0.95); color:black; padding:15px; border-radius:10px; z-index:99999; text-align:center; font-weight:bold; box-shadow:0 0 20px rgba(255,165,0,0.5);">
                         <i class="fa-solid fa-gas-pump"></i> CARBURANT CRITIQUE (${window.obdFuelLevel}%)<br>
-                        ${closestGas ? `<button onclick="window.calculateRoute(new google.maps.LatLng(${closestGas.getPosition().lat()}, ${closestGas.getPosition().lng()})); document.getElementById('fuel-alert').remove();" style="margin-top:10px; padding:8px 15px; background:black; color:white; border:none; border-radius:5px; cursor:pointer;">Aller Ã  la station la plus proche</button>` : '<div style="margin-top:10px;">Aucune station communautaire connue autour.</div>'}
+                        ${closestGas ? `<button onclick="window.calculateRoute(new google.maps.LatLng(${closestGas.getPosition().lat()}, ${closestGas.getPosition().lng()})); document.getElementById('fuel-alert').remove();" style="margin-top:10px; padding:8px 15px; background:black; color:white; border:none; border-radius:5px; cursor:pointer;">Aller à la station la plus proche</button>` : '<div style="margin-top:10px;">Aucune station communautaire connue autour.</div>'}
                         <button onclick="document.getElementById('fuel-alert').remove();" style="margin-top:10px; padding:8px 15px; background:transparent; color:black; border:1px solid black; border-radius:5px; cursor:pointer;">Ignorer</button>
                     </div>
                 `;
@@ -2461,17 +2471,17 @@ window.PrivacyManager = {
 
     banner.innerHTML = `
             <div style="max-width:600px; font-family:'Outfit', sans-serif;">
-                <h3 style="color:#00ffcc; margin-top:0;"><i class="fa-solid fa-shield-halved"></i> Vos donnÃ©es, Vos rÃ¨gles (RGPD)</h3>
+                <h3 style="color:#00ffcc; margin-top:0;"><i class="fa-solid fa-shield-halved"></i> Vos données, Vos règles (RGPD)</h3>
                 <p style="font-size:0.9rem; margin-bottom:15px; line-height:1.4;">
-                    Pour vous afficher sur la carte sociale et vous permettre d'interagir avec la communautÃ© (CortÃ¨ge, S.O.S, Crews), "mon 50cc et moi" a besoin de collecter et partager vos donnÃ©es de localisation GPS en arriÃ¨re-plan.<br>
-                    <strong>Acceptez-vous le partage de votre position ?</strong> Vous pourrez passer en "Mode FantÃ´me" Ã  tout moment.
+                    Pour vous afficher sur la carte sociale et vous permettre d'interagir avec la communauté (Cortège, S.O.S, Crews), "mon 50cc et moi" a besoin de collecter et partager vos données de localisation GPS en arrière-plan.<br>
+                    <strong>Acceptez-vous le partage de votre position ?</strong> Vous pourrez passer en "Mode Fantôme" à tout moment.
                 </p>
                 <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
                     <button onclick="window.PrivacyManager.setConsent(true)" style="background:#00ffcc; color:black; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-check"></i> J'accepte</button>
                     <button onclick="window.PrivacyManager.setConsent(false)" style="background:transparent; color:#aaa; border:1px solid #aaa; padding:10px 20px; border-radius:20px; cursor:pointer;"><i class="fa-solid fa-xmark"></i> Je refuse (GPS Local)</button>
                 </div>
                 <div style="margin-top:15px; font-size:0.8rem;">
-                    <a href="#" onclick="window.PrivacyManager.showPrivacyPolicy(); return false;" style="color:#00ffcc; text-decoration:underline;">Lire la Politique de ConfidentialitÃ©</a>
+                    <a href="#" onclick="window.PrivacyManager.showPrivacyPolicy(); return false;" style="color:#00ffcc; text-decoration:underline;">Lire la Politique de Confidentialité</a>
                 </div>
             </div>
         `;
@@ -2486,14 +2496,14 @@ window.PrivacyManager = {
 
     if (!agreed) {
       alert(
-        "Vous avez refusÃ©. L'application fonctionnera en mode restreint. Vous n'apparaÃ®trez pas sur la carte des autres pilotes.",
+        "Vous avez refusé. L'application fonctionnera en mode restreint. Vous n'apparaîtrez pas sur la carte des autres pilotes.",
       );
       this.toggleGhostMode(true); // Force invisible
     } else {
       this.toggleGhostMode(false);
       if (typeof speak === "function")
         speak(
-          "ParamÃ¨tres de confidentialitÃ© enregistrÃ©s. Bienvenue dans la communautÃ©.",
+          "Paramètres de confidentialité enregistrés. Bienvenue dans la communauté.",
         );
     }
   },
@@ -2501,7 +2511,7 @@ window.PrivacyManager = {
   toggleGhostMode: function (forceState = null) {
     if (!this.consentGiven && forceState === false) {
       alert(
-        "Vous devez d'abord accepter le partage GPS pour dÃ©sactiver le mode fantÃ´me.",
+        "Vous devez d'abord accepter le partage GPS pour désactiver le mode fantôme.",
       );
       this.showConsentBanner();
       return;
@@ -2533,8 +2543,8 @@ window.PrivacyManager = {
     if (forceState === null && typeof speak === "function") {
       speak(
         this.ghostModeActive
-          ? "Mode fantÃ´me activÃ©. Vous Ãªtes invisible."
-          : "Mode fantÃ´me dÃ©sactivÃ©. Vous Ãªtes visible.",
+          ? "Mode fantôme activé. Vous êtes invisible."
+          : "Mode fantôme désactivé. Vous êtes visible.",
       );
     }
   },
@@ -2545,7 +2555,7 @@ window.PrivacyManager = {
       if (this.ghostModeActive) {
         btn.style.color = "#ff0055";
         btn.style.borderColor = "#ff0055";
-        btn.innerHTML = `<i class="fa-solid fa-ghost"></i> FantÃ´me`;
+        btn.innerHTML = `<i class="fa-solid fa-ghost"></i> Fantôme`;
       } else {
         btn.style.color = "#00ffcc";
         btn.style.borderColor = "#00ffcc";
@@ -2566,16 +2576,16 @@ window.PrivacyManager = {
 
     modal.innerHTML = `
             <div style="background:#111; border:1px solid #555; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center; color:white;">
-                <h2 style="color:white; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-gear"></i> ParamÃ¨tres & RGPD</h2>
+                <h2 style="color:white; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-gear"></i> Paramètres & RGPD</h2>
                 
                 <div style="margin-bottom:20px; text-align:left; background:#222; padding:15px; border-radius:10px;">
-                    <p><b>Statut GPS CommunautÃ© :</b> ${this.consentGiven ? '<span style="color:#00ffcc">AcceptÃ©</span>' : '<span style="color:#ff0055">RefusÃ©</span>'}</p>
+                    <p><b>Statut GPS Communauté :</b> ${this.consentGiven ? '<span style="color:#00ffcc">Accepté</span>' : '<span style="color:#ff0055">Refusé</span>'}</p>
                     <button onclick="window.PrivacyManager.showConsentBanner(); document.getElementById('privacy-modal').style.display='none';" style="margin-top:10px; width:100%; background:transparent; border:1px solid #00ffcc; color:#00ffcc; padding:8px; border-radius:5px; cursor:pointer;">Modifier le consentement</button>
                 </div>
                 
                 <div style="margin-bottom:20px; border-top:1px solid #333; padding-top:20px;">
-                    <h3 style="color:#ff0055; margin-top:0;">Zone de Danger (Droit Ã  l'oubli)</h3>
-                    <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">ConformÃ©ment aux lois internationales de protection des donnÃ©es (RGPD/Europe, CCPA/USA, APPI/PDPA/Asie, POPIA/Convention de Malabo/Afrique), vous pouvez demander la suppression immÃ©diate et dÃ©finitive de votre compte et de toutes les donnÃ©es associÃ©es.</p>
+                    <h3 style="color:#ff0055; margin-top:0;">Zone de Danger (Droit à l'oubli)</h3>
+                    <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Conformément aux lois internationales de protection des données (RGPD/Europe, CCPA/USA, APPI/PDPA/Asie, POPIA/Convention de Malabo/Afrique), vous pouvez demander la suppression immédiate et définitive de votre compte et de toutes les données associées.</p>
                     <button onclick="window.PrivacyManager.deleteMyData()" style="width:100%; background:#ff0055; color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-trash-can"></i> Supprimer mon compte</button>
                 </div>
                 
@@ -2587,14 +2597,14 @@ window.PrivacyManager = {
 
   showPrivacyPolicy: function () {
     alert(
-      "Politique Globale de ConfidentialitÃ© (RGPD, CCPA, APPI, POPIA) :\n\n- DonnÃ©es collectÃ©es : Position GPS, Email (si authentifiÃ©).\n- FinalitÃ© : Affichage sur la carte sociale communautaire, alerte SOS, calcul itinÃ©raires.\n- Partage tiers : AUCUN. Vos donnÃ©es ne sont pas revendues.\n- DurÃ©e de conservation : Les donnÃ©es GPS temps-rÃ©el sont Ã©phÃ©mÃ¨res. Les traces Roadbooks et SOS sont conservÃ©es jusqu'Ã  leur suppression.\n- Vos droits mondiaux : AccÃ¨s, Rectification, Effacement (bouton dans les paramÃ¨tres), Mode FantÃ´me.",
+      "Politique Globale de Confidentialité (RGPD, CCPA, APPI, POPIA) :\n\n- Données collectées : Position GPS, Email (si authentifié).\n- Finalité : Affichage sur la carte sociale communautaire, alerte SOS, calcul itinéraires.\n- Partage tiers : AUCUN. Vos données ne sont pas revendues.\n- Durée de conservation : Les données GPS temps-réel sont éphémères. Les traces Roadbooks et SOS sont conservées jusqu'à leur suppression.\n- Vos droits mondiaux : Accès, Rectification, Effacement (bouton dans les paramètres), Mode Fantôme.",
     );
   },
 
   deleteMyData: async function () {
     if (
       !confirm(
-        "âš ï¸ ATTENTION âš ï¸\nCette action est irrÃ©versible. Votre compte, vos points BVC, vos territoires et vos traces seront dÃ©finitivement supprimÃ©s.\n\nÃŠtes-vous absolument sÃ»r(e) de vouloir tout supprimer ?",
+        "âš ï¸ ATTENTION âš ï¸\nCette action est irréversible. Votre compte, vos points BVC, vos territoires et vos traces seront définitivement supprimés.\n\nÊtes-vous absolument sûr(e) de vouloir tout supprimer ?",
       )
     ) {
       return;
@@ -2605,7 +2615,7 @@ window.PrivacyManager = {
       !window.session ||
       !window.session.uid
     ) {
-      alert("Vous n'Ãªtes pas connectÃ© ou erreur systÃ¨me.");
+      alert("Vous n'êtes pas connecté ou erreur système.");
       return;
     }
 
@@ -2619,14 +2629,14 @@ window.PrivacyManager = {
       localStorage.clear();
 
       alert(
-        "âœ… Vos donnÃ©es ont Ã©tÃ© supprimÃ©es avec succÃ¨s (Droit Ã  l'oubli). Vous allez Ãªtre dÃ©connectÃ©.",
+        "✅ Vos données ont été supprimées avec succès (Droit à l'oubli). Vous allez être déconnecté.",
       );
 
       // 3. Reload page to enforce logout
       window.location.reload();
     } catch (e) {
       console.error(e);
-      alert("Erreur lors de la suppression de vos donnÃ©es : " + e.message);
+      alert("Erreur lors de la suppression de vos données : " + e.message);
     }
   },
 };
@@ -2673,7 +2683,7 @@ window.triggerCrashUI = function () {
 
   if (typeof speak === "function") {
     speak(
-      "Alerte critique. Chute dÃ©tectÃ©e. Vous avez 10 secondes pour annuler avant l'envoi des secours.",
+      "Alerte critique. Chute détectée. Vous avez 10 secondes pour annuler avant l'envoi des secours.",
     );
   }
 
@@ -2689,9 +2699,9 @@ window.triggerCrashUI = function () {
       clearInterval(window.sosInterval);
       if (typeof speak === "function")
         speak(
-          "DÃ©lai expirÃ©. Protocole SOS engagÃ©. Alerte envoyÃ©e Ã  la communautÃ©.",
+          "Délai expiré. Protocole SOS engagé. Alerte envoyée à la communauté.",
         );
-      if (timerEl) timerEl.innerText = "SOS ENVOYÃ‰";
+      if (timerEl) timerEl.innerText = "SOS ENVOYÉ";
     }
   }, 1000);
 };
@@ -2701,7 +2711,7 @@ window.cancelSOS = function () {
   const sosScreen = document.getElementById("tim-cook-sos-screen");
   if (sosScreen) sosScreen.classList.add("hidden");
   if (typeof speak === "function")
-    speak("Alerte annulÃ©e. Reprise de la navigation.");
+    speak("Alerte annulée. Reprise de la navigation.");
   // Resets crash state after a short delay
   setTimeout(() => {
     // Technically we should reset a local var but for simulation we just let it be.
@@ -2722,7 +2732,7 @@ window.showEcoReport = function (distanceKm) {
 
     if (typeof speak === "function") {
       speak(
-        "Trajet terminÃ©. FÃ©licitations, vous avez Ã©conomisÃ© " +
+        "Trajet terminé. Félicitations, vous avez économisé " +
           Math.round(savedGrams) +
           " grammes de CO2.",
       );
@@ -2760,14 +2770,14 @@ window.promptLiteMode = function () {
     "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10,10,10,0.95); backdrop-filter:blur(5px); z-index:20000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; padding:30px; text-align:center;";
   modal.innerHTML = `
         <i class="fa-solid fa-gauge-high" style="font-size:3rem; color:#00d2ff; margin-bottom:20px;"></i>
-        <h2 style="margin-bottom:15px; color:#00d2ff;">Optimisation SuggÃ©rÃ©e</h2>
+        <h2 style="margin-bottom:15px; color:#00d2ff;">Optimisation Suggérée</h2>
         <p style="font-size:0.9rem; line-height:1.4; margin-bottom:25px; color:#ccc;">
-            Nous avons dÃ©tectÃ© que votre appareil pourrait Ãªtre ralenti par certaines animations 3D et effets visuels de la carte.
+            Nous avons détecté que votre appareil pourrait être ralenti par certaines animations 3D et effets visuels de la carte.
             <br><br>
-            Voulez-vous activer le <strong>Mode Ã‰co / Performances</strong> pour une meilleure fluiditÃ© et prÃ©server votre batterie ?
+            Voulez-vous activer le <strong>Mode Éco / Performances</strong> pour une meilleure fluidité et préserver votre batterie ?
         </p>
-        <button id="btn-accept-lite" style="width:100%; padding:15px; background:linear-gradient(135deg, #00d2ff, #0077b6); color:white; border:none; border-radius:30px; font-weight:bold; font-size:1rem; margin-bottom:15px;">ACTIVER LE MODE Ã‰CO (RecommandÃ©)</button>
-        <button id="btn-refuse-lite" style="background:transparent; border:1px solid #444; width:100%; padding:15px; border-radius:30px; color:#aaa; font-weight:bold; font-size:0.9rem;">NON, GARDER LA HAUTE QUALITÃ‰</button>
+        <button id="btn-accept-lite" style="width:100%; padding:15px; background:linear-gradient(135deg, #00d2ff, #0077b6); color:white; border:none; border-radius:30px; font-weight:bold; font-size:1rem; margin-bottom:15px;">ACTIVER LE MODE ÉCO (Recommandé)</button>
+        <button id="btn-refuse-lite" style="background:transparent; border:1px solid #444; width:100%; padding:15px; border-radius:30px; color:#aaa; font-weight:bold; font-size:0.9rem;">NON, GARDER LA HAUTE QUALITÉ</button>
     `;
   document.body.appendChild(modal);
 
@@ -2777,7 +2787,7 @@ window.promptLiteMode = function () {
     document.body.classList.add("lite-mode");
     modal.remove();
     if (typeof speak === "function")
-      speak("Mode Ã‰co activÃ© pour des performances optimales.");
+      speak("Mode Éco activé pour des performances optimales.");
     setTimeout(() => location.reload(), 500);
   };
 
@@ -2825,11 +2835,11 @@ window.toggleLiteMode = function () {
   localStorage.setItem("liteMode", window.isLiteMode ? "true" : "false");
   if (window.isLiteMode) {
     document.body.classList.add("lite-mode");
-    if (typeof speak === "function") speak("Mode Ã‰co Performances activÃ©.");
+    if (typeof speak === "function") speak("Mode Éco Performances activé.");
   } else {
     document.body.classList.remove("lite-mode");
     if (typeof speak === "function")
-      speak("Mode Performances Maximales activÃ©.");
+      speak("Mode Performances Maximales activé.");
   }
   setTimeout(() => location.reload(), 1500);
 };
@@ -2860,7 +2870,7 @@ window.closeMenu = function () {
 };
 
 // --- I18N SYSTEM ---
-// window.currentLang est maintenant gÃ©rÃ© par i18n.js pour un chargement prioritaire
+// window.currentLang est maintenant géré par i18n.js pour un chargement prioritaire
 
 function updateUILabels() {
   window.updateI18N();
@@ -2912,7 +2922,7 @@ window.updateI18N = function () {
   if (bankLabel)
     bankLabel.innerHTML = `<i class="fa-solid fa-money-bill-1"></i> ${t("bank")}`;
 };
-// window.updateI18N(); // DÃ©calÃ© aprÃ¨s DOMContentLoaded pour Ã©viter les crashs
+// window.updateI18N(); // Décalé après DOMContentLoaded pour éviter les crashs
 
 // PWA Installation Logic
 let deferredPrompt;
@@ -2949,7 +2959,7 @@ window.addEventListener("popstate", (e) => {
 });
 history.pushState(null, null, window.location.pathname);
 
-// escapeHTML est maintenant dÃ©fini dans auth.js (global)
+// escapeHTML est maintenant défini dans auth.js (global)
 
 // --- BOOT ---
 
@@ -2980,7 +2990,7 @@ window.getVehicleIcon = function (brand, model) {
   const b = (brand || "").toLowerCase();
   const m = (model || "").toLowerCase();
   const vspBrands = [
-    "citroÃ«n",
+    "citroën",
     "citroen",
     "ligier",
     "microcar",
@@ -3014,12 +3024,12 @@ let isTelemetryActive = false;
 function checkTrialExpiration() {
   if (!window.session || window.session.isGuest) return;
 
-  // On rÃ©cupÃ¨re les infos calculÃ©es par auth.js
+  // On récupère les infos calculées par auth.js
   if (window.session && window.session.isTrialExpired) {
     const overlay = document.getElementById("sub-overlay");
     if (overlay) overlay.classList.remove("hidden");
     if (navigator.vibrate) navigator.vibrate(50);
-    speak("Alerte abonnement : Votre pÃ©riode d'essai gratuite est terminÃ©e.");
+    speak("Alerte abonnement : Votre période d'essai gratuite est terminée.");
   }
 }
 
@@ -3097,7 +3107,7 @@ window.initMapController = async function () {
   const mapElement = document.getElementById("map");
   const statusEl = document.getElementById("loader-status");
   if (!mapElement) {
-    console.error("mon50cc Maps : Ã‰lÃ©ment #map introuvable !");
+    console.error("mon50cc Maps : Élément #map introuvable !");
     return;
   }
 
@@ -3110,7 +3120,7 @@ window.initMapController = async function () {
     const { Map } = await google.maps.importLibrary("maps");
     const { AdvancedMarkerElement, PinElement } =
       await google.maps.importLibrary("marker");
-    // Suppression de l'import "routes" qui bloque le chargement de la carte (API non activÃ©e)
+    // Suppression de l'import "routes" qui bloque le chargement de la carte (API non activée)
 
     // PlaceAutocompleteElement (New API)
     let PlaceAutocompleteElement = null;
@@ -3167,7 +3177,7 @@ window.initMapController = async function () {
       console.warn("mon50cc Maps : Erreur initialisation DirectionsService");
     }
 
-    // Autocomplete Classique pour le DÃ©part
+    // Autocomplete Classique pour le Départ
     const startInputOld = document.getElementById("route-start");
     let autocompleteStart = null;
     if (startInputOld && google.maps.places) {
@@ -3201,14 +3211,14 @@ window.initMapController = async function () {
         map.panTo(destLocation);
         map.setZoom(17);
 
-        // VÃ©rifier si un dÃ©part manuel a Ã©tÃ© saisi
+        // Vérifier si un départ manuel a été saisi
         const manualStartEl = document.getElementById("route-start");
         const manualStartQuery = manualStartEl
           ? manualStartEl.value.trim()
           : "";
 
         if (manualStartQuery !== "") {
-          // Si dÃ©part manuel renseignÃ©, on lance l'itinÃ©raire de dÃ©part manuel Ã  destination
+          // Si départ manuel renseigné, on lance l'itinéraire de départ manuel à destination
           geocoder.geocode(
             { address: manualStartQuery },
             (resStart, statusStart) => {
@@ -3218,7 +3228,7 @@ window.initMapController = async function () {
                 const btnCancel = document.getElementById("btn-cancel-route");
                 if (btnCancel) btnCancel.classList.remove("hidden");
               } else {
-                speak("Lieu de dÃ©part introuvable.");
+                speak("Lieu de départ introuvable.");
               }
             },
           );
@@ -3228,7 +3238,7 @@ window.initMapController = async function () {
         // Sinon, utilisation du GPS
         if (!currentPosition) {
           speak(
-            "Recherche de votre position GPS. L'itinÃ©raire dÃ©marrera automatiquement dÃ¨s que possible.",
+            "Recherche de votre position GPS. L'itinéraire démarrera automatiquement dès que possible.",
           );
           window.pendingDestinationName = inputOld.value;
           return;
@@ -3240,9 +3250,9 @@ window.initMapController = async function () {
       });
     }
 
-    if (statusEl) statusEl.textContent = "SystÃ¨mes opÃ©rationnels.";
+    if (statusEl) statusEl.textContent = "Systèmes opérationnels.";
   } catch (e) {
-    console.error("mon50cc Maps : Ã‰chec critique de l'initialisation :", e);
+    console.error("mon50cc Maps : Échec critique de l'initialisation :", e);
     // FALLBACK: TACTICAL RADAR MODE (Visuel plus fort)
     mapElement.innerHTML = `
             <div class="radar-fallback" style="height:100%; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#000; color:#ffb703; font-family:monospace; border:2px solid #333;">
@@ -3283,7 +3293,7 @@ window.startApp = function () {
     try {
       window.OfflineMapManager.init();
 
-      // Mise Ã  jour du badge de statut dans le sidebar
+      // Mise à jour du badge de statut dans le sidebar
       const updateOfflineBadge = () => {
         const dot = document.getElementById("offline-status-dot");
         if (!dot) return;
@@ -3314,7 +3324,7 @@ window.startApp = function () {
     }, 1000);
   }
 
-  // Masquer le loader + marquer le systÃ¨me comme prÃªt
+  // Masquer le loader + marquer le système comme prêt
   setTimeout(() => {
     const loader = document.getElementById("app-loader");
     if (loader) {
@@ -3325,7 +3335,7 @@ window.startApp = function () {
     if (typeof simulateLiveFleet === "function") simulateLiveFleet();
   }, 3500);
 
-  // Lancement de la gÃ©olocalisation
+  // Lancement de la géolocalisation
   checkLegalConsent();
 };
 
@@ -3339,7 +3349,7 @@ window.toggleOfflinePanel = function () {
   if (panel.classList.contains("hidden")) {
     panel.classList.remove("hidden");
 
-    // Statut rÃ©seau live
+    // Statut réseau live
     const statusEl = document.getElementById("offline-network-status");
     if (statusEl) {
       const online = navigator.onLine;
@@ -3350,7 +3360,7 @@ window.toggleOfflinePanel = function () {
             `;
       statusEl.innerHTML = `
                 <span style="font-size:1rem; margin-right:8px;">${online ? "ðŸŸ¢" : "ðŸ”´"}</span>
-                ${online ? "CONNECTÃ‰ â€” Google Maps actif" : "HORS LIGNE â€” Carte locale active"}
+                ${online ? "CONNECTÉ â€” Google Maps actif" : "HORS LIGNE â€” Carte locale active"}
             `;
     }
 
@@ -3378,7 +3388,7 @@ window.closeOfflinePanel = function (evt) {
   if (panel) panel.classList.add("hidden");
 };
 
-// Fonctions de menu dÃ©placÃ©es au dÃ©but pour sÃ©curitÃ©
+// Fonctions de menu déplacées au début pour sécurité
 
 window.showAdvantages = function () {
   const pop = document.getElementById("advantages-popup");
@@ -3393,10 +3403,10 @@ window.closeAdvantages = function () {
 window.toggleTraffic = function () {
   if (trafficLayer.getMap()) {
     trafficLayer.setMap(null);
-    speak("Info trafic dÃ©sactivÃ©e.");
+    speak("Info trafic désactivée.");
   } else {
     trafficLayer.setMap(map);
-    speak("Info trafic activÃ©e.");
+    speak("Info trafic activée.");
   }
 };
 
@@ -3405,49 +3415,49 @@ window.toggleTilt = function () {
   map.setTilt(currentTilt === 45 ? 0 : 45);
 };
 
-// â”€â”€â”€ Wake Lock rÃ©silient (se rÃ©active automatiquement en cas de perte) â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€â”€ Wake Lock résilient (se réactive automatiquement en cas de perte) â”€â”€â”€â”€â”€â”€â”€â”€
 let wakeLockRef = null;
 async function requestWakeLock() {
   if (!("wakeLock" in navigator)) return;
   try {
     wakeLockRef = await navigator.wakeLock.request("screen");
 
-    // RÃ©acquÃ©rir automatiquement quand l'onglet redevient visible
+    // Réacquérir automatiquement quand l'onglet redevient visible
     wakeLockRef.addEventListener("release", () => {
       console.warn(
-        "mon50cc GPS : Wake Lock perdu, rÃ©acquisition programmÃ©e.",
+        "mon50cc GPS : Wake Lock perdu, réacquisition programmée.",
       );
       wakeLockRef = null;
     });
   } catch (err) {
-    console.warn("mon50cc GPS : Wake Lock refusÃ© :", err.message);
+    console.warn("mon50cc GPS : Wake Lock refusé :", err.message);
   }
 }
 
-// RÃ©acquÃ©rir le Wake Lock quand l'app revient au premier plan
+// Réacquérir le Wake Lock quand l'app revient au premier plan
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && !wakeLockRef) {
     requestWakeLock();
-    // Relancer le GPS si on a perdu la position pendant le sleep (SEULEMENT si consentement donnÃ©)
+    // Relancer le GPS si on a perdu la position pendant le sleep (SEULEMENT si consentement donné)
     if (!currentPosition && gpsWatchId === null && hasLocationConsent()) {
       startGeolocation();
     }
   }
 });
 
-// â”€â”€ Garde de consentement : vÃ©rifie si l'utilisateur a acceptÃ© la divulgation â”€â”€
+// â”€â”€ Garde de consentement : vérifie si l'utilisateur a accepté la divulgation â”€â”€
 function hasLocationConsent() {
   return localStorage.getItem("location_consent_accepted") === "true";
 }
 
 async function checkLegalConsent() {
   if (hasLocationConsent()) {
-    // DÃ©clenchement du message de bienvenue pour les utilisateurs rÃ©currents
+    // Déclenchement du message de bienvenue pour les utilisateurs récurrents
     const name =
       window.session && !window.session.isGuest ? window.session.username : "";
     const welcomeMsg = name
-      ? `Content de vous revoir, ${name}. SystÃ¨mes opÃ©rationnels.`
-      : "SystÃ¨mes opÃ©rationnels. Bonne route sur mon 50cc et moi.";
+      ? `Content de vous revoir, ${name}. Systèmes opérationnels.`
+      : "Systèmes opérationnels. Bonne route sur mon 50cc et moi.";
     setTimeout(() => {
       if (typeof speak === "function") speak(welcomeMsg);
     }, 1000);
@@ -3456,11 +3466,11 @@ async function checkLegalConsent() {
     return;
   }
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ══════════════════════════════════════════════════════════════════
   // DIVULGATION BIEN VISIBLE (Prominent Disclosure) â€” Google Play
-  // Conforme Ã  la politique relative aux donnÃ©es de l'utilisateur.
-  // AffichÃ© AVANT toute collecte de donnÃ©es de localisation.
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // Conforme à la politique relative aux données de l'utilisateur.
+  // Affiché AVANT toute collecte de données de localisation.
+  // ══════════════════════════════════════════════════════════════════
   const modal = document.createElement("div");
   modal.id = "location-disclosure-modal";
   modal.style.cssText = `
@@ -3476,19 +3486,19 @@ async function checkLegalConsent() {
                 <i class="fa-solid fa-location-dot" style="font-size:3rem; color:#ffb703;"></i>
             </div>
             <h2 style="text-align:center; margin-bottom:20px; font-size:1.3rem; color:#ffffff;">
-                Utilisation de vos donnÃ©es de localisation
+                Utilisation de vos données de localisation
             </h2>
 
             <div style="background:#1a1a1a; padding:16px; border-radius:8px; border-left:4px solid #ffb703; margin-bottom:20px;">
                 <p style="font-size:1rem; line-height:1.5; color:#ffffff; margin:0;">
-                    <strong>L'application mon 50cc et moi collecte et utilise vos donnÃ©es de localisation en arriÃ¨re-plan</strong> pour permettre la dÃ©tection automatique de chute (Guardian Angel), la navigation GPS Ã©tape par Ã©tape, et le signalement de dangers routiers. Ces donnÃ©es sont collectÃ©es <strong>mÃªme lorsque l'application est fermÃ©e ou qu'elle n'est pas utilisÃ©e.</strong> Elles ne sont pas utilisÃ©es pour afficher des annonces publicitaires.
+                    <strong>L'application mon 50cc et moi collecte et utilise vos données de localisation en arrière-plan</strong> pour permettre la détection automatique de chute (Guardian Angel), la navigation GPS étape par étape, et le signalement de dangers routiers. Ces données sont collectées <strong>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</strong> Elles ne sont pas utilisées pour afficher des annonces publicitaires.
                 </p>
             </div>
 
             <p style="font-size:0.9rem; line-height:1.4; color:#aaa; margin-bottom:24px; text-align:center;">
-                Ces donnÃ©es sont utilisÃ©es uniquement pour assurer votre sÃ©curitÃ© et vous guider. Elles ne sont jamais vendues Ã  des tiers.<br><br>
+                Ces données sont utilisées uniquement pour assurer votre sécurité et vous guider. Elles ne sont jamais vendues à des tiers.<br><br>
                 <a href="privacy.html" target="_blank" rel="noopener" style="color:#ffb703; text-decoration:underline; font-weight:bold;">
-                    Consulter notre Politique de ConfidentialitÃ©
+                    Consulter notre Politique de Confidentialité
                 </a>
             </p>
 
@@ -3507,7 +3517,7 @@ async function checkLegalConsent() {
     `;
   document.body.appendChild(modal);
 
-  // Bouton REFUSER : empÃªche le dÃ©marrage du GPS, affiche un message
+  // Bouton REFUSER : empêche le démarrage du GPS, affiche un message
   document.getElementById("btn-refuse-location").onclick = () => {
     modal.remove();
     // Afficher un bandeau persistant expliquant que l'app ne peut pas fonctionner
@@ -3520,17 +3530,17 @@ async function checkLegalConsent() {
         `;
     banner.innerHTML = `
             <strong>âš ï¸ Localisation requise</strong><br>
-            L'application ne peut pas fonctionner sans accÃ¨s Ã  votre position.
-            <br><button onclick="checkLegalConsent()" style="margin-top:8px; padding:8px 24px; background:#ffb703; color:#000; border:none; border-radius:20px; font-weight:bold; cursor:pointer;">RÃ©essayer</button>
+            L'application ne peut pas fonctionner sans accès à votre position.
+            <br><button onclick="checkLegalConsent()" style="margin-top:8px; padding:8px 24px; background:#ffb703; color:#000; border:none; border-radius:20px; font-weight:bold; cursor:pointer;">Réessayer</button>
         `;
     document.body.appendChild(banner);
     if (typeof speak === "function")
       speak(
-        "L'application nÃ©cessite l'accÃ¨s Ã  votre position pour fonctionner.",
+        "L'application nécessite l'accès à votre position pour fonctionner.",
       );
   };
 
-  // Bouton ACCEPTER : sauvegarde le consentement et dÃ©marre le GPS
+  // Bouton ACCEPTER : sauvegarde le consentement et démarre le GPS
   document.getElementById("btn-accept-location").onclick = () => {
     localStorage.setItem("location_consent_accepted", "true");
     modal.remove();
@@ -3538,12 +3548,12 @@ async function checkLegalConsent() {
     const oldBanner = document.getElementById("location-refused-banner");
     if (oldBanner) oldBanner.remove();
 
-    // DÃ©clenchement du message de bienvenue (Audio dÃ©bloquÃ© par le clic)
+    // Déclenchement du message de bienvenue (Audio débloqué par le clic)
     const name =
       window.session && !window.session.isGuest ? window.session.username : "";
     const welcomeMsg = name
-      ? `Content de vous revoir, ${name}. SystÃ¨mes opÃ©rationnels.`
-      : "SystÃ¨mes opÃ©rationnels. Bonne route sur mon 50cc et moi.";
+      ? `Content de vous revoir, ${name}. Systèmes opérationnels.`
+      : "Systèmes opérationnels. Bonne route sur mon 50cc et moi.";
     if (typeof speak === "function") speak(welcomeMsg);
 
     startGeolocation();
@@ -3551,10 +3561,10 @@ async function checkLegalConsent() {
 }
 
 function showGpsBanner(msg, code) {
-  // Ne pas afficher si on a dÃ©jÃ  une position valide (Ã©vite la banniÃ¨re rouge permanente)
+  // Ne pas afficher si on a déjà une position valide (évite la bannière rouge permanente)
   if (currentPosition && code !== 1) {
     console.warn(
-      "mon50cc GPS : Erreur ignorÃ©e (position dÃ©jÃ  disponible) :",
+      "mon50cc GPS : Erreur ignorée (position déjà disponible) :",
       msg,
     );
     return;
@@ -3574,18 +3584,18 @@ function showGpsBanner(msg, code) {
             <i class="fa-solid fa-location-crosshairs" style="font-size:4rem; color:#ef4444; margin-bottom:20px;"></i>
             <h2 style="margin-bottom:15px; color:#ffb703;">GPS OBLIGATOIRE</h2>
             <p style="font-size:0.9rem; line-height:1.5; margin-bottom:25px; text-align:left; background:rgba(0,0,0,0.5); padding:15px; border-radius:10px; border:1px solid #333;">
-                Cette application collecte des donnÃ©es de localisation pour activer la dÃ©tection automatique de chute, la navigation GPS, le calcul de votre vitesse, et le partage de dangers et de votre position avec la communautÃ©, <b>mÃªme lorsque l'application est fermÃ©e ou qu'elle n'est pas utilisÃ©e.</b><br><br>
-                Sans accÃ¨s Ã  votre position, l'application ne peut pas fonctionner.
+                Cette application collecte des données de localisation pour activer la détection automatique de chute, la navigation GPS, le calcul de votre vitesse, et le partage de dangers et de votre position avec la communauté, <b>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</b><br><br>
+                Sans accès à votre position, l'application ne peut pas fonctionner.
             </p>
             <button onclick="window.repairGps()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1.1rem; margin-bottom:15px; box-shadow:0 0 15px rgba(255, 183, 3, 0.5);">
                 AUTORISER LE GPS
             </button>
             <p style="font-size:0.8rem; color:#888;">
-                Veuillez accorder la permission dans les paramÃ¨tres de votre appareil.
+                Veuillez accorder la permission dans les paramètres de votre appareil.
             </p>
         `;
     hardLock.style.display = "flex";
-    return; // On affiche le hard lock, pas la banniÃ¨re
+    return; // On affiche le hard lock, pas la bannière
   }
 
   let banner = document.getElementById("gps-error-banner");
@@ -3597,12 +3607,12 @@ function showGpsBanner(msg, code) {
     document.body.appendChild(banner);
   }
 
-  const repairBtn = `<button onclick="window.retryGps()" style="margin-top:10px; padding:8px 20px; background:#ffb703; color:#000; border:none; border-radius:20px; font-weight:bold; font-size:0.85rem; cursor:pointer;">ðŸ”„ RÃ©essayer</button>`;
+  const repairBtn = `<button onclick="window.retryGps()" style="margin-top:10px; padding:8px 20px; background:#ffb703; color:#000; border:none; border-radius:20px; font-weight:bold; font-size:0.85rem; cursor:pointer;">ðŸ”„ Réessayer</button>`;
 
   banner.innerHTML = `<div style="font-weight:bold; margin-bottom:4px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>GPS : ${msg}</div><div style="font-size:0.72rem; color:#fca5a5;">(Code erreur: ${code})</div>${repairBtn}`;
   banner.style.display = "block";
 
-  // Auto-dismiss aprÃ¨s 20s pour les erreurs non-critiques (code 2 = signal faible, code 3 = timeout)
+  // Auto-dismiss après 20s pour les erreurs non-critiques (code 2 = signal faible, code 3 = timeout)
   clearTimeout(window._gpsBannerTimer);
   window._gpsBannerTimer = setTimeout(hideGpsBanner, 20000);
 }
@@ -3620,21 +3630,21 @@ window.repairGps = function () {
   const instructions = `
         <div style="text-align:left; font-size:0.9rem; line-height:1.5;">
             <b style="color:#ffb703;">ðŸ“± Sur Android Chrome :</b><br>
-            1. Appuie sur les 3 points â‹® en haut Ã  droite<br>
-            2. ParamÃ¨tres â†’ ParamÃ¨tres du site<br>
-            3. Localisation â†’ Cherche '${appUrl}'<br>
-            4. Passe de 'Bloquer' Ã  'Autoriser'<br>
+            1. Appuie sur les 3 points â‹® en haut à droite<br>
+            2. Paramètres ←’ Paramètres du site<br>
+            3. Localisation ←’ Cherche '${appUrl}'<br>
+            4. Passe de 'Bloquer' à 'Autoriser'<br>
             5. Recharge l'application<br><br>
             <b style="color:#ffb703;">ðŸ“± Dans l'app Android :</b><br>
-            1. Appui long sur l'icÃ´ne de l'app<br>
-            2. Infos sur l'appli â†’ Autorisations<br>
-            3. Position â†’ Autoriser (ou Toujours autoriser)
+            1. Appui long sur l'icône de l'app<br>
+            2. Infos sur l'appli ←’ Autorisations<br>
+            3. Position ←’ Autoriser (ou Toujours autoriser)
         </div>
     `;
 
   if (typeof Swal !== "undefined") {
     Swal.fire({
-      title: "Comment rÃ©activer le GPS",
+      title: "Comment réactiver le GPS",
       html: instructions,
       icon: "info",
       confirmButtonText: "J'AI COMPRIS",
@@ -3648,7 +3658,7 @@ window.repairGps = function () {
       "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;";
     modal.innerHTML = `
             <div style="background:#1a1a1a; padding:25px; border-radius:15px; border:2px solid #ffb703; max-width:400px; width:100%; color:white;">
-                <h3 style="color:#ffb703; margin-top:0; margin-bottom:15px;">Comment rÃ©activer le GPS</h3>
+                <h3 style="color:#ffb703; margin-top:0; margin-bottom:15px;">Comment réactiver le GPS</h3>
                 ${instructions}
                 <button onclick="this.parentElement.parentElement.remove()" style="width:100%; margin-top:20px; padding:12px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1rem;">J'AI COMPRIS</button>
             </div>
@@ -3659,7 +3669,7 @@ window.repairGps = function () {
 
 window.retryGps = function () {
   hideGpsBanner();
-  // Reset complet pour repartir de zÃ©ro
+  // Reset complet pour repartir de zéro
   if (gpsWatchId !== null) {
     navigator.geolocation.clearWatch(gpsWatchId);
     gpsWatchId = null;
@@ -3679,13 +3689,13 @@ let gpsRetryCount = 0;
 const GPS_MAX_RETRIES = 3;
 
 async function startGeolocation() {
-  // GARDE DE SÃ‰CURITÃ‰ : ne JAMAIS dÃ©marrer le GPS sans consentement explicite
+  // GARDE DE SÉCURITÉ : ne JAMAIS démarrer le GPS sans consentement explicite
   if (!hasLocationConsent()) {
     console.warn(
-      "mon50cc GPS : Consentement de localisation non accordÃ©. GPS bloquÃ©.",
+      "mon50cc GPS : Consentement de localisation non accordé. GPS bloqué.",
     );
     alert(
-      "âš ï¸ AccÃ¨s GPS bloquÃ© : Le consentement de gÃ©olocalisation est requis. Vous allez Ãªtre redirigÃ© vers l'accueil.",
+      "âš ï¸ Accès GPS bloqué : Le consentement de géolocalisation est requis. Vous allez être redirigé vers l'accueil.",
     );
     window.location.href = "index.html";
     return;
@@ -3693,26 +3703,26 @@ async function startGeolocation() {
 
   if (!("geolocation" in navigator)) {
     console.error(
-      "mon50cc GPS : GÃ©olocalisation non supportÃ©e sur cet appareil.",
+      "mon50cc GPS : Géolocalisation non supportée sur cet appareil.",
     );
-    showGpsBanner("GÃ©olocalisation non supportÃ©e par ce navigateur.", 0);
+    showGpsBanner("Géolocalisation non supportée par ce navigateur.", 0);
     return;
   }
 
-  // AcquÃ©rir le Wake Lock pour maintenir le GPS actif
+  // Acquérir le Wake Lock pour maintenir le GPS actif
   requestWakeLock();
 
-  // Ã‰TAPE 1 : VÃ©rifier les permissions (non-bloquant)
+  // ÉTAPE 1 : Vérifier les permissions (non-bloquant)
   if (navigator.permissions) {
     try {
       const perm = await navigator.permissions.query({ name: "geolocation" });
 
       if (perm.state === "denied") {
         speak(
-          "Le GPS est bloquÃ©. VÃ©rifiez les permissions de l'application.",
+          "Le GPS est bloqué. Vérifiez les permissions de l'application.",
         );
-        showGpsBanner("Permission refusÃ©e. Appuyez sur 'RÃ©parer'.", 1);
-        return; // Inutile de continuer si explicitement refusÃ©
+        showGpsBanner("Permission refusée. Appuyez sur 'Réparer'.", 1);
+        return; // Inutile de continuer si explicitement refusé
       }
 
       perm.onchange = () => {
@@ -3720,7 +3730,7 @@ async function startGeolocation() {
           hideGpsBanner();
           window.retryGps();
         } else if (perm.state === "denied") {
-          showGpsBanner("Permission GPS rÃ©voquÃ©e.", 1);
+          showGpsBanner("Permission GPS révoquée.", 1);
         }
       };
     } catch (e) {
@@ -3728,38 +3738,38 @@ async function startGeolocation() {
     }
   }
 
-  // Ã‰TAPE 2 : Surveillance CONTINUE (satellites GPS / rÃ©seau)
-  // On utilise uniquement watchPosition car iOS gÃ¨re trÃ¨s mal les appels concurrents (getCurrentPosition + watchPosition)
+  // ÉTAPE 2 : Surveillance CONTINUE (satellites GPS / réseau)
+  // On utilise uniquement watchPosition car iOS gère très mal les appels concurrents (getCurrentPosition + watchPosition)
   const geoOptions = {
     enableHighAccuracy: true,
-    timeout: 30000, // 30s â€” laisse le temps aux satellites en intÃ©rieur
-    maximumAge: 3000, // 3s de cache max pour les updates frÃ©quents
+    timeout: 30000, // 30s â€” laisse le temps aux satellites en intérieur
+    maximumAge: 3000, // 3s de cache max pour les updates fréquents
   };
 
   const onError = (err) => {
     let msg = "Erreur GPS inconnue";
     if (err.code === 1)
-      msg = "Permission GPS refusÃ©e. Appuyez sur 'RÃ©parer'.";
-    if (err.code === 2) msg = "Signal GPS faible. Sortez Ã  l'extÃ©rieur.";
+      msg = "Permission GPS refusée. Appuyez sur 'Réparer'.";
+    if (err.code === 2) msg = "Signal GPS faible. Sortez à l'extérieur.";
     if (err.code === 3) msg = "Recherche GPS en cours... Patience.";
     console.error("mon50cc GPS :", msg, "code:", err.code);
 
-    // Permission refusÃ©e â†’ banniÃ¨re immÃ©diate
+    // Permission refusée ←’ bannière immédiate
     if (err.code === 1) {
-      speak("Le GPS est bloquÃ©. VÃ©rifiez les permissions.");
+      speak("Le GPS est bloqué. Vérifiez les permissions.");
       showGpsBanner(msg, err.code);
       return;
     }
 
-    // Si on n'a aucune position â†’ tenter le fallback basse prÃ©cision
+    // Si on n'a aucune position ←’ tenter le fallback basse précision
     if (!currentPosition) {
       showGpsBanner(msg, err.code);
       activateLowAccuracyFallback();
     }
-    // Si on a dÃ©jÃ  une position â†’ on garde celle-ci, pas de banniÃ¨re
+    // Si on a déjà une position ←’ on garde celle-ci, pas de bannière
   };
 
-  // Nettoyer les anciens watchers avant d'en crÃ©er de nouveaux
+  // Nettoyer les anciens watchers avant d'en créer de nouveaux
   if (gpsWatchId !== null) {
     navigator.geolocation.clearWatch(gpsWatchId);
     gpsWatchId = null;
@@ -3767,11 +3777,11 @@ async function startGeolocation() {
 
   gpsWatchId = navigator.geolocation.watchPosition(
     (pos) => {
-      // Filtrage qualitÃ© : accepter la premiÃ¨re position Ã  tout prix, puis filtrer Ã  < 500m
+      // Filtrage qualité : accepter la première position à tout prix, puis filtrer à < 500m
       const acc = pos.coords.accuracy || 0;
       if (currentPosition && acc > 500) {
         console.warn(
-          `mon50cc GPS : Position ignorÃ©e (prÃ©cision: ${acc.toFixed(0)}m > 500m)`,
+          `mon50cc GPS : Position ignorée (précision: ${acc.toFixed(0)}m > 500m)`,
         );
         return;
       }
@@ -3783,24 +3793,24 @@ async function startGeolocation() {
     geoOptions,
   );
 
-  // Ã‰TAPE 4 : Timer de sÃ©curitÃ© â€” si aucune position aprÃ¨s 15s, forcer le fallback
+  // ÉTAPE 4 : Timer de sécurité â€” si aucune position après 15s, forcer le fallback
   setTimeout(() => {
     if (!currentPosition && fallbackWatchId === null) {
       console.warn(
-        "mon50cc GPS : Aucune position aprÃ¨s 15s â†’ activation fallback.",
+        "mon50cc GPS : Aucune position après 15s ←’ activation fallback.",
       );
       activateLowAccuracyFallback();
     }
   }, 15000);
 }
 
-// Fallback basse prÃ©cision (WiFi/Cellulaire) â€” dÃ©clenchÃ© automatiquement
+// Fallback basse précision (WiFi/Cellulaire) â€” déclenché automatiquement
 function activateLowAccuracyFallback() {
-  if (fallbackWatchId !== null) return; // DÃ©jÃ  actif
+  if (fallbackWatchId !== null) return; // Déjà actif
   if (gpsRetryCount >= GPS_MAX_RETRIES) {
     console.error("mon50cc GPS : Nombre max de retries atteint.");
     showGpsBanner(
-      "GPS indisponible. VÃ©rifiez que la localisation est activÃ©e dans les paramÃ¨tres.",
+      "GPS indisponible. Vérifiez que la localisation est activée dans les paramètres.",
       2,
     );
     return;
@@ -3815,13 +3825,13 @@ function activateLowAccuracyFallback() {
         hideGpsBanner();
       }
     },
-    (e) => console.warn("mon50cc GPS : Fallback Ã©chouÃ© :", e.code, e.message),
+    (e) => console.warn("mon50cc GPS : Fallback échoué :", e.code, e.message),
     { enableHighAccuracy: false, timeout: 20000, maximumAge: 60000 },
   );
 }
 
-// Remplacement du dÃ©marrage automatique par la vÃ©rification lÃ©gale
-// Retrait de l'appel direct pour Ã©viter les conflits avant l'init de l'UI
+// Remplacement du démarrage automatique par la vérification légale
+// Retrait de l'appel direct pour éviter les conflits avant l'init de l'UI
 // checkLegalConsent();
 
 // --- 3. NEURAL INNOVATION ENGINE (Invisibile Intelligence) ---
@@ -3873,7 +3883,7 @@ function getSmoothedSpeed(rawSpeed) {
 }
 
 function updatePosition(position) {
-  // ArrÃªt du fallback basse prÃ©cision si on rÃ©cupÃ¨re un signal GPS haute prÃ©cision dÃ©cent (< 30m)
+  // Arrêt du fallback basse précision si on récupère un signal GPS haute précision décent (< 30m)
   if (
     position.coords.accuracy !== null &&
     position.coords.accuracy < 30 &&
@@ -3916,7 +3926,7 @@ function updatePosition(position) {
     map.panTo(currentPosition);
   }
 
-  // TracÃ© GPS de la balade (cyberline cyan)
+  // Tracé GPS de la balade (cyberline cyan)
   if (typeof window.addTracePoint === "function") {
     window.addTracePoint(lat, lng);
   }
@@ -3927,7 +3937,7 @@ function updatePosition(position) {
 
   if (window.OracleEngine) window.OracleEngine.updateRegion(lat, lng);
 
-  // SÃ©curitÃ©: accuracy peut Ãªtre null sur certains appareils
+  // Sécurité: accuracy peut être null sur certains appareils
   const safeAccuracy = accuracy || 0;
 
   // Update Telemetry HUD if active
@@ -3955,7 +3965,7 @@ function updatePosition(position) {
         if (el)
           el.onclick = () =>
             alert(
-              "Veuillez crÃ©er un compte pour accÃ©der Ã  l'Arbitre de la Route ! âš–ï¸ðŸ›µ",
+              "Veuillez créer un compte pour accéder à l'Arbitre de la Route ! ⚖️ðŸ›µ",
             );
       },
     );
@@ -4147,13 +4157,13 @@ function updatePosition(position) {
         accuracyCircle.setRadius(safeAccuracy / 2);
       }
 
-      // On recentre et on dÃ©cale pour la visibilitÃ©
+      // On recentre et on décale pour la visibilité
       map.panTo(currentPosition);
       map.panBy(0, -100);
     }
   }
 
-  // MÃ©tÃ©o Auto
+  // Météo Auto
   const wHud = document.getElementById("weather-hud");
   if (wHud && wHud.textContent.includes("--")) {
     window.fetchWeather(lat, lng);
@@ -4183,7 +4193,7 @@ function updatePosition(position) {
 
 // Fonction utilitaire pour calculer la distance (Formule de Haversine)
 function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371e3; // mÃ¨tres
+  const R = 6371e3; // mètres
   const p1 = (lat1 * Math.PI) / 180;
   const p2 = (lat2 * Math.PI) / 180;
   const dp = ((lat2 - lat1) * Math.PI) / 180;
@@ -4223,14 +4233,14 @@ function checkHazardProximity(lat, lng) {
       lastSpokenHazard !== h.lat + h.lon
     ) {
       speak(
-        `Attention, ${h.type} signalÃ© Ã  environ 500 mÃ¨tres. Restez vigilant.`,
+        `Attention, ${h.type} signalé à environ 500 mètres. Restez vigilant.`,
       );
       lastSpokenHazard = h.lat + h.lon;
       showHazardConfirmation(index, h.type);
     }
     // --- DANGERS STANDARDS ---
     else if (dist < 100 && lastSpokenHazard !== h.lat + h.lon) {
-      speak(`Attention : ${h.type} signalÃ© Ã  proximitÃ©.`);
+      speak(`Attention : ${h.type} signalé à proximité.`);
       lastSpokenHazard = h.lat + h.lon;
       showHazardConfirmation(index, h.type);
     }
@@ -4239,11 +4249,11 @@ function checkHazardProximity(lat, lng) {
 
 window.triggerRedAlert = function (distance, description) {
   // Annonce vocale
-  let alertMsg = `Attention, conduite dangereuse signalÃ©e`;
+  let alertMsg = `Attention, conduite dangereuse signalée`;
   if (description) {
     alertMsg += ` : ${description}`;
   }
-  alertMsg += ` Ã  ${distance} mÃ¨tres devant vous. Restez vigilant.`;
+  alertMsg += ` à ${distance} mètres devant vous. Restez vigilant.`;
   speak(alertMsg);
 
   // Effet visuel clignotant rouge
@@ -4267,9 +4277,9 @@ function showHazardConfirmation(index, type) {
   const toast = document.createElement("div");
   toast.className = "hazard-toast glassmorphism";
   toast.innerHTML = `
-        <p>Toujours lÃ  : <strong>${type}</strong> ?</p>
+        <p>Toujours là : <strong>${type}</strong> ?</p>
         <div style="display:flex; gap:10px;">
-            <button onclick="confirmHazard(${index}, true)">âœ… Oui</button>
+            <button onclick="confirmHazard(${index}, true)">✅ Oui</button>
             <button onclick="confirmHazard(${index}, false)">âŒ Non</button>
         </div>
     `;
@@ -4283,7 +4293,7 @@ window.confirmHazard = function (index, exists) {
     hazards.splice(index, 1);
     secureSetItem("hazards", JSON.stringify(hazards));
     loadHazards();
-    speak("Merci, signalement mis Ã  jour.");
+    speak("Merci, signalement mis à jour.");
   } else {
     speak("Merci de votre vigilance.");
   }
@@ -4312,104 +4322,104 @@ window.OracleEngine = {
     fr: {
       marseille: {
         start:
-          "TÃ©, l'Oracle est en place ! On est parÃ©s pour la route, peuchÃ¨re.",
-        speed: "Oh fada, tu vas trop vite ! LÃ¨ve le pied avant de t'envoler.",
+          "Té, l'Oracle est en place ! On est parés pour la route, peuchère.",
+        speed: "Oh fada, tu vas trop vite ! Lève le pied avant de t'envoler.",
         threat_detected:
-          "VÃ© ! Y'a un souci sur la route devant. Fais gaffe Ã  toi.",
-        level_up: "Et bim ! Tu as montÃ© de niveau, bravo mon brave.",
+          "Vé ! Y'a un souci sur la route devant. Fais gaffe à toi.",
+        level_up: "Et bim ! Tu as monté de niveau, bravo mon brave.",
         start_guardian:
-          "Ange Gardien en place ! T'inquiÃ¨te pas, je veille sur toi.",
+          "Ange Gardien en place ! T'inquiète pas, je veille sur toi.",
         stop_guardian: "Ange Gardien au repos. Fais doucement, hein !",
         danger_overtake:
-          "VÃ© ! Tu doubles n'importe comment, tu vas nous faire un plat !",
+          "Vé ! Tu doubles n'importe comment, tu vas nous faire un plat !",
       },
       quebec: {
-        start: "Attache ta tuque, l'Oracle est prÃªt pour une sacrÃ©e virÃ©e !",
-        speed: "LÃ¢che la patate, tu roules pas mal trop vite lÃ  !",
-        threat_detected: "Check ben Ã§a, y'a de quoi de pas net sur le chemin.",
-        level_up: "C'est Ã©coeurant ! T'as gagnÃ© un niveau.",
-        start_guardian: "Ton Ange Gardien est prÃªt, on lÃ¢che pas !",
+        start: "Attache ta tuque, l'Oracle est prêt pour une sacrée virée !",
+        speed: "Lâche la patate, tu roules pas mal trop vite là !",
+        threat_detected: "Check ben ça, y'a de quoi de pas net sur le chemin.",
+        level_up: "C'est écoeurant ! T'as gagné un niveau.",
+        start_guardian: "Ton Ange Gardien est prêt, on lâche pas !",
         stop_guardian: "L'Ange Gardien prend une pause. Prudence !",
         danger_overtake:
-          "OulÃ  ! Ton dÃ©passement Ã©tait pas mal risquÃ©, check tes angles !",
+          "Oulà ! Ton dépassement était pas mal risqué, check tes angles !",
       },
       standard: {
-        start: "Core Universel stabilisÃ©. Liaison totale Ã©tablie.",
-        speed: "Alerte : Vitesse excessive. Ralentissez immÃ©diatement.",
-        threat_detected: "ANALYSE : Menace identifiÃ©e. Prudence conseillÃ©e.",
-        level_up: "FÃ©licitations Pilote. Votre expÃ©rience a augmentÃ©.",
+        start: "Core Universel stabilisé. Liaison totale établie.",
+        speed: "Alerte : Vitesse excessive. Ralentissez immédiatement.",
+        threat_detected: "ANALYSE : Menace identifiée. Prudence conseillée.",
+        level_up: "Félicitations Pilote. Votre expérience a augmenté.",
         start_guardian:
-          "Ange Gardien activÃ©. Surveillance pÃ©rimÃ©trique en cours.",
-        stop_guardian: "Ange Gardien dÃ©sactivÃ©. Fin de la surveillance.",
-        danger_overtake: "ATTENTION : DÃ‰PASSEMENT DANGEREUX DÃ‰TECTÃ‰.",
+          "Ange Gardien activé. Surveillance périmétrique en cours.",
+        stop_guardian: "Ange Gardien désactivé. Fin de la surveillance.",
+        danger_overtake: "ATTENTION : DÉPASSEMENT DANGEREUX DÉTECTÉ.",
         ferry_detected:
-          "Attention, cet itinÃ©raire inclut une traversÃ©e en ferry.",
+          "Attention, cet itinéraire inclut une traversée en ferry.",
         ferry_ahead:
-          "TraversÃ©e en ferry Ã  1 kilomÃ¨tre. PrÃ©parez-vous Ã  l'embarquement.",
+          "Traversée en ferry à 1 kilomètre. Préparez-vous à l'embarquement.",
       },
       liege: {
-        start: "Oufti, l'Oracle est en place, valet ! On dÃ©colle ?",
+        start: "Oufti, l'Oracle est en place, valet ! On décolle ?",
         speed: "Ouille valet, tu vas trop vite ! Calme ton jeu.",
-        threat_detected: "AÃ¯e gaffe, y'a un bins sur la route devant.",
-        level_up: "Oufti ! T'es passÃ© au niveau suivant, c'est du propre !",
+        threat_detected: "Aïe gaffe, y'a un bins sur la route devant.",
+        level_up: "Oufti ! T'es passé au niveau suivant, c'est du propre !",
         start_guardian:
-          "L'Ange Gardien est lÃ  pour toi, valet. Roule tranquille.",
+          "L'Ange Gardien est là pour toi, valet. Roule tranquille.",
         stop_guardian: "L'Ange Gardien va s'en jeter une, sois prudent.",
         danger_overtake:
-          "Oufti ! Ton dÃ©passement Ã©tait un peu chaud, valet !",
+          "Oufti ! Ton dépassement était un peu chaud, valet !",
       },
       charleroi: {
-        start: "Salut m'fi ! L'Oracle est prÃªt, on y va ?",
+        start: "Salut m'fi ! L'Oracle est prêt, on y va ?",
         speed: "M'fi, tu roules trop vite ! On n'est pas sur le ring ici.",
         threat_detected: "Fais gaffe m'fi, y'a un gros souci devant.",
-        level_up: "Bordel m'fi ! T'as montÃ© de niveau, fÃ©licitations !",
+        level_up: "Bordel m'fi ! T'as monté de niveau, félicitations !",
         start_guardian: "Ton Ange Gardien veille sur toi, m'fi. Pas de stress.",
         stop_guardian: "L'Ange Gardien a fini sa pause, fais attention m'fi.",
-        danger_overtake: "M'fi ! C'Ã©tait quoi ce dÃ©passement de baraki ?",
+        danger_overtake: "M'fi ! C'était quoi ce dépassement de baraki ?",
       },
       brussels: {
-        start: "Salut fieu ! L'Oracle est lÃ , on y va ou quoi ?",
+        start: "Salut fieu ! L'Oracle est là, on y va ou quoi ?",
         speed:
-          "Dites une fois, fieu ! Tu vas trop vite, on n'est pas pressÃ©s !",
+          "Dites une fois, fieu ! Tu vas trop vite, on n'est pas pressés !",
         threat_detected: "Attention fieu, y'a un stut sur la route devant.",
         level_up:
-          "Non peut-Ãªtre ! T'as montÃ© de niveau, Ã§a c'est du stoemp !",
-        start_guardian: "L'Ange Gardien est avec toi, fieu. T'inquiÃ¨te pas.",
-        stop_guardian: "L'Ange Gardien va manger une frite, fais gaffe Ã  toi.",
+          "Non peut-être ! T'as monté de niveau, ça c'est du stoemp !",
+        start_guardian: "L'Ange Gardien est avec toi, fieu. T'inquiète pas.",
+        stop_guardian: "L'Ange Gardien va manger une frite, fais gaffe à toi.",
         danger_overtake:
-          "Eh fieu ! Ton dÃ©passement lÃ , c'Ã©tait un peu zinneke, non ?",
+          "Eh fieu ! Ton dépassement là, c'était un peu zinneke, non ?",
       },
       flanders: {
-        start: "Allez, l'Oracle est prÃªt. On roule, hein ?",
+        start: "Allez, l'Oracle est prêt. On roule, hein ?",
         speed: "Oula ! Tu vas trop vite, hein ! Calme-toi un peu.",
-        threat_detected: "Pas de chance, y'a un problÃ¨me sur la route.",
-        level_up: "Super ! T'as montÃ© de niveau. C'est bien, hein !",
+        threat_detected: "Pas de chance, y'a un problème sur la route.",
+        level_up: "Super ! T'as monté de niveau. C'est bien, hein !",
         start_guardian:
-          "L'Ange Gardien est lÃ  pour toi. C'est sÃ©curisÃ©, hein.",
-        stop_guardian: "L'Ange Gardien s'arrÃªte. Sois prudent, hein.",
+          "L'Ange Gardien est là pour toi. C'est sécurisé, hein.",
+        stop_guardian: "L'Ange Gardien s'arrête. Sois prudent, hein.",
         danger_overtake:
-          "Dis, ton dÃ©passement Ã©tait un peu dangereux, hein !",
+          "Dis, ton dépassement était un peu dangereux, hein !",
       },
       andalucia: {
-        start: "Â¡Ole! L'Oracle est prÃªt, mon ami. On y va !",
-        speed: "Eh, l'ami ! Tu vas trop vite, doucement sur l'accÃ©lÃ©rateur.",
+        start: "Â¡Ole! L'Oracle est prêt, mon ami. On y va !",
+        speed: "Eh, l'ami ! Tu vas trop vite, doucement sur l'accélérateur.",
         threat_detected: "Attention, y'a du jaleo sur la route devant.",
-        level_up: "Â¡QuÃ© arte! Tu as montÃ© de niveau, bravo !",
+        level_up: "Â¡Qué arte! Tu as monté de niveau, bravo !",
         start_guardian: "L'Ange Gardien est avec toi, l'ami.",
         stop_guardian: "L'Ange Gardien fait une petite sieste, sois prudent.",
         danger_overtake:
-          "Eh ! Ce dÃ©passement Ã©tait un peu trop risquÃ©, mi arma !",
+          "Eh ! Ce dépassement était un peu trop risqué, mi arma !",
       },
       reunion: {
-        start: "LÃ© parÃ© ! L'Oracle est en place, dalon. Allons rouler !",
-        speed: "OtÃ© ! Tu vas trop vite, calme un peu lÃ  !",
+        start: "Lé paré ! L'Oracle est en place, dalon. Allons rouler !",
+        speed: "Oté ! Tu vas trop vite, calme un peu là !",
         threat_detected:
           "Gaffe dalon, y'a un l'embouteillage ou un souci devant.",
-        level_up: "LÃ© bon Ã§a ! T'as montÃ© de niveau, fÃ©licitations !",
-        start_guardian: "L'Ange Gardien lÃ© lÃ , t'inquiÃ¨te pas dalon.",
+        level_up: "Lé bon ça ! T'as monté de niveau, félicitations !",
+        start_guardian: "L'Ange Gardien lé là, t'inquiète pas dalon.",
         stop_guardian: "L'Ange Gardien va prendre un petit rhum, sois prudent.",
         danger_overtake:
-          "OtÃ© ! Ton dÃ©passement lÃ , c'Ã©tait risquÃ© dalon !",
+          "Oté ! Ton dépassement là, c'était risqué dalon !",
       },
     },
     zh: {
@@ -4439,7 +4449,7 @@ window.OracleEngine = {
         start: "Â¡Ole! El OrÃ¡culo estÃ¡ listo, mi arma. Â¡VÃ¡monos!",
         speed: "Â¡Eh, chiquillo! Vas mu' rÃ¡pido, frena un poco.",
         threat_detected: "Cuidao, que hay un jaleo ahÃ­ delante.",
-        level_up: "Â¡QuÃ© arte tienes! Has subido de nivel.",
+        level_up: "Â¡Qué arte tienes! Has subido de nivel.",
         start_guardian: "El Ãngel de la Guarda estÃ¡ contigo, mi arma.",
         stop_guardian: "El Ãngel se va a echar una siestecita, ten cuidao.",
         danger_overtake:
@@ -4471,10 +4481,10 @@ window.OracleEngine = {
     it: {
       standard: {
         start: "Sistema pronto. Connessione stabilita.",
-        speed: "Allerta: VelocitÃ  eccessiva. Rallenta immediatamente.",
+        speed: "Allerta: Velocità eccessiva. Rallenta immediatamente.",
         threat_detected:
           "ANALISI: Minaccia identificata. Prudenza consigliata.",
-        level_up: "Congratulazioni Pilota. La tua esperienza Ã¨ aumentata.",
+        level_up: "Congratulazioni Pilota. La tua esperienza è aumentata.",
         start_guardian: "Angelo Custode attivato. Monitoraggio in corso.",
         stop_guardian: "Angelo Custode disattivato. Fine monitoraggio.",
         danger_overtake: "ATTENZIONE: SORPASSO PERICOLOSO RILEVATO.",
@@ -4485,8 +4495,8 @@ window.OracleEngine = {
         start: "System bereit. Verbindung hergestellt.",
         speed: "Warnung: Zu hohe Geschwindigkeit. Bitte sofort abbremsen.",
         threat_detected: "ANALYSE: Gefahr erkannt. Vorsicht geboten.",
-        level_up: "GlÃ¼ckwunsch Pilot. Deine Erfahrung ist gestiegen.",
-        start_guardian: "Schutzengel aktiviert. Ãœberwachung lÃ¤uft.",
+        level_up: "Glückwunsch Pilot. Deine Erfahrung ist gestiegen.",
+        start_guardian: "Schutzengel aktiviert. Ãœberwachung läuft.",
         stop_guardian: "Schutzengel deaktiviert. Ende der Ãœberwachung.",
         danger_overtake: "WARNUNG: GEFÃ„HRLICHES ÃœBERHOLMANÃ–VER ERKANNT.",
       },
@@ -4495,10 +4505,10 @@ window.OracleEngine = {
       standard: {
         start: "Sistema pronto. ConexÃ£o estabelecida.",
         speed: "Alerta: Velocidade excessiva. Reduza imediatamente.",
-        threat_detected: "ANÃLISE: AmeaÃ§a identificada. Cuidado aconselhado.",
-        level_up: "ParabÃ©ns Piloto. A sua experiÃªncia aumentou.",
-        start_guardian: "Anjo da Guarda ativado. MonitorizaÃ§Ã£o em curso.",
-        stop_guardian: "Anjo da Guarda desativado. Fim da monitorizaÃ§Ã£o.",
+        threat_detected: "ANÃLISE: Ameaça identificada. Cuidado aconselhado.",
+        level_up: "Parabéns Piloto. A sua experiência aumentou.",
+        start_guardian: "Anjo da Guarda ativado. MonitorizaçÃ£o em curso.",
+        stop_guardian: "Anjo da Guarda desativado. Fim da monitorizaçÃ£o.",
         danger_overtake: "AVISO: ULTRAPASSAGEM PERIGOSA DETETADA.",
       },
     },
@@ -4508,7 +4518,7 @@ window.OracleEngine = {
         speed:
           "Waarschuwing: Te hoge snelheid. Gelieve onmiddellijk te vertragen.",
         threat_detected:
-          "ANALYSE: Dreiging geÃ¯dentificeerd. Voorzichtigheid geboden.",
+          "ANALYSE: Dreiging geïdentificeerd. Voorzichtigheid geboden.",
         level_up: "Gefeliciteerd Piloot. Uw ervaring is toegenomen.",
         start_guardian: "Beschermengel geactiveerd. Monitoring gestart.",
         stop_guardian: "Beschermengel gedeactiveerd. Einde monitoring.",
@@ -4529,47 +4539,47 @@ window.OracleEngine = {
     },
     sv: {
       standard: {
-        start: "Systemet Ã¤r klart. Anslutning upprÃ¤ttad.",
-        speed: "Varning: FÃ¶r hÃ¶g hastighet. SÃ¤nk farten omedelbart.",
-        threat_detected: "ANALYS: Hot identifierat. Var fÃ¶rsiktig.",
-        level_up: "Grattis Pilot. Din erfarenhet har Ã¶kat.",
-        start_guardian: "SkyddsÃ¤ngel aktiverad. Ã–vervakning pÃ¥gÃ¥r.",
-        stop_guardian: "SkyddsÃ¤ngel inaktiverad. Slut pÃ¥ Ã¶vervakning.",
+        start: "Systemet är klart. Anslutning upprättad.",
+        speed: "Varning: För hög hastighet. Sänk farten omedelbart.",
+        threat_detected: "ANALYS: Hot identifierat. Var försiktig.",
+        level_up: "Grattis Pilot. Din erfarenhet har ökat.",
+        start_guardian: "Skyddsängel aktiverad. Ã–vervakning pågår.",
+        stop_guardian: "Skyddsängel inaktiverad. Slut på övervakning.",
         danger_overtake: "VARNING: FARLIG OMKÃ–RNING UPPTÃ„CKT.",
       },
     },
     da: {
       standard: {
         start: "Systemet er klar. Forbindelse oprettet.",
-        speed: "Advarsel: For hÃ¸j hastighed. SÃ¦t farten ned med det samme.",
+        speed: "Advarsel: For høj hastighed. Sæt farten ned med det samme.",
         threat_detected:
-          "ANALYSE: Trussel identificeret. Forsigtighed tilrÃ¥des.",
-        level_up: "Tillykke Pilot. Din erfarenhet er Ã¸get.",
-        start_guardian: "Skytsengel aktiveret. OvervÃ¥gning i gang.",
-        stop_guardian: "Skytsengel deaktiveret. Slut pÃ¥ overvÃ¥gning.",
+          "ANALYSE: Trussel identificeret. Forsigtighed tilrådes.",
+        level_up: "Tillykke Pilot. Din erfarenhet er øget.",
+        start_guardian: "Skytsengel aktiveret. Overvågning i gang.",
+        stop_guardian: "Skytsengel deaktiveret. Slut på overvågning.",
         danger_overtake: "ADVARSEL: FARLIG OVERHALING REGISTRERET.",
       },
     },
     fi: {
       standard: {
-        start: "JÃ¤rjestelmÃ¤ valmis. Yhteys muodostettu.",
-        speed: "HÃ¤lytys: Liian suuri nopeus. Hidasta vÃ¤littÃ¶mÃ¤sti.",
+        start: "Järjestelmä valmis. Yhteys muodostettu.",
+        speed: "Hälytys: Liian suuri nopeus. Hidasta välittömästi.",
         threat_detected: "ANALYYSI: Uhka tunnistettu. Noudata varovaisuutta.",
         level_up: "Onnea Pilotti. Kokemuksesi on kasvanut.",
-        start_guardian: "Suojelusenkeli aktivoitu. Valvonta kÃ¤ynnissÃ¤.",
-        stop_guardian: "Suojelusenkeli deaktivoitu. Valvonta pÃ¤Ã¤ttynyt.",
+        start_guardian: "Suojelusenkeli aktivoitu. Valvonta käynnissä.",
+        stop_guardian: "Suojelusenkeli deaktivoitu. Valvonta päättynyt.",
         danger_overtake: "VAROITUS: VAARALLINEN OHITUS HAVAITTU.",
       },
     },
     no: {
       standard: {
         start: "Systemet er klart. Tilkobling opprettet.",
-        speed: "Advarsel: For hÃ¸y hastighet. Sakt ned umiddelbart.",
+        speed: "Advarsel: For høy hastighet. Sakt ned umiddelbart.",
         threat_detected:
           "ANALYSE: Trussel identifisert. Forsiktighet anbefales.",
-        level_up: "Gratulerer Pilot. Din erfaring har Ã¸kt.",
-        start_guardian: "Skytsengel aktivert. OvervÃ¥king pÃ¥gÃ¥r.",
-        stop_guardian: "Skytsengel deaktivert. Slut pÃ¥ overvÃ¥king.",
+        level_up: "Gratulerer Pilot. Din erfaring har økt.",
+        start_guardian: "Skytsengel aktivert. Overvåking pågår.",
+        stop_guardian: "Skytsengel deaktivert. Slut på overvåking.",
         danger_overtake: "ADVARSEL: FARLIG FORBIKJÃ˜RING OPPDAGET.",
       },
     },
@@ -4593,26 +4603,26 @@ window.OracleEngine = {
     },
     cs: {
       standard: {
-        start: "SystÃ©m pÅ™ipraven. PÅ™ipojenÃ­ navÃ¡zÃ¡no.",
+        start: "Systém pÅ™ipraven. PÅ™ipojenÃ­ navÃ¡zÃ¡no.",
         speed: "UpozornÄ›nÃ­: NadmÄ›rnÃ¡ rychlost. OkamÅ¾itÄ› zpomalte.",
         threat_detected:
           "ANALÃZA: IdentifikovÃ¡na hrozba. DoporuÄuje se opatrnost.",
         level_up: "Gratulujeme Pilote. VaÅ¡e zkuÅ¡enosti se zvÃ½Å¡ily.",
         start_guardian: "AndÄ›l strÃ¡Å¾nÃ½ aktivovÃ¡n. SledovÃ¡nÃ­ probÃ­hÃ¡.",
         stop_guardian: "AndÄ›l strÃ¡Å¾nÃ½ deaktivovÃ¡n. Konec sledovÃ¡nÃ­.",
-        danger_overtake: "VAROVÃNÃ: ZJIÅ TÄšNO NEBEZPEÄŒNÃ‰ PÅ˜EDBÃHÃNÃ.",
+        danger_overtake: "VAROVÃNÃ: ZJIÅ TÄšNO NEBEZPEÄŒNÉ PÅ˜EDBÃHÃNÃ.",
       },
     },
     hu: {
       standard: {
-        start: "Rendszer kÃ©sz. Kapcsolat lÃ©trejÃ¶tt.",
-        speed: "RiasztÃ¡s: TÃºl nagy sebessÃ©g. Azonnal lassÃ­tson.",
+        start: "Rendszer kész. Kapcsolat létrejött.",
+        speed: "RiasztÃ¡s: TÃºl nagy sebesség. Azonnal lassÃ­tson.",
         threat_detected:
-          "ELEMZÃ‰S: FenyegetÃ©s azonosÃ­tva. Ã“vatossÃ¡g ajÃ¡nlott.",
+          "ELEMZÉS: Fenyegetés azonosÃ­tva. Ã“vatossÃ¡g ajÃ¡nlott.",
         level_up: "GratulÃ¡lunk PilÃ³ta. Tapasztalata nÅ‘tt.",
-        start_guardian: "Årangyal aktivÃ¡lva. MegfigyelÃ©s folyamatban.",
-        stop_guardian: "Årangyal deaktivÃ¡lva. MegfigyelÃ©s vÃ©ge.",
-        danger_overtake: "FIGYELEM: VESZÃ‰LYES ELÅZÃ‰S Ã‰SZLELVE.",
+        start_guardian: "Årangyal aktivÃ¡lva. Megfigyelés folyamatban.",
+        stop_guardian: "Årangyal deaktivÃ¡lva. Megfigyelés vége.",
+        danger_overtake: "FIGYELEM: VESZÉLYES ELÅZÉS ÉSZLELVE.",
       },
     },
     ro: {
@@ -4622,16 +4632,16 @@ window.OracleEngine = {
         threat_detected:
           "ANALIZÄ‚: AmeninÈ›are identificatÄƒ. Se recomandÄƒ prudenÈ›Äƒ.",
         level_up: "FelicitÄƒri Pilotule. ExperienÈ›a ta a crescut.",
-        start_guardian: "ÃŽnger PÄƒzitor activat. Monitorizare Ã®n curs.",
+        start_guardian: "ÃŽnger PÄƒzitor activat. Monitorizare în curs.",
         stop_guardian:
-          "ÃŽnger PÄƒzitor dezactivat. SfÃ¢rÈ™itul monitorizÄƒrii.",
+          "ÃŽnger PÄƒzitor dezactivat. SfârÈ™itul monitorizÄƒrii.",
         danger_overtake: "ATENÈšIE: DEPÄ‚È˜IRE PERICULOASÄ‚ DETECTATÄ‚.",
       },
     },
   },
 
   updateRegion: function (lat, lng) {
-    // Ne pas Ã©craser la rÃ©gion si triggerRegionalWelcome (Nominatim) l'a dÃ©jÃ  dÃ©finie
+    // Ne pas écraser la région si triggerRegionalWelcome (Nominatim) l'a déjà définie
     if (this._regionSetByNominatim) return;
 
     if (lat > 43.1 && lat < 43.4 && lng > 5.2 && lng < 5.6)
@@ -4728,20 +4738,20 @@ async function speak(phraseKey) {
 
   utterance.lang = navigator.language;
 
-  // Voice Modes (MarchÃ© Noir BVC)
+  // Voice Modes (Marché Noir BVC)
   let rate = 0.95;
   let pitch =
     window.OracleEngine && window.OracleEngine.gender === "female" ? 1.05 : 0.9;
 
   const voiceMode = localStorage.getItem("jarvisVoiceMode") || "standard";
 
-  // Simulation d'accents rÃ©gionaux (pitch/rate)
+  // Simulation d'accents régionaux (pitch/rate)
   if (region && region !== "standard" && voiceMode === "standard") {
     switch (region) {
-      // SystÃ¨me A â€” RÃ©gions administratives (Nominatim)
-      case "provence-alpes-cÃ´te d'azur":
+      // Système A â€” Régions administratives (Nominatim)
+      case "provence-alpes-côte d'azur":
       case "occitanie":
-      // SystÃ¨me B â€” Villes/zones (GPS)
+      // Système B â€” Villes/zones (GPS)
       case "marseille":
       case "reunion":
         rate = 0.85;
@@ -4753,27 +4763,27 @@ async function speak(phraseKey) {
         rate = 1.1;
         pitch = pitch * 0.85; // Nord : plus rapide, un peu plus grave
         break;
-      case "Ã®le-de-france":
+      case "île-de-france":
       case "brussels":
         rate = 1.15; // Paris/Bruxelles : parle vite
         break;
-      case "auvergne-rhÃ´ne-alpes":
+      case "auvergne-rhône-alpes":
         rate = 0.88;
-        pitch = pitch * 0.95; // RhÃ´ne-Alpes : posÃ©, calme
+        pitch = pitch * 0.95; // Rhône-Alpes : posé, calme
         break;
       case "bretagne":
       case "normandie":
         pitch = pitch * 1.1; // Ouest
         break;
       case "grand est":
-      case "bourgogne-franche-comtÃ©":
+      case "bourgogne-franche-comté":
       case "flanders":
         rate = 0.92;
         pitch = pitch * 1.05;
         break;
       case "quebec":
         rate = 0.9;
-        pitch = pitch * 1.15; // QuÃ©bÃ©cois : chantant, plus lent
+        pitch = pitch * 1.15; // Québécois : chantant, plus lent
         break;
       case "andalucia":
         rate = 1.05;
@@ -4810,7 +4820,7 @@ function checkNightMode() {
   if (isNight && !nightModeActive) {
     document.body.classList.add("night-theme");
     nightModeActive = true;
-    speak("Mode nuit activÃ©.");
+    speak("Mode nuit activé.");
   } else if (!isNight && nightModeActive) {
     document.body.classList.remove("night-theme");
     nightModeActive = false;
@@ -4821,7 +4831,7 @@ function checkNightMode() {
 document.addEventListener(
   "deviceready",
   () => {
-    // Si le plugin de background-mode est installÃ© (Cordova/Capacitor)
+    // Si le plugin de background-mode est installé (Cordova/Capacitor)
     if (window.cordova && cordova.plugins && cordova.plugins.backgroundMode) {
       cordova.plugins.backgroundMode.enable();
       cordova.plugins.backgroundMode.on("activate", function () {
@@ -4861,7 +4871,7 @@ window.addEventListener("deviceorientation", (e) => {
 
   if (leanMeter && currentLeanAngle > 5) {
     leanMeter.classList.remove("hidden");
-    leanVal.textContent = `${currentLeanAngle}Â°`;
+    leanVal.textContent = `${currentLeanAngle}°`;
 
     if (lean < 0) {
       fillL.style.width = `${Math.min(currentLeanAngle * 2, 100)}%`;
@@ -4894,17 +4904,17 @@ let currentRouteMarkers = [];
 
 async function calculateRouteSansAutoroute(start, end) {
   if (!start || !end) {
-    console.error("mon50cc Maps : Points de dÃ©part ou d'arrivÃ©e invalides.", {
+    console.error("mon50cc Maps : Points de départ ou d'arrivée invalides.", {
       start,
       end,
     });
-    if (!start) speak("Signal GPS insuffisant pour dÃ©marrer l'itinÃ©raire.");
+    if (!start) speak("Signal GPS insuffisant pour démarrer l'itinéraire.");
     return;
   }
 
   window.currentRouteDestination = end; // Store for GO button
 
-  // Nettoyage des tracÃ©s prÃ©cÃ©dents
+  // Nettoyage des tracés précédents
   currentRoutePolylines.forEach((p) => p.setMap(null));
   currentRoutePolylines = [];
   currentRouteMarkers.forEach((m) => m.setMap(null));
@@ -4955,16 +4965,16 @@ async function calculateRouteSansAutoroute(start, end) {
 
       // --- AJUSTEMENT 50cc ---
       durationSec = Math.round(durationSec * 1.2); // +20% pour scooter 50cc en ville
-      const maxSpeedMs = 32 / 3.6; // Vitesse moyenne rÃ©aliste pour un 50cc (32 km/h) avec les arrÃªts
+      const maxSpeedMs = 32 / 3.6; // Vitesse moyenne réaliste pour un 50cc (32 km/h) avec les arrêts
       const googleSpeedMs = distanceMeters / durationSec;
       if (googleSpeedMs > maxSpeedMs) {
         durationSec = Math.round(distanceMeters / maxSpeedMs);
         if (window.Telemetry)
-          window.Telemetry.addLog("INFO", `ETA ajustÃ© pour 50cc.`);
+          window.Telemetry.addLog("INFO", `ETA ajusté pour 50cc.`);
       }
 
       const destNameLegacy =
-        document.getElementById("route-search").value || "ITINÃ‰RAIRE 50CC";
+        document.getElementById("route-search").value || "ITINÉRAIRE 50CC";
       const titleElLegacy = document.querySelector(".route-title");
       if (titleElLegacy)
         titleElLegacy.textContent = destNameLegacy.toUpperCase();
@@ -5006,13 +5016,13 @@ async function calculateRouteSansAutoroute(start, end) {
         setTimeout(() => {
           if (typeof speak === "function") {
             speak(
-              "Guidage interne dÃ©marrÃ©. Dans " +
+              "Guidage interne démarré. Dans " +
                 nextStep.distance.text +
                 ", " +
                 instructionText,
             );
           }
-        }, 6000); // DÃ©calÃ© de 6 secondes pour laisser Jarvis annoncer l'ETA en premier
+        }, 6000); // Décalé de 6 secondes pour laisser Jarvis annoncer l'ETA en premier
       }
 
       let durationTextStr;
@@ -5031,7 +5041,7 @@ async function calculateRouteSansAutoroute(start, end) {
         etaEl.textContent = arrivalTime;
       }
 
-      // DÃ©tection ferry (Legacy)
+      // Détection ferry (Legacy)
       window.routeFerries = leg.steps.filter(
         (s) =>
           s.instructions.toLowerCase().includes("ferry") ||
@@ -5060,7 +5070,7 @@ async function calculateRouteSansAutoroute(start, end) {
         ),
       );
 
-      // SAFE RIDE : VÃ©rification MÃ©tÃ©o
+      // SAFE RIDE : Vérification Météo
       if (window.SafeRide) {
         const destLat = typeof end.lat === "function" ? end.lat() : end.lat;
         const destLng = typeof end.lng === "function" ? end.lng() : end.lng;
@@ -5071,7 +5081,7 @@ async function calculateRouteSansAutoroute(start, end) {
               setTimeout(() => {
                 if (typeof speak === "function") {
                   speak(
-                    `Alerte Safe Ride : ${issuesStr} sur votre itinÃ©raire. Ã‰quipez-vous et soyez trÃ¨s prudent avant de prendre la route.`,
+                    `Alerte Safe Ride : ${issuesStr} sur votre itinéraire. Équipez-vous et soyez très prudent avant de prendre la route.`,
                   );
                 }
               }, 9000);
@@ -5082,8 +5092,8 @@ async function calculateRouteSansAutoroute(start, end) {
                 const newTotalMins = Math.floor(newDurationSec / 60);
                 timeEl.textContent =
                   newTotalMins >= 60
-                    ? `${Math.floor(newTotalMins / 60)} h ${newTotalMins % 60} min (MÃ©tÃ©o)`
-                    : `${newTotalMins} min (MÃ©tÃ©o)`;
+                    ? `${Math.floor(newTotalMins / 60)} h ${newTotalMins % 60} min (Météo)`
+                    : `${newTotalMins} min (Météo)`;
                 timeEl.style.color = "#ff4d4d"; // Rouge danger
 
                 const newArrivalTime = new Date(
@@ -5114,10 +5124,10 @@ async function calculateRouteSansAutoroute(start, end) {
       });
       currentRouteMarkers.push(destinationMarker);
     } else if (status === "ZERO_RESULTS") {
-      speak("Aucun itinÃ©raire trouvÃ© vers cette destination.");
+      speak("Aucun itinéraire trouvé vers cette destination.");
     } else {
       console.error("Routage impossible: " + status);
-      speak("Erreur de calcul d'itinÃ©raire.");
+      speak("Erreur de calcul d'itinéraire.");
     }
   });
 }
@@ -5189,7 +5199,7 @@ window.searchDestination = function () {
           }
         });
       } else {
-        speak("Lieu de dÃ©part introuvable.");
+        speak("Lieu de départ introuvable.");
       }
     });
     return;
@@ -5198,7 +5208,7 @@ window.searchDestination = function () {
   // SINON GPS CLASSIQUE
   if (!currentPosition) {
     speak(
-      "Recherche de votre position GPS. L'itinÃ©raire dÃ©marrera automatiquement dÃ¨s que possible.",
+      "Recherche de votre position GPS. L'itinéraire démarrera automatiquement dès que possible.",
     );
     window.pendingDestinationName = query;
     return;
@@ -5259,7 +5269,7 @@ window.saveHazard = function (type, description = "") {
       (window.session.bannedUntil - Date.now()) / 60000,
     );
     alert(
-      `ðŸš¨ Action Interdite : Votre compte est suspendu pour faux signalements rÃ©pÃ©tÃ©s. Fin de la sanction dans ${remaining} minutes.`,
+      `🚨 Action Interdite : Votre compte est suspendu pour faux signalements répétés. Fin de la sanction dans ${remaining} minutes.`,
     );
     return;
   }
@@ -5278,18 +5288,18 @@ window.saveHazard = function (type, description = "") {
   dbLocal.push(h);
   secureSetItem("hazards", JSON.stringify(dbLocal));
 
-  // 2. Publication Cloud (Temps rÃ©el pour la communautÃ©)
+  // 2. Publication Cloud (Temps réel pour la communauté)
   if (typeof publishHazardCloud === "function") {
     publishHazardCloud(h).then((success) => {});
   }
 
-  alert(`Signalement: ${escapeHTML(type)} enregistrÃ© ! Merci Ã  vous.`);
+  alert(`Signalement: ${escapeHTML(type)} enregistré ! Merci à vous.`);
 
   // GAMIFICATION: +50 XP pour le signalement communautaire
   if (typeof window.updateXP === "function") {
     window.updateXP(5); // +50 XP (updateXP multiplie par 10)
     if (typeof speak === "function")
-      speak("Signalement validÃ©. Vous gagnez de l'expÃ©rience.");
+      speak("Signalement validé. Vous gagnez de l'expérience.");
   }
 
   toggleHazardMenu();
@@ -5302,7 +5312,7 @@ function loadHazards() {
   const raw = secureGetItem("hazards");
   let hazards = raw ? JSON.parse(raw) : [];
 
-  // Filtrage Ã©phÃ©mÃ¨re Animaux (> 30 mins = expirÃ©)
+  // Filtrage éphémère Animaux (> 30 mins = expiré)
   hazards = hazards.filter((h) => {
     if ((h.type === "animal" || h.type === "chien") && h.date) {
       const ageMins = (Date.now() - new Date(h.date).getTime()) / 60000;
@@ -5318,10 +5328,10 @@ function loadHazards() {
   if (listContainer) {
     if (hazards.length === 0) {
       listContainer.innerHTML =
-        '<p style="font-size:0.8rem; color:#666; text-align:center; padding:10px;">Aucun danger signalÃ©.</p>';
+        '<p style="font-size:0.8rem; color:#666; text-align:center; padding:10px;">Aucun danger signalé.</p>';
     } else {
       listContainer.innerHTML = "";
-      hazards.reverse(); // Voir les plus rÃ©cents en premier dans la liste
+      hazards.reverse(); // Voir les plus récents en premier dans la liste
     }
   }
 
@@ -5330,7 +5340,7 @@ function loadHazards() {
     const hColor =
       h.type === "Police"
         ? "#00d2ff"
-        : h.type === "Route DÃ©gradÃ©e"
+        : h.type === "Route Dégradée"
           ? "#f1c40f"
           : isAnimal
             ? "#e67e22"
@@ -5353,7 +5363,7 @@ function loadHazards() {
     marker.addListener("click", () => info.open(map, marker));
     hazardMarkers.push(marker);
 
-    // Ajout Ã  la liste sidebar
+    // Ajout à la liste sidebar
     if (listContainer && index < 5) {
       // On affiche les 5 derniers max
       const div = document.createElement("div");
@@ -5381,7 +5391,7 @@ const poiConfig = {
   },
   doctors: {
     icon: "fa-briefcase-medical",
-    label: "SantÃ© & Pharmacie",
+    label: "Santé & Pharmacie",
     color: "#e74c3c",
     radius: 3000,
   },
@@ -5487,7 +5497,7 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
         const coords = record.geometry.coordinates;
         const stationId = record.recordid;
 
-        // Masquer si blacklistÃ©e
+        // Masquer si blacklistée
         if (blacklist.includes(stationId)) {
           return;
         }
@@ -5501,7 +5511,7 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
             if (p["@nom"] === "Gazole") return;
 
             pricesHtml += `<div style="display:flex; justify-content:space-between; gap:10px;">
-                            <strong>${p["@nom"]}</strong> <span>${parseFloat(p["@valeur"]).toFixed(3)}â‚¬</span>
+                            <strong>${p["@nom"]}</strong> <span>${parseFloat(p["@valeur"]).toFixed(3)}€</span>
                         </div>`;
           });
         } catch (e) {
@@ -5534,7 +5544,7 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
           : `
                     <button onclick="triggerPhotoReport('${stationId}', '${fields.vile || fields.adresse}')" 
                         style="width:100%; margin-top:5px; background:#ff4d4d; color:white; border:none; padding:5px; border-radius:5px; font-size:0.7rem; cursor:pointer;">
-                        ðŸš¨ Signaler Abus Prix (+Photo)
+                        🚨 Signaler Abus Prix (+Photo)
                     </button>`;
 
         const info = new google.maps.InfoWindow({
@@ -5553,7 +5563,7 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
     }
   } catch (e) {
     console.error("Gov API fail", e);
-    alert("Erreur lors de la rÃ©cupÃ©ration des prix.");
+    alert("Erreur lors de la récupération des prix.");
   } finally {
     btn.innerHTML = oldHtml;
   }
@@ -5589,11 +5599,11 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
             : null;
         const isPro = (internalInfo?.count || 0) >= 1000;
         const proBadge = isPro
-          ? `<div style="background:#ffd700; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-trophy"></i> BADGE PRO CERTIFIÃ‰</div>`
+          ? `<div style="background:#ffd700; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-trophy"></i> BADGE PRO CERTIFIÉ</div>`
           : "";
         const qualityBadge =
           place.rating > 3.9
-            ? `<div style="background:#f1c40f; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-certificate"></i> QUALITÃ‰ CERTIFIÃ‰E (>3.9)</div>`
+            ? `<div style="background:#f1c40f; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-certificate"></i> QUALITÉ CERTIFIÉE (>3.9)</div>`
             : "";
         const communityRating = internalInfo
           ? `<div style="font-size:0.7rem; color:#00d2ff; margin-top:3px;">Label Scooter : â­ ${internalInfo.avgRating}/5 (${internalInfo.count} avis)</div>`
@@ -5613,7 +5623,7 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
           },
         });
 
-        // Ã‰toiles de notation
+        // Étoiles de notation
         const isGuest = !window.session || window.session.isGuest;
         const safePlaceName = (place.name || "")
           .replace(/\\/g, "\\\\")
@@ -5624,7 +5634,7 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
         const starBtns = isGuest
           ? ""
           : `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:5px;">
-                    <small>Ã‰valuer ce garage :</small><br>
+                    <small>Évaluer ce garage :</small><br>
                     <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 1)">â­</span>
                     <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 2)">â­</span>
                     <span style="font-size:1.2rem; cursor:pointer;" onclick="evaluateGarage('${place.place_id}', '${safePlaceName}', 3)">â­</span>
@@ -5646,9 +5656,9 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
         marker.addListener("click", () => info.open(map, marker));
         officialPoiMarkers.push(marker);
       });
-      alert(`${filtered.length} garages certifiÃ©s (Note > 3.3) trouvÃ©s.`);
+      alert(`${filtered.length} garages certifiés (Note > 3.3) trouvés.`);
     } else {
-      alert("Aucun garage trouvÃ© dans cette zone.");
+      alert("Aucun garage trouvé dans cette zone.");
     }
   });
 }
@@ -5661,7 +5671,7 @@ window.triggerPhotoReport = function (id, name) {
     // Notification
     alert("Traitement de la preuve photo en cours...");
 
-    // Lecture en base64 pour le stockage Firestore (ou upload Storage si configurÃ©)
+    // Lecture en base64 pour le stockage Firestore (ou upload Storage si configuré)
     const reader = new FileReader();
     reader.onload = async (event) => {
       const photoData = event.target.result;
@@ -5700,7 +5710,7 @@ function renderPoiMarkers(elements, config) {
       officialPoiMarkers.push(marker);
     });
   }
-  alert(`${elements?.length || 0} rÃ©sultat(s) trouvÃ©s.`);
+  alert(`${elements?.length || 0} résultat(s) trouvés.`);
 }
 
 // --- 6. SIMULATIONS ET CHRONO ---
@@ -5803,7 +5813,7 @@ window.MapSystem.updateTerritoryLayer = function (zipCode, data) {
 
   const color = data.color || "#ffffff";
 
-  // Si on l'a dÃ©jÃ  dessinÃ©, on met juste Ã  jour la couleur
+  // Si on l'a déjà dessiné, on met juste à jour la couleur
   if (this.territoryShapes[zipCode]) {
     this.territoryShapes[zipCode].setOptions({
       fillColor: color,
@@ -5812,12 +5822,12 @@ window.MapSystem.updateTerritoryLayer = function (zipCode, data) {
     return;
   }
 
-  // Sinon on tente de gÃ©ocoder le code postal pour trouver le centre de la zone (en France)
+  // Sinon on tente de géocoder le code postal pour trouver le centre de la zone (en France)
   if (typeof geocoder !== "undefined" && geocoder) {
     geocoder.geocode({ address: zipCode + " France" }, (res, status) => {
       if (status === "OK" && res[0]) {
         const center = res[0].geometry.location;
-        // Dessiner un grand cercle pour reprÃ©senter le territoire
+        // Dessiner un grand cercle pour représenter le territoire
         const circle = new google.maps.Circle({
           strokeColor: color,
           strokeOpacity: 0.8,
@@ -5833,7 +5843,7 @@ window.MapSystem.updateTerritoryLayer = function (zipCode, data) {
         const info = new google.maps.InfoWindow({
           content: `<div style="color:black; font-family:'Outfit', sans-serif;">
                                 <h3 style="margin:0; color:${color};"><i class="fa-solid fa-flag"></i> Secteur ${zipCode}</h3>
-                                <p style="margin:5px 0;">DominÃ© par: <b>${data.dominantCrewName || "Inconnu"}</b></p>
+                                <p style="margin:5px 0;">Dominé par: <b>${data.dominantCrewName || "Inconnu"}</b></p>
                               </div>`,
         });
 
@@ -5862,7 +5872,7 @@ setInterval(() => {
           c.types.includes("postal_code"),
         );
         if (zipComp && window.CrewSystem && window.CrewSystem.currentCrew) {
-          window.CrewSystem.addKmToTerritory(zipComp.short_name, 0.5); // +0.5 km simulÃ©s
+          window.CrewSystem.addKmToTerritory(zipComp.short_name, 0.5); // +0.5 km simulés
         }
       }
     });
@@ -5871,7 +5881,7 @@ setInterval(() => {
 
 
 /* --- app-features.js --- */
-﻿// Fallback if loaded before auth.js/database.js
+// Fallback if loaded before auth.js/database.js
 if (typeof window.secureGetItem === "undefined") {
   window.secureGetItem = function (key) {
     try {
@@ -5891,7 +5901,7 @@ if (typeof secureGetItem === "undefined") {
   var secureSetItem = window.secureSetItem;
 }
 
-// --- 7. SERVICES (MÃ©tÃ©o, Boussole, Garage) ---
+// --- 7. SERVICES (Météo, Boussole, Garage) ---
 window.fetchWeather = async function (lat, lon) {
   try {
     const res = await fetch(
@@ -5907,30 +5917,30 @@ window.fetchWeather = async function (lat, lon) {
     const wind = data.current_weather.windspeed;
     window.isVigilanceRouge = false; // Reset
 
-    // DÃ©tection mondiale Vigilance Rouge (Canicule ou TempÃªte)
+    // Détection mondiale Vigilance Rouge (Canicule ou Tempête)
     if (temp >= 38 || wind >= 70 || code === 99 || code === 77) {
       window.isVigilanceRouge = true;
       alertMsg =
-        "VIGILANCE ROUGE DÃ‰TECTÃ‰E : Conditions mÃ©tÃ©orologiques extrÃªmes.";
+        "VIGILANCE ROUGE DÉTECTÉE : Conditions météorologiques extrêmes.";
       icon =
         '<i class="fa-solid fa-triangle-exclamation" style="color:#ff0000; animation: flash 1s infinite;"></i>';
       const banner = document.getElementById("vigilance-rouge-banner");
       const textEl = document.getElementById("vigilance-rouge-text");
       if (banner && textEl) {
-        textEl.innerHTML = `ðŸš¨ <strong>VIGILANCE ROUGE (MONDIALE) :</strong> TempÃ©rature ${temp}Â°C, Vent ${wind}km/h. Soyez extrÃªmement prudents !`;
+        textEl.innerHTML = `🚨 <strong>VIGILANCE ROUGE (MONDIALE) :</strong> Température ${temp}°C, Vent ${wind}km/h. Soyez extrêmement prudents !`;
         banner.style.display = "block";
       }
     }
 
     if (!window.isVigilanceRouge) {
       if (code >= 95) {
-        alertMsg = "Alerte Orage : Prudence maximale conseillÃ©e.";
+        alertMsg = "Alerte Orage : Prudence maximale conseillée.";
         icon = '<i class="fa-solid fa-cloud-bolt" style="color:#f1c40f;"></i>';
       } else if (code >= 80) {
-        alertMsg = "Averses dÃ©tectÃ©es : Route potentiellement glissante.";
+        alertMsg = "Averses détectées : Route potentiellement glissante.";
         icon = '<i class="fa-solid fa-cloud-showers-heavy"></i>';
       } else if (code >= 61) {
-        alertMsg = "Pluie signalÃ©e par satellite. Ã‰quipez-vous.";
+        alertMsg = "Pluie signalée par satellite. Équipez-vous.";
         icon = '<i class="fa-solid fa-cloud-rain"></i>';
       } else if (code >= 71) {
         alertMsg = "Alerte Neige : Conditions de circulation difficiles.";
@@ -5940,7 +5950,7 @@ window.fetchWeather = async function (lat, lon) {
 
     const wHud = document.getElementById("weather-hud");
     if (wHud) {
-      wHud.innerHTML = `${icon} ${temp}Â°C`;
+      wHud.innerHTML = `${icon} ${temp}°C`;
       if (alertMsg) wHud.classList.add("weather-alert");
       else wHud.classList.remove("weather-alert");
     }
@@ -5951,7 +5961,7 @@ window.fetchWeather = async function (lat, lon) {
       setTimeout(() => (window.lastWeatherAlert = false), 3600000); // Reset alerte toutes les heures
     }
   } catch (e) {
-    console.warn("MÃ©tÃ©o fail");
+    console.warn("Météo fail");
   }
 };
 
@@ -6007,7 +6017,7 @@ function saveSessionAndCheckBadges() {
   secureSetItem("session", JSON.stringify(window.session));
   const odom = document.getElementById("display-odometer");
   if (odom)
-    odom.textContent = `OdomÃ¨tre: ${window.session.totalDistance.toFixed(2)} km`;
+    odom.textContent = `Odomètre: ${window.session.totalDistance.toFixed(2)} km`;
 
   const mileageHud = document.getElementById("mileage-hud");
   if (mileageHud)
@@ -6047,8 +6057,8 @@ function checkUserBadges() {
 
   // Badge Ecolo (100kg CO2)
   if (co2Saved >= 100) {
-    badgesHtml += `<div class="badge-eco" title="Badge Ã‰colo: 100kg CO2 sauvÃ©s" style="background:#2ecc71; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-right:5px;">
-            <i class="fa-solid fa-leaf"></i> Ã‰colo
+    badgesHtml += `<div class="badge-eco" title="Badge Écolo: 100kg CO2 sauvés" style="background:#2ecc71; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-right:5px;">
+            <i class="fa-solid fa-leaf"></i> Écolo
         </div>`;
   }
 
@@ -6062,23 +6072,23 @@ function checkUserBadges() {
 
   // Badge Diamant (10000km)
   if (total >= 10000) {
-    badgesHtml += `<div class="badge-diamant" title="LÃ©gende: 10000km" style="background:linear-gradient(135deg, #B9F2FF, #ffffff); color:#005c75; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; box-shadow:0 0 10px #B9F2FF; margin-right:5px;">
+    badgesHtml += `<div class="badge-diamant" title="Légende: 10000km" style="background:linear-gradient(135deg, #B9F2FF, #ffffff); color:#005c75; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; box-shadow:0 0 10px #B9F2FF; margin-right:5px;">
             <i class="fa-solid fa-gem"></i> Diamant
         </div>`;
   }
 
-  // Badge Pro des DÃ©fis (150 victoires)
+  // Badge Pro des Défis (150 victoires)
   const challengeWins = window.session?.completedChallengesCount || 0;
   if (challengeWins >= 150) {
-    badgesHtml += `<div class="badge-master-defi" title="Master DÃ©fis: 150 victoires" style="background:#9b59b6; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; border:1px solid #fff;">
-            <i class="fa-solid fa-trophy"></i> Pro des DÃ©fis
+    badgesHtml += `<div class="badge-master-defi" title="Master Défis: 150 victoires" style="background:#9b59b6; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; border:1px solid #fff;">
+            <i class="fa-solid fa-trophy"></i> Pro des Défis
         </div>`;
   }
 
-  // Badge MÃ©cÃ¨ne (Donateur)
+  // Badge Mécène (Donateur)
   if (window.session?.isDonator) {
-    badgesHtml += `<div class="badge-mecene" title="MÃ©cÃ¨ne: Soutien du projet" style="background:#e91e63; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-right:5px; box-shadow:0 0 5px #e91e63;">
-            <i class="fa-solid fa-heart"></i> MÃ©cÃ¨ne
+    badgesHtml += `<div class="badge-mecene" title="Mécène: Soutien du projet" style="background:#e91e63; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-right:5px; box-shadow:0 0 5px #e91e63;">
+            <i class="fa-solid fa-heart"></i> Mécène
         </div>`;
   }
 
@@ -6103,7 +6113,7 @@ window.renderRoadbooks = function (filter = "all") {
       : savedRoadbooks;
 
   if (items.length === 0) {
-    list.innerHTML = `<p style="text-align:center; color:#666; margin-top:20px;">Aucun roadbook ${filter === "favorites" ? "favori" : "enregistrÃ©"}.</p>`;
+    list.innerHTML = `<p style="text-align:center; color:#666; margin-top:20px;">Aucun roadbook ${filter === "favorites" ? "favori" : "enregistré"}.</p>`;
     return;
   }
 
@@ -6115,7 +6125,7 @@ window.renderRoadbooks = function (filter = "all") {
             <li style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:10px; margin-bottom:5px; border-radius:8px;">
                 <div style="flex:1;">
                     <div style="font-weight:bold;">${rb.name}</div>
-                    <small style="color:#888;">${rb.waypoints?.length || 0} Ã©tapes</small>
+                    <small style="color:#888;">${rb.waypoints?.length || 0} étapes</small>
                 </div>
                 <div style="display:flex; gap:5px;">
                     <button onclick="toggleFavoriteRoadbook(${globalIdx})" style="background:transparent; color:${isFav ? "#f1c40f" : "#444"}; border:none; font-size:1.2rem; cursor:pointer;" title="Ajouter aux favoris">
@@ -6135,10 +6145,10 @@ window.toggleFavoriteRoadbook = function (idx) {
 
   if (favIdx > -1) {
     favorites.splice(favIdx, 1);
-    speak("RetirÃ© des favoris.");
+    speak("Retiré des favoris.");
   } else {
     favorites.push(idx);
-    speak("AjoutÃ© aux favoris !");
+    speak("Ajouté aux favoris !");
     vibrate(50);
   }
 
@@ -6153,23 +6163,23 @@ window.toggleFavoriteRoadbook = function (idx) {
 window.shareRoadbook = async function (i) {
   const rb = savedRoadbooks[i];
 
-  // MODÃ‰RATION : VÃ©rification de la grossiÃ¨retÃ©
+  // MODÉRATION : Vérification de la grossièreté
   if (
     Moderation.isProfane(rb.name) ||
     (rb.description && Moderation.isProfane(rb.description))
   ) {
     alert(
-      "Action bloquÃ©e : Le titre ou la description contient un langage inappropriÃ©.",
+      "Action bloquée : Le titre ou la description contient un langage inapproprié.",
     );
     return;
   }
 
-  // MODÃ‰RATION : VÃ©rification des images (si prÃ©sentes)
+  // MODÉRATION : Vérification des images (si présentes)
   if (rb.photo) {
     const scan = await Moderation.scanImage(rb.photo);
     if (!scan.safe) {
       alert(
-        "Action bloquÃ©e : L'image jointe n'est pas conforme aux rÃ¨gles communautaires.",
+        "Action bloquée : L'image jointe n'est pas conforme aux règles communautaires.",
       );
       return;
     }
@@ -6178,7 +6188,7 @@ window.shareRoadbook = async function (i) {
   // Publication Cloud (Si DB ok)
   if (typeof publishRoadbookCloud === "function") {
     const success = await publishRoadbookCloud(rb);
-    if (success) alert("Roadbook partagÃ© avec succÃ¨s Ã  la communautÃ© !");
+    if (success) alert("Roadbook partagé avec succès à la communauté !");
   } else {
     alert("Partage impossible : Serveur Cloud non disponible.");
   }
@@ -6204,30 +6214,30 @@ function updateOnlineStatus() {
     toast.style =
       "position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:rgba(231,76,60,0.9); color:white; padding:10px 20px; border-radius:30px; z-index:10000; font-size:0.8rem; display:flex; align-items:center; gap:10px; box-shadow:0 4px 15px rgba(0,0,0,0.5);";
     toast.innerHTML =
-      '<i class="fa-solid fa-plane"></i> Mode hors-ligne - Navigation limitÃ©e';
+      '<i class="fa-solid fa-plane"></i> Mode hors-ligne - Navigation limitée';
     document.body.appendChild(toast);
-    speak("Mode hors-ligne activÃ©.");
+    speak("Mode hors-ligne activé.");
   } else {
     const toast = document.getElementById("offline-toast");
     if (toast) {
       toast.style.background = "rgba(46,204,113,0.9)";
-      toast.innerHTML = '<i class="fa-solid fa-wifi"></i> Connexion rÃ©tablie';
+      toast.innerHTML = '<i class="fa-solid fa-wifi"></i> Connexion rétablie';
       setTimeout(() => toast.remove(), 3000);
-      speak("Connexion rÃ©tablie.");
+      speak("Connexion rétablie.");
     }
   }
 }
 window.saveEmergencyContact = function () {
   const num = document.getElementById("emergency-num").value;
   secureSetItem("emergency_contact", num);
-  speak("Contact d'urgence enregistrÃ©.");
+  speak("Contact d'urgence enregistré.");
   vibrate(50);
 };
 
 window.toggleGuardian = function () {
   const active = secureGetItem("guardian_enabled") === "true";
   secureSetItem("guardian_enabled", !active);
-  speak(!active ? "Guardian Mode activÃ©." : "Guardian Mode dÃ©sactivÃ©.");
+  speak(!active ? "Guardian Mode activé." : "Guardian Mode désactivé.");
   showPage("security");
 };
 
@@ -6240,7 +6250,7 @@ if (window.DeviceMotionEvent) {
     if (!acc) return;
     const totalG = Math.sqrt(acc.x ** 2 + acc.y ** 2 + acc.z ** 2) / 9.81;
     if (totalG > 4.5) {
-      // Impact massif dÃ©tectÃ©
+      // Impact massif détecté
       triggerFallAlert();
     }
   });
@@ -6258,7 +6268,7 @@ setInterval(() => {
 
 function startGuardianPrompt() {
   isGuardianPromptActive = true;
-  speak("Guardian Mode : Alerte d'immobilitÃ©. ÃŠtes-vous toujours lÃ  ?");
+  speak("Guardian Mode : Alerte d'immobilité. Êtes-vous toujours là ?");
   vibrate([1000, 500, 1000]);
 
   const toast = document.createElement("div");
@@ -6268,8 +6278,8 @@ function startGuardianPrompt() {
   toast.innerHTML = `
         <i class="fa-solid fa-shield-heart fa-beat" style="font-size:4rem; color:#00d2ff; margin-bottom:20px;"></i>
         <h2>Guardian Mode</h2>
-        <p>ArrÃªt prolongÃ© dÃ©tectÃ©. <br>Confirmation requise.</p>
-        <button onclick="dismissGuardian()" style="margin-top:20px; width:100%; border:none; padding:20px; border-radius:50px; background:#00d2ff; color:black; font-weight:bold; font-size:1.2rem;">TOUT VA BIEN âœ…</button>
+        <p>Arrêt prolongé détecté. <br>Confirmation requise.</p>
+        <button onclick="dismissGuardian()" style="margin-top:20px; width:100%; border:none; padding:20px; border-radius:50px; background:#00d2ff; color:black; font-weight:bold; font-size:1.2rem;">TOUT VA BIEN ✅</button>
     `;
   document.body.appendChild(toast);
 
@@ -6297,7 +6307,7 @@ function checkFerryProximity(lat, lng) {
     const p2 = ferryStep.start_location;
     const dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
 
-    // Alerte Ã  1km (1000 mÃ¨tres)
+    // Alerte à 1km (1000 mètres)
     if (dist < 1000 && lastSpokenFerryIndex !== index) {
       speak("ferry_ahead");
       lastSpokenFerryIndex = index;
@@ -6317,7 +6327,7 @@ function checkFerryProximity(lat, lng) {
 
 window.addCategorizedMaint = function (category) {
   if (window.session && window.session.isGuest) {
-    alert("ðŸ”’ Le Carnet CertifiÃ© est rÃ©servÃ© aux membres.");
+    alert("ðŸ”’ Le Carnet Certifié est réservé aux membres.");
     return;
   }
 
@@ -6325,14 +6335,14 @@ window.addCategorizedMaint = function (category) {
     `ðŸ”‘ VALIDATION PRO REQUISE\nPour certifier l'entretien "${category}", le garage doit entrer son code partenaire :`,
   );
 
-  // Simulation de validation (En prod, on vÃ©rifie contre la base des garages certifiÃ©s)
+  // Simulation de validation (En prod, on vérifie contre la base des garages certifiés)
   if (
     proCode === "PRO50" ||
     (window.session.isCertifiedGarage && proCode === "ME")
   ) {
     const action = prompt(
       `Description de l'intervention ${category} :`,
-      `RÃ©vision standard ${category}`,
+      `Révision standard ${category}`,
     );
     if (!action) return;
 
@@ -6343,7 +6353,7 @@ window.addCategorizedMaint = function (category) {
       certified: true,
       garage: window.session.isCertifiedGarage
         ? window.session.username
-        : "Garage Partenaire CertifiÃ©",
+        : "Garage Partenaire Certifié",
     };
 
     let history = JSON.parse(secureGetItem("maint_history") || "[]");
@@ -6351,14 +6361,14 @@ window.addCategorizedMaint = function (category) {
     secureSetItem("maint_history", JSON.stringify(history));
 
     speak(
-      "Intervention certifiÃ©e et enregistrÃ©e dans votre passeport entretien.",
+      "Intervention certifiée et enregistrée dans votre passeport entretien.",
     );
     showPage("garage");
   } else {
     alert(
-      "âŒ Code invalide. Seul un garage certifiÃ© peut valider cette intervention.",
+      "âŒ Code invalide. Seul un garage certifié peut valider cette intervention.",
     );
-    speak("Ã‰chec de la certification.");
+    speak("Échec de la certification.");
   }
 };
 
@@ -6372,11 +6382,11 @@ function getSOSActions() {
 
 window.saveCTDate = function (val) {
   secureSetItem("ct_date", val);
-  speak("Date du contrÃ´le technique enregistrÃ©e.");
+  speak("Date du contrôle technique enregistrée.");
 };
 
 window.addCategorizedMaint = function (cat) {
-  const action = prompt(`DÃ©tail pour l'entretien [${cat}] :`, "RÃ©vision");
+  const action = prompt(`Détail pour l'entretien [${cat}] :`, "Révision");
   if (!action) return;
 
   let history = JSON.parse(secureGetItem("maint_history") || "[]");
@@ -6396,7 +6406,7 @@ window.addCategorizedMaint = function (cat) {
   }
 
   showPage("garage");
-  speak(`Entretien ${cat} validÃ©.`);
+  speak(`Entretien ${cat} validé.`);
 };
 
 window.refreshRodageUI = function () {
@@ -6415,12 +6425,12 @@ window.toggleRodageHUD = function () {
   window.isRodageActive = !window.isRodageActive;
   refreshRodageUI();
   if (window.isRodageActive) {
-    speak("Mode Rodage activÃ©.");
+    speak("Mode Rodage activé.");
     alert(
-      "Mode Rodage : Le GPS Ã©vitera les voies rapides et vous guidera sur des routes tranquilles.",
+      "Mode Rodage : Le GPS évitera les voies rapides et vous guidera sur des routes tranquilles.",
     );
   } else {
-    speak("Mode Rodage dÃ©sactivÃ©.");
+    speak("Mode Rodage désactivé.");
   }
 };
 
@@ -6429,7 +6439,7 @@ window.toggleGarageVisibility = function () {
   speak(
     window.isGarageVisible
       ? "Votre garage est maintenant visible des pilotes."
-      : "VisibilitÃ© dÃ©sactivÃ©e.",
+      : "Visibilité désactivée.",
   );
   showPage("pro-space");
   if (currentPosition) {
@@ -6443,7 +6453,7 @@ window.toggleGarageVisibility = function () {
 
 window.updateGarageStatus = function (val) {
   window.garageStatus = val;
-  speak("DisponibilitÃ© de l'atelier mise Ã  jour.");
+  speak("Disponibilité de l'atelier mise à jour.");
   if (window.isGarageVisible && currentPosition) {
     publishUserLocation(
       currentPosition.lat,
@@ -6456,25 +6466,25 @@ window.updateGarageStatus = function (val) {
 window.publishFlashOffer = function () {
   const text = document.getElementById("flash-offer-text").value;
   if (!text) return;
-  speak("Offre Flash publiÃ©e.");
-  alert("Votre offre de promotion a Ã©tÃ© diffusÃ©e !");
+  speak("Offre Flash publiée.");
+  alert("Votre offre de promotion a été diffusée !");
   if (typeof publishMoodCloud === "function") {
     publishMoodCloud({ label: "âš¡ PROMO", text: text });
   }
 };
 
 window.requestCertification = function () {
-  alert("Demande de certification envoyÃ©e !");
-  speak("Demande enregistrÃ©e.");
+  alert("Demande de certification envoyée !");
+  speak("Demande enregistrée.");
 };
 
 window.payGarageEntryFee = async function () {
   const ok = confirm(
-    "Confirmez-vous le paiement du droit d'entrÃ©e de 50â‚¬ TTC pour devenir Garage CertifiÃ© ?",
+    "Confirmez-vous le paiement du droit d'entrée de 50€ TTC pour devenir Garage Certifié ?",
   );
   if (ok) {
     if (typeof speak === "function")
-      speak("Initialisation du paiement sÃ©curisÃ©.");
+      speak("Initialisation du paiement sécurisé.");
     try {
       const projectId = window.CONFIG?.FIREBASE?.projectId || "mon50ccetmoi";
       const url = `https://europe-west1-${projectId}.cloudfunctions.net/createRevolutOrder`;
@@ -6493,7 +6503,7 @@ window.payGarageEntryFee = async function () {
       });
 
       if (!response.ok)
-        throw new Error("Erreur lors de la crÃ©ation de la commande.");
+        throw new Error("Erreur lors de la création de la commande.");
       const orderData = await response.json();
 
       const instance = await RevolutCheckout(orderData.order_token, "prod");
@@ -6517,7 +6527,7 @@ window.payGarageEntryFee = async function () {
                 clearInterval(checkStatus);
                 if (typeof speak === "function")
                   speak(
-                    "Paiement validÃ© ! Vous Ãªtes maintenant un Garage CertifiÃ©.",
+                    "Paiement validé ! Vous êtes maintenant un Garage Certifié.",
                   );
                 if (window.session) {
                   window.session.isCertifiedGarage = true;
@@ -6527,7 +6537,7 @@ window.payGarageEntryFee = async function () {
               } else if (attempts > 10) {
                 clearInterval(checkStatus);
                 alert(
-                  "Le paiement est en cours de traitement par Revolut. Votre accÃ¨s pro sera activÃ© automatiquement sous peu.",
+                  "Le paiement est en cours de traitement par Revolut. Votre accès pro sera activé automatiquement sous peu.",
                 );
                 showPage("home");
               }
@@ -6550,28 +6560,34 @@ window.payGarageEntryFee = async function () {
 
 window.applyPartnerExemption = async function () {
   const ok = confirm(
-    "En choisissant cette option, vous vous engagez Ã  offrir une remise de 10% sur vos prestations aux membres prÃ©sentant l'application. En Ã©change, votre certification et votre boost sont OFFERTS. Valider ?",
+    "En choisissant cette option, vous vous engagez à offrir une remise de 10% sur vos prestations aux membres présentant l'application. En échange, votre certification et votre boost sont OFFERTS. Valider ?",
   );
   if (ok) {
     try {
       if (window.firebase && window.session?.uid) {
         const db = firebase.firestore();
-        await db.collection("users").doc(window.session.uid).update({
+        const batch = db.batch();
+        const userRef = db.collection("users").doc(window.session.uid);
+        const partnerRef = db.collection("garage_partners").doc(window.session.uid);
+        
+        batch.update(userRef, {
           isCertifiedGarage: true,
           isGaragePartner: true,
         });
-        await db.collection("garage_partners").doc(window.session.uid).set({
+        batch.set(partnerRef, {
           user_id: window.session.uid,
           exempted: true,
           certified_at: firebase.firestore.FieldValue.serverTimestamp(),
         });
+        
+        await batch.commit();
       }
     } catch (e) {
       console.error("[GARAGE] Failed to persist partner status", e);
     }
 
     speak(
-      "FÃ©licitations ! Vous Ãªtes dÃ©sormais Partenaire Officiel mon 50 cm3 et moi. Votre gÃ©nÃ©rositÃ© envers la communautÃ© est rÃ©compensÃ©e.",
+      "Félicitations ! Vous êtes désormais Partenaire Officiel mon 50 cm3 et moi. Votre générosité envers la communauté est récompensée.",
     );
     if (window.session) {
       window.session.isCertifiedGarage = true;
@@ -6603,9 +6619,9 @@ window.publishProTip = function () {
   secureSetItem("community_pro_tips", JSON.stringify(communityTips));
 
   speak(
-    "Votre fiche technique a Ã©tÃ© publiÃ©e avec succÃ¨s ! Elle est maintenant visible par tous les pilotes.",
+    "Votre fiche technique a été publiée avec succès ! Elle est maintenant visible par tous les pilotes.",
   );
-  alert("FÃ©licitations ! Votre conseil d'expert est en ligne.");
+  alert("Félicitations ! Votre conseil d'expert est en ligne.");
   showPage("pro-space");
 };
 window.resetTelemetry = function () {
@@ -6614,14 +6630,14 @@ window.resetTelemetry = function () {
     window.session.vMax = 0;
     secureSetItem("session", JSON.stringify(window.session));
   }
-  speak("DonnÃ©es de tÃ©lÃ©mÃ©trie rÃ©initialisÃ©es.");
+  speak("Données de télémétrie réinitialisées.");
   showPage("garage");
 };
 // --- AUTO-BOOT & FAIL-SAFE ---
-// On s'assure que le mode holographique n'est pas actif au dÃ©marrage (Correction Bug Web)
+// On s'assure que le mode holographique n'est pas actif au démarrage (Correction Bug Web)
 document.body.classList.remove("holographic-mode");
 
-// Si le SDK Maps est dÃ©jÃ  lÃ , on lance manuellement
+// Si le SDK Maps est déjà là, on lance manuellement
 if (typeof google !== "undefined" && google.maps) {
   window.mapsSDKLoaded = true;
   if (typeof window.initMapController === "function") {
@@ -6661,7 +6677,7 @@ window.submitArbitre = function () {
   } else {
     setTimeout(() => {
       botDiv.innerHTML =
-        "DÃ©solÃ©, le module juridique est en cours de mise Ã  jour.";
+        "Désolé, le module juridique est en cours de mise à jour.";
       chat.scrollTop = chat.scrollHeight;
     }, 1500);
   }
@@ -6670,12 +6686,12 @@ window.submitArbitre = function () {
 function generateRideCard() {
   if (window.session.isGuest) {
     alert(
-      "ðŸ”’ La Carte de Score est rÃ©servÃ©e aux membres. Inscrivez-vous pour partager vos exploits !",
+      "ðŸ”’ La Carte de Score est réservée aux membres. Inscrivez-vous pour partager vos exploits !",
     );
     return;
   }
 
-  speak("GÃ©nÃ©ration de votre carte de score personnalisÃ©e.");
+  speak("Génération de votre carte de score personnalisée.");
   const overlay = document.createElement("div");
   overlay.id = "ride-card-overlay";
   overlay.className = "glassmorphism";
@@ -6689,7 +6705,7 @@ function generateRideCard() {
             
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:40px;">
                 <div><span style="font-size:0.6rem; color:#666; display:block;">DISTANCE</span><strong style="font-size:1.2rem; color:#fff;">${document.getElementById("odometer")?.textContent || "0"} KM</strong></div>
-                <div><span style="font-size:0.6rem; color:#666; display:block;">MAX LEAN</span><strong style="font-size:1.2rem; color:#ff4d4d;">${window.maxLeanAngle || 0}Â°</strong></div>
+                <div><span style="font-size:0.6rem; color:#666; display:block;">MAX LEAN</span><strong style="font-size:1.2rem; color:#ff4d4d;">${window.maxLeanAngle || 0}°</strong></div>
                 <div><span style="font-size:0.6rem; color:#666; display:block;">V-MAX</span><strong style="font-size:1.2rem; color:var(--neon-blue);">${window.session.vMax || 0} KM/H</strong></div>
                 <div><span style="font-size:0.6rem; color:#666; display:block;">STATUS</span><strong style="font-size:1rem; color:#2ecc71;">LEGEND</strong></div>
             </div>
@@ -6703,7 +6719,7 @@ function generateRideCard() {
   document.body.appendChild(overlay);
 }
 
-// --- ORACLE: MESSAGES RÃ‰GIONAUX MULTILINGUES ---
+// --- ORACLE: MESSAGES RÉGIONAUX MULTILINGUES ---
 window.hasWelcomed = false;
 
 const REGION_MESSAGES = {
@@ -6711,21 +6727,21 @@ const REGION_MESSAGES = {
     "Bienvenue en Bretagne. Prudence sur les routes potentiellement humides.",
   normandie:
     "Bienvenue en Normandie. Restez vigilant face au vent et aux averses.",
-  "Ã®le-de-france":
-    "Bienvenue en ÃŽle-de-France. DensitÃ© de trafic Ã©levÃ©e, gardez vos distances.",
-  "provence-alpes-cÃ´te d'azur":
-    "Bienvenue dans le Sud. La route est dÃ©gagÃ©e. Pensez Ã  vous hydrater.",
-  "auvergne-rhÃ´ne-alpes":
-    "Bienvenue en rÃ©gion RhÃ´ne-Alpes. Attention aux routes sinueuses en montagne.",
+  "île-de-france":
+    "Bienvenue en ÃŽle-de-France. Densité de trafic élevée, gardez vos distances.",
+  "provence-alpes-côte d'azur":
+    "Bienvenue dans le Sud. La route est dégagée. Pensez à vous hydrater.",
+  "auvergne-rhône-alpes":
+    "Bienvenue en région Rhône-Alpes. Attention aux routes sinueuses en montagne.",
   "nouvelle-aquitaine":
     "Bienvenue en Nouvelle-Aquitaine. De belles balades en perspective.",
   occitanie: "Bienvenue en Occitanie. Soleil et belles routes vous attendent.",
-  "hauts-de-france": "Bienvenue dans les Hauts-de-France. Gardez le contrÃ´le.",
+  "hauts-de-france": "Bienvenue dans les Hauts-de-France. Gardez le contrôle.",
   "grand est": "Bienvenue dans le Grand Est. Excellente balade.",
-  "bourgogne-franche-comtÃ©":
-    "Bienvenue en Bourgogne. Conduite souple recommandÃ©e.",
-  "pays de la loire": "Bienvenue. L'Oracle est connectÃ© pour votre balade.",
-  default: "Oracle connectÃ©. Position GPS Ã©tablie, prÃªt pour le dÃ©part.",
+  "bourgogne-franche-comté":
+    "Bienvenue en Bourgogne. Conduite souple recommandée.",
+  "pays de la loire": "Bienvenue. L'Oracle est connecté pour votre balade.",
+  default: "Oracle connecté. Position GPS établie, prêt pour le départ.",
 };
 
 window.triggerRegionalWelcome = function (lat, lng) {
@@ -6758,9 +6774,9 @@ window.triggerRegionalWelcome = function (lat, lng) {
 
 window.getLocalizedRouteMsg = function (dist, etaText, isRodage) {
   if (isRodage) {
-    return `ItinÃ©raire rodage calculÃ©. ${dist} Ã  parcourir. Bonne route avec mon 50 cc et moi.`;
+    return `Itinéraire rodage calculé. ${dist} à parcourir. Bonne route avec mon 50 cc et moi.`;
   } else {
-    return `ItinÃ©raire calculÃ©. ${dist}, arrivÃ©e prÃ©vue Ã  ${etaText}. Bonne route avec mon 50 cc et moi.`;
+    return `Itinéraire calculé. ${dist}, arrivée prévue à ${etaText}. Bonne route avec mon 50 cc et moi.`;
   }
 };
 
@@ -6773,7 +6789,7 @@ window.toggleShadowMode = function () {
       ? '<i class="fa-solid fa-eye-slash" style="font-size: 1.2rem; color: #2ecc71;"></i><div style="font-size: 0.65rem; text-align: left; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Shadow<br><span style="color:#2ecc71;">ON</span></div>'
       : '<i class="fa-solid fa-eye-slash" style="font-size: 1.2rem; color: #666;"></i><div style="font-size: 0.65rem; text-align: left; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; color:#666;">Shadow<br><span>OFF</span></div>';
   }
-  if (isShadow) speak("Mode furtif activÃ©. Concentration maximale.");
+  if (isShadow) speak("Mode furtif activé. Concentration maximale.");
 };
 
 // --- 2. GRIP INDEX & 6. IA WINGMAN ---
@@ -6801,27 +6817,27 @@ setInterval(() => {
 
   if (grip <= 50 && !window.blackIceAlerted) {
     speak(
-      "Alerte Verglas et adhÃ©rence rÃ©duite dÃ©tectÃ©e. Grip en dessous de 50 pour cent.",
+      "Alerte Verglas et adhérence réduite détectée. Grip en dessous de 50 pour cent.",
     );
     window.blackIceAlerted = true;
   }
 
-  // IA Wingman (Temps de conduite et rappels rÃ©guliers)
+  // IA Wingman (Temps de conduite et rappels réguliers)
   if (window.isRiding) {
     if (!window.rideStartTime) window.rideStartTime = Date.now();
     const rideDuration = (Date.now() - window.rideStartTime) / 60000; // minutes
 
     window.wingmanAlertCount = window.wingmanAlertCount || 0;
-    const currentPeriod = Math.floor(rideDuration / 45); // VÃ©rifie chaque tranche de 45 min
+    const currentPeriod = Math.floor(rideDuration / 45); // Vérifie chaque tranche de 45 min
 
     if (currentPeriod > window.wingmanAlertCount) {
       if (window.isVigilanceRouge) {
         speak(
-          "Vigilance rouge dÃ©tectÃ©e. Vous roulez depuis 45 minutes supplÃ©mentaires. Jarvis vous demande d'effectuer une pause immÃ©diate et de vous hydrater abondamment !",
+          "Vigilance rouge détectée. Vous roulez depuis 45 minutes supplémentaires. Jarvis vous demande d'effectuer une pause immédiate et de vous hydrater abondamment !",
         );
       } else {
         speak(
-          "Vous roulez depuis 45 minutes. TempÃ©rature moteur optimale atteinte, mais attention Ã  la fatigue. Envisagez une pause bientÃ´t.",
+          "Vous roulez depuis 45 minutes. Température moteur optimale atteinte, mais attention à la fatigue. Envisagez une pause bientôt.",
         );
       }
       window.wingmanAlertCount = currentPeriod;
@@ -6833,7 +6849,7 @@ setInterval(() => {
   }
 }, 30000); // Check toutes les 30s
 
-// --- 3. SONAR DE COMMUNAUTÃ‰ ---
+// --- 3. SONAR DE COMMUNAUTÉ ---
 window.triggerCommunitySonar = function () {
   if (document.body.classList.contains("shadow-mode")) return; // Furtif
 
@@ -6843,12 +6859,12 @@ window.triggerCommunitySonar = function () {
   document.body.appendChild(sonar);
 
   setTimeout(() => {
-    // AlÃ©atoirement, trouver un alliÃ© (1 chance sur 4)
+    // Aléatoirement, trouver un allié (1 chance sur 4)
     if (Math.random() > 0.75) {
-      speak("Pilote alliÃ© dÃ©tectÃ© dans le secteur.");
+      speak("Pilote allié détecté dans le secteur.");
       const ally = document.createElement("div");
       ally.className = "ally-marker";
-      // Position alÃ©atoire sur l'Ã©cran
+      // Position aléatoire sur l'écran
       ally.style.top = 20 + Math.random() * 60 + "%";
       ally.style.left = 20 + Math.random() * 60 + "%";
       document.body.appendChild(ally);
@@ -6859,27 +6875,27 @@ window.triggerCommunitySonar = function () {
 };
 setInterval(window.triggerCommunitySonar, 120000); // Sonar toutes les 2 minutes
 
-// --- 5. EXPLORATION TACTIQUE (ROUTE ALÃ‰ATOIRE) ---
+// --- 5. EXPLORATION TACTIQUE (ROUTE ALÉATOIRE) ---
 window.generateTacticalExploration = function () {
   if (!navigator.geolocation) {
     alert("GPS requis pour l'exploration.");
     return;
   }
-  // GARDE : ne pas accÃ©der au GPS sans consentement de l'utilisateur
+  // GARDE : ne pas accéder au GPS sans consentement de l'utilisateur
   if (localStorage.getItem("location_consent_accepted") !== "true") {
     alert("Vous devez d'abord accepter l'utilisation de la localisation.");
     return;
   }
 
   document.getElementById("route-start").value = "Position Actuelle";
-  document.getElementById("route-search").value = "GÃ©nÃ©ration de boucle...";
-  speak("Calcul d'une boucle d'exploration tactique alÃ©atoire.");
+  document.getElementById("route-search").value = "Génération de boucle...";
+  speak("Calcul d'une boucle d'exploration tactique aléatoire.");
 
   navigator.geolocation.getCurrentPosition((pos) => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
 
-    // GÃ©nÃ©rer un point alÃ©atoire Ã  ~10-15km (1 degrÃ© lat = ~111km)
+    // Générer un point aléatoire à ~10-15km (1 degré lat = ~111km)
     const radiusInDegrees = (10 + Math.random() * 5) / 111;
     const randomAngle = Math.random() * Math.PI * 2;
 
@@ -6899,11 +6915,11 @@ window.generateTacticalExploration = function () {
 };
 
 // ============================================================
-// --- 6. VIGILANCE ROUGE MÃ‰TÃ‰O-FRANCE (OPENDATA) ---
+// --- 6. VIGILANCE ROUGE MÉTÉO-FRANCE (OPENDATA) ---
 // ============================================================
 window.checkVigilanceRouge = async function () {
   try {
-    // API Publique OpenDataSoft pour MÃ©tÃ©o-France (Filtre: Vigilance Rouge uniquement)
+    // API Publique OpenDataSoft pour Météo-France (Filtre: Vigilance Rouge uniquement)
     const url =
       "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/vigilance-meteorologique/records?limit=100&refine=etat_de_vigilance%3A%22Rouge%22";
     const response = await fetch(url);
@@ -6916,20 +6932,20 @@ window.checkVigilanceRouge = async function () {
     const textEl = document.getElementById("vigilance-rouge-text");
 
     if (alerts.length > 0 && banner && textEl) {
-      // Regrouper les dÃ©partements en alerte
+      // Regrouper les départements en alerte
       const deptsList = alerts
         .map(
           (a) =>
-            `${a.nom_dept || a.departement || "DÃ©partement inconnu"} (${a.risque || "Danger imminent"})`,
+            `${a.nom_dept || a.departement || "Département inconnu"} (${a.risque || "Danger imminent"})`,
         )
         .join(" | ");
-      textEl.innerHTML = `ðŸš¨ <strong>VIGILANCE ROUGE MÃ‰TÃ‰O-FRANCE :</strong> ${deptsList}. Soyez extrÃªmement prudents, limitez vos dÃ©placements en 2-roues.`;
+      textEl.innerHTML = `🚨 <strong>VIGILANCE ROUGE MÉTÉO-FRANCE :</strong> ${deptsList}. Soyez extrêmement prudents, limitez vos déplacements en 2-roues.`;
       banner.style.display = "block";
 
-      // Notification vocale (uniquement si ce n'est pas dÃ©jÃ  affichÃ© pour Ã©viter le spam)
+      // Notification vocale (uniquement si ce n'est pas déjà affiché pour éviter le spam)
       if (banner.dataset.alerted !== "true" && typeof speak === "function") {
         speak(
-          "Alerte de sÃ©curitÃ© absolue. Vigilance Rouge MÃ©tÃ©o France en cours.",
+          "Alerte de sécurité absolue. Vigilance Rouge Météo France en cours.",
         );
         banner.dataset.alerted = "true";
       }
@@ -6938,7 +6954,7 @@ window.checkVigilanceRouge = async function () {
       banner.dataset.alerted = "false";
     }
   } catch (err) {
-    console.warn("[Vigilance] Erreur de rÃ©cupÃ©ration :", err);
+    console.warn("[Vigilance] Erreur de récupération :", err);
   }
 };
 
@@ -6948,10 +6964,10 @@ setTimeout(() => {
     window.checkVigilanceRouge();
     setInterval(window.checkVigilanceRouge, 300000); // 5 minutes
   }
-}, 5000); // Lancement 5 secondes aprÃ¨s le chargement de l'app
+}, 5000); // Lancement 5 secondes après le chargement de l'app
 
 // ============================================================
-// --- 7. BOÃŽTE NOIRE (TÃ‰LÃ‰MÃ‰TRIE D'ASSURANCE) ---
+// --- 7. BOÃŽTE NOIRE (TÉLÉMÉTRIE D'ASSURANCE) ---
 // ============================================================
 window.BlackBox = [];
 setInterval(() => {
@@ -6978,7 +6994,7 @@ setInterval(() => {
 window.exportBlackBox = function () {
   if (window.BlackBox.length === 0) {
     alert(
-      "La boÃ®te noire est vide. Vous devez rouler pour enregistrer des donnÃ©es.",
+      "La boîte noire est vide. Vous devez rouler pour enregistrer des données.",
     );
     return;
   }
@@ -6994,7 +7010,7 @@ window.exportBlackBox = function () {
   document.body.appendChild(dlAnchorElem);
   dlAnchorElem.click();
   dlAnchorElem.remove();
-  speak("Rapport de boÃ®te noire exportÃ© avec succÃ¨s.");
+  speak("Rapport de boîte noire exporté avec succès.");
 };
 
 // ============================================================
@@ -7007,7 +7023,7 @@ window.joinSquad = function () {
   const code = prompt("Entrez le code secret de l'escouade (4 chiffres) :");
   if (!code || code.length < 3) return;
   window.currentSquadId = code;
-  speak(`Escouade ${code} rejointe. Activation du radar partagÃ©.`);
+  speak(`Escouade ${code} rejointe. Activation du radar partagé.`);
 
   // Upload de position toutes les 10 secondes
   setInterval(() => {
@@ -7030,7 +7046,7 @@ window.joinSquad = function () {
     }
   }, 10000);
 
-  // Ã‰coute des alliÃ©s
+  // Écoute des alliés
   if (window.db) {
     window.db
       .collection("convoys")
@@ -7040,7 +7056,7 @@ window.joinSquad = function () {
         snapshot.docChanges().forEach((change) => {
           const data = change.doc.data();
           const uid = change.doc.id;
-          if (uid === (window.user && window.user.uid)) return; // Ignorer soi-mÃªme
+          if (uid === (window.user && window.user.uid)) return; // Ignorer soi-même
 
           if (change.type === "added" || change.type === "modified") {
             const pos = new google.maps.LatLng(data.lat, data.lng);
@@ -7056,9 +7072,9 @@ window.joinSquad = function () {
                   strokeWeight: 2,
                   strokeColor: "#fff",
                 },
-                title: "Pilote AlliÃ©",
+                title: "Pilote Allié",
               });
-              speak("Nouvel alliÃ© dÃ©tectÃ© sur le radar.");
+              speak("Nouvel allié détecté sur le radar.");
             } else {
               window.convoyMarkers[uid].setPosition(pos);
             }
@@ -7222,7 +7238,7 @@ window.showPage = function (page) {
             </div>`;
   } else if (page === "garage") {
     const history = JSON.parse(secureGetItem("maint_history") || "[]");
-    const ctDate = secureGetItem("ct_date") || "Non dÃƒÂ©fini";
+    const ctDate = secureGetItem("ct_date") || "Non dÃƒ©fini";
 
     // Gamification Data
     const currentXP = parseInt(localStorage.getItem("pilot_xp") || "0");
@@ -7265,7 +7281,7 @@ window.showPage = function (page) {
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; text-align:center;">
                     <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;">
                         <small>ANGLE MAX</small><br>
-                        <strong style="font-size:1.2rem; color:var(--accent);">${maxLeanAngle}Ã‚Â°</strong>
+                        <strong style="font-size:1.2rem; color:var(--accent);">${maxLeanAngle}Ã‚°</strong>
                     </div>
                     <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;">
                         <small>VITESSE MAX</small><br>
@@ -7320,8 +7336,8 @@ window.showPage = function (page) {
             </div>`;
   } else if (page === "rodage") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3>ItinÃƒÂ©raires Rodage</h3>
-            <p>Routes limitÃƒÂ©es ÃƒÂ  45 km/h pour prÃƒÂ©server votre moteur.</p>
+      content.innerHTML = `<h3>ItinÃƒ©raires Rodage</h3>
+            <p>Routes limitÃƒ©es ÃƒÂ  45 km/h pour prÃƒ©server votre moteur.</p>
             <button class="btn-insurance" onclick="startRodage('Paris-Boucle')">Boucle Zen (Paris)</button>
             <button class="btn-insurance" onclick="startRodage('Lyon-Quais')">Quais SaÃƒÂ´ne (Lyon)</button>`;
   } else if (page === "insurance") {
@@ -7332,16 +7348,16 @@ window.showPage = function (page) {
             <div class="promo-box"><span>Votre code promo:</span><strong>CHEZBIGBOO</strong></div>
             <div class="broker-contact">
                 <strong>Robert - Courtier Partenaire</strong>
-                <a href="tel:0749555829">Ã°Å¸â€œÅ¾ 07 49 55 58 29</a>
-                <span>SpÃƒÂ©cialiste du jeune conducteur 50cc</span>
+                <a href="tel:0749555829">Ã°Å¸“Å¾ 07 49 55 58 29</a>
+                <span>SpÃƒ©cialiste du jeune conducteur 50cc</span>
             </div>
-            <p>BÃƒÂ©nÃƒÂ©ficiez de -15% sur votre assurance scooter en tant que membre.</p>
+            <p>BÃƒ©nÃƒ©ficiez de -15% sur votre assurance scooter en tant que membre.</p>
         </div>`;
   } else if (page === "roadbooks") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3>Roadbooks</h3>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button onclick="renderRoadbooks('all')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem;">Mes CrÃƒÂ©ations</button>
+                <button onclick="renderRoadbooks('all')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem;">Mes CrÃƒ©ations</button>
                 <button onclick="renderRoadbooks('favorites')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem; background:#f1c40f; color:black;"><i class="fa-solid fa-star"></i> Mes Favoris</button>
             </div>
             <ul id="roadbook-list" style="list-style:none; padding:0;"></ul>`;
@@ -7349,18 +7365,18 @@ window.showPage = function (page) {
   } else if (page === "mechanic") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-robot"></i> ${t("expert_meca_title")}</h3>
-            <p style="font-size:0.8rem; color:#aaa;">DÃƒÂ©crivez le symptÃƒÂ´me (bruit, fumÃƒÂ©e, panne...)</p>
-            <textarea id="meca-query" placeholder="Ex: Mon scoot broute ÃƒÂ  l'accÃƒÂ©lÃƒÂ©ration..." style="width:100%; height:80px; margin-top:10px; background:#111; color:white; border:1px solid #ffb703; border-radius:8px; padding:10px;"></textarea>
+            <p style="font-size:0.8rem; color:#aaa;">DÃƒ©crivez le symptÃƒÂ´me (bruit, fumÃƒ©e, panne...)</p>
+            <textarea id="meca-query" placeholder="Ex: Mon scoot broute ÃƒÂ  l'accÃƒ©lÃƒ©ration..." style="width:100%; height:80px; margin-top:10px; background:#111; color:white; border:1px solid #ffb703; border-radius:8px; padding:10px;"></textarea>
             <button class="btn-insurance" onclick="submitMecaV3()" style="margin-top:15px; width:100%;">Scanner mon 50cc</button>
             <div id="meca-response" style="margin-top:20px; font-size:0.9rem; line-height:1.4;"></div>`;
   } else if (page === "arbitre") {
     if (window.session && window.session.isGuest) {
-      alert("AccÃƒÂ¨s rÃƒÂ©servÃƒÂ© aux membres inscrits ! Ã°Å¸â€ºÂµ");
+      alert("AccÃƒÂ¨s rÃƒ©servÃƒ© aux membres inscrits ! Ã°Å¸â€ºÂµ");
       return;
     }
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> ${t("arbitre_title")}</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Posez votre question sur la rÃƒÂ©glementation 50cc (dÃƒÂ©bridage, ÃƒÂ©quipement, contrÃƒÂ´les...).</p>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Posez votre question sur la rÃƒ©glementation 50cc (dÃƒ©bridage, Ãƒ©quipement, contrÃƒÂ´les...).</p>
             
             <div id="arbitre-chat" style="background:rgba(0,0,0,0.3); border-radius:15px; padding:15px; min-height:150px; max-height:300px; overflow-y:auto; margin-bottom:15px; border:1px solid rgba(255,183,3,0.2);">
                 <div class="bot-msg" style="background:rgba(255,183,3,0.1); padding:10px; border-radius:10px 10px 10px 0; margin-bottom:10px; font-size:0.9rem; border-left:3px solid #ffb703;">
@@ -7369,27 +7385,27 @@ window.showPage = function (page) {
             </div>
 
             <div style="display:flex; gap:10px;">
-                <input type="text" id="arbitre-query" placeholder="Ex: Mon pot est-il homologuÃƒÂ© ?" style="flex:1; background:#111; color:white; border:1px solid #444; border-radius:20px; padding:10px 15px; font-size:0.9rem;">
+                <input type="text" id="arbitre-query" placeholder="Ex: Mon pot est-il homologuÃƒ© ?" style="flex:1; background:#111; color:white; border:1px solid #444; border-radius:20px; padding:10px 15px; font-size:0.9rem;">
                 <button onclick="submitArbitre()" style="background:#ffb703; color:black; border:none; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>`;
   } else if (page === "ia_predictive") {
     if (typeof content !== "undefined")
       content.innerHTML = `<div class="card-insurance" style="border: 2px solid #b700ff; background: rgba(20, 10, 40, 0.9);">
-            <div class="insurance-badge" style="background: #b700ff; color: white;">IA PrÃƒÂ©dictive & Courtier</div>
-            <h3 style="color: #00d2ff;"><i class="fa-solid fa-microchip"></i> IA PrÃƒÂ©dictive</h3>
+            <div class="insurance-badge" style="background: #b700ff; color: white;">IA PrÃƒ©dictive & Courtier</div>
+            <h3 style="color: #00d2ff;"><i class="fa-solid fa-microchip"></i> IA PrÃƒ©dictive</h3>
             <p style="font-size: 0.85rem; color: #ddd; margin-bottom: 15px;">L'IA analyse vos trajets pour anticiper les pannes et optimiser votre conduite 50cc.</p>
             
             <div class="glassmorphism" style="padding:15px; margin-bottom:20px; background: rgba(0,0,0,0.4);">
                 <h4 style="color: #ffb703; font-size: 0.9rem; margin-bottom: 10px;"><i class="fa-solid fa-star"></i> Avantages Courtier Partenaire</h4>
                 <ul style="color: #aaa; font-size: 0.8rem; text-align: left; padding-left: 20px;">
-                    <li><strong style="color: #fff;">-20% de rÃƒÂ©duction</strong> sur votre assurance tous risques grÃƒÂ¢ce ÃƒÂ  l'IA PrÃƒÂ©dictive.</li>
-                    <li><strong style="color: #fff;">Garantie panne 0 km</strong> incluse avec dÃƒÂ©pannage express.</li>
-                    <li><strong style="color: #fff;">Bonus de bonne conduite</strong> (Rouler & Gagner convertible en rÃƒÂ©ductions).</li>
+                    <li><strong style="color: #fff;">-20% de rÃƒ©duction</strong> sur votre assurance tous risques grÃƒÂ¢ce ÃƒÂ  l'IA PrÃƒ©dictive.</li>
+                    <li><strong style="color: #fff;">Garantie panne 0 km</strong> incluse avec dÃƒ©pannage express.</li>
+                    <li><strong style="color: #fff;">Bonus de bonne conduite</strong> (Rouler & Gagner convertible en rÃƒ©ductions).</li>
                 </ul>
                 <button class="btn-insurance" style="width:100%; margin-top:10px; background: #ffb703; color: black; font-weight: bold;" onclick="showPage('insurance')">VOIR MON OFFRE ASSURANCE</button>
             </div>
 
-            <button class="btn-insurance" style="width:100%; background: linear-gradient(135deg, #b700ff, #00d2ff); color: white; font-weight: bold; border: none; padding: 15px; border-radius: 10px;" onclick="PredictiveMeca.checkAlerts(); alert('L\'IA analyse vos donnÃƒÂ©es de tÃƒÂ©lÃƒÂ©mÃƒÂ©trie actuelles... Aucun risque de serrage moteur dÃƒÂ©tectÃƒÂ© pour le moment. Vous roulez de maniÃƒÂ¨re optimale !')"><i class="fa-solid fa-bolt"></i> LANCER L'ANALYSE IA</button>
+            <button class="btn-insurance" style="width:100%; background: linear-gradient(135deg, #b700ff, #00d2ff); color: white; font-weight: bold; border: none; padding: 15px; border-radius: 10px;" onclick="PredictiveMeca.checkAlerts(); alert('L\'IA analyse vos donnÃƒ©es de tÃƒ©lÃƒ©mÃƒ©trie actuelles... Aucun risque de serrage moteur dÃƒ©tectÃƒ© pour le moment. Vous roulez de maniÃƒÂ¨re optimale !')"><i class="fa-solid fa-bolt"></i> LANCER L'ANALYSE IA</button>
         </div>`;
   } else if (page === "profile") {
     if (typeof content !== "undefined")
@@ -7406,7 +7422,7 @@ window.showPage = function (page) {
   } else if (page === "insurance_expert") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-building-shield"></i> Portail Expert Assurance</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">AccÃƒÂ¨s sÃƒÂ©curisÃƒÂ© pour les compagnies d'assurance et experts judiciaires.</p>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">AccÃƒÂ¨s sÃƒ©curisÃƒ© pour les compagnies d'assurance et experts judiciaires.</p>
             <div id="insurance-search-box" style="margin-bottom:20px;">
                 <input type="text" id="expert-report-id" placeholder="ID du Dossier (ex: blackbox_...)" style="width:100%; padding:15px; background:rgba(255,255,255,0.05); border:1px solid #444; border-radius:10px; color:white; margin-bottom:10px;">
                 <button class="btn-insurance" onclick="InsurancePortal.searchReport(document.getElementById('expert-report-id').value)" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:10px; font-weight:bold;">RECHERCHER LE DOSSIER</button>
@@ -7414,8 +7430,8 @@ window.showPage = function (page) {
             <div id="insurance-content"></div>`;
   } else if (page === "pulse") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3><i class="fa-solid fa-microscope"></i> Labo MÃƒÂ©ca : StÃƒÂ©thoscope IA</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Analyse biomÃƒÂ©trique de la santÃƒÂ© de votre moteur via les capteurs du smartphone.</p>
+      content.innerHTML = `<h3><i class="fa-solid fa-microscope"></i> Labo MÃƒ©ca : StÃƒ©thoscope IA</h3>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Analyse biomÃƒ©trique de la santÃƒ© de votre moteur via les capteurs du smartphone.</p>
             
             <div class="glassmorphism" style="padding:20px; text-align:center;">
                 <div id="scan-visual" style="height:100px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; background:rgba(0,0,0,0.3); border-radius:15px; position:relative; overflow:hidden;">
@@ -7423,28 +7439,28 @@ window.showPage = function (page) {
                     <i class="fa-solid fa-gear" style="font-size:3rem; color:#ffb703; z-index:1;"></i>
                 </div>
                 <button class="btn-insurance" onclick="EnginePulse.startScan()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:10px; font-weight:bold; font-size:1.1rem;">LANCER LE DIAGNOSTIC</button>
-                <p style="font-size:0.7rem; color:#888; margin-top:10px;">Posez le tÃƒÂ©lÃƒÂ©phone sur la selle, moteur allumÃƒÂ© au ralenti.</p>
+                <p style="font-size:0.7rem; color:#888; margin-top:10px;">Posez le tÃƒ©lÃƒ©phone sur la selle, moteur allumÃƒ© au ralenti.</p>
             </div>
             <div id="pulse-result"></div>`;
   } else if (page === "ants_wallet") {
     const passport = Wallet.getSafetyPassport();
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-building-columns"></i> Mon Coffre-Fort ANTS</h3>
-            <p style="font-size:0.75rem; color:#aaa; margin-bottom:20px;">Titres sÃƒÂ©curisÃƒÂ©s et Passeport SÃƒÂ©curitÃƒÂ© certifiÃƒÂ© par mon50ccetmoi.</p>
+            <p style="font-size:0.75rem; color:#aaa; margin-bottom:20px;">Titres sÃƒ©curisÃƒ©s et Passeport SÃƒ©curitÃƒ© certifiÃƒ© par mon50ccetmoi.</p>
             
             <div class="glassmorphism" style="padding:15px; margin-bottom:15px; border-left:4px solid #2ecc71;">
-                <h4 style="font-size:0.9rem; color:#2ecc71;"><i class="fa-solid fa-id-card"></i> Passeport SÃƒÂ©curitÃƒÂ© Digital</h4>
+                <h4 style="font-size:0.9rem; color:#2ecc71;"><i class="fa-solid fa-id-card"></i> Passeport SÃƒ©curitÃƒ© Digital</h4>
                 <div style="font-size:0.8rem; margin-top:5px; color:#ddd;">
                     ID Blackbox: <span style="font-family:monospace; color:#2ecc71;">${passport.blackbox_id}</span><br>
                     Maintenance: <span style="color:#2ecc71;">${passport.maintenance_count} interventions</span><br>
-                    SantÃƒÂ© Moteur: <span style="color:#2ecc71;">${passport.engine_health}</span>
+                    SantÃƒ© Moteur: <span style="color:#2ecc71;">${passport.engine_health}</span>
                 </div>
             </div>
 
             <div class="menu-list" style="margin-top:20px;">
                 <div id="ants-docs-container" style="margin-bottom:15px;"></div>
-                <li onclick="window.uploadDocument('carte_grise')"><i class="fa-solid fa-camera"></i> NumÃƒÂ©riser Carte Grise</li>
-                <li onclick="window.uploadDocument('permis_am')"><i class="fa-solid fa-address-card"></i> NumÃƒÂ©riser Permis AM</li>
+                <li onclick="window.uploadDocument('carte_grise')"><i class="fa-solid fa-camera"></i> NumÃƒ©riser Carte Grise</li>
+                <li onclick="window.uploadDocument('permis_am')"><i class="fa-solid fa-address-card"></i> NumÃƒ©riser Permis AM</li>
                 <li onclick="window.uploadDocument('assurance')"><i class="fa-solid fa-shield-check"></i> Attestation Assurance</li>
             </div>
             
@@ -7452,10 +7468,10 @@ window.showPage = function (page) {
                 <i class="fa-solid fa-file-shield"></i> GÃƒâ€°NÃƒâ€°RER MON CERTIFICAT OFFICIEL
             </button>
             
-            <p style="font-size:0.65rem; color:#666; text-align:center; margin-top:20px;">Note : Ce coffre-fort facilite les contrÃƒÂ´les mais ne remplace pas les documents originaux selon la lÃƒÂ©gislation en vigueur.</p>`;
+            <p style="font-size:0.65rem; color:#666; text-align:center; margin-top:20px;">Note : Ce coffre-fort facilite les contrÃƒÂ´les mais ne remplace pas les documents originaux selon la lÃƒ©gislation en vigueur.</p>`;
   } else if (page === "meca_lab") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3><i class="fa-solid fa-oil-can"></i> Le Sorcier de la MÃƒÂ©ca</h3>
+      content.innerHTML = `<h3><i class="fa-solid fa-oil-can"></i> Le Sorcier de la MÃƒ©ca</h3>
             <div class="glassmorphism" style="padding:20px; margin-bottom:20px;">
                 <h4 style="color:var(--accent);">CALCULATEUR DE MÃƒâ€°LANGE</h4>
                 <div style="margin-top:15px;">
@@ -7475,7 +7491,7 @@ window.showPage = function (page) {
             </div>`;
   } else if (page === "about") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3><i class="fa-solid fa-circle-info"></i> Ãƒâ‚¬ Propos</h3>
+      content.innerHTML = `<h3><i class="fa-solid fa-circle-info"></i> Ãƒ€ Propos</h3>
             <div style="text-align:center; padding:20px;">
                 <div class="login-logo" style="font-size:3rem; color:var(--accent); margin-bottom:10px;">50</div>
                 <h2 style="color:var(--accent);">mon50ccetmoi</h2>
@@ -7483,8 +7499,8 @@ window.showPage = function (page) {
                 
                 <div class="glassmorphism" style="padding:20px; border:1px solid var(--accent); margin-bottom:30px; text-align:left;">
                     <p style="font-size:0.9rem; font-weight:bold; text-align:center;">SIGNATURE CORPORATE</p>
-                    <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriÃƒÂ©tÃƒÂ© exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
-                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">ProtÃƒÂ©gÃƒÂ© par les lois internationales sur la propriÃƒÂ©tÃƒÂ© intellectuelle. TÃƒÂ©lÃƒÂ©mÃƒÂ©trie certifiÃƒÂ©e conforme aux standards ANTS v100.00-GOLD.</p>
+                    <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriÃƒ©tÃƒ© exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
+                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">ProtÃƒ©gÃƒ© par les lois internationales sur la propriÃƒ©tÃƒ© intellectuelle. TÃƒ©lÃƒ©mÃƒ©trie certifiÃƒ©e conforme aux standards ANTS v100.00-GOLD.</p>
                 </div>
                 
                 <button onclick="document.getElementById('screen-overlay').classList.add('hidden')" class="btn-cancel" style="background:#333; color:white;">FERMER</button>
@@ -7494,10 +7510,10 @@ window.showPage = function (page) {
       { name: "Le Grand Raid", goal: 200, unit: "km" },
       { name: "L'Urbain Zen", goal: 100, unit: "km" },
       { name: "L'Explorateur", goal: 300, unit: "km" },
-      { name: "Le VÃƒÂ©lomoteur", goal: 50, unit: "km" },
+      { name: "Le VÃƒ©lomoteur", goal: 50, unit: "km" },
     ];
 
-    // Rotation tous les 14 jours basÃƒÂ©e sur l'Unix Time
+    // Rotation tous les 14 jours basÃƒ©e sur l'Unix Time
     const fortressPeriod = 14 * 24 * 60 * 60 * 1000;
     const currentPeriodIdx =
       Math.floor(Date.now() / fortressPeriod) % availableChallenges.length;
@@ -7523,7 +7539,7 @@ window.showPage = function (page) {
                 <div class="garage-bar-bg" style="height:12px;">
                     <div class="garage-bar-fill" style="width:${progress}%; background:#9b59b6;"></div>
                 </div>
-                <p style="font-size:0.8rem; color:#888; margin-top:10px; text-align:center;">Ã°Å¸Å½â€“Ã¯Â¸Â Vous avez rÃƒÂ©ussi <strong>${wins}/150</strong> dÃƒÂ©fis pour le Badge Pro</p>
+                <p style="font-size:0.8rem; color:#888; margin-top:10px; text-align:center;">Ã°Å¸Å½â€“ïÂ¸Â Vous avez rÃƒ©ussi <strong>${wins}/150</strong> dÃƒ©fis pour le Badge Pro</p>
             </div>
 
                           <button class="btn-insurance" style="margin-top:20px; width:100%; background:#9b59b6; color:white;" onclick="toggleMenu()">CONTINUER L''ASCENSION</button>
@@ -7533,16 +7549,16 @@ window.showPage = function (page) {
                   ? `
                   <button class="btn-insurance" style="margin-top:10px; width:100%; background:linear-gradient(90deg, #b700ff, #ff0055); color:white; font-weight:bold; box-shadow:0 0 15px rgba(183,0,255,0.5);" onclick="
                       if(window.Web4Economy) {
-                          window.Web4Economy.mineToken(5.0, 'DÃ©fi Quinzaine ComplÃ©tÃ©');
+                          window.Web4Economy.mineToken(5.0, 'Défi Quinzaine Complété');
                           localStorage.setItem('defi_claimed_${currentPeriodIdx}', 'true');
                           window.session.completedChallengesCount = (window.session.completedChallengesCount || 0) + 1;
-                          alert('FÃ©licitations ! Vous avez remportÃ© 5 BVC pour avoir complÃ©tÃ© le dÃ©fi.');
+                          alert('Félicitations ! Vous avez remporté 5 BVC pour avoir complété le défi.');
                           showPage('defis');
                       }
-                  ">RÃ‰CLAMER MES 5 BVC</button>
+                  ">RÉCLAMER MES 5 BVC</button>
               `
                   : progress >= 100
-                    ? `<button class="btn-insurance" style="margin-top:10px; width:100%; background:#333; color:#aaa; cursor:not-allowed;" disabled>RÃ‰COMPENSE DE 5 BVC RÃ‰CUPÃ‰RÃ‰E</button>`
+                    ? `<button class="btn-insurance" style="margin-top:10px; width:100%; background:#333; color:#aaa; cursor:not-allowed;" disabled>RÉCOMPENSE DE 5 BVC RÉCUPÉRÉE</button>`
                     : ""
               }
         </div>`;
@@ -7550,8 +7566,8 @@ window.showPage = function (page) {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-map-location-dot"></i> Navigation & Roadbooks</h3>
             <div class="glassmorphism" style="padding:20px; border-left:4px solid #f1c40f; margin-bottom:20px;">
-                <h4 style="color:#f1c40f;"><i class="fa-solid fa-stopwatch"></i> CHRONOS GUARD (ZÃƒÂ©ro Retard)</h4>
-                <p style="font-size:0.75rem; margin-top:5px; color:#aaa;">RÃƒÂ©glez votre heure d'arrivÃƒÂ©e cible. L'app inclut votre temps d'ÃƒÂ©quipement (5 min).</p>
+                <h4 style="color:#f1c40f;"><i class="fa-solid fa-stopwatch"></i> CHRONOS GUARD (ZÃƒ©ro Retard)</h4>
+                <p style="font-size:0.75rem; margin-top:5px; color:#aaa;">RÃƒ©glez votre heure d'arrivÃƒ©e cible. L'app inclut votre temps d'Ãƒ©quipement (5 min).</p>
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <input type="time" id="target-time" class="scooter-brand-select" style="flex:1;">
                     <button onclick="Chronos.setTarget(document.getElementById('target-time').value)" class="btn-insurance" style="flex:1; background:#f1c40f; color:black;">ACTIVER</button>
@@ -7561,7 +7577,7 @@ window.showPage = function (page) {
                 </button>
             </div>
             
-            <p style="text-align:center; padding:40px; color:#666;">Liste de vos roadbooks sauvegardÃƒÂ©s...</p>`;
+            <p style="text-align:center; padding:40px; color:#666;">Liste de vos roadbooks sauvegardÃƒ©s...</p>`;
   } else if (page === "arbitre") {
     if (
       window.Blackbox &&
@@ -7570,19 +7586,19 @@ window.showPage = function (page) {
       window.Blackbox.showLitigationInfo();
     } else {
       if (typeof content !== "undefined")
-        content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> Arbitre de la Route</h3><p>Service Blackbox momentanÃƒÂ©ment indisponible.</p>`;
+        content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> Arbitre de la Route</h3><p>Service Blackbox momentanÃƒ©ment indisponible.</p>`;
     }
   } else if (page === "privacy") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3>Mentions LÃƒÂ©gales & ConfidentialitÃƒÂ©</h3>
+      content.innerHTML = `<h3>Mentions LÃƒ©gales & ConfidentialitÃƒ©</h3>
             <div style="font-size:0.8rem; line-height:1.4; color:#ccc;">
                 <p><strong>Ãƒâ€°diteur :</strong> mon50ccetmoi (Engineering Unit)</p>
                 <p><strong>Responsable :</strong> mon50ccetmoi Admin (US)</p>
                 <p><strong>Contact :</strong> via l'application</p>
                 <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
-                <p><strong>DonnÃƒÂ©es GPS :</strong> Vos coordonnÃƒÂ©es sont traitÃƒÂ©es localement pour la navigation et la dÃƒÂ©tection de chute.</p>
-                <p><strong>Partage :</strong> Les signalements de dangers sont partagÃƒÂ©s de maniÃƒÂ¨re anonyme avec la communautÃƒÂ©.</p>
-                <p><strong>Stockage :</strong> Vos prÃƒÂ©fÃƒÂ©rences sont enregistrÃƒÂ©es dans votre navigateur (LocalStorage).</p>
+                <p><strong>DonnÃƒ©es GPS :</strong> Vos coordonnÃƒ©es sont traitÃƒ©es localement pour la navigation et la dÃƒ©tection de chute.</p>
+                <p><strong>Partage :</strong> Les signalements de dangers sont partagÃƒ©s de maniÃƒÂ¨re anonyme avec la communautÃƒ©.</p>
+                <p><strong>Stockage :</strong> Vos prÃƒ©fÃƒ©rences sont enregistrÃƒ©es dans votre navigateur (LocalStorage).</p>
                 <p><strong>Version :</strong> v100.00-GOLD-PRO Build 2026</p>
                 <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
@@ -7592,13 +7608,13 @@ window.showPage = function (page) {
     );
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-lightbulb"></i> Conseils de Pro 50cc</h3>
-            <p style="font-size:0.7rem; color:#aaa; margin-bottom:15px;">Fiches techniques rÃƒÂ©digÃƒÂ©es par nos experts et les garages certifiÃƒÂ©s.</p>
+            <p style="font-size:0.7rem; color:#aaa; margin-bottom:15px;">Fiches techniques rÃƒ©digÃƒ©es par nos experts et les garages certifiÃƒ©s.</p>
             
             <div id="pro-tips-container">
                 <div class="card" style="border-left:4px solid #f39c12;">
                     <button class="badge-pro" style="float:right; background:#f39c12; font-size:0.5rem; border:none; color:black; border-radius:5px; padding:2px 5px;">OFFICIEL</button>
                     <h4 style="color:#f39c12;"><i class="fa-solid fa-wrench"></i> Entretien Rapide</h4>
-                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bougie :</strong> Une bougie propre (couleur chocolat) = un moteur qui dure. Si elle est noire, votre mÃƒÂ©lange est trop riche.</p>
+                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bougie :</strong> Une bougie propre (couleur chocolat) = un moteur qui dure. Si elle est noire, votre mÃƒ©lange est trop riche.</p>
                 </div>
 
                 ${communityTips
@@ -7615,8 +7631,8 @@ window.showPage = function (page) {
 
                 <div class="card" style="border-left:4px solid #e74c3c;">
                     <button class="badge-pro" style="float:right; background:#e74c3c; font-size:0.5rem; border:none; color:white; border-radius:5px; padding:2px 5px;">OFFICIEL</button>
-                    <h4 style="color:#e74c3c;"><i class="fa-solid fa-scale-balanced"></i> Loi & SÃƒÂ©curitÃƒÂ©</h4>
-                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bridage :</strong> Le dÃƒÂ©bridage est interdit sur voie publique. En cas d'accident, votre assurance peut refuser de payer.</p>
+                    <h4 style="color:#e74c3c;"><i class="fa-solid fa-scale-balanced"></i> Loi & SÃƒ©curitÃƒ©</h4>
+                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bridage :</strong> Le dÃƒ©bridage est interdit sur voie publique. En cas d'accident, votre assurance peut refuser de payer.</p>
                 </div>
             </div>`;
   } else if (page === "pro-space") {
@@ -7625,27 +7641,27 @@ window.showPage = function (page) {
       content.innerHTML = `<h3><i class="fa-solid fa-briefcase"></i> ${t("pro_space_title")}</h3>
             <div class="card" style="border:1px solid #3498db; background: rgba(52, 152, 219, 0.05);">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong>VisibilitÃƒÂ© Mobile</strong>
+                    <strong>VisibilitÃƒ© Mobile</strong>
                     <button onclick="toggleGarageVisibility()" class="btn-circular ${window.isGarageVisible ? "btn-neon" : "btn-dark"}" style="width:40px; height:40px;">
                         <i class="fa-solid fa-eye"></i>
                     </button>
                 </div>
-                <small style="font-size:0.6rem; color:#aaa; margin-top:5px; display:block;">Si activÃƒÂ©, vous apparaissez en bleu sur la carte des pilotes.</small>
+                <small style="font-size:0.6rem; color:#aaa; margin-top:5px; display:block;">Si activÃƒ©, vous apparaissez en bleu sur la carte des pilotes.</small>
             </div>
 
             <div class="card">
-                <label style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immÃƒÂ©diat de l'atelier</label>
+                <label style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immÃƒ©diat de l'atelier</label>
                 <select id="garage-status-select" onchange="updateGarageStatus(this.value)" class="scooter-brand-select" style="width:100%; background:#111;">
-                    <option value="dispo" selected>Ã¢Å“â€¦ Prise en charge immÃƒÂ©diate</option>
-                    <option value="busy">Ã¢ÂÂ³ RDV nÃƒÂ©cessaire (>48h)</option>
-                    <option value="full">Ã°Å¸Å¡Â« Atelier Complet</option>
+                    <option value="dispo" selected>âÅ“… Prise en charge immÃƒ©diate</option>
+                    <option value="busy">âÂ³ RDV nÃƒ©cessaire (>48h)</option>
+                    <option value="full">Ã°Å¸Å¡« Atelier Complet</option>
                 </select>
             </div>
 
             <div class="card" style="border:1px solid #f1c40f;">
                 <h4 style="color:#f1c40f; margin-bottom:10px;"><i class="fa-solid fa-bolt"></i> Offre Flash (Promo)</h4>
                 <textarea id="flash-offer-text" placeholder="Ex: -20% sur les pneus Michelin ce weekend !" style="width:100%; height:60px; background:#000; color:white; border:1px solid #444; border-radius:8px; padding:10px; font-size:0.8rem;"></textarea>
-                <button onclick="publishFlashOffer()" class="btn-insurance" style="background:#f1c40f; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Diffuser ÃƒÂ  la communautÃƒÂ©</button>
+                <button onclick="publishFlashOffer()" class="btn-insurance" style="background:#f1c40f; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Diffuser ÃƒÂ  la communautÃƒ©</button>
             </div>
 
             ${
@@ -7653,27 +7669,27 @@ window.showPage = function (page) {
                 ? `
             <div class="card" style="text-align:center; background:rgba(52, 152, 219, 0.05); border:1px solid #3498db;">
                 <i class="fa-solid fa-certificate" style="font-size:2rem; color:#f1c40f;"></i><br>
-                <h4 style="margin:10px 0; color:#fff;">Droit d'EntrÃƒÂ©e & Certification</h4>
-                <p style="font-size:0.7rem; color:#aaa; margin-bottom:10px;">Devenez <strong>Garage CertifiÃƒÂ©</strong> pour seulement <strong>50Ã¢â€šÂ¬ TTC</strong> (Paiement unique).</p>
+                <h4 style="margin:10px 0; color:#fff;">Droit d'EntrÃƒ©e & Certification</h4>
+                <p style="font-size:0.7rem; color:#aaa; margin-bottom:10px;">Devenez <strong>Garage CertifiÃƒ©</strong> pour seulement <strong>50ââ€šÂ¬ TTC</strong> (Paiement unique).</p>
                 <ul style="font-size:0.65rem; color:#ccc; list-style:none; padding:0; text-align:left; margin-bottom:15px;">
-                    <li>Ã¢Å“â€¦ Badge <strong>CertifiÃƒÂ© mon50ccetmoi</strong></li>
-                    <li>Ã°Å¸Å¡â‚¬ <strong>Boost de visibilitÃƒÂ©</strong> sur la carte</li>
-                    <li>Ã°Å¸â€ºÂ Ã¯Â¸Â AccÃƒÂ¨s illimitÃƒÂ© aux fiches techniques</li>
-                    <li>Ã°Å¸â€˜â€ PrioritÃƒÂ© dans les rÃƒÂ©sultats de recherche</li>
+                    <li>âÅ“… Badge <strong>CertifiÃƒ© mon50ccetmoi</strong></li>
+                    <li>Ã°Å¸Å¡€ <strong>Boost de visibilitÃƒ©</strong> sur la carte</li>
+                    <li>Ã°Å¸â€ºÂ ïÂ¸Â AccÃƒÂ¨s illimitÃƒ© aux fiches techniques</li>
+                    <li>Ã°Å¸‘â€ PrioritÃƒ© dans les rÃƒ©sultats de recherche</li>
                 </ul>
-                <button onclick="payGarageEntryFee()" class="btn-insurance" style="background:#f1c40f; color:black; font-weight:bold;">S'acquitter du droit d'entrÃƒÂ©e (50Ã¢â€šÂ¬)</button>
+                <button onclick="payGarageEntryFee()" class="btn-insurance" style="background:#f1c40f; color:black; font-weight:bold;">S'acquitter du droit d'entrÃƒ©e (50ââ€šÂ¬)</button>
                 
                 <div style="margin-top:15px; padding-top:15px; border-top:1px solid #444;">
                     <p style="font-size:0.7rem; color:#2ecc71;"><strong>Ã°Å¸Å½Â OPTION "CROISSANCE" GRATUITE :</strong></p>
-                    <p style="font-size:0.6rem; color:#aaa;">Offrez <strong>-10% de rÃƒÂ©duction</strong> aux membres sur prÃƒÂ©sentation de l'app et soyez <strong>exonÃƒÂ©rÃƒÂ©</strong> des 50Ã¢â€šÂ¬ !</p>
+                    <p style="font-size:0.6rem; color:#aaa;">Offrez <strong>-10% de rÃƒ©duction</strong> aux membres sur prÃƒ©sentation de l'app et soyez <strong>exonÃƒ©rÃƒ©</strong> des 50ââ€šÂ¬ !</p>
                     <button onclick="applyPartnerExemption()" class="btn-insurance fa-beat" style="background:transparent; border:1px solid #2ecc71; color:#2ecc71; margin-top:5px; font-size:0.8rem; font-weight:bold;">REJOINDRE LE RÃƒâ€°SEAU GRATUITEMENT (-10%)</button>
                 </div>
             </div>`
                 : `
             <div class="card" style="text-align:center; background:rgba(46, 204, 113, 0.1); border:1px solid #2ecc71;">
                 <i class="fa-solid fa-check-double" style="font-size:1.5rem; color:#2ecc71;"></i>
-                <p style="font-size:0.8rem; color:#2ecc71; margin-top:5px;"><strong>Statut PRO CertifiÃƒÂ© Actif</strong></p>
-                <small style="font-size:0.6rem; color:#aaa;">Votre visibilitÃƒÂ© est boostÃƒÂ©e au maximum.</small>
+                <p style="font-size:0.8rem; color:#2ecc71; margin-top:5px;"><strong>Statut PRO CertifiÃƒ© Actif</strong></p>
+                <small style="font-size:0.6rem; color:#aaa;">Votre visibilitÃƒ© est boostÃƒ©e au maximum.</small>
             </div>`
             }
 
@@ -7689,15 +7705,15 @@ window.showPage = function (page) {
       content.innerHTML = `<h3><i class="fa-solid fa-heart"></i> ${t("donate_title")}</h3>
             <div class="card" style="text-align:center; background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(0,0,0,0)); border: 1px solid #e91e63;">
                 <i class="fa-solid fa-mug-hot fa-bounce" style="font-size:3rem; color:#e91e63; margin-bottom:15px;"></i>
-                <p style="font-size:0.9rem; line-height:1.5;"><strong>mon50ccetmoi</strong> est un projet de passionnÃƒÂ©, dÃƒÂ©veloppÃƒÂ© sur mon temps libre pour la communautÃƒÂ© des pilotes de 50cc.</p>
+                <p style="font-size:0.9rem; line-height:1.5;"><strong>mon50ccetmoi</strong> est un projet de passionnÃƒ©, dÃƒ©veloppÃƒ© sur mon temps libre pour la communautÃƒ© des pilotes de 50cc.</p>
                 <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">L'application restera 100% gratuite, mais les dons aident ÃƒÂ  payer les serveurs (Google Maps API, Firebase) et ÃƒÂ  financer les futures mises ÃƒÂ  jour.</p>
                 
                 <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
-                    <a href="https://www.buymeacoffee.com/mon50cc" target="_blank" class="btn-insurance" style="background:#ffdd00; color:black; text-decoration:none;">Ã¢Ëœâ€¢ Offrir un cafÃƒÂ© (Badge MÃƒÂ©cÃƒÂ¨ne Ã°Å¸â€™â€“)</a>
-                    <a href="https://paypal.me/mon50cc" target="_blank" class="btn-insurance" style="background:#0070ba; color:white; text-decoration:none;">Ã°Å¸â€™â„¢ Faire un don libre (PayPal)</a>
+                    <a href="https://www.buymeacoffee.com/mon50cc" target="_blank" class="btn-insurance" style="background:#ffdd00; color:black; text-decoration:none;">âËœ• Offrir un cafÃƒ© (Badge MÃƒ©cÃƒÂ¨ne Ã°Å¸’â€“)</a>
+                    <a href="https://paypal.me/mon50cc" target="_blank" class="btn-insurance" style="background:#0070ba; color:white; text-decoration:none;">Ã°Å¸’â„¢ Faire un don libre (PayPal)</a>
                 </div>
                 
-                <p style="font-size:0.7rem; color:#666; margin-top:15px;">Ã°Å¸Å½Â Chaque don dÃƒÂ©bloque le badge exclusif **"MÃƒÂ©cÃƒÂ¨ne"** sur votre profil et sur la carte communautaire !</p>
+                <p style="font-size:0.7rem; color:#666; margin-top:15px;">Ã°Å¸Å½Â Chaque don dÃƒ©bloque le badge exclusif **"MÃƒ©cÃƒÂ¨ne"** sur votre profil et sur la carte communautaire !</p>
             </div>
         `;
   } else if (page === "security") {
@@ -7715,7 +7731,7 @@ window.showPage = function (page) {
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <strong style="font-size:0.9rem;">Guardian Mode</strong><br>
-                    <small style="font-size:0.6rem; color:#aaa;">Alerte si arrÃƒÂªt prolongÃƒÂ© suspect</small>
+                    <small style="font-size:0.6rem; color:#aaa;">Alerte si arrÃƒÂªt prolongÃƒ© suspect</small>
                 </div>
                 <button onclick="toggleGuardian()" class="btn-circular ${isGuardian ? "btn-neon" : "btn-dark"}" style="width:50px; height:50px;">
                     <i class="fa-solid fa-bell"></i>
@@ -7724,8 +7740,8 @@ window.showPage = function (page) {
 
             <div class="card" style="background:rgba(255,255,255,0.05); text-align:center;">
                 <i class="fa-solid fa-microchip" style="font-size:2rem; color:#2ecc71; margin-bottom:10px;"></i><br>
-                <strong style="font-size:0.8rem;">DÃƒÂ©tecteur G-Force : ACTIF</strong><br>
-                <small style="font-size:0.6rem; color:#666;">Impact calibrÃƒÂ© ÃƒÂ  4.5G</small>
+                <strong style="font-size:0.8rem;">DÃƒ©tecteur G-Force : ACTIF</strong><br>
+                <small style="font-size:0.6rem; color:#666;">Impact calibrÃƒ© ÃƒÂ  4.5G</small>
             </div>`;
   }
   toggleMenu();
@@ -7737,7 +7753,7 @@ window.shareApp = async function () {
     id: "com.mon50ccetmoi.twa",
     lang: "fr-FR",
     title: "mon50ccetmoi",
-    text: "Rejoins la communautÃƒÂ© des scooters 50cc ! Navigation GPS, radars et sÃƒÂ©curitÃƒÂ©.",
+    text: "Rejoins la communautÃƒ© des scooters 50cc ! Navigation GPS, radars et sÃƒ©curitÃƒ©.",
     url: window.location.origin,
   };
   try {
@@ -7745,7 +7761,7 @@ window.shareApp = async function () {
       await navigator.share(shareData);
     } else {
       alert(
-        "Lien copiÃƒÂ© ! Partage-le avec tes potes : " + window.location.origin,
+        "Lien copiÃƒ© ! Partage-le avec tes potes : " + window.location.origin,
       );
     }
   } catch (err) {}
@@ -7760,8 +7776,8 @@ window.submitMecaV3 = function () {
   setTimeout(() => {
     res.innerHTML = `<div style="background:rgba(255,183,3,0.1); padding:15px; border-radius:10px; border-left:4px solid #ffb703;">
             <strong>Diagnostic IA:</strong><br>
-            Il est probable que votre bougie soit encrassÃƒÂ©e ou que le gicleur de votre carburateur soit bouchÃƒÂ©. 
-            VÃƒÂ©rifiez l'ÃƒÂ©tincelle et nettoyez votre cuve.
+            Il est probable que votre bougie soit encrassÃƒ©e ou que le gicleur de votre carburateur soit bouchÃƒ©. 
+            VÃƒ©rifiez l'Ãƒ©tincelle et nettoyez votre cuve.
         </div>`;
   }, 2000);
 };
@@ -7776,7 +7792,7 @@ window.addEventListener("devicemotion", (e) => {
     triggerFallAlert();
     if (window.isGuardianActive && typeof triggerEmergencySOS === "function") {
       triggerEmergencySOS(
-        "Chute brutale dÃƒÂ©tectÃƒÂ©e par l'accÃƒÂ©lÃƒÂ©romÃƒÂ¨tre.",
+        "Chute brutale dÃƒ©tectÃƒ©e par l'accÃƒ©lÃƒ©romÃƒÂ¨tre.",
       );
     }
   }
@@ -7793,8 +7809,8 @@ function triggerFallAlert(isManual = false) {
   if (typeof speak === "function") {
     speak(
       isManual
-        ? "SOS Manuel activÃ©. Alerte de la meute et de l'Ange Gardien."
-        : "Chute dÃ©tectÃ©e. Annulez si vous allez bien, sinon les secours seront prÃ©venus.",
+        ? "SOS Manuel activé. Alerte de la meute et de l'Ange Gardien."
+        : "Chute détectée. Annulez si vous allez bien, sinon les secours seront prévenus.",
     );
   }
 
@@ -7807,7 +7823,7 @@ function triggerFallAlert(isManual = false) {
         <h1>${isManual ? "SOS MANUEL" : t("fall_detected")}</h1>
         <p>${t("emergency_alert")} <br><br> <span id="sos-countdown" style="font-size:1.5rem; font-weight:bold; color:#ffb703;">15s</span></p>
         
-        <!-- NOUVEAU : Bouton Officiel d'Urgence (Conforme LÃ©gislation) -->
+        <!-- NOUVEAU : Bouton Officiel d'Urgence (Conforme Législation) -->
         <a href="tel:112" style="display:block; margin: 15px auto; padding:15px 30px; background:#ff0000; color:white; text-decoration:none; border-radius:50px; font-weight:900; font-size:1.2rem; box-shadow:0 0 15px rgba(255,0,0,0.6);">
             <i class="fa-solid fa-phone"></i> APPELER LES SECOURS (112 / 911)
         </a>
@@ -7833,7 +7849,7 @@ window.cancelFallAlert = function () {
   clearInterval(window.fallAlertInterval);
   const el = document.getElementById("fall-screen");
   if (el) el.remove();
-  if (typeof speak === "function") speak("Alerte annulÃ©e.");
+  if (typeof speak === "function") speak("Alerte annulée.");
 };
 
 window.executeAngeGardienProtocol = async function () {
@@ -7855,7 +7871,7 @@ window.executeAngeGardienProtocol = async function () {
   // Appel de la vraie Cloud Function
   try {
     const userId = window.session?.user_id || "anonymous";
-    // On suppose que firebase est initialisÃ© globalement
+    // On suppose que firebase est initialisé globalement
     const sendSOSCall = firebase
       .functions("europe-west1")
       .httpsCallable("sendEmergencySOS");
@@ -7868,7 +7884,7 @@ window.executeAngeGardienProtocol = async function () {
     });
 
     if (contacts.length > 0) {
-      message += ` Vos ${contacts.length} Ange(s) Gardien(s) ont Ã©tÃ© notifiÃ©s par SMS.`;
+      message += ` Vos ${contacts.length} Ange(s) Gardien(s) ont été notifiés par SMS.`;
     }
   } catch (e) {
     console.error("[SOS] Cloud Function failed", e);
@@ -7882,10 +7898,10 @@ window.executeAngeGardienProtocol = async function () {
         }),
       });
 
-      if (contacts.length > 0) message += ` Ange(s) Gardien(s) notifiÃ©s.`;
+      if (contacts.length > 0) message += ` Ange(s) Gardien(s) notifiés.`;
     } catch (errFetch) {
       message =
-        "Erreur rÃ©seau lors de la transmission du SOS automatisÃ©. Veuillez appeler les secours manuellement.";
+        "Erreur réseau lors de la transmission du SOS automatisé. Veuillez appeler les secours manuellement.";
     }
   }
 
@@ -7894,7 +7910,7 @@ window.executeAngeGardienProtocol = async function () {
   if (div) {
     div.innerHTML = `
             <i class="fa-solid fa-satellite-dish" style="font-size:5rem; margin-bottom:20px; color:#00d2ff;"></i>
-            <h1 style="color:#00d2ff;">ANGE GARDIEN ACTIVÃ‰</h1>
+            <h1 style="color:#00d2ff;">ANGE GARDIEN ACTIVÉ</h1>
             <p>${message}</p>
             <button onclick="window.cancelFallAlert()" style="margin-top:20px; padding:15px 30px; background:#00d2ff; color:#000; border:none; border-radius:50px; font-weight:bold; font-size:1rem;">OK</button>
         `;
@@ -7911,7 +7927,7 @@ window.saveGuardianContacts = function () {
   localStorage.setItem("guardian_contact_1", c1);
   localStorage.setItem("guardian_contact_2", c2);
   alert(
-    "Contacts Ange Gardien sauvegardÃ©s ! En cas de chute ou SOS, l'application tentera d'envoyer un message d'urgence.",
+    "Contacts Ange Gardien sauvegardés ! En cas de chute ou SOS, l'application tentera d'envoyer un message d'urgence.",
   );
 };
 
@@ -7919,9 +7935,9 @@ window.startRodage = function (name) {
   window.isRodageActive = true;
   refreshRodageUI();
   alert(
-    `Mode Rodage ActivÃ©: ${name}. Vitesse max conseillÃ©e: 45km/h. Distance cumulÃ©e comptabilisÃ©e.`,
+    `Mode Rodage Activé: ${name}. Vitesse max conseillée: 45km/h. Distance cumulée comptabilisée.`,
   );
-  speak("Mode rodage activÃ©. MÃ©nagez votre moteur.");
+  speak("Mode rodage activé. Ménagez votre moteur.");
   closeScreen();
   // Simulation d'un point de destination rodage
   if (currentPosition) {
@@ -7948,12 +7964,12 @@ window.closeMood = function () {
   const mood = document.getElementById("mood-overlay");
   if (mood) mood.classList.add("hidden");
 };
-// DÃ©sactivation du popup automatique (bloquait les tests)
+// Désactivation du popup automatique (bloquait les tests)
 // setTimeout(() => document.getElementById('mood-overlay')?.classList.remove('hidden'), 30000);
 
 window.requestAccountDeletion = function () {
   const confirm1 = confirm(
-    "âš ï¸ ATTENTION : Voulez-vous vraiment supprimer dÃ©finitivement votre compte et TOUTES vos donnÃ©es (garage, points, historique) ?",
+    "âš ï¸ ATTENTION : Voulez-vous vraiment supprimer définitivement votre compte et TOUTES vos données (garage, points, historique) ?",
   );
   if (confirm1) {
     const confirm2 = prompt(
@@ -7969,10 +7985,10 @@ window.requestAccountDeletion = function () {
       // Suppression session locale
       logout();
       alert(
-        "Votre compte a Ã©tÃ© supprimÃ© avec succÃ¨s. Vos donnÃ©es ont Ã©tÃ© purgÃ©es conformÃ©ment au RGPD.",
+        "Votre compte a été supprimé avec succès. Vos données ont été purgées conformément au RGPD.",
       );
     } else {
-      alert("Suppression annulÃ©e.");
+      alert("Suppression annulée.");
     }
   }
 };
@@ -7995,7 +8011,7 @@ updateTicker();
 setInterval(updateTicker, 60000);
 
 window.testFallDetection = function () {
-  alert("Simulation d'un impact dans 3 secondes... PrÃ©parez-vous !");
+  alert("Simulation d'un impact dans 3 secondes... Préparez-vous !");
   setTimeout(() => {
     triggerFallAlert();
   }, 3000);
@@ -8030,12 +8046,12 @@ window.toggleParkingMode = function () {
     btn.innerHTML =
       '<i class="fa-solid fa-shield-halved"></i> Mode Parking : ON';
     btn.classList.add("parking-active");
-    speak("Mode parking activÃ©. Votre scooter est sous surveillance.");
+    speak("Mode parking activé. Votre scooter est sous surveillance.");
   } else {
     btn.innerHTML =
       '<i class="fa-solid fa-shield-halved"></i> Mode Parking : OFF';
     btn.classList.remove("parking-active");
-    speak("Mode parking dÃ©sactivÃ©.");
+    speak("Mode parking désactivé.");
   }
   toggleMenu();
 };
@@ -8048,7 +8064,7 @@ function handleParkingMode(lat, lng) {
 
   if (dist > 30) {
     // Alerte si le scoot bouge de plus de 30m
-    speak("ALERTE ! Mouvement suspect dÃ©tectÃ© !");
+    speak("ALERTE ! Mouvement suspect détecté !");
     triggerFallAlert(); // Reuse the high-intensity alert UI
     isParkingMode = false;
     document
@@ -8066,14 +8082,14 @@ function handlePerfTracking(speedKmh) {
     isPerfTracking = true;
     perfStartTime = null;
     perfHud.classList.remove("hidden");
-    perfTimeEl.textContent = "0-50: PrÃªt...";
+    perfTimeEl.textContent = "0-50: Prêt...";
   } else if (speedKmh > 2 && isPerfTracking && !perfStartTime) {
     perfStartTime = Date.now();
     perfTimeEl.textContent = "0-50: GAZ !";
   } else if (speedKmh >= 50 && isPerfTracking && perfStartTime) {
     const time = ((Date.now() - perfStartTime) / 1000).toFixed(2);
     perfTimeEl.textContent = `0-50: ${time}s !`;
-    speak(`Performance rÃ©alisÃ©e : ${time} secondes.`);
+    speak(`Performance réalisée : ${time} secondes.`);
     isPerfTracking = false;
     setTimeout(() => perfHud.classList.add("hidden"), 10000);
   }
@@ -8086,11 +8102,11 @@ function handlePerfTracking(speedKmh) {
 window.CommunityRoadbooks = {
   shareMyRoute() {
     if (!window.currentRoute && !window.currentPosition) {
-      alert("Lancez d'abord un itinÃƒÂ©raire pour pouvoir le partager !");
+      alert("Lancez d'abord un itinÃƒ©raire pour pouvoir le partager !");
       return;
     }
     const name = prompt(
-      "Donnez un nom ÃƒÂ  votre itinÃƒÂ©raire (ex: Boucle des Alpilles) :",
+      "Donnez un nom ÃƒÂ  votre itinÃƒ©raire (ex: Boucle des Alpilles) :",
     );
     if (!name) return;
     const desc = prompt("Description courte (optionnel) :") || "";
@@ -8113,7 +8129,7 @@ window.CommunityRoadbooks = {
     if (existing.length > 50) existing.pop();
     localStorage.setItem("community_roadbooks", JSON.stringify(existing));
     speak(
-      "ItinÃƒÂ©raire partagÃƒÂ© avec la communautÃƒÂ©. Merci pour votre contribution !",
+      "ItinÃƒ©raire partagÃƒ© avec la communautÃƒ©. Merci pour votre contribution !",
     );
     showPage("community_roadbooks");
   },
@@ -8122,7 +8138,7 @@ window.CommunityRoadbooks = {
     const rbs = JSON.parse(localStorage.getItem("community_roadbooks") || "[]");
     const rb = rbs.find((r) => r.id === id);
     if (!rb) return;
-    speak("Chargement de l'itinÃƒÂ©raire " + rb.name);
+    speak("Chargement de l'itinÃƒ©raire " + rb.name);
     // On met le nom dans la barre de recherche pour relancer
     if (document.getElementById("route-search")) {
       document.getElementById("route-search").value = rb.name;
@@ -8205,13 +8221,13 @@ window.toggleARVision = async function () {
 
       if (typeof speak === "function")
         speak(
-          "RÃ©alitÃ© AugmentÃ©e activÃ©e. Superposition de navigation HUD en ligne.",
+          "Réalité Augmentée activée. Superposition de navigation HUD en ligne.",
         );
     } catch (err) {
       console.error("AR Error: ", err);
       window.isARActive = false;
       if (typeof speak === "function")
-        speak("Erreur d'accÃ¨s Ã  la camÃ©ra pour la rÃ©alitÃ© augmentÃ©e.");
+        speak("Erreur d'accès à la caméra pour la réalité augmentée.");
       if (btn) {
         btn.style.transform = "scale(1)";
         btn.style.color = "#00ffcc";
@@ -8241,7 +8257,7 @@ window.toggleARVision = async function () {
       mapContainer.style.mixBlendMode = "normal";
     }
     if (typeof speak === "function")
-      speak("RÃ©alitÃ© AugmentÃ©e dÃ©sactivÃ©e.");
+      speak("Réalité Augmentée désactivée.");
   }
 };
 
@@ -8254,7 +8270,7 @@ window.showCryptoWallet = function () {
   if (screen) screen.classList.remove("hidden");
   if (balance) balance.innerText = Math.floor(window.braveCoins) + " Pts BVC";
 
-  if (typeof speak === "function") speak("AccÃ¨s Ã  votre espace fidÃ©litÃ©.");
+  if (typeof speak === "function") speak("Accès à votre espace fidélité.");
 };
 
 window.hideCryptoWallet = function () {
@@ -8273,7 +8289,7 @@ if (typeof window.stopNavigation === "function") {
     if (typeof speak === "function")
       setTimeout(
         () =>
-          speak("Vous avez gagnÃ© 12 points BVC pour ce trajet sÃ©curisÃ©."),
+          speak("Vous avez gagné 12 points BVC pour ce trajet sécurisé."),
         8000,
       );
   };
@@ -8311,7 +8327,7 @@ window.initBiometrics = function () {
       // Randomly trigger voice if super stressed
       if (Math.random() > 0.95 && typeof speak === "function") {
         speak(
-          "Rythme cardiaque Ã©levÃ© dÃ©tectÃ©. Respirez calmement pour votre sÃ©curitÃ©.",
+          "Rythme cardiaque élevé détecté. Respirez calmement pour votre sécurité.",
         );
       }
     } else {
@@ -8335,17 +8351,17 @@ window.JarvisEngine = {
     userMood: "neutral",
   },
 
-  // RÃ©ponses dynamiques pour Ã©viter l'effet "robot"
+  // Réponses dynamiques pour éviter l'effet "robot"
   responses: {
     ack: [
-      "Bien reÃ§u.",
+      "Bien reçu.",
       "Je m'en occupe.",
       "Analyse en cours.",
       "Compris, pilote.",
     ],
     search: [
       "Je lance la recherche.",
-      "Recherche dans la base de donnÃ©es locale.",
+      "Recherche dans la base de données locale.",
       "Cartographie en cours.",
     ],
     error: [
@@ -8354,9 +8370,9 @@ window.JarvisEngine = {
       "Instruction non reconnue par mes protocoles.",
     ],
     jokes: [
-      "Que fait un motard quand il a froid ? Il se rapproche du pot d'Ã©chappement.",
-      "Pourquoi les motards sont-ils toujours heureux ? Parce qu'on ne peut pas pleurer avec un casque intÃ©gral.",
-      "Quel est le comble pour un mÃ©canicien scooter ? C'est de perdre la boule !",
+      "Que fait un motard quand il a froid ? Il se rapproche du pot d'échappement.",
+      "Pourquoi les motards sont-ils toujours heureux ? Parce qu'on ne peut pas pleurer avec un casque intégral.",
+      "Quel est le comble pour un mécanicien scooter ? C'est de perdre la boule !",
     ],
   },
 
@@ -8371,8 +8387,8 @@ window.JarvisEngine = {
     } else if ("speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "fr-FR";
-      utterance.pitch = 0.9; // Voix lÃ©gÃ¨rement plus grave
-      utterance.rate = 1.05; // Rythme naturel mais rÃ©actif
+      utterance.pitch = 0.9; // Voix légèrement plus grave
+      utterance.rate = 1.05; // Rythme naturel mais réactif
       window.speechSynthesis.speak(utterance);
     } else {
     }
@@ -8381,7 +8397,7 @@ window.JarvisEngine = {
   processQuery: function (transcript) {
     const t = transcript.toLowerCase();
 
-    // 1. DÃ©tection d'intentions complexes (Intent Parsing)
+    // 1. Détection d'intentions complexes (Intent Parsing)
 
     // Appel d'Urgence / SOS
     if (
@@ -8398,17 +8414,17 @@ window.JarvisEngine = {
     ) {
       return {
         action: "EMERGENCY_CALL",
-        reply: `Attention. Mode urgence activÃ©. Je prÃ©pare l'appel aux services de secours.`,
+        reply: `Attention. Mode urgence activé. Je prépare l'appel aux services de secours.`,
       };
     }
     // Comparaison Carburant
     else if (
       this.matchAny(t, ["essence", "carburant", "plein", "station", "sec"]) &&
-      this.matchAny(t, ["moins cher", "prix", "compare", "oÃ¹"])
+      this.matchAny(t, ["moins cher", "prix", "compare", "où"])
     ) {
       return {
         action: "COMPARE_GAS_PRICES",
-        reply: `Analyse des prix du carburant dans un rayon de 3 kilomÃ¨tres en cours.`,
+        reply: `Analyse des prix du carburant dans un rayon de 3 kilomètres en cours.`,
       };
     } else if (this.matchAny(t, ["essence", "station", "carburant", "sec"])) {
       return {
@@ -8416,18 +8432,18 @@ window.JarvisEngine = {
         reply: `${this.getRandomResponse("search")} J'affiche le radar communautaire des prix du carburant.`,
       };
     }
-    // Navigation SpÃ©cifique
+    // Navigation Spécifique
     else if (
       this.matchAny(t, [
-        "emmÃ¨ne-moi",
-        "itinÃ©raire vers",
-        "aller Ã ",
+        "emmène-moi",
+        "itinéraire vers",
+        "aller à",
         "guidage vers",
       ])
     ) {
       // Extraction basique de la destination
       let destination = "votre destination";
-      const navKeywords = ["vers", "Ã  "];
+      const navKeywords = ["vers", "à "];
       for (let kw of navKeywords) {
         if (t.includes(kw)) {
           destination = t.split(kw)[1].trim();
@@ -8437,7 +8453,7 @@ window.JarvisEngine = {
       return {
         action: "NAVIGATE_TO",
         payload: destination,
-        reply: `Calcul de l'itinÃ©raire optimal vers ${destination}.`,
+        reply: `Calcul de l'itinéraire optimal vers ${destination}.`,
       };
     }
     // Maison
@@ -8451,19 +8467,19 @@ window.JarvisEngine = {
     else if (this.matchAny(t, ["accident", "danger", "obstacle", "travaux"])) {
       return {
         action: "REPORT_HAZARD",
-        reply: `Danger signalÃ© Ã  la meute. Merci pour votre vigilance.`,
+        reply: `Danger signalé à la meute. Merci pour votre vigilance.`,
       };
     } else if (
       this.matchAny(t, ["animal", "animaux", "biche", "sanglier", "chien"])
     ) {
       return {
         action: "REPORT_ANIMAL",
-        reply: `PrÃ©sence animale confirmÃ©e et partagÃ©e. Soyez prudent.`,
+        reply: `Présence animale confirmée et partagée. Soyez prudent.`,
       };
-    } else if (this.matchAny(t, ["radar", "flics", "contrÃ´le", "police"])) {
+    } else if (this.matchAny(t, ["radar", "flics", "contrôle", "police"])) {
       return {
         action: "REPORT_POLICE",
-        reply: `Zone de contrÃ´le signalÃ©e sur le radar communautaire.`,
+        reply: `Zone de contrôle signalée sur le radar communautaire.`,
       };
     }
     // Social
@@ -8479,7 +8495,7 @@ window.JarvisEngine = {
     ) {
       return {
         action: "SOCIAL_RADAR",
-        reply: `Activation du balayage social. Recherche de pilotes alliÃ©s dans le secteur.`,
+        reply: `Activation du balayage social. Recherche de pilotes alliés dans le secteur.`,
       };
     }
     // Modes de conduite
@@ -8488,29 +8504,29 @@ window.JarvisEngine = {
     ) {
       return {
         action: "SENSATION_MODE",
-        reply: `Mode sensation engagÃ©. Optimisation de l'itinÃ©raire pour le plaisir de conduite.`,
+        reply: `Mode sensation engagé. Optimisation de l'itinéraire pour le plaisir de conduite.`,
       };
     }
     // Diagnostic Moto
     else if (
       this.matchAny(t, [
         "diagnostic",
-        "Ã©tat",
-        "santÃ©",
-        "mÃ©canique",
+        "état",
+        "santé",
+        "mécanique",
         "panne",
         "moteur",
       ])
     ) {
       return {
         action: "AI_DIAGNOSTIC",
-        reply: `J'ouvre le panneau de tÃ©lÃ©mÃ©trie prÃ©dictive de votre engin.`,
+        reply: `J'ouvre le panneau de télémétrie prédictive de votre engin.`,
       };
     }
-    // MÃ©tÃ©o
+    // Météo
     else if (
       this.matchAny(t, [
-        "mÃ©tÃ©o",
+        "météo",
         "temps",
         "pluie",
         "pleuvoir",
@@ -8520,7 +8536,7 @@ window.JarvisEngine = {
     ) {
       return {
         action: "WEATHER_CHECK",
-        reply: `Je vÃ©rifie les conditions mÃ©tÃ©orologiques sur votre parcours actuel.`,
+        reply: `Je vérifie les conditions météorologiques sur votre parcours actuel.`,
       };
     }
     // Profil
@@ -8542,17 +8558,17 @@ window.JarvisEngine = {
       this.matchAny(t, [
         "combien d'utilisateurs",
         "statistiques",
-        "tÃ©lÃ©chargements",
+        "téléchargements",
         "audience",
         "pays",
       ])
     ) {
       return {
         action: "APP_STATS",
-        reply: `D'aprÃ¨s mes derniÃ¨res analyses en date du 4 juillet 2026, l'application compte 4 installations uniques. 3 pilotes sont en France, et nous avons 1 pilote en IndonÃ©sie.`,
+        reply: `D'après mes dernières analyses en date du 4 juillet 2026, l'application compte 4 installations uniques. 3 pilotes sont en France, et nous avons 1 pilote en Indonésie.`,
       };
     }
-    // IdentitÃ© / Blague
+    // Identité / Blague
     else if (this.matchAny(t, ["blague", "humour", "fais-moi rire"])) {
       return { action: "JOKE", reply: this.getRandomResponse("jokes") };
     } else if (
@@ -8565,25 +8581,25 @@ window.JarvisEngine = {
     ) {
       return {
         action: "IDENTITY",
-        reply: `Je suis Jarvis, l'intelligence artificielle de Mon 50cc et Moi. Je suis connectÃ© Ã  votre tÃ©lÃ©mÃ©trie, au rÃ©seau communautaire et prÃªt Ã  vous assister sur la route.`,
+        reply: `Je suis Jarvis, l'intelligence artificielle de Mon 50cc et Moi. Je suis connecté à votre télémétrie, au réseau communautaire et prêt à vous assister sur la route.`,
       };
     } else if (
       this.matchAny(t, [
         "drogue",
-        "stupÃ©fiant",
-        "stupÃ©fiants",
+        "stupéfiant",
+        "stupéfiants",
         "positif",
-        "fumÃ©",
+        "fumé",
         "joint",
         "cannabis",
         "thc",
-        "dÃ©pistage",
+        "dépistage",
         "test",
       ])
     ) {
       return {
         action: "DRUGS_WARNING",
-        reply: `Conduire sous l'emprise de stupÃ©fiants avec un BSR ou Permis AM est un dÃ©lit grave. Pour une premiÃ¨re infraction, vous risquez jusqu'Ã  4500 euros d'amende, 2 ans de prison, l'immobilisation ou la confiscation de votre scooter, et la suspension de votre permis AM. Bien qu'il n'y ait pas de perte de points sur le BSR, les sanctions pÃ©nales sont trÃ¨s lourdes.`,
+        reply: `Conduire sous l'emprise de stupéfiants avec un BSR ou Permis AM est un délit grave. Pour une première infraction, vous risquez jusqu'à 4500 euros d'amende, 2 ans de prison, l'immobilisation ou la confiscation de votre scooter, et la suspension de votre permis AM. Bien qu'il n'y ait pas de perte de points sur le BSR, les sanctions pénales sont très lourdes.`,
       };
     } else {
       return { action: "UNKNOWN", reply: this.getRandomResponse("error") };
@@ -8666,7 +8682,7 @@ window.JarvisEngine = {
         break;
       case "DRUGS_WARNING":
         console.warn(
-          "[J.A.R.V.I.S 4.0] PrÃ©vention stupÃ©fiants dÃ©clenchÃ©e.",
+          "[J.A.R.V.I.S 4.0] Prévention stupéfiants déclenchée.",
         );
         break;
     }
@@ -8678,7 +8694,7 @@ window.initVoiceAI = function () {
     window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    console.warn("Reconnaissance vocale non supportÃ©e sur ce navigateur.");
+    console.warn("Reconnaissance vocale non supportée sur ce navigateur.");
     return;
   }
 
@@ -8705,28 +8721,28 @@ window.initVoiceAI = function () {
     if (
       jarvisFeedback &&
       !transcript.includes("oracle") &&
-      !transcript.includes("systÃ¨me") &&
+      !transcript.includes("système") &&
       !transcript.includes("jarvis")
     ) {
       jarvisFeedback.innerText = "Vous : " + transcript;
       jarvisFeedback.classList.add("visible");
     }
 
-    // Si le mot clÃ© de rÃ©veil est utilisÃ©
+    // Si le mot clé de réveil est utilisé
     if (
       transcript.includes("oracle") ||
-      transcript.includes("systÃ¨me") ||
+      transcript.includes("système") ||
       transcript.includes("jarvis")
     ) {
-      // Extraction de la commande aprÃ¨s le mot clÃ© pour plus de prÃ©cision
+      // Extraction de la commande après le mot clé pour plus de précision
       let command = transcript;
-      ["oracle", "systÃ¨me", "jarvis"].forEach((kw) => {
+      ["oracle", "système", "jarvis"].forEach((kw) => {
         if (transcript.includes(kw)) {
           command = transcript.split(kw)[1].trim() || transcript;
         }
       });
 
-      // Si la commande est vide aprÃ¨s "jarvis"
+      // Si la commande est vide après "jarvis"
       if (command.length < 2) {
         window.JarvisEngine.speak("Ã€ vos ordres, pilote.");
         return;
@@ -8765,7 +8781,7 @@ window.initVoiceAI = function () {
   try {
     window.voiceAI.start();
   } catch (e) {
-    console.error("Impossible de dÃ©marrer l'IA vocale : ", e);
+    console.error("Impossible de démarrer l'IA vocale : ", e);
   }
 };
 
@@ -8790,7 +8806,7 @@ window.CommunityGas = {
   compareAndShow: function () {
     if (typeof speak === "function")
       speak(
-        "Connexion au flux Open Data du gouvernement et rÃ©cupÃ©ration des prix en temps rÃ©el.",
+        "Connexion au flux Open Data du gouvernement et récupération des prix en temps réel.",
       );
 
     if (navigator.geolocation) {
@@ -8813,7 +8829,7 @@ window.CommunityGas = {
 
   fetchGovData: async function (lat, lon) {
     try {
-      // RequÃªte vers l'API OpenDataSoft du Gouvernement FranÃ§ais (Rayon de 3km)
+      // Requête vers l'API OpenDataSoft du Gouvernement Français (Rayon de 3km)
       const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=within_distance(geom, geom'POINT(${lon} ${lat})', 3km)&limit=20`;
       const response = await fetch(url);
       if (!response.ok) throw new Error("Erreur API Gouvernementale");
@@ -8824,7 +8840,7 @@ window.CommunityGas = {
       console.error(e);
       if (typeof speak === "function")
         speak(
-          "Impossible de contacter le serveur gouvernemental. Veuillez rÃ©essayer plus tard.",
+          "Impossible de contacter le serveur gouvernemental. Veuillez réessayer plus tard.",
         );
     }
   },
@@ -8850,7 +8866,7 @@ window.CommunityGas = {
     if (!records || records.length === 0) {
       if (typeof speak === "function")
         speak(
-          "Je ne trouve aucune station service rÃ©pertoriÃ©e dans un rayon de 3 kilomÃ¨tres.",
+          "Je ne trouve aucune station service répertoriée dans un rayon de 3 kilomètres.",
         );
       return;
     }
@@ -8865,12 +8881,12 @@ window.CommunityGas = {
         record.geom.lon,
       );
 
-      // Le flux officiel liste les prix sous format JSON array ou chaÃ®ne XML parsÃ©e.
+      // Le flux officiel liste les prix sous format JSON array ou chaîne XML parsée.
       // On extrait SP98 et E10 (s'ils existent)
       let sp98 = null;
       let e10 = null;
 
-      // Parsing des prix (Le format dÃ©pend du flux, gÃ©nÃ©ralement record.prix est un array d'objets)
+      // Parsing des prix (Le format dépend du flux, généralement record.prix est un array d'objets)
       try {
         let rawPrix = record.prix;
         if (typeof rawPrix === "string") rawPrix = JSON.parse(rawPrix);
@@ -8929,19 +8945,19 @@ window.CommunityGas = {
           bestStation = station;
         }
       } else if (station.prices["E10"] && !warningStation) {
-        // PremiÃ¨re station qui n'a que du E10
+        // Première station qui n'a que du E10
         warningStation = station;
       }
     });
 
-    // PrÃ©paration du message vocal
+    // Préparation du message vocal
     let voiceMessage = "";
     if (bestStation) {
-      voiceMessage += `La station Ã  ${bestStation.distance.toFixed(1)} kilomÃ¨tres est la moins chÃ¨re avec le Sans Plomb 98 Ã  ${bestStation.prices["SP98"].price.toFixed(2)} euros. `;
+      voiceMessage += `La station à ${bestStation.distance.toFixed(1)} kilomètres est la moins chère avec le Sans Plomb 98 à ${bestStation.prices["SP98"].price.toFixed(2)} euros. `;
     }
 
     if (warningStation) {
-      voiceMessage += `Je dÃ©conseille la station Ã  ${warningStation.distance.toFixed(1)} kilomÃ¨tres qui ne propose que du E 10, ce qui est trÃ¨s nocif pour les moteurs de 50 cc. `;
+      voiceMessage += `Je déconseille la station à ${warningStation.distance.toFixed(1)} kilomètres qui ne propose que du E 10, ce qui est très nocif pour les moteurs de 50 cc. `;
     }
 
     if (typeof speak === "function" && voiceMessage !== "") speak(voiceMessage);
@@ -8966,7 +8982,7 @@ window.CommunityGas = {
       const fuelName = hasSP98 ? "SP98" : "E10";
       const statusClass = hasSP98 ? "gas-safe" : "gas-danger";
       const statusIcon = hasSP98 ? "fa-check-circle" : "fa-skull-crossbones";
-      const statusText = hasSP98 ? "RecommandÃ© 50cc" : "DANGER E10";
+      const statusText = hasSP98 ? "Recommandé 50cc" : "DANGER E10";
 
       const card = document.createElement("div");
       card.className = `gas-station-card ${statusClass}`;
@@ -8978,7 +8994,7 @@ window.CommunityGas = {
                 <div class="gas-body">
                     <div class="gas-price-block">
                         <span class="gas-type">${fuelName}</span>
-                        <span class="gas-price">${price} â‚¬</span>
+                        <span class="gas-price">${price} €</span>
                     </div>
                     <div class="gas-status">
                         <i class="fa-solid ${statusIcon}"></i> ${statusText}
@@ -8986,7 +9002,7 @@ window.CommunityGas = {
                 </div>
                 <div class="gas-footer">
                     <button class="btn-update-price" onclick="window.CommunityGas.openUpdateModal('${station.id}')">
-                        <i class="fa-solid fa-pen"></i> Mettre Ã  jour (+5 Pts)
+                        <i class="fa-solid fa-pen"></i> Mettre à jour (+5 Pts)
                     </button>
                 </div>
             `;
@@ -9009,7 +9025,7 @@ window.CommunityGas = {
         : "1.800";
 
     const newPrice = prompt(
-      `Prix officiel Gouv.fr : ${currentPrice}â‚¬.\nEntrez le nouveau prix constatÃ© sur place pour le ${fuelName} :`,
+      `Prix officiel Gouv.fr : ${currentPrice}€.\nEntrez le nouveau prix constaté sur place pour le ${fuelName} :`,
       currentPrice,
     );
 
@@ -9023,10 +9039,10 @@ window.CommunityGas = {
     if (station) {
       if (!station.prices[fuelType]) station.prices[fuelType] = {};
       station.prices[fuelType].price = price;
-      station.prices[fuelType].updatedBy = "CommunautÃ©";
+      station.prices[fuelType].updatedBy = "Communauté";
 
       alert(
-        `Merci ! Le prix a Ã©tÃ© mis Ã  jour Ã  ${price}â‚¬ et synchronisÃ© avec la communautÃ©.\nVous gagnez +5 Points BVC.`,
+        `Merci ! Le prix a été mis à jour à ${price}€ et synchronisé avec la communauté.\nVous gagnez +5 Points BVC.`,
       );
       if (typeof window.testAddPoints === "function") window.testAddPoints(5);
 
@@ -9049,7 +9065,7 @@ window.Leaderboard = {
   },
 
   ensureDepartment: async function () {
-    if (window.session.department) return; // DÃ©jÃ  calculÃ©
+    if (window.session.department) return; // Déjà calculé
 
     if (window.currentPosition && typeof google !== "undefined") {
       try {
@@ -9062,7 +9078,7 @@ window.Leaderboard = {
         });
 
         if (response.results[0]) {
-          // Trouver le code postal ou le dÃ©partement
+          // Trouver le code postal ou le département
           const addressComponents = response.results[0].address_components;
           const postalCode = addressComponents.find((c) =>
             c.types.includes("postal_code"),
@@ -9106,7 +9122,7 @@ window.Leaderboard = {
     try {
       let query = firebase.firestore().collection("users");
 
-      // Si on a un dÃ©partement valide, on filtre. Sinon, classement global
+      // Si on a un département valide, on filtre. Sinon, classement global
       if (
         window.session.department &&
         window.session.department !== "Global" &&
@@ -9187,7 +9203,7 @@ window.Leaderboard = {
             <div style="background:#111; border:1px solid #ffd700; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
                 <h2 style="color:#ffd700; margin-bottom:5px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-trophy"></i> King of the Street</h2>
                 <p style="color:#aaa; font-size:0.9rem; margin-top:0; margin-bottom:20px; text-transform:uppercase;">
-                    Ligue : ${window.session.department && window.session.department !== "Global" ? "DÃ©p. " + window.session.department : "Mondiale"}
+                    Ligue : ${window.session.department && window.session.department !== "Global" ? "Dép. " + window.session.department : "Mondiale"}
                 </p>
                 <div style="text-align:left; max-height:300px; overflow-y:auto; margin-bottom:20px; background:#000; border-radius:10px; padding:10px;">
                     ${htmlList || "<p style='color:#aaa;text-align:center;'>Aucun classement disponible.</p>"}
@@ -9219,7 +9235,7 @@ window.initZeroClickDestiny = function () {
 
   // Simulation de l'IA qui devine la destination selon l'heure
   const hour = new Date().getHours();
-  let predictedDestination = "LycÃ©e / CFA";
+  let predictedDestination = "Lycée / CFA";
   if (hour >= 17 && hour <= 20) predictedDestination = "Maison";
   else if (hour > 20 || hour < 5)
     predictedDestination = "Spot de Rassemblement VSP/50cc";
@@ -9229,7 +9245,7 @@ window.initZeroClickDestiny = function () {
 
   if (typeof speak === "function")
     speak(
-      "Intelligence prÃ©dictive activÃ©e. ItinÃ©raire vers " +
+      "Intelligence prédictive activée. Itinéraire vers " +
         predictedDestination +
         " dans 3 secondes.",
     );
@@ -9244,14 +9260,14 @@ window.initZeroClickDestiny = function () {
       zeroClickScreen.classList.add("hidden");
       if (typeof speak === "function")
         speak(
-          "Navigation autonome engagÃ©e. Connexion aux infrastructures de la ville.",
+          "Navigation autonome engagée. Connexion aux infrastructures de la ville.",
         );
 
       // On simule le lancement de la navigation vers la destination
       const searchInput = document.getElementById("search-input");
       if (searchInput) searchInput.value = predictedDestination;
 
-      // DÃ©marrage de V2X aprÃ¨s lancement
+      // Démarrage de V2X après lancement
       setTimeout(window.initV2XGreenWave, 2000);
     }
   }, 1000);
@@ -9262,7 +9278,7 @@ window.cancelZeroClick = function () {
   const zeroClickScreen = document.getElementById("zero-click-screen");
   if (zeroClickScreen) zeroClickScreen.classList.add("hidden");
   if (typeof speak === "function")
-    speak("PrÃ©diction annulÃ©e. Mode manuel activÃ©.");
+    speak("Prédiction annulée. Mode manuel activé.");
 };
 
 // 2. V2X GREEN WAVE (Piratage Feux Tricolores 50cc)
@@ -9283,33 +9299,33 @@ window.initV2XGreenWave = function () {
 
     const currentSpeed = window.lastKnownSpeedKmh || 0; // Vient de telemetry.js/infallible.js
 
-    // Pour un 50cc/VSP, la vitesse idÃ©ale pour choper les feux verts en ville est souvent 42 km/h.
+    // Pour un 50cc/VSP, la vitesse idéale pour choper les feux verts en ville est souvent 42 km/h.
     const optimalSpeed = 42;
 
     if (v2xTargetSpeed) v2xTargetSpeed.innerText = optimalSpeed + " km/h";
 
     if (currentSpeed > 45) {
-      // ExcÃ¨s de vitesse 50cc -> Risque de feu rouge
+      // Excès de vitesse 50cc -> Risque de feu rouge
       v2xHud.style.borderColor = "#ff0055";
       v2xStatus.innerText = "RALENTISSEZ - FEU ROUGE IMMINENT";
       v2xStatus.style.color = "#ff0055";
       if (Math.random() > 0.95 && typeof speak === "function") {
         speak(
-          "Vitesse excessive pour un 50cc. Ralentissez Ã  42 km heure pour attraper la vague verte.",
+          "Vitesse excessive pour un 50cc. Ralentissez à 42 km heure pour attraper la vague verte.",
         );
       }
     } else if (currentSpeed >= 38 && currentSpeed <= 45) {
       // Vitesse parfaite Onde Verte
       v2xHud.style.borderColor = "#00ffcc";
-      v2xStatus.innerText = "VAGUE VERTE SYNCHRONISÃ‰E";
+      v2xStatus.innerText = "VAGUE VERTE SYNCHRONISÉE";
       v2xStatus.style.color = "#00ffcc";
     } else if (currentSpeed > 0 && currentSpeed < 38) {
       // Trop lent
       v2xHud.style.borderColor = "#ffaa00";
-      v2xStatus.innerText = "ACCÃ‰LÃ‰REZ LÃ‰GÃˆREMENT";
+      v2xStatus.innerText = "ACCÉLÉREZ LÉGÃˆREMENT";
       v2xStatus.style.color = "#ffaa00";
     } else {
-      // Ã€ l'arrÃªt
+      // Ã€ l'arrêt
       v2xHud.style.borderColor = "#555";
       v2xStatus.innerText = "ATTENTE FEU VERT...";
       v2xStatus.style.color = "#aaa";
@@ -9343,7 +9359,7 @@ window.initEcoTelemetry = function () {
     const currentSpeed = window.lastKnownSpeedKmh || 0;
     const delta = Math.abs(currentSpeed - lastSpeed);
 
-    // Si freinage brutal ou accÃ©lÃ©ration violente (> 15 km/h en 1s)
+    // Si freinage brutal ou accélération violente (> 15 km/h en 1s)
     if (delta > 15) {
       window.ecoScore -= 2;
       if (window.ecoScore < 0) window.ecoScore = 0;
@@ -9379,7 +9395,7 @@ window.generateEcoReport = function () {
     certScreen.classList.remove("hidden");
     if (typeof speak === "function")
       speak(
-        "Trajet terminÃ©. Score Ã©cologique excellent. Certificat d'Ã©conomie d'Ã©nergie gÃ©nÃ©rÃ© avec succÃ¨s.",
+        "Trajet terminé. Score écologique excellent. Certificat d'économie d'énergie généré avec succès.",
       );
 
     // Update Wallet Badge if exists
@@ -9388,7 +9404,7 @@ window.generateEcoReport = function () {
   } else {
     if (typeof speak === "function")
       speak(
-        "Trajet terminÃ©. Conduite trop agressive, aucun certificat carbone dÃ©livrÃ©.",
+        "Trajet terminé. Conduite trop agressive, aucun certificat carbone délivré.",
       );
   }
 };
@@ -9409,13 +9425,13 @@ window.openTradingFloor = function () {
 
   if (typeof speak === "function")
     speak(
-      "AccÃ¨s Ã  la salle de marchÃ© du carbone. Des mÃ©gacorporations attendent d'acheter vos certificats.",
+      "Accès à la salle de marché du carbone. Des mégacorporations attendent d'acheter vos certificats.",
     );
 
   // Simulation du cours de la bourse
   window.tradingInterval = setInterval(() => {
     const price = (14.5 + (Math.random() * 5 - 2.5)).toFixed(2);
-    stockPrice.innerText = price + " â‚¬";
+    stockPrice.innerText = price + " €";
     if (price > 16) stockPrice.style.color = "#00ff00";
     else stockPrice.style.color = "#ff0055";
   }, 2000);
@@ -9441,7 +9457,7 @@ window.sellCEE = function () {
 
     if (typeof speak === "function")
       speak(
-        "Transaction validÃ©e. Certificats vendus aux industries polluantes. Fonds transfÃ©rÃ©s sur votre portefeuille.",
+        "Transaction validée. Certificats vendus aux industries polluantes. Fonds transférés sur votre portefeuille.",
       );
 
     const button = document.getElementById("sell-cee-btn");
@@ -9453,7 +9469,7 @@ window.sellCEE = function () {
     }, 3000);
   } else {
     if (typeof speak === "function")
-      speak("Vous ne possÃ©dez aucun certificat Ã  vendre.");
+      speak("Vous ne possédez aucun certificat à vendre.");
   }
 };
 
@@ -9464,15 +9480,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- rgpd-cnil.js --- */
-﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   CONFORMITÃ‰ GLOBALE : RGPD, CCPA, PIPL & GOOGLE PLAY CONSOLE
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+﻿/* ═══════════════════════════════════════════════════════════════
+   CONFORMITÉ GLOBALE : RGPD, CCPA, PIPL & GOOGLE PLAY CONSOLE
+   ═══════════════════════════════════════════════════════════════ */
 
 window.checkGlobalPrivacy = function () {
   const hasConsented = localStorage.getItem("global_privacy_consent");
 
   if (!hasConsented) {
-    // CNIL : Ne PAS auto-accepter. Afficher la banniÃ¨re et attendre le choix actif de l'utilisateur.
+    // CNIL : Ne PAS auto-accepter. Afficher la bannière et attendre le choix actif de l'utilisateur.
     window.preventAppLaunch = true;
     injectPrivacyBanner();
   } else {
@@ -9492,20 +9508,20 @@ function injectPrivacyBanner() {
         <div style="max-width: 500px; margin: 0 auto; padding-bottom: 50px;">
             <div style="text-align: center;">
                 <i class="fa-solid fa-shield-halved" style="font-size: 4rem; color: #00ffcc; margin-bottom: 20px;"></i>
-                <h2 style="margin: 0 0 10px 0; text-transform: uppercase;">Vos DonnÃ©es, Vos RÃ¨gles</h2>
+                <h2 style="margin: 0 0 10px 0; text-transform: uppercase;">Vos Données, Vos Règles</h2>
             </div>
             
             <div style="background: rgba(255,0,85,0.1); border-left: 4px solid #ff0055; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
-                <h3 style="margin: 0 0 10px 0; color: #ff0055; font-size: 1rem;"><i class="fa-brands fa-google-play"></i> DÃ©claration de ConfidentialitÃ©</h3>
+                <h3 style="margin: 0 0 10px 0; color: #ff0055; font-size: 1rem;"><i class="fa-brands fa-google-play"></i> Déclaration de Confidentialité</h3>
                 <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
-                    <strong>mon 50cc et moi</strong> collecte des donnÃ©es de localisation pour permettre la dÃ©tection automatique de chute, la navigation GPS Ã©tape par Ã©tape, et le signalement de dangers Ã  la communautÃ©, mÃªme lorsque l'application est fermÃ©e ou qu'elle n'est pas utilisÃ©e. L'accÃ¨s en arriÃ¨re-plan est indispensable au service.
+                    <strong>mon 50cc et moi</strong> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, même lorsque l'application est fermée ou qu'elle n'est pas utilisée. L'accès en arrière-plan est indispensable au service.
                 </p>
             </div>
 
             <div style="background: #111; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
                 <h3 style="color: #00b3ff; margin-top: 0; font-size: 1.1rem;">1. Europe (RGPD / CNIL)</h3>
                 <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px;">
-                    <span><i class="fa-solid fa-location-dot" style="color: #00b3ff;"></i> AccÃ¨s GPS (Obligatoire)</span>
+                    <span><i class="fa-solid fa-location-dot" style="color: #00b3ff;"></i> Accès GPS (Obligatoire)</span>
                     <input type="checkbox" id="privacy-gps" checked disabled style="transform: scale(1.5);">
                 </label>
                 <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px;">
@@ -9513,7 +9529,7 @@ function injectPrivacyBanner() {
                     <input type="checkbox" id="privacy-mic" checked style="transform: scale(1.5);">
                 </label>
                 <label style="display: flex; justify-content: space-between; align-items: center;">
-                    <span><i class="fa-solid fa-camera" style="color: #b700ff;"></i> CamÃ©ra (AR Vision)</span>
+                    <span><i class="fa-solid fa-camera" style="color: #b700ff;"></i> Caméra (AR Vision)</span>
                     <input type="checkbox" id="privacy-cam" checked style="transform: scale(1.5);">
                 </label>
             </div>
@@ -9521,7 +9537,7 @@ function injectPrivacyBanner() {
             <div style="background: #111; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
                 <h3 style="color: #ffb700; margin-top: 0; font-size: 1.1rem;">2. USA / Californie (CCPA)</h3>
                 <label style="display: flex; justify-content: space-between; align-items: center;">
-                    <span><i class="fa-solid fa-hand-holding-dollar" style="color: #ffb700;"></i> Ne pas vendre mes donnÃ©es<br><small style="color: #888;">"Do Not Sell My Personal Info"</small></span>
+                    <span><i class="fa-solid fa-hand-holding-dollar" style="color: #ffb700;"></i> Ne pas vendre mes données<br><small style="color: #888;">"Do Not Sell My Personal Info"</small></span>
                     <input type="checkbox" id="privacy-ccpa" checked style="transform: scale(1.5);">
                 </label>
             </div>
@@ -9529,15 +9545,15 @@ function injectPrivacyBanner() {
             <div style="background: #111; padding: 15px; border-radius: 10px; margin-bottom: 25px;">
                 <h3 style="color: #ff0055; margin-top: 0; font-size: 1.1rem;">3. Chine (PIPL)</h3>
                 <label style="display: flex; justify-content: space-between; align-items: center;">
-                    <span><i class="fa-solid fa-globe" style="color: #ff0055;"></i> Transfert Transfrontalier<br><small style="color: #888;">Autoriser l'envoi des donnÃ©es vers les serveurs sÃ©curisÃ©s en Europe.</small></span>
+                    <span><i class="fa-solid fa-globe" style="color: #ff0055;"></i> Transfert Transfrontalier<br><small style="color: #888;">Autoriser l'envoi des données vers les serveurs sécurisés en Europe.</small></span>
                     <input type="checkbox" id="privacy-pipl" checked style="transform: scale(1.5);">
                 </label>
             </div>
             
             <button onclick="window.acceptGlobalPrivacy()" style="width: 100%; padding: 15px; background: #00ffcc; color: #000; font-weight: 900; font-size: 1.2rem; border: none; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-bottom: 10px;">J'ACCEPTE TOUT</button>
-            <button onclick="window.refuseGlobalPrivacy()" style="width: 100%; padding: 15px; background: transparent; color: #fff; font-weight: 700; font-size: 1rem; border: 2px solid #fff; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-bottom: 15px;">REFUSER (fonctionnalitÃ©s limitÃ©es)</button>
+            <button onclick="window.refuseGlobalPrivacy()" style="width: 100%; padding: 15px; background: transparent; color: #fff; font-weight: 700; font-size: 1rem; border: 2px solid #fff; border-radius: 10px; cursor: pointer; text-transform: uppercase; margin-bottom: 15px;">REFUSER (fonctionnalités limitées)</button>
             <div style="text-align: center;">
-                <button onclick="window.openPrivacyPolicy()" style="background: none; border: none; color: #888; text-decoration: underline; cursor: pointer;">Lire la Politique de ConfidentialitÃ©</button>
+                <button onclick="window.openPrivacyPolicy()" style="background: none; border: none; color: #888; text-decoration: underline; cursor: pointer;">Lire la Politique de Confidentialité</button>
             </div>
         </div>
     </div>
@@ -9545,20 +9561,20 @@ function injectPrivacyBanner() {
     <!-- PRIVACY POLICY MODAL -->
     <div id="privacy-policy-modal" class="hidden fullscreen-overlay" style="background: #111; color: #fff; z-index: 95000; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow-y: auto; padding: 30px; box-sizing: border-box; font-family: 'Inter', sans-serif;">
         <button onclick="window.closePrivacyPolicy()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-times"></i></button>
-        <h2>Politique de ConfidentialitÃ© Globale</h2>
-        <p>En accord avec les rÃ¨gles Google Play et les lois RGPD (Europe), CCPA (USA) et PIPL (Chine).</p>
+        <h2>Politique de Confidentialité Globale</h2>
+        <p>En accord avec les règles Google Play et les lois RGPD (Europe), CCPA (USA) et PIPL (Chine).</p>
         
-        <h3>1. AccÃ¨s Ã  la Localisation en ArriÃ¨re-plan (Google Play)</h3>
-        <p>Notre application accÃ¨de Ã  votre position GPS de maniÃ¨re continue, y compris lorsque l'application est en arriÃ¨re-plan, afin de calculer les distances parcourues pour le Score Ã‰co et le Radar Social. Ces donnÃ©es sont utilisÃ©es exclusivement pour la fonctionnalitÃ© principale du service et ne sont pas revendues.</p>
+        <h3>1. Accès à la Localisation en Arrière-plan (Google Play)</h3>
+        <p>Notre application accède à votre position GPS de manière continue, y compris lorsque l'application est en arrière-plan, afin de calculer les distances parcourues pour le Score Éco et le Radar Social. Ces données sont utilisées exclusivement pour la fonctionnalité principale du service et ne sont pas revendues.</p>
         
         <h3>2. Europe (RGPD) & Privacy by Design</h3>
-        <p>Vos donnÃ©es sont traitÃ©es de faÃ§on sÃ©curisÃ©e (AES-256). Vous disposez d'un droit inconditionnel Ã  l'oubli. La fonction "Supprimer mes donnÃ©es" Ã©crase vos donnÃ©es locales et purge irrÃ©vocablement votre compte sur le Cloud Firebase.</p>
+        <p>Vos données sont traitées de façon sécurisée (AES-256). Vous disposez d'un droit inconditionnel à l'oubli. La fonction "Supprimer mes données" écrase vos données locales et purge irrévocablement votre compte sur le Cloud Firebase.</p>
 
         <h3>3. USA (CCPA)</h3>
-        <p>Nous ne vendons AUCUNE de vos donnÃ©es personnelles Ã  des tiers. Vous pouvez exprimer votre choix en cochant la case "Do Not Sell".</p>
+        <p>Nous ne vendons AUCUNE de vos données personnelles à des tiers. Vous pouvez exprimer votre choix en cochant la case "Do Not Sell".</p>
 
         <h3>4. Chine (PIPL)</h3>
-        <p>Si vous rÃ©sidez en Chine, vous devez consentir explicitement au transfert transfrontalier de vos donnÃ©es vers nos serveurs situÃ©s en Europe.</p>
+        <p>Si vous résidez en Chine, vous devez consentir explicitement au transfert transfrontalier de vos données vers nos serveurs situés en Europe.</p>
     </div>
     `;
 
@@ -9574,13 +9590,13 @@ window.acceptGlobalPrivacy = function () {
 
   if (!gpsChecked) {
     alert(
-      "Attention : L'application nÃ©cessite obligatoirement l'accÃ¨s au GPS pour fonctionner.",
+      "Attention : L'application nécessite obligatoirement l'accès au GPS pour fonctionner.",
     );
     return;
   }
   if (!piplChecked) {
     alert(
-      "Information (PIPL) : L'application est hÃ©bergÃ©e en Europe. Si vous n'autorisez pas le transfert transfrontalier, le Cloud ne pourra pas fonctionner.",
+      "Information (PIPL) : L'application est hébergée en Europe. Si vous n'autorisez pas le transfert transfrontalier, le Cloud ne pourra pas fonctionner.",
     );
   }
 
@@ -9612,7 +9628,7 @@ window.acceptGlobalPrivacy = function () {
     setTimeout(window.initZeroClickDestiny, 2000);
 
   if (typeof speak === "function")
-    speak("ConformitÃ© internationale validÃ©e. Bienvenue.");
+    speak("Conformité internationale validée. Bienvenue.");
 };
 
 window.openPrivacyPolicy = function () {
@@ -9644,7 +9660,7 @@ window.refuseGlobalPrivacy = function () {
   window.preventAppLaunch = false;
 
   alert(
-    "Vous avez refusÃ© les cookies optionnels. L'application fonctionnera avec des fonctionnalitÃ©s limitÃ©es (pas de commandes vocales ni de rÃ©alitÃ© augmentÃ©e).",
+    "Vous avez refusé les cookies optionnels. L'application fonctionnera avec des fonctionnalités limitées (pas de commandes vocales ni de réalité augmentée).",
   );
 };
 
@@ -9653,11 +9669,11 @@ window.closePrivacyPolicy = function () {
   if (modal) modal.classList.add("hidden");
 };
 
-// â”€â”€â”€ Droit Ã  l'effacement (Droit Ã  l'oubli / Protocol Zero) â”€â”€
+// â”€â”€â”€ Droit à l'effacement (Droit à l'oubli / Protocol Zero) â”€â”€
 window.revokeAndEraseData = async function () {
   if (
     confirm(
-      "ATTENTION : Cette action est IRRÃ‰VERSIBLE. Toutes vos donnÃ©es locales ET sur le serveur Cloud (Firestore) seront dÃ©truites. Confirmer ?",
+      "ATTENTION : Cette action est IRRÉVERSIBLE. Toutes vos données locales ET sur le serveur Cloud (Firestore) seront détruites. Confirmer ?",
     )
   ) {
     let uid = null;
@@ -9672,7 +9688,7 @@ window.revokeAndEraseData = async function () {
       }
     }
 
-    // 1. DÃ©clencher le Protocol Zero (Suppression Backend via Cloud Function)
+    // 1. Déclencher le Protocol Zero (Suppression Backend via Cloud Function)
     if (uid) {
       try {
         const cloudFuncUrl =
@@ -9687,7 +9703,7 @@ window.revokeAndEraseData = async function () {
       }
     }
 
-    // 2. Effacer toutes les donnÃ©es locales
+    // 2. Effacer toutes les données locales
     localStorage.clear();
     sessionStorage.clear();
 
@@ -9705,20 +9721,20 @@ window.revokeAndEraseData = async function () {
     }
 
     alert(
-      "Toutes vos donnÃ©es (Locales et Serveur) ont Ã©tÃ© dÃ©truites de maniÃ¨re irrÃ©versible. L'application va se rÃ©initialiser.",
+      "Toutes vos données (Locales et Serveur) ont été détruites de manière irréversible. L'application va se réinitialiser.",
     );
     window.location.href = "login.html";
   }
 };
 
-// â”€â”€â”€ Export des donnÃ©es â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€â”€ Export des données â”€â”€â”€â”€â”€â”€â”€
 window.exportMyData = function () {
   try {
     const exportData = {
       _meta: {
         export_date: new Date().toISOString(),
         app: "mon50ccetmoi",
-        format: "JSON (Format structurÃ© portable)",
+        format: "JSON (Format structuré portable)",
       },
       consent: JSON.parse(
         localStorage.getItem("privacy_consent_record") || "{}",
@@ -9771,7 +9787,7 @@ window.exportMyData = function () {
     URL.revokeObjectURL(url);
 
     alert(
-      "âœ… Export terminÃ© ! Vos donnÃ©es locales ont Ã©tÃ© tÃ©lÃ©chargÃ©es.",
+      "✅ Export terminé ! Vos données locales ont été téléchargées.",
     );
   } catch (e) {
     console.error("Erreur export:", e);
@@ -9779,7 +9795,7 @@ window.exportMyData = function () {
   }
 };
 
-// â”€â”€â”€ VÃ©rification au chargement â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€â”€ Vérification au chargement â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.addEventListener("DOMContentLoaded", () => {
   if (!localStorage.getItem("global_privacy_consent")) {
     setTimeout(window.checkGlobalPrivacy, 500);
@@ -9792,19 +9808,19 @@ document.addEventListener("DOMContentLoaded", () => {
 /* --- litigation-ai.js --- */
 ﻿/**
  * LITIGATION AI v1.0 â€” PORTAIL ASSURANCE INTELLIGENT
- * Analyse automatique des donnÃ©es Blackbox pour les dossiers de litige.
- * GÃ©nÃ¨re un code dossier unique, sÃ©lectionne le type de rapport adaptÃ©,
- * et envoie une proposition structurÃ©e Ã  l'assureur via Firestore.
+ * Analyse automatique des données Blackbox pour les dossiers de litige.
+ * Génère un code dossier unique, sélectionne le type de rapport adapté,
+ * et envoie une proposition structurée à l'assureur via Firestore.
  */
 
 window.LitigationAI = {
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // 1. GÃ‰NÃ‰RATION DU CODE DOSSIER
+  // 1. GÉNÉRATION DU CODE DOSSIER
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
-   * GÃ©nÃ¨re un code de dossier unique au format LITIGE-XXXXXX
-   * basÃ© sur timestamp + uid utilisateur pour unicitÃ© garantie.
+   * Génère un code de dossier unique au format LITIGE-XXXXXX
+   * basé sur timestamp + uid utilisateur pour unicité garantie.
    */
   generateCaseCode() {
     const uid = window.session?.uid || "GUEST";
@@ -9818,10 +9834,10 @@ window.LitigationAI = {
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
-   * Analyse les donnÃ©es de la Blackbox et retourne une Ã©valuation IA :
-   * - type de rapport recommandÃ©
-   * - score de sÃ©vÃ©ritÃ©
-   * - rÃ©sumÃ© des facteurs clÃ©s
+   * Analyse les données de la Blackbox et retourne une évaluation IA :
+   * - type de rapport recommandé
+   * - score de sévérité
+   * - résumé des facteurs clés
    */
   analyzeBlackboxData() {
     const thresholds = CONFIG?.INSURANCE?.AI_THRESHOLDS || {
@@ -9835,7 +9851,7 @@ window.LitigationAI = {
     const buffer = blackbox?.buffer || [];
     const hfBuffer = blackbox?.hfBuffer || [];
 
-    // â€” Calcul du G-Force maximum enregistrÃ©
+    // â€” Calcul du G-Force maximum enregistré
     let maxG = 0;
     for (const entry of hfBuffer) {
       const ax = parseFloat(entry.ax) || 0;
@@ -9845,7 +9861,7 @@ window.LitigationAI = {
       if (g > maxG) maxG = g;
     }
 
-    // â€” Vitesse max enregistrÃ©e
+    // â€” Vitesse max enregistrée
     let maxSpeed = 0;
     for (const entry of buffer) {
       const spd = parseFloat(entry.speed) || 0;
@@ -9859,10 +9875,10 @@ window.LitigationAI = {
       if (lean > maxLean) maxLean = lean;
     }
 
-    // â€” CoordonnÃ©es GPS de l'incident (dernier point connu)
+    // â€” Coordonnées GPS de l'incident (dernier point connu)
     const lastGps = buffer.length > 0 ? buffer[buffer.length - 1] : null;
 
-    // â€” Score de sÃ©vÃ©ritÃ© (0â€“100)
+    // â€” Score de sévérité (0â€“100)
     let severity = 0;
     if (maxG > thresholds.EXPERT_G) severity += 50;
     else if (maxG > thresholds.IMPACT_G) severity += 30;
@@ -9870,27 +9886,27 @@ window.LitigationAI = {
     if (maxLean > thresholds.LEAN_ANGLE_DEG) severity += 15;
     severity = Math.min(severity, 100);
 
-    // â€” SÃ©lection automatique du type de rapport
+    // â€” Sélection automatique du type de rapport
     let reportType, reportLabel, reportIcon, reportDescription;
 
     if (maxG >= thresholds.EXPERT_G || severity >= 70) {
       reportType = "EXPERT_COMPLET";
-      reportLabel = "Expertise ComplÃ¨te";
-      reportIcon = "ðŸ›¡ï¸";
+      reportLabel = "Expertise Complète";
+      reportIcon = "🛡ï¸";
       reportDescription =
-        "TÃ©lÃ©mÃ©trie + G-Force + GPS + Replay 3D certifiÃ© + Signature SHA-256";
+        "Télémétrie + G-Force + GPS + Replay 3D certifié + Signature SHA-256";
     } else if (maxG >= thresholds.IMPACT_G || severity >= 35) {
       reportType = "IMPACT";
       reportLabel = "Rapport Impact";
       reportIcon = "âš¡";
       reportDescription =
-        "DÃ©tection de choc + AccÃ©lÃ©romÃ©trie haute frÃ©quence + GPS";
+        "Détection de choc + Accélérométrie haute fréquence + GPS";
     } else {
       reportType = "STANDARD";
       reportLabel = "Rapport Standard";
       reportIcon = "ðŸ“Š";
       reportDescription =
-        "TÃ©lÃ©mÃ©trie gÃ©nÃ©rale + Vitesse + CoordonnÃ©es GPS";
+        "Télémétrie générale + Vitesse + Coordonnées GPS";
     }
 
     return {
@@ -9914,7 +9930,7 @@ window.LitigationAI = {
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
-   * Construit un objet de proposition complet destinÃ© Ã  l'assureur.
+   * Construit un objet de proposition complet destiné à l'assureur.
    */
   buildInsuranceProposal(caseCode, analysis) {
     const now = new Date();
@@ -9935,7 +9951,7 @@ window.LitigationAI = {
         minute: "2-digit",
       }),
 
-      // DÃ©cision IA
+      // Décision IA
       ai: {
         recommendedReport: analysis.reportType,
         reportLabel: analysis.reportLabel,
@@ -9949,7 +9965,7 @@ window.LitigationAI = {
               : "STANDARD",
       },
 
-      // DonnÃ©es techniques clÃ©s
+      // Données techniques clés
       telemetry: {
         maxG_force: parseFloat(analysis.maxG),
         maxSpeed_kmh: parseFloat(analysis.maxSpeed),
@@ -10004,23 +10020,23 @@ window.LitigationAI = {
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /**
-   * Point d'entrÃ©e principal.
-   * GÃ©nÃ¨re le code, analyse la blackbox, construit et envoie la proposition,
-   * puis affiche le rÃ©sultat dans l'interface.
+   * Point d'entrée principal.
+   * Génère le code, analyse la blackbox, construit et envoie la proposition,
+   * puis affiche le résultat dans l'interface.
    */
   async runWizard() {
-    // Ã‰tape 1 â€” GÃ©nÃ©ration du code
+    // Étape 1 â€” Génération du code
     const caseCode = this.generateCaseCode();
     this.renderWizardStep("analyzing", caseCode, null);
 
-    // Ã‰tape 2 â€” Analyse IA (simuler dÃ©lai traitement)
+    // Étape 2 â€” Analyse IA (simuler délai traitement)
     await new Promise((r) => setTimeout(r, 1800));
     const analysis = this.analyzeBlackboxData();
 
-    // Ã‰tape 3 â€” Construction de la proposition
+    // Étape 3 â€” Construction de la proposition
     const proposal = this.buildInsuranceProposal(caseCode, analysis);
 
-    // Ã‰tape 4 â€” Affichage du rÃ©sultat + confirmation
+    // Étape 4 â€” Affichage du résultat + confirmation
     this.renderWizardResult(caseCode, analysis, proposal);
   },
 
@@ -10048,14 +10064,14 @@ window.LitigationAI = {
                 <div class="litigation-header">
                     <i class="fa-solid fa-shield-halved litigation-icon-pulse"></i>
                     <h3>Portail Litige Assurance</h3>
-                    <p class="litigation-sub">L'IA va analyser votre Blackbox et prÃ©parer une proposition pour votre assureur.</p>
+                    <p class="litigation-sub">L'IA va analyser votre Blackbox et préparer une proposition pour votre assureur.</p>
                 </div>
 
                 <div class="litigation-checklist">
-                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Blackbox chiffrÃ©e AES-256</div>
-                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> TÃ©lÃ©mÃ©trie haute frÃ©quence (10Hz)</div>
-                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> CoordonnÃ©es GPS certifiÃ©es</div>
-                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Signature SHA-256 d'intÃ©gritÃ©</div>
+                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Blackbox chiffrée AES-256</div>
+                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Télémétrie haute fréquence (10Hz)</div>
+                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Coordonnées GPS certifiées</div>
+                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Signature SHA-256 d'intégrité</div>
                 </div>
 
                 <div class="litigation-actions">
@@ -10081,12 +10097,12 @@ window.LitigationAI = {
                     <div class="ai-spinner">
                         <i class="fa-solid fa-brain fa-spin-pulse"></i>
                     </div>
-                    <h3>Analyse IA en coursâ€¦</h3>
-                    <p class="case-code-display">Code dossier gÃ©nÃ©rÃ© : <strong>${caseCode}</strong></p>
+                    <h3>Analyse IA en cours…</h3>
+                    <p class="case-code-display">Code dossier généré : <strong>${caseCode}</strong></p>
                     <div class="ai-progress-bar">
                         <div class="ai-progress-fill"></div>
                     </div>
-                    <p class="ai-status-text">Lecture de la tÃ©lÃ©mÃ©trie Blackboxâ€¦</p>
+                    <p class="ai-status-text">Lecture de la télémétrie Blackbox…</p>
                 </div>
             `;
       // Animation de la barre de progression
@@ -10094,13 +10110,13 @@ window.LitigationAI = {
         const fill = content.querySelector(".ai-progress-fill");
         const txt = content.querySelector(".ai-status-text");
         if (fill) fill.style.width = "45%";
-        if (txt) txt.textContent = "Calcul des G-Forcesâ€¦";
+        if (txt) txt.textContent = "Calcul des G-Forces…";
       }, 500);
       setTimeout(() => {
         const fill = content.querySelector(".ai-progress-fill");
         const txt = content.querySelector(".ai-status-text");
         if (fill) fill.style.width = "80%";
-        if (txt) txt.textContent = "SÃ©lection du type de rapportâ€¦";
+        if (txt) txt.textContent = "Sélection du type de rapport…";
       }, 1200);
     }
   },
@@ -10117,16 +10133,16 @@ window.LitigationAI = {
           : "#00e676";
     const severityLabel =
       analysis.severity >= 70
-        ? "Ã‰LEVÃ‰E"
+        ? "ÉLEVÉE"
         : analysis.severity >= 35
-          ? "MODÃ‰RÃ‰E"
+          ? "MODÉRÉE"
           : "FAIBLE";
 
     content.innerHTML = `
             <div class="litigation-portal">
                 <div class="litigation-result-header">
                     <i class="fa-solid fa-brain" style="color:#7c4dff; font-size:2rem;"></i>
-                    <h3>Analyse IA TerminÃ©e</h3>
+                    <h3>Analyse IA Terminée</h3>
                 </div>
 
                 <div class="case-code-badge">
@@ -10141,14 +10157,14 @@ window.LitigationAI = {
                 <div class="report-recommendation">
                     <div class="report-icon">${analysis.reportIcon}</div>
                     <div class="report-info">
-                        <strong>Rapport recommandÃ© :</strong>
+                        <strong>Rapport recommandé :</strong>
                         <span class="report-label">${analysis.reportLabel}</span>
                         <p class="report-desc">${analysis.reportDescription}</p>
                     </div>
                 </div>
 
                 <div class="severity-block">
-                    <span class="severity-title">SÃ©vÃ©ritÃ© estimÃ©e :</span>
+                    <span class="severity-title">Sévérité estimée :</span>
                     <div class="severity-bar-bg">
                         <div class="severity-bar-fill" style="width:${analysis.severity}%; background:${severityColor};"></div>
                     </div>
@@ -10158,36 +10174,36 @@ window.LitigationAI = {
                 <div class="telemetry-summary">
                     <div class="tele-item"><i class="fa-solid fa-bolt"></i> G-Force max : <strong>${analysis.maxG} G</strong></div>
                     <div class="tele-item"><i class="fa-solid fa-gauge-high"></i> Vitesse max : <strong>${analysis.maxSpeed} km/h</strong></div>
-                    <div class="tele-item"><i class="fa-solid fa-rotate"></i> Inclinaison max : <strong>${analysis.maxLean}Â°</strong></div>
-                    <div class="tele-item"><i class="fa-solid fa-shield-halved"></i> IntÃ©gritÃ© chassis : <strong>${analysis.structuralScore}%</strong></div>
+                    <div class="tele-item"><i class="fa-solid fa-rotate"></i> Inclinaison max : <strong>${analysis.maxLean}°</strong></div>
+                    <div class="tele-item"><i class="fa-solid fa-shield-halved"></i> Intégrité chassis : <strong>${analysis.structuralScore}%</strong></div>
                     ${analysis.gpsIncident ? `<div class="tele-item"><i class="fa-solid fa-location-dot"></i> GPS : <strong>${analysis.gpsIncident.lat?.toFixed(5)}, ${analysis.gpsIncident.lng?.toFixed(5)}</strong></div>` : ""}
                 </div>
 
                 <p class="litigation-disclaimer">
                     <i class="fa-solid fa-circle-info"></i>
-                    En envoyant cette proposition, votre assureur reÃ§oit le rÃ©sumÃ© et vous contactera pour valider le type de rapport dÃ©finitif.
+                    En envoyant cette proposition, votre assureur reçoit le résumé et vous contactera pour valider le type de rapport définitif.
                 </p>
 
                 <!-- AVERTISSEMENT AI ACT (Obligatoire) -->
                 <p class="litigation-ai-act-disclaimer" style="color: #ffaa00; font-weight: bold; margin-bottom: 15px; border: 1px solid #ffaa00; padding: 10px; border-radius: 8px;">
                     <i class="fa-solid fa-scale-balanced"></i>
-                    âš ï¸ GÃ‰NÃ‰RÃ‰ PAR L'IA : Ce rapport est une proposition d'assistance. Une supervision et validation humaine par l'utilisateur sont obligatoires avant le traitement juridique.
+                    âš ï¸ GÉNÉRÉ PAR L'IA : Ce rapport est une proposition d'assistance. Une supervision et validation humaine par l'utilisateur sont obligatoires avant le traitement juridique.
                 </p>
 
                 <div class="litigation-actions">
                     ${
                       proposal.type === "EXPERT_COMPLET"
                         ? `
-                    <button class="btn-litigation-start" onclick="if(window.CertifiedCamera) window.CertifiedCamera.open('${caseCode}'); else alert('Module de camÃ©ra non disponible');" style="background:#ffb703; color:#000; margin-bottom:10px;">
+                    <button class="btn-litigation-start" onclick="if(window.CertifiedCamera) window.CertifiedCamera.open('${caseCode}'); else alert('Module de caméra non disponible');" style="background:#ffb703; color:#000; margin-bottom:10px;">
                         <i class="fa-solid fa-camera"></i>
-                        Ajouter Preuve Photo (HorodatÃ©e)
+                        Ajouter Preuve Photo (Horodatée)
                     </button>
                     `
                         : ""
                     }
                     <button class="btn-litigation-send" onclick='LitigationAI.confirmAndSend(' + JSON.stringify(proposal).replace(/"/g, "&quot;") + ')'>
                         <i class="fa-solid fa-paper-plane"></i>
-                        Envoyer Ã  l'assureur
+                        Envoyer à l'assureur
                     </button>
                     <button class="btn-close-litigation" onclick="document.getElementById('screen-overlay').classList.add('hidden')">
                         <i class="fa-solid fa-times"></i> Annuler
@@ -10211,8 +10227,8 @@ window.LitigationAI = {
     content.innerHTML = `
             <div class="litigation-portal litigation-sending">
                 <i class="fa-solid fa-lock fa-bounce" style="font-size:3rem; color:#7c4dff;"></i>
-                <h3>Verrouillage des donnÃ©es...</h3>
-                <p>CrÃ©ation du coffre-fort numÃ©rique...</p>
+                <h3>Verrouillage des données...</h3>
+                <p>Création du coffre-fort numérique...</p>
             </div>
         `;
 
@@ -10221,8 +10237,8 @@ window.LitigationAI = {
       content.innerHTML = `
                 <div class="litigation-portal litigation-success" style="padding: 20px;">
                     <i class="fa-solid fa-vault" style="font-size:4rem; color:#00e676; margin-bottom: 20px;"></i>
-                    <h3 style="color:#00e676; margin-bottom: 10px;">Coffre-Fort SÃ©curisÃ© !</h3>
-                    <p style="color:#aaa; margin-bottom: 20px;">Vos donnÃ©es certifiÃ©es sont cryptÃ©es et inaccessibles sans ce code.</p>
+                    <h3 style="color:#00e676; margin-bottom: 10px;">Coffre-Fort Sécurisé !</h3>
+                    <p style="color:#aaa; margin-bottom: 20px;">Vos données certifiées sont cryptées et inaccessibles sans ce code.</p>
                     
                     <div style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 15px; border: 2px dashed #00e676; display: inline-block; margin-bottom: 20px;">
                         <span style="display: block; font-size: 1rem; color: #888; margin-bottom: 10px;">CODE LITIGE Ã€ TRANSMETTRE Ã€ VOTRE ASSUREUR :</span>
@@ -10231,7 +10247,7 @@ window.LitigationAI = {
 
                     <p style="color:#ffaa00; font-weight: bold; margin-bottom: 30px;">
                         <i class="fa-solid fa-hand-holding-dollar"></i> 
-                        Vous recevrez une prime de 10 BVC dÃ¨s que votre assureur dÃ©bloquera ces donnÃ©es.
+                        Vous recevrez une prime de 10 BVC dès que votre assureur débloquera ces données.
                     </p>
 
                     <button class="btn-litigation-start" onclick="document.getElementById('screen-overlay').classList.add('hidden')">
@@ -10241,14 +10257,14 @@ window.LitigationAI = {
             `;
       if (typeof speak === "function")
         speak(
-          "Coffre-fort crÃ©Ã©. Transmettez ce code litige Ã  votre assureur.",
+          "Coffre-fort créé. Transmettez ce code litige à votre assureur.",
         );
     }, 2000);
   },
 
   copyCode(code) {
     navigator.clipboard.writeText(code).then(() => {
-      if (typeof speak === "function") speak("Code dossier copiÃ©.");
+      if (typeof speak === "function") speak("Code dossier copié.");
       const btn = document.querySelector(".btn-copy-code");
       if (btn) {
         btn.innerHTML = '<i class="fa-solid fa-check"></i>';
@@ -10264,11 +10280,11 @@ window.LitigationAI = {
 /* --- insurance-portal.js --- */
 ﻿/**
  * PORTAIL ASSURANCE mon50ccetmoi
- * Paiements via Revolut Merchant API (SDK RevolutCheckout embarquÃ©)
- * Flow : client â†’ Firebase Function (crÃ©ation ordre) â†’ Revolut â†’ webhook â†’ Firestore
+ * Paiements via Revolut Merchant API (SDK RevolutCheckout embarqué)
+ * Flow : client ←’ Firebase Function (création ordre) ←’ Revolut ←’ webhook ←’ Firestore
  */
 window.InsurancePortal = {
-  // ClÃ© publique Merchant (config.js) â€” utilisÃ©e cÃ´tÃ© client uniquement
+  // Clé publique Merchant (config.js) â€” utilisée côté client uniquement
   get revolutPublicKey() {
     return CONFIG?.REVOLUT?.PUBLIC_KEY || "";
   },
@@ -10281,7 +10297,7 @@ window.InsurancePortal = {
 
   balance: 500.0, // Option 2: Portefeuille virtuel (Acompte)
   transactions: [], // Historique des transactions
-  cases: {}, // Liste des dossiers en attente ou dÃ©bloquÃ©s
+  cases: {}, // Liste des dossiers en attente ou débloqués
 
   init() {},
 
@@ -10310,7 +10326,7 @@ window.InsurancePortal = {
                 <h3><i class="fa-solid fa-building-shield"></i> Portail Pro Assurance</h3>
                 <div class="wallet-status">
                     <span>Votre Solde :</span>
-                    <strong id="portal-balance">${this.balance.toFixed(2)} â‚¬</strong>
+                    <strong id="portal-balance">${this.balance.toFixed(2)} €</strong>
                 </div>
 
                 <div class="case-header">
@@ -10336,18 +10352,18 @@ window.InsurancePortal = {
                 <i class="fa-solid fa-hourglass-half fa-spin" style="font-size:3rem; color:#00d2ff; margin-bottom:20px;"></i>
                 <h3 style="color:#fff; font-size:1.4rem;">En attente de l'Assurance</h3>
                 <p style="color:#aaa; font-size:0.9rem; line-height:1.5;">
-                    Veuillez transmettre ce code de dossier Ã  votre assureur :
+                    Veuillez transmettre ce code de dossier à votre assureur :
                 </p>
                 <div class="case-code-badge" style="justify-content:center; margin: 20px 0;">
                     <i class="fa-solid fa-hashtag"></i>
                     <strong style="font-size:1.3rem;">${caseId}</strong>
                 </div>
                 <p style="color:#aaa; font-size:0.9rem; line-height:1.5;">
-                    Votre assureur pourra dÃ©verrouiller le rapport depuis le <strong>Portail Expert</strong>.<br>
-                    Le rapport sera disponible ici automatiquement dÃ¨s validation du paiement.
+                    Votre assureur pourra déverrouiller le rapport depuis le <strong>Portail Expert</strong>.<br>
+                    Le rapport sera disponible ici automatiquement dès validation du paiement.
                 </p>
                 <button onclick="InsurancePortal.pollPaymentConfirmation('${caseId}')" class="btn-litigation-start" style="margin-top:20px;">
-                    <i class="fa-solid fa-rotate"></i> RafraÃ®chir le statut
+                    <i class="fa-solid fa-rotate"></i> Rafraîchir le statut
                 </button>
             </div>
         `;
@@ -10356,9 +10372,9 @@ window.InsurancePortal = {
   renderUnlockedView(caseId) {
     return `
             <div class="unlocked-view">
-                <p class="success-msg"><i class="fa-solid fa-circle-check"></i> Rapport dÃ©bloquÃ© avec succÃ¨s.</p>
+                <p class="success-msg"><i class="fa-solid fa-circle-check"></i> Rapport débloqué avec succès.</p>
                 <button onclick="window.BlackBoxInsurance.generateReport()" class="btn-download-report">
-                    <i class="fa-solid fa-file-pdf"></i> TÃ©lÃ©charger le Rapport CertifiÃ©
+                    <i class="fa-solid fa-file-pdf"></i> Télécharger le Rapport Certifié
                 </button>
                 <button onclick="window.BlackBoxReplay.replay()" class="btn-replay-report">
                     <i class="fa-solid fa-play"></i> Rejouer le Trajet en 3D
@@ -10370,41 +10386,41 @@ window.InsurancePortal = {
   getStatusLabel(status) {
     const labels = {
       pending_payment: "En attente de paiement",
-      waiting_for_funds: "Virement en cours (Attente rÃ©ception)",
-      pending_verification: "VÃ©rification de la preuve en cours",
-      unlocked: "AccÃ¨s AutorisÃ©",
+      waiting_for_funds: "Virement en cours (Attente réception)",
+      pending_verification: "Vérification de la preuve en cours",
+      unlocked: "Accès Autorisé",
     };
     return labels[status] || status;
   },
 
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   // OPTION 1 : Paiement Revolut Merchant (flow complet)
-  // 1. Appel Firebase Function â†’ crÃ©ation ordre Revolut (clÃ© secrÃ¨te serveur)
-  // 2. RÃ©cupÃ©ration du order_token
+  // 1. Appel Firebase Function ←’ création ordre Revolut (clé secrète serveur)
+  // 2. Récupération du order_token
   // 3. RevolutCheckout(token).payWithPopup()
-  // 4. Webhook Revolut â†’ Firebase â†’ dÃ©blocage rapport
+  // 4. Webhook Revolut ←’ Firebase ←’ déblocage rapport
   // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async payInstant(caseId) {
     const pubKey = this.revolutPublicKey;
     if (!pubKey) {
-      alert("âš ï¸ ClÃ© publique Revolut manquante dans config.js");
+      alert("âš ï¸ Clé publique Revolut manquante dans config.js");
       return;
     }
 
-    // Ã‰tape 1 : Afficher le spinner de chargement
+    // Étape 1 : Afficher le spinner de chargement
     this.cases[caseId] = { status: "waiting_for_funds", unlocked: false };
     this.renderRevolutLoadingModal(caseId);
 
     try {
-      // Ã‰tape 2 : CrÃ©er l'ordre cÃ´tÃ© serveur via Firebase Function
-      speak("Initialisation du paiement sÃ©curisÃ© Revolut.");
+      // Étape 2 : Créer l'ordre côté serveur via Firebase Function
+      speak("Initialisation du paiement sécurisé Revolut.");
       const orderData = await this.createOrderViaFunction(caseId);
 
       if (!orderData?.order_token) {
-        throw new Error("Token de paiement Revolut non reÃ§u.");
+        throw new Error("Token de paiement Revolut non reçu.");
       }
 
-      // Ã‰tape 3 : Lancer le checkout Revolut avec le token
+      // Étape 3 : Lancer le checkout Revolut avec le token
       await this.launchRevolutCheckout(caseId, orderData);
     } catch (err) {
       console.error("[Revolut] Erreur paiement :", err);
@@ -10412,7 +10428,7 @@ window.InsurancePortal = {
     }
   },
 
-  // â”€ Appel Firebase Function : crÃ©ation de l'ordre Revolut â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€ Appel Firebase Function : création de l'ordre Revolut â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async createOrderViaFunction(caseId) {
     const url = `${this.functionBaseUrl}/createRevolutOrder`;
     const reportType =
@@ -10440,25 +10456,25 @@ window.InsurancePortal = {
     return await response.json();
   },
 
-  // â”€ Lance RevolutCheckout avec le token reÃ§u â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€ Lance RevolutCheckout avec le token reçu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async launchRevolutCheckout(caseId, orderData) {
     if (typeof RevolutCheckout !== "function") {
-      // SDK pas encore chargÃ© (async) â€” attendre 2s et rÃ©essayer
+      // SDK pas encore chargé (async) â€” attendre 2s et réessayer
       await new Promise((r) => setTimeout(r, 2000));
       if (typeof RevolutCheckout !== "function") {
-        throw new Error("SDK Revolut non chargÃ©. VÃ©rifiez votre connexion.");
+        throw new Error("SDK Revolut non chargé. Vérifiez votre connexion.");
       }
     }
 
     const instance = await RevolutCheckout(orderData.order_token, "prod");
-    // Mode production activÃ© â€” anciennement 'sandbox'
+    // Mode production activé â€” anciennement 'sandbox'
 
     instance.payWithPopup({
       onSuccess: () => {
-        speak("Paiement Revolut confirmÃ©. VÃ©rification en cours.");
+        speak("Paiement Revolut confirmé. Vérification en cours.");
         this.renderRevolutPendingConfirmation(caseId, orderData.order_id);
-        // Le webhook Revolut va dÃ©bloquer le rapport dans Firestore.
-        // On poll Firebase toutes les 3s pour dÃ©tecter la confirmation.
+        // Le webhook Revolut va débloquer le rapport dans Firestore.
+        // On poll Firebase toutes les 3s pour détecter la confirmation.
         this.pollPaymentConfirmation(caseId);
       },
       onError: (message) => {
@@ -10466,20 +10482,20 @@ window.InsurancePortal = {
         this.renderRevolutErrorModal(caseId, message);
       },
       onCancel: () => {
-        speak("Paiement annulÃ©.");
+        speak("Paiement annulé.");
         this.cases[caseId] = { status: "pending_payment", unlocked: false };
         this.showPortal(caseId);
       },
     });
   },
 
-  // â”€ Poll Firestore pour dÃ©tecter la confirmation webhook â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€ Poll Firestore pour détecter la confirmation webhook â”€â”€â”€â”€â”€â”€â”€â”€
   async pollPaymentConfirmation(caseId, attempts = 0) {
     if (attempts > 20) {
-      // Timeout aprÃ¨s ~60s
+      // Timeout après ~60s
       this.renderRevolutErrorModal(
         caseId,
-        "DÃ©lai de confirmation dÃ©passÃ©. Contactez le support.",
+        "Délai de confirmation dépassé. Contactez le support.",
       );
       return;
     }
@@ -10487,7 +10503,7 @@ window.InsurancePortal = {
     await new Promise((r) => setTimeout(r, 3000));
 
     try {
-      // VÃ©rifier dans Firestore si le webhook a confirmÃ© le paiement
+      // Vérifier dans Firestore si le webhook a confirmé le paiement
       if (typeof db !== "undefined") {
         const doc = await db
           .collection("payment_confirmations")
@@ -10496,18 +10512,18 @@ window.InsurancePortal = {
         if (doc.exists) {
           this.unlockCase(caseId, "revolut_webhook");
           this.renderRevolutSuccess(caseId);
-          speak("Rapport dÃ©bloquÃ© avec succÃ¨s. Bonne route.");
+          speak("Rapport débloqué avec succès. Bonne route.");
           return;
         }
       } else {
-        // Fallback : vÃ©rifier via la Cloud Function
+        // Fallback : vérifier via la Cloud Function
         const url = `${this.functionBaseUrl}/checkPaymentStatus?case_id=${caseId}&user_id=${window.session?.uid || ""}`;
         const resp = await fetch(url);
         const data = await resp.json();
         if (data.paid) {
           this.unlockCase(caseId, "revolut_webhook");
           this.renderRevolutSuccess(caseId);
-          speak("Rapport dÃ©bloquÃ© avec succÃ¨s.");
+          speak("Rapport débloqué avec succès.");
           return;
         }
       }
@@ -10515,7 +10531,7 @@ window.InsurancePortal = {
       console.warn("[Revolut Poll] Erreur :", e);
     }
 
-    // Continuer Ã  poller
+    // Continuer à poller
     this.pollPaymentConfirmation(caseId, attempts + 1);
   },
 
@@ -10529,13 +10545,13 @@ window.InsurancePortal = {
                     <div class="revolut-logo-ring" style="border-color: #00ff00; box-shadow: 0 0 30px rgba(0,255,0,0.5);">
                         <i class="fa-solid fa-unlock" style="color:#00ff00; font-size:2rem; animation: pulse-halo 2s infinite;"></i>
                     </div>
-                    <h3 style="color:#00ff00; font-size:1.5rem; margin-top:20px;">Paiement ValidÃ©</h3>
-                    <p style="color:#fff; font-size:0.9rem; margin-top:10px;">Le webhook Revolut a confirmÃ© la transaction.</p>
-                    <p style="color:#00d2ff; font-size:1rem; margin-top:5px; font-weight:bold;">Rapport DÃ©verrouillÃ©</p>
+                    <h3 style="color:#00ff00; font-size:1.5rem; margin-top:20px;">Paiement Validé</h3>
+                    <p style="color:#fff; font-size:0.9rem; margin-top:10px;">Le webhook Revolut a confirmé la transaction.</p>
+                    <p style="color:#00d2ff; font-size:1rem; margin-top:5px; font-weight:bold;">Rapport Déverrouillé</p>
                 </div>
             </div>`;
 
-    // AprÃ¨s 3 secondes, on affiche le portail complet
+    // Après 3 secondes, on affiche le portail complet
     setTimeout(() => {
       this.showPortal(caseId);
     }, 3000);
@@ -10552,17 +10568,17 @@ window.InsurancePortal = {
                         <div class="revolut-logo-ring">
                             <i class="fa-solid fa-lock" style="color:#7c4dff; font-size:1.8rem;"></i>
                         </div>
-                        <h3>Paiement SÃ©curisÃ©</h3>
-                        <p style="color:#aaa; font-size:0.82rem;">PrÃ©paration du checkout <strong style="color:#fff;">Revolut</strong>â€¦</p>
+                        <h3>Paiement Sécurisé</h3>
+                        <p style="color:#aaa; font-size:0.82rem;">Préparation du checkout <strong style="color:#fff;">Revolut</strong>…</p>
                     </div>
                     <div class="revolut-amount-badge">
-                        <span class="revolut-amount-value">${price.toFixed(2)} â‚¬</span>
-                        <span class="revolut-amount-label">Rapport Assurance certifiÃ© â€” ${caseId}</span>
+                        <span class="revolut-amount-value">${price.toFixed(2)} €</span>
+                        <span class="revolut-amount-label">Rapport Assurance certifié â€” ${caseId}</span>
                     </div>
                     <div class="ai-progress-bar" style="margin-top:20px;">
                         <div class="ai-progress-fill revolut-progress" style="width:30%;"></div>
                     </div>
-                    <p class="ai-status-text" id="revolut-status-txt">CrÃ©ation de l'ordre de paiementâ€¦</p>
+                    <p class="ai-status-text" id="revolut-status-txt">Création de l'ordre de paiement…</p>
                 </div>
             </div>`;
     // Animation de la barre
@@ -10570,13 +10586,13 @@ window.InsurancePortal = {
       const fill = content.querySelector(".revolut-progress");
       const txt = content.querySelector("#revolut-status-txt");
       if (fill) fill.style.width = "70%";
-      if (txt) txt.textContent = "Connexion Ã  Revolut Merchantâ€¦";
+      if (txt) txt.textContent = "Connexion à Revolut Merchant…";
     }, 800);
     setTimeout(() => {
       const fill = content.querySelector(".revolut-progress");
       const txt = content.querySelector("#revolut-status-txt");
       if (fill) fill.style.width = "90%";
-      if (txt) txt.textContent = "Ouverture du checkoutâ€¦";
+      if (txt) txt.textContent = "Ouverture du checkout…";
     }, 1800);
   },
 
@@ -10586,9 +10602,9 @@ window.InsurancePortal = {
     content.innerHTML = `
             <div class="litigation-portal litigation-sending">
                 <i class="fa-solid fa-satellite-dish fa-bounce" style="font-size:3rem; color:#7c4dff;"></i>
-                <h3 style="margin-top:15px;">Confirmation en coursâ€¦</h3>
+                <h3 style="margin-top:15px;">Confirmation en cours…</h3>
                 <p style="color:#888; font-size:0.83rem; margin-top:10px;">
-                    Votre paiement a Ã©tÃ© soumis. En attente de la confirmation Revolut.
+                    Votre paiement a été soumis. En attente de la confirmation Revolut.
                 </p>
                 <div class="case-code-badge" style="margin-top:20px;">
                     <i class="fa-solid fa-hashtag"></i>
@@ -10601,7 +10617,7 @@ window.InsurancePortal = {
                     <strong style="font-size:0.7rem;">${orderId}</strong>
                 </div>
                 <p style="font-size:0.7rem; color:#555; margin-top:15px;">
-                    <i class="fa-solid fa-clock"></i> VÃ©rification automatique toutes les 3 secondesâ€¦
+                    <i class="fa-solid fa-clock"></i> Vérification automatique toutes les 3 secondes…
                 </p>
             </div>`;
   },
@@ -10616,7 +10632,7 @@ window.InsurancePortal = {
                 <p style="color:#888; font-size:0.83rem; margin-top:10px;">${message || "Une erreur est survenue."}</p>
                 <div style="display:flex; gap:10px; margin-top:20px;">
                     <button class="btn-litigation-start" onclick="InsurancePortal.payInstant('${caseId}')" style="flex:1;">
-                        <i class="fa-solid fa-rotate-right"></i> RÃ©essayer
+                        <i class="fa-solid fa-rotate-right"></i> Réessayer
                     </button>
                     <button class="btn-close-litigation" onclick="document.getElementById('screen-overlay').classList.add('hidden')" style="flex:1;">
                         <i class="fa-solid fa-times"></i> Fermer
@@ -10629,7 +10645,7 @@ window.InsurancePortal = {
   openLitigationWizard(caseId) {
     if (typeof window.LitigationAI === "undefined") {
       alert(
-        "Module LitigationAI non chargÃ©. VÃ©rifiez que litigation-ai.js est inclus dans la page.",
+        "Module LitigationAI non chargé. Vérifiez que litigation-ai.js est inclus dans la page.",
       );
       return;
     }
@@ -10642,7 +10658,7 @@ window.InsurancePortal = {
       this.balance -= 49.99;
       this.unlockCase(caseId, "wallet_debit");
       this.showPortal(caseId); // Refresh
-      speak("DÃ©bit effectuÃ© sur votre compte pro. Rapport accessible.");
+      speak("Débit effectué sur votre compte pro. Rapport accessible.");
     } else {
       alert("Solde insuffisant sur votre portefeuille virtuel.");
       speak("Solde insuffisant.");
@@ -10663,10 +10679,10 @@ window.InsurancePortal = {
         };
         this.showPortal(caseId);
         speak(
-          "Preuve de virement reÃ§ue. Notre systÃ¨me vÃ©rifie le document.",
+          "Preuve de virement reçue. Notre système vérifie le document.",
         );
 
-        // Simulation de validation automatique aprÃ¨s 5s
+        // Simulation de validation automatique après 5s
         setTimeout(() => {
           this.unlockCase(caseId, "proof_validated");
           if (
@@ -10676,7 +10692,7 @@ window.InsurancePortal = {
           ) {
             this.showPortal(caseId);
           }
-          speak("Justificatif validÃ©. Le rapport est maintenant dÃ©bloquÃ©.");
+          speak("Justificatif validé. Le rapport est maintenant débloqué.");
         }, 5000);
       }
     };
@@ -10695,7 +10711,7 @@ window.InsurancePortal = {
                         (t) => `
                         <div class="transaction-item">
                             <span>${new Date(t.date).toLocaleTimeString()} - ${t.caseId}</span>
-                            <span class="t-amount">-${t.amount}â‚¬</span>
+                            <span class="t-amount">-${t.amount}€</span>
                         </div>
                     `,
                       )
@@ -10721,7 +10737,7 @@ window.InsurancePortal = {
       method: method,
     });
 
-    this.notify(`Transaction confirmÃ©e pour le dossier ${caseId}.`);
+    this.notify(`Transaction confirmée pour le dossier ${caseId}.`);
   },
 };
 
@@ -10734,11 +10750,11 @@ window.InsurancePortal = {
   toggleSentryMode: function () {
     if (this.isSentryActive) {
       this.stopSentry();
-      speak("Mode Sentinelle dÃ©sactivÃ©.");
+      speak("Mode Sentinelle désactivé.");
     } else {
       this.startSentry();
       speak(
-        "Mode Sentinelle activÃ©. PÃ©rimÃ¨tre sÃ©curisÃ©. Je surveille l'accÃ©lÃ©romÃ¨tre.",
+        "Mode Sentinelle activé. Périmètre sécurisé. Je surveille l'accéléromètre.",
       );
     }
 
@@ -10747,7 +10763,7 @@ window.InsurancePortal = {
       if (this.isSentryActive) {
         btn.style.color = "#ff0000";
         btn.style.animation = "pulse-halo 1.5s infinite";
-        btn.title = "Mode Sentinelle ACTIF (Appuyer pour dÃ©sactiver)";
+        btn.title = "Mode Sentinelle ACTIF (Appuyer pour désactiver)";
       } else {
         btn.style.color = "#ff3333";
         btn.style.animation = "none";
@@ -10830,7 +10846,7 @@ window.InsurancePortal = {
 
   triggerSentryAlert: function (force) {
     speak(
-      "ALERTE : Mouvement suspect dÃ©tectÃ©. Enregistrement Sentinel activÃ©.",
+      "ALERTE : Mouvement suspect détecté. Enregistrement Sentinel activé.",
     );
     vibrate([500, 200, 500]);
     if (!this.oscillator) this.playSiren();
@@ -10885,7 +10901,7 @@ window.InsurancePortal = {
 /* --- meca-wizard.js --- */
 ﻿/**
  * MECA-WIZARD v2.0 - DeepTech AI Mechanic
- * Analyse Acoustique rÃ©elle via Web Audio API & IntÃ©gration Revolut Checkout
+ * Analyse Acoustique réelle via Web Audio API & Intégration Revolut Checkout
  */
 
 window.MecaWizard = {
@@ -10894,18 +10910,18 @@ window.MecaWizard = {
   microphone: null,
   animationId: null,
 
-  // 1. Calculateur de mÃ©lange
+  // 1. Calculateur de mélange
   calculateMix: function (liters, percent) {
     if (!liters || !percent) return 0;
     const oilMl = liters * 1000 * (percent / 100);
     return Math.round(oilMl);
   },
 
-  // 2. Analyse Acoustique (Microphone RÃ©el)
+  // 2. Analyse Acoustique (Microphone Réel)
   startAcousticAnalysis: async function () {
     if (window.session && window.session.isGuest) {
       alert(
-        "ðŸ”’ L'IA Acoustique est une exclusivitÃ© Membre. Inscrivez-vous pour diagnostiquer votre moteur !",
+        "ðŸ”’ L'IA Acoustique est une exclusivité Membre. Inscrivez-vous pour diagnostiquer votre moteur !",
       );
       return;
     }
@@ -10919,13 +10935,13 @@ window.MecaWizard = {
     resultDiv.innerHTML = `
             <div class="glassmorphism biometric-scan" style="padding:20px; text-align:center;">
                 <i class="fa-solid fa-microphone-lines fa-beat" style="font-size:2rem; color:var(--neon-blue);"></i>
-                <p style="margin-top:15px; font-weight:bold;">INITIALISATION DU STÃ‰THOSCOPE IA...</p>
-                <p style="font-size:0.8rem; color:#ccc;">Demande d'accÃ¨s au microphone...</p>
+                <p style="margin-top:15px; font-weight:bold;">INITIALISATION DU STÉTHOSCOPE IA...</p>
+                <p style="font-size:0.8rem; color:#ccc;">Demande d'accès au microphone...</p>
             </div>
         `;
 
     try {
-      // AccÃ¨s au microphone
+      // Accès au microphone
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: false,
@@ -10947,7 +10963,7 @@ window.MecaWizard = {
       this.microphone.connect(this.analyser);
 
       speak(
-        "AccÃ¨s au microphone autorisÃ©. DÃ©marrez le moteur et donnez un coup de gaz franc.",
+        "Accès au microphone autorisé. Démarrez le moteur et donnez un coup de gaz franc.",
       );
 
       // Affichage de l'oscilloscope
@@ -10955,13 +10971,13 @@ window.MecaWizard = {
                 <div class="glassmorphism" style="padding:20px; text-align:center;">
                     <h4 style="color:var(--accent);"><i class="fa-solid fa-wave-square"></i> ANALYSE EN COURS</h4>
                     <canvas id="audio-canvas" width="280" height="100" style="background:#0a0a0a; border-radius:8px; margin:15px 0; border: 1px solid var(--accent);"></canvas>
-                    <p style="font-size:0.8rem; color:#888;">Analyse de la signature frÃ©quentielle (FFT)...</p>
+                    <p style="font-size:0.8rem; color:#888;">Analyse de la signature fréquentielle (FFT)...</p>
                 </div>
             `;
 
       this.drawOscilloscope();
 
-      // ArrÃªt de l'analyse aprÃ¨s 6 secondes
+      // Arrêt de l'analyse après 6 secondes
       setTimeout(() => {
         this.stopAnalysis(stream);
         this.showDiagnosticReport(resultDiv);
@@ -10971,14 +10987,14 @@ window.MecaWizard = {
       resultDiv.innerHTML = `
                 <div class="glassmorphism" style="padding:20px; border-left:4px solid #dc3545;">
                     <h4 style="color:#dc3545;">ERREUR MICROPHONE</h4>
-                    <p style="font-size:0.9rem; margin-top:10px;">Impossible d'accÃ©der au microphone. Veuillez vÃ©rifier vos autorisations.</p>
+                    <p style="font-size:0.9rem; margin-top:10px;">Impossible d'accéder au microphone. Veuillez vérifier vos autorisations.</p>
                 </div>
             `;
-      speak("Erreur. L'accÃ¨s au microphone a Ã©tÃ© refusÃ©.");
+      speak("Erreur. L'accès au microphone a été refusé.");
     }
   },
 
-  // 3. Analyseur d'Ã©chappement (DÃ©cibels & FrÃ©quence)
+  // 3. Analyseur d'échappement (Décibels & Fréquence)
   startDecibelMeter: async function () {
     const modal = document.getElementById("meca-result-modal");
     if (modal) modal.classList.remove("hidden");
@@ -10989,7 +11005,7 @@ window.MecaWizard = {
     resultDiv.innerHTML = `
             <div class="glassmorphism biometric-scan" style="padding:20px; text-align:center;">
                 <i class="fa-solid fa-volume-high fa-beat" style="font-size:2rem; color:var(--neon-blue);"></i>
-                <p style="margin-top:15px; font-weight:bold;">INITIALISATION DU DÃ‰CIBELMÃˆTRE...</p>
+                <p style="margin-top:15px; font-weight:bold;">INITIALISATION DU DÉCIBELMÃˆTRE...</p>
             </div>
         `;
 
@@ -11010,7 +11026,7 @@ window.MecaWizard = {
       this.analyser.fftSize = 1024;
       this.microphone.connect(this.analyser);
 
-      speak("DÃ©cibelmÃ¨tre activÃ©. Faites tourner le moteur au ralenti.");
+      speak("Décibelmètre activé. Faites tourner le moteur au ralenti.");
 
       resultDiv.innerHTML = `
                 <div class="glassmorphism" style="padding:20px; text-align:center;">
@@ -11045,7 +11061,7 @@ window.MecaWizard = {
 
         if (db > maxDb) maxDb = db;
 
-        // Calcul de frÃ©quence dominante
+        // Calcul de fréquence dominante
         currentHz = Math.round(
           (maxIndex * this.audioCtx.sampleRate) / this.analyser.fftSize,
         );
@@ -11091,18 +11107,18 @@ window.MecaWizard = {
 
         resultDiv.innerHTML = `
                     <div class="glassmorphism" style="padding:20px;">
-                        <h4 style="color:${isLegal ? "#00e676" : "#ff4444"};">RÃ‰SULTAT ACOUSTIQUE</h4>
+                        <h4 style="color:${isLegal ? "#00e676" : "#ff4444"};">RÉSULTAT ACOUSTIQUE</h4>
                         <div style="font-size:2rem; font-weight:900; margin:10px 0; color:${isLegal ? "#00e676" : "#ff4444"};">MAX : ${maxDb} dB</div>
-                        <p><strong>Type perÃ§u :</strong> ${engineType}</p>
+                        <p><strong>Type perçu :</strong> ${engineType}</p>
                         <p style="margin-top:10px; font-size:0.9rem;">
                             ${
                               isLegal
-                                ? "L'Ã©chappement est homologuÃ©. Vous Ãªtes en sÃ©curitÃ© en cas de contrÃ´le."
+                                ? "L'échappement est homologué. Vous êtes en sécurité en cas de contrôle."
                                 : "<strong>ATTENTION :</strong> Niveau sonore > 85dB. Risque d'amende et de confiscation."
                             }
                         </p>
                         <p style="color:#777; font-size:0.75rem; margin-top:15px; border-top:1px solid #333; padding-top:10px;">
-                            Avertissement (AI Act) : Diagnostic gÃ©nÃ©rÃ© par Intelligence Artificielle. Ce rÃ©sultat est fourni Ã  titre indicatif et est <strong>soumis Ã  contrÃ´le humain</strong> (expertise d'un mÃ©canicien).
+                            Avertissement (AI Act) : Diagnostic généré par Intelligence Artificielle. Ce résultat est fourni à titre indicatif et est <strong>soumis à contrôle humain</strong> (expertise d'un mécanicien).
                         </p>
                         <button onclick="document.getElementById('meca-result-modal').classList.add('hidden')" style="width:100%; padding:15px; margin-top:20px; background:var(--glass-bg); color:var(--text-main); border:1px solid var(--accent); border-radius:8px; font-weight:bold;">FERMER</button>
                     </div>
@@ -11110,17 +11126,17 @@ window.MecaWizard = {
 
         if (isLegal) {
           speak(
-            `Analyse terminÃ©e. Pic Ã  ${maxDb} dÃ©cibels. Ã‰chappement homologuÃ©.`,
+            `Analyse terminée. Pic à ${maxDb} décibels. Échappement homologué.`,
           );
         } else {
           speak(
-            `Alerte. Pic sonore Ã  ${maxDb} dÃ©cibels. Votre pot d'Ã©chappement dÃ©passe la limite lÃ©gale.`,
+            `Alerte. Pic sonore à ${maxDb} décibels. Votre pot d'échappement dépasse la limite légale.`,
           );
         }
       }, 8000);
     } catch (err) {
       console.error("Erreur Micro:", err);
-      speak("Erreur d'accÃ¨s au microphone pour le dÃ©cibelmÃ¨tre.");
+      speak("Erreur d'accès au microphone pour le décibelmètre.");
     }
   },
 
@@ -11162,25 +11178,25 @@ window.MecaWizard = {
     // Bypass complet pour les utilisateurs "Premium / Sans Pub"
     if (window.session && window.session.isPremium) {
       speak(
-        "Analyse terminÃ©e. Compte Premium dÃ©tectÃ©. Rapport expert offert.",
+        "Analyse terminée. Compte Premium détecté. Rapport expert offert.",
       );
       this.showExpertReport();
       return;
     }
 
-    speak("Analyse terminÃ©e. Rapport basique disponible.");
+    speak("Analyse terminée. Rapport basique disponible.");
 
     container.innerHTML = `
             <div class="glassmorphism" style="padding:20px; border-left:4px solid var(--accent);">
                 <h4 style="color:var(--accent);"><i class="fa-solid fa-stethoscope"></i> DIAGNOSTIC BASIQUE</h4>
-                <p style="font-size:0.9rem; margin-top:10px; color:#fff;"><strong>RÃ©sultat :</strong> Anomalie harmonique dÃ©tectÃ©e (Basses frÃ©quences anormales).</p>
-                <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">Le rapport basique indique la prÃ©sence d'une anomalie. Pour isoler la panne exacte (carburateur, pot percÃ©, piston), dÃ©bloquez le rapport expert IA.</p>
-                <p style="color:#777; font-size:0.75rem; margin-top:10px;">Avertissement (AI Act) : Aide indicative gÃ©nÃ©rÃ©e par IA. <strong>Soumis Ã  contrÃ´le humain.</strong></p>
+                <p style="font-size:0.9rem; margin-top:10px; color:#fff;"><strong>Résultat :</strong> Anomalie harmonique détectée (Basses fréquences anormales).</p>
+                <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">Le rapport basique indique la présence d'une anomalie. Pour isoler la panne exacte (carburateur, pot percé, piston), débloquez le rapport expert IA.</p>
+                <p style="color:#777; font-size:0.75rem; margin-top:10px;">Avertissement (AI Act) : Aide indicative générée par IA. <strong>Soumis à contrôle humain.</strong></p>
                 
                 <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
                 
                 <div style="text-align:center;">
-                    <h5 style="color:#10a37f; margin-bottom:10px;"><i class="fa-solid fa-lock-open"></i> DÃ©bloquer le Rapport Expert (50 Pts BVC)</h5>
+                    <h5 style="color:#10a37f; margin-bottom:10px;"><i class="fa-solid fa-lock-open"></i> Débloquer le Rapport Expert (50 Pts BVC)</h5>
                     <button id="btn-revolut-pay" onclick="window.MecaWizard.payWithBVC()" style="background:#000; color:#fff; border:1px solid #10a37f; padding:12px 20px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">
                         <i class="fa-solid fa-gem"></i> Utiliser 50 Pts BVC
                     </button>
@@ -11197,7 +11213,7 @@ window.MecaWizard = {
 
     if (typeof window.braveCoins === "undefined") {
       statusEl.innerHTML =
-        '<span style="color:#dc3545;">Erreur: Programme de fidÃ©litÃ© indisponible.</span>';
+        '<span style="color:#dc3545;">Erreur: Programme de fidélité indisponible.</span>';
       return;
     }
 
@@ -11210,14 +11226,14 @@ window.MecaWizard = {
 
     btn.disabled = true;
     btn.innerHTML =
-      '<i class="fa-solid fa-spinner fa-spin"></i> Connexion au rÃ©seau IA...';
+      '<i class="fa-solid fa-spinner fa-spin"></i> Connexion au réseau IA...';
 
-    // Simulation rÃ©seau IA
+    // Simulation réseau IA
     setTimeout(() => {
       window.braveCoins -= price;
       localStorage.setItem("braveCoins", window.braveCoins.toString());
 
-      // Mise Ã  jour de l'affichage UI si disponible
+      // Mise à jour de l'affichage UI si disponible
       const balanceEl = document.getElementById("crypto-balance");
       if (balanceEl)
         balanceEl.innerText = Math.floor(window.braveCoins) + " Pts BVC";
@@ -11231,27 +11247,27 @@ window.MecaWizard = {
     if (!container) return;
 
     speak(
-      "Paiement validÃ©. Rapport expert dÃ©verrouillÃ©. Voici mon diagnostic.",
+      "Paiement validé. Rapport expert déverrouillé. Voici mon diagnostic.",
     );
 
     const diagnostics = [
       {
         analyse:
-          "Fuite dÃ©tectÃ©e sur la ligne d'Ã©chappement (FrÃ©quence rÃ©sonnante Ã  120Hz).",
-        reco: "VÃ©rifier le joint d'Ã©chappement au niveau du cylindre. Risque de perte de puissance et de surconsommation.",
+          "Fuite détectée sur la ligne d'échappement (Fréquence résonnante à 120Hz).",
+        reco: "Vérifier le joint d'échappement au niveau du cylindre. Risque de perte de puissance et de surconsommation.",
       },
       {
-        analyse: "Bruit mÃ©tallique aigu (FrÃ©quence anormale Ã  450Hz).",
-        reco: "Usure suspectÃ©e des galets du variateur ou de la courroie. Inspection visuelle requise.",
+        analyse: "Bruit métallique aigu (Fréquence anormale à 450Hz).",
+        reco: "Usure suspectée des galets du variateur ou de la courroie. Inspection visuelle requise.",
       },
       {
         analyse:
-          "Claquement irrÃ©gulier au ralenti (DÃ©sÃ©quilibre harmonique).",
-        reco: "Le carburateur semble encrassÃ© ou mal rÃ©glÃ©. ProcÃ©der Ã  un nettoyage complet.",
+          "Claquement irrégulier au ralenti (Déséquilibre harmonique).",
+        reco: "Le carburateur semble encrassé ou mal réglé. Procéder à un nettoyage complet.",
       },
       {
         analyse: "Frottement sourd en fond sonore.",
-        reco: "Les plaquettes de frein avant semblent frotter excessivement. VÃ©rifiez l'Ã©trier.",
+        reco: "Les plaquettes de frein avant semblent frotter excessivement. Vérifiez l'étrier.",
       },
     ];
 
@@ -11259,12 +11275,12 @@ window.MecaWizard = {
 
     container.innerHTML = `
             <div class="glassmorphism" style="padding:20px; border-left:4px solid #10a37f; background: rgba(16, 163, 127, 0.1);">
-                <h4 style="color:#10a37f;"><i class="fa-solid fa-check-circle"></i> RAPPORT D'EXPERTISE (DÃ‰VERROUILLÃ‰)</h4>
+                <h4 style="color:#10a37f;"><i class="fa-solid fa-check-circle"></i> RAPPORT D'EXPERTISE (DÉVERROUILLÉ)</h4>
                 <div style="margin-top:15px; font-size:0.9rem; color:#fff;">
                     <p><i class="fa-solid fa-microchip" style="color:#10a37f;"></i> <strong>Analyse IA :</strong> ${diag.analyse}</p>
                     <p style="margin-top:10px;"><i class="fa-solid fa-wrench" style="color:#10a37f;"></i> <strong>Recommandation :</strong> ${diag.reco}</p>
                 </div>
-                <button onclick="if(window.CertifiedCamera) window.CertifiedCamera.open(); else alert('Module de camÃ©ra non disponible');" style="margin-top:20px; width:100%; background:#ffb703; color:#000; padding:10px 15px; border-radius:5px; border:none; font-weight:bold; cursor:pointer; margin-bottom:10px;">
+                <button onclick="if(window.CertifiedCamera) window.CertifiedCamera.open(); else alert('Module de caméra non disponible');" style="margin-top:20px; width:100%; background:#ffb703; color:#000; padding:10px 15px; border-radius:5px; border:none; font-weight:bold; cursor:pointer; margin-bottom:10px;">
                     <i class="fa-solid fa-camera"></i> Ajouter Preuve Photo au rapport
                 </button>
                 <button onclick="document.getElementById('meca-result-modal').classList.add('hidden');" style="width:100%; background:transparent; border:1px solid #10a37f; color:#10a37f; padding:8px 15px; border-radius:5px; cursor:pointer;">
@@ -11280,7 +11296,7 @@ window.MecaWizard = {
 ﻿/**
  * mon 50cc et moi - Module OBD-II Bluetooth
  * v100.00-GOLD
- * Utilise l'API Web Bluetooth pour se connecter aux boÃ®tiers ELM327
+ * Utilise l'API Web Bluetooth pour se connecter aux boîtiers ELM327
  */
 
 class OBDManager {
@@ -11291,7 +11307,7 @@ class OBDManager {
     this.txCharacteristic = null;
     this.isConnected = false;
 
-    // Services et caractÃ©ristiques standards pour les modules sÃ©rie Bluetooth (SPP over BLE / ELM327 BLE)
+    // Services et caractéristiques standards pour les modules série Bluetooth (SPP over BLE / ELM327 BLE)
     // Note : Ces UUIDs peuvent varier selon le dongle (JDY-33, Vgate, etc.). On utilise les plus courants (ex: JDY-08 / HM-10).
     this.serviceUuid = "0000ffe0-0000-1000-8000-00805f9b34fb";
     this.characteristicUuid = "0000ffe1-0000-1000-8000-00805f9b34fb";
@@ -11299,7 +11315,7 @@ class OBDManager {
     this.pollingInterval = null;
     this.buffer = "";
 
-    // PIDs de base Ã  interroger en boucle
+    // PIDs de base à interroger en boucle
     this.queries = [
       "01 0C", // RPM (Engine Speed)
       "01 0D", // Vehicle Speed
@@ -11332,7 +11348,7 @@ class OBDManager {
 
       const service = await this.server.getPrimaryService(this.serviceUuid);
 
-      // Pour beaucoup de modules ELM327 BLE, RX et TX partagent la mÃªme caractÃ©ristique
+      // Pour beaucoup de modules ELM327 BLE, RX et TX partagent la même caractéristique
       this.txCharacteristic = await service.getCharacteristic(
         this.characteristicUuid,
       );
@@ -11392,7 +11408,7 @@ class OBDManager {
     this.buffer += str;
 
     if (this.buffer.includes(">")) {
-      // Prompt de fin de rÃ©ponse ELM327
+      // Prompt de fin de réponse ELM327
       let response = this.buffer.replace(/>/g, "").trim();
       this.buffer = ""; // Reset buffer
       this.parseObdResponse(response);
@@ -11400,10 +11416,10 @@ class OBDManager {
   }
 
   parseObdResponse(response) {
-    // EnlÃ¨ve les espaces
+    // Enlève les espaces
     const hexData = response.replace(/\s/g, "");
 
-    // 41 = RÃ©ponse au Mode 01
+    // 41 = Réponse au Mode 01
     if (hexData.startsWith("41")) {
       const pid = hexData.substring(2, 4);
       const dataBytes = hexData.substring(4);
@@ -11426,7 +11442,7 @@ class OBDManager {
             type = "speed";
           }
           break;
-        case "05": // TempÃ©rature (1 byte)
+        case "05": // Température (1 byte)
           if (dataBytes.length >= 2) {
             value = parseInt(dataBytes.substring(0, 2), 16) - 40;
             type = "temp";
@@ -11484,7 +11500,7 @@ window.addEventListener("obd_status", (e) => {
   if (e.detail.connected) {
     statusEl.classList.remove("hidden");
     statusEl.innerHTML =
-      '<i class="fa-brands fa-bluetooth" style="margin-right:5px;"></i> OBD ConnectÃ© (Cliquez pour dÃ©connecter)';
+      '<i class="fa-brands fa-bluetooth" style="margin-right:5px;"></i> OBD Connecté (Cliquez pour déconnecter)';
     statusEl.style.color = "#2ecc71";
     statusEl.style.borderColor = "#2ecc71";
     statusEl.style.background = "rgba(46, 204, 113, 0.2)";
@@ -11515,14 +11531,14 @@ window.addEventListener("obd_data", (e) => {
       if (value > 8500) {
         el.style.color = "#ff0055";
         el.style.textShadow = "0 0 20px #ff0055";
-        // Alerte IA Sur-rÃ©gime (toutes les 10s max)
+        // Alerte IA Sur-régime (toutes les 10s max)
         if (
           window.obdManager &&
           Date.now() - window.obdManager.lastRpmAlertTime > 10000
         ) {
           if (typeof speak === "function")
             speak(
-              "Alerte ! RÃ©gime moteur critique. Ralentissez pour prÃ©server le cylindre.",
+              "Alerte ! Régime moteur critique. Ralentissez pour préserver le cylindre.",
             );
           window.obdManager.lastRpmAlertTime = Date.now();
         }
@@ -11561,7 +11577,7 @@ window.addEventListener("obd_data", (e) => {
         ) {
           if (typeof speak === "function")
             speak(
-              "Alerte, surchauffe moteur dÃ©tectÃ©e. Coupez le contact immÃ©diatement.",
+              "Alerte, surchauffe moteur détectée. Coupez le contact immédiatement.",
             );
           window.obdManager.lastTempAlertTime = Date.now();
         }
@@ -11577,7 +11593,7 @@ window.addEventListener("obd_data", (e) => {
 /* --- ar-navigation.js --- */
 ﻿/**
  * AR Navigation Module (v85.0)
- * GÃ¨re l'affichage vidÃ©o de la camÃ©ra et la superposition holographique
+ * Gère l'affichage vidéo de la caméra et la superposition holographique
  */
 class ARNavigationManager {
   constructor() {
@@ -11666,7 +11682,7 @@ class ARNavigationManager {
 
       if (typeof speak === "function") {
         speak(
-          "SystÃ¨me optique enclenchÃ©. Affichage tÃªte haute opÃ©rationnel. Attention, ce mode consomme beaucoup d'Ã©nergie, veuillez brancher le tÃ©lÃ©phone si possible.",
+          "Système optique enclenché. Affichage tête haute opérationnel. Attention, ce mode consomme beaucoup d'énergie, veuillez brancher le téléphone si possible.",
         );
       }
       if (
@@ -11676,8 +11692,8 @@ class ARNavigationManager {
         window.NeuralHUD.logToConsole("AR_SYSTEM: ENGAGED - HUD ACTIVE");
       }
     } catch (err) {
-      console.error("Impossible de dÃ©marrer la camÃ©ra AR:", err);
-      alert("AccÃ¨s Ã  la camÃ©ra refusÃ© ou non disponible.");
+      console.error("Impossible de démarrer la caméra AR:", err);
+      alert("Accès à la caméra refusé ou non disponible.");
     }
   }
 
@@ -11702,7 +11718,7 @@ class ARNavigationManager {
 
     if (typeof speak === "function")
       speak(
-        "Affichage tÃªte haute dÃ©sactivÃ©. Retour Ã  la navigation standard.",
+        "Affichage tête haute désactivé. Retour à la navigation standard.",
       );
     if (
       window.NeuralHUD &&
@@ -11758,18 +11774,21 @@ window.testARNavigation = function (targetHeadingDeg = 45) {
 
 
 /* --- social-radar.js --- */
-﻿/**
- * SOCIAL RADAR (GHOST RIDER MODE) & REGIONAL WELCOME
- * v1.0
+/**
+ * 📡 SOCIAL RADAR (GHOST RIDER & COMMUNITY RADAR)
+ * v2.0 - Connexion Firestore temps réel & Mode Fantôme (Ghost Mode)
+ * Sécurité : Conformité RGPD, masquage des données si Ghost Mode actif.
  */
 
-// 2. Social Radar (Ghost Rider Mode)
 if (typeof window.SocialRadarManager === "undefined") {
   window.SocialRadarManager = class SocialRadarManager {
     constructor() {
       this.isActive = false;
+      this.riderMarkers = {};
       this.ghostMarkers = [];
-      this.radarInterval = null;
+      this.firestoreUnsubscribe = null;
+      this.broadcastInterval = null;
+      this.scanInterval = null;
     }
 
     toggleRadar() {
@@ -11777,95 +11796,217 @@ if (typeof window.SocialRadarManager === "undefined") {
       const btn = document.getElementById("dock-btn-social");
 
       if (this.isActive) {
-        if (btn) btn.style.color = "#00f2ff";
-        if (btn) btn.style.textShadow = "0 0 10px #00f2ff";
-        if (typeof speak === "function")
-          speak("Radar social activÃ©. Recherche d'autres pilotes en cours.");
+        if (btn) {
+          btn.style.color = "#00f2ff";
+          btn.style.textShadow = "0 0 12px #00f2ff";
+          btn.classList.add("active-radar");
+        }
+        if (typeof speak === "function") {
+          speak("Radar social activé. Recherche des pilotes à proximité.");
+        }
         this.startScanning();
       } else {
-        if (btn) btn.style.color = "#99aab5";
-        if (btn) btn.style.textShadow = "none";
-        if (typeof speak === "function") speak("Radar social dÃ©sactivÃ©.");
+        if (btn) {
+          btn.style.color = "#99aab5";
+          btn.style.textShadow = "none";
+          btn.classList.remove("active-radar");
+        }
+        if (typeof speak === "function") {
+          speak("Radar social désactivé.");
+        }
         this.stopScanning();
       }
     }
 
     startScanning() {
-      // Simulation d'apparition de pilotes fantÃ´mes autour de la position actuelle
-      if (!window.currentPosition || typeof map === "undefined") return;
+      // 1. Diffusion de la position de l'utilisateur (si pas en Mode Fantôme)
+      this.broadcastMyPosition();
+      this.broadcastInterval = setInterval(() => {
+        this.broadcastMyPosition();
+      }, 10000);
 
-      this.spawnGhost(
-        window.currentPosition.lat + 0.01,
-        window.currentPosition.lng + 0.01,
-        "Ghost_73",
-      );
-      this.spawnGhost(
-        window.currentPosition.lat - 0.005,
-        window.currentPosition.lng + 0.015,
-        "Netizen_Max",
-      );
+      // 2. Écoute en temps réel de la collection Firestore social_radar
+      this.listenToCloudRiders();
 
-      // Scan continu
-      this.radarInterval = setInterval(() => {
-        this.updateGhosts();
-      }, 3000);
+      // 3. Fallback ghosts de démonstration si pas assez de pilotes réels
+      this.scanInterval = setInterval(() => {
+        this.updateGhostPositions();
+      }, 4000);
     }
 
     stopScanning() {
-      if (this.radarInterval) {
-        clearInterval(this.radarInterval);
-        this.radarInterval = null;
-      }
-      this.ghostMarkers.forEach((m) => {
-        if (typeof map !== "undefined" && map.removeLayer) {
-          map.removeLayer(m);
-        }
-      });
-      this.ghostMarkers = [];
+      if (this.broadcastInterval) clearInterval(this.broadcastInterval);
+      if (this.scanInterval) clearInterval(this.scanInterval);
+      if (this.firestoreUnsubscribe) this.firestoreUnsubscribe();
+
+      this.removeMyPositionFromCloud();
+      this.clearAllMarkers();
     }
 
-    spawnGhost(lat, lng, name) {
-      if (typeof L === "undefined" || typeof map === "undefined") return;
+    isGhostModeActive() {
+      return localStorage.getItem("ghostMode") === "true";
+    }
 
-      // CrÃ©ation d'une icÃ´ne fantÃ´me cyberpunk
+    broadcastMyPosition() {
+      if (this.isGhostModeActive()) return;
+      if (!window.currentPosition || !window.db || !window.firebase) return;
+
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+
+      const username = (window.session && window.session.username) || "Pilote";
+      const vehicle = localStorage.getItem("user_vehicle_type") || "50cc";
+
+      window.db.collection("social_radar").doc(user.uid).set({
+        uid: user.uid,
+        username: username,
+        vehicle: vehicle,
+        lat: window.currentPosition.lat,
+        lng: window.currentPosition.lng,
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+        active: true
+      }, { merge: true }).catch((err) => {
+        console.warn("[SocialRadar] Erreur d'envoi position:", err);
+      });
+    }
+
+    removeMyPositionFromCloud() {
+      if (!window.db || !window.firebase) return;
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+
+      window.db.collection("social_radar").doc(user.uid).delete().catch(() => {});
+    }
+
+    listenToCloudRiders() {
+      if (!window.db) {
+        this.spawnFallbackGhosts();
+        return;
+      }
+
+      const myUid = firebase.auth().currentUser ? firebase.auth().currentUser.uid : null;
+
+      this.firestoreUnsubscribe = window.db
+        .collection("social_radar")
+        .limit(30)
+        .onSnapshot((snapshot) => {
+          let count = 0;
+          snapshot.forEach((doc) => {
+            const rider = doc.data();
+            if (myUid && rider.uid === myUid) return; // Ne pas s'afficher soi-même
+
+            if (rider.lat && rider.lng) {
+              count++;
+              this.updateOrSpawnRiderMarker(rider);
+            }
+          });
+
+          // Si aucun pilote réel sur Firestore, ajouter les ghosts démo
+          if (count === 0) {
+            this.spawnFallbackGhosts();
+          }
+        }, (err) => {
+          console.warn("[SocialRadar] Fallback ghosts enclenché:", err);
+          this.spawnFallbackGhosts();
+        });
+    }
+
+    updateOrSpawnRiderMarker(rider) {
+      if (typeof L === "undefined" || typeof map === "undefined" || !map) return;
+
+      const id = rider.uid || rider.username;
+      const lat = rider.lat;
+      const lng = rider.lng;
+
+      if (this.riderMarkers[id]) {
+        this.riderMarkers[id].setLatLng([lat, lng]);
+      } else {
+        const icon = L.divIcon({
+          html: `<div style="text-align:center;">
+                   <i class="fa-solid fa-motorcycle" style="color: #00f2ff; font-size: 22px; filter: drop-shadow(0 0 10px #00f2ff);"></i>
+                   <div style="background:rgba(6,9,19,0.85); border:1px solid #00f2ff; color:#00f2ff; font-size:10px; padding:2px 6px; border-radius:8px; white-space:nowrap; margin-top:2px; font-weight:bold;">${rider.username}</div>
+                 </div>`,
+          className: "rider-radar-marker",
+          iconSize: [40, 40],
+          iconAnchor: [20, 20],
+        });
+
+        const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
+        marker.bindPopup(`
+          <div style="color:#fff; font-family:'Inter',sans-serif; text-align:center;">
+            <strong style="color:#00f2ff; font-size:1.1rem;">${rider.username}</strong><br>
+            <span style="color:#aaa; font-size:0.8rem;">Monture : ${rider.vehicle || "50cc"}</span><br>
+            <span style="color:#00ff88; font-size:0.75rem;"><i class="fa-solid fa-circle-dot"></i> En balade</span>
+          </div>
+        `);
+        this.riderMarkers[id] = marker;
+      }
+    }
+
+    spawnFallbackGhosts() {
+      if (this.ghostMarkers.length > 0) return;
+      if (!window.currentPosition || typeof map === "undefined" || !map) return;
+
+      const lat = window.currentPosition.lat;
+      const lng = window.currentPosition.lng;
+
+      this.spawnGhost(lat + 0.008, lng + 0.006, "Ghost_Booster73", "MBK Booster");
+      this.spawnGhost(lat - 0.005, lng + 0.009, "Netizen_Max", "Derbi Senda");
+      this.spawnGhost(lat + 0.004, lng - 0.007, "VSP_Rider92", "Aixam Coupe");
+    }
+
+    spawnGhost(lat, lng, name, vehicle) {
+      if (typeof L === "undefined" || typeof map === "undefined" || !map) return;
+
       const ghostIcon = L.divIcon({
-        html: '<i class="fa-solid fa-motorcycle" style="color: rgba(0, 242, 255, 0.6); font-size: 24px; filter: drop-shadow(0 0 10px #00f2ff);"></i>',
+        html: `<div style="text-align:center;">
+                 <i class="fa-solid fa-motorcycle" style="color: rgba(0, 242, 255, 0.7); font-size: 22px; filter: drop-shadow(0 0 10px #00f2ff);"></i>
+                 <div style="background:rgba(6,9,19,0.85); border:1px solid rgba(0,242,255,0.5); color:#00f2ff; font-size:10px; padding:2px 6px; border-radius:8px; white-space:nowrap; margin-top:2px;">${name}</div>
+               </div>`,
         className: "ghost-marker",
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
       });
 
       const marker = L.marker([lat, lng], { icon: ghostIcon }).addTo(map);
-      marker
-        .bindPopup(
-          `<strong style="color:#00f2ff">${name}</strong><br>En balade`,
-        )
-        .openPopup();
+      marker.bindPopup(`
+        <div style="color:#fff; font-family:'Inter',sans-serif; text-align:center;">
+          <strong style="color:#00f2ff; font-size:1rem;">${name}</strong><br>
+          <span style="color:#aaa; font-size:0.8rem;">Véhicule : ${vehicle}</span><br>
+          <span style="color:#00ff88; font-size:0.75rem;"><i class="fa-solid fa-bolt"></i> Membre Actif</span>
+        </div>
+      `);
       this.ghostMarkers.push(marker);
     }
 
-    updateGhosts() {
-      // DÃ©place lÃ©gÃ¨rement les fantÃ´mes pour simuler la conduite
+    updateGhostPositions() {
       this.ghostMarkers.forEach((m) => {
         const pos = m.getLatLng();
         m.setLatLng([
-          pos.lat + (Math.random() - 0.5) * 0.002,
-          pos.lng + (Math.random() - 0.5) * 0.002,
+          pos.lat + (Math.random() - 0.5) * 0.001,
+          pos.lng + (Math.random() - 0.5) * 0.001,
         ]);
       });
     }
+
+    clearAllMarkers() {
+      if (typeof map !== "undefined" && map) {
+        Object.values(this.riderMarkers).forEach((m) => map.removeLayer(m));
+        this.ghostMarkers.forEach((m) => map.removeLayer(m));
+      }
+      this.riderMarkers = {};
+      this.ghostMarkers = [];
+    }
   };
 
-  window.SocialRadarManager = window.SocialRadarManager;
-  window.socialRadarManager =
-    window.socialRadarManager || new window.SocialRadarManager();
+  window.socialRadarManager = window.socialRadarManager || new window.SocialRadarManager();
 }
 
 
 /* --- referral.js --- */
 ﻿/**
- * REFERRAL SYSTEM (Parrainage GamifiÃ© & InsurTech)
- * Paliers de kilomÃ©trage et revenus passifs sur conduite sÃ©curisÃ©e.
+ * REFERRAL SYSTEM (Parrainage Gamifié & InsurTech)
+ * Paliers de kilométrage et revenus passifs sur conduite sécurisée.
  */
 
 window.ReferralManager = {
@@ -11882,11 +12023,11 @@ window.ReferralManager = {
       const existingRef = localStorage.getItem("referredBy");
       if (!existingRef) {
         localStorage.setItem("referredBy", refCode);
-        localStorage.setItem("referralMilestone", "0"); // Nouveau systÃ¨me de suivi (0 = aucun palier)
+        localStorage.setItem("referralMilestone", "0"); // Nouveau système de suivi (0 = aucun palier)
 
         if (typeof speak === "function") {
           speak(
-            "Lien de parrainage dÃ©tectÃ©. Roulez pour dÃ©bloquer vos premiÃ¨res rÃ©compenses !",
+            "Lien de parrainage détecté. Roulez pour débloquer vos premières récompenses !",
           );
         }
       }
@@ -11900,7 +12041,7 @@ window.ReferralManager = {
       return;
     }
 
-    // Si l'utilisateur a un pseudo dÃ©fini, on l'utilise, sinon on prend l'UID
+    // Si l'utilisateur a un pseudo défini, on l'utilise, sinon on prend l'UID
     const myRefCode = window.session.username || window.session.uid;
     const shareUrl = `https://mon50ccetmoi.app/?ref=${encodeURIComponent(myRefCode)}`;
     const shareText = `Rejoins mon Crew sur l'app ultime pour pilotes de 50cc ! Utilise mon code ${myRefCode} et on gagne des cryptos BVC ! ðŸï¸ðŸš€`;
@@ -11913,16 +12054,16 @@ window.ReferralManager = {
           url: shareUrl,
         });
       } catch (err) {
-        console.warn("Partage annulÃ© ou erreur", err);
+        console.warn("Partage annulé ou erreur", err);
       }
     } else {
       navigator.clipboard.writeText(`${shareText}\n${shareUrl}`).then(() => {
-        alert("Lien de parrainage copiÃ© dans le presse-papiers !");
+        alert("Lien de parrainage copié dans le presse-papiers !");
       });
     }
   },
 
-  // 3. VÃ©rification des Paliers (Milestones)
+  // 3. Vérification des Paliers (Milestones)
   checkReferralReward: async function (totalKm) {
     const referredBy = localStorage.getItem("referredBy");
     if (!referredBy) return; // Pas de parrain
@@ -11939,32 +12080,32 @@ window.ReferralManager = {
         20,
         50,
         20,
-        "FÃ©licitations, vous avez dÃ©passÃ© les 20 kilomÃ¨tres. Votre parrain reÃ§oit 50 BVC, et vous gagnez 20 BVC !",
+        "Félicitations, vous avez dépassé les 20 kilomètres. Votre parrain reçoit 50 BVC, et vous gagnez 20 BVC !",
       );
     }
-    // Palier 2 : 100 km (Motard FidÃ¨le)
+    // Palier 2 : 100 km (Motard Fidèle)
     else if (totalKm >= 100 && currentMilestone < 2) {
       await this.processMilestoneReward(
         2,
         100,
         100,
         50,
-        "Incroyable, 100 kilomÃ¨tres atteints ! Vous Ãªtes maintenant un Motard FidÃ¨le. 50 BVC dÃ©bloquÃ©s.",
+        "Incroyable, 100 kilomètres atteints ! Vous êtes maintenant un Motard Fidèle. 50 BVC débloqués.",
       );
     }
-    // Palier 3 : 500 km (Pilote ConfirmÃ©)
+    // Palier 3 : 500 km (Pilote Confirmé)
     else if (totalKm >= 500 && currentMilestone < 3) {
       await this.processMilestoneReward(
         3,
         500,
         300,
         200,
-        "Palier ultime des 500 kilomÃ¨tres atteint ! FÃ©licitations Pilote ConfirmÃ©, un bonus massif vous a Ã©tÃ© versÃ©.",
+        "Palier ultime des 500 kilomètres atteint ! Félicitations Pilote Confirmé, un bonus massif vous a été versé.",
       );
     }
   },
 
-  // MÃ©thode gÃ©nÃ©rique pour payer les paliers
+  // Méthode générique pour payer les paliers
   processMilestoneReward: async function (
     milestoneId,
     kmLimit,
@@ -11972,7 +12113,7 @@ window.ReferralManager = {
     refereeReward,
     voiceMessage,
   ) {
-    // Verrou local pour Ã©viter la boucle
+    // Verrou local pour éviter la boucle
     localStorage.setItem("referralMilestone", milestoneId.toString());
 
     if (typeof db !== "undefined" && window.session) {
@@ -11995,13 +12136,13 @@ window.ReferralManager = {
         }
       } catch (err) {
         console.error("mon50cc Referral Error:", err);
-        // Rollback pour rÃ©essayer plus tard en cas de perte de rÃ©seau
+        // Rollback pour réessayer plus tard en cas de perte de réseau
         localStorage.setItem("referralMilestone", (milestoneId - 1).toString());
       }
     }
   },
 
-  // 4. Bonus InsurTech (Revenus passifs sur Conduite SÃ©curisÃ©e)
+  // 4. Bonus InsurTech (Revenus passifs sur Conduite Sécurisée)
   checkSafeDrivingBonus: async function (isSafeRide) {
     const referredBy = localStorage.getItem("referredBy");
     if (!referredBy || !isSafeRide) return; // Pas de parrain ou trajet dangereux
@@ -12011,7 +12152,7 @@ window.ReferralManager = {
         await db.collection("referral_rewards").add({
           referrerId: referredBy,
           referredUser: window.session.uid,
-          amount: 5, // Petit bonus rÃ©current
+          amount: 5, // Petit bonus récurrent
           reason: "Safe Driving Passive Bonus",
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         });
@@ -12019,7 +12160,7 @@ window.ReferralManager = {
         // Petit retour vocal optionnel pour le filleul
         if (typeof speak === "function") {
           speak(
-            "Trajet parfait. Votre conduite prudente a rapportÃ© un bonus Ã  votre parrain !",
+            "Trajet parfait. Votre conduite prudente a rapporté un bonus à votre parrain !",
           );
         }
       } catch (err) {
@@ -12038,22 +12179,22 @@ window.addEventListener("DOMContentLoaded", () => {
 /* --- driving-score.js --- */
 ﻿/**
  * DRIVING SCORE ENGINE v1.0 (InsurTech Core)
- * Score de conduite 0-100 calculÃ© en temps rÃ©el Ã  partir de la tÃ©lÃ©mÃ©trie.
- * ExploitÃ© par le portail B2B Assureur pour le "Pay How You Drive".
+ * Score de conduite 0-100 calculé en temps réel à partir de la télémétrie.
+ * Exploité par le portail B2B Assureur pour le "Pay How You Drive".
  */
 
 window.DrivingScore = {
-  currentScore: 100, // Commence Ã  100, les infractions font baisser
+  currentScore: 100, // Commence à 100, les infractions font baisser
   sessionPenalties: [],
   isTracking: false,
   lastGForce: 0,
   smoothAccelHistory: [],
 
-  // Seuils de pÃ©nalitÃ© (calibrÃ©s pour un 50cc / VSP)
+  // Seuils de pénalité (calibrés pour un 50cc / VSP)
   THRESHOLDS: {
     HARD_BRAKE: 2.5, // G-Force freinage brusque
-    HARD_ACCEL: 2.0, // G-Force accÃ©lÃ©ration violente
-    OVER_SPEED: 47, // km/h (limite lÃ©gale 45 + tolÃ©rance)
+    HARD_ACCEL: 2.0, // G-Force accélération violente
+    OVER_SPEED: 47, // km/h (limite légale 45 + tolérance)
     CORNERING: 1.8, // G-Force virage agressif
     PENALTY_HARD_BRAKE: -5,
     PENALTY_HARD_ACCEL: -3,
@@ -12069,14 +12210,14 @@ window.DrivingScore = {
     );
     this.createScoreHUD();
 
-    // Ã‰couter l'accÃ©lÃ©romÃ¨tre
+    // Écouter l'accéléromètre
     window.addEventListener("devicemotion", (event) => {
       if (!this.isTracking) return;
       this.analyzeMotion(event);
     });
   },
 
-  // CrÃ©er le petit badge de score flottant
+  // Créer le petit badge de score flottant
   createScoreHUD: function () {
     const badge = document.createElement("div");
     badge.id = "driving-score-badge";
@@ -12106,7 +12247,7 @@ window.DrivingScore = {
     this.updateScoreVisual();
   },
 
-  // Analyser les donnÃ©es de mouvement en temps rÃ©el
+  // Analyser les données de mouvement en temps réel
   analyzeMotion: function (event) {
     const acc = event.accelerationIncludingGravity;
     if (!acc) return;
@@ -12115,7 +12256,7 @@ window.DrivingScore = {
       Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z) / 9.81;
     this.lastGForce = gForce;
 
-    // Historique pour lissage (Ã©viter les faux positifs)
+    // Historique pour lissage (éviter les faux positifs)
     this.smoothAccelHistory.push(gForce);
     if (this.smoothAccelHistory.length > 5) this.smoothAccelHistory.shift();
     const avgG =
@@ -12126,43 +12267,43 @@ window.DrivingScore = {
     if (avgG > this.THRESHOLDS.HARD_BRAKE && acc.z < -15) {
       this.applyPenalty(
         "HARD_BRAKE",
-        `Freinage brusque dÃ©tectÃ© (${avgG.toFixed(1)}G)`,
+        `Freinage brusque détecté (${avgG.toFixed(1)}G)`,
       );
     }
-    // AccÃ©lÃ©ration violente
+    // Accélération violente
     else if (avgG > this.THRESHOLDS.HARD_ACCEL && acc.z > 15) {
       this.applyPenalty(
         "HARD_ACCEL",
-        `AccÃ©lÃ©ration agressive (${avgG.toFixed(1)}G)`,
+        `Accélération agressive (${avgG.toFixed(1)}G)`,
       );
     }
-    // Virage agressif (G latÃ©ral)
+    // Virage agressif (G latéral)
     else if (Math.abs(acc.x) / 9.81 > this.THRESHOLDS.CORNERING) {
       this.applyPenalty(
         "CORNERING",
-        `Virage agressif (${(Math.abs(acc.x) / 9.81).toFixed(1)}G latÃ©ral)`,
+        `Virage agressif (${(Math.abs(acc.x) / 9.81).toFixed(1)}G latéral)`,
       );
     }
   },
 
-  // VÃ©rifier l'excÃ¨s de vitesse (appelÃ© par le GPS de app-map.js)
+  // Vérifier l'excès de vitesse (appelé par le GPS de app-map.js)
   checkSpeed: function (currentSpeedKmh) {
     if (currentSpeedKmh > this.THRESHOLDS.OVER_SPEED) {
       this.applyPenalty(
         "OVER_SPEED",
-        `ExcÃ¨s de vitesse : ${currentSpeedKmh.toFixed(0)} km/h`,
+        `Excès de vitesse : ${currentSpeedKmh.toFixed(0)} km/h`,
       );
     }
   },
 
-  // Bonus par kilomÃ¨tre sans infraction (appelÃ© par la tÃ©lÃ©mÃ©trie)
+  // Bonus par kilomètre sans infraction (appelé par la télémétrie)
   awardSmoothKm: function () {
     const lastPenaltyTime =
       this.sessionPenalties.length > 0
         ? this.sessionPenalties[this.sessionPenalties.length - 1].time
         : 0;
 
-    // Si aucune pÃ©nalitÃ© dans les 5 derniÃ¨res minutes
+    // Si aucune pénalité dans les 5 dernières minutes
     if (Date.now() - lastPenaltyTime > 300000) {
       this.currentScore = Math.min(
         100,
@@ -12172,7 +12313,7 @@ window.DrivingScore = {
     }
   },
 
-  // Appliquer une pÃ©nalitÃ© (avec cooldown anti-spam de 10s)
+  // Appliquer une pénalité (avec cooldown anti-spam de 10s)
   applyPenalty: function (type, description) {
     const now = Date.now();
     const lastSameType = this.sessionPenalties
@@ -12186,7 +12327,7 @@ window.DrivingScore = {
     this.sessionPenalties.push({ type, description, penalty, time: now });
     this.saveAndUpdate();
 
-    console.warn(`ðŸ† DrivingScore : ${penalty} pts â†’ ${description}`);
+    console.warn(`ðŸ† DrivingScore : ${penalty} pts ←’ ${description}`);
 
     // Vibration d'avertissement
     if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
@@ -12197,12 +12338,12 @@ window.DrivingScore = {
     }
   },
 
-  // Sauvegarder et mettre Ã  jour le visuel
+  // Sauvegarder et mettre à jour le visuel
   saveAndUpdate: function () {
     localStorage.setItem("drivingScore", this.currentScore.toString());
     this.updateScoreVisual();
 
-    // Notifier le ReferralManager pour le bonus de conduite sÃ©curisÃ©e
+    // Notifier le ReferralManager pour le bonus de conduite sécurisée
     if (this.currentScore >= 80 && window.ReferralManager) {
       window.ReferralManager.checkSafeDrivingBonus(true);
     }
@@ -12225,7 +12366,7 @@ window.DrivingScore = {
     valueEl.style.color = color;
   },
 
-  // Activer/DÃ©sactiver le tracking (liÃ© Ã  GuardianAngel)
+  // Activer/Désactiver le tracking (lié à GuardianAngel)
   start: function () {
     this.isTracking = true;
     this.sessionPenalties = [];
@@ -12235,7 +12376,7 @@ window.DrivingScore = {
     this.isTracking = false;
   },
 
-  // Panneau de dÃ©tail (affiche les pÃ©nalitÃ©s de la session)
+  // Panneau de détail (affiche les pénalités de la session)
   showDetailPanel: function () {
     let existing = document.getElementById("ds-detail-panel");
     if (existing) {
@@ -12263,7 +12404,7 @@ window.DrivingScore = {
 
     let penaltiesHTML =
       this.sessionPenalties.length === 0
-        ? '<div style="color:#00ff88; text-align:center;">âœ… Aucune infraction</div>'
+        ? '<div style="color:#00ff88; text-align:center;">✅ Aucune infraction</div>'
         : this.sessionPenalties
             .slice(-5)
             .map(
@@ -12279,7 +12420,7 @@ window.DrivingScore = {
                 ðŸ“Š Score de Conduite : ${this.currentScore}/100
             </div>
             <div style="font-size:11px; color:#888; margin-bottom:8px;">
-                DerniÃ¨res infractions (session) :
+                Dernières infractions (session) :
             </div>
             ${penaltiesHTML}
             <div style="margin-top:12px; font-size:10px; color:#666; text-align:center;">
@@ -12290,7 +12431,7 @@ window.DrivingScore = {
     document.body.appendChild(panel);
   },
 
-  // GÃ©nÃ©rer un rÃ©sumÃ© pour le portail B2B Assureur
+  // Générer un résumé pour le portail B2B Assureur
   generateInsuranceReport: function () {
     return {
       score: this.currentScore,
@@ -12323,165 +12464,249 @@ window.addEventListener("DOMContentLoaded", () => {
 
 /* --- danger-zones.js --- */
 /**
- * DANGER ZONES v1.0 (Signalement Communautaire)
- * SystÃ¨me type Waze pour signaler et alerter les dangers sur la route.
- * Nids-de-poule, gravillons, routes glissantes, contrÃ´les...
+ * ⚠️ DANGER ZONES v2.0 (Signalement Communautaire Temps Réel)
+ * Système type Waze pour signaler et alerter les dangers sur la route.
+ * Nids-de-poule, gravillons, routes glissantes, contrôles, accidents...
+ * Sécurité : Conformité OWASP & validation des entrées.
  */
 
 window.DangerZones = {
-  alerts: [], // Alertes actives Ã  proximitÃ©
-  myReports: [], // Mes signalements
+  alerts: [], // Alertes actives à proximité
+  myReports: [], // Mes signalements locaux
+  mapMarkers: {}, // Marqueurs Leaflet sur la carte
   isMonitoring: false,
   currentPos: null,
   checkInterval: null,
+  firestoreUnsubscribe: null,
 
-  // Types de dangers avec icÃ´nes et prioritÃ©s
   TYPES: {
     POTHOLE: {
-      icon: "ðŸ•³ï¸",
+      icon: "🕳️",
       label: "Nid-de-poule",
       priority: 3,
       color: "#ff6600",
-      voiceAlert: "Attention, nid-de-poule signalÃ© devant vous.",
+      voiceAlert: "Attention, nid-de-poule signalé devant vous.",
     },
     GRAVEL: {
-      icon: "âš ï¸",
+      icon: "⚠️",
       label: "Gravillons",
       priority: 2,
       color: "#ffaa00",
-      voiceAlert: "Prudence, route avec gravillons Ã  proximitÃ©.",
+      voiceAlert: "Prudence, route avec gravillons à proximité.",
     },
     SLIPPERY: {
-      icon: "ðŸŒ§ï¸",
+      icon: "🌧️",
       label: "Route glissante",
       priority: 3,
       color: "#3399ff",
-      voiceAlert: "Attention, chaussÃ©e glissante signalÃ©e.",
+      voiceAlert: "Attention, chaussée glissante signalée.",
     },
     ROADWORKS: {
-      icon: "ðŸš§",
+      icon: "🚧",
       label: "Travaux",
       priority: 2,
       color: "#ff9900",
-      voiceAlert: "Zone de travaux signalÃ©e sur votre itinÃ©raire.",
+      voiceAlert: "Zone de travaux signalée sur votre itinéraire.",
     },
     ACCIDENT: {
-      icon: "ðŸš¨",
+      icon: "🚨",
       label: "Accident",
       priority: 4,
       color: "#ff0044",
-      voiceAlert: "Accident signalÃ© devant vous. RÃ©duisez votre vitesse.",
+      voiceAlert: "Accident signalé devant vous. Réduisez votre vitesse.",
     },
     POLICE: {
-      icon: "ðŸ‘®",
-      label: "ContrÃ´le",
+      icon: "👮",
+      label: "Contrôle",
       priority: 1,
       color: "#6666ff",
-      voiceAlert: "ContrÃ´le de police signalÃ© Ã  proximitÃ©.",
+      voiceAlert: "Contrôle de police signalé à proximité.",
     },
     ANIMAL: {
-      icon: "ðŸ•",
+      icon: "🐾",
       label: "Animal sur route",
       priority: 3,
       color: "#88cc00",
-      voiceAlert: "Animal signalÃ© sur la chaussÃ©e, ralentissez.",
+      voiceAlert: "Animal signalé sur la chaussée, ralentissez.",
     },
     FLOOD: {
-      icon: "ðŸŒŠ",
+      icon: "🌊",
       label: "Inondation",
       priority: 4,
       color: "#0088ff",
-      voiceAlert: "Route inondÃ©e signalÃ©e. Ã‰vitez cette zone.",
+      voiceAlert: "Route inondée signalée. Évitez cette zone.",
     },
   },
 
-  // Rayon d'alerte en mÃ¨tres
-  ALERT_RADIUS: 500,
-  // DurÃ©e de vie d'un signalement (2 heures)
-  REPORT_TTL: 2 * 60 * 60 * 1000,
+  ALERT_RADIUS: 500, // Rayon d'alerte en mètres
+  REPORT_TTL: 2 * 60 * 60 * 1000, // 2 heures
 
   init: function () {
-    this.loadLocalReports();
+    this.listenToCloudHazards();
+    this.startMonitoring();
   },
 
-  // DÃ©marrer la surveillance GPS
   startMonitoring: function () {
     if (this.isMonitoring) return;
     this.isMonitoring = true;
 
-    // VÃ©rifier les alertes Ã  proximitÃ© toutes les 5 secondes
     this.checkInterval = setInterval(() => {
       if (this.currentPos) {
         this.checkNearbyDangers();
       }
-    }, 5000);
+    }, 4000);
   },
 
   stopMonitoring: function () {
     this.isMonitoring = false;
     if (this.checkInterval) clearInterval(this.checkInterval);
+    if (this.firestoreUnsubscribe) this.firestoreUnsubscribe();
   },
 
-  // Mettre Ã  jour la position (appelÃ© par le GPS de app-map.js)
   updatePosition: function (lat, lng) {
     this.currentPos = { lat, lng };
   },
 
-  // Signaler un danger (bouton dans l'UI)
+  listenToCloudHazards: function () {
+    if (!window.db) return;
+
+    if (this.firestoreUnsubscribe) this.firestoreUnsubscribe();
+
+    this.firestoreUnsubscribe = window.db
+      .collection("hazards")
+      .where("status", "==", "active")
+      .limit(100)
+      .onSnapshot((snapshot) => {
+        const cloudAlerts = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const hazard = { id: doc.id, ...data };
+          cloudAlerts.push(hazard);
+          this.renderHazardOnMap(hazard);
+        });
+        this.alerts = cloudAlerts;
+      }, (err) => {
+        console.warn("[DangerZones] Firestore non disponible:", err);
+      });
+  },
+
+  renderHazardOnMap: function (hazard) {
+    if (typeof L === "undefined" || typeof map === "undefined" || !map) return;
+    if (!hazard.lat || !hazard.lng) return;
+
+    const typeInfo = this.TYPES[hazard.type] || this.TYPES.POTHOLE;
+    const markerId = hazard.id;
+
+    if (this.mapMarkers[markerId]) {
+      this.mapMarkers[markerId].setLatLng([hazard.lat, hazard.lng]);
+    } else {
+      const icon = L.divIcon({
+        html: `<div style="background:${typeInfo.color}; color:#fff; border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:16px; box-shadow:0 0 15px ${typeInfo.color}; border:2px solid #fff;">
+                 ${typeInfo.icon}
+               </div>`,
+        className: "hazard-leaflet-marker",
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+      });
+
+      const marker = L.marker([hazard.lat, hazard.lng], { icon: icon }).addTo(map);
+      marker.bindPopup(`
+        <div style="font-family:'Inter',sans-serif; text-align:center; padding:5px;">
+          <h4 style="margin:0 0 5px 0; color:${typeInfo.color}; font-size:1.1rem;">
+            ${typeInfo.icon} ${typeInfo.label}
+          </h4>
+          <p style="margin:0 0 8px 0; font-size:0.8rem; color:#aaa;">Signalé par la communauté</p>
+          <div style="display:flex; gap:6px; justify-content:center;">
+            <button onclick="DangerZones.voteHazard('${hazard.id}', 'confirm')" style="background:#00ff88; color:#000; border:none; border-radius:6px; padding:4px 8px; font-size:0.75rem; font-weight:bold; cursor:pointer;">
+              👍 Toujours là
+            </button>
+            <button onclick="DangerZones.voteHazard('${hazard.id}', 'resolve')" style="background:#ff4d4d; color:#fff; border:none; border-radius:6px; padding:4px 8px; font-size:0.75rem; font-weight:bold; cursor:pointer;">
+              👎 Disparu
+            </button>
+          </div>
+        </div>
+      `);
+
+      this.mapMarkers[markerId] = marker;
+    }
+  },
+
+  voteHazard: async function (hazardId, voteType) {
+    if (!window.db) return;
+    try {
+      const ref = window.db.collection("hazards").doc(hazardId);
+      if (voteType === "confirm") {
+        await ref.update({
+          confirmations: firebase.firestore.FieldValue.increment(1)
+        });
+        alert("Merci pour votre confirmation !");
+      } else {
+        await ref.update({
+          status: "resolved"
+        });
+        if (this.mapMarkers[hazardId] && typeof map !== "undefined") {
+          map.removeLayer(this.mapMarkers[hazardId]);
+          delete this.mapMarkers[hazardId];
+        }
+        alert("Signalement marqué comme résolu !");
+      }
+    } catch (e) {
+      console.error("[DangerZones] Erreur de vote:", e);
+    }
+  },
+
   reportDanger: function (type) {
     if (!this.currentPos) {
-      alert("Position GPS non disponible. Activez la localisation.");
+      alert("Position GPS non disponible. Activez la géolocalisation.");
       return;
     }
     if (!this.TYPES[type]) {
-      console.error("DangerZones : Type inconnu â†’", type);
+      console.error("DangerZones : Type inconnu →", type);
       return;
     }
 
     const report = {
-      id: `dz_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
       type: type,
       lat: this.currentPos.lat,
       lng: this.currentPos.lng,
       timestamp: Date.now(),
-      reporter: (window.session && window.session.uid) || "anonymous",
-      confirmations: 1, // Le crÃ©ateur compte comme 1
-      active: true,
+      status: "active",
+      reporter: (window.session && window.session.username) || "Membre",
+      confirmations: 1,
+      createdAt: firebase.firestore.FieldValue ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
     };
 
-    this.myReports.push(report);
-    this.saveLocalReports();
-
-    // Enregistrer dans Firebase pour la communautÃ©
     this.syncToCloud(report);
 
-    // Feedback
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     if (typeof speak === "function") {
-      speak(
-        `${this.TYPES[type].label} signalÃ©. Merci de protÃ©ger la communautÃ©.`,
-      );
+      speak(`${this.TYPES[type].label} signalé. Merci de protéger la communauté.`);
     }
 
     return report;
   },
 
-  // VÃ©rifier les dangers Ã  proximitÃ©
+  syncToCloud: async function (report) {
+    if (!window.db) return;
+    try {
+      await window.db.collection("hazards").add(report);
+    } catch (e) {
+      console.error("[DangerZones] Erreur d'envoi du danger:", e);
+    }
+  },
+
   checkNearbyDangers: function () {
     if (!this.currentPos || this.alerts.length === 0) return;
 
     const now = Date.now();
     this.alerts.forEach((alert) => {
-      // Ignorer les alertes expirÃ©es
-      if (now - alert.timestamp > this.REPORT_TTL) return;
-      // Ignorer si dÃ©jÃ  notifiÃ© dans les 60 derniÃ¨res secondes
       if (alert._lastNotified && now - alert._lastNotified < 60000) return;
 
       const distance = this.getDistance(
         this.currentPos.lat,
         this.currentPos.lng,
         alert.lat,
-        alert.lng,
+        alert.lng
       );
 
       if (distance <= this.ALERT_RADIUS) {
@@ -12491,32 +12716,20 @@ window.DangerZones = {
     });
   },
 
-  // DÃ©clencher une alerte visuelle + vocale
   triggerAlert: function (alert, distanceMeters) {
     const typeInfo = this.TYPES[alert.type];
     if (!typeInfo) return;
 
-    console.warn(
-      `âš ï¸ DANGER Ã  ${distanceMeters.toFixed(0)}m : ${typeInfo.label}`,
-    );
-
-    // Alerte vocale
     if (typeof speak === "function") {
       speak(typeInfo.voiceAlert);
     }
 
-    // Vibration selon la prioritÃ©
-    const vibratePattern =
-      typeInfo.priority >= 3
-        ? [300, 100, 300, 100, 300] // Urgent
-        : [200, 100, 200]; // Normal
+    const vibratePattern = typeInfo.priority >= 3 ? [300, 100, 300, 100, 300] : [200, 100, 200];
     if (navigator.vibrate) navigator.vibrate(vibratePattern);
 
-    // Notification visuelle (toast)
     this.showToast(typeInfo, distanceMeters);
   },
 
-  // Toast d'alerte visuelle
   showToast: function (typeInfo, distanceMeters) {
     let existing = document.getElementById("dz-toast");
     if (existing) existing.remove();
@@ -12528,10 +12741,10 @@ window.DangerZones = {
       top: "80px",
       left: "50%",
       transform: "translateX(-50%)",
-      background: `linear-gradient(135deg, ${typeInfo.color}22, rgba(0,0,0,0.95))`,
+      background: `linear-gradient(135deg, ${typeInfo.color}33, rgba(6,9,19,0.95))`,
       border: `2px solid ${typeInfo.color}`,
       borderRadius: "16px",
-      padding: "14px 24px",
+      padding: "12px 20px",
       zIndex: "10000",
       color: "#fff",
       fontFamily: "'Inter', sans-serif",
@@ -12539,18 +12752,17 @@ window.DangerZones = {
       display: "flex",
       alignItems: "center",
       gap: "12px",
-      backdropFilter: "blur(10px)",
-      boxShadow: `0 0 30px ${typeInfo.color}44`,
-      animation: "slideDown 0.4s ease-out",
+      backdropFilter: "blur(12px)",
+      boxShadow: `0 0 25px ${typeInfo.color}66`,
     });
 
     toast.innerHTML = `
-            <span style="font-size: 28px;">${typeInfo.icon}</span>
-            <div>
-                <div style="font-weight: bold;">${typeInfo.label}</div>
-                <div style="font-size: 12px; color: #aaa;">Ã  ${distanceMeters.toFixed(0)} mÃ¨tres</div>
-            </div>
-        `;
+      <span style="font-size: 26px;">${typeInfo.icon}</span>
+      <div>
+        <div style="font-weight: bold; color:${typeInfo.color}">${typeInfo.label}</div>
+        <div style="font-size: 11px; color: #aaa;">à ${distanceMeters.toFixed(0)} mètres</div>
+      </div>
+    `;
 
     document.body.appendChild(toast);
     setTimeout(() => {
@@ -12558,152 +12770,55 @@ window.DangerZones = {
     }, 5000);
   },
 
-  // Afficher le panneau de signalement rapide
-  showReportPanel: function () {
-    let existing = document.getElementById("dz-report-panel");
-    if (existing) {
-      existing.remove();
-      return;
-    }
+  getDistance: function (lat1, lon1, lat2, lon2) {
+    const R = 6371e3;
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-    const panel = document.createElement("div");
-    panel.id = "dz-report-panel";
-    Object.assign(panel.style, {
-      position: "fixed",
-      bottom: "0",
-      left: "0",
-      right: "0",
-      background: "rgba(0,0,0,0.95)",
-      borderTop: "2px solid rgba(0,210,255,0.3)",
-      borderRadius: "20px 20px 0 0",
-      padding: "20px",
-      zIndex: "10001",
-      backdropFilter: "blur(20px)",
-      transition: "transform 0.3s ease",
-    });
-
-    let buttonsHTML = Object.entries(this.TYPES)
-      .map(
-        ([key, info]) =>
-          `<button onclick="window.DangerZones.reportDanger('${key}'); document.getElementById('dz-report-panel').remove();"
-                style="display:flex; flex-direction:column; align-items:center; gap:6px;
-                       background:rgba(255,255,255,0.05); border:1px solid ${info.color}44;
-                       border-radius:12px; padding:12px 8px; color:#fff; cursor:pointer;
-                       font-size:12px; min-width:80px; transition: all 0.2s;">
-                <span style="font-size:24px;">${info.icon}</span>
-                <span>${info.label}</span>
-            </button>`,
-      )
-      .join("");
-
-    panel.innerHTML = `
-            <div style="text-align:center; margin-bottom:16px;">
-                <div style="width:40px; height:4px; background:#555; border-radius:2px; margin:0 auto 12px;"></div>
-                <span style="color:#00d2ff; font-weight:bold; font-size:16px;">âš ï¸ Signaler un danger</span>
-            </div>
-            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;">
-                ${buttonsHTML}
-            </div>
-        `;
-    document.body.appendChild(panel);
-  },
-
-  // Confirmer un signalement existant (+1 crÃ©dibilitÃ©)
-  confirmReport: function (reportId) {
-    const alert = this.alerts.find((a) => a.id === reportId);
-    if (alert) {
-      alert.confirmations = (alert.confirmations || 1) + 1;
-    }
-  },
-
-  // Synchronisation Firebase
-  syncToCloud: function (report) {
-    if (typeof db !== "undefined") {
-      db.collection("danger_zones")
-        .add(report)
-        .then(() => {})
-        .catch((err) => console.error("âš ï¸ DangerZones sync error:", err));
-    }
-  },
-
-  // Charger les signalements depuis Firebase
-  loadFromCloud: function () {
-    if (typeof db === "undefined") return;
-
-    const cutoff = Date.now() - this.REPORT_TTL;
-    db.collection("danger_zones")
-      .where("timestamp", ">", cutoff)
-      .get()
-      .then((snapshot) => {
-        this.alerts = [];
-        snapshot.forEach((doc) => {
-          this.alerts.push({ id: doc.id, ...doc.data() });
-        });
-      })
-      .catch((err) => console.error("DangerZones cloud load error:", err));
-  },
-
-  // Sauvegarde locale
-  saveLocalReports: function () {
-    localStorage.setItem("dangerZoneReports", JSON.stringify(this.myReports));
-  },
-
-  loadLocalReports: function () {
-    try {
-      const data = localStorage.getItem("dangerZoneReports");
-      this.myReports = data ? JSON.parse(data) : [];
-    } catch (e) {
-      this.myReports = [];
-    }
-  },
-
-  // Calcul de distance (Haversine)
-  getDistance: function (lat1, lng1, lat2, lng2) {
-    const R = 6371000;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLng = ((lng2 - lng1) * Math.PI) / 180;
     const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
   },
 };
 
-// Auto-init
-window.addEventListener("DOMContentLoaded", () => {
-  window.DangerZones.init();
+document.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => {
+    DangerZones.init();
+  }, 1200);
 });
 
 
 /* --- accident-report.js --- */
 ﻿/**
  * ACCIDENT REPORT & PDF GENERATOR v1.0 (InsurTech Core)
- * GÃ©nÃ¨re automatiquement un rapport post-crash avec les 30 derniÃ¨res secondes
- * de tÃ©lÃ©mÃ©trie de la BoÃ®te Noire. PrÃªt Ã  Ãªtre envoyÃ© Ã  l'assureur.
+ * Génère automatiquement un rapport post-crash avec les 30 dernières secondes
+ * de télémétrie de la Boîte Noire. Prêt à être envoyé à l'assureur.
  */
 
 window.AccidentReport = {
   init: function () {
-    // Ã‰couter les Ã©vÃ©nements de crash de GuardianAngel
+    // Écouter les événements de crash de GuardianAngel
     window.addEventListener("crashDetected", (e) => {
       const crashData = e.detail;
       this.generateReport(crashData);
     });
   },
 
-  // DÃ©clenchÃ© manuellement pour une dÃ©mo ou via l'Event
+  // Déclenché manuellement pour une démo ou via l'Event
   generateReport: function (crashData = null) {
     if (!crashData) {
-      // Mock data pour la dÃ©mo
+      // Mock data pour la démo
       crashData = {
         timestamp: Date.now(),
         location: window.appMap?.currentPos || { lat: 45.367, lng: 4.2 },
         speedAtImpact: 42.5,
         gForce: 6.2,
-        weather: "Pluie lÃ©gÃ¨re",
+        weather: "Pluie légère",
         vehicle: "Peugeot Kisbee 50 4T",
         insurancePolicy: "AXA-120499-XYZ",
       };
@@ -12741,22 +12856,22 @@ window.AccidentReport = {
             <div style="width:100%; max-width:600px; background:#111; border:1px solid #ff3355; border-radius:12px; padding:20px; box-shadow: 0 0 40px rgba(255,51,85,0.2);">
                 
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:15px; margin-bottom:20px;">
-                    <h2 style="color:#ff3355; margin:0;">ðŸš¨ RAPPORT DE SINISTRE</h2>
+                    <h2 style="color:#ff3355; margin:0;">🚨 RAPPORT DE SINISTRE</h2>
                     <img src="assets/img/logo.png" alt="mon50cc" style="height:40px; filter:grayscale(1) brightness(2);">
                 </div>
 
                 <div style="background:rgba(255,51,85,0.1); padding:15px; border-radius:8px; margin-bottom:20px;">
-                    <p style="margin:0 0 10px; font-weight:bold;">Informations GÃ©nÃ©rales</p>
+                    <p style="margin:0 0 10px; font-weight:bold;">Informations Générales</p>
                     <table style="width:100%; font-size:14px;">
                         <tr><td style="color:#aaa; padding:4px 0;">Date et Heure :</td><td style="text-align:right;">${dateStr}</td></tr>
                         <tr><td style="color:#aaa; padding:4px 0;">Localisation :</td><td style="text-align:right;">${data.location.lat.toFixed(5)}, ${data.location.lng.toFixed(5)}</td></tr>
-                        <tr><td style="color:#aaa; padding:4px 0;">VÃ©hicule :</td><td style="text-align:right;">${data.vehicle}</td></tr>
+                        <tr><td style="color:#aaa; padding:4px 0;">Véhicule :</td><td style="text-align:right;">${data.vehicle}</td></tr>
                         <tr><td style="color:#aaa; padding:4px 0;">Police Assurance :</td><td style="text-align:right; font-family:monospace;">${data.insurancePolicy}</td></tr>
                     </table>
                 </div>
 
                 <div style="background:rgba(0,210,255,0.1); padding:15px; border-radius:8px; margin-bottom:20px;">
-                    <p style="margin:0 0 10px; font-weight:bold; color:#00d2ff;">TÃ©lÃ©mÃ©trie au moment de l'impact (BoÃ®te Noire)</p>
+                    <p style="margin:0 0 10px; font-weight:bold; color:#00d2ff;">Télémétrie au moment de l'impact (Boîte Noire)</p>
                     <div style="display:flex; justify-content:space-around; text-align:center;">
                         <div>
                             <div style="font-size:24px; font-weight:bold; color:#fff;">${data.speedAtImpact}</div>
@@ -12768,13 +12883,13 @@ window.AccidentReport = {
                         </div>
                         <div>
                             <div style="font-size:24px; font-weight:bold; color:#fff;">${data.weather}</div>
-                            <div style="font-size:11px; color:#aaa;">MÃ‰TÃ‰O</div>
+                            <div style="font-size:11px; color:#aaa;">MÉTÉO</div>
                         </div>
                     </div>
                 </div>
 
                 <div style="border:1px dashed #555; padding:15px; border-radius:8px; margin-bottom:20px; font-size:12px; color:#888;">
-                    <i class="fa-solid fa-lock" style="color:#00d2ff;"></i> Certificat d'horodatage cryptographique valide. DonnÃ©es immuables certifiÃ©es par le rÃ©seau.
+                    <i class="fa-solid fa-lock" style="color:#00d2ff;"></i> Certificat d'horodatage cryptographique valide. Données immuables certifiées par le réseau.
                 </div>
 
                 <div style="display:flex; gap:10px;">
@@ -12791,10 +12906,10 @@ window.AccidentReport = {
   },
 
   exportPDF: function () {
-    // Simule la crÃ©ation d'un PDF via jsPDF ou l'impression du navigateur
+    // Simule la création d'un PDF via jsPDF ou l'impression du navigateur
     if (typeof speak === "function") {
       speak(
-        "GÃ©nÃ©ration du rapport PDF en cours. Il sera envoyÃ© automatiquement Ã  votre assurance.",
+        "Génération du rapport PDF en cours. Il sera envoyé automatiquement à votre assurance.",
       );
     }
 
@@ -12803,12 +12918,12 @@ window.AccidentReport = {
       navigator
         .share({
           title: "Rapport Accident - mon50ccetmoi",
-          text: "Voici les donnÃ©es certifiÃ©es de mon accident, gÃ©nÃ©rÃ©es par ma boÃ®te noire mon50ccetmoi.",
+          text: "Voici les données certifiées de mon accident, générées par ma boîte noire mon50ccetmoi.",
           // On simulerait ici un fichier blob PDF
         })
         .catch(console.error);
     } else {
-      alert("Rapport PDF tÃ©lÃ©chargÃ© avec succÃ¨s sur votre appareil.");
+      alert("Rapport PDF téléchargé avec succès sur votre appareil.");
     }
   },
 };
@@ -12822,7 +12937,7 @@ window.addEventListener("DOMContentLoaded", () => {
 /* --- weather-alert.js --- */
 ﻿/**
  * INTELLIGENT WEATHER ALERT v1.0
- * Analyse les conditions mÃ©tÃ©o sur l'itinÃ©raire du pilote et alerte
+ * Analyse les conditions météo sur l'itinéraire du pilote et alerte
  * vocalement en cas de danger (pluie, verglas, vent fort).
  */
 
@@ -12834,21 +12949,21 @@ window.WeatherAlert = {
 
   // Mock conditions for demo purposes
   CONDITIONS: {
-    CLEAR: { label: "DÃ©gagÃ©", danger: false, msg: "" },
+    CLEAR: { label: "Dégagé", danger: false, msg: "" },
     RAIN: {
       label: "Pluie",
       danger: true,
-      msg: "Alerte mÃ©tÃ©o. Pluie dÃ©tectÃ©e sur votre itinÃ©raire. AdhÃ©rence rÃ©duite, ralentissez.",
+      msg: "Alerte météo. Pluie détectée sur votre itinéraire. Adhérence réduite, ralentissez.",
     },
     WIND: {
       label: "Vent Fort",
       danger: true,
-      msg: "Alerte mÃ©tÃ©o. Fortes rafales de vent. Maintenez fermement votre guidon.",
+      msg: "Alerte météo. Fortes rafales de vent. Maintenez fermement votre guidon.",
     },
     ICE: {
       label: "Risque de Verglas",
       danger: true,
-      msg: "Alerte critique. TempÃ©rature proche de zÃ©ro. Risque extrÃªme de verglas.",
+      msg: "Alerte critique. Température proche de zéro. Risque extrême de verglas.",
     },
   },
 
@@ -12858,10 +12973,10 @@ window.WeatherAlert = {
     if (this.isMonitoring) return;
     this.isMonitoring = true;
 
-    // VÃ©rification immÃ©diate
+    // Vérification immédiate
     this.checkWeather(window.appMap?.currentPos);
 
-    // Puis vÃ©rification toutes les 15 minutes (900000 ms)
+    // Puis vérification toutes les 15 minutes (900000 ms)
     this.checkInterval = setInterval(() => {
       this.checkWeather(window.appMap?.currentPos);
     }, 900000);
@@ -12876,11 +12991,11 @@ window.WeatherAlert = {
     if (!position) return;
 
     const now = Date.now();
-    // Ã‰vite de spammer les alertes (1 alerte max toutes les 15 min)
+    // Évite de spammer les alertes (1 alerte max toutes les 15 min)
     if (now - this.lastCheckTime < 900000 && this.lastCheckTime !== 0) return;
 
-    // Dans un cas rÃ©el, appel vers OpenWeatherMap API ou MÃ©tÃ©o France
-    // Ici, nous simulons la mÃ©tÃ©o alÃ©atoirement pour la dÃ©mo
+    // Dans un cas réel, appel vers OpenWeatherMap API ou Météo France
+    // Ici, nous simulons la météo aléatoirement pour la démo
     const simulatedWeather = this.simulateWeatherAPI();
 
     if (
@@ -12898,7 +13013,7 @@ window.WeatherAlert = {
     const condition = this.CONDITIONS[conditionKey];
     if (!condition || !condition.danger) return;
 
-    console.warn(`ðŸŒ¦ï¸ ALERTE MÃ‰TÃ‰O : ${condition.label}`);
+    console.warn(`🌍¦ï¸ ALERTE MÉTÉO : ${condition.label}`);
 
     // Notification Vocale
     if (typeof speak === "function") {
@@ -12939,8 +13054,8 @@ window.WeatherAlert = {
     toast.innerHTML = `
             <span style="font-size:24px;">â˜ï¸</span>
             <div>
-                <div style="font-weight:bold; color:#00d2ff;">Alerte MÃ©tÃ©o : ${condition.label}</div>
-                <div style="font-size:12px; color:#aaa;">Prudence recommandÃ©e</div>
+                <div style="font-weight:bold; color:#00d2ff;">Alerte Météo : ${condition.label}</div>
+                <div style="font-size:12px; color:#aaa;">Prudence recommandée</div>
             </div>
         `;
 
@@ -12959,7 +13074,7 @@ window.WeatherAlert = {
     return "CLEAR";
   },
 
-  // DÃ©clenchÃ© depuis la console pour tester
+  // Déclenché depuis la console pour tester
   testAlert: function (type = "RAIN") {
     this.triggerAlert(type);
   },
@@ -13010,7 +13125,7 @@ window.Web4Economy = {
       setTimeout(
         () =>
           alert(
-            "Nouvelle Saison ! Vos points BVC (Rouler & Gagner) ont expirÃ© et ont Ã©tÃ© remis Ã  zÃ©ro pour l'annÃ©e civile en cours.",
+            "Nouvelle Saison ! Vos points BVC (Rouler & Gagner) ont expiré et ont été remis à zéro pour l'année civile en cours.",
           ),
         2000,
       );
@@ -13033,10 +13148,10 @@ window.Web4Economy = {
       localStorage.setItem("braveCoins", this.balance.toFixed(2));
       this.updateUI();
 
-      return true; // Achat rÃ©ussi
+      return true; // Achat réussi
     } else {
       console.warn(`[Web4] Fonds insuffisants pour : ${reason}`);
-      return false; // Achat refusÃ©
+      return false; // Achat refusé
     }
   },
 
@@ -13056,7 +13171,7 @@ window.Web4Economy = {
         lawyerBtn.style.filter = "grayscale(100%)";
         lawyerBtn.innerHTML =
           '<i class="fa-solid fa-lock" style="filter: drop-shadow(0 0 5px #ff4d4d); color: #ff4d4d;"></i>';
-        lawyerBtn.title = `NÃ©cessite ${lawyerPrice} BVC`;
+        lawyerBtn.title = `Nécessite ${lawyerPrice} BVC`;
       } else {
         lawyerBtn.style.opacity = "1";
         lawyerBtn.style.filter = "none";
@@ -13128,13 +13243,13 @@ window.InsurerPortal = {
         .classList.remove("hidden");
     } catch (error) {
       console.error("Auth error:", error);
-      alert("AccÃ¨s refusÃ© : Identifiants invalides ou compte inexistant.");
+      alert("Accès refusé : Identifiants invalides ou compte inexistant.");
     }
   },
 
   signup: function () {
     alert(
-      "La crÃ©ation de compte Assureur est gÃ©rÃ©e manuellement par notre Ã©quipe pour des raisons de sÃ©curitÃ©. Veuillez nous contacter.",
+      "La création de compte Assureur est gérée manuellement par notre équipe pour des raisons de sécurité. Veuillez nous contacter.",
     );
   },
 
@@ -13168,7 +13283,7 @@ window.InsurerPortal = {
         const diffHours = (now - timestamp) / (1000 * 60 * 60);
         if (diffHours > 72) {
           alert(
-            "Code ExpirÃ©. Le code litige est valable uniquement 72h. Le pilote doit gÃ©nÃ©rer un nouveau code depuis son application.",
+            "Code Expiré. Le code litige est valable uniquement 72h. Le pilote doit générer un nouveau code depuis son application.",
           );
           return;
         }
@@ -13184,7 +13299,7 @@ window.InsurerPortal = {
   buyReport: function (type, price, rewardBvc) {
     if (
       confirm(
-        `[SÃ‰CURITÃ‰ ZERO-TRUST]\nConfirmez-vous l'achat du rapport [${type}] pour ${price}â‚¬ HT ?\n\nâš ï¸ CONDITIONS B2B : Les donnÃ©es chiffrÃ©es sont dÃ©finitives.\nLe paiement sera instantanÃ©ment prÃ©levÃ© via le Smart Contract.`,
+        `[SÉCURITÉ ZERO-TRUST]\nConfirmez-vous l'achat du rapport [${type}] pour ${price}€ HT ?\n\nâš ï¸ CONDITIONS B2B : Les données chiffrées sont définitives.\nLe paiement sera instantanément prélevé via le Smart Contract.`,
       )
     ) {
       // Premium WOW Effect for success
@@ -13192,24 +13307,24 @@ window.InsurerPortal = {
       pricingBox.innerHTML = `
                 <div style="text-align:center; padding: 40px;">
                     <i class="fa-solid fa-circle-check" style="font-size: 5rem; color: #00ffcc; text-shadow: 0 0 30px #00ffcc; margin-bottom:20px; animation: pulse 1s infinite;"></i>
-                    <h2 style="color:#fff; font-size:2rem; font-weight:900;">TRANSACTION VALIDÃ‰E</h2>
-                    <p style="color:#00d2ff; font-family:'JetBrains Mono', monospace;">ClÃ© de dÃ©chiffrement gÃ©nÃ©rÃ©e pour le dossier ${this.currentCode}</p>
+                    <h2 style="color:#fff; font-size:2rem; font-weight:900;">TRANSACTION VALIDÉE</h2>
+                    <p style="color:#00d2ff; font-family:'JetBrains Mono', monospace;">Clé de déchiffrement générée pour le dossier ${this.currentCode}</p>
                     <div style="margin-top:30px; background:rgba(0,255,204,0.1); border:1px solid #00ffcc; border-radius:12px; padding:15px; color:#fff;">
-                        <i class="fa-solid fa-envelope"></i> Le rapport a Ã©tÃ© envoyÃ© de maniÃ¨re sÃ©curisÃ©e Ã  votre adresse pro.
+                        <i class="fa-solid fa-envelope"></i> Le rapport a été envoyé de manière sécurisée à votre adresse pro.
                     </div>
                 </div>
             `;
 
       setTimeout(() => {
-        // DÃ©clenchement du Smart Contract Web4 : RÃ©tribution du pilote
+        // Déclenchement du Smart Contract Web4 : Rétribution du pilote
         if (window.Web4Economy && rewardBvc > 0) {
           window.Web4Economy.mineToken(
             rewardBvc,
-            `Smart Contract: L'assureur a achetÃ© le rapport (${type})`,
+            `Smart Contract: L'assureur a acheté le rapport (${type})`,
           );
           if (typeof speak === "function") {
             speak(
-              "Transaction confirmÃ©e. Votre assureur a consultÃ© le rapport. Les tokens ont Ã©tÃ© crÃ©ditÃ©s.",
+              "Transaction confirmée. Votre assureur a consulté le rapport. Les tokens ont été crédités.",
             );
           }
         }
@@ -13223,8 +13338,8 @@ window.InsurerPortal = {
 /* --- zero-trust.js --- */
 ﻿/**
  * ðŸ‘ï¸ APEX SENTINEL - ZERO-TRUST ARCHITECTURE
- * BiomÃ©trie comportementale & Continuous Authentication
- * Bloque l'application si l'utilisateur change soudainement de comportement (ex: vol Ã  l'arrachÃ©).
+ * Biométrie comportementale & Continuous Authentication
+ * Bloque l'application si l'utilisateur change soudainement de comportement (ex: vol à l'arraché).
  */
 
 const ZeroTrust = {
@@ -13236,7 +13351,7 @@ const ZeroTrust = {
   triggerProtocolZero: async function () {
     console.warn("ðŸ’€ [PROTOCOL 0] INITIATED: ERASING ALL DATA...");
 
-    // Afficher l'Ã©cran de destruction
+    // Afficher l'écran de destruction
     document.body.innerHTML =
       "<div style='background:black; width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; color:#f00; font-family:monospace; font-size:20px;'><i class='fa-solid fa-skull fa-beat' style='font-size:5rem; margin-bottom:20px;'></i><p id='purge-status'>PURGE RGPD EN COURS...</p></div>";
 
@@ -13252,11 +13367,11 @@ const ZeroTrust = {
       console.error("[PROTOCOL 0] Firebase error during wipe", e);
     }
 
-    // Supprimer toutes les donnÃ©es localStorage
+    // Supprimer toutes les données localStorage
     localStorage.clear();
     sessionStorage.clear();
 
-    // Simuler un nettoyage du cache de la base de donnÃ©es (IndexedDB)
+    // Simuler un nettoyage du cache de la base de données (IndexedDB)
     if (window.indexedDB) {
       indexedDB
         .databases()
@@ -13271,7 +13386,7 @@ const ZeroTrust = {
     document.getElementById("purge-status").innerText =
       "SYSTEM PURGED. REBOOTING...";
 
-    // Redirection forcÃ©e
+    // Redirection forcée
     setTimeout(() => {
       window.location.href = "about:blank";
     }, 3000);
@@ -13340,7 +13455,7 @@ const ZeroTrust = {
 
   triggerLockdown() {
     this.active = false;
-    console.warn("ðŸš¨ [ZERO-TRUST] INITIATING SECURE LOCKDOWN.");
+    console.warn("🚨 [ZERO-TRUST] INITIATING SECURE LOCKDOWN.");
 
     // Create lockdown screen
     const lockdownDiv = document.createElement("div");
@@ -13354,18 +13469,18 @@ const ZeroTrust = {
 
     lockdownDiv.innerHTML = `
             <i class="fa-solid fa-fingerprint fa-beat" style="font-size: 5rem; color: #ff0055; margin-bottom: 20px;"></i>
-            <h1 style="font-size: 2.5rem; letter-spacing: 5px; text-transform: uppercase;">Alerte de SÃ©curitÃ©</h1>
+            <h1 style="font-size: 2.5rem; letter-spacing: 5px; text-transform: uppercase;">Alerte de Sécurité</h1>
             <p style="font-size: 1.2rem; color: #fff; max-width: 80%; text-align: center;">
-                Anomalie comportementale dÃ©tectÃ©e (Zero-Trust).<br>L'accÃ¨s a Ã©tÃ© rÃ©voquÃ© pour protÃ©ger vos donnÃ©es.
+                Anomalie comportementale détectée (Zero-Trust).<br>L'accès a été révoqué pour protéger vos données.
             </p>
             <button onclick="window.location.href='login.html'" style="margin-top: 40px; padding: 15px 40px; font-size: 1.2rem; background: transparent; border: 2px solid #ff0055; color: #ff0055; border-radius: 30px; cursor: pointer;">
-                Re-VÃ©rification BiomÃ©trique
+                Re-Vérification Biométrique
             </button>
         `;
     document.body.appendChild(lockdownDiv);
   },
 
-  // MÃ©thode pour simuler une attaque
+  // Méthode pour simuler une attaque
   simulateAttack() {
     console.warn("[TEST] Simulating Behavioral Anomaly...");
     this.threatLevel = 50;
@@ -13379,7 +13494,7 @@ window.ZeroTrust = ZeroTrust;
 /* --- garage.js --- */
 ﻿/**
  * ðŸï¸ GARAGE VIRTUEL
- * Suivi d'entretien et Ã©tat des piÃ¨ces en fonction du kilomÃ©trage.
+ * Suivi d'entretien et état des pièces en fonction du kilométrage.
  */
 
 window.VirtualGarage = {
@@ -13432,7 +13547,7 @@ window.VirtualGarage = {
     this.saveData();
     this.renderUI();
     if (typeof speak === "function")
-      speak(`Entretien enregistrÃ© pour : ${this.data.parts[partKey].name}.`);
+      speak(`Entretien enregistré pour : ${this.data.parts[partKey].name}.`);
   },
 
   getPartWear: function (partKey) {
@@ -13499,7 +13614,7 @@ window.VirtualGarage = {
                         <div style="width: ${wear.percentage}%; height: 100%; background: ${wear.isCritical ? "#ff4d4d" : part.color}; transition: width 0.5s;"></div>
                     </div>
                     <button onclick="VirtualGarage.resetPart('${key}')" style="background: transparent; border: 1px solid ${part.color}; color: ${part.color}; padding: 5px 15px; border-radius: 15px; font-size: 0.8rem; cursor: pointer;">
-                        <i class="fa-solid fa-rotate"></i> RemplacÃ©
+                        <i class="fa-solid fa-rotate"></i> Remplacé
                     </button>
                     ${wear.isCritical ? '<p style="color: #ff4d4d; font-size: 0.8rem; margin: 10px 0 0 0;"><i class="fa-solid fa-triangle-exclamation"></i> Remplacement urgent !</p>' : ""}
                 </div>
@@ -13510,18 +13625,18 @@ window.VirtualGarage = {
             <button onclick="VirtualGarage.closeUI()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-motorcycle" style="font-size: 3rem; color: #00d2ff; filter: drop-shadow(0 0 10px #00d2ff); margin-bottom: 10px;"></i>
             <h1 style="font-size: 1.5rem; margin: 0; text-transform: uppercase; color: #00d2ff;">Mon Garage</h1>
-            <p style="color: #aaa; margin-bottom: 20px; text-align: center;">Suivi d'entretien kilomÃ©trique</p>
+            <p style="color: #aaa; margin-bottom: 20px; text-align: center;">Suivi d'entretien kilométrique</p>
             
             <div style="width: 90%; max-width: 500px; background: rgba(0,0,0,0.4); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.8rem; color: #777;">ModÃ¨le du scooter</label>
+                        <label style="font-size: 0.8rem; color: #777;">Modèle du scooter</label>
                         <input type="text" id="garage-model" value="${this.data.model}" style="width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; box-sizing: border-box; margin-top: 5px; outline: none;">
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.8rem; color: #777;">KilomÃ©trage initial (compteur)</label>
+                        <label style="font-size: 0.8rem; color: #777;">Kilométrage initial (compteur)</label>
                         <input type="number" id="garage-initial-km" value="${this.data.initialKm}" style="width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; box-sizing: border-box; margin-top: 5px; outline: none;">
                     </div>
                 </div>
@@ -13532,7 +13647,7 @@ window.VirtualGarage = {
             
             <div style="width: 90%; max-width: 500px; padding-bottom: 30px;">
                 <h3 style="color: #fff; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span>PiÃ¨ces d'usure</span>
+                    <span>Pièces d'usure</span>
                     <span style="color: #00d2ff;">${currentKm} km</span>
                 </h3>
                 ${partsHTML}
@@ -13547,9 +13662,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- safe-rider.js --- */
+
+// Ajout pour la sécurité XSS
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>'"]/g, function(s) {
+    const entityMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+    return entityMap[s];
+  });
+}
+
 ﻿/**
  * ðŸ† SAFE RIDER CHALLENGES
- * Gamification et rÃ©compenses BVC basÃ©es sur le kilomÃ©trage
+ * Gamification et récompenses BVC basées sur le kilométrage
  */
 
 window.SafeRider = {
@@ -13557,8 +13682,8 @@ window.SafeRider = {
   milestones: [
     { km: 50, reward: 10, name: "Pilote Prudent - 50 km" },
     { km: 100, reward: 25, name: "Endurance - 100 km" },
-    { km: 500, reward: 100, name: "VÃ©tÃ©ran - 500 km" },
-    { km: 1000, reward: 500, name: "MaÃ®tre de la Route - 1000 km" },
+    { km: 500, reward: 100, name: "Vétéran - 500 km" },
+    { km: 1000, reward: 500, name: "Maître de la Route - 1000 km" },
   ],
 
   init: function () {
@@ -13603,7 +13728,7 @@ window.SafeRider = {
       balanceEl.innerText = Math.floor(window.braveCoins) + " Pts BVC";
 
     // Notification UI
-    const msg = `ðŸ† Challenge RÃ©ussi : ${milestone.name} ! Vous avez gagnÃ© ${milestone.reward} Pts BVC !`;
+    const msg = `ðŸ† Challenge Réussi : ${milestone.name} ! Vous avez gagné ${milestone.reward} Pts BVC !`;
     if (typeof speak === "function") speak(msg);
 
     // Afficher popup
@@ -13620,7 +13745,7 @@ window.SafeRider = {
             animation: slideDown 0.5s ease-out, fadeOut 0.5s ease-in 4s forwards;
             display: flex; align-items: center; gap: 15px;
         `;
-    popup.innerHTML = `<i class="fa-solid fa-trophy" style="font-size: 1.5rem;"></i> <span>${message}</span>`;
+    popup.innerHTML = `<i class="fa-solid fa-trophy" style="font-size: 1.5rem;"></i> <span>${escapeHTML(message)}</span>`;
 
     const style = document.createElement("style");
     style.innerHTML = `
@@ -13644,8 +13769,8 @@ document.addEventListener("DOMContentLoaded", () => {
 /* --- convoy.js --- */
 ﻿/**
  * ðŸ—ºï¸ MODE CONVOI
- * SystÃ¨me de balades en groupe avec partage de position en temps rÃ©el via Firebase Firestore.
- * SÃ©curitÃ© : request.auth.uid vÃ©rifiÃ© cÃ´tÃ© Firestore Rules, chiffrement E2EE via cloudEncrypt/cloudDecrypt.
+ * Système de balades en groupe avec partage de position en temps réel via Firebase Firestore.
+ * Sécurité : request.auth.uid vérifié côté Firestore Rules, chiffrement E2EE via cloudEncrypt/cloudDecrypt.
  */
 
 window.ConvoyManager = {
@@ -13656,11 +13781,11 @@ window.ConvoyManager = {
   firestoreUnsubscribe: null,
 
   /**
-   * GÃ©nÃ¨re un code convoi alÃ©atoire de 4 caractÃ¨res alphanumÃ©riques.
+   * Génère un code convoi aléatoire de 4 caractères alphanumériques.
    * @returns {string}
    */
   generateCode: function () {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Sans I/O/0/1 pour Ã©viter confusion
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Sans I/O/0/1 pour éviter confusion
     let code = "";
     const array = new Uint8Array(4);
     crypto.getRandomValues(array);
@@ -13671,7 +13796,7 @@ window.ConvoyManager = {
   },
 
   /**
-   * CrÃ©e un nouveau convoi. L'utilisateur devient le leader.
+   * Crée un nouveau convoi. L'utilisateur devient le leader.
    */
   createConvoy: async function () {
     if (!window.db) {
@@ -13679,7 +13804,7 @@ window.ConvoyManager = {
       return;
     }
     if (!window.session || window.session.isGuest) {
-      alert("Vous devez Ãªtre connectÃ© pour crÃ©er un convoi.");
+      alert("Vous devez être connecté pour créer un convoi.");
       return;
     }
 
@@ -13704,10 +13829,10 @@ window.ConvoyManager = {
       this.renderUI();
 
       if (typeof speak === "function")
-        speak(`Convoi crÃ©Ã© ! Le code est : ${code.split("").join(", ")}.`);
+        speak(`Convoi créé ! Le code est : ${code.split("").join(", ")}.`);
     } catch (e) {
-      console.error("[Convoy] CrÃ©ation Ã©chouÃ©e :", e);
-      alert("Erreur lors de la crÃ©ation du convoi.");
+      console.error("[Convoy] Création échouée :", e);
+      alert("Erreur lors de la création du convoi.");
     }
   },
 
@@ -13721,11 +13846,11 @@ window.ConvoyManager = {
       return;
     }
     if (!window.session || window.session.isGuest) {
-      alert("Vous devez Ãªtre connectÃ©.");
+      alert("Vous devez être connecté.");
       return;
     }
     if (!code || code.length !== 4) {
-      alert("Code convoi invalide (4 caractÃ¨res).");
+      alert("Code convoi invalide (4 caractères).");
       return;
     }
 
@@ -13736,7 +13861,7 @@ window.ConvoyManager = {
       const doc = await docRef.get();
 
       if (!doc.exists || doc.data().status !== "active") {
-        alert("Convoi introuvable ou expirÃ©.");
+        alert("Convoi introuvable ou expiré.");
         return;
       }
 
@@ -13746,7 +13871,7 @@ window.ConvoyManager = {
         return;
       }
       if (members.includes(window.session.username)) {
-        alert("Vous Ãªtes dÃ©jÃ  dans ce convoi !");
+        alert("Vous êtes déjà dans ce convoi !");
         this.convoyId = code;
         this.isLeader = false;
         this.listenToConvoy();
@@ -13814,7 +13939,7 @@ window.ConvoyManager = {
     this.membersList = [];
     this.renderUI();
 
-    if (typeof speak === "function") speak("Vous avez quittÃ© le convoi.");
+    if (typeof speak === "function") speak("Vous avez quitté le convoi.");
   },
 
   /**
@@ -13853,7 +13978,7 @@ window.ConvoyManager = {
   },
 
   /**
-   * Ã‰coute en temps rÃ©el les positions des membres du convoi.
+   * Écoute en temps réel les positions des membres du convoi.
    */
   listenToConvoy: function () {
     if (this.firestoreUnsubscribe) this.firestoreUnsubscribe();
@@ -13938,7 +14063,7 @@ window.ConvoyManager = {
     if (!overlay) return;
 
     if (this.convoyId) {
-      // Ã‰TAT : DANS UN CONVOI
+      // ÉTAT : DANS UN CONVOI
       let membersHTML = "";
       this.membersList.forEach((m) => {
         const speed = m.speed
@@ -13952,24 +14077,24 @@ window.ConvoyManager = {
                 `;
       });
       if (this.membersList.length === 0) {
-        membersHTML = `<p style="color:#666; text-align:center; padding:20px;">En attente que d'autres pilotes rejoignentâ€¦</p>`;
+        membersHTML = `<p style="color:#666; text-align:center; padding:20px;">En attente que d'autres pilotes rejoignent…</p>`;
       }
 
       overlay.innerHTML = `
                 <button onclick="ConvoyManager.closeUI()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
                 <i class="fa-solid fa-people-group" style="font-size:3rem; color:#00d2ff; filter:drop-shadow(0 0 10px #00d2ff); margin-bottom:10px;"></i>
                 <h1 style="font-size:1.5rem; margin:0; text-transform:uppercase; color:#00d2ff;">Mode Convoi</h1>
-                <p style="color:#aaa; margin-bottom:5px;">Vous Ãªtes ${this.isLeader ? 'le <strong style="color:#cca300;">Leader</strong>' : "membre"} du convoi</p>
+                <p style="color:#aaa; margin-bottom:5px;">Vous êtes ${this.isLeader ? 'le <strong style="color:#cca300;">Leader</strong>' : "membre"} du convoi</p>
                 
                 <div style="background:rgba(0,210,255,0.15); border:2px dashed #00d2ff; padding:20px; border-radius:20px; margin:15px 0; text-align:center;">
                     <p style="color:#aaa; font-size:0.8rem; margin:0 0 5px;">CODE DU CONVOI</p>
                     <p style="font-size:2.5rem; font-weight:900; letter-spacing:10px; color:#00d2ff; margin:0;">${this.convoyId}</p>
-                    <p style="color:#666; font-size:0.75rem; margin-top:5px;">Partagez ce code Ã  vos amis !</p>
+                    <p style="color:#666; font-size:0.75rem; margin-top:5px;">Partagez ce code à vos amis !</p>
                 </div>
 
                 <div style="width:90%; max-width:400px;">
                     <h3 style="color:#fff; margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:8px;">
-                        <i class="fa-solid fa-users"></i> Pilotes connectÃ©s (${this.membersList.length})
+                        <i class="fa-solid fa-users"></i> Pilotes connectés (${this.membersList.length})
                     </h3>
                     ${membersHTML}
                 </div>
@@ -13979,16 +14104,16 @@ window.ConvoyManager = {
                 </button>
             `;
     } else {
-      // Ã‰TAT : PAS DE CONVOI
+      // ÉTAT : PAS DE CONVOI
       overlay.innerHTML = `
                 <button onclick="ConvoyManager.closeUI()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
                 <i class="fa-solid fa-people-group" style="font-size:3rem; color:#00d2ff; filter:drop-shadow(0 0 10px #00d2ff); margin-bottom:10px;"></i>
                 <h1 style="font-size:1.5rem; margin:0; text-transform:uppercase; color:#00d2ff;">Mode Convoi</h1>
-                <p style="color:#aaa; margin-bottom:30px; text-align:center;">Roulez en groupe. Voyez vos amis sur la carte en temps rÃ©el.</p>
+                <p style="color:#aaa; margin-bottom:30px; text-align:center;">Roulez en groupe. Voyez vos amis sur la carte en temps réel.</p>
                 
                 <div style="width:90%; max-width:400px;">
                     <button onclick="ConvoyManager.createConvoy()" style="width:100%; background:linear-gradient(135deg, #00d2ff, #0090ff); color:#fff; border:none; padding:15px; border-radius:15px; font-weight:bold; font-size:1.1rem; cursor:pointer; margin-bottom:20px; box-shadow:0 5px 20px rgba(0,210,255,0.3);">
-                        <i class="fa-solid fa-plus"></i> CrÃ©er un Convoi
+                        <i class="fa-solid fa-plus"></i> Créer un Convoi
                     </button>
                     
                     <div style="text-align:center; color:#666; margin-bottom:15px;">â€” ou â€”</div>
@@ -14009,23 +14134,74 @@ document.addEventListener("DOMContentLoaded", () => {});
 
 
 /* --- exchange.js --- */
-﻿/**
- * ðŸ”„ BOURSE D'Ã‰CHANGE
- * Marketplace communautaire de piÃ¨ces d'occasion via Firebase Firestore.
- * SÃ©curitÃ© : Validation des entrÃ©es, modÃ©ration GuardianBot, textContent pour l'affichage.
+/**
+ * 🔄 BOURSE D'ÉCHANGE
+ * Marketplace communautaire de pièces d'occasion & équipements via Firebase Firestore.
+ * Sécurité : Validation des entrées (CIS 16.10), modération GuardianBot, textContent pour l'affichage (OWASP A03 - XSS).
  */
 
 window.ExchangeMarket = {
   listings: [],
+  filteredListings: [],
   firestoreUnsubscribe: null,
+  userUnsubscribe: null,
+  currentCategory: "all",
+  searchQuery: "",
+  priceTypeFilter: "all",
+  sortBy: "newest",
+  userBvc: 0,
 
   init: function () {
+    this.listenToUserBvc();
     this.listenToListings();
+    this.setupUIListeners();
   },
 
   /**
-   * Ã‰coute en temps rÃ©el les annonces de la communautÃ©.
-   * Limite Ã  50 annonces pour Ã©viter surcharge (A11 OWASP - DoS).
+   * Écoute en temps réel le solde BVC de l'utilisateur connecté via Firestore.
+   */
+  listenToUserBvc: function () {
+    if (this.userUnsubscribe) this.userUnsubscribe();
+
+    const checkUser = () => {
+      if (!window.db) return;
+      const user = firebase.auth().currentUser;
+      if (user) {
+        this.userUnsubscribe = window.db
+          .collection("users")
+          .doc(user.uid)
+          .onSnapshot((doc) => {
+            if (doc.exists) {
+              const data = doc.data();
+              this.userBvc = data.bvc_points || data.bvcPoints || 0;
+              localStorage.setItem("bvc_points", this.userBvc);
+              this.updateBvcDisplay(this.userBvc);
+            }
+          });
+      } else {
+        const localBvc = parseInt(localStorage.getItem("bvc_points")) || 1450;
+        this.userBvc = localBvc;
+        this.updateBvcDisplay(localBvc);
+      }
+    };
+
+    if (window.firebase && firebase.auth()) {
+      firebase.auth().onAuthStateChanged(() => checkUser());
+    } else {
+      checkUser();
+    }
+  },
+
+  updateBvcDisplay: function (amount) {
+    const el = document.getElementById("user-bvc-balance");
+    if (el) {
+      el.textContent = `${amount.toLocaleString("fr-FR")} BVC`;
+    }
+  },
+
+  /**
+   * Écoute en temps réel les annonces de la communauté dans Firestore.
+   * Limite à 50 annonces pour éviter la surcharge (A11 OWASP - DoS).
    */
   listenToListings: function () {
     if (!window.db) {
@@ -14044,49 +14220,122 @@ window.ExchangeMarket = {
         snapshot.forEach((doc) => {
           this.listings.push({ id: doc.id, ...doc.data() });
         });
-        this.renderListings();
+        this.applyFiltersAndRender();
+      }, (error) => {
+        console.error("[ExchangeMarket] Erreur d'écoute Firestore:", error);
       });
   },
 
+  setupUIListeners: function () {
+    const searchInput = document.getElementById("market-search-input");
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        this.searchQuery = e.target.value.toLowerCase().trim();
+        this.applyFiltersAndRender();
+      });
+    }
+
+    const sortSelect = document.getElementById("market-sort-select");
+    if (sortSelect) {
+      sortSelect.addEventListener("change", (e) => {
+        this.sortBy = e.target.value;
+        this.applyFiltersAndRender();
+      });
+    }
+
+    const priceFilterSelect = document.getElementById("market-pricetype-select");
+    if (priceFilterSelect) {
+      priceFilterSelect.addEventListener("change", (e) => {
+        this.priceTypeFilter = e.target.value;
+        this.applyFiltersAndRender();
+      });
+    }
+  },
+
+  setCategory: function (category, btnElement) {
+    this.currentCategory = category;
+
+    // Mise à jour des classes actives sur les boutons de filtre
+    const buttons = document.querySelectorAll(".market-cat-btn");
+    buttons.forEach((btn) => btn.classList.remove("active"));
+    if (btnElement) {
+      btnElement.classList.add("active");
+    }
+
+    this.applyFiltersAndRender();
+  },
+
+  applyFiltersAndRender: function () {
+    let result = [...this.listings];
+
+    // Filtre par catégorie
+    if (this.currentCategory !== "all") {
+      result = result.filter((item) => {
+        if (this.currentCategory === "mecanique") {
+          return ["galets", "variateur", "pot", "moteur"].includes(item.category);
+        }
+        return item.category === this.currentCategory;
+      });
+    }
+
+    // Filtre par type de prix
+    if (this.priceTypeFilter !== "all") {
+      result = result.filter((item) => item.priceType === this.priceTypeFilter);
+    }
+
+    // Filtre par recherche textuelle
+    if (this.searchQuery) {
+      result = result.filter((item) => {
+        const title = (item.title || "").toLowerCase();
+        const desc = (item.description || "").toLowerCase();
+        const seller = (item.seller || "").toLowerCase();
+        return title.includes(this.searchQuery) || desc.includes(this.searchQuery) || seller.includes(this.searchQuery);
+      });
+    }
+
+    // Tri
+    result.sort((a, b) => {
+      if (this.sortBy === "price_asc") return a.price - b.price;
+      if (this.sortBy === "price_desc") return b.price - a.price;
+      // Default: newest
+      const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+      const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+      return dateB - dateA;
+    });
+
+    this.filteredListings = result;
+    this.renderListings();
+  },
+
   /**
-   * Publie une nouvelle annonce.
-   * @param {string} title - Titre de la piÃ¨ce
-   * @param {string} description - Description
-   * @param {string} priceType - "bvc" ou "euro"
-   * @param {number} price - Prix
-   * @param {string} category - CatÃ©gorie (carenage, pot, galets, variateur, pneus, autre)
+   * Publie une nouvelle annonce dans Firestore.
    */
-  publishListing: async function (
-    title,
-    description,
-    priceType,
-    price,
-    category,
-  ) {
+  publishListing: async function (title, description, priceType, price, category, condition, photoUrl) {
     if (!window.db) {
       alert("Connexion Firestore requise.");
       return;
     }
     if (!window.session || window.session.isGuest) {
-      alert("Vous devez Ãªtre connectÃ© pour publier.");
+      alert("Vous devez être connecté pour publier une annonce.");
       return;
     }
 
-    // Validation des entrÃ©es (CIS 16.10 - Never trust user input)
+    // Validation des entrées (CIS 16.10 - Secure by Design)
     title = (title || "").trim();
     description = (description || "").trim();
     price = parseFloat(price) || 0;
+    photoUrl = (photoUrl || "").trim();
 
     if (!title || title.length < 3 || title.length > 100) {
-      alert("Le titre doit faire entre 3 et 100 caractÃ¨res.");
+      alert("Le titre doit contenir entre 3 et 100 caractères.");
       return;
     }
     if (description.length > 500) {
-      alert("La description ne peut pas dÃ©passer 500 caractÃ¨res.");
+      alert("La description ne peut pas dépasser 500 caractères.");
       return;
     }
     if (price <= 0 || price > 50000) {
-      alert("Le prix doit Ãªtre entre 1 et 50 000.");
+      alert("Le prix doit être compris entre 1 et 50 000.");
       return;
     }
 
@@ -14096,90 +14345,164 @@ window.ExchangeMarket = {
       priceType: priceType === "bvc" ? "bvc" : "euro",
       price: price,
       category: category || "autre",
-      seller: window.session.username,
+      condition: condition || "good",
+      photoUrl: photoUrl || "",
+      seller: window.session.username || "Membre",
+      sellerUid: firebase.auth().currentUser ? firebase.auth().currentUser.uid : "",
       status: "active",
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     };
 
-    // ModÃ©ration GuardianBot
+    // Modération automatique GuardianBot
     if (
       window.GuardianBot &&
-      !window.GuardianBot.analyzeContent(
-        "Annonce",
-        listing,
-        window.session.username,
-      )
+      !window.GuardianBot.analyzeContent("Annonce", listing, window.session.username)
     ) {
       return;
     }
 
     try {
       await window.db.collection("exchange_listings").add(listing);
-      alert("Annonce publiÃ©e avec succÃ¨s !");
+      alert("🎉 Annonce publiée avec succès sur le réseau !");
       this.closePublishForm();
     } catch (e) {
-      console.error("[ExchangeMarket] Publication Ã©chouÃ©e :", e);
-      alert("Erreur lors de la publication.");
+      console.error("[ExchangeMarket] Publication échouée :", e);
+      alert("Erreur lors de la publication de l'annonce.");
+    }
+  },
+
+  /**
+   * Réservation / Achat direct d'une annonce en Pts BVC ou demande de réservation.
+   */
+  reserveListing: async function (listingId, price, priceType) {
+    if (!window.session || window.session.isGuest) {
+      alert("Veuillez vous connecter pour effectuer un échange.");
+      return;
+    }
+
+    const listing = this.listings.find((l) => l.id === listingId);
+    if (!listing) return;
+
+    if (listing.status === "reserved" || listing.status === "sold") {
+      alert("Cette article a déjà été réservé.");
+      return;
+    }
+
+    if (priceType === "bvc") {
+      if (this.userBvc < price) {
+        alert(`Solde insuffisant ! Il vous manque ${price - this.userBvc} BVC pour procéder à la réservation.`);
+        return;
+      }
+
+      if (!confirm(`Confirmer la réservation de "${listing.title}" pour ${price} Pts BVC ?`)) {
+        return;
+      }
+
+      try {
+        const user = firebase.auth().currentUser;
+        if (!user || !window.db) throw new Error("Utilisateur non connecté");
+        
+        const userRef = window.db.collection("users").doc(user.uid);
+        const listingRef = window.db.collection("exchange_listings").doc(listingId);
+
+        await window.db.runTransaction(async (transaction) => {
+          const userDoc = await transaction.get(userRef);
+          const listingDoc = await transaction.get(listingRef);
+
+          if (!userDoc.exists) throw new Error("Utilisateur introuvable");
+          if (!listingDoc.exists) throw new Error("Annonce introuvable");
+
+          const currentBvc = userDoc.data().bvc_points || 0;
+          if (currentBvc < price) throw new Error("Solde insuffisant");
+
+          if (listingDoc.data().status === "reserved" || listingDoc.data().status === "sold") {
+            throw new Error("Cette annonce a déjà été réservée par quelqu'un d'autre.");
+          }
+
+          transaction.update(userRef, { bvc_points: currentBvc - price });
+          transaction.update(listingRef, {
+            status: "reserved",
+            buyer: window.session.username,
+            reservedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+        });
+
+        // Contacter le vendeur automatiquement
+        await this.contactSeller(listingId, listing.seller, `J'ai réservé ta pièce "${listing.title}" pour ${price} Pts BVC ! Merci de me contacter pour la remise.`);
+
+        alert("✅ Réservation confirmée ! Les BVC ont été transférés et le vendeur a été notifié.");
+      } catch (e) {
+        console.error("[ExchangeMarket] Réservation échouée :", e);
+        alert("Erreur lors du traitement de la réservation.");
+      }
+    } else {
+      // Réservation en Euros
+      this.contactSeller(listingId, listing.seller, `Bonjour ! Je souhaite acheter ta pièce "${listing.title}" au prix de ${price} €. Discutons des modalités de livraison.`);
     }
   },
 
   /**
    * Supprime une annonce (uniquement par son auteur).
-   * @param {string} listingId
-   * @param {string} seller
    */
   deleteListing: async function (listingId, seller) {
     if (!window.session || window.session.username !== seller) {
       alert("Vous ne pouvez supprimer que vos propres annonces.");
       return;
     }
-    if (!confirm("Supprimer cette annonce ?")) return;
+    if (!confirm("Voulez-vous vraiment supprimer cette annonce ?")) return;
 
     try {
       await window.db.collection("exchange_listings").doc(listingId).delete();
+      alert("Annonce supprimée.");
     } catch (e) {
-      console.error("[ExchangeMarket] Suppression Ã©chouÃ©e :", e);
+      console.error("[ExchangeMarket] Suppression échouée :", e);
     }
   },
 
   /**
-   * Contacte le vendeur via un message dans Firestore.
+   * Contacte le vendeur via la messagerie Firestore.
    */
-  contactSeller: async function (listingId, sellerName) {
+  contactSeller: async function (listingId, sellerName, customMsg) {
     if (!window.session || window.session.isGuest) {
-      alert("Connectez-vous d'abord.");
+      alert("Connectez-vous d'abord pour envoyer un message.");
       return;
     }
     if (window.session.username === sellerName) {
-      alert("C'est votre annonce !");
+      alert("Vous êtes le propriétaire de cette annonce !");
       return;
     }
+
+    const messageText = customMsg || `Salut ! Je suis intéressé(e) par ton annonce sur la Marketplace. Est-elle toujours disponible ?`;
 
     try {
       await window.db.collection("exchange_messages").add({
         listingId: listingId,
         from: window.session.username,
         to: sellerName,
-        message: `Salut ! Je suis intÃ©ressÃ©(e) par ton annonce. On en discute ?`,
+        message: messageText,
         read: false,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       });
-      alert("Message envoyÃ© au vendeur ! Il sera notifiÃ©.");
+      if (!customMsg) {
+        alert("✉️ Message envoyé au vendeur ! Il recevra une notification.");
+      }
     } catch (e) {
-      console.error("[ExchangeMarket] Contact fail :", e);
-      alert("Erreur lors de l'envoi.");
+      console.error("[ExchangeMarket] Contact échoué :", e);
+      alert("Erreur lors de l'envoi du message.");
     }
   },
 
-  // ==================== UI ====================
+  // ==================== ICONS & LABELS ====================
 
   getCategoryIcon: function (cat) {
     const icons = {
-      carenage: "fa-shield-halved",
-      pot: "fa-wind",
       galets: "fa-gear",
       variateur: "fa-gears",
+      pot: "fa-wind",
+      carenage: "fa-shield-halved",
       pneus: "fa-circle-dot",
+      equipement: "fa-helmet-safety",
+      moteur: "fa-oil-can",
       autre: "fa-box-open",
     };
     return icons[cat] || icons.autre;
@@ -14187,69 +14510,104 @@ window.ExchangeMarket = {
 
   getCategoryLabel: function (cat) {
     const labels = {
-      carenage: "CarÃ©nage",
-      pot: "Pot d'Ã©chappement",
       galets: "Galets",
       variateur: "Variateur",
-      pneus: "Pneus",
+      pot: "Échappement",
+      carenage: "Carénage",
+      pneus: "Pneus & Freins",
+      equipement: "Équipement",
+      moteur: "Moteur",
       autre: "Autre",
     };
     return labels[cat] || "Autre";
   },
 
+  getConditionLabel: function (cond) {
+    const labels = {
+      new: "✨ Neuf",
+      like_new: "🌟 Très bon état",
+      good: "👍 Bon état",
+      parts: "🛠️ Pour pièces",
+    };
+    return labels[cond] || "Bon état";
+  },
+
+  // ==================== RENDERING ====================
+
   renderListings: function () {
     const container = document.getElementById("exchange-listings-container");
     if (!container) return;
 
-    if (this.listings.length === 0) {
+    if (this.filteredListings.length === 0) {
       container.innerHTML = `
-                <div style="text-align:center; padding:40px; color:#666;">
-                    <i class="fa-solid fa-box-open" style="font-size:3rem; margin-bottom:15px;"></i>
-                    <p>Aucune annonce pour le moment. Soyez le premier Ã  publier !</p>
-                </div>
-            `;
+        <div style="grid-column: 1 / -1; text-align:center; padding:50px 20px; background:rgba(15,20,30,0.5); border-radius:15px; border:1px dashed rgba(0,242,255,0.2);">
+          <i class="fa-solid fa-box-open" style="font-size:3rem; color:#00f2ff; margin-bottom:15px; opacity:0.6;"></i>
+          <h3 style="color:#fff; margin-bottom:8px;">Aucune annonce trouvée</h3>
+          <p style="color:#888; font-size:0.9rem;">Modifiez vos filtres ou soyez le premier à publier une annonce dans cette catégorie !</p>
+        </div>
+      `;
       return;
     }
 
     let html = "";
-    this.listings.forEach((listing) => {
+    this.filteredListings.forEach((listing) => {
       const icon = this.getCategoryIcon(listing.category);
       const catLabel = this.getCategoryLabel(listing.category);
-      const priceLabel =
-        listing.priceType === "bvc"
-          ? `${listing.price} Pts BVC`
-          : `${listing.price} â‚¬`;
-      const isOwner =
-        window.session && window.session.username === listing.seller;
-      const date = listing.createdAt?.toDate
-        ? listing.createdAt.toDate().toLocaleDateString("fr-FR")
-        : "";
+      const condLabel = this.getConditionLabel(listing.condition);
+      const isBvc = listing.priceType === "bvc";
+      const priceLabel = isBvc ? `${listing.price} Pts BVC` : `${listing.price.toFixed(2)} €`;
+      const isOwner = window.session && window.session.username === listing.seller;
+      const isReserved = listing.status === "reserved" || listing.status === "sold";
+      const date = listing.createdAt?.toDate ? listing.createdAt.toDate().toLocaleDateString("fr-FR") : "";
+
+      const imageContent = listing.photoUrl
+        ? `<img src="${listing.photoUrl}" alt="Photo annonce" style="width:100%; height:100%; object-fit:cover; border-radius:10px;" onerror="this.parentElement.innerHTML='<i class=\\'fa-solid ${icon}\\'></i>'">`
+        : `<i class="fa-solid ${icon}"></i>`;
 
       html += `
-                <div class="product-card" style="position:relative;">
-                    <div class="product-img">
-                        <i class="fa-solid ${icon}"></i>
-                    </div>
-                    <span style="position:absolute; top:15px; right:15px; background:rgba(0,210,255,0.2); color:#00d2ff; padding:3px 10px; border-radius:10px; font-size:0.7rem;">${catLabel}</span>
-                    <h3 id="listing-title-${listing.id}"></h3>
-                    <p style="color:#888; font-size:0.85rem;" id="listing-desc-${listing.id}"></p>
-                    <div class="price-tag">${priceLabel}</div>
-                    <p style="color:#555; font-size:0.75rem; margin-bottom:10px;">
-                        <i class="fa-solid fa-user"></i> <span id="listing-seller-${listing.id}"></span> ${date ? `â€¢ ${date}` : ""}
-                    </p>
-                    ${
-                      isOwner
-                        ? `<button class="buy-btn" style="background:#ff4d4d;" onclick="ExchangeMarket.deleteListing('${listing.id}', '${listing.seller}')"><i class="fa-solid fa-trash"></i> Supprimer</button>`
-                        : `<button class="buy-btn" onclick="ExchangeMarket.contactSeller('${listing.id}', '${listing.seller}')"><i class="fa-solid fa-envelope"></i> Contacter</button>`
-                    }
-                </div>
-            `;
+        <div class="product-card" style="position:relative; ${isReserved ? 'opacity:0.75;' : ''}">
+          ${isReserved ? `<div style="position:absolute; top:12px; left:12px; z-index:5; background:#ff0055; color:#fff; font-weight:bold; font-size:0.75rem; padding:4px 10px; border-radius:8px; box-shadow:0 0 10px rgba(255,0,85,0.6);">RÉSERVÉ</div>` : ''}
+          <div class="product-img" style="position:relative;">
+            ${imageContent}
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="background:rgba(0,242,255,0.15); border:1px solid rgba(0,242,255,0.3); color:#00f2ff; padding:3px 10px; border-radius:12px; font-size:0.7rem; font-weight:600;">
+              ${catLabel}
+            </span>
+            <span style="color:#aaa; font-size:0.7rem;">${condLabel}</span>
+          </div>
+          <h3 id="listing-title-${listing.id}" style="margin:5px 0; font-size:1.1rem; color:#fff; font-weight:600;"></h3>
+          <p id="listing-desc-${listing.id}" style="color:#99a; font-size:0.85rem; line-height:1.4; height:38px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; margin-bottom:12px;"></p>
+          <div class="price-tag" style="display:flex; align-items:center; gap:8px;">
+            ${isBvc ? `<i class="fa-brands fa-ethereum" style="color:#b700ff;"></i>` : `<i class="fa-solid fa-tag" style="color:#00f2ff;"></i>`}
+            <span>${priceLabel}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; color:#667; font-size:0.75rem; margin-bottom:15px; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px;">
+            <span><i class="fa-solid fa-user-circle"></i> <span id="listing-seller-${listing.id}"></span></span>
+            ${date ? `<span><i class="fa-regular fa-clock"></i> ${date}</span>` : ""}
+          </div>
+          ${
+            isOwner
+              ? `<button class="buy-btn" style="background:linear-gradient(135deg, #ff4d4d, #cc0000);" onclick="ExchangeMarket.deleteListing('${listing.id}', '${listing.seller}')"><i class="fa-solid fa-trash-can"></i> Supprimer</button>`
+              : isReserved
+              ? `<button class="buy-btn" style="background:#333; color:#777; cursor:not-allowed;" disabled><i class="fa-solid fa-lock"></i> Indisponible</button>`
+              : `<div style="display:flex; gap:8px;">
+                  <button class="buy-btn" style="flex:1; background:linear-gradient(135deg, #00f2ff, #0077ff);" onclick="ExchangeMarket.reserveListing('${listing.id}', ${listing.price}, '${listing.priceType}')">
+                    ${isBvc ? '<i class="fa-solid fa-cart-shopping"></i> Réserver' : '<i class="fa-solid fa-handshake"></i> Acheter'}
+                  </button>
+                  <button class="buy-btn" style="width:42px; padding:0; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);" onclick="ExchangeMarket.contactSeller('${listing.id}', '${listing.seller}')" title="Contacter">
+                    <i class="fa-solid fa-envelope"></i>
+                  </button>
+                </div>`
+          }
+        </div>
+      `;
     });
 
     container.innerHTML = html;
 
-    // Injection sÃ©curisÃ©e via textContent (A03 OWASP - XSS Prevention)
-    this.listings.forEach((listing) => {
+    // Injection sécurisée via textContent (A03 OWASP - XSS Prevention)
+    this.filteredListings.forEach((listing) => {
       const titleEl = document.getElementById(`listing-title-${listing.id}`);
       const descEl = document.getElementById(`listing-desc-${listing.id}`);
       const sellerEl = document.getElementById(`listing-seller-${listing.id}`);
@@ -14259,54 +14617,106 @@ window.ExchangeMarket = {
     });
   },
 
+  // ==================== FORM MODAL ====================
+
   openPublishForm: function () {
     let form = document.getElementById("exchange-publish-form");
     if (form) {
-      form.style.display = "block";
+      form.style.display = "flex";
       return;
     }
 
     form = document.createElement("div");
     form.id = "exchange-publish-form";
     form.style = `
-            position:fixed; top:0; left:0; width:100vw; height:100vh;
-            background:rgba(10,15,25,0.95); z-index:50000;
-            display:flex; flex-direction:column; align-items:center; justify-content:center;
-            color:#fff; font-family:'Inter',sans-serif; backdrop-filter:blur(15px);
-        `;
+      position:fixed; top:0; left:0; width:100vw; height:100vh;
+      background:rgba(6,9,19,0.96); z-index:50000;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      color:#fff; font-family:'Inter',sans-serif; backdrop-filter:blur(20px); padding:20px; box-sizing:border-box;
+    `;
     form.innerHTML = `
-            <button onclick="ExchangeMarket.closePublishForm()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-            <i class="fa-solid fa-tag" style="font-size:2.5rem; color:#00d2ff; margin-bottom:10px;"></i>
-            <h2 style="color:#00d2ff; margin-bottom:20px;">Publier une Annonce</h2>
-            <div style="width:90%; max-width:400px;">
-                <input type="text" id="ex-title" placeholder="Titre (ex: Galets Malossi 6.5g)" maxlength="100" style="width:100%; background:#222; border:1px solid #444; color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; margin-bottom:10px; outline:none;">
-                <textarea id="ex-desc" placeholder="Description (Ã©tat, compatibilitÃ©...)" maxlength="500" rows="3" style="width:100%; background:#222; border:1px solid #444; color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; margin-bottom:10px; outline:none; resize:none;"></textarea>
-                <select id="ex-category" style="width:100%; background:#222; border:1px solid #444; color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; margin-bottom:10px; outline:none;">
-                    <option value="galets">Galets</option>
-                    <option value="variateur">Variateur</option>
-                    <option value="pot">Pot d'Ã©chappement</option>
-                    <option value="carenage">CarÃ©nage</option>
-                    <option value="pneus">Pneus</option>
-                    <option value="autre">Autre</option>
-                </select>
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <input type="number" id="ex-price" placeholder="Prix" min="1" style="flex:1; background:#222; border:1px solid #444; color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
-                    <select id="ex-price-type" style="width:120px; background:#222; border:1px solid #444; color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
-                        <option value="euro">Euros (â‚¬)</option>
-                        <option value="bvc">Pts BVC</option>
-                    </select>
-                </div>
-                <button onclick="ExchangeMarket.publishListing(
-                    document.getElementById('ex-title').value,
-                    document.getElementById('ex-desc').value,
-                    document.getElementById('ex-price-type').value,
-                    document.getElementById('ex-price').value,
-                    document.getElementById('ex-category').value
-                )" style="width:100%; background:linear-gradient(135deg,#00d2ff,#0090ff); color:#fff; border:none; padding:15px; border-radius:15px; font-weight:bold; font-size:1rem; cursor:pointer;">
-                    <i class="fa-solid fa-paper-plane"></i> Publier
-                </button>
+      <div style="width:100%; max-width:480px; background:rgba(20,25,40,0.8); border:1px solid rgba(0,242,255,0.3); border-radius:20px; padding:25px; box-shadow:0 0 30px rgba(0,242,255,0.2); position:relative; max-height:90vh; overflow-y:auto;">
+        <button onclick="ExchangeMarket.closePublishForm()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:#889; font-size:1.5rem; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#889'">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div style="text-align:center; margin-bottom:20px;">
+          <div style="width:50px; height:50px; background:rgba(0,242,255,0.1); border:1px solid #00f2ff; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#00f2ff; font-size:1.5rem; margin-bottom:10px;">
+            <i class="fa-solid fa-plus-circle"></i>
+          </div>
+          <h2 style="color:#fff; margin:0; font-size:1.4rem;">Publier une Annonce</h2>
+          <p style="color:#889; font-size:0.85rem; margin-top:5px;">Vendez ou troquez vos pièces 50cc avec la communauté</p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Titre de l'annonce *</label>
+            <input type="text" id="ex-title" placeholder="ex: Galets Malossi 6.5g Neufs" maxlength="100" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
+          </div>
+
+          <div>
+            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Description *</label>
+            <textarea id="ex-desc" placeholder="Précisez l'état, la compatibilité de la pièce (ex: Booster/MBK Nitro)..." maxlength="500" rows="3" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none; resize:none;"></textarea>
+          </div>
+
+          <div style="display:flex; gap:10px;">
+            <div style="flex:1;">
+              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Catégorie *</label>
+              <select id="ex-category" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
+                <option value="galets">⚙️ Galets</option>
+                <option value="variateur">⚙️ Variateur</option>
+                <option value="pot">💨 Échappement</option>
+                <option value="carenage">🛡️ Carénage</option>
+                <option value="pneus">🔘 Pneus & Freins</option>
+                <option value="equipement">🪖 Équipement</option>
+                <option value="moteur">🛢️ Moteur & Huile</option>
+                <option value="autre">📦 Autre</option>
+              </select>
             </div>
-        `;
+
+            <div style="flex:1;">
+              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">État *</label>
+              <select id="ex-condition" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
+                <option value="good">👍 Bon état</option>
+                <option value="new">✨ Neuf (Emballé)</option>
+                <option value="like_new">🌟 Très bon état</option>
+                <option value="parts">🛠️ Pour pièces</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Lien Photo / Image (Optionnel)</label>
+            <input type="url" id="ex-photourl" placeholder="https://..." style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
+          </div>
+
+          <div style="display:flex; gap:10px;">
+            <div style="flex:2;">
+              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Prix *</label>
+              <input type="number" id="ex-price" placeholder="Prix" min="1" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Monnaie</label>
+              <select id="ex-price-type" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
+                <option value="bvc">Pts BVC</option>
+                <option value="euro">Euros (€)</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="ExchangeMarket.publishListing(
+            document.getElementById('ex-title').value,
+            document.getElementById('ex-desc').value,
+            document.getElementById('ex-price-type').value,
+            document.getElementById('ex-price').value,
+            document.getElementById('ex-category').value,
+            document.getElementById('ex-condition').value,
+            document.getElementById('ex-photourl').value
+          )" style="margin-top:10px; width:100%; background:linear-gradient(135deg, #00f2ff, #0077ff); color:#fff; border:none; padding:15px; border-radius:12px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 0 15px rgba(0,242,255,0.3);">
+            <i class="fa-solid fa-paper-plane"></i> Publier l'annonce
+          </button>
+        </div>
+      </div>
+    `;
     document.body.appendChild(form);
   },
 
@@ -14317,128 +14727,127 @@ window.ExchangeMarket = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  // DÃ©lai pour laisser Firebase s'initialiser
   setTimeout(() => {
     ExchangeMarket.init();
-  }, 1500);
+  }, 1000);
 });
 
 
 /* --- legal-database.js --- */
 ﻿/**
- * âš–ï¸ BASE JURIDIQUE MONDIALE â€” POCKET LAWYER
+ * ⚖️ BASE JURIDIQUE MONDIALE â€” POCKET LAWYER
  * Sources officielles gouvernementales uniquement.
- * DerniÃ¨re mise Ã  jour : 14 juillet 2026
+ * Dernière mise à jour : 14 juillet 2026
  *
- * Structure : window.LegalDatabase[pays][thÃ¨me]
- * Chaque entrÃ©e contient : title, content, source, url
+ * Structure : window.LegalDatabase[pays][thème]
+ * Chaque entrée contient : title, content, source, url
  *
  * Avertissement (AI Act UE 2024/1689) : Ces informations sont fournies
- * Ã  titre indicatif et sont soumises Ã  contrÃ´le humain.
+ * à titre indicatif et sont soumises à contrôle humain.
  */
 
 window.LegalDatabase = {
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡«ðŸ‡· FRANCE â€” Source : LÃ©gifrance (legifrance.gouv.fr)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡«ðŸ‡· FRANCE â€” Source : Légifrance (legifrance.gouv.fr)
+  // ═══════════════════════════════════════════════════════════════
   france: {
     _flag: "ðŸ‡«ðŸ‡·",
     _name: "France",
-    _source: "LÃ©gifrance â€” legifrance.gouv.fr",
-    _keywords: ["france", "franÃ§ais", "francais", "lÃ©gifrance", "legifrance"],
+    _source: "Légifrance â€” legifrance.gouv.fr",
+    _keywords: ["france", "français", "francais", "légifrance", "legifrance"],
 
     casque: {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡«ðŸ‡· Port du Casque â€” Art. R431-1 Code de la Route",
       content:
-        "Le port du casque homologuÃ© <strong>ECE 22.06</strong> est obligatoire pour tout conducteur et passager de 2-roues motorisÃ©.<br><strong>Sanction :</strong> 135â‚¬ d'amende (contravention 4Ã¨me classe) + retrait de 3 points.",
-      source: "LÃ©gifrance â€” Art. R431-1 du Code de la Route",
+        "Le port du casque homologué <strong>ECE 22.06</strong> est obligatoire pour tout conducteur et passager de 2-roues motorisé.<br><strong>Sanction :</strong> 135€ d'amende (contravention 4ème classe) + retrait de 3 points.",
+      source: "Légifrance â€” Art. R431-1 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     debridage: {
-      keywords: ["dÃ©brid", "debride", "kitÃ©", "kit"],
-      title: "ðŸ‡«ðŸ‡· DÃ©bridage â€” Art. L317-5 Code de la Route",
+      keywords: ["débrid", "debride", "kité", "kit"],
+      title: "ðŸ‡«ðŸ‡· Débridage â€” Art. L317-5 Code de la Route",
       content:
-        "Le dÃ©bridage d'un cyclomoteur est un <strong>dÃ©lit</strong>. Vous risquez <strong>135â‚¬ d'amende</strong> pour le propriÃ©taire, mais surtout, <strong>votre assurance s'annule</strong> en cas d'accident corporel. Les assureurs se retournent contre vous pour payer les dommages aux victimes.",
-      source: "LÃ©gifrance â€” Art. L317-5 du Code de la Route",
+        "Le débridage d'un cyclomoteur est un <strong>délit</strong>. Vous risquez <strong>135€ d'amende</strong> pour le propriétaire, mais surtout, <strong>votre assurance s'annule</strong> en cas d'accident corporel. Les assureurs se retournent contre vous pour payer les dommages aux victimes.",
+      source: "Légifrance â€” Art. L317-5 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     stupefiants: {
-      keywords: ["stup", "drogue", "fumÃ©", "positif", "cannabis", "thc"],
-      title: "ðŸ‡«ðŸ‡· Conduite sous StupÃ©fiants (DÃ©lit)",
+      keywords: ["stup", "drogue", "fumé", "positif", "cannabis", "thc"],
+      title: "ðŸ‡«ðŸ‡· Conduite sous Stupéfiants (Délit)",
       content:
-        "MÃªme avec un BSR, vous risquez jusqu'Ã  <strong>4500â‚¬ d'amende</strong>, 2 ans de prison, et l'immobilisation du scooter. Il n'y a pas de perte de points sur un BSR. S'il s'agit d'une premiÃ¨re infraction, le juge peut faire preuve de clÃ©mence si vous montrez des preuves mÃ©dicales.",
-      source: "LÃ©gifrance â€” Art. L235-1 du Code de la Route",
+        "Même avec un BSR, vous risquez jusqu'à <strong>4500€ d'amende</strong>, 2 ans de prison, et l'immobilisation du scooter. Il n'y a pas de perte de points sur un BSR. S'il s'agit d'une première infraction, le juge peut faire preuve de clémence si vous montrez des preuves médicales.",
+      source: "Légifrance â€” Art. L235-1 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     alcool: {
-      keywords: ["alcool", "boire", "ivre", "alcoolÃ©mie"],
-      title: "ðŸ‡«ðŸ‡· AlcoolÃ©mie â€” Art. L234-1",
+      keywords: ["alcool", "boire", "ivre", "alcoolémie"],
+      title: "ðŸ‡«ðŸ‡· Alcoolémie â€” Art. L234-1",
       content:
-        "Pour un permis probatoire ou BSR, la limite lÃ©gale est de <strong>0,2 g/L</strong>. Vous risquez l'immobilisation immÃ©diate du cyclomoteur et de fortes amendes. Au-delÃ  de 0,8 g/L : dÃ©lit pÃ©nal (2 ans de prison, 4500â‚¬).",
-      source: "LÃ©gifrance â€” Art. L234-1 du Code de la Route",
+        "Pour un permis probatoire ou BSR, la limite légale est de <strong>0,2 g/L</strong>. Vous risquez l'immobilisation immédiate du cyclomoteur et de fortes amendes. Au-delà de 0,8 g/L : délit pénal (2 ans de prison, 4500€).",
+      source: "Légifrance â€” Art. L234-1 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     assurance: {
-      keywords: ["assurance", "assurÃ©"],
-      title: "ðŸ‡«ðŸ‡· DÃ©faut d'Assurance (DÃ©lit) â€” Art. L324-2",
+      keywords: ["assurance", "assuré"],
+      title: "ðŸ‡«ðŸ‡· Défaut d'Assurance (Délit) â€” Art. L324-2",
       content:
-        "Conduire sans assurance coÃ»te jusqu'Ã  <strong>3750â‚¬ d'amende</strong>. En cas d'accident, le Fonds de Garantie indemnise la victime mais <strong>vous rÃ©clamera le remboursement</strong>, potentiellement toute votre vie.",
-      source: "LÃ©gifrance â€” Art. L324-2 du Code de la Route",
+        "Conduire sans assurance coûte jusqu'à <strong>3750€ d'amende</strong>. En cas d'accident, le Fonds de Garantie indemnise la victime mais <strong>vous réclamera le remboursement</strong>, potentiellement toute votre vie.",
+      source: "Légifrance â€” Art. L324-2 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     fuite: {
-      keywords: ["fuite", "obtempÃ©rer", "obtemperer"],
-      title: "ðŸ‡«ðŸ‡· Refus d'ObtempÃ©rer / DÃ©lit de Fuite",
+      keywords: ["fuite", "obtempérer", "obtemperer"],
+      title: "ðŸ‡«ðŸ‡· Refus d'Obtempérer / Délit de Fuite",
       content:
-        "Cumuler ces dÃ©lits entraÃ®ne des peines de <strong>prison fermes</strong>, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrÃ´le de police.",
-      source: "LÃ©gifrance â€” Art. L233-1 & L231-1 du Code de la Route",
+        "Cumuler ces délits entraîne des peines de <strong>prison fermes</strong>, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrôle de police.",
+      source: "Légifrance â€” Art. L233-1 & L231-1 du Code de la Route",
       url: "legifrance.gouv.fr",
     },
     stationnement: {
-      keywords: ["stationn", "garÃ©", "parking", "trottoir", "fourriÃ¨re"],
+      keywords: ["stationn", "garé", "parking", "trottoir", "fourrière"],
       title: "ðŸ‡«ðŸ‡· Stationnement 2-Roues â€” Art. R417-10/11",
       content:
-        "Sur un <strong>trottoir</strong> : tolÃ©rÃ© si le passage piÃ©ton (>1,50m) n'est pas entravÃ©. Sur <strong>passage piÃ©ton/piste cyclable</strong> : 135â‚¬ + fourriÃ¨re immÃ©diate. Sur <strong>place auto</strong> : tolÃ©rÃ© si vous payez le stationnement.",
-      source: "LÃ©gifrance â€” Art. R417-10 et R417-11",
+        "Sur un <strong>trottoir</strong> : toléré si le passage piéton (>1,50m) n'est pas entravé. Sur <strong>passage piéton/piste cyclable</strong> : 135€ + fourrière immédiate. Sur <strong>place auto</strong> : toléré si vous payez le stationnement.",
+      source: "Légifrance â€” Art. R417-10 et R417-11",
       url: "legifrance.gouv.fr",
     },
     rgpd: {
       keywords: [
         "rgpd",
         "gdpr",
-        "donnÃ©es personnelles",
+        "données personnelles",
         "cnil",
-        "vie privÃ©e",
+        "vie privée",
       ],
-      title: "ðŸ‡«ðŸ‡· RGPD â€” RÃ¨glement (UE) 2016/679",
+      title: "ðŸ‡«ðŸ‡· RGPD â€” Règlement (UE) 2016/679",
       content:
-        "La protection des donnÃ©es personnelles est rÃ©gie par le <strong>RGPD</strong> (entrÃ© en vigueur le 25 mai 2018) et la <strong>Loi Informatique et LibertÃ©s</strong> (Loi nÂ°78-17 du 6 janvier 1978). La CNIL est l'autoritÃ© de contrÃ´le franÃ§aise.<br>Droits : AccÃ¨s (Art.15), Rectification (Art.16), Effacement (Art.17), PortabilitÃ© (Art.20), Opposition (Art.21).",
-      source: "LÃ©gifrance & EUR-Lex â€” RÃ¨glement (UE) 2016/679",
+        "La protection des données personnelles est régie par le <strong>RGPD</strong> (entré en vigueur le 25 mai 2018) et la <strong>Loi Informatique et Libertés</strong> (Loi n°78-17 du 6 janvier 1978). La CNIL est l'autorité de contrôle française.<br>Droits : Accès (Art.15), Rectification (Art.16), Effacement (Art.17), Portabilité (Art.20), Opposition (Art.21).",
+      source: "Légifrance & EUR-Lex â€” Règlement (UE) 2016/679",
       url: "legifrance.gouv.fr | eur-lex.europa.eu",
     },
     retractation: {
       keywords: [
         "remboursement",
-        "rÃ©tractation",
+        "rétractation",
         "retractation",
         "cgv",
-        "numÃ©rique",
+        "numérique",
         "digital",
       ],
       title:
-        "ðŸ‡«ðŸ‡· Droit de RÃ©tractation (Contenu NumÃ©rique) â€” Art. L221-28",
+        "ðŸ‡«ðŸ‡· Droit de Rétractation (Contenu Numérique) â€” Art. L221-28",
       content:
-        "Selon l'<strong>Article L221-28 (13Â°) du Code de la consommation</strong>, le droit de rÃ©tractation ne peut pas Ãªtre exercÃ© pour la fourniture d'un <strong>contenu numÃ©rique non fourni sur un support matÃ©riel</strong> dont l'exÃ©cution a commencÃ© aprÃ¨s accord prÃ©alable exprÃ¨s du consommateur et renoncement exprÃ¨s Ã  son droit de rÃ©tractation. Les rapports d'expertise gÃ©nÃ©rÃ©s ne sont donc <strong>pas remboursables</strong>.",
-      source: "LÃ©gifrance â€” Art. L221-28 du Code de la Consommation",
+        "Selon l'<strong>Article L221-28 (13°) du Code de la consommation</strong>, le droit de rétractation ne peut pas être exercé pour la fourniture d'un <strong>contenu numérique non fourni sur un support matériel</strong> dont l'exécution a commencé après accord préalable exprès du consommateur et renoncement exprès à son droit de rétractation. Les rapports d'expertise générés ne sont donc <strong>pas remboursables</strong>.",
+      source: "Légifrance â€” Art. L221-28 du Code de la Consommation",
       url: "legifrance.gouv.fr",
     },
     vice_cache: {
-      keywords: ["vice", "cachÃ©", "cache", "panne", "arnaque", "occasion"],
-      title: "ðŸ‡«ðŸ‡· Garantie des Vices CachÃ©s â€” Art. 1641 Code Civil",
+      keywords: ["vice", "caché", "cache", "panne", "arnaque", "occasion"],
+      title: "ðŸ‡«ðŸ‡· Garantie des Vices Cachés â€” Art. 1641 Code Civil",
       content:
-        "L'<strong>Article 1641 du Code civil</strong> prÃ©cise que le vendeur est tenu de la garantie Ã  raison des dÃ©fauts cachÃ©s de la chose vendue qui la rendent impropre Ã  l'usage auquel on la destine. L'acheteur a <strong>2 ans Ã  compter de la dÃ©couverte du vice</strong> pour agir.",
-      source: "LÃ©gifrance â€” Art. 1641 du Code Civil",
+        "L'<strong>Article 1641 du Code civil</strong> précise que le vendeur est tenu de la garantie à raison des défauts cachés de la chose vendue qui la rendent impropre à l'usage auquel on la destine. L'acheteur a <strong>2 ans à compter de la découverte du vice</strong> pour agir.",
+      source: "Légifrance â€” Art. 1641 du Code Civil",
       url: "legifrance.gouv.fr",
     },
     accident_assurance: {
@@ -14451,69 +14860,69 @@ window.LegalDatabase = {
       ],
       title: "ðŸ‡«ðŸ‡· Indemnisation des Victimes (Loi Badinter)",
       content:
-        "La <strong>Loi nÂ° 85-677 du 5 juillet 1985 (Loi Badinter)</strong> vise Ã  amÃ©liorer la situation des victimes d'accidents de la circulation et Ã  accÃ©lÃ©rer les procÃ©dures d'indemnisation. Si vous n'Ãªtes pas responsable, votre assureur doit vous indemniser intÃ©gralement de vos prÃ©judices corporels et matÃ©riels.",
-      source: "LÃ©gifrance â€” Loi Badinter",
+        "La <strong>Loi n° 85-677 du 5 juillet 1985 (Loi Badinter)</strong> vise à améliorer la situation des victimes d'accidents de la circulation et à accélérer les procédures d'indemnisation. Si vous n'êtes pas responsable, votre assureur doit vous indemniser intégralement de vos préjudices corporels et matériels.",
+      source: "Légifrance â€” Loi Badinter",
       url: "legifrance.gouv.fr",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡ªðŸ‡º UNION EUROPÃ‰ENNE â€” Source : EUR-Lex (eur-lex.europa.eu)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡ªðŸ‡º UNION EUROPÉENNE â€” Source : EUR-Lex (eur-lex.europa.eu)
+  // ═══════════════════════════════════════════════════════════════
   eu: {
     _flag: "ðŸ‡ªðŸ‡º",
-    _name: "Union EuropÃ©enne",
+    _name: "Union Européenne",
     _source: "EUR-Lex â€” eur-lex.europa.eu",
-    _keywords: ["europe", "europÃ©en", "europeen", "ue", "eu", "eur-lex"],
+    _keywords: ["europe", "européen", "europeen", "ue", "eu", "eur-lex"],
 
     rgpd: {
-      keywords: ["rgpd", "gdpr", "donnÃ©e", "privacy"],
-      title: "ðŸ‡ªðŸ‡º RGPD â€” RÃ¨glement (UE) 2016/679",
+      keywords: ["rgpd", "gdpr", "donnée", "privacy"],
+      title: "ðŸ‡ªðŸ‡º RGPD â€” Règlement (UE) 2016/679",
       content:
-        "Le RÃ¨glement GÃ©nÃ©ral sur la Protection des DonnÃ©es est le texte de rÃ©fÃ©rence en matiÃ¨re de protection des donnÃ©es personnelles dans l'UE. EntrÃ©e en vigueur : <strong>25 mai 2018</strong>.<br>Amende max : <strong>20Mâ‚¬ ou 4% du CA mondial</strong>.",
-      source: "EUR-Lex â€” RÃ¨glement (UE) 2016/679",
+        "Le Règlement Général sur la Protection des Données est le texte de référence en matière de protection des données personnelles dans l'UE. Entrée en vigueur : <strong>25 mai 2018</strong>.<br>Amende max : <strong>20M€ ou 4% du CA mondial</strong>.",
+      source: "EUR-Lex â€” Règlement (UE) 2016/679",
       url: "eur-lex.europa.eu",
     },
     ai_act: {
       keywords: ["ia act", "ai act", "intelligence artificielle", "ia"],
-      title: "ðŸ‡ªðŸ‡º AI Act â€” RÃ¨glement (UE) 2024/1689",
+      title: "ðŸ‡ªðŸ‡º AI Act â€” Règlement (UE) 2024/1689",
       content:
-        "Premier rÃ¨glement au monde sur l'IA. En vigueur depuis le <strong>1er aoÃ»t 2024</strong>. Approche par niveaux de risque :<br>â€¢ Risque inacceptable : <strong>Interdit</strong><br>â€¢ Haut risque : ConformitÃ© stricte obligatoire<br>â€¢ Risque limitÃ© : <strong>Obligation de transparence</strong> (notre catÃ©gorie)<br>â€¢ Risque minimal : Libre<br>Application complÃ¨te prÃ©vue pour <strong>aoÃ»t 2026</strong>.",
-      source: "EUR-Lex â€” RÃ¨glement (UE) 2024/1689",
+        "Premier règlement au monde sur l'IA. En vigueur depuis le <strong>1er août 2024</strong>. Approche par niveaux de risque :<br>• Risque inacceptable : <strong>Interdit</strong><br>• Haut risque : Conformité stricte obligatoire<br>• Risque limité : <strong>Obligation de transparence</strong> (notre catégorie)<br>• Risque minimal : Libre<br>Application complète prévue pour <strong>août 2026</strong>.",
+      source: "EUR-Lex â€” Règlement (UE) 2024/1689",
       url: "eur-lex.europa.eu",
     },
     dsa: {
-      keywords: ["dsa", "digital services", "modÃ©ration", "plateforme"],
-      title: "ðŸ‡ªðŸ‡º DSA â€” RÃ¨glement (UE) 2022/2065",
+      keywords: ["dsa", "digital services", "modération", "plateforme"],
+      title: "ðŸ‡ªðŸ‡º DSA â€” Règlement (UE) 2022/2065",
       content:
-        "Le Digital Services Act impose des obligations de <strong>modÃ©ration</strong> et de <strong>transparence</strong> aux plateformes numÃ©riques. Obligation de point de contact, mÃ©canisme de signalement (Art.16), et motivation des dÃ©cisions de modÃ©ration (Art.17).",
-      source: "EUR-Lex â€” RÃ¨glement (UE) 2022/2065",
+        "Le Digital Services Act impose des obligations de <strong>modération</strong> et de <strong>transparence</strong> aux plateformes numériques. Obligation de point de contact, mécanisme de signalement (Art.16), et motivation des décisions de modération (Art.17).",
+      source: "EUR-Lex â€” Règlement (UE) 2022/2065",
       url: "eur-lex.europa.eu",
     },
     casque_eu: {
       keywords: ["casque", "homologation", "ece", "unece"],
       title: "ðŸ‡ªðŸ‡º Homologation Casque â€” UNECE R22.06",
       content:
-        "Depuis juin 2024, seuls les casques homologuÃ©s <strong>ECE 22.06</strong> peuvent Ãªtre vendus dans l'UE. Les anciens ECE 22.05 restent utilisables mais ne sont plus fabriquÃ©s.",
+        "Depuis juin 2024, seuls les casques homologués <strong>ECE 22.06</strong> peuvent être vendus dans l'UE. Les anciens ECE 22.05 restent utilisables mais ne sont plus fabriqués.",
       source: "UNECE â€” Regulation No. 22 Rev.6",
       url: "unece.org",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡®ðŸ‡© INDONÃ‰SIE â€” Source : JDIH (jdih.kemenkumham.go.id)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡®ðŸ‡© INDONÉSIE â€” Source : JDIH (jdih.kemenkumham.go.id)
+  // ═══════════════════════════════════════════════════════════════
   indonesia: {
     _flag: "ðŸ‡®ðŸ‡©",
-    _name: "IndonÃ©sie",
+    _name: "Indonésie",
     _source: "JDIH â€” jdih.kemenkumham.go.id | peraturan.bpk.go.id",
-    _keywords: ["indonÃ©sie", "indonesie", "indonesia", "jdih"],
+    _keywords: ["indonésie", "indonesie", "indonesia", "jdih"],
 
     casque: {
       keywords: ["casque", "helm", "sni"],
       title: "ðŸ‡®ðŸ‡© Casque (Helm SNI) â€” UU 22/2009 Art.106(8)",
       content:
-        "Le port du casque homologuÃ© <strong>SNI</strong> (Standar Nasional Indonesia) est obligatoire pour le conducteur et le passager (Art. 57Â§2).<br><strong>Sanction :</strong> Jusqu'Ã  1 mois de prison ou <strong>Rp 250.000</strong> d'amende (Art. 291Â§1).",
+        "Le port du casque homologué <strong>SNI</strong> (Standar Nasional Indonesia) est obligatoire pour le conducteur et le passager (Art. 57Â§2).<br><strong>Sanction :</strong> Jusqu'à 1 mois de prison ou <strong>Rp 250.000</strong> d'amende (Art. 291Â§1).",
       source: "JDIH â€” UU No.22 Tahun 2009 (LLAJ)",
       url: "jdih.kemenkumham.go.id",
     },
@@ -14521,7 +14930,7 @@ window.LegalDatabase = {
       keywords: ["sim", "permis", "conduire"],
       title: "ðŸ‡®ðŸ‡© Permis de conduire (SIM) â€” UU 22/2009 Art.77",
       content:
-        "Tout conducteur doit possÃ©der un SIM correspondant Ã  son vÃ©hicule :<br>â€¢ <strong>SIM C</strong> : Moto â‰¤ 250cc<br>â€¢ <strong>SIM CI</strong> : Moto 250-500cc<br>â€¢ <strong>SIM CII</strong> : Moto > 500cc<br><strong>Sans SIM :</strong> 3 mois prison ou Rp 1.000.000 (Art.281).<br><strong>SIM non prÃ©sentÃ© :</strong> 1 mois ou Rp 250.000 (Art.288Â§2).",
+        "Tout conducteur doit posséder un SIM correspondant à son véhicule :<br>• <strong>SIM C</strong> : Moto â‰¤ 250cc<br>• <strong>SIM CI</strong> : Moto 250-500cc<br>• <strong>SIM CII</strong> : Moto > 500cc<br><strong>Sans SIM :</strong> 3 mois prison ou Rp 1.000.000 (Art.281).<br><strong>SIM non présenté :</strong> 1 mois ou Rp 250.000 (Art.288Â§2).",
       source: "JDIH â€” UU No.22 Tahun 2009",
       url: "jdih.kemenkumham.go.id",
     },
@@ -14529,7 +14938,7 @@ window.LegalDatabase = {
       keywords: ["route", "lalu lintas", "circulation", "code"],
       title: "ðŸ‡®ðŸ‡© Code de la Route â€” UU No.22 Tahun 2009 (LLAJ)",
       content:
-        "La loi sur la Circulation et les Transports Routiers rÃ©git l'ensemble du trafic en IndonÃ©sie. Obligations pour les 2-roues :<br>â€¢ Casque SNI obligatoire (Art.106Â§8)<br>â€¢ RÃ©troviseurs, feux, klaxon, compteur (Art.285Â§1)<br>â€¢ SIM C obligatoire (Art.77)<br>â€¢ STNK Ã  jour (Perpol 7/2021)",
+        "La loi sur la Circulation et les Transports Routiers régit l'ensemble du trafic en Indonésie. Obligations pour les 2-roues :<br>• Casque SNI obligatoire (Art.106Â§8)<br>• Rétroviseurs, feux, klaxon, compteur (Art.285Â§1)<br>• SIM C obligatoire (Art.77)<br>• STNK à jour (Perpol 7/2021)",
       source: "JDIH â€” Kementerian Perhubungan",
       url: "jdih.kemenkumham.go.id",
     },
@@ -14537,15 +14946,15 @@ window.LegalDatabase = {
       keywords: ["stnk", "enregistrement", "immatriculation", "pajak"],
       title: "ðŸ‡®ðŸ‡© Immatriculation (STNK) â€” Perpol 7/2021",
       content:
-        "Le STNK est le certificat d'immatriculation obligatoire. Si le STNK expire et n'est pas renouvelÃ© sous <strong>2 ans</strong>, les donnÃ©es du vÃ©hicule sont radiÃ©es.<br><strong>Opsen Pajak (2025) :</strong> Taxe additionnelle sur le PKB et BBN-KB (UU 1/2022).<br>Depuis 2026, le NIK (KTP) est intÃ©grÃ© au SIM.",
+        "Le STNK est le certificat d'immatriculation obligatoire. Si le STNK expire et n'est pas renouvelé sous <strong>2 ans</strong>, les données du véhicule sont radiées.<br><strong>Opsen Pajak (2025) :</strong> Taxe additionnelle sur le PKB et BBN-KB (UU 1/2022).<br>Depuis 2026, le NIK (KTP) est intégré au SIM.",
       source: "JDIH â€” Korlantas Polri",
       url: "korlantas.polri.go.id",
     },
     pdp: {
-      keywords: ["data", "donnÃ©e", "pdp", "pribadi", "privÃ©e"],
-      title: "ðŸ‡®ðŸ‡© Protection des DonnÃ©es â€” UU No.27/2022 (UU PDP)",
+      keywords: ["data", "donnée", "pdp", "pribadi", "privée"],
+      title: "ðŸ‡®ðŸ‡© Protection des Données â€” UU No.27/2022 (UU PDP)",
       content:
-        "En vigueur depuis le <strong>17 octobre 2024</strong>. PortÃ©e extraterritoriale.<br><strong>Sanctions admin. (Art.57) :</strong> Jusqu'Ã  <strong>2% du CA annuel</strong>.<br><strong>Sanctions pÃ©nales :</strong> 4-6 ans de prison + Rp 4-6 milliards.<br><strong>Korporasi :</strong> Amende Ã—10 + gel/dissolution.",
+        "En vigueur depuis le <strong>17 octobre 2024</strong>. Portée extraterritoriale.<br><strong>Sanctions admin. (Art.57) :</strong> Jusqu'à <strong>2% du CA annuel</strong>.<br><strong>Sanctions pénales :</strong> 4-6 ans de prison + Rp 4-6 milliards.<br><strong>Korporasi :</strong> Amende Ã—10 + gel/dissolution.",
       source: "JDIH â€” Komdigi (ex-Kominfo)",
       url: "jdih.kemenkumham.go.id",
     },
@@ -14553,23 +14962,23 @@ window.LegalDatabase = {
       keywords: ["contrat"],
       title: "ðŸ‡®ðŸ‡© Droit des Contrats",
       content:
-        "RÃ©gi par le <strong>Code civil indonÃ©sien</strong> (KUH Perdata), hÃ©ritÃ© du droit romano-hollandais. L'IndonÃ©sie n'a <strong>pas ratifiÃ©</strong> la Convention de Vienne (CISG).",
+        "Régi par le <strong>Code civil indonésien</strong> (KUH Perdata), hérité du droit romano-hollandais. L'Indonésie n'a <strong>pas ratifié</strong> la Convention de Vienne (CISG).",
       source: "JDIH â€” peraturan.bpk.go.id",
       url: "peraturan.bpk.go.id",
     },
     hierarchie: {
-      keywords: ["hiÃ©rarchie", "constitution", "norme", "loi"],
-      title: "ðŸ‡®ðŸ‡© HiÃ©rarchie des Normes â€” UU No.10/2004",
+      keywords: ["hiérarchie", "constitution", "norme", "loi"],
+      title: "ðŸ‡®ðŸ‡© Hiérarchie des Normes â€” UU No.10/2004",
       content:
-        "SystÃ¨me mixte (adat / romano-hollandais / national / musulman Ã  Aceh).<br>1. <strong>UUD 1945</strong> â€” Constitution<br>2. <strong>UU</strong> â€” Lois du Parlement<br>3. <strong>PP</strong> â€” RÃ¨glements gouvernementaux<br>4. <strong>Perpres</strong> â€” DÃ©crets prÃ©sidentiels<br>5. <strong>Perda</strong> â€” RÃ¨glements rÃ©gionaux",
+        "Système mixte (adat / romano-hollandais / national / musulman à Aceh).<br>1. <strong>UUD 1945</strong> â€” Constitution<br>2. <strong>UU</strong> â€” Lois du Parlement<br>3. <strong>PP</strong> â€” Règlements gouvernementaux<br>4. <strong>Perpres</strong> â€” Décrets présidentiels<br>5. <strong>Perda</strong> â€” Règlements régionaux",
       source: "JDIH â€” jdih.kemenkumham.go.id",
       url: "jdih.kemenkumham.go.id",
     },
     immobilier: {
       keywords: ["immobilier", "terre", "agraire", "hak"],
-      title: "ðŸ‡®ðŸ‡© Droit Immobilier â€” Loi Agraire nÂ°5/1960 (UUPA)",
+      title: "ðŸ‡®ðŸ‡© Droit Immobilier â€” Loi Agraire n°5/1960 (UUPA)",
       content:
-        "Les Ã©trangers ne peuvent possÃ©der de terres directement (<strong>Hak Milik</strong>), mais peuvent acquÃ©rir des droits d'usage (<strong>Hak Pakai</strong>) ou investir via des sociÃ©tÃ©s (<strong>PT PMA</strong>).",
+        "Les étrangers ne peuvent posséder de terres directement (<strong>Hak Milik</strong>), mais peuvent acquérir des droits d'usage (<strong>Hak Pakai</strong>) ou investir via des sociétés (<strong>PT PMA</strong>).",
       source: "JDIH â€” peraturan.bpk.go.id",
       url: "peraturan.bpk.go.id",
     },
@@ -14577,34 +14986,34 @@ window.LegalDatabase = {
       keywords: ["travail", "licenciement", "emploi"],
       title: "ðŸ‡®ðŸ‡© Droit du Travail â€” UU 13/2003 & Omnibus 11/2020",
       content:
-        "Loi nÂ°13/2003 = texte principal. ModifiÃ©e par la <strong>loi omnibus nÂ°11/2020</strong> (Cipta Kerja) pour faciliter l'investissement (contrats, licenciements, heures supplÃ©mentaires).",
+        "Loi n°13/2003 = texte principal. Modifiée par la <strong>loi omnibus n°11/2020</strong> (Cipta Kerja) pour faciliter l'investissement (contrats, licenciements, heures supplémentaires).",
       source: "JDIH â€” jdih.kemenkumham.go.id",
       url: "jdih.kemenkumham.go.id",
     },
     langue: {
-      keywords: ["langue", "Ã©ducation", "media", "bahasa"],
-      title: "ðŸ‡®ðŸ‡© RÃ©glementation Linguistique â€” UU 20/2003 & 32/2002",
+      keywords: ["langue", "éducation", "media", "bahasa"],
+      title: "ðŸ‡®ðŸ‡© Réglementation Linguistique â€” UU 20/2003 & 32/2002",
       content:
-        "L'indonÃ©sien (<em>Bahasa Indonesia</em>) est la langue officielle de l'Ã©ducation et des mÃ©dias. Les langues rÃ©gionales et Ã©trangÃ¨res sont autorisÃ©es sous conditions.",
+        "L'indonésien (<em>Bahasa Indonesia</em>) est la langue officielle de l'éducation et des médias. Les langues régionales et étrangères sont autorisées sous conditions.",
       source: "JDIH â€” Kemendikbudristek",
       url: "jdih.kemenkumham.go.id",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡ºðŸ‡¸ Ã‰TATS-UNIS â€” Sources : NHTSA, IIHS, Cornell LII
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡ºðŸ‡¸ ÉTATS-UNIS â€” Sources : NHTSA, IIHS, Cornell LII
+  // ═══════════════════════════════════════════════════════════════
   usa: {
     _flag: "ðŸ‡ºðŸ‡¸",
-    _name: "Ã‰tats-Unis",
+    _name: "États-Unis",
     _source: "NHTSA (nhtsa.gov) | Cornell LII (law.cornell.edu)",
     _keywords: [
       "usa",
-      "Ã©tats-unis",
+      "états-unis",
       "etats-unis",
-      "amÃ©rique",
+      "amérique",
       "amerique",
-      "amÃ©ricain",
+      "américain",
       "americain",
       "united states",
     ],
@@ -14613,23 +15022,23 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡ºðŸ‡¸ Casque Moto â€” FMVSS 218 (NHTSA)",
       content:
-        "La norme fÃ©dÃ©rale est le <strong>FMVSS 218</strong> (Federal Motor Vehicle Safety Standard). <strong>Attention :</strong> la loi varie par Ã‰tat !<br>â€¢ <strong>Universal law</strong> (19 Ã‰tats) : Casque obligatoire pour tous<br>â€¢ <strong>Partial law</strong> (28 Ã‰tats) : Obligatoire seulement pour les <18 ou <21 ans<br>â€¢ <strong>No law</strong> (3 Ã‰tats) : Illinois, Iowa, New Hampshire",
+        "La norme fédérale est le <strong>FMVSS 218</strong> (Federal Motor Vehicle Safety Standard). <strong>Attention :</strong> la loi varie par État !<br>• <strong>Universal law</strong> (19 États) : Casque obligatoire pour tous<br>• <strong>Partial law</strong> (28 États) : Obligatoire seulement pour les <18 ou <21 ans<br>• <strong>No law</strong> (3 États) : Illinois, Iowa, New Hampshire",
       source: "NHTSA â€” nhtsa.gov | IIHS â€” iihs.org",
       url: "nhtsa.gov",
     },
     assurance: {
       keywords: ["assurance", "insurance"],
-      title: "ðŸ‡ºðŸ‡¸ Assurance Moto â€” RÃ©glementation par Ã‰tat",
+      title: "ðŸ‡ºðŸ‡¸ Assurance Moto â€” Réglementation par État",
       content:
-        "L'assurance moto est obligatoire dans <strong>48 des 50 Ã‰tats</strong> (sauf Floride et Montana pour la responsabilitÃ© civile). Les minimums de couverture varient considÃ©rablement par Ã‰tat. En Californie : 15/30/5 (en milliers de $).",
+        "L'assurance moto est obligatoire dans <strong>48 des 50 États</strong> (sauf Floride et Montana pour la responsabilité civile). Les minimums de couverture varient considérablement par État. En Californie : 15/30/5 (en milliers de $).",
       source: "NHTSA â€” nhtsa.gov",
       url: "nhtsa.gov",
     },
     ccpa: {
-      keywords: ["ccpa", "cpra", "california", "donnÃ©e", "privacy"],
-      title: "ðŸ‡ºðŸ‡¸ CCPA/CPRA â€” Protection des DonnÃ©es (Californie)",
+      keywords: ["ccpa", "cpra", "california", "donnée", "privacy"],
+      title: "ðŸ‡ºðŸ‡¸ CCPA/CPRA â€” Protection des Données (Californie)",
       content:
-        "Le <strong>CCPA</strong> (California Consumer Privacy Act, 2020) et son amendement <strong>CPRA</strong> offrent aux rÃ©sidents californiens des droits proches du RGPD : droit de savoir, de suppression, de refus de vente. <strong>Amende :</strong> $2.500/violation, $7.500/violation intentionnelle.",
+        "Le <strong>CCPA</strong> (California Consumer Privacy Act, 2020) et son amendement <strong>CPRA</strong> offrent aux résidents californiens des droits proches du RGPD : droit de savoir, de suppression, de refus de vente. <strong>Amende :</strong> $2.500/violation, $7.500/violation intentionnelle.",
       source: "State of California â€” oag.ca.gov",
       url: "oag.ca.gov",
     },
@@ -14637,15 +15046,15 @@ window.LegalDatabase = {
       keywords: ["coppa", "mineur", "enfant"],
       title: "ðŸ‡ºðŸ‡¸ COPPA â€” Protection des Mineurs en Ligne",
       content:
-        "La <strong>Children's Online Privacy Protection Act</strong> interdit la collecte de donnÃ©es personnelles d'enfants de moins de 13 ans sans consentement parental vÃ©rifiable. <strong>Amende :</strong> jusqu'Ã  $50.120/violation (FTC).",
+        "La <strong>Children's Online Privacy Protection Act</strong> interdit la collecte de données personnelles d'enfants de moins de 13 ans sans consentement parental vérifiable. <strong>Amende :</strong> jusqu'à $50.120/violation (FTC).",
       source: "FTC â€” ftc.gov",
       url: "ftc.gov",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¬ðŸ‡§ ROYAUME-UNI â€” Source : legislation.gov.uk
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   uk: {
     _flag: "ðŸ‡¬ðŸ‡§",
     _name: "Royaume-Uni",
@@ -14663,7 +15072,7 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¬ðŸ‡§ Casque Moto â€” Road Traffic Act 1988 Â§16",
       content:
-        "Le port du casque homologuÃ© <strong>BS 6658:1985</strong> ou <strong>UNECE R22.05/22.06</strong> est obligatoire. Les Sikhs portant un turban sont exemptÃ©s (Â§16Â§2).<br><strong>Sanction :</strong> Fixed Penalty Notice de <strong>Â£100</strong>.",
+        "Le port du casque homologué <strong>BS 6658:1985</strong> ou <strong>UNECE R22.05/22.06</strong> est obligatoire. Les Sikhs portant un turban sont exemptés (Â§16Â§2).<br><strong>Sanction :</strong> Fixed Penalty Notice de <strong>Â£100</strong>.",
       source: "legislation.gov.uk â€” Road Traffic Act 1988 Â§16",
       url: "legislation.gov.uk",
     },
@@ -14671,23 +15080,23 @@ window.LegalDatabase = {
       keywords: ["permis", "licence", "cbt"],
       title: "ðŸ‡¬ðŸ‡§ Permis Moto â€” CBT / A1 / A2 / A",
       content:
-        "Formation obligatoire : <strong>CBT</strong> (Compulsory Basic Training). CatÃ©gories :<br>â€¢ <strong>AM</strong> : Cyclomoteur â‰¤ 50cc<br>â€¢ <strong>A1</strong> : â‰¤ 125cc (16+)<br>â€¢ <strong>A2</strong> : â‰¤ 35kW (19+)<br>â€¢ <strong>A</strong> : IllimitÃ© (24+ ou 21+ avec 2 ans d'A2)",
+        "Formation obligatoire : <strong>CBT</strong> (Compulsory Basic Training). Catégories :<br>• <strong>AM</strong> : Cyclomoteur â‰¤ 50cc<br>• <strong>A1</strong> : â‰¤ 125cc (16+)<br>• <strong>A2</strong> : â‰¤ 35kW (19+)<br>• <strong>A</strong> : Illimité (24+ ou 21+ avec 2 ans d'A2)",
       source: "GOV.UK â€” gov.uk/motorcycle-licence",
       url: "gov.uk",
     },
     uk_gdpr: {
-      keywords: ["gdpr", "donnÃ©e", "ico", "privacy", "data"],
+      keywords: ["gdpr", "donnée", "ico", "privacy", "data"],
       title: "ðŸ‡¬ðŸ‡§ UK GDPR & Data Protection Act 2018",
       content:
-        "Post-Brexit, le Royaume-Uni a conservÃ© les principes du RGPD via le <strong>UK GDPR</strong> et le <strong>Data Protection Act 2018</strong>. L'autoritÃ© de contrÃ´le est l'<strong>ICO</strong> (Information Commissioner's Office). Amende max : <strong>Â£17.5M ou 4% du CA</strong>.",
+        "Post-Brexit, le Royaume-Uni a conservé les principes du RGPD via le <strong>UK GDPR</strong> et le <strong>Data Protection Act 2018</strong>. L'autorité de contrôle est l'<strong>ICO</strong> (Information Commissioner's Office). Amende max : <strong>Â£17.5M ou 4% du CA</strong>.",
       source: "legislation.gov.uk â€” Data Protection Act 2018",
       url: "legislation.gov.uk",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¯ðŸ‡µ JAPON â€” Source : Japanese Law Translation (japaneselawtranslation.go.jp)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   japan: {
     _flag: "ðŸ‡¯ðŸ‡µ",
     _name: "Japon",
@@ -14698,7 +15107,7 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¯ðŸ‡µ Casque Moto â€” Road Traffic Act Art.71-4",
       content:
-        "Le port du casque homologuÃ© <strong>PSC/SG</strong> est obligatoire pour tous les conducteurs et passagers de 2-roues. Les casques doivent porter le marquage <strong>PSCãƒžãƒ¼ã‚¯</strong>.<br>Norme : <strong>JIS T 8133</strong>.",
+        "Le port du casque homologué <strong>PSC/SG</strong> est obligatoire pour tous les conducteurs et passagers de 2-roues. Les casques doivent porter le marquage <strong>PSCãƒžãƒ¼ã‚¯</strong>.<br>Norme : <strong>JIS T 8133</strong>.",
       source: "Japanese Law Translation â€” Road Traffic Act (é“è·¯äº¤é€šæ³•)",
       url: "japaneselawtranslation.go.jp",
     },
@@ -14706,58 +15115,58 @@ window.LegalDatabase = {
       keywords: ["permis", "licence", "conduire"],
       title: "ðŸ‡¯ðŸ‡µ Permis Moto (å…è¨±) â€” Road Traffic Act",
       content:
-        "CatÃ©gories :<br>â€¢ <strong>åŽŸä»˜</strong> (Gentsuki) : â‰¤ 50cc (16+)<br>â€¢ <strong>å°åž‹</strong> : â‰¤ 125cc<br>â€¢ <strong>æ™®é€š</strong> : â‰¤ 400cc<br>â€¢ <strong>å¤§åž‹</strong> : IllimitÃ© (18+)<br>Examen pratique obligatoire en circuit fermÃ©.",
+        "Catégories :<br>• <strong>åŽŸä»˜</strong> (Gentsuki) : â‰¤ 50cc (16+)<br>• <strong>å°åž‹</strong> : â‰¤ 125cc<br>• <strong>æ™®é€š</strong> : â‰¤ 400cc<br>• <strong>å¤§åž‹</strong> : Illimité (18+)<br>Examen pratique obligatoire en circuit fermé.",
       source: "Japanese Law Translation â€” é“è·¯äº¤é€šæ³•",
       url: "japaneselawtranslation.go.jp",
     },
     appi: {
-      keywords: ["appi", "donnÃ©e", "data", "ppc", "privacy"],
+      keywords: ["appi", "donnée", "data", "ppc", "privacy"],
       title: "ðŸ‡¯ðŸ‡µ APPI â€” Act on Protection of Personal Information",
       content:
-        "RÃ©visÃ©e en 2022. L'APPI est supervisÃ©e par la <strong>PPC</strong> (Personal Information Protection Commission). Le Japon bÃ©nÃ©ficie d'une <strong>dÃ©cision d'adÃ©quation</strong> avec l'UE (RGPD). Transferts transfrontaliers strictement encadrÃ©s.",
+        "Révisée en 2022. L'APPI est supervisée par la <strong>PPC</strong> (Personal Information Protection Commission). Le Japon bénéficie d'une <strong>décision d'adéquation</strong> avec l'UE (RGPD). Transferts transfrontaliers strictement encadrés.",
       source: "PPC â€” ppc.go.jp",
       url: "ppc.go.jp",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¨ðŸ‡³ CHINE â€” Source : NPC (npc.gov.cn)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   china: {
     _flag: "ðŸ‡¨ðŸ‡³",
     _name: "Chine",
-    _source: "NPC â€” npc.gov.cn | AssemblÃ©e Nationale Populaire",
-    _keywords: ["chine", "chinois", "china", "pÃ©kin", "beijing"],
+    _source: "NPC â€” npc.gov.cn | Assemblée Nationale Populaire",
+    _keywords: ["chine", "chinois", "china", "pékin", "beijing"],
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡¨ðŸ‡³ Casque Moto â€” Campagne Â« Un casque, une ceinture Â»",
+      title: "ðŸ‡¨ðŸ‡³ Casque Moto â€” Campagne « Un casque, une ceinture »",
       content:
-        "Depuis la campagne nationale de 2020, le port du casque est obligatoire pour les conducteurs et passagers de 2-roues dans toute la Chine. Norme obligatoire : <strong>GB 811-2022</strong> (mise Ã  jour de la norme nationale).",
+        "Depuis la campagne nationale de 2020, le port du casque est obligatoire pour les conducteurs et passagers de 2-roues dans toute la Chine. Norme obligatoire : <strong>GB 811-2022</strong> (mise à jour de la norme nationale).",
       source: "NPC â€” Road Traffic Safety Law (é“è·¯äº¤é€šå®‰å…¨æ³•)",
       url: "npc.gov.cn",
     },
     pipl: {
-      keywords: ["pipl", "donnÃ©e", "data", "privacy"],
+      keywords: ["pipl", "donnée", "data", "privacy"],
       title: "ðŸ‡¨ðŸ‡³ PIPL â€” Personal Information Protection Law (2021)",
       content:
-        "En vigueur depuis le <strong>1er novembre 2021</strong>. PortÃ©e extraterritoriale. Consentement sÃ©parÃ© requis pour les donnÃ©es sensibles. <strong>Amende :</strong> jusqu'Ã  <strong>50M RMB ou 5% du CA annuel</strong>. Transferts transfrontaliers soumis Ã  Ã©valuation de sÃ©curitÃ© obligatoire (CAC).",
+        "En vigueur depuis le <strong>1er novembre 2021</strong>. Portée extraterritoriale. Consentement séparé requis pour les données sensibles. <strong>Amende :</strong> jusqu'à <strong>50M RMB ou 5% du CA annuel</strong>. Transferts transfrontaliers soumis à évaluation de sécurité obligatoire (CAC).",
       source: "NPC â€” ä¸ªäººä¿¡æ¯ä¿æŠ¤æ³•",
       url: "npc.gov.cn",
     },
     dsl: {
-      keywords: ["dsl", "sÃ©curitÃ©", "securite", "cybersÃ©curitÃ©"],
+      keywords: ["dsl", "sécurité", "securite", "cybersécurité"],
       title: "ðŸ‡¨ðŸ‡³ DSL â€” Data Security Law (2021)",
       content:
-        "La Loi sur la SÃ©curitÃ© des DonnÃ©es (DSL) classe les donnÃ©es par niveau d'importance (national, important, gÃ©nÃ©ral). Les donnÃ©es Â« importantes Â» et Â« nationales Â» exigent des Ã©valuations de risque et des stockages localisÃ©s.",
+        "La Loi sur la Sécurité des Données (DSL) classe les données par niveau d'importance (national, important, général). Les données « importantes » et « nationales » exigent des évaluations de risque et des stockages localisés.",
       source: "NPC â€” æ•°æ®å®‰å…¨æ³•",
       url: "npc.gov.cn",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡®ðŸ‡³ INDE â€” Source : India Code (indiacode.nic.in)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   india: {
     _flag: "ðŸ‡®ðŸ‡³",
     _name: "Inde",
@@ -14768,7 +15177,7 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡®ðŸ‡³ Casque Moto â€” Motor Vehicles Act 1988 Â§129",
       content:
-        "Le port du casque homologuÃ© <strong>ISI (BIS)</strong> est obligatoire pour le conducteur et le passager. Norme : <strong>IS 4151:2015</strong>.<br><strong>Sanction :</strong> â‚¹1.000 d'amende + suspension du permis (3 mois).<br>Exception : Les Sikhs portant un turban sont exemptÃ©s dans certains Ã‰tats.",
+        "Le port du casque homologué <strong>ISI (BIS)</strong> est obligatoire pour le conducteur et le passager. Norme : <strong>IS 4151:2015</strong>.<br><strong>Sanction :</strong> â‚¹1.000 d'amende + suspension du permis (3 mois).<br>Exception : Les Sikhs portant un turban sont exemptés dans certains États.",
       source: "India Code â€” Motor Vehicles Act 1988 Â§129",
       url: "indiacode.nic.in",
     },
@@ -14776,34 +15185,34 @@ window.LegalDatabase = {
       keywords: ["permis", "licence", "conduire"],
       title: "ðŸ‡®ðŸ‡³ Permis Moto â€” Motor Vehicles Act Â§3",
       content:
-        "Deux catÃ©gories :<br>â€¢ <strong>MCWG</strong> (Motor Cycle With Gear) : Moto avec vitesses<br>â€¢ <strong>MCWOG</strong> : Scooter sans vitesses<br>Ã‚ge minimum : <strong>18 ans</strong> (16 ans pour les â‰¤50cc dans certains Ã‰tats).",
+        "Deux catégories :<br>• <strong>MCWG</strong> (Motor Cycle With Gear) : Moto avec vitesses<br>• <strong>MCWOG</strong> : Scooter sans vitesses<br>Ã‚ge minimum : <strong>18 ans</strong> (16 ans pour les â‰¤50cc dans certains États).",
       source: "India Code â€” Motor Vehicles Act 1988",
       url: "indiacode.nic.in",
     },
     dpdp: {
-      keywords: ["dpdp", "donnÃ©e", "data", "privacy"],
+      keywords: ["dpdp", "donnée", "data", "privacy"],
       title: "ðŸ‡®ðŸ‡³ DPDP â€” Digital Personal Data Protection Act 2023",
       content:
-        "En vigueur depuis <strong>2023</strong>. Droits des Â« Data Principals Â» : consentement, rectification, effacement. PossibilitÃ© de nommer un reprÃ©sentant lÃ©gal. <strong>Amende :</strong> jusqu'Ã  <strong>â‚¹250 crore</strong> (â‰ˆ 27Mâ‚¬). Supervision par le Data Protection Board of India.",
+        "En vigueur depuis <strong>2023</strong>. Droits des « Data Principals » : consentement, rectification, effacement. Possibilité de nommer un représentant légal. <strong>Amende :</strong> jusqu'à <strong>â‚¹250 crore</strong> (â‰ˆ 27M€). Supervision par le Data Protection Board of India.",
       source: "MeitY â€” meity.gov.in",
       url: "meity.gov.in",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡§ðŸ‡· BRÃ‰SIL â€” Source : Planalto (planalto.gov.br)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡§ðŸ‡· BRÉSIL â€” Source : Planalto (planalto.gov.br)
+  // ═══════════════════════════════════════════════════════════════
   brazil: {
     _flag: "ðŸ‡§ðŸ‡·",
-    _name: "BrÃ©sil",
+    _name: "Brésil",
     _source: "Planalto â€” planalto.gov.br",
-    _keywords: ["brÃ©sil", "bresil", "brazil", "brÃ©silien", "bresilien"],
+    _keywords: ["brésil", "bresil", "brazil", "brésilien", "bresilien"],
 
     casque: {
       keywords: ["casque", "capacete", "helmet"],
       title: "ðŸ‡§ðŸ‡· Casque Moto â€” CTB Art.244 (Lei 9.503/1997)",
       content:
-        "Le port du casque homologuÃ© <strong>INMETRO</strong> est obligatoire pour le conducteur et le passager de moto. Le viseur est aussi obligatoire.<br><strong>Sanction :</strong> Infraction grave â€” <strong>R$293,47</strong> + 7 points sur le CNH + rÃ©tention du vÃ©hicule.",
+        "Le port du casque homologué <strong>INMETRO</strong> est obligatoire pour le conducteur et le passager de moto. Le viseur est aussi obligatoire.<br><strong>Sanction :</strong> Infraction grave â€” <strong>R$293,47</strong> + 7 points sur le CNH + rétention du véhicule.",
       source: "Planalto â€” Lei 9.503/1997 (CTB) Art.244",
       url: "planalto.gov.br",
     },
@@ -14811,23 +15220,23 @@ window.LegalDatabase = {
       keywords: ["permis", "cnh", "conduire", "licence"],
       title: "ðŸ‡§ðŸ‡· Permis Moto (CNH) â€” CTB Art.140",
       content:
-        "CatÃ©gorie <strong>A</strong> obligatoire pour les 2-roues. Ã‚ge minimum : <strong>18 ans</strong>. Formation obligatoire incluant cours thÃ©oriques (45h) et pratiques (20h). SystÃ¨me de points : <strong>40 pts/an = suspension</strong>.",
+        "Catégorie <strong>A</strong> obligatoire pour les 2-roues. Ã‚ge minimum : <strong>18 ans</strong>. Formation obligatoire incluant cours théoriques (45h) et pratiques (20h). Système de points : <strong>40 pts/an = suspension</strong>.",
       source: "Planalto â€” Lei 9.503/1997 (CTB)",
       url: "planalto.gov.br",
     },
     lgpd: {
-      keywords: ["lgpd", "donnÃ©e", "data", "privacy"],
-      title: "ðŸ‡§ðŸ‡· LGPD â€” Lei Geral de ProteÃ§Ã£o de Dados (13.709/2018)",
+      keywords: ["lgpd", "donnée", "data", "privacy"],
+      title: "ðŸ‡§ðŸ‡· LGPD â€” Lei Geral de ProteçÃ£o de Dados (13.709/2018)",
       content:
-        "La LGPD est le Â« RGPD brÃ©silien Â». En vigueur depuis <strong>septembre 2020</strong>. SupervisÃ©e par l'<strong>ANPD</strong> (Autoridade Nacional de ProteÃ§Ã£o de Dados). <strong>Amende :</strong> jusqu'Ã  <strong>2% du CA au BrÃ©sil</strong>, plafonnÃ©e Ã  R$50M par infraction.",
+        "La LGPD est le « RGPD brésilien ». En vigueur depuis <strong>septembre 2020</strong>. Supervisée par l'<strong>ANPD</strong> (Autoridade Nacional de ProteçÃ£o de Dados). <strong>Amende :</strong> jusqu'à <strong>2% du CA au Brésil</strong>, plafonnée à R$50M par infraction.",
       source: "Planalto â€” Lei 13.709/2018",
       url: "planalto.gov.br",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¸ðŸ‡¬ SINGAPOUR â€” Source : Singapore Statutes Online (sso.agc.gov.sg)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   singapore: {
     _flag: "ðŸ‡¸ðŸ‡¬",
     _name: "Singapour",
@@ -14838,23 +15247,23 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¸ðŸ‡¬ Casque Moto â€” Road Traffic Act Â§22A",
       content:
-        "Le casque homologuÃ© <strong>PSB/Spring SG</strong> (ou UN R22) est obligatoire. <br><strong>Sanction :</strong> Amende jusqu'Ã  <strong>S$1.000</strong> et/ou 3 mois de prison.",
+        "Le casque homologué <strong>PSB/Spring SG</strong> (ou UN R22) est obligatoire. <br><strong>Sanction :</strong> Amende jusqu'à <strong>S$1.000</strong> et/ou 3 mois de prison.",
       source: "SSO â€” Road Traffic Act (Cap. 276)",
       url: "sso.agc.gov.sg",
     },
     pdpa: {
-      keywords: ["pdpa", "donnÃ©e", "data", "privacy"],
+      keywords: ["pdpa", "donnée", "data", "privacy"],
       title: "ðŸ‡¸ðŸ‡¬ PDPA â€” Personal Data Protection Act 2012",
       content:
-        "SupervisÃ©e par la <strong>PDPC</strong>. Consentement Ã©clairÃ© obligatoire. Droit d'accÃ¨s et de correction rapide.<br><strong>Amende :</strong> jusqu'Ã  <strong>S$1M ou 10% du CA annuel</strong> (depuis la rÃ©vision 2020).",
+        "Supervisée par la <strong>PDPC</strong>. Consentement éclairé obligatoire. Droit d'accès et de correction rapide.<br><strong>Amende :</strong> jusqu'à <strong>S$1M ou 10% du CA annuel</strong> (depuis la révision 2020).",
       source: "SSO â€” PDPA (No.26 of 2012)",
       url: "sso.agc.gov.sg",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¿ðŸ‡¦ AFRIQUE DU SUD â€” Source : gov.za
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   south_africa: {
     _flag: "ðŸ‡¿ðŸ‡¦",
     _name: "Afrique du Sud",
@@ -14865,50 +15274,50 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¿ðŸ‡¦ Casque Moto â€” NRTA 93/1996 Â§98",
       content:
-        "Le port du casque homologuÃ© <strong>SABS (SANS 55)</strong> est obligatoire pour tous les conducteurs et passagers de 2-roues.<br><strong>Sanction :</strong> Amende et points de dÃ©mÃ©rite.",
+        "Le port du casque homologué <strong>SABS (SANS 55)</strong> est obligatoire pour tous les conducteurs et passagers de 2-roues.<br><strong>Sanction :</strong> Amende et points de démérite.",
       source: "gov.za â€” National Road Traffic Act 93 of 1996",
       url: "gov.za",
     },
     popia: {
-      keywords: ["popia", "donnÃ©e", "data", "privacy"],
+      keywords: ["popia", "donnée", "data", "privacy"],
       title: "ðŸ‡¿ðŸ‡¦ POPIA â€” Protection of Personal Information Act 4/2013",
       content:
-        "En vigueur depuis <strong>juillet 2021</strong>. L'<strong>Information Regulator</strong> est l'autoritÃ© de contrÃ´le. Traitement licite et raisonnable obligatoire. Droit d'accÃ¨s, de correction, et de suppression.<br><strong>Amende :</strong> jusqu'Ã  <strong>R10M</strong> et/ou 10 ans de prison.",
+        "En vigueur depuis <strong>juillet 2021</strong>. L'<strong>Information Regulator</strong> est l'autorité de contrôle. Traitement licite et raisonnable obligatoire. Droit d'accès, de correction, et de suppression.<br><strong>Amende :</strong> jusqu'à <strong>R10M</strong> et/ou 10 ans de prison.",
       source: "Information Regulator â€” inforegulator.org.za",
       url: "inforegulator.org.za",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ðŸ‡³ðŸ‡¬ NIGÃ‰RIA â€” Source : FRSC / NITDA
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
+  // ðŸ‡³ðŸ‡¬ NIGÉRIA â€” Source : FRSC / NITDA
+  // ═══════════════════════════════════════════════════════════════
   nigeria: {
     _flag: "ðŸ‡³ðŸ‡¬",
-    _name: "NigÃ©ria",
+    _name: "Nigéria",
     _source: "FRSC â€” frsc.gov.ng | NITDA â€” nitda.gov.ng",
-    _keywords: ["nigÃ©ria", "nigeria"],
+    _keywords: ["nigéria", "nigeria"],
 
     casque: {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡³ðŸ‡¬ Casque Moto â€” Highway Code / FRSC",
       content:
-        "Le port du casque est obligatoire pour les conducteurs et passagers de motos (<em>Okada</em>). RÃ©glementation appliquÃ©e par le <strong>FRSC</strong> (Federal Road Safety Corps).<br><strong>Sanction :</strong> â‚¦2.000 d'amende.",
+        "Le port du casque est obligatoire pour les conducteurs et passagers de motos (<em>Okada</em>). Réglementation appliquée par le <strong>FRSC</strong> (Federal Road Safety Corps).<br><strong>Sanction :</strong> â‚¦2.000 d'amende.",
       source: "FRSC â€” frsc.gov.ng",
       url: "frsc.gov.ng",
     },
     ndpr: {
-      keywords: ["ndpr", "ndpa", "donnÃ©e", "data", "privacy"],
+      keywords: ["ndpr", "ndpa", "donnée", "data", "privacy"],
       title: "ðŸ‡³ðŸ‡¬ NDPA â€” Nigeria Data Protection Act 2023",
       content:
-        "Remplace le NDPR de 2019. CrÃ©e la <strong>NDPC</strong> (Nigeria Data Protection Commission) comme autoritÃ© indÃ©pendante. Consentement obligatoire. Notifications de violation sous <strong>72h</strong>.<br><strong>Amende :</strong> jusqu'Ã  <strong>2% du CA mondial</strong> ou â‚¦10M.",
+        "Remplace le NDPR de 2019. Crée la <strong>NDPC</strong> (Nigeria Data Protection Commission) comme autorité indépendante. Consentement obligatoire. Notifications de violation sous <strong>72h</strong>.<br><strong>Amende :</strong> jusqu'à <strong>2% du CA mondial</strong> ou â‚¦10M.",
       source: "NITDA â€” nitda.gov.ng",
       url: "nitda.gov.ng",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡²ðŸ‡¦ MAROC â€” Source : Bulletin Officiel (sgg.gov.ma)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   morocco: {
     _flag: "ðŸ‡²ðŸ‡¦",
     _name: "Maroc",
@@ -14917,38 +15326,38 @@ window.LegalDatabase = {
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡²ðŸ‡¦ Casque Moto â€” Loi nÂ°52-05 (Code de la Route)",
+      title: "ðŸ‡²ðŸ‡¦ Casque Moto â€” Loi n°52-05 (Code de la Route)",
       content:
-        "Le port du casque homologuÃ© est obligatoire pour les conducteurs et passagers de 2-roues motorisÃ©s.<br><strong>Sanction :</strong> Amende de <strong>400 Ã  700 DH</strong>, immobilisation du vÃ©hicule, et retrait de permis possible.",
-      source: "Bulletin Officiel â€” Loi nÂ°52-05 portant Code de la Route",
+        "Le port du casque homologué est obligatoire pour les conducteurs et passagers de 2-roues motorisés.<br><strong>Sanction :</strong> Amende de <strong>400 à 700 DH</strong>, immobilisation du véhicule, et retrait de permis possible.",
+      source: "Bulletin Officiel â€” Loi n°52-05 portant Code de la Route",
       url: "sgg.gov.ma",
     },
     permis: {
       keywords: ["permis", "conduire"],
-      title: "ðŸ‡²ðŸ‡¦ Permis Moto â€” Loi nÂ°52-05",
+      title: "ðŸ‡²ðŸ‡¦ Permis Moto â€” Loi n°52-05",
       content:
-        "CatÃ©gories :<br>â€¢ <strong>A1</strong> : Cyclomoteur â‰¤ 50cc (16+)<br>â€¢ <strong>A</strong> : Toute moto (18+)<br>SystÃ¨me de permis Ã  points depuis 2010.",
+        "Catégories :<br>• <strong>A1</strong> : Cyclomoteur â‰¤ 50cc (16+)<br>• <strong>A</strong> : Toute moto (18+)<br>Système de permis à points depuis 2010.",
       source: "Bulletin Officiel â€” Code de la Route",
       url: "sgg.gov.ma",
     },
     loi_0908: {
-      keywords: ["donnÃ©e", "data", "privacy", "cndp"],
-      title: "ðŸ‡²ðŸ‡¦ Loi nÂ°09-08 â€” Protection des DonnÃ©es Personnelles",
+      keywords: ["donnée", "data", "privacy", "cndp"],
+      title: "ðŸ‡²ðŸ‡¦ Loi n°09-08 â€” Protection des Données Personnelles",
       content:
-        "En vigueur depuis <strong>2009</strong>. SupervisÃ©e par la <strong>CNDP</strong> (Commission Nationale de ContrÃ´le de la Protection des DonnÃ©es). InspirÃ©e du modÃ¨le franÃ§ais (CNIL). Droits d'accÃ¨s, de rectification et d'opposition.",
-      source: "Bulletin Officiel â€” Loi nÂ°09-08",
+        "En vigueur depuis <strong>2009</strong>. Supervisée par la <strong>CNDP</strong> (Commission Nationale de Contrôle de la Protection des Données). Inspirée du modèle français (CNIL). Droits d'accès, de rectification et d'opposition.",
+      source: "Bulletin Officiel â€” Loi n°09-08",
       url: "cndp.ma",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¹ðŸ‡­ THAÃLANDE â€” Source : Royal Thai Police
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   thailand: {
     _flag: "ðŸ‡¹ðŸ‡­",
-    _name: "ThaÃ¯lande",
+    _name: "Thaïlande",
     _source: "Royal Thai Police â€” royalthaipolice.go.th",
-    _keywords: ["thaÃ¯lande", "thailande", "thailand", "thai"],
+    _keywords: ["thaïlande", "thailande", "thailand", "thai"],
 
     casque: {
       keywords: ["casque", "helmet"],
@@ -14959,18 +15368,18 @@ window.LegalDatabase = {
       url: "royalthaipolice.go.th",
     },
     pdpa_th: {
-      keywords: ["pdpa", "donnÃ©e", "data", "privacy"],
+      keywords: ["pdpa", "donnée", "data", "privacy"],
       title: "ðŸ‡¹ðŸ‡­ PDPA â€” Personal Data Protection Act B.E.2562 (2019)",
       content:
-        "En vigueur depuis <strong>juin 2022</strong>. TrÃ¨s inspirÃ©e du RGPD. Consentement explicite requis pour les donnÃ©es sensibles. <strong>Amende :</strong> jusqu'Ã  <strong>5M THB</strong> + sanctions pÃ©nales (1 an de prison et/ou 1M THB).",
+        "En vigueur depuis <strong>juin 2022</strong>. Très inspirée du RGPD. Consentement explicite requis pour les données sensibles. <strong>Amende :</strong> jusqu'à <strong>5M THB</strong> + sanctions pénales (1 an de prison et/ou 1M THB).",
       source: "PDPA Thailand â€” pdpathailand.com",
       url: "pdpathailand.com",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¦ðŸ‡º AUSTRALIE â€” Source : Federal Register of Legislation
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   australia: {
     _flag: "ðŸ‡¦ðŸ‡º",
     _name: "Australie",
@@ -14981,42 +15390,42 @@ window.LegalDatabase = {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¦ðŸ‡º Casque Moto â€” Australian Road Rules Rule 270",
       content:
-        "Le port du casque homologuÃ© <strong>AS/NZS 1698:2006</strong> (ou UNECE R22) est obligatoire dans tous les Ã‰tats et Territoires.<br><strong>Sanction :</strong> Varie par Ã‰tat. Ex NSW : <strong>A$349</strong> + 3 points de dÃ©mÃ©rite.",
+        "Le port du casque homologué <strong>AS/NZS 1698:2006</strong> (ou UNECE R22) est obligatoire dans tous les États et Territoires.<br><strong>Sanction :</strong> Varie par État. Ex NSW : <strong>A$349</strong> + 3 points de démérite.",
       source: "legislation.gov.au â€” Australian Road Rules",
       url: "legislation.gov.au",
     },
     privacy_act: {
-      keywords: ["privacy", "donnÃ©e", "data"],
-      title: "ðŸ‡¦ðŸ‡º Privacy Act 1988 â€” Protection des DonnÃ©es",
+      keywords: ["privacy", "donnée", "data"],
+      title: "ðŸ‡¦ðŸ‡º Privacy Act 1988 â€” Protection des Données",
       content:
-        "SupervisÃ©e par l'<strong>OAIC</strong> (Office of the Australian Information Commissioner). Les 13 <strong>Australian Privacy Principles (APPs)</strong> rÃ©gissent la collecte, l'utilisation et la sÃ©curitÃ© des donnÃ©es.<br><strong>Amende :</strong> jusqu'Ã  <strong>A$50M</strong>, 3Ã— le bÃ©nÃ©fice obtenu, ou 30% du CA (le plus Ã©levÃ©).",
+        "Supervisée par l'<strong>OAIC</strong> (Office of the Australian Information Commissioner). Les 13 <strong>Australian Privacy Principles (APPs)</strong> régissent la collecte, l'utilisation et la sécurité des données.<br><strong>Amende :</strong> jusqu'à <strong>A$50M</strong>, 3Ã— le bénéfice obtenu, ou 30% du CA (le plus élevé).",
       source: "legislation.gov.au â€” Privacy Act 1988",
       url: "legislation.gov.au",
     },
   },
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   // ðŸ‡¨ðŸ‡¦ CANADA â€” Source : Justice Laws (laws-lois.justice.gc.ca)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════════
   canada: {
     _flag: "ðŸ‡¨ðŸ‡¦",
     _name: "Canada",
     _source: "Justice Laws â€” laws-lois.justice.gc.ca",
-    _keywords: ["canada", "canadien", "quÃ©bec", "quebec"],
+    _keywords: ["canada", "canadien", "québec", "quebec"],
 
     casque: {
       keywords: ["casque", "helmet"],
       title: "ðŸ‡¨ðŸ‡¦ Casque Moto â€” Highway Traffic Act (Provincial)",
       content:
-        "Le casque est obligatoire dans <strong>toutes les provinces</strong>. Normes acceptÃ©es : <strong>DOT (FMVSS 218)</strong>, <strong>Snell</strong>, <strong>ECE 22.05/22.06</strong>.<br><strong>Sanction :</strong> Varie par province. Ontario : <strong>C$110</strong>.",
+        "Le casque est obligatoire dans <strong>toutes les provinces</strong>. Normes acceptées : <strong>DOT (FMVSS 218)</strong>, <strong>Snell</strong>, <strong>ECE 22.05/22.06</strong>.<br><strong>Sanction :</strong> Varie par province. Ontario : <strong>C$110</strong>.",
       source: "laws-lois.justice.gc.ca + HTA provincial",
       url: "laws-lois.justice.gc.ca",
     },
     pipeda: {
-      keywords: ["pipeda", "donnÃ©e", "data", "privacy"],
+      keywords: ["pipeda", "donnée", "data", "privacy"],
       title: "ðŸ‡¨ðŸ‡¦ PIPEDA â€” Personal Information Protection Act",
       content:
-        "Loi fÃ©dÃ©rale sur la protection des renseignements personnels dans le secteur privÃ©. SupervisÃ©e par le <strong>Commissariat Ã  la protection de la vie privÃ©e</strong>. RemplacÃ©e progressivement au QuÃ©bec par la <strong>Loi 25</strong> (2023).<br><strong>Amende :</strong> jusqu'Ã  <strong>C$100.000</strong> (PIPEDA), C$25M ou 4% du CA (Loi 25 QC).",
+        "Loi fédérale sur la protection des renseignements personnels dans le secteur privé. Supervisée par le <strong>Commissariat à la protection de la vie privée</strong>. Remplacée progressivement au Québec par la <strong>Loi 25</strong> (2023).<br><strong>Amende :</strong> jusqu'à <strong>C$100.000</strong> (PIPEDA), C$25M ou 4% du CA (Loi 25 QC).",
       source: "laws-lois.justice.gc.ca â€” PIPEDA (S.C. 2000, c.5)",
       url: "laws-lois.justice.gc.ca",
     },
@@ -15025,13 +15434,13 @@ window.LegalDatabase = {
 
 /**
  * ðŸ” Moteur de recherche dans la base juridique mondiale
- * UtilisÃ© par PocketLawyer.processChatQuery()
+ * Utilisé par PocketLawyer.processChatQuery()
  */
 window.LegalDatabase.search = function (query) {
   const t = query.toLowerCase();
   const results = [];
 
-  // 1. Identifier le(s) pays ciblÃ©(s)
+  // 1. Identifier le(s) pays ciblé(s)
   let targetCountries = [];
   for (const [countryKey, country] of Object.entries(this)) {
     if (typeof country !== "object" || countryKey === "search") continue;
@@ -15040,14 +15449,14 @@ window.LegalDatabase.search = function (query) {
     }
   }
 
-  // Si aucun pays dÃ©tectÃ©, chercher dans tous
+  // Si aucun pays détecté, chercher dans tous
   if (targetCountries.length === 0) {
     targetCountries = Object.keys(this).filter(
       (k) => typeof this[k] === "object" && k !== "search",
     );
   }
 
-  // 2. Chercher par mots-clÃ©s dans les pays ciblÃ©s
+  // 2. Chercher par mots-clés dans les pays ciblés
   for (const countryKey of targetCountries) {
     const country = this[countryKey];
     if (!country || typeof country !== "object") continue;
@@ -15075,51 +15484,51 @@ window.LegalDatabase.search = function (query) {
 
 /* --- pocket-lawyer.js --- */
 ﻿/**
- * âš–ï¸ POCKET LAWYER - MODULE DE DÃ‰FENSE JURIDIQUE
+ * ⚖️ POCKET LAWYER - MODULE DE DÉFENSE JURIDIQUE
  * Analyse du stationnement (Code de la Route FR : R417-10 et R417-11)
  */
 
 window.PocketLawyer = {
   isOpen: false,
 
-  // ScÃ©narios simulÃ©s pour l'environnement GPS actuel
+  // Scénarios simulés pour l'environnement GPS actuel
   scenarios: [
     {
       type: "Trottoir (Large)",
       status: "TOLERANCE",
       icon: "fa-solid fa-scale-balanced",
       color: "#ffb703", // Orange
-      law: "R417-10 (TrÃ¨s GÃªnant / GÃªnant)",
+      law: "R417-10 (Très Gênant / Gênant)",
       verdict:
-        "Stationnement techniquement interdit mais couramment tolÃ©rÃ© si le passage des piÃ©tons n'est pas entravÃ©.",
+        "Stationnement techniquement interdit mais couramment toléré si le passage des piétons n'est pas entravé.",
       defense:
-        "Plaidoirie : L'espace laissÃ© libre (plus de 1m50) permet le passage des poussettes et PMR. Aucune entrave caractÃ©risÃ©e. S'il y a amende (135â‚¬ ou 35â‚¬), vous pouvez invoquer l'absence de signalisation claire ou le manque de places 2RM.",
+        "Plaidoirie : L'espace laissé libre (plus de 1m50) permet le passage des poussettes et PMR. Aucune entrave caractérisée. S'il y a amende (135€ ou 35€), vous pouvez invoquer l'absence de signalisation claire ou le manque de places 2RM.",
       letterTemplate:
-        "Monsieur l'Officier du MinistÃ¨re Public,\nJe conteste le PV nÂ°XXX.\nLe stationnement de mon cyclomoteur ne constituait pas une entrave Ã  la circulation piÃ©tonne (largeur libre > 1,50m) et palliait un manque avÃ©rÃ© de stationnement 2RM dans ce secteur.",
+        "Monsieur l'Officier du Ministère Public,\nJe conteste le PV n°XXX.\nLe stationnement de mon cyclomoteur ne constituait pas une entrave à la circulation piétonne (largeur libre > 1,50m) et palliait un manque avéré de stationnement 2RM dans ce secteur.",
     },
     {
-      type: "Place 2-Roues MotorisÃ©s",
+      type: "Place 2-Roues Motorisés",
       status: "AUTORISE",
       icon: "fa-solid fa-check-double",
       color: "#00e676", // Vert
-      law: "R417-6 (RÃ©gulier)",
-      verdict: "Vous Ãªtes parfaitement en rÃ¨gle.",
+      law: "R417-6 (Régulier)",
+      verdict: "Vous êtes parfaitement en règle.",
       defense:
-        "Plaidoirie : VÃ©hicule stationnÃ© sur un emplacement dÃ©diÃ© et matÃ©rialisÃ©. Si la place est devenue payante (ex: Paris), assurez-vous d'avoir pris un ticket numÃ©rique ou le Pass 2RM.",
+        "Plaidoirie : Véhicule stationné sur un emplacement dédié et matérialisé. Si la place est devenue payante (ex: Paris), assurez-vous d'avoir pris un ticket numérique ou le Pass 2RM.",
       letterTemplate: "",
     },
     {
-      type: "Passage PiÃ©ton / Piste Cyclable",
+      type: "Passage Piéton / Piste Cyclable",
       status: "INTERDIT",
       icon: "fa-solid fa-gavel",
       color: "#ff4d4d", // Rouge
-      law: "R417-11 (TrÃ¨s GÃªnant)",
+      law: "R417-11 (Très Gênant)",
       verdict:
-        "Stationnement strictement interdit. Risque de mise en fourriÃ¨re immÃ©diate et 135â‚¬ d'amende.",
+        "Stationnement strictement interdit. Risque de mise en fourrière immédiate et 135€ d'amende.",
       defense:
         "Plaidoirie : Difficilement contestable (mise en danger d'autrui). Seule option : vice de forme sur le PV (erreur de plaque, de rue ou de date).",
       letterTemplate:
-        "Monsieur l'Officier,\nJe conteste ce PV sur la base d'un vice de forme caractÃ©risÃ© (erreur matÃ©rielle sur le lieu exact de l'infraction visÃ©).",
+        "Monsieur l'Officier,\nJe conteste ce PV sur la base d'un vice de forme caractérisé (erreur matérielle sur le lieu exact de l'infraction visé).",
     },
     {
       type: "Place Auto (Voiture)",
@@ -15128,9 +15537,9 @@ window.PocketLawyer = {
       color: "#ffb703",
       law: "R417-10",
       verdict:
-        "TolÃ©rÃ© si vous payez le stationnement (si applicable). Attention Ã  ne pas bloquer une voiture.",
+        "Toléré si vous payez le stationnement (si applicable). Attention à ne pas bloquer une voiture.",
       defense:
-        "Plaidoirie : Le code de la route n'interdit pas aux 2RM de se garer sur les places voitures, mais c'est mal vu. En cas de stationnement payant, le reÃ§u fait foi.",
+        "Plaidoirie : Le code de la route n'interdit pas aux 2RM de se garer sur les places voitures, mais c'est mal vu. En cas de stationnement payant, le reçu fait foi.",
       letterTemplate: "",
     },
   ],
@@ -15145,14 +15554,14 @@ window.PocketLawyer = {
 
   openLawyer: function () {
     if (typeof window.braveCoins === "undefined") {
-      alert("Erreur: Module de fidÃ©litÃ© introuvable.");
+      alert("Erreur: Module de fidélité introuvable.");
       return;
     }
 
     const price = 5; // 5 Pts BVC constants
     if (window.braveCoins < price) {
       alert(
-        `Fonds insuffisants ! Vous avez besoin de ${price} Pts BVC pour accÃ©der Ã  l'Avocat de Poche. Roulez plus pour en gagner.`,
+        `Fonds insuffisants ! Vous avez besoin de ${price} Pts BVC pour accéder à l'Avocat de Poche. Roulez plus pour en gagner.`,
       );
       return;
     }
@@ -15179,18 +15588,18 @@ window.PocketLawyer = {
             <button onclick="PocketLawyer.closeLawyer()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-scale-balanced fa-beat-fade" style="font-size: 3rem; color: #cca300; filter: drop-shadow(0 0 10px #cca300); margin-bottom: 5px;"></i>
             <h1 style="font-size: 1.5rem; margin: 0; text-transform: uppercase; color: #cca300;">Avocat de Poche</h1>
-            <div style="background: rgba(0,210,255,0.1); border: 1px solid #00d2ff; color: #00d2ff; font-size: 0.7rem; padding: 3px 10px; border-radius: 10px; margin-top: 5px; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; display: inline-block;"><i class="fa-solid fa-microchip"></i> PropulsÃ© par JARVIS 4.0</div>
-            <p style="color: #777; font-size: 0.8rem; margin-bottom: 15px; text-align: center; max-width: 80%; line-height: 1.2;">Avertissement (AI Act) : Aide indicative gÃ©nÃ©rÃ©e par IA. Ne remplace pas un conseil juridique. <strong>Soumis Ã  contrÃ´le humain.</strong></p>
+            <div style="background: rgba(0,210,255,0.1); border: 1px solid #00d2ff; color: #00d2ff; font-size: 0.7rem; padding: 3px 10px; border-radius: 10px; margin-top: 5px; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; display: inline-block;"><i class="fa-solid fa-microchip"></i> Propulsé par JARVIS 4.0</div>
+            <p style="color: #777; font-size: 0.8rem; margin-bottom: 15px; text-align: center; max-width: 80%; line-height: 1.2;">Avertissement (AI Act) : Aide indicative générée par IA. Ne remplace pas un conseil juridique. <strong>Soumis à contrôle humain.</strong></p>
             
             <div id="lawyer-chat-box" style="flex: 1; width: 90%; max-width: 500px; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; scroll-behavior: smooth;">
                 <div style="background: rgba(204,163,0,0.2); padding: 10px 15px; border-radius: 15px; align-self: flex-start; max-width: 85%; border-left: 3px solid #cca300; line-height: 1.4;">
                     Ma base de jurisprudence couvre <strong>16 pays</strong> avec des sources officielles. Essayez :<br>
-                    â€¢ Casque en France<br>
-                    â€¢ Permis IndonÃ©sie<br>
-                    â€¢ Protection donnÃ©es BrÃ©sil<br>
-                    â€¢ Casque UK<br>
-                    â€¢ CCPA USA<br><br>
-                    <em>â€¢ Tapez <strong>pays</strong> pour voir la liste complÃ¨te.</em>
+                    • Casque en France<br>
+                    • Permis Indonésie<br>
+                    • Protection données Brésil<br>
+                    • Casque UK<br>
+                    • CCPA USA<br><br>
+                    <em>• Tapez <strong>pays</strong> pour voir la liste complète.</em>
                 </div>
             </div>
             
@@ -15201,7 +15610,7 @@ window.PocketLawyer = {
             
             <button onclick="PocketLawyer.startGPSScan()" style="margin-bottom: 15px; background: transparent; border: 1px solid #cca300; color: #cca300; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-location-dot"></i> Scanner mon stationnement (GPS)</button>
             <button onclick="PocketLawyer.reportInsurer()" style="margin-bottom: 15px; background: rgba(255,51,51,0.1); border: 1px solid #ff3333; color: #ff3333; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-bullhorn"></i> Signaler un litige assureur (+15 BVC)</button>
-            <button onclick="window.open('https://www.legifrance.gouv.fr/', '_blank')" style="margin-bottom: 30px; background: rgba(0, 51, 153, 0.2); border: 1px solid #0055ff; color: #88bbff; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-book-section"></i> Base LÃ©gifrance (Textes Officiels)</button>
+            <button onclick="window.open('https://www.legifrance.gouv.fr/', '_blank')" style="margin-bottom: 30px; background: rgba(0, 51, 153, 0.2); border: 1px solid #0055ff; color: #88bbff; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-book-section"></i> Base Légifrance (Textes Officiels)</button>
             
             <style>
                 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -15212,11 +15621,11 @@ window.PocketLawyer = {
   },
 
   reportInsurer: function () {
-    const insurerName = prompt("Quel est le nom de l'assureur concernÃ© ?");
+    const insurerName = prompt("Quel est le nom de l'assureur concerné ?");
     if (!insurerName) return;
 
     const problem = prompt(
-      "DÃ©crivez briÃ¨vement le problÃ¨me (ex: refus de prise en charge, rÃ©siliation abusive, etc.) :",
+      "Décrivez brièvement le problème (ex: refus de prise en charge, résiliation abusive, etc.) :",
     );
     if (!problem) return;
 
@@ -15229,7 +15638,7 @@ window.PocketLawyer = {
     const safeInsurerName = sanitize(insurerName);
     const safeProblem = sanitize(problem);
 
-    // Envoi Ã  Firebase
+    // Envoi à Firebase
     try {
       if (typeof firebase !== "undefined") {
         firebase
@@ -15243,10 +15652,10 @@ window.PocketLawyer = {
           });
       }
     } catch (e) {
-      console.warn("Firebase non disponible, signalement simulÃ© en local.");
+      console.warn("Firebase non disponible, signalement simulé en local.");
     }
 
-    // RÃ©compense pour encourager la communautÃ©
+    // Récompense pour encourager la communauté
     let ptsAdded = false;
     if (typeof window.testAddPoints === "function") {
       window.testAddPoints(15);
@@ -15275,7 +15684,7 @@ window.PocketLawyer = {
     }
 
     this.addBotMessage(
-      `<strong>Signalement enregistrÃ© !</strong><br>Merci d'avoir signalÃ© <em>${safeInsurerName}</em>. Votre retour aide toute la communautÃ© Ã  Ã©viter les mauvaises expÃ©riences.<br><span style="color:#00e676;">+15 Pts BVC offerts pour votre contribution citoyenne.</span>`,
+      `<strong>Signalement enregistré !</strong><br>Merci d'avoir signalé <em>${safeInsurerName}</em>. Votre retour aide toute la communauté à éviter les mauvaises expériences.<br><span style="color:#00e676;">+15 Pts BVC offerts pour votre contribution citoyenne.</span>`,
     );
 
     if (
@@ -15285,7 +15694,7 @@ window.PocketLawyer = {
       const self = this;
       setTimeout(function () {
         self.addBotMessage(
-          "âš ï¸ <strong>Note de l'Avocat :</strong> Nous avons reÃ§u de nombreux signalements concernant cet assureur. Sachez qu'il est dÃ©sormais classÃ© \"Partenaire non recommandÃ©\" sur notre plateforme B2B et soumis Ã  des frais de vÃ©rification renforcÃ©e (10 000 â‚¬).",
+          "âš ï¸ <strong>Note de l'Avocat :</strong> Nous avons reçu de nombreux signalements concernant cet assureur. Sachez qu'il est désormais classé \"Partenaire non recommandé\" sur notre plateforme B2B et soumis à des frais de vérification renforcée (10 000 €).",
         );
       }, 3000);
     }
@@ -15294,18 +15703,18 @@ window.PocketLawyer = {
   devClearReports: async function () {
     if (
       confirm(
-        "âš ï¸ DANGER ADMIN : ÃŠtes-vous sÃ»r de vouloir supprimer TOUS les signalements assureurs de la base de donnÃ©es de production ?",
+        "âš ï¸ DANGER ADMIN : Êtes-vous sûr de vouloir supprimer TOUS les signalements assureurs de la base de données de production ?",
       )
     ) {
       try {
         if (typeof firebase === "undefined")
-          return alert("Erreur: Firebase non initialisÃ©");
+          return alert("Erreur: Firebase non initialisé");
         const snapshot = await firebase
           .firestore()
           .collection("insurer_reports")
           .get();
         if (snapshot.empty) {
-          alert("La base de donnÃ©es des signalements est dÃ©jÃ  vide !");
+          alert("La base de données des signalements est déjà vide !");
           return;
         }
         const batch = firebase.firestore().batch();
@@ -15314,11 +15723,11 @@ window.PocketLawyer = {
         });
         await batch.commit();
         alert(
-          `âœ… SuccÃ¨s : ${snapshot.size} signalement(s) effacÃ©(s) de la base de donnÃ©es.`,
+          `✅ Succès : ${snapshot.size} signalement(s) effacé(s) de la base de données.`,
         );
       } catch (e) {
         console.error(e);
-        alert("Erreur lors de la purge de la base de donnÃ©es : " + e.message);
+        alert("Erreur lors de la purge de la base de données : " + e.message);
       }
     }
   },
@@ -15378,24 +15787,24 @@ window.PocketLawyer = {
   processChatQuery: function (text) {
     const t = text.toLowerCase();
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    // ðŸŒ MOTEUR JURIDIQUE MONDIAL (LegalDatabase)
+    // ═══════════════════════════════════════════════════════
+    // 🌍 MOTEUR JURIDIQUE MONDIAL (LegalDatabase)
     // Cherche d'abord dans la base mondiale officielle
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ═══════════════════════════════════════════════════════
     if (
       window.LegalDatabase &&
       typeof window.LegalDatabase.search === "function"
     ) {
       const results = window.LegalDatabase.search(text);
       if (results.length > 0) {
-        // Prendre le rÃ©sultat le plus pertinent
+        // Prendre le résultat le plus pertinent
         const r = results[0];
         let html = `<strong>${r.title}</strong><br>${r.content}`;
         html += `<br><em style="color:#888; font-size:0.8em;">Source : ${r.source}</em>`;
 
-        // Si plusieurs rÃ©sultats, indiquer les autres disponibles
+        // Si plusieurs résultats, indiquer les autres disponibles
         if (results.length > 1) {
-          html += `<br><br><span style="color:#cca300; font-size:0.85em;">ðŸ“š ${results.length - 1} autre(s) rÃ©sultat(s) trouvÃ©(s). PrÃ©cisez votre question pour affiner.</span>`;
+          html += `<br><br><span style="color:#cca300; font-size:0.85em;">ðŸ“š ${results.length - 1} autre(s) résultat(s) trouvé(s). Précisez votre question pour affiner.</span>`;
         }
 
         // Suggestion automatique du Code Litige pour les cas pertinents
@@ -15408,8 +15817,8 @@ window.PocketLawyer = {
           t.includes("sinistre")
         ) {
           html += `<br><br><div style="background:rgba(255, 51, 51, 0.1); border:1px solid #ff3333; border-radius:10px; padding:10px; margin-top:10px;">
-                        <p style="margin:0 0 10px 0; color:#ffcccc; font-size:0.9rem;"><strong>Dossier d'Expertise (BoÃ®te Noire)</strong><br>Avez-vous besoin de gÃ©nÃ©rer un Code Litige pour votre assureur ?</p>
-                        <button onclick="if(window.DisputeAutomation) window.DisputeAutomation.initiateDispute(); else alert('Module introuvable.');" style="background:#ff3333; color:#fff; border:none; border-radius:20px; padding:8px 15px; cursor:pointer; font-weight:bold; width:100%;"><i class="fa-solid fa-gavel"></i> GÃ©nÃ©rer mon Code Litige</button>
+                        <p style="margin:0 0 10px 0; color:#ffcccc; font-size:0.9rem;"><strong>Dossier d'Expertise (Boîte Noire)</strong><br>Avez-vous besoin de générer un Code Litige pour votre assureur ?</p>
+                        <button onclick="if(window.DisputeAutomation) window.DisputeAutomation.initiateDispute(); else alert('Module introuvable.');" style="background:#ff3333; color:#fff; border:none; border-radius:20px; padding:8px 15px; cursor:pointer; font-weight:bold; width:100%;"><i class="fa-solid fa-gavel"></i> Générer mon Code Litige</button>
                     </div>`;
         }
 
@@ -15417,9 +15826,9 @@ window.PocketLawyer = {
       }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    // ðŸŒ LISTE DES PAYS DISPONIBLES (si question gÃ©nÃ©rale)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ═══════════════════════════════════════════════════════
+    // 🌍 LISTE DES PAYS DISPONIBLES (si question générale)
+    // ═══════════════════════════════════════════════════════
     if (
       t.includes("pays") ||
       t.includes("monde") ||
@@ -15435,42 +15844,42 @@ window.PocketLawyer = {
             country._flag &&
             key !== "search"
           ) {
-            countryList += `â€¢ ${country._flag} ${country._name}<br>`;
+            countryList += `• ${country._flag} ${country._name}<br>`;
           }
         }
-        return `<strong>ðŸŒ Base Juridique Mondiale</strong><br>Je couvre actuellement le droit de :<br>${countryList}<br>PrÃ©cisez un <strong>pays</strong> et un <strong>thÃ¨me</strong> (casque, permis, donnÃ©es, assurance...) pour obtenir les textes officiels.`;
+        return `<strong>🌍 Base Juridique Mondiale</strong><br>Je couvre actuellement le droit de :<br>${countryList}<br>Précisez un <strong>pays</strong> et un <strong>thème</strong> (casque, permis, données, assurance...) pour obtenir les textes officiels.`;
       }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    // ðŸ‡«ðŸ‡· FALLBACK : JURISPRUDENCE FRANÃ‡AISE (Code de la route)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    if (t.includes("dÃ©brid") || t.includes("debride")) {
-      return "<strong>DÃ©bridage (Art. L317-5)</strong><br>C'est un dÃ©lit. Vous risquez jusqu'Ã  <strong>135â‚¬ d'amende</strong> pour le propriÃ©taire, mais surtout, <strong>votre assurance s'annule</strong> en cas d'accident corporel. Les assureurs se retournent contre vous pour payer les dommages aux victimes.";
+    // ═══════════════════════════════════════════════════════
+    // ðŸ‡«ðŸ‡· FALLBACK : JURISPRUDENCE FRANÇAISE (Code de la route)
+    // ═══════════════════════════════════════════════════════
+    if (t.includes("débrid") || t.includes("debride")) {
+      return "<strong>Débridage (Art. L317-5)</strong><br>C'est un délit. Vous risquez jusqu'à <strong>135€ d'amende</strong> pour le propriétaire, mais surtout, <strong>votre assurance s'annule</strong> en cas d'accident corporel. Les assureurs se retournent contre vous pour payer les dommages aux victimes.";
     }
     if (
       t.includes("stup") ||
       t.includes("drogue") ||
-      t.includes("fumÃ©") ||
+      t.includes("fumé") ||
       t.includes("positif") ||
       t.includes("cannabis") ||
       t.includes("thc")
     ) {
-      return "<strong>Conduite sous stupÃ©fiants (DÃ©lit)</strong><br>MÃªme avec un BSR, vous risquez jusqu'Ã  <strong>4500â‚¬ d'amende</strong>, 2 ans de prison, et l'immobilisation du scooter. Il n'y a pas de perte de points sur un BSR. S'il s'agit d'une premiÃ¨re infraction, le juge peut faire preuve de clÃ©mence si vous montrez des preuves mÃ©dicales de votre volontÃ© de vous soigner.";
+      return "<strong>Conduite sous stupéfiants (Délit)</strong><br>Même avec un BSR, vous risquez jusqu'à <strong>4500€ d'amende</strong>, 2 ans de prison, et l'immobilisation du scooter. Il n'y a pas de perte de points sur un BSR. S'il s'agit d'une première infraction, le juge peut faire preuve de clémence si vous montrez des preuves médicales de votre volonté de vous soigner.";
     }
     if (t.includes("alcool")) {
-      return "<strong>AlcoolÃ©mie</strong><br>Pour un permis probatoire ou BSR, la limite lÃ©gale est de 0,2 g/L. Vous risquez l'immobilisation immÃ©diate du cyclomoteur et de fortes amendes.";
+      return "<strong>Alcoolémie</strong><br>Pour un permis probatoire ou BSR, la limite légale est de 0,2 g/L. Vous risquez l'immobilisation immédiate du cyclomoteur et de fortes amendes.";
     }
     if (t.includes("assurance")) {
-      return "<strong>DÃ©faut d'assurance (DÃ©lit)</strong><br>Conduire sans assurance coÃ»te jusqu'Ã  <strong>3750â‚¬ d'amende</strong>. En cas d'accident, le Fonds de Garantie indemnise la victime mais vous rÃ©clamera le remboursement, potentiellement toute votre vie.";
+      return "<strong>Défaut d'assurance (Délit)</strong><br>Conduire sans assurance coûte jusqu'à <strong>3750€ d'amende</strong>. En cas d'accident, le Fonds de Garantie indemnise la victime mais vous réclamera le remboursement, potentiellement toute votre vie.";
     }
-    if (t.includes("fuite") || t.includes("obtempÃ©rer")) {
-      return "<strong>Refus d'obtempÃ©rer / DÃ©lit de fuite</strong><br>Cumuler ces dÃ©lits entraÃ®ne des peines de prison fermes, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrÃ´le de police.";
+    if (t.includes("fuite") || t.includes("obtempérer")) {
+      return "<strong>Refus d'obtempérer / Délit de fuite</strong><br>Cumuler ces délits entraîne des peines de prison fermes, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrôle de police.";
     }
 
     const safeText = window.escapeHTML ? window.escapeHTML(text) : text;
-    let baseMsg = `Ma base de jurisprudence couvre <strong>16 pays</strong> avec des sources officielles. Pour la France, les textes de rÃ©fÃ©rence sont sur <strong>LÃ©gifrance</strong>.<br><br>
-        <a href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=${encodeURIComponent(text)}" target="_blank" style="display:inline-block; padding:10px 15px; background:rgba(0, 51, 153, 0.3); border:1px solid #0055ff; color:#88bbff; border-radius:15px; text-decoration:none; margin-top:10px;"><i class="fa-solid fa-magnifying-glass"></i> Chercher "${safeText}" sur LÃ©gifrance</a>`;
+    let baseMsg = `Ma base de jurisprudence couvre <strong>16 pays</strong> avec des sources officielles. Pour la France, les textes de référence sont sur <strong>Légifrance</strong>.<br><br>
+        <a href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=${encodeURIComponent(text)}" target="_blank" style="display:inline-block; padding:10px 15px; background:rgba(0, 51, 153, 0.3); border:1px solid #0055ff; color:#88bbff; border-radius:15px; text-decoration:none; margin-top:10px;"><i class="fa-solid fa-magnifying-glass"></i> Chercher "${safeText}" sur Légifrance</a>`;
 
     if (
       t.includes("accident") ||
@@ -15481,8 +15890,8 @@ window.PocketLawyer = {
       t.includes("sinistre")
     ) {
       baseMsg += `<br><br><div style="background:rgba(255, 51, 51, 0.1); border:1px solid #ff3333; border-radius:10px; padding:10px; margin-top:10px;">
-                <p style="margin:0 0 10px 0; color:#ffcccc; font-size:0.9rem;"><strong>Dossier d'Expertise (BoÃ®te Noire)</strong><br>Avez-vous besoin de gÃ©nÃ©rer un Code Litige pour votre assureur ?</p>
-                <button onclick="if(window.DisputeAutomation) window.DisputeAutomation.initiateDispute(); else alert('Module introuvable.');" style="background:#ff3333; color:#fff; border:none; border-radius:20px; padding:8px 15px; cursor:pointer; font-weight:bold; width:100%;"><i class="fa-solid fa-gavel"></i> GÃ©nÃ©rer mon Code Litige</button>
+                <p style="margin:0 0 10px 0; color:#ffcccc; font-size:0.9rem;"><strong>Dossier d'Expertise (Boîte Noire)</strong><br>Avez-vous besoin de générer un Code Litige pour votre assureur ?</p>
+                <button onclick="if(window.DisputeAutomation) window.DisputeAutomation.initiateDispute(); else alert('Module introuvable.');" style="background:#ff3333; color:#fff; border:none; border-radius:20px; padding:8px 15px; cursor:pointer; font-weight:bold; width:100%;"><i class="fa-solid fa-gavel"></i> Générer mon Code Litige</button>
             </div>`;
     }
 
@@ -15494,7 +15903,7 @@ window.PocketLawyer = {
     if (!chatBox) return;
 
     this.addBotMessage(
-      '<div style="text-align: center;"><div style="width: 30px; height: 30px; border: 3px solid #333; border-top-color: #cca300; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div><p style="margin-top: 10px; font-size: 0.9rem;">VÃ©rification GPS en cours...</p></div>',
+      '<div style="text-align: center;"><div style="width: 30px; height: 30px; border: 3px solid #333; border-top-color: #cca300; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div><p style="margin-top: 10px; font-size: 0.9rem;">Vérification GPS en cours...</p></div>',
     );
 
     setTimeout(() => {
@@ -15538,25 +15947,25 @@ window.PocketLawyer = {
   startAudioDefense: function () {
     if (typeof speak === "function") {
       speak(
-        "Mode DÃ©fense Juridique activÃ©. RÃ¨gle numÃ©ro 1 : Ne reconnaissez aucun tort Ã  l'oral. RÃ¨gle numÃ©ro 2 : Prenez des photos de la situation et de la plaque adverse. RÃ¨gle numÃ©ro 3 : Remplissez le constat factuellement. En cas de dÃ©lit de fuite, relevez la plaque et contactez la police.",
+        "Mode Défense Juridique activé. Règle numéro 1 : Ne reconnaissez aucun tort à l'oral. Règle numéro 2 : Prenez des photos de la situation et de la plaque adverse. Règle numéro 3 : Remplissez le constat factuellement. En cas de délit de fuite, relevez la plaque et contactez la police.",
       );
     } else {
       console.warn(
-        "L'assistant vocal (speak) n'est pas disponible pour dicter la dÃ©fense.",
+        "L'assistant vocal (speak) n'est pas disponible pour dicter la défense.",
       );
     }
   },
 
   generateLetter: function () {
     if (typeof window.braveCoins === "undefined") {
-      alert("Erreur: Module de fidÃ©litÃ© introuvable.");
+      alert("Erreur: Module de fidélité introuvable.");
       return;
     }
 
     const price = 5;
     if (
       confirm(
-        `GÃ©nÃ©rer un recours juridique coÃ»te ${price} Pts BVC.\nVoulez-vous continuer ?`,
+        `Générer un recours juridique coûte ${price} Pts BVC.\nVoulez-vous continuer ?`,
       )
     ) {
       if (window.braveCoins >= price) {
@@ -15569,7 +15978,7 @@ window.PocketLawyer = {
 
         const letter =
           this.currentScenarioTemplate ||
-          "Monsieur l'Officier du MinistÃ¨re Public,\nJe conteste formellement ce PV.";
+          "Monsieur l'Officier du Ministère Public,\nJe conteste formellement ce PV.";
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard
@@ -15578,10 +15987,10 @@ window.PocketLawyer = {
               alert(
                 "Paiement de " +
                   price +
-                  " Pts BVC acceptÃ©.\n\nLa lettre de contestation a Ã©tÃ© copiÃ©e dans votre presse-papiers ! Vous pouvez la coller sur le site de l'ANTAI.",
+                  " Pts BVC accepté.\n\nLa lettre de contestation a été copiée dans votre presse-papiers ! Vous pouvez la coller sur le site de l'ANTAI.",
               );
               if (typeof speak === "function")
-                speak("Plaidoirie copiÃ©e dans le presse-papiers.");
+                speak("Plaidoirie copiée dans le presse-papiers.");
             })
             .catch(function () {
               alert(
@@ -15593,7 +16002,7 @@ window.PocketLawyer = {
           alert(
             "Paiement de " +
               price +
-              " Pts BVC acceptÃ©.\n\nVoici votre lettre :\n\n" +
+              " Pts BVC accepté.\n\nVoici votre lettre :\n\n" +
               letter,
           );
         }

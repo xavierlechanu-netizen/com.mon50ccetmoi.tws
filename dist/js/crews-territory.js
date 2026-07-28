@@ -1,3 +1,13 @@
+
+// Ajout pour la sécurité XSS
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>'"]/g, function(s) {
+    const entityMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+    return entityMap[s];
+  });
+}
+
 ﻿// --- CREWS & TERRITORY WARS (Postal Code Based) ---
 window.CrewSystem = {
   currentCrew: null,
@@ -61,7 +71,7 @@ window.CrewSystem = {
       alert(
         "Crew " +
           name +
-          " fondÃ© avec succÃ¨s ! Vous pouvez maintenant capturer des zones.",
+          " fondé avec succès ! Vous pouvez maintenant capturer des zones.",
       );
 
       // Close modal if open
@@ -84,7 +94,7 @@ window.CrewSystem = {
           const zipCode = change.doc.id;
 
           if (change.type === "added" || change.type === "modified") {
-            // DÃ©tection de la perte d'un territoire
+            // Détection de la perte d'un territoire
             if (change.type === "modified") {
               const oldData = this.territories[zipCode];
               if (
@@ -107,7 +117,7 @@ window.CrewSystem = {
                 const modal = document.createElement("div");
                 modal.style.cssText =
                   "position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(255,0,85,0.95);color:white;padding:15px 25px;border-radius:15px;z-index:99999;border:1px solid #ff0055;box-shadow:0 0 20px rgba(255,0,85,0.6);text-align:center;font-weight:bold;opacity:0;transition:opacity 0.5s;";
-                modal.innerHTML = `<i class="fa-solid fa-skull"></i> ALERTE TERRITOIRE <br><small>Le code postal ${zipCode} est passÃ© aux mains de ${data.dominantCrewName} !</small>`;
+                modal.innerHTML = `<i class="fa-solid fa-skull"></i> ALERTE TERRITOIRE <br><small>Le code postal ${zipCode} est passé aux mains de ${data.dominantCrewName} !</small>`;
                 document.body.appendChild(modal);
 
                 // Fade in
@@ -163,7 +173,7 @@ window.CrewSystem = {
             if (cKm > maxKm) {
               maxKm = cKm;
               dominantId = cId;
-              // Si c'est nous qui reprenons la tÃªte, on met nos infos.
+              // Si c'est nous qui reprenons la tête, on met nos infos.
               if (cId === this.currentCrew.id) {
                 dominantName = this.currentCrew.name;
                 dominantColor = this.currentCrew.color;
@@ -187,7 +197,7 @@ window.CrewSystem = {
   updateUI: function () {
     const btn = document.getElementById("crew-hud-btn");
     if (btn && this.currentCrew) {
-      btn.innerHTML = `<i class="fa-solid fa-users"></i> ${this.currentCrew.name}`;
+      btn.innerHTML = `<i class="fa-solid fa-users"></i> ${escapeHTML(this.currentCrew.name)}`;
       btn.style.color = this.currentCrew.color;
       btn.style.borderColor = this.currentCrew.color;
       btn.style.boxShadow = `0 0 10px ${this.currentCrew.color}66`;
@@ -229,7 +239,7 @@ window.CrewSystem = {
       !this.currentCrew ||
       this.currentCrew.leaderUid !== window.session.uid
     ) {
-      return alert("Seul le leader du Crew peut dÃ©finir le QG !");
+      return alert("Seul le leader du Crew peut définir le QG !");
     }
     if (!window.currentPosition) return alert("Le signal GPS est requis.");
 
@@ -246,7 +256,7 @@ window.CrewSystem = {
       this.currentCrew.qgLng = window.currentPosition.lng;
       this.drawQG(window.currentPosition.lat, window.currentPosition.lng);
       alert(
-        "Le Quartier GÃ©nÃ©ral de votre Crew a Ã©tÃ© Ã©tabli Ã  votre position actuelle ! Il est dÃ©sormais visible par tous vos membres.",
+        "Le Quartier Général de votre Crew a été établi à votre position actuelle ! Il est désormais visible par tous vos membres.",
       );
 
       const modal = document.getElementById("crew-modal");
@@ -263,12 +273,12 @@ window.CrewSystem = {
       const docRef = firebase.firestore().collection("crews").doc(crewId);
       const doc = await docRef.get();
       if (!doc.exists)
-        return alert("Crew introuvable ! VÃ©rifiez le code secret.");
+        return alert("Crew introuvable ! Vérifiez le code secret.");
 
       const crewData = doc.data();
       let members = crewData.members || [];
       if (members.includes(window.session.uid)) {
-        return alert("Vous Ãªtes dÃ©jÃ  membre de ce Crew.");
+        return alert("Vous êtes déjà membre de ce Crew.");
       }
       members.push(window.session.uid);
 
@@ -289,7 +299,7 @@ window.CrewSystem = {
       if (modal) modal.style.display = "none";
     } catch (e) {
       console.error("[CrewSystem] Join Crew error", e);
-      alert("Erreur lors de l'intÃ©gration au Crew.");
+      alert("Erreur lors de l'intégration au Crew.");
     }
   },
 
@@ -297,7 +307,7 @@ window.CrewSystem = {
     if (!this.currentCrew || this.currentCrew.leaderUid !== window.session.uid)
       return;
     if (memberUid === window.session.uid)
-      return alert("Vous ne pouvez pas vous expulser vous-mÃªme.");
+      return alert("Vous ne pouvez pas vous expulser vous-même.");
     if (!confirm("Voulez-vous vraiment expulser ce membre ?")) return;
 
     try {
@@ -323,7 +333,7 @@ window.CrewSystem = {
   showModal: function () {
     let modal = document.getElementById("crew-modal");
     if (!modal) {
-      // CrÃ©ation de la modale si elle n'existe pas
+      // Création de la modale si elle n'existe pas
       modal = document.createElement("div");
       modal.id = "crew-modal";
       modal.style.cssText =
@@ -338,9 +348,9 @@ window.CrewSystem = {
       modal.innerHTML = `
                 <div style="background:rgba(20,20,20,0.9); border:1px solid ${this.currentCrew.color}; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center; max-height:80vh; overflow-y:auto;">
                     <h2 style="color:${this.currentCrew.color}; margin-bottom:10px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-crown"></i> ${this.currentCrew.name}</h2>
-                    <p style="color:#aaa; margin-bottom:20px;">Vous Ãªtes membre de ce Crew. Roulez pour capturer des codes postaux !</p>
+                    <p style="color:#aaa; margin-bottom:20px;">Vous êtes membre de ce Crew. Roulez pour capturer des codes postaux !</p>
                     
-                    <button onclick="if(window.CrewChat) window.CrewChat.open(); document.getElementById('crew-modal').style.display='none'" style="width:100%; background:linear-gradient(135deg, ${this.currentCrew.color}, #111); border:none; color:#fff; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-bottom:15px; font-family:'Outfit', sans-serif; box-shadow: 0 4px 15px ${this.currentCrew.color}66;"><i class="fa-solid fa-comments"></i> Ouvrir le Chat PrivÃ©</button>
+                    <button onclick="if(window.CrewChat) window.CrewChat.open(); document.getElementById('crew-modal').style.display='none'" style="width:100%; background:linear-gradient(135deg, ${this.currentCrew.color}, #111); border:none; color:#fff; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer; margin-bottom:15px; font-family:'Outfit', sans-serif; box-shadow: 0 4px 15px ${this.currentCrew.color}66;"><i class="fa-solid fa-comments"></i> Ouvrir le Chat Privé</button>
                     
                     <div style="background:rgba(0,0,0,0.5); padding:10px; border-radius:10px; margin-bottom:15px; border:1px solid #333;">
                         <h4 style="color:#fff; margin-bottom:10px;"><i class="fa-solid fa-users"></i> Membres (${membersCount})</h4>
@@ -351,7 +361,7 @@ window.CrewSystem = {
                         }
                         
                         <div id="crew-members-list" style="text-align:left; max-height:150px; overflow-y:auto; color:#fff; font-size:0.9rem;">
-                            <!-- Membres chargÃ©s dynamiquement -->
+                            <!-- Membres chargés dynamiquement -->
                         </div>
                     </div>
                     
@@ -365,7 +375,7 @@ window.CrewSystem = {
                 </div>
             `;
 
-      // Charger les noms des membres (optimisation : en prod on pourrait cacher Ã§a)
+      // Charger les noms des membres (optimisation : en prod on pourrait cacher ça)
       const listDiv = document.getElementById("crew-members-list");
       listDiv.innerHTML = "<small>Chargement...</small>";
       if (this.currentCrew.members) {
@@ -395,7 +405,7 @@ window.CrewSystem = {
       modal.innerHTML = `
                 <div style="background:rgba(20,20,20,0.9); border:1px solid #00d2ff; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
                     <h2 style="color:#00d2ff; margin-bottom:10px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-flag"></i> Fonder un Crew</h2>
-                    <p style="color:#aaa; margin-bottom:20px; font-size:0.9rem;">CrÃ©ez votre gang et dominez la ville !</p>
+                    <p style="color:#aaa; margin-bottom:20px; font-size:0.9rem;">Créez votre gang et dominez la ville !</p>
                     <input type="text" id="crew-name-input" placeholder="Nom du Crew" style="width:100%; padding:10px; margin-bottom:10px; background:rgba(0,0,0,0.5); border:1px solid #333; color:#fff; border-radius:8px;">
                     <input type="color" id="crew-color-input" value="#ff0055" style="width:100%; height:40px; margin-bottom:15px; border:none; border-radius:8px; cursor:pointer;">
                     <button onclick="window.CrewSystem.createCrew(document.getElementById('crew-name-input').value, document.getElementById('crew-color-input').value)" style="width:100%; background:linear-gradient(135deg, #00d2ff, #0077ff); border:none; color:#fff; padding:12px; border-radius:20px; font-weight:bold; cursor:pointer; margin-bottom:20px;">Fonder le Crew</button>

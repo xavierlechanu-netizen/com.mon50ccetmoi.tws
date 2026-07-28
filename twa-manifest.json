@@ -20,8 +20,8 @@
     "path": "./new-upload-keystore.jks",
     "alias": "upload"
   },
-  "appVersionName": "100.80.00",
-  "appVersionCode": 1008000,
+  "appVersionName": "100.90.02",
+  "appVersionCode": 1009002,
   "shortcuts": [
     {
       "name": "Navigation GPS",
@@ -58,5 +58,5 @@
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "100.80.00"
+  "appVersion": "100.90.02"
 }

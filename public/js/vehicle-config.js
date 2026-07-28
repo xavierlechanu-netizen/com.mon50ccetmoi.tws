@@ -20,7 +20,7 @@ window.saveVehicleProfile = function () {
   if (screen) screen.classList.add("hidden");
 
   if (typeof speak === "function")
-    speak("Profil vÃ©hicule sauvegardÃ©. PrÃªt pour le dÃ©part.");
+    speak("Profil véhicule sauvegardé. Prêt pour le départ.");
 };
 
 // Override the startPremiumNavigation to include the warning and ETA adjustment
@@ -63,7 +63,7 @@ if (typeof window.startPremiumNavigation === "function") {
               setTimeout(
                 () =>
                   speak(
-                    "Mode Voiturette dÃ©tectÃ©. Temps de trajet ajustÃ© car vous ne pouvez pas remonter les files de trafic.",
+                    "Mode Voiturette détecté. Temps de trajet ajusté car vous ne pouvez pas remonter les files de trafic.",
                   ),
                 4000,
               );
@@ -71,7 +71,7 @@ if (typeof window.startPremiumNavigation === "function") {
               setTimeout(
                 () =>
                   speak(
-                    "Mode Duo dÃ©tectÃ©. Le temps de trajet a Ã©tÃ© augmentÃ© pour anticiper la perte de puissance en montÃ©e.",
+                    "Mode Duo détecté. Le temps de trajet a été augmenté pour anticiper la perte de puissance en montée.",
                   ),
                 4000,
               );

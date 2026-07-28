@@ -1,4 +1,4 @@
-﻿// --- SAFE RIDE (MÃ©tÃ©o PrÃ©dictive) ---
+﻿// --- SAFE RIDE (Météo Prédictive) ---
 window.SafeRide = {
   checkWeatherForRoute: async function (lat, lng) {
     try {
@@ -19,7 +19,7 @@ window.SafeRide = {
           (weathercode >= 51 && weathercode <= 67) ||
           (weathercode >= 80 && weathercode <= 82)
         ) {
-          issues.push("Pluie dÃ©tectÃ©e");
+          issues.push("Pluie détectée");
           isDangerous = true;
         } else if (weathercode >= 71 && weathercode <= 77) {
           issues.push("Risque de Neige ou Verglas");
@@ -30,8 +30,8 @@ window.SafeRide = {
         }
 
         if (windspeed > 40) {
-          // Vent > 40 km/h (dangereux en 50cc lÃ©ger)
-          issues.push("Vents violents dÃ©tectÃ©s");
+          // Vent > 40 km/h (dangereux en 50cc léger)
+          issues.push("Vents violents détectés");
           isDangerous = true;
         }
 

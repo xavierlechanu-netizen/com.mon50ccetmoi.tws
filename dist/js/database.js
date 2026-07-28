@@ -1,14 +1,14 @@
 ﻿/**
  * DATABASE MANAGER - mon50ccetmoi
- * Gestion de la synchronisation en temps rÃ©el via Firebase Firestore.
+ * Gestion de la synchronisation en temps réel via Firebase Firestore.
  */
 
 let db;
 
-// --- FALLBACK SÃ‰CURISÃ‰ ---
-// Si auth.js n'est pas chargÃ© (ex: assureur.html), on fournit un fallback
-// qui utilise localStorage en clair. Quand auth.js est chargÃ©, ses versions
-// chiffrÃ©es (window.secureSetItem/secureGetItem) prennent le dessus.
+// --- FALLBACK SÉCURISÉ ---
+// Si auth.js n'est pas chargé (ex: assureur.html), on fournit un fallback
+// qui utilise localStorage en clair. Quand auth.js est chargé, ses versions
+// chiffrées (window.secureSetItem/secureGetItem) prennent le dessus.
 if (typeof secureSetItem === "undefined" && !window.secureSetItem) {
   window.secureSetItem = function (key, value) {
     try {
@@ -27,21 +27,21 @@ if (typeof secureGetItem === "undefined" && !window.secureGetItem) {
     }
   };
 }
-// Alias global pour les appels sans prÃ©fixe window.
+// Alias global pour les appels sans préfixe window.
 var secureSetItem = window.secureSetItem;
 var secureGetItem = window.secureGetItem;
 
 function initDatabase() {
   try {
-    // Initialisation Firebase (si pas dÃ©jÃ  fait par auth.js)
+    // Initialisation Firebase (si pas déjà fait par auth.js)
     if (!firebase.apps.length) {
       firebase.initializeApp(CONFIG.FIREBASE);
     }
     db = firebase.firestore();
 
-    // DÃ©marrer l'Ã©coute temps rÃ©el des dangers
+    // Démarrer l'écoute temps réel des dangers
     syncHazards();
-    // DÃ©marrer l'Ã©coute des autres pilotes
+    // Démarrer l'écoute des autres pilotes
     syncCommunityPositions();
   } catch (e) {
     console.warn("Database init fail :", e);
@@ -68,7 +68,7 @@ function cloudDecrypt(encryptedData) {
   }
 }
 
-// --- SYNCHRONISATION DES DANGERS (COMMUNAUTÃ‰) ---
+// --- SYNCHRONISATION DES DANGERS (COMMUNAUTÉ) ---
 
 function syncHazards() {
   if (!db) return;
@@ -77,7 +77,7 @@ function syncHazards() {
     let hazards = [];
     snapshot.forEach((doc) => {
       const data = doc.data();
-      // Si la donnÃ©e est chiffrÃ©e (E2EE), on la dÃ©chiffre
+      // Si la donnée est chiffrée (E2EE), on la déchiffre
       if (data.payload) {
         const decrypted = cloudDecrypt(data.payload);
         if (decrypted) hazards.push(decrypted);
@@ -106,7 +106,7 @@ window.publishHazardCloud = async function (hazard) {
     const encryptedPayload = cloudEncrypt(hazard);
     await db.collection("hazards").add({
       payload: encryptedPayload,
-      author: hazard.author, // GardÃ© en clair pour la modÃ©ration par l'Oracle
+      author: hazard.author, // Gardé en clair pour la modération par l'Oracle
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
     return true;
@@ -118,7 +118,7 @@ window.publishHazardCloud = async function (hazard) {
 
 // --- SYNCHRONISATION UTILISATEURS ---
 
-// --- PARTAGE DE POSITION (COMMUNAUTÃ‰ LIVE) ---
+// --- PARTAGE DE POSITION (COMMUNAUTÉ LIVE) ---
 
 window.publishUserLocation = async function (lat, lng, status = "Riding") {
   if (!db || !window.session || window.session.isGuest) return;
@@ -230,7 +230,7 @@ window.reportStationAbuse = async function (
   photoData = null,
 ) {
   if (!db || !window.session || window.session.isGuest) {
-    alert("Vous devez Ãªtre membre certifiÃ© pour signaler un abus.");
+    alert("Vous devez être membre certifié pour signaler un abus.");
     return;
   }
 
@@ -257,7 +257,7 @@ window.reportStationAbuse = async function (
     }
 
     if (reporters.includes(window.session.username)) {
-      alert("Vous avez dÃ©jÃ  signalÃ© cette station aujourd'hui.");
+      alert("Vous avez déjà signalé cette station aujourd'hui.");
       return;
     }
 
@@ -282,7 +282,7 @@ window.reportStationAbuse = async function (
     }
 
     alert(
-      `Signalement avec preuve photo enregistrÃ© (${newCount}/10). Merci de votre vigilance.`,
+      `Signalement avec preuve photo enregistré (${newCount}/10). Merci de votre vigilance.`,
     );
   } catch (e) {
     console.error("Report fail:", e);
@@ -294,12 +294,12 @@ async function triggerDGCCRFReport(id, info, photos) {
   await db.collection("blacklist_stations").doc(id).set({
     id,
     info,
-    reason: "Prix non conformes (10+ preuves photo validÃ©es)",
+    reason: "Prix non conformes (10+ preuves photo validées)",
     photosCount: photos.length,
     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
   });
 
-  // 2. GÃ©nÃ©ration du Dossier Bot Anti-Fraude (Format SignalConso)
+  // 2. Génération du Dossier Bot Anti-Fraude (Format SignalConso)
   const complaintDossier = {
     dossierId: `FRAUD-FR-${id}-${Date.now()}`,
     target: info,
@@ -321,7 +321,7 @@ async function triggerDGCCRFReport(id, info, photos) {
     .doc(complaintDossier.dossierId)
     .set({
       ...complaintDossier,
-      evidence_samples: photos.slice(0, 3), // On garde les 3 premiÃ¨res preuves pour le dossier rÃ©sumÃ©
+      evidence_samples: photos.slice(0, 3), // On garde les 3 premières preuves pour le dossier résumé
     });
 
   // 3. Logique Bot (Simulation Webhook ou Email Administratif)
@@ -332,18 +332,18 @@ async function triggerDGCCRFReport(id, info, photos) {
     station: info,
     dossierLink: complaintDossier.dossierId,
     hasVisualProof: true,
-    message: "Bot : Dossier de plainte (avec photos) transmis Ã  la DGCCRF.",
+    message: "Bot : Dossier de plainte (avec photos) transmis à la DGCCRF.",
     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
   });
 
-  // Optionnel: Si un Webhook Discord est configurÃ©
+  // Optionnel: Si un Webhook Discord est configuré
   if (CONFIG.WEBHOOK_ADMIN) {
     try {
       fetch(CONFIG.WEBHOOK_ADMIN, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: `ðŸš¨ **ALERTE FRAUDE BOT** ðŸš¨\nLa station **${info}** a reÃ§u 10 signalements. Un dossier de plainte automatique a Ã©tÃ© transmis Ã  la DGCCRF.`,
+          content: `🚨 **ALERTE FRAUDE BOT** 🚨\nLa station **${info}** a reçu 10 signalements. Un dossier de plainte automatique a été transmis à la DGCCRF.`,
         }),
       });
     } catch (e) {}
@@ -360,11 +360,11 @@ window.getBlacklist = async function () {
   }
 };
 
-// --- SYSTÃˆME Ã‰VALUATION GARAGES (COMMUNAUTÃ‰) ---
+// --- SYSTÃˆME ÉVALUATION GARAGES (COMMUNAUTÉ) ---
 
 window.evaluateGarage = async function (placeId, name, score) {
   if (!db || !window.session || window.session.isGuest) {
-    alert("Vous devez Ãªtre membre pour Ã©valuer un garage.");
+    alert("Vous devez être membre pour évaluer un garage.");
     return;
   }
 
@@ -383,7 +383,7 @@ window.evaluateGarage = async function (placeId, name, score) {
     }
 
     if (voters.includes(window.session.username)) {
-      alert("Vous avez dÃ©jÃ  notÃ© ce garage.");
+      alert("Vous avez déjà noté ce garage.");
       return;
     }
 
@@ -405,7 +405,7 @@ window.evaluateGarage = async function (placeId, name, score) {
     );
 
     alert(
-      `Merci ! Votre Ã©valuation a Ã©tÃ© prise en compte (${newCount}/1000 pour le Badge Pro).`,
+      `Merci ! Votre évaluation a été prise en compte (${newCount}/1000 pour le Badge Pro).`,
     );
   } catch (e) {
     console.error("Eval fail", e);
@@ -453,7 +453,7 @@ window.publishRoadbookCloud = async function (roadbook) {
   }
 };
 
-// --- SYSTEME DE BAN (SANCTIONS Ã‰CHELONNÃ‰ES) ---
+// --- SYSTEME DE BAN (SANCTIONS ÉCHELONNÉES) ---
 async function applyAbuseSanction(userId) {
   if (!userId || userId === "Anonyme") return;
   // On cherche par UID si possible, sinon par pseudo (legacy)
@@ -479,7 +479,7 @@ async function applyAbuseSanction(userId) {
   let banDurationMs = 0;
   let isDefinitive = false;
 
-  // REGLE SPECIALE : 25 FAUX SIGNALEMENTS CUMULÃ‰S = BAN FINAL DIRECT
+  // REGLE SPECIALE : 25 FAUX SIGNALEMENTS CUMULÉS = BAN FINAL DIRECT
   if (totalFakeReports >= 25 || abuseLevel >= 5) {
     isDefinitive = true;
     banDurationMs = 99 * 365 * 24 * 60 * 60 * 1000;
@@ -495,7 +495,7 @@ async function applyAbuseSanction(userId) {
     isPermanentlyBanned: isDefinitive,
   });
 
-  // BLOCAGE IP GLOBAL (Si ban dÃ©finitif)
+  // BLOCAGE IP GLOBAL (Si ban définitif)
   if (isDefinitive) {
     try {
       const ipRes = await fetch("https://api.ipify.org?format=json");
@@ -503,7 +503,7 @@ async function applyAbuseSanction(userId) {
       const currentIp = ipData.ip;
       await db.collection("banned_ips").doc(currentIp).set({
         userId,
-        reason: "Bannissement dÃ©finitif - Abus cumulÃ©s",
+        reason: "Bannissement définitif - Abus cumulés",
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       });
     } catch (e) {}

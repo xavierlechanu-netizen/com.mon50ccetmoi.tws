@@ -1,5 +1,5 @@
 ﻿/**
- * CREW CHAT (Messagerie PrivÃ©e SÃ©curisÃ©e)
+ * CREW CHAT (Messagerie Privée Sécurisée)
  */
 window.CrewChat = {
   isOpen: false,
@@ -8,7 +8,7 @@ window.CrewChat = {
   open: function () {
     if (!window.session || !window.session.crewId) {
       return alert(
-        "Vous devez Ãªtre dans un Crew pour utiliser le chat privÃ©.",
+        "Vous devez être dans un Crew pour utiliser le chat privé.",
       );
     }
 
@@ -34,7 +34,7 @@ window.CrewChat = {
                 </div>
             `;
 
-      // Envoyer avec la touche EntrÃ©e
+      // Envoyer avec la touche Entrée
       document
         .getElementById("crew-chat-input")
         .addEventListener("keypress", function (e) {
@@ -91,7 +91,7 @@ window.CrewChat = {
 
     const messagesDiv = document.getElementById("crew-chat-messages");
 
-    // Se dÃ©sabonner d'une Ã©ventuelle Ã©coute prÃ©cÃ©dente
+    // Se désabonner d'une éventuelle écoute précédente
     if (this.unsubscribe) this.unsubscribe();
 
     this.unsubscribe = firebase

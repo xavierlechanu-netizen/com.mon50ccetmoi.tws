@@ -4,7 +4,7 @@
  */
 
 window.PredictiveMeca = {
-  // Ã‰tat d'usure de 0 (neuf) Ã  100 (critique/panne)
+  // État d'usure de 0 (neuf) à 100 (critique/panne)
   wearScore: JSON.parse(
     localStorage.getItem("meca_wear") ||
       '{"piston": 0, "belt": 0, "oil": 0, "brakes": 0, "tires": 0, "battery": 0}',
@@ -17,17 +17,17 @@ window.PredictiveMeca = {
     // intensity: vibrations (0-10)
     // speed: km/h
     // braking: force de freinage (0-10)
-    // temp: tempÃ©rature ambiante (Celsius)
+    // temp: température ambiante (Celsius)
 
     const fatigueFactor = intensity * 0.05 + (speed > 45 ? 0.02 : 0.005);
 
-    // Piston: souffre Ã  haute vitesse et fortes vibrations
+    // Piston: souffre à haute vitesse et fortes vibrations
     this.wearScore.piston += fatigueFactor * (speed > 60 ? 1.5 : 1);
 
-    // Courroie: s'use avec l'accÃ©lÃ©ration (simulÃ©e via intensitÃ©)
+    // Courroie: s'use avec l'accélération (simulée via intensité)
     this.wearScore.belt += fatigueFactor * 0.8;
 
-    // Huile: s'use avec la distance et la tempÃ©rature (si moteur trÃ¨s chaud)
+    // Huile: s'use avec la distance et la température (si moteur très chaud)
     this.wearScore.oil += 0.01 + (temp > 30 ? 0.005 : 0);
 
     // Freins: s'use fortement lors des freinages brusques
@@ -36,10 +36,10 @@ window.PredictiveMeca = {
     // Pneus: s'use avec la distance et le freinage
     this.wearScore.tires += 0.005 + braking * 0.02;
 
-    // Batterie: se dÃ©charge lÃ©gÃ¨rement, s'abÃ®me au froid
+    // Batterie: se décharge légèrement, s'abîme au froid
     this.wearScore.battery += 0.002 + (temp < 5 ? 0.01 : 0);
 
-    // Cap usure Ã  100%
+    // Cap usure à 100%
     for (let part in this.wearScore) {
       if (this.wearScore[part] > 100) this.wearScore[part] = 100;
     }
@@ -57,12 +57,12 @@ window.PredictiveMeca = {
     if (this.wearScore.brakes > 90) critical.push("Freins");
 
     if (critical.length > 0 && Math.random() > 0.95) {
-      // Ã‰viter de spammer vocalement
+      // Éviter de spammer vocalement
       if (typeof speak === "function") {
         speak(
-          "Alerte IA PrÃ©dictive : Composants critiques dÃ©tectÃ©s : " +
+          "Alerte IA Prédictive : Composants critiques détectés : " +
             critical.join(", ") +
-            ". Veuillez vÃ©rifier le diagnostic.",
+            ". Veuillez vérifier le diagnostic.",
         );
       }
     }
@@ -79,7 +79,7 @@ window.PredictiveMeca = {
       total += this.wearScore[part];
       count++;
     }
-    return 100 - total / count; // 100 = Parfait, 0 = Ã‰pave
+    return 100 - total / count; // 100 = Parfait, 0 = Épave
   },
 
   resetComponent: function (component) {
@@ -88,12 +88,12 @@ window.PredictiveMeca = {
       localStorage.setItem("meca_wear", JSON.stringify(this.wearScore));
       this.updateDashboardUI();
       if (typeof speak === "function")
-        speak("Maintenance du composant " + component + " enregistrÃ©e.");
+        speak("Maintenance du composant " + component + " enregistrée.");
     }
   },
 
   updateDashboardUI: function () {
-    // Mise Ã  jour de l'interface visuelle si elle est ouverte
+    // Mise à jour de l'interface visuelle si elle est ouverte
     const modal = document.getElementById("ai-diagnostic-modal");
     if (modal && modal.style.display !== "none") {
       document.getElementById("ai-health-score").textContent =
@@ -146,25 +146,25 @@ window.PredictiveMeca = {
 
     if (pilotScore >= 90) {
       feedback =
-        "Pilotage parfait et Ã©co-responsable. Usure minimale des piÃ¨ces.";
+        "Pilotage parfait et éco-responsable. Usure minimale des pièces.";
       color = "#00e676";
       if (typeof speak === "function")
-        speak("Score de pilotage : Excellent. Conduite fluide et Ã©conome.");
+        speak("Score de pilotage : Excellent. Conduite fluide et économe.");
     } else if (pilotScore >= 70) {
       feedback =
-        "Bon pilotage, mais quelques accÃ©lÃ©rations brusques dÃ©tectÃ©es.";
+        "Bon pilotage, mais quelques accélérations brusques détectées.";
       color = "#ffbb33";
       if (typeof speak === "function")
         speak(
-          "Score de pilotage : Bon. Attention aux accÃ©lÃ©rations brusques.",
+          "Score de pilotage : Bon. Attention aux accélérations brusques.",
         );
     } else {
       feedback =
-        "Conduite trÃ¨s agressive ! Usure critique des freins et de la courroie.";
+        "Conduite très agressive ! Usure critique des freins et de la courroie.";
       color = "#ff4444";
       if (typeof speak === "function")
         speak(
-          "Score de pilotage : MÃ©diocre. Conduite trop agressive pour la mÃ©canique.",
+          "Score de pilotage : Médiocre. Conduite trop agressive pour la mécanique.",
         );
     }
 

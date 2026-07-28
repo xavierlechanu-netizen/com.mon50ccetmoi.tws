@@ -1,5 +1,5 @@
 ﻿/**
- * ðŸŒŒ SENTINEL SECBOT v1.0
+ * 🌍Œ SENTINEL SECBOT v1.0
  * CyberSecurity AI & Intrusion Prevention Agent.
  * Developed by Netizen-OS Security.
  */
@@ -57,14 +57,14 @@ window.SecBot = {
                 </div>
 
                 <p style="font-size:0.75rem; color:#a2fcca; text-align:center; margin-bottom:20px; line-height:1.4;">
-                    <em>"Je suis l'IA Sentinel SecBot. Posez-moi une question sur votre sÃ©curitÃ© ou lancez un diagnostic rÃ©seau ci-dessous."</em>
+                    <em>"Je suis l'IA Sentinel SecBot. Posez-moi une question sur votre sécurité ou lancez un diagnostic réseau ci-dessous."</em>
                 </p>
 
                 <!-- Core interactive terminal -->
                 <div id="secbot-terminal" style="background:rgba(5, 10, 15, 0.9); border:1px solid rgba(46,204,113,0.4); border-radius:10px; height:180px; overflow-y:auto; padding:12px; font-size:0.7rem; color:#2ecc71; margin-bottom:15px; box-shadow:inset 0 0 15px rgba(0,0,0,0.8); line-height:1.5;">
-                    <div style="color:#7bf5a8;">[SYSTEM BOOT] Sentinel SecBot v1.0 initialisÃ©.</div>
-                    <div style="color:#7bf5a8;">[SECURE LINK] Connexion chiffrÃ©e SSL Ã©tablie.</div>
-                    <div style="color:#7bf5a8;">> PrÃªt pour les instructions.</div>
+                    <div style="color:#7bf5a8;">[SYSTEM BOOT] Sentinel SecBot v1.0 initialisé.</div>
+                    <div style="color:#7bf5a8;">[SECURE LINK] Connexion chiffrée SSL établie.</div>
+                    <div style="color:#7bf5a8;">> Prêt pour les instructions.</div>
                 </div>
 
                 <!-- Quick actions grid -->
@@ -77,18 +77,18 @@ window.SecBot = {
                     </button>
                 </div>
                 <button onclick="window.SecBot.testShield()" class="secbot-action-btn" style="width:100%; margin-bottom:20px; background:rgba(46,204,113,0.1); border:1px solid #2ecc71; color:#2ecc71;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> VÃ‰RIFIER BOUCLIER ANTI-INTRUSION
+                    <i class="fa-solid fa-triangle-exclamation"></i> VÉRIFIER BOUCLIER ANTI-INTRUSION
                 </button>
 
                 <!-- Conversational Input -->
                 <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <input type="text" id="secbot-input" placeholder="Demander conseil en CyberSÃ©curitÃ©..." style="flex:1; background:rgba(0,0,0,0.6); border:1px solid rgba(46,204,113,0.4); border-radius:8px; color:white; padding:10px; font-size:0.8rem; font-family:'JetBrains Mono'; outline:none; font-weight:bold;">
+                    <input type="text" id="secbot-input" placeholder="Demander conseil en CyberSécurité..." style="flex:1; background:rgba(0,0,0,0.6); border:1px solid rgba(46,204,113,0.4); border-radius:8px; color:white; padding:10px; font-size:0.8rem; font-family:'JetBrains Mono'; outline:none; font-weight:bold;">
                     <button onclick="window.SecBot.sendMessage()" style="background:#2ecc71; color:black; border:none; border-radius:8px; padding:0 15px; cursor:pointer; font-weight:bold; transition:transform 0.2s;"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
 
                 <!-- Footer with RGPD info -->
                 <div style="border-top:1px solid rgba(46,204,113,0.1); padding-top:15px; font-size:0.55rem; color:#558f69; text-align:center; line-height:1.4;">
-                    <i class="fa-solid fa-shield-halved"></i> Analyse cryptographique active. Aucune donnÃ©e personnelle n'est transmise hors de votre terminal. Protection certifiÃ©e RGPD.
+                    <i class="fa-solid fa-shield-halved"></i> Analyse cryptographique active. Aucune donnée personnelle n'est transmise hors de votre terminal. Protection certifiée RGPD.
                 </div>
             </div>
 
@@ -137,7 +137,7 @@ window.SecBot = {
     // Voice announcement
     if (window.speak) {
       window.speak(
-        "SecBot activÃ©. PÃ©rimÃ¨tre de sÃ©curitÃ© sous surveillance.",
+        "SecBot activé. Périmètre de sécurité sous surveillance.",
       );
     }
 
@@ -187,37 +187,37 @@ window.SecBot = {
     if (this.isScanning) return;
     this.isScanning = true;
 
-    if (window.speak) window.speak("Lancement de l'audit de sÃ©curitÃ©.");
+    if (window.speak) window.speak("Lancement de l'audit de sécurité.");
 
-    this.addTerminalLine("Lancement de l'audit systÃ¨me complet...");
+    this.addTerminalLine("Lancement de l'audit système complet...");
 
     let steps = [
       {
         msg: "Analyse du protocole de transport (SSL/TLS)...",
         run: () =>
           window.location.protocol === "https:"
-            ? "HTTPS validÃ© (Chiffrement 256-bit AES)"
-            : "Attention : Connexion non chiffrÃ©e !",
+            ? "HTTPS validé (Chiffrement 256-bit AES)"
+            : "Attention : Connexion non chiffrée !",
         ok: window.location.protocol === "https:",
       },
       {
-        msg: "Analyse du bac Ã  sable (Sandbox Sandbox)...",
-        run: () => "Environnement navigateur hermÃ©tique.",
+        msg: "Analyse du bac à sable (Sandbox Sandbox)...",
+        run: () => "Environnement navigateur hermétique.",
         ok: true,
       },
       {
-        msg: "VÃ©rification de la conformitÃ© CSP (Content Security Policy)...",
+        msg: "Vérification de la conformité CSP (Content Security Policy)...",
         run: () => "Filtres CSP actifs et stricts.",
         ok: true,
       },
       {
-        msg: "Scan de l'intÃ©gritÃ© du code global (Sentinel Shield)...",
-        run: () => "Fichiers source d'origine certifiÃ©s intacts.",
+        msg: "Scan de l'intégrité du code global (Sentinel Shield)...",
+        run: () => "Fichiers source d'origine certifiés intacts.",
         ok: true,
       },
       {
-        msg: "Isolation de la base de donnÃ©es locale...",
-        run: () => "IndexedDB & LocalStorage sÃ©curisÃ©s.",
+        msg: "Isolation de la base de données locale...",
+        run: () => "IndexedDB & LocalStorage sécurisés.",
         ok: true,
       },
     ];
@@ -226,12 +226,12 @@ window.SecBot = {
     const executeNext = () => {
       if (index >= steps.length) {
         this.addTerminalLine(
-          "AUDIT SYSTÃˆME TERMINÃ‰. ZÃ‰RO INTRA-MENACES DÃ‰TECTÃ‰ES.",
+          "AUDIT SYSTÃˆME TERMINÉ. ZÉRO INTRA-MENACES DÉTECTÉES.",
           "success",
         );
         this.isScanning = false;
         if (window.speak)
-          window.speak("Audit terminÃ©. Tous les systÃ¨mes sont Ã©tanches.");
+          window.speak("Audit terminé. Tous les systèmes sont étanches.");
         return;
       }
 
@@ -253,31 +253,31 @@ window.SecBot = {
     if (this.isScanning) return;
     this.isScanning = true;
 
-    if (window.speak) window.speak("Analyse rÃ©seau en cours.");
-    this.addTerminalLine("Connexion au serveur DNS sÃ©curisÃ©...");
+    if (window.speak) window.speak("Analyse réseau en cours.");
+    this.addTerminalLine("Connexion au serveur DNS sécurisé...");
 
     fetch("https://api.ipify.org?format=json")
       .then((res) => res.json())
       .then((data) => {
         const ip = data.ip;
-        this.addTerminalLine(`IP Publique dÃ©tectÃ©e : ${ip}`, "success");
-        this.addTerminalLine("Analyse du routage et dÃ©tection de proxy...");
+        this.addTerminalLine(`IP Publique détectée : ${ip}`, "success");
+        this.addTerminalLine("Analyse du routage et détection de proxy...");
 
         setTimeout(() => {
           this.addTerminalLine(
-            "Routage direct. Pas de proxy d'interception dÃ©tectÃ©.",
+            "Routage direct. Pas de proxy d'interception détecté.",
             "success",
           );
           this.addTerminalLine("Cryptage de votre connexion actif.", "success");
           this.isScanning = false;
           if (window.speak)
-            window.speak("Analyse rÃ©seau rÃ©ussie. Connexion sÃ©curisÃ©e.");
+            window.speak("Analyse réseau réussie. Connexion sécurisée.");
         }, 1200);
       })
       .catch((err) => {
         console.error("SecBot IP Scan Fail", err);
         this.addTerminalLine(
-          "Ã‰chec de la rÃ©cupÃ©ration d'IP (Blocage AdBlock ou hors ligne).",
+          "Échec de la récupération d'IP (Blocage AdBlock ou hors ligne).",
           "warn",
         );
         this.isScanning = false;
@@ -288,8 +288,8 @@ window.SecBot = {
     if (this.isScanning) return;
     this.isScanning = true;
 
-    if (window.speak) window.speak("VÃ©rification du bouclier anti-intrusion.");
-    this.addTerminalLine("Analyse des processus d'arriÃ¨re-plan...");
+    if (window.speak) window.speak("Vérification du bouclier anti-intrusion.");
+    this.addTerminalLine("Analyse des processus d'arrière-plan...");
 
     setTimeout(() => {
       // Check self-healing
@@ -303,17 +303,17 @@ window.SecBot = {
         "success",
       );
       this.addTerminalLine(
-        "VÃ©rification des protections contre le dÃ©bogage sauvage...",
+        "Vérification des protections contre le débogage sauvage...",
         "success",
       );
 
       setTimeout(() => {
         this.addTerminalLine(
-          "BOUCLIER TOTALEMENT ACTIF. Protection renforcÃ©e par Netizen-OS.",
+          "BOUCLIER TOTALEMENT ACTIF. Protection renforcée par Netizen-OS.",
           "success",
         );
         this.isScanning = false;
-        if (window.speak) window.speak("Bouclier opÃ©rationnel.");
+        if (window.speak) window.speak("Bouclier opérationnel.");
       }, 1000);
     }, 1200);
   },
@@ -329,8 +329,8 @@ window.SecBot = {
 
     // Predefined security responses
     let response =
-      "Je n'ai pas compris votre requÃªte. Essayez : 'vols', 'sentinel', ou 'gps'.";
-    let voiceResponse = "RequÃªte reÃ§ue.";
+      "Je n'ai pas compris votre requête. Essayez : 'vols', 'sentinel', ou 'gps'.";
+    let voiceResponse = "Requête reçue.";
 
     const query = text.toLowerCase();
     if (
@@ -339,26 +339,26 @@ window.SecBot = {
       query.includes("voler")
     ) {
       response =
-        "ðŸ›¡ï¸ CONSEIL VOLS : Activez le [Mode Parking] dans le menu. Si Sentinel dÃ©tecte un mouvement brutal du scooter, il dÃ©clenchera l'alarme et la Blackbox enregistrera l'incident.";
+        "🛡ï¸ CONSEIL VOLS : Activez le [Mode Parking] dans le menu. Si Sentinel détecte un mouvement brutal du scooter, il déclenchera l'alarme et la Blackbox enregistrera l'incident.";
       voiceResponse = "Activez le mode parking pour surveiller votre scooter.";
     } else if (
       query.includes("sentinel") ||
       query.includes("pirate") ||
-      query.includes("sÃ©curitÃ©")
+      query.includes("sécurité")
     ) {
       response =
-        "ðŸŒŒ SENTINEL : Sentinel OS crypte le cache SQLite et surveille le code. Si un intrus tente d'injecter des scripts, le systÃ¨me passe automatiquement en mode verrouillage.";
+        "🌍Œ SENTINEL : Sentinel OS crypte le cache SQLite et surveille le code. Si un intrus tente d'injecter des scripts, le système passe automatiquement en mode verrouillage.";
       voiceResponse =
-        "Sentinel OS surveille et protÃ¨ge le noyau de l'application.";
+        "Sentinel OS surveille et protège le noyau de l'application.";
     } else if (
       query.includes("gps") ||
       query.includes("localisation") ||
       query.includes("position")
     ) {
       response =
-        "ðŸ“ LOCALISATION : Le GPS sert uniquement Ã  la navigation et Ã  l'ange gardien. Aucune donnÃ©e n'est envoyÃ©e sans consentement. Les permissions sont gÃ©rÃ©es localement.";
+        "ðŸ“ LOCALISATION : Le GPS sert uniquement à la navigation et à l'ange gardien. Aucune donnée n'est envoyée sans consentement. Les permissions sont gérées localement.";
       voiceResponse =
-        "La gÃ©olocalisation sert Ã  votre sÃ©curitÃ© et Ã  la navigation.";
+        "La géolocalisation sert à votre sécurité et à la navigation.";
     } else if (query.includes("bonjour") || query.includes("salut")) {
       response =
         "ðŸ¤– Bonjour pilote ! Que puis-je scanner pour vous aujourd'hui ?";

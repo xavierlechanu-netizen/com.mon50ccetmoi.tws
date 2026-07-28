@@ -1,6 +1,16 @@
+
+// Ajout pour la sécurité XSS
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>'"]/g, function(s) {
+    const entityMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+    return entityMap[s];
+  });
+}
+
 ﻿/**
  * ðŸ† SAFE RIDER CHALLENGES
- * Gamification et rÃ©compenses BVC basÃ©es sur le kilomÃ©trage
+ * Gamification et récompenses BVC basées sur le kilométrage
  */
 
 window.SafeRider = {
@@ -8,8 +18,8 @@ window.SafeRider = {
   milestones: [
     { km: 50, reward: 10, name: "Pilote Prudent - 50 km" },
     { km: 100, reward: 25, name: "Endurance - 100 km" },
-    { km: 500, reward: 100, name: "VÃ©tÃ©ran - 500 km" },
-    { km: 1000, reward: 500, name: "MaÃ®tre de la Route - 1000 km" },
+    { km: 500, reward: 100, name: "Vétéran - 500 km" },
+    { km: 1000, reward: 500, name: "Maître de la Route - 1000 km" },
   ],
 
   init: function () {
@@ -54,7 +64,7 @@ window.SafeRider = {
       balanceEl.innerText = Math.floor(window.braveCoins) + " Pts BVC";
 
     // Notification UI
-    const msg = `ðŸ† Challenge RÃ©ussi : ${milestone.name} ! Vous avez gagnÃ© ${milestone.reward} Pts BVC !`;
+    const msg = `ðŸ† Challenge Réussi : ${milestone.name} ! Vous avez gagné ${milestone.reward} Pts BVC !`;
     if (typeof speak === "function") speak(msg);
 
     // Afficher popup
@@ -71,7 +81,7 @@ window.SafeRider = {
             animation: slideDown 0.5s ease-out, fadeOut 0.5s ease-in 4s forwards;
             display: flex; align-items: center; gap: 15px;
         `;
-    popup.innerHTML = `<i class="fa-solid fa-trophy" style="font-size: 1.5rem;"></i> <span>${message}</span>`;
+    popup.innerHTML = `<i class="fa-solid fa-trophy" style="font-size: 1.5rem;"></i> <span>${escapeHTML(message)}</span>`;
 
     const style = document.createElement("style");
     style.innerHTML = `

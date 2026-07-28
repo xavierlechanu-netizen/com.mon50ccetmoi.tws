@@ -5,11 +5,11 @@
   toggleSentryMode: function () {
     if (this.isSentryActive) {
       this.stopSentry();
-      speak("Mode Sentinelle dÃ©sactivÃ©.");
+      speak("Mode Sentinelle désactivé.");
     } else {
       this.startSentry();
       speak(
-        "Mode Sentinelle activÃ©. PÃ©rimÃ¨tre sÃ©curisÃ©. Je surveille l'accÃ©lÃ©romÃ¨tre.",
+        "Mode Sentinelle activé. Périmètre sécurisé. Je surveille l'accéléromètre.",
       );
     }
 
@@ -18,7 +18,7 @@
       if (this.isSentryActive) {
         btn.style.color = "#ff0000";
         btn.style.animation = "pulse-halo 1.5s infinite";
-        btn.title = "Mode Sentinelle ACTIF (Appuyer pour dÃ©sactiver)";
+        btn.title = "Mode Sentinelle ACTIF (Appuyer pour désactiver)";
       } else {
         btn.style.color = "#ff3333";
         btn.style.animation = "none";
@@ -101,7 +101,7 @@
 
   triggerSentryAlert: function (force) {
     speak(
-      "ALERTE : Mouvement suspect dÃ©tectÃ©. Enregistrement Sentinel activÃ©.",
+      "ALERTE : Mouvement suspect détecté. Enregistrement Sentinel activé.",
     );
     vibrate([500, 200, 500]);
     if (!this.oscillator) this.playSiren();

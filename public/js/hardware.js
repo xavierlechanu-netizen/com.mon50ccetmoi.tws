@@ -106,12 +106,12 @@ window.Hardware = {
     if (active) {
       document.body.classList.add("ultra-battery-saver");
       speak(
-        "Mode Ã©conomie d'Ã©nergie Ultra Max activÃ©. Passage en navigation hors ligne.",
+        "Mode économie d'énergie Ultra Max activé. Passage en navigation hors ligne.",
       );
       this.vibratePattern("warning");
-      // RÃ©duire la frÃ©quence des logs Blackbox
+      // Réduire la fréquence des logs Blackbox
       if (window.Blackbox) window.Blackbox.maxEntries = 10;
-      // Forcer la carte hors-ligne (Leaflet) pour Ã©conomiser la batterie
+      // Forcer la carte hors-ligne (Leaflet) pour économiser la batterie
       if (window.OfflineMapManager) window.OfflineMapManager.switchToLeaflet();
     } else {
       document.body.classList.remove("ultra-battery-saver");
@@ -121,9 +121,9 @@ window.Hardware = {
     }
   },
 
-  // DÃ©terminer la frÃ©quence GPS optimale
+  // Déterminer la fréquence GPS optimale
   getOptimalGPSFrequency: function () {
-    if (!window.isRiding) return 30000; // 30s si arrÃªtÃ©
+    if (!window.isRiding) return 30000; // 30s si arrêté
     if (this.isUltraMode) return 10000; // 10s si batterie faible
     return 2000; // 2s en mode normal
   },

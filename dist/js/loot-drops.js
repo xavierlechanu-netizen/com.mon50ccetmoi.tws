@@ -1,14 +1,14 @@
-﻿// --- LOOT DROPS (Chasse au TrÃ©sor) ---
+﻿// --- LOOT DROPS (Chasse au Trésor) ---
 window.LootSystem = {
   lootMarkers: {}, // id -> google.maps.Marker
-  claimDistance: 50, // mÃ¨tres
+  claimDistance: 50, // mètres
 
   init: function () {
     if (!window.session || !window.session.uid) return;
 
     this.listenToLootDrops();
 
-    // Timer de vÃ©rification de distance si on a le GPS
+    // Timer de vérification de distance si on a le GPS
     setInterval(() => this.checkDistance(), 10000); // toutes les 10s
   },
 
@@ -16,7 +16,7 @@ window.LootSystem = {
     if (typeof firebase === "undefined") return;
 
     const now = Date.now();
-    // N'Ã©coute que les loots actifs et non expirÃ©s
+    // N'écoute que les loots actifs et non expirés
     firebase
       .firestore()
       .collection("loot_drops")
@@ -59,7 +59,7 @@ window.LootSystem = {
     const info = new google.maps.InfoWindow({
       content: `<div style="color:black; font-family:'Outfit', sans-serif;">
                         <h3 style="margin:0; color:#b700ff;"><i class="fa-solid fa-gift"></i> Butin Secret</h3>
-                        <p style="margin:5px 0; font-size:0.9rem;">Approchez-vous Ã  moins de 50m pour le rÃ©clamer !</p>
+                        <p style="margin:5px 0; font-size:0.9rem;">Approchez-vous à moins de 50m pour le réclamer !</p>
                       </div>`,
     });
 
@@ -100,14 +100,14 @@ window.LootSystem = {
     if (!window.session) return;
 
     try {
-      // Transaction pour Ã©viter double claim
+      // Transaction pour éviter double claim
       const docRef = firebase.firestore().collection("loot_drops").doc(lootId);
       await firebase.firestore().runTransaction(async (t) => {
         const doc = await t.get(docRef);
         if (!doc.exists) throw "Loot n'existe plus.";
         const data = doc.data();
-        if (data.isClaimed) throw "DÃ©jÃ  rÃ©clamÃ©.";
-        if (data.expiresAt < Date.now()) throw "Loot expirÃ©.";
+        if (data.isClaimed) throw "Déjà réclamé.";
+        if (data.expiresAt < Date.now()) throw "Loot expiré.";
 
         t.update(docRef, {
           isClaimed: true,
@@ -116,10 +116,10 @@ window.LootSystem = {
         });
       });
 
-      // SuccÃ¨s
+      // Succès
       this.removeLoot(lootId);
       if (typeof speak === "function") {
-        speak("FÃ©licitations, vous avez sÃ©curisÃ© un butin secret !");
+        speak("Félicitations, vous avez sécurisé un butin secret !");
       }
 
       // Gamification
@@ -141,16 +141,16 @@ window.LootSystem = {
       }
 
       alert(
-        "ðŸŽ BUTIN RÃ‰CUPÃ‰RÃ‰ !\n\nVous avez trouvÃ© la caisse. +10 Points de Bonne Conduite BVC ajoutÃ©s !",
+        "ðŸŽ BUTIN RÉCUPÉRÉ !\n\nVous avez trouvé la caisse. +10 Points de Bonne Conduite BVC ajoutés !",
       );
     } catch (e) {}
   },
 
-  // DEV ONLY: Fonction pour crÃ©er un faux drop autour de soi pour tester
+  // DEV ONLY: Fonction pour créer un faux drop autour de soi pour tester
   devSpawnLoot: function () {
     if (!window.currentPosition) return alert("Pas de GPS");
 
-    // Spawn Ã  100-200m
+    // Spawn à 100-200m
     const offsetLat = (Math.random() - 0.5) * 0.005;
     const offsetLng = (Math.random() - 0.5) * 0.005;
 

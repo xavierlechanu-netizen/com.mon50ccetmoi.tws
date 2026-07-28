@@ -1,4 +1,4 @@
-﻿// --- ROADBOOKS & TRACÃ‰S ---
+﻿// --- ROADBOOKS & TRACÉS ---
 window.RoadbookSystem = {
   isRecording: false,
   currentPath: [],
@@ -24,7 +24,7 @@ window.RoadbookSystem = {
 
       if (this.currentPath.length > 5) {
         const title = prompt(
-          "Enregistrement terminÃ©. Entrez un nom pour votre Roadbook (ex: Balade en VallÃ©e de Chevreuse) :",
+          "Enregistrement terminé. Entrez un nom pour votre Roadbook (ex: Balade en Vallée de Chevreuse) :",
         );
         if (title) {
           this.saveRoadbook(title);
@@ -32,7 +32,7 @@ window.RoadbookSystem = {
           this.currentPath = [];
         }
       } else {
-        alert("TracÃ© trop court (moins de 5 points GPS), non sauvegardÃ©.");
+        alert("Tracé trop court (moins de 5 points GPS), non sauvegardé.");
         this.currentPath = [];
       }
     } else {
@@ -45,7 +45,7 @@ window.RoadbookSystem = {
       if (btn) btn.style.background = "#ff0055";
 
       if (typeof speak === "function")
-        speak("Enregistrement du tracÃ© activÃ©.");
+        speak("Enregistrement du tracé activé.");
 
       this.recordInterval = setInterval(() => {
         if (window.currentPosition) {
@@ -69,7 +69,7 @@ window.RoadbookSystem = {
         rating: 0,
         votes: 0,
       });
-      alert("Roadbook public sauvegardÃ© avec succÃ¨s sur la carte !");
+      alert("Roadbook public sauvegardé avec succès sur la carte !");
       this.currentPath = [];
     } catch (e) {
       console.error(e);

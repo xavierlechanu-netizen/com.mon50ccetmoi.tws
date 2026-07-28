@@ -8,14 +8,14 @@ window.promptLiteMode = function () {
     "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(10,10,10,0.95); backdrop-filter:blur(5px); z-index:20000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; padding:30px; text-align:center;";
   modal.innerHTML = `
         <i class="fa-solid fa-gauge-high" style="font-size:3rem; color:#00d2ff; margin-bottom:20px;"></i>
-        <h2 style="margin-bottom:15px; color:#00d2ff;">Optimisation SuggÃ©rÃ©e</h2>
+        <h2 style="margin-bottom:15px; color:#00d2ff;">Optimisation Suggérée</h2>
         <p style="font-size:0.9rem; line-height:1.4; margin-bottom:25px; color:#ccc;">
-            Nous avons dÃ©tectÃ© que votre appareil pourrait Ãªtre ralenti par certaines animations 3D et effets visuels de la carte.
+            Nous avons détecté que votre appareil pourrait être ralenti par certaines animations 3D et effets visuels de la carte.
             <br><br>
-            Voulez-vous activer le <strong>Mode Ã‰co / Performances</strong> pour une meilleure fluiditÃ© et prÃ©server votre batterie ?
+            Voulez-vous activer le <strong>Mode Éco / Performances</strong> pour une meilleure fluidité et préserver votre batterie ?
         </p>
-        <button id="btn-accept-lite" style="width:100%; padding:15px; background:linear-gradient(135deg, #00d2ff, #0077b6); color:white; border:none; border-radius:30px; font-weight:bold; font-size:1rem; margin-bottom:15px;">ACTIVER LE MODE Ã‰CO (RecommandÃ©)</button>
-        <button id="btn-refuse-lite" style="background:transparent; border:1px solid #444; width:100%; padding:15px; border-radius:30px; color:#aaa; font-weight:bold; font-size:0.9rem;">NON, GARDER LA HAUTE QUALITÃ‰</button>
+        <button id="btn-accept-lite" style="width:100%; padding:15px; background:linear-gradient(135deg, #00d2ff, #0077b6); color:white; border:none; border-radius:30px; font-weight:bold; font-size:1rem; margin-bottom:15px;">ACTIVER LE MODE ÉCO (Recommandé)</button>
+        <button id="btn-refuse-lite" style="background:transparent; border:1px solid #444; width:100%; padding:15px; border-radius:30px; color:#aaa; font-weight:bold; font-size:0.9rem;">NON, GARDER LA HAUTE QUALITÉ</button>
     `;
   document.body.appendChild(modal);
 
@@ -25,7 +25,7 @@ window.promptLiteMode = function () {
     document.body.classList.add("lite-mode");
     modal.remove();
     if (typeof speak === "function")
-      speak("Mode Ã‰co activÃ© pour des performances optimales.");
+      speak("Mode Éco activé pour des performances optimales.");
     setTimeout(() => location.reload(), 500);
   };
 
@@ -73,11 +73,11 @@ window.toggleLiteMode = function () {
   localStorage.setItem("liteMode", window.isLiteMode ? "true" : "false");
   if (window.isLiteMode) {
     document.body.classList.add("lite-mode");
-    if (typeof speak === "function") speak("Mode Ã‰co Performances activÃ©.");
+    if (typeof speak === "function") speak("Mode Éco Performances activé.");
   } else {
     document.body.classList.remove("lite-mode");
     if (typeof speak === "function")
-      speak("Mode Performances Maximales activÃ©.");
+      speak("Mode Performances Maximales activé.");
   }
   setTimeout(() => location.reload(), 1500);
 };
@@ -108,7 +108,7 @@ window.closeMenu = function () {
 };
 
 // --- I18N SYSTEM ---
-// window.currentLang est maintenant gÃ©rÃ© par i18n.js pour un chargement prioritaire
+// window.currentLang est maintenant géré par i18n.js pour un chargement prioritaire
 
 function updateUILabels() {
   window.updateI18N();
@@ -160,7 +160,7 @@ window.updateI18N = function () {
   if (bankLabel)
     bankLabel.innerHTML = `<i class="fa-solid fa-money-bill-1"></i> ${t("bank")}`;
 };
-// window.updateI18N(); // DÃ©calÃ© aprÃ¨s DOMContentLoaded pour Ã©viter les crashs
+// window.updateI18N(); // Décalé après DOMContentLoaded pour éviter les crashs
 
 // PWA Installation Logic
 let deferredPrompt;
@@ -197,7 +197,7 @@ window.addEventListener("popstate", (e) => {
 });
 history.pushState(null, null, window.location.pathname);
 
-// escapeHTML est maintenant dÃ©fini dans auth.js (global)
+// escapeHTML est maintenant défini dans auth.js (global)
 
 // --- BOOT ---
 
@@ -228,7 +228,7 @@ window.getVehicleIcon = function (brand, model) {
   const b = (brand || "").toLowerCase();
   const m = (model || "").toLowerCase();
   const vspBrands = [
-    "citroÃ«n",
+    "citroën",
     "citroen",
     "ligier",
     "microcar",
@@ -262,12 +262,12 @@ let isTelemetryActive = false;
 function checkTrialExpiration() {
   if (!window.session || window.session.isGuest) return;
 
-  // On rÃ©cupÃ¨re les infos calculÃ©es par auth.js
+  // On récupère les infos calculées par auth.js
   if (window.session && window.session.isTrialExpired) {
     const overlay = document.getElementById("sub-overlay");
     if (overlay) overlay.classList.remove("hidden");
     if (navigator.vibrate) navigator.vibrate(50);
-    speak("Alerte abonnement : Votre pÃ©riode d'essai gratuite est terminÃ©e.");
+    speak("Alerte abonnement : Votre période d'essai gratuite est terminée.");
   }
 }
 
@@ -345,7 +345,7 @@ window.initMapController = async function () {
   const mapElement = document.getElementById("map");
   const statusEl = document.getElementById("loader-status");
   if (!mapElement) {
-    console.error("mon50cc Maps : Ã‰lÃ©ment #map introuvable !");
+    console.error("mon50cc Maps : Élément #map introuvable !");
     return;
   }
 
@@ -358,7 +358,7 @@ window.initMapController = async function () {
     const { Map } = await google.maps.importLibrary("maps");
     const { AdvancedMarkerElement, PinElement } =
       await google.maps.importLibrary("marker");
-    // Suppression de l'import "routes" qui bloque le chargement de la carte (API non activÃ©e)
+    // Suppression de l'import "routes" qui bloque le chargement de la carte (API non activée)
 
     // PlaceAutocompleteElement (New API)
     let PlaceAutocompleteElement = null;
@@ -415,7 +415,7 @@ window.initMapController = async function () {
       console.warn("mon50cc Maps : Erreur initialisation DirectionsService");
     }
 
-    // Autocomplete Classique pour le DÃ©part
+    // Autocomplete Classique pour le Départ
     const startInputOld = document.getElementById("route-start");
     let autocompleteStart = null;
     if (startInputOld && google.maps.places) {
@@ -449,14 +449,14 @@ window.initMapController = async function () {
         map.panTo(destLocation);
         map.setZoom(17);
 
-        // VÃ©rifier si un dÃ©part manuel a Ã©tÃ© saisi
+        // Vérifier si un départ manuel a été saisi
         const manualStartEl = document.getElementById("route-start");
         const manualStartQuery = manualStartEl
           ? manualStartEl.value.trim()
           : "";
 
         if (manualStartQuery !== "") {
-          // Si dÃ©part manuel renseignÃ©, on lance l'itinÃ©raire de dÃ©part manuel Ã  destination
+          // Si départ manuel renseigné, on lance l'itinéraire de départ manuel à destination
           geocoder.geocode(
             { address: manualStartQuery },
             (resStart, statusStart) => {
@@ -466,7 +466,7 @@ window.initMapController = async function () {
                 const btnCancel = document.getElementById("btn-cancel-route");
                 if (btnCancel) btnCancel.classList.remove("hidden");
               } else {
-                speak("Lieu de dÃ©part introuvable.");
+                speak("Lieu de départ introuvable.");
               }
             },
           );
@@ -476,7 +476,7 @@ window.initMapController = async function () {
         // Sinon, utilisation du GPS
         if (!currentPosition) {
           speak(
-            "Recherche de votre position GPS. L'itinÃ©raire dÃ©marrera automatiquement dÃ¨s que possible.",
+            "Recherche de votre position GPS. L'itinéraire démarrera automatiquement dès que possible.",
           );
           window.pendingDestinationName = inputOld.value;
           return;
@@ -488,9 +488,9 @@ window.initMapController = async function () {
       });
     }
 
-    if (statusEl) statusEl.textContent = "SystÃ¨mes opÃ©rationnels.";
+    if (statusEl) statusEl.textContent = "Systèmes opérationnels.";
   } catch (e) {
-    console.error("mon50cc Maps : Ã‰chec critique de l'initialisation :", e);
+    console.error("mon50cc Maps : Échec critique de l'initialisation :", e);
     // FALLBACK: TACTICAL RADAR MODE (Visuel plus fort)
     mapElement.innerHTML = `
             <div class="radar-fallback" style="height:100%; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#000; color:#ffb703; font-family:monospace; border:2px solid #333;">
@@ -531,7 +531,7 @@ window.startApp = function () {
     try {
       window.OfflineMapManager.init();
 
-      // Mise Ã  jour du badge de statut dans le sidebar
+      // Mise à jour du badge de statut dans le sidebar
       const updateOfflineBadge = () => {
         const dot = document.getElementById("offline-status-dot");
         if (!dot) return;
@@ -562,7 +562,7 @@ window.startApp = function () {
     }, 1000);
   }
 
-  // Masquer le loader + marquer le systÃ¨me comme prÃªt
+  // Masquer le loader + marquer le système comme prêt
   setTimeout(() => {
     const loader = document.getElementById("app-loader");
     if (loader) {
@@ -573,7 +573,7 @@ window.startApp = function () {
     if (typeof simulateLiveFleet === "function") simulateLiveFleet();
   }, 3500);
 
-  // Lancement de la gÃ©olocalisation
+  // Lancement de la géolocalisation
   checkLegalConsent();
 };
 
@@ -587,7 +587,7 @@ window.toggleOfflinePanel = function () {
   if (panel.classList.contains("hidden")) {
     panel.classList.remove("hidden");
 
-    // Statut rÃ©seau live
+    // Statut réseau live
     const statusEl = document.getElementById("offline-network-status");
     if (statusEl) {
       const online = navigator.onLine;
@@ -598,7 +598,7 @@ window.toggleOfflinePanel = function () {
             `;
       statusEl.innerHTML = `
                 <span style="font-size:1rem; margin-right:8px;">${online ? "ðŸŸ¢" : "ðŸ”´"}</span>
-                ${online ? "CONNECTÃ‰ â€” Google Maps actif" : "HORS LIGNE â€” Carte locale active"}
+                ${online ? "CONNECTÉ â€” Google Maps actif" : "HORS LIGNE â€” Carte locale active"}
             `;
     }
 
@@ -626,7 +626,7 @@ window.closeOfflinePanel = function (evt) {
   if (panel) panel.classList.add("hidden");
 };
 
-// Fonctions de menu dÃ©placÃ©es au dÃ©but pour sÃ©curitÃ©
+// Fonctions de menu déplacées au début pour sécurité
 
 window.showAdvantages = function () {
   const pop = document.getElementById("advantages-popup");
@@ -641,10 +641,10 @@ window.closeAdvantages = function () {
 window.toggleTraffic = function () {
   if (trafficLayer.getMap()) {
     trafficLayer.setMap(null);
-    speak("Info trafic dÃ©sactivÃ©e.");
+    speak("Info trafic désactivée.");
   } else {
     trafficLayer.setMap(map);
-    speak("Info trafic activÃ©e.");
+    speak("Info trafic activée.");
   }
 };
 
@@ -653,49 +653,49 @@ window.toggleTilt = function () {
   map.setTilt(currentTilt === 45 ? 0 : 45);
 };
 
-// â”€â”€â”€ Wake Lock rÃ©silient (se rÃ©active automatiquement en cas de perte) â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€â”€ Wake Lock résilient (se réactive automatiquement en cas de perte) â”€â”€â”€â”€â”€â”€â”€â”€
 let wakeLockRef = null;
 async function requestWakeLock() {
   if (!("wakeLock" in navigator)) return;
   try {
     wakeLockRef = await navigator.wakeLock.request("screen");
 
-    // RÃ©acquÃ©rir automatiquement quand l'onglet redevient visible
+    // Réacquérir automatiquement quand l'onglet redevient visible
     wakeLockRef.addEventListener("release", () => {
       console.warn(
-        "mon50cc GPS : Wake Lock perdu, rÃ©acquisition programmÃ©e.",
+        "mon50cc GPS : Wake Lock perdu, réacquisition programmée.",
       );
       wakeLockRef = null;
     });
   } catch (err) {
-    console.warn("mon50cc GPS : Wake Lock refusÃ© :", err.message);
+    console.warn("mon50cc GPS : Wake Lock refusé :", err.message);
   }
 }
 
-// RÃ©acquÃ©rir le Wake Lock quand l'app revient au premier plan
+// Réacquérir le Wake Lock quand l'app revient au premier plan
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && !wakeLockRef) {
     requestWakeLock();
-    // Relancer le GPS si on a perdu la position pendant le sleep (SEULEMENT si consentement donnÃ©)
+    // Relancer le GPS si on a perdu la position pendant le sleep (SEULEMENT si consentement donné)
     if (!currentPosition && gpsWatchId === null && hasLocationConsent()) {
       startGeolocation();
     }
   }
 });
 
-// â”€â”€ Garde de consentement : vÃ©rifie si l'utilisateur a acceptÃ© la divulgation â”€â”€
+// â”€â”€ Garde de consentement : vérifie si l'utilisateur a accepté la divulgation â”€â”€
 function hasLocationConsent() {
   return localStorage.getItem("location_consent_accepted") === "true";
 }
 
 async function checkLegalConsent() {
   if (hasLocationConsent()) {
-    // DÃ©clenchement du message de bienvenue pour les utilisateurs rÃ©currents
+    // Déclenchement du message de bienvenue pour les utilisateurs récurrents
     const name =
       window.session && !window.session.isGuest ? window.session.username : "";
     const welcomeMsg = name
-      ? `Content de vous revoir, ${name}. SystÃ¨mes opÃ©rationnels.`
-      : "SystÃ¨mes opÃ©rationnels. Bonne route sur mon 50cc et moi.";
+      ? `Content de vous revoir, ${name}. Systèmes opérationnels.`
+      : "Systèmes opérationnels. Bonne route sur mon 50cc et moi.";
     setTimeout(() => {
       if (typeof speak === "function") speak(welcomeMsg);
     }, 1000);
@@ -704,11 +704,11 @@ async function checkLegalConsent() {
     return;
   }
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ══════════════════════════════════════════════════════════════════
   // DIVULGATION BIEN VISIBLE (Prominent Disclosure) â€” Google Play
-  // Conforme Ã  la politique relative aux donnÃ©es de l'utilisateur.
-  // AffichÃ© AVANT toute collecte de donnÃ©es de localisation.
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // Conforme à la politique relative aux données de l'utilisateur.
+  // Affiché AVANT toute collecte de données de localisation.
+  // ══════════════════════════════════════════════════════════════════
   const modal = document.createElement("div");
   modal.id = "location-disclosure-modal";
   modal.style.cssText = `
@@ -724,19 +724,19 @@ async function checkLegalConsent() {
                 <i class="fa-solid fa-location-dot" style="font-size:3rem; color:#ffb703;"></i>
             </div>
             <h2 style="text-align:center; margin-bottom:20px; font-size:1.3rem; color:#ffffff;">
-                Utilisation de vos donnÃ©es de localisation
+                Utilisation de vos données de localisation
             </h2>
 
             <div style="background:#1a1a1a; padding:16px; border-radius:8px; border-left:4px solid #ffb703; margin-bottom:20px;">
                 <p style="font-size:1rem; line-height:1.5; color:#ffffff; margin:0;">
-                    <strong>L'application mon 50cc et moi collecte et utilise vos donnÃ©es de localisation en arriÃ¨re-plan</strong> pour permettre la dÃ©tection automatique de chute (Guardian Angel), la navigation GPS Ã©tape par Ã©tape, et le signalement de dangers routiers. Ces donnÃ©es sont collectÃ©es <strong>mÃªme lorsque l'application est fermÃ©e ou qu'elle n'est pas utilisÃ©e.</strong> Elles ne sont pas utilisÃ©es pour afficher des annonces publicitaires.
+                    <strong>L'application mon 50cc et moi collecte et utilise vos données de localisation en arrière-plan</strong> pour permettre la détection automatique de chute (Guardian Angel), la navigation GPS étape par étape, et le signalement de dangers routiers. Ces données sont collectées <strong>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</strong> Elles ne sont pas utilisées pour afficher des annonces publicitaires.
                 </p>
             </div>
 
             <p style="font-size:0.9rem; line-height:1.4; color:#aaa; margin-bottom:24px; text-align:center;">
-                Ces donnÃ©es sont utilisÃ©es uniquement pour assurer votre sÃ©curitÃ© et vous guider. Elles ne sont jamais vendues Ã  des tiers.<br><br>
+                Ces données sont utilisées uniquement pour assurer votre sécurité et vous guider. Elles ne sont jamais vendues à des tiers.<br><br>
                 <a href="privacy.html" target="_blank" rel="noopener" style="color:#ffb703; text-decoration:underline; font-weight:bold;">
-                    Consulter notre Politique de ConfidentialitÃ©
+                    Consulter notre Politique de Confidentialité
                 </a>
             </p>
 
@@ -755,7 +755,7 @@ async function checkLegalConsent() {
     `;
   document.body.appendChild(modal);
 
-  // Bouton REFUSER : empÃªche le dÃ©marrage du GPS, affiche un message
+  // Bouton REFUSER : empêche le démarrage du GPS, affiche un message
   document.getElementById("btn-refuse-location").onclick = () => {
     modal.remove();
     // Afficher un bandeau persistant expliquant que l'app ne peut pas fonctionner
@@ -768,17 +768,17 @@ async function checkLegalConsent() {
         `;
     banner.innerHTML = `
             <strong>âš ï¸ Localisation requise</strong><br>
-            L'application ne peut pas fonctionner sans accÃ¨s Ã  votre position.
-            <br><button onclick="checkLegalConsent()" style="margin-top:8px; padding:8px 24px; background:#ffb703; color:#000; border:none; border-radius:20px; font-weight:bold; cursor:pointer;">RÃ©essayer</button>
+            L'application ne peut pas fonctionner sans accès à votre position.
+            <br><button onclick="checkLegalConsent()" style="margin-top:8px; padding:8px 24px; background:#ffb703; color:#000; border:none; border-radius:20px; font-weight:bold; cursor:pointer;">Réessayer</button>
         `;
     document.body.appendChild(banner);
     if (typeof speak === "function")
       speak(
-        "L'application nÃ©cessite l'accÃ¨s Ã  votre position pour fonctionner.",
+        "L'application nécessite l'accès à votre position pour fonctionner.",
       );
   };
 
-  // Bouton ACCEPTER : sauvegarde le consentement et dÃ©marre le GPS
+  // Bouton ACCEPTER : sauvegarde le consentement et démarre le GPS
   document.getElementById("btn-accept-location").onclick = () => {
     localStorage.setItem("location_consent_accepted", "true");
     modal.remove();
@@ -786,12 +786,12 @@ async function checkLegalConsent() {
     const oldBanner = document.getElementById("location-refused-banner");
     if (oldBanner) oldBanner.remove();
 
-    // DÃ©clenchement du message de bienvenue (Audio dÃ©bloquÃ© par le clic)
+    // Déclenchement du message de bienvenue (Audio débloqué par le clic)
     const name =
       window.session && !window.session.isGuest ? window.session.username : "";
     const welcomeMsg = name
-      ? `Content de vous revoir, ${name}. SystÃ¨mes opÃ©rationnels.`
-      : "SystÃ¨mes opÃ©rationnels. Bonne route sur mon 50cc et moi.";
+      ? `Content de vous revoir, ${name}. Systèmes opérationnels.`
+      : "Systèmes opérationnels. Bonne route sur mon 50cc et moi.";
     if (typeof speak === "function") speak(welcomeMsg);
 
     startGeolocation();
@@ -799,10 +799,10 @@ async function checkLegalConsent() {
 }
 
 function showGpsBanner(msg, code) {
-  // Ne pas afficher si on a dÃ©jÃ  une position valide (Ã©vite la banniÃ¨re rouge permanente)
+  // Ne pas afficher si on a déjà une position valide (évite la bannière rouge permanente)
   if (currentPosition && code !== 1) {
     console.warn(
-      "mon50cc GPS : Erreur ignorÃ©e (position dÃ©jÃ  disponible) :",
+      "mon50cc GPS : Erreur ignorée (position déjà disponible) :",
       msg,
     );
     return;
@@ -822,18 +822,18 @@ function showGpsBanner(msg, code) {
             <i class="fa-solid fa-location-crosshairs" style="font-size:4rem; color:#ef4444; margin-bottom:20px;"></i>
             <h2 style="margin-bottom:15px; color:#ffb703;">GPS OBLIGATOIRE</h2>
             <p style="font-size:0.9rem; line-height:1.5; margin-bottom:25px; text-align:left; background:rgba(0,0,0,0.5); padding:15px; border-radius:10px; border:1px solid #333;">
-                Cette application collecte des donnÃ©es de localisation pour activer la dÃ©tection automatique de chute, la navigation GPS, le calcul de votre vitesse, et le partage de dangers et de votre position avec la communautÃ©, <b>mÃªme lorsque l'application est fermÃ©e ou qu'elle n'est pas utilisÃ©e.</b><br><br>
-                Sans accÃ¨s Ã  votre position, l'application ne peut pas fonctionner.
+                Cette application collecte des données de localisation pour activer la détection automatique de chute, la navigation GPS, le calcul de votre vitesse, et le partage de dangers et de votre position avec la communauté, <b>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</b><br><br>
+                Sans accès à votre position, l'application ne peut pas fonctionner.
             </p>
             <button onclick="window.repairGps()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1.1rem; margin-bottom:15px; box-shadow:0 0 15px rgba(255, 183, 3, 0.5);">
                 AUTORISER LE GPS
             </button>
             <p style="font-size:0.8rem; color:#888;">
-                Veuillez accorder la permission dans les paramÃ¨tres de votre appareil.
+                Veuillez accorder la permission dans les paramètres de votre appareil.
             </p>
         `;
     hardLock.style.display = "flex";
-    return; // On affiche le hard lock, pas la banniÃ¨re
+    return; // On affiche le hard lock, pas la bannière
   }
 
   let banner = document.getElementById("gps-error-banner");
@@ -845,12 +845,12 @@ function showGpsBanner(msg, code) {
     document.body.appendChild(banner);
   }
 
-  const repairBtn = `<button onclick="window.retryGps()" style="margin-top:10px; padding:8px 20px; background:#ffb703; color:#000; border:none; border-radius:20px; font-weight:bold; font-size:0.85rem; cursor:pointer;">ðŸ”„ RÃ©essayer</button>`;
+  const repairBtn = `<button onclick="window.retryGps()" style="margin-top:10px; padding:8px 20px; background:#ffb703; color:#000; border:none; border-radius:20px; font-weight:bold; font-size:0.85rem; cursor:pointer;">ðŸ”„ Réessayer</button>`;
 
   banner.innerHTML = `<div style="font-weight:bold; margin-bottom:4px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>GPS : ${msg}</div><div style="font-size:0.72rem; color:#fca5a5;">(Code erreur: ${code})</div>${repairBtn}`;
   banner.style.display = "block";
 
-  // Auto-dismiss aprÃ¨s 20s pour les erreurs non-critiques (code 2 = signal faible, code 3 = timeout)
+  // Auto-dismiss après 20s pour les erreurs non-critiques (code 2 = signal faible, code 3 = timeout)
   clearTimeout(window._gpsBannerTimer);
   window._gpsBannerTimer = setTimeout(hideGpsBanner, 20000);
 }
@@ -868,21 +868,21 @@ window.repairGps = function () {
   const instructions = `
         <div style="text-align:left; font-size:0.9rem; line-height:1.5;">
             <b style="color:#ffb703;">ðŸ“± Sur Android Chrome :</b><br>
-            1. Appuie sur les 3 points â‹® en haut Ã  droite<br>
-            2. ParamÃ¨tres â†’ ParamÃ¨tres du site<br>
-            3. Localisation â†’ Cherche '${appUrl}'<br>
-            4. Passe de 'Bloquer' Ã  'Autoriser'<br>
+            1. Appuie sur les 3 points â‹® en haut à droite<br>
+            2. Paramètres ←’ Paramètres du site<br>
+            3. Localisation ←’ Cherche '${appUrl}'<br>
+            4. Passe de 'Bloquer' à 'Autoriser'<br>
             5. Recharge l'application<br><br>
             <b style="color:#ffb703;">ðŸ“± Dans l'app Android :</b><br>
-            1. Appui long sur l'icÃ´ne de l'app<br>
-            2. Infos sur l'appli â†’ Autorisations<br>
-            3. Position â†’ Autoriser (ou Toujours autoriser)
+            1. Appui long sur l'icône de l'app<br>
+            2. Infos sur l'appli ←’ Autorisations<br>
+            3. Position ←’ Autoriser (ou Toujours autoriser)
         </div>
     `;
 
   if (typeof Swal !== "undefined") {
     Swal.fire({
-      title: "Comment rÃ©activer le GPS",
+      title: "Comment réactiver le GPS",
       html: instructions,
       icon: "info",
       confirmButtonText: "J'AI COMPRIS",
@@ -896,7 +896,7 @@ window.repairGps = function () {
       "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;";
     modal.innerHTML = `
             <div style="background:#1a1a1a; padding:25px; border-radius:15px; border:2px solid #ffb703; max-width:400px; width:100%; color:white;">
-                <h3 style="color:#ffb703; margin-top:0; margin-bottom:15px;">Comment rÃ©activer le GPS</h3>
+                <h3 style="color:#ffb703; margin-top:0; margin-bottom:15px;">Comment réactiver le GPS</h3>
                 ${instructions}
                 <button onclick="this.parentElement.parentElement.remove()" style="width:100%; margin-top:20px; padding:12px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1rem;">J'AI COMPRIS</button>
             </div>
@@ -907,7 +907,7 @@ window.repairGps = function () {
 
 window.retryGps = function () {
   hideGpsBanner();
-  // Reset complet pour repartir de zÃ©ro
+  // Reset complet pour repartir de zéro
   if (gpsWatchId !== null) {
     navigator.geolocation.clearWatch(gpsWatchId);
     gpsWatchId = null;
@@ -927,13 +927,13 @@ let gpsRetryCount = 0;
 const GPS_MAX_RETRIES = 3;
 
 async function startGeolocation() {
-  // GARDE DE SÃ‰CURITÃ‰ : ne JAMAIS dÃ©marrer le GPS sans consentement explicite
+  // GARDE DE SÉCURITÉ : ne JAMAIS démarrer le GPS sans consentement explicite
   if (!hasLocationConsent()) {
     console.warn(
-      "mon50cc GPS : Consentement de localisation non accordÃ©. GPS bloquÃ©.",
+      "mon50cc GPS : Consentement de localisation non accordé. GPS bloqué.",
     );
     alert(
-      "âš ï¸ AccÃ¨s GPS bloquÃ© : Le consentement de gÃ©olocalisation est requis. Vous allez Ãªtre redirigÃ© vers l'accueil.",
+      "âš ï¸ Accès GPS bloqué : Le consentement de géolocalisation est requis. Vous allez être redirigé vers l'accueil.",
     );
     window.location.href = "index.html";
     return;
@@ -941,26 +941,26 @@ async function startGeolocation() {
 
   if (!("geolocation" in navigator)) {
     console.error(
-      "mon50cc GPS : GÃ©olocalisation non supportÃ©e sur cet appareil.",
+      "mon50cc GPS : Géolocalisation non supportée sur cet appareil.",
     );
-    showGpsBanner("GÃ©olocalisation non supportÃ©e par ce navigateur.", 0);
+    showGpsBanner("Géolocalisation non supportée par ce navigateur.", 0);
     return;
   }
 
-  // AcquÃ©rir le Wake Lock pour maintenir le GPS actif
+  // Acquérir le Wake Lock pour maintenir le GPS actif
   requestWakeLock();
 
-  // Ã‰TAPE 1 : VÃ©rifier les permissions (non-bloquant)
+  // ÉTAPE 1 : Vérifier les permissions (non-bloquant)
   if (navigator.permissions) {
     try {
       const perm = await navigator.permissions.query({ name: "geolocation" });
 
       if (perm.state === "denied") {
         speak(
-          "Le GPS est bloquÃ©. VÃ©rifiez les permissions de l'application.",
+          "Le GPS est bloqué. Vérifiez les permissions de l'application.",
         );
-        showGpsBanner("Permission refusÃ©e. Appuyez sur 'RÃ©parer'.", 1);
-        return; // Inutile de continuer si explicitement refusÃ©
+        showGpsBanner("Permission refusée. Appuyez sur 'Réparer'.", 1);
+        return; // Inutile de continuer si explicitement refusé
       }
 
       perm.onchange = () => {
@@ -968,7 +968,7 @@ async function startGeolocation() {
           hideGpsBanner();
           window.retryGps();
         } else if (perm.state === "denied") {
-          showGpsBanner("Permission GPS rÃ©voquÃ©e.", 1);
+          showGpsBanner("Permission GPS révoquée.", 1);
         }
       };
     } catch (e) {
@@ -976,38 +976,38 @@ async function startGeolocation() {
     }
   }
 
-  // Ã‰TAPE 2 : Surveillance CONTINUE (satellites GPS / rÃ©seau)
-  // On utilise uniquement watchPosition car iOS gÃ¨re trÃ¨s mal les appels concurrents (getCurrentPosition + watchPosition)
+  // ÉTAPE 2 : Surveillance CONTINUE (satellites GPS / réseau)
+  // On utilise uniquement watchPosition car iOS gère très mal les appels concurrents (getCurrentPosition + watchPosition)
   const geoOptions = {
     enableHighAccuracy: true,
-    timeout: 30000, // 30s â€” laisse le temps aux satellites en intÃ©rieur
-    maximumAge: 3000, // 3s de cache max pour les updates frÃ©quents
+    timeout: 30000, // 30s â€” laisse le temps aux satellites en intérieur
+    maximumAge: 3000, // 3s de cache max pour les updates fréquents
   };
 
   const onError = (err) => {
     let msg = "Erreur GPS inconnue";
     if (err.code === 1)
-      msg = "Permission GPS refusÃ©e. Appuyez sur 'RÃ©parer'.";
-    if (err.code === 2) msg = "Signal GPS faible. Sortez Ã  l'extÃ©rieur.";
+      msg = "Permission GPS refusée. Appuyez sur 'Réparer'.";
+    if (err.code === 2) msg = "Signal GPS faible. Sortez à l'extérieur.";
     if (err.code === 3) msg = "Recherche GPS en cours... Patience.";
     console.error("mon50cc GPS :", msg, "code:", err.code);
 
-    // Permission refusÃ©e â†’ banniÃ¨re immÃ©diate
+    // Permission refusée ←’ bannière immédiate
     if (err.code === 1) {
-      speak("Le GPS est bloquÃ©. VÃ©rifiez les permissions.");
+      speak("Le GPS est bloqué. Vérifiez les permissions.");
       showGpsBanner(msg, err.code);
       return;
     }
 
-    // Si on n'a aucune position â†’ tenter le fallback basse prÃ©cision
+    // Si on n'a aucune position ←’ tenter le fallback basse précision
     if (!currentPosition) {
       showGpsBanner(msg, err.code);
       activateLowAccuracyFallback();
     }
-    // Si on a dÃ©jÃ  une position â†’ on garde celle-ci, pas de banniÃ¨re
+    // Si on a déjà une position ←’ on garde celle-ci, pas de bannière
   };
 
-  // Nettoyer les anciens watchers avant d'en crÃ©er de nouveaux
+  // Nettoyer les anciens watchers avant d'en créer de nouveaux
   if (gpsWatchId !== null) {
     navigator.geolocation.clearWatch(gpsWatchId);
     gpsWatchId = null;
@@ -1015,11 +1015,11 @@ async function startGeolocation() {
 
   gpsWatchId = navigator.geolocation.watchPosition(
     (pos) => {
-      // Filtrage qualitÃ© : accepter la premiÃ¨re position Ã  tout prix, puis filtrer Ã  < 500m
+      // Filtrage qualité : accepter la première position à tout prix, puis filtrer à < 500m
       const acc = pos.coords.accuracy || 0;
       if (currentPosition && acc > 500) {
         console.warn(
-          `mon50cc GPS : Position ignorÃ©e (prÃ©cision: ${acc.toFixed(0)}m > 500m)`,
+          `mon50cc GPS : Position ignorée (précision: ${acc.toFixed(0)}m > 500m)`,
         );
         return;
       }
@@ -1031,24 +1031,24 @@ async function startGeolocation() {
     geoOptions,
   );
 
-  // Ã‰TAPE 4 : Timer de sÃ©curitÃ© â€” si aucune position aprÃ¨s 15s, forcer le fallback
+  // ÉTAPE 4 : Timer de sécurité â€” si aucune position après 15s, forcer le fallback
   setTimeout(() => {
     if (!currentPosition && fallbackWatchId === null) {
       console.warn(
-        "mon50cc GPS : Aucune position aprÃ¨s 15s â†’ activation fallback.",
+        "mon50cc GPS : Aucune position après 15s ←’ activation fallback.",
       );
       activateLowAccuracyFallback();
     }
   }, 15000);
 }
 
-// Fallback basse prÃ©cision (WiFi/Cellulaire) â€” dÃ©clenchÃ© automatiquement
+// Fallback basse précision (WiFi/Cellulaire) â€” déclenché automatiquement
 function activateLowAccuracyFallback() {
-  if (fallbackWatchId !== null) return; // DÃ©jÃ  actif
+  if (fallbackWatchId !== null) return; // Déjà actif
   if (gpsRetryCount >= GPS_MAX_RETRIES) {
     console.error("mon50cc GPS : Nombre max de retries atteint.");
     showGpsBanner(
-      "GPS indisponible. VÃ©rifiez que la localisation est activÃ©e dans les paramÃ¨tres.",
+      "GPS indisponible. Vérifiez que la localisation est activée dans les paramètres.",
       2,
     );
     return;
@@ -1063,13 +1063,13 @@ function activateLowAccuracyFallback() {
         hideGpsBanner();
       }
     },
-    (e) => console.warn("mon50cc GPS : Fallback Ã©chouÃ© :", e.code, e.message),
+    (e) => console.warn("mon50cc GPS : Fallback échoué :", e.code, e.message),
     { enableHighAccuracy: false, timeout: 20000, maximumAge: 60000 },
   );
 }
 
-// Remplacement du dÃ©marrage automatique par la vÃ©rification lÃ©gale
-// Retrait de l'appel direct pour Ã©viter les conflits avant l'init de l'UI
+// Remplacement du démarrage automatique par la vérification légale
+// Retrait de l'appel direct pour éviter les conflits avant l'init de l'UI
 // checkLegalConsent();
 
 // --- 3. NEURAL INNOVATION ENGINE (Invisibile Intelligence) ---
@@ -1121,7 +1121,7 @@ function getSmoothedSpeed(rawSpeed) {
 }
 
 function updatePosition(position) {
-  // ArrÃªt du fallback basse prÃ©cision si on rÃ©cupÃ¨re un signal GPS haute prÃ©cision dÃ©cent (< 30m)
+  // Arrêt du fallback basse précision si on récupère un signal GPS haute précision décent (< 30m)
   if (
     position.coords.accuracy !== null &&
     position.coords.accuracy < 30 &&
@@ -1164,7 +1164,7 @@ function updatePosition(position) {
     map.panTo(currentPosition);
   }
 
-  // TracÃ© GPS de la balade (cyberline cyan)
+  // Tracé GPS de la balade (cyberline cyan)
   if (typeof window.addTracePoint === "function") {
     window.addTracePoint(lat, lng);
   }
@@ -1175,7 +1175,7 @@ function updatePosition(position) {
 
   if (window.OracleEngine) window.OracleEngine.updateRegion(lat, lng);
 
-  // SÃ©curitÃ©: accuracy peut Ãªtre null sur certains appareils
+  // Sécurité: accuracy peut être null sur certains appareils
   const safeAccuracy = accuracy || 0;
 
   // Update Telemetry HUD if active
@@ -1203,7 +1203,7 @@ function updatePosition(position) {
         if (el)
           el.onclick = () =>
             alert(
-              "Veuillez crÃ©er un compte pour accÃ©der Ã  l'Arbitre de la Route ! âš–ï¸ðŸ›µ",
+              "Veuillez créer un compte pour accéder à l'Arbitre de la Route ! ⚖️ðŸ›µ",
             );
       },
     );
@@ -1395,13 +1395,13 @@ function updatePosition(position) {
         accuracyCircle.setRadius(safeAccuracy / 2);
       }
 
-      // On recentre et on dÃ©cale pour la visibilitÃ©
+      // On recentre et on décale pour la visibilité
       map.panTo(currentPosition);
       map.panBy(0, -100);
     }
   }
 
-  // MÃ©tÃ©o Auto
+  // Météo Auto
   const wHud = document.getElementById("weather-hud");
   if (wHud && wHud.textContent.includes("--")) {
     window.fetchWeather(lat, lng);
@@ -1431,7 +1431,7 @@ function updatePosition(position) {
 
 // Fonction utilitaire pour calculer la distance (Formule de Haversine)
 function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371e3; // mÃ¨tres
+  const R = 6371e3; // mètres
   const p1 = (lat1 * Math.PI) / 180;
   const p2 = (lat2 * Math.PI) / 180;
   const dp = ((lat2 - lat1) * Math.PI) / 180;
@@ -1471,14 +1471,14 @@ function checkHazardProximity(lat, lng) {
       lastSpokenHazard !== h.lat + h.lon
     ) {
       speak(
-        `Attention, ${h.type} signalÃ© Ã  environ 500 mÃ¨tres. Restez vigilant.`,
+        `Attention, ${h.type} signalé à environ 500 mètres. Restez vigilant.`,
       );
       lastSpokenHazard = h.lat + h.lon;
       showHazardConfirmation(index, h.type);
     }
     // --- DANGERS STANDARDS ---
     else if (dist < 100 && lastSpokenHazard !== h.lat + h.lon) {
-      speak(`Attention : ${h.type} signalÃ© Ã  proximitÃ©.`);
+      speak(`Attention : ${h.type} signalé à proximité.`);
       lastSpokenHazard = h.lat + h.lon;
       showHazardConfirmation(index, h.type);
     }
@@ -1487,11 +1487,11 @@ function checkHazardProximity(lat, lng) {
 
 window.triggerRedAlert = function (distance, description) {
   // Annonce vocale
-  let alertMsg = `Attention, conduite dangereuse signalÃ©e`;
+  let alertMsg = `Attention, conduite dangereuse signalée`;
   if (description) {
     alertMsg += ` : ${description}`;
   }
-  alertMsg += ` Ã  ${distance} mÃ¨tres devant vous. Restez vigilant.`;
+  alertMsg += ` à ${distance} mètres devant vous. Restez vigilant.`;
   speak(alertMsg);
 
   // Effet visuel clignotant rouge
@@ -1515,9 +1515,9 @@ function showHazardConfirmation(index, type) {
   const toast = document.createElement("div");
   toast.className = "hazard-toast glassmorphism";
   toast.innerHTML = `
-        <p>Toujours lÃ  : <strong>${type}</strong> ?</p>
+        <p>Toujours là : <strong>${type}</strong> ?</p>
         <div style="display:flex; gap:10px;">
-            <button onclick="confirmHazard(${index}, true)">âœ… Oui</button>
+            <button onclick="confirmHazard(${index}, true)">✅ Oui</button>
             <button onclick="confirmHazard(${index}, false)">âŒ Non</button>
         </div>
     `;
@@ -1531,7 +1531,7 @@ window.confirmHazard = function (index, exists) {
     hazards.splice(index, 1);
     secureSetItem("hazards", JSON.stringify(hazards));
     loadHazards();
-    speak("Merci, signalement mis Ã  jour.");
+    speak("Merci, signalement mis à jour.");
   } else {
     speak("Merci de votre vigilance.");
   }
@@ -1560,104 +1560,104 @@ window.OracleEngine = {
     fr: {
       marseille: {
         start:
-          "TÃ©, l'Oracle est en place ! On est parÃ©s pour la route, peuchÃ¨re.",
-        speed: "Oh fada, tu vas trop vite ! LÃ¨ve le pied avant de t'envoler.",
+          "Té, l'Oracle est en place ! On est parés pour la route, peuchère.",
+        speed: "Oh fada, tu vas trop vite ! Lève le pied avant de t'envoler.",
         threat_detected:
-          "VÃ© ! Y'a un souci sur la route devant. Fais gaffe Ã  toi.",
-        level_up: "Et bim ! Tu as montÃ© de niveau, bravo mon brave.",
+          "Vé ! Y'a un souci sur la route devant. Fais gaffe à toi.",
+        level_up: "Et bim ! Tu as monté de niveau, bravo mon brave.",
         start_guardian:
-          "Ange Gardien en place ! T'inquiÃ¨te pas, je veille sur toi.",
+          "Ange Gardien en place ! T'inquiète pas, je veille sur toi.",
         stop_guardian: "Ange Gardien au repos. Fais doucement, hein !",
         danger_overtake:
-          "VÃ© ! Tu doubles n'importe comment, tu vas nous faire un plat !",
+          "Vé ! Tu doubles n'importe comment, tu vas nous faire un plat !",
       },
       quebec: {
-        start: "Attache ta tuque, l'Oracle est prÃªt pour une sacrÃ©e virÃ©e !",
-        speed: "LÃ¢che la patate, tu roules pas mal trop vite lÃ  !",
-        threat_detected: "Check ben Ã§a, y'a de quoi de pas net sur le chemin.",
-        level_up: "C'est Ã©coeurant ! T'as gagnÃ© un niveau.",
-        start_guardian: "Ton Ange Gardien est prÃªt, on lÃ¢che pas !",
+        start: "Attache ta tuque, l'Oracle est prêt pour une sacrée virée !",
+        speed: "Lâche la patate, tu roules pas mal trop vite là !",
+        threat_detected: "Check ben ça, y'a de quoi de pas net sur le chemin.",
+        level_up: "C'est écoeurant ! T'as gagné un niveau.",
+        start_guardian: "Ton Ange Gardien est prêt, on lâche pas !",
         stop_guardian: "L'Ange Gardien prend une pause. Prudence !",
         danger_overtake:
-          "OulÃ  ! Ton dÃ©passement Ã©tait pas mal risquÃ©, check tes angles !",
+          "Oulà ! Ton dépassement était pas mal risqué, check tes angles !",
       },
       standard: {
-        start: "Core Universel stabilisÃ©. Liaison totale Ã©tablie.",
-        speed: "Alerte : Vitesse excessive. Ralentissez immÃ©diatement.",
-        threat_detected: "ANALYSE : Menace identifiÃ©e. Prudence conseillÃ©e.",
-        level_up: "FÃ©licitations Pilote. Votre expÃ©rience a augmentÃ©.",
+        start: "Core Universel stabilisé. Liaison totale établie.",
+        speed: "Alerte : Vitesse excessive. Ralentissez immédiatement.",
+        threat_detected: "ANALYSE : Menace identifiée. Prudence conseillée.",
+        level_up: "Félicitations Pilote. Votre expérience a augmenté.",
         start_guardian:
-          "Ange Gardien activÃ©. Surveillance pÃ©rimÃ©trique en cours.",
-        stop_guardian: "Ange Gardien dÃ©sactivÃ©. Fin de la surveillance.",
-        danger_overtake: "ATTENTION : DÃ‰PASSEMENT DANGEREUX DÃ‰TECTÃ‰.",
+          "Ange Gardien activé. Surveillance périmétrique en cours.",
+        stop_guardian: "Ange Gardien désactivé. Fin de la surveillance.",
+        danger_overtake: "ATTENTION : DÉPASSEMENT DANGEREUX DÉTECTÉ.",
         ferry_detected:
-          "Attention, cet itinÃ©raire inclut une traversÃ©e en ferry.",
+          "Attention, cet itinéraire inclut une traversée en ferry.",
         ferry_ahead:
-          "TraversÃ©e en ferry Ã  1 kilomÃ¨tre. PrÃ©parez-vous Ã  l'embarquement.",
+          "Traversée en ferry à 1 kilomètre. Préparez-vous à l'embarquement.",
       },
       liege: {
-        start: "Oufti, l'Oracle est en place, valet ! On dÃ©colle ?",
+        start: "Oufti, l'Oracle est en place, valet ! On décolle ?",
         speed: "Ouille valet, tu vas trop vite ! Calme ton jeu.",
-        threat_detected: "AÃ¯e gaffe, y'a un bins sur la route devant.",
-        level_up: "Oufti ! T'es passÃ© au niveau suivant, c'est du propre !",
+        threat_detected: "Aïe gaffe, y'a un bins sur la route devant.",
+        level_up: "Oufti ! T'es passé au niveau suivant, c'est du propre !",
         start_guardian:
-          "L'Ange Gardien est lÃ  pour toi, valet. Roule tranquille.",
+          "L'Ange Gardien est là pour toi, valet. Roule tranquille.",
         stop_guardian: "L'Ange Gardien va s'en jeter une, sois prudent.",
         danger_overtake:
-          "Oufti ! Ton dÃ©passement Ã©tait un peu chaud, valet !",
+          "Oufti ! Ton dépassement était un peu chaud, valet !",
       },
       charleroi: {
-        start: "Salut m'fi ! L'Oracle est prÃªt, on y va ?",
+        start: "Salut m'fi ! L'Oracle est prêt, on y va ?",
         speed: "M'fi, tu roules trop vite ! On n'est pas sur le ring ici.",
         threat_detected: "Fais gaffe m'fi, y'a un gros souci devant.",
-        level_up: "Bordel m'fi ! T'as montÃ© de niveau, fÃ©licitations !",
+        level_up: "Bordel m'fi ! T'as monté de niveau, félicitations !",
         start_guardian: "Ton Ange Gardien veille sur toi, m'fi. Pas de stress.",
         stop_guardian: "L'Ange Gardien a fini sa pause, fais attention m'fi.",
-        danger_overtake: "M'fi ! C'Ã©tait quoi ce dÃ©passement de baraki ?",
+        danger_overtake: "M'fi ! C'était quoi ce dépassement de baraki ?",
       },
       brussels: {
-        start: "Salut fieu ! L'Oracle est lÃ , on y va ou quoi ?",
+        start: "Salut fieu ! L'Oracle est là, on y va ou quoi ?",
         speed:
-          "Dites une fois, fieu ! Tu vas trop vite, on n'est pas pressÃ©s !",
+          "Dites une fois, fieu ! Tu vas trop vite, on n'est pas pressés !",
         threat_detected: "Attention fieu, y'a un stut sur la route devant.",
         level_up:
-          "Non peut-Ãªtre ! T'as montÃ© de niveau, Ã§a c'est du stoemp !",
-        start_guardian: "L'Ange Gardien est avec toi, fieu. T'inquiÃ¨te pas.",
-        stop_guardian: "L'Ange Gardien va manger une frite, fais gaffe Ã  toi.",
+          "Non peut-être ! T'as monté de niveau, ça c'est du stoemp !",
+        start_guardian: "L'Ange Gardien est avec toi, fieu. T'inquiète pas.",
+        stop_guardian: "L'Ange Gardien va manger une frite, fais gaffe à toi.",
         danger_overtake:
-          "Eh fieu ! Ton dÃ©passement lÃ , c'Ã©tait un peu zinneke, non ?",
+          "Eh fieu ! Ton dépassement là, c'était un peu zinneke, non ?",
       },
       flanders: {
-        start: "Allez, l'Oracle est prÃªt. On roule, hein ?",
+        start: "Allez, l'Oracle est prêt. On roule, hein ?",
         speed: "Oula ! Tu vas trop vite, hein ! Calme-toi un peu.",
-        threat_detected: "Pas de chance, y'a un problÃ¨me sur la route.",
-        level_up: "Super ! T'as montÃ© de niveau. C'est bien, hein !",
+        threat_detected: "Pas de chance, y'a un problème sur la route.",
+        level_up: "Super ! T'as monté de niveau. C'est bien, hein !",
         start_guardian:
-          "L'Ange Gardien est lÃ  pour toi. C'est sÃ©curisÃ©, hein.",
-        stop_guardian: "L'Ange Gardien s'arrÃªte. Sois prudent, hein.",
+          "L'Ange Gardien est là pour toi. C'est sécurisé, hein.",
+        stop_guardian: "L'Ange Gardien s'arrête. Sois prudent, hein.",
         danger_overtake:
-          "Dis, ton dÃ©passement Ã©tait un peu dangereux, hein !",
+          "Dis, ton dépassement était un peu dangereux, hein !",
       },
       andalucia: {
-        start: "Â¡Ole! L'Oracle est prÃªt, mon ami. On y va !",
-        speed: "Eh, l'ami ! Tu vas trop vite, doucement sur l'accÃ©lÃ©rateur.",
+        start: "Â¡Ole! L'Oracle est prêt, mon ami. On y va !",
+        speed: "Eh, l'ami ! Tu vas trop vite, doucement sur l'accélérateur.",
         threat_detected: "Attention, y'a du jaleo sur la route devant.",
-        level_up: "Â¡QuÃ© arte! Tu as montÃ© de niveau, bravo !",
+        level_up: "Â¡Qué arte! Tu as monté de niveau, bravo !",
         start_guardian: "L'Ange Gardien est avec toi, l'ami.",
         stop_guardian: "L'Ange Gardien fait une petite sieste, sois prudent.",
         danger_overtake:
-          "Eh ! Ce dÃ©passement Ã©tait un peu trop risquÃ©, mi arma !",
+          "Eh ! Ce dépassement était un peu trop risqué, mi arma !",
       },
       reunion: {
-        start: "LÃ© parÃ© ! L'Oracle est en place, dalon. Allons rouler !",
-        speed: "OtÃ© ! Tu vas trop vite, calme un peu lÃ  !",
+        start: "Lé paré ! L'Oracle est en place, dalon. Allons rouler !",
+        speed: "Oté ! Tu vas trop vite, calme un peu là !",
         threat_detected:
           "Gaffe dalon, y'a un l'embouteillage ou un souci devant.",
-        level_up: "LÃ© bon Ã§a ! T'as montÃ© de niveau, fÃ©licitations !",
-        start_guardian: "L'Ange Gardien lÃ© lÃ , t'inquiÃ¨te pas dalon.",
+        level_up: "Lé bon ça ! T'as monté de niveau, félicitations !",
+        start_guardian: "L'Ange Gardien lé là, t'inquiète pas dalon.",
         stop_guardian: "L'Ange Gardien va prendre un petit rhum, sois prudent.",
         danger_overtake:
-          "OtÃ© ! Ton dÃ©passement lÃ , c'Ã©tait risquÃ© dalon !",
+          "Oté ! Ton dépassement là, c'était risqué dalon !",
       },
     },
     zh: {
@@ -1687,7 +1687,7 @@ window.OracleEngine = {
         start: "Â¡Ole! El OrÃ¡culo estÃ¡ listo, mi arma. Â¡VÃ¡monos!",
         speed: "Â¡Eh, chiquillo! Vas mu' rÃ¡pido, frena un poco.",
         threat_detected: "Cuidao, que hay un jaleo ahÃ­ delante.",
-        level_up: "Â¡QuÃ© arte tienes! Has subido de nivel.",
+        level_up: "Â¡Qué arte tienes! Has subido de nivel.",
         start_guardian: "El Ãngel de la Guarda estÃ¡ contigo, mi arma.",
         stop_guardian: "El Ãngel se va a echar una siestecita, ten cuidao.",
         danger_overtake:
@@ -1719,10 +1719,10 @@ window.OracleEngine = {
     it: {
       standard: {
         start: "Sistema pronto. Connessione stabilita.",
-        speed: "Allerta: VelocitÃ  eccessiva. Rallenta immediatamente.",
+        speed: "Allerta: Velocità eccessiva. Rallenta immediatamente.",
         threat_detected:
           "ANALISI: Minaccia identificata. Prudenza consigliata.",
-        level_up: "Congratulazioni Pilota. La tua esperienza Ã¨ aumentata.",
+        level_up: "Congratulazioni Pilota. La tua esperienza è aumentata.",
         start_guardian: "Angelo Custode attivato. Monitoraggio in corso.",
         stop_guardian: "Angelo Custode disattivato. Fine monitoraggio.",
         danger_overtake: "ATTENZIONE: SORPASSO PERICOLOSO RILEVATO.",
@@ -1733,8 +1733,8 @@ window.OracleEngine = {
         start: "System bereit. Verbindung hergestellt.",
         speed: "Warnung: Zu hohe Geschwindigkeit. Bitte sofort abbremsen.",
         threat_detected: "ANALYSE: Gefahr erkannt. Vorsicht geboten.",
-        level_up: "GlÃ¼ckwunsch Pilot. Deine Erfahrung ist gestiegen.",
-        start_guardian: "Schutzengel aktiviert. Ãœberwachung lÃ¤uft.",
+        level_up: "Glückwunsch Pilot. Deine Erfahrung ist gestiegen.",
+        start_guardian: "Schutzengel aktiviert. Ãœberwachung läuft.",
         stop_guardian: "Schutzengel deaktiviert. Ende der Ãœberwachung.",
         danger_overtake: "WARNUNG: GEFÃ„HRLICHES ÃœBERHOLMANÃ–VER ERKANNT.",
       },
@@ -1743,10 +1743,10 @@ window.OracleEngine = {
       standard: {
         start: "Sistema pronto. ConexÃ£o estabelecida.",
         speed: "Alerta: Velocidade excessiva. Reduza imediatamente.",
-        threat_detected: "ANÃLISE: AmeaÃ§a identificada. Cuidado aconselhado.",
-        level_up: "ParabÃ©ns Piloto. A sua experiÃªncia aumentou.",
-        start_guardian: "Anjo da Guarda ativado. MonitorizaÃ§Ã£o em curso.",
-        stop_guardian: "Anjo da Guarda desativado. Fim da monitorizaÃ§Ã£o.",
+        threat_detected: "ANÃLISE: Ameaça identificada. Cuidado aconselhado.",
+        level_up: "Parabéns Piloto. A sua experiência aumentou.",
+        start_guardian: "Anjo da Guarda ativado. MonitorizaçÃ£o em curso.",
+        stop_guardian: "Anjo da Guarda desativado. Fim da monitorizaçÃ£o.",
         danger_overtake: "AVISO: ULTRAPASSAGEM PERIGOSA DETETADA.",
       },
     },
@@ -1756,7 +1756,7 @@ window.OracleEngine = {
         speed:
           "Waarschuwing: Te hoge snelheid. Gelieve onmiddellijk te vertragen.",
         threat_detected:
-          "ANALYSE: Dreiging geÃ¯dentificeerd. Voorzichtigheid geboden.",
+          "ANALYSE: Dreiging geïdentificeerd. Voorzichtigheid geboden.",
         level_up: "Gefeliciteerd Piloot. Uw ervaring is toegenomen.",
         start_guardian: "Beschermengel geactiveerd. Monitoring gestart.",
         stop_guardian: "Beschermengel gedeactiveerd. Einde monitoring.",
@@ -1777,47 +1777,47 @@ window.OracleEngine = {
     },
     sv: {
       standard: {
-        start: "Systemet Ã¤r klart. Anslutning upprÃ¤ttad.",
-        speed: "Varning: FÃ¶r hÃ¶g hastighet. SÃ¤nk farten omedelbart.",
-        threat_detected: "ANALYS: Hot identifierat. Var fÃ¶rsiktig.",
-        level_up: "Grattis Pilot. Din erfarenhet har Ã¶kat.",
-        start_guardian: "SkyddsÃ¤ngel aktiverad. Ã–vervakning pÃ¥gÃ¥r.",
-        stop_guardian: "SkyddsÃ¤ngel inaktiverad. Slut pÃ¥ Ã¶vervakning.",
+        start: "Systemet är klart. Anslutning upprättad.",
+        speed: "Varning: För hög hastighet. Sänk farten omedelbart.",
+        threat_detected: "ANALYS: Hot identifierat. Var försiktig.",
+        level_up: "Grattis Pilot. Din erfarenhet har ökat.",
+        start_guardian: "Skyddsängel aktiverad. Ã–vervakning pågår.",
+        stop_guardian: "Skyddsängel inaktiverad. Slut på övervakning.",
         danger_overtake: "VARNING: FARLIG OMKÃ–RNING UPPTÃ„CKT.",
       },
     },
     da: {
       standard: {
         start: "Systemet er klar. Forbindelse oprettet.",
-        speed: "Advarsel: For hÃ¸j hastighed. SÃ¦t farten ned med det samme.",
+        speed: "Advarsel: For høj hastighed. Sæt farten ned med det samme.",
         threat_detected:
-          "ANALYSE: Trussel identificeret. Forsigtighed tilrÃ¥des.",
-        level_up: "Tillykke Pilot. Din erfarenhet er Ã¸get.",
-        start_guardian: "Skytsengel aktiveret. OvervÃ¥gning i gang.",
-        stop_guardian: "Skytsengel deaktiveret. Slut pÃ¥ overvÃ¥gning.",
+          "ANALYSE: Trussel identificeret. Forsigtighed tilrådes.",
+        level_up: "Tillykke Pilot. Din erfarenhet er øget.",
+        start_guardian: "Skytsengel aktiveret. Overvågning i gang.",
+        stop_guardian: "Skytsengel deaktiveret. Slut på overvågning.",
         danger_overtake: "ADVARSEL: FARLIG OVERHALING REGISTRERET.",
       },
     },
     fi: {
       standard: {
-        start: "JÃ¤rjestelmÃ¤ valmis. Yhteys muodostettu.",
-        speed: "HÃ¤lytys: Liian suuri nopeus. Hidasta vÃ¤littÃ¶mÃ¤sti.",
+        start: "Järjestelmä valmis. Yhteys muodostettu.",
+        speed: "Hälytys: Liian suuri nopeus. Hidasta välittömästi.",
         threat_detected: "ANALYYSI: Uhka tunnistettu. Noudata varovaisuutta.",
         level_up: "Onnea Pilotti. Kokemuksesi on kasvanut.",
-        start_guardian: "Suojelusenkeli aktivoitu. Valvonta kÃ¤ynnissÃ¤.",
-        stop_guardian: "Suojelusenkeli deaktivoitu. Valvonta pÃ¤Ã¤ttynyt.",
+        start_guardian: "Suojelusenkeli aktivoitu. Valvonta käynnissä.",
+        stop_guardian: "Suojelusenkeli deaktivoitu. Valvonta päättynyt.",
         danger_overtake: "VAROITUS: VAARALLINEN OHITUS HAVAITTU.",
       },
     },
     no: {
       standard: {
         start: "Systemet er klart. Tilkobling opprettet.",
-        speed: "Advarsel: For hÃ¸y hastighet. Sakt ned umiddelbart.",
+        speed: "Advarsel: For høy hastighet. Sakt ned umiddelbart.",
         threat_detected:
           "ANALYSE: Trussel identifisert. Forsiktighet anbefales.",
-        level_up: "Gratulerer Pilot. Din erfaring har Ã¸kt.",
-        start_guardian: "Skytsengel aktivert. OvervÃ¥king pÃ¥gÃ¥r.",
-        stop_guardian: "Skytsengel deaktivert. Slut pÃ¥ overvÃ¥king.",
+        level_up: "Gratulerer Pilot. Din erfaring har økt.",
+        start_guardian: "Skytsengel aktivert. Overvåking pågår.",
+        stop_guardian: "Skytsengel deaktivert. Slut på overvåking.",
         danger_overtake: "ADVARSEL: FARLIG FORBIKJÃ˜RING OPPDAGET.",
       },
     },
@@ -1841,26 +1841,26 @@ window.OracleEngine = {
     },
     cs: {
       standard: {
-        start: "SystÃ©m pÅ™ipraven. PÅ™ipojenÃ­ navÃ¡zÃ¡no.",
+        start: "Systém pÅ™ipraven. PÅ™ipojenÃ­ navÃ¡zÃ¡no.",
         speed: "UpozornÄ›nÃ­: NadmÄ›rnÃ¡ rychlost. OkamÅ¾itÄ› zpomalte.",
         threat_detected:
           "ANALÃZA: IdentifikovÃ¡na hrozba. DoporuÄuje se opatrnost.",
         level_up: "Gratulujeme Pilote. VaÅ¡e zkuÅ¡enosti se zvÃ½Å¡ily.",
         start_guardian: "AndÄ›l strÃ¡Å¾nÃ½ aktivovÃ¡n. SledovÃ¡nÃ­ probÃ­hÃ¡.",
         stop_guardian: "AndÄ›l strÃ¡Å¾nÃ½ deaktivovÃ¡n. Konec sledovÃ¡nÃ­.",
-        danger_overtake: "VAROVÃNÃ: ZJIÅ TÄšNO NEBEZPEÄŒNÃ‰ PÅ˜EDBÃHÃNÃ.",
+        danger_overtake: "VAROVÃNÃ: ZJIÅ TÄšNO NEBEZPEÄŒNÉ PÅ˜EDBÃHÃNÃ.",
       },
     },
     hu: {
       standard: {
-        start: "Rendszer kÃ©sz. Kapcsolat lÃ©trejÃ¶tt.",
-        speed: "RiasztÃ¡s: TÃºl nagy sebessÃ©g. Azonnal lassÃ­tson.",
+        start: "Rendszer kész. Kapcsolat létrejött.",
+        speed: "RiasztÃ¡s: TÃºl nagy sebesség. Azonnal lassÃ­tson.",
         threat_detected:
-          "ELEMZÃ‰S: FenyegetÃ©s azonosÃ­tva. Ã“vatossÃ¡g ajÃ¡nlott.",
+          "ELEMZÉS: Fenyegetés azonosÃ­tva. Ã“vatossÃ¡g ajÃ¡nlott.",
         level_up: "GratulÃ¡lunk PilÃ³ta. Tapasztalata nÅ‘tt.",
-        start_guardian: "Årangyal aktivÃ¡lva. MegfigyelÃ©s folyamatban.",
-        stop_guardian: "Årangyal deaktivÃ¡lva. MegfigyelÃ©s vÃ©ge.",
-        danger_overtake: "FIGYELEM: VESZÃ‰LYES ELÅZÃ‰S Ã‰SZLELVE.",
+        start_guardian: "Årangyal aktivÃ¡lva. Megfigyelés folyamatban.",
+        stop_guardian: "Årangyal deaktivÃ¡lva. Megfigyelés vége.",
+        danger_overtake: "FIGYELEM: VESZÉLYES ELÅZÉS ÉSZLELVE.",
       },
     },
     ro: {
@@ -1870,16 +1870,16 @@ window.OracleEngine = {
         threat_detected:
           "ANALIZÄ‚: AmeninÈ›are identificatÄƒ. Se recomandÄƒ prudenÈ›Äƒ.",
         level_up: "FelicitÄƒri Pilotule. ExperienÈ›a ta a crescut.",
-        start_guardian: "ÃŽnger PÄƒzitor activat. Monitorizare Ã®n curs.",
+        start_guardian: "ÃŽnger PÄƒzitor activat. Monitorizare în curs.",
         stop_guardian:
-          "ÃŽnger PÄƒzitor dezactivat. SfÃ¢rÈ™itul monitorizÄƒrii.",
+          "ÃŽnger PÄƒzitor dezactivat. SfârÈ™itul monitorizÄƒrii.",
         danger_overtake: "ATENÈšIE: DEPÄ‚È˜IRE PERICULOASÄ‚ DETECTATÄ‚.",
       },
     },
   },
 
   updateRegion: function (lat, lng) {
-    // Ne pas Ã©craser la rÃ©gion si triggerRegionalWelcome (Nominatim) l'a dÃ©jÃ  dÃ©finie
+    // Ne pas écraser la région si triggerRegionalWelcome (Nominatim) l'a déjà définie
     if (this._regionSetByNominatim) return;
 
     if (lat > 43.1 && lat < 43.4 && lng > 5.2 && lng < 5.6)
@@ -1976,20 +1976,20 @@ async function speak(phraseKey) {
 
   utterance.lang = navigator.language;
 
-  // Voice Modes (MarchÃ© Noir BVC)
+  // Voice Modes (Marché Noir BVC)
   let rate = 0.95;
   let pitch =
     window.OracleEngine && window.OracleEngine.gender === "female" ? 1.05 : 0.9;
 
   const voiceMode = localStorage.getItem("jarvisVoiceMode") || "standard";
 
-  // Simulation d'accents rÃ©gionaux (pitch/rate)
+  // Simulation d'accents régionaux (pitch/rate)
   if (region && region !== "standard" && voiceMode === "standard") {
     switch (region) {
-      // SystÃ¨me A â€” RÃ©gions administratives (Nominatim)
-      case "provence-alpes-cÃ´te d'azur":
+      // Système A â€” Régions administratives (Nominatim)
+      case "provence-alpes-côte d'azur":
       case "occitanie":
-      // SystÃ¨me B â€” Villes/zones (GPS)
+      // Système B â€” Villes/zones (GPS)
       case "marseille":
       case "reunion":
         rate = 0.85;
@@ -2001,27 +2001,27 @@ async function speak(phraseKey) {
         rate = 1.1;
         pitch = pitch * 0.85; // Nord : plus rapide, un peu plus grave
         break;
-      case "Ã®le-de-france":
+      case "île-de-france":
       case "brussels":
         rate = 1.15; // Paris/Bruxelles : parle vite
         break;
-      case "auvergne-rhÃ´ne-alpes":
+      case "auvergne-rhône-alpes":
         rate = 0.88;
-        pitch = pitch * 0.95; // RhÃ´ne-Alpes : posÃ©, calme
+        pitch = pitch * 0.95; // Rhône-Alpes : posé, calme
         break;
       case "bretagne":
       case "normandie":
         pitch = pitch * 1.1; // Ouest
         break;
       case "grand est":
-      case "bourgogne-franche-comtÃ©":
+      case "bourgogne-franche-comté":
       case "flanders":
         rate = 0.92;
         pitch = pitch * 1.05;
         break;
       case "quebec":
         rate = 0.9;
-        pitch = pitch * 1.15; // QuÃ©bÃ©cois : chantant, plus lent
+        pitch = pitch * 1.15; // Québécois : chantant, plus lent
         break;
       case "andalucia":
         rate = 1.05;
@@ -2058,7 +2058,7 @@ function checkNightMode() {
   if (isNight && !nightModeActive) {
     document.body.classList.add("night-theme");
     nightModeActive = true;
-    speak("Mode nuit activÃ©.");
+    speak("Mode nuit activé.");
   } else if (!isNight && nightModeActive) {
     document.body.classList.remove("night-theme");
     nightModeActive = false;
@@ -2069,7 +2069,7 @@ function checkNightMode() {
 document.addEventListener(
   "deviceready",
   () => {
-    // Si le plugin de background-mode est installÃ© (Cordova/Capacitor)
+    // Si le plugin de background-mode est installé (Cordova/Capacitor)
     if (window.cordova && cordova.plugins && cordova.plugins.backgroundMode) {
       cordova.plugins.backgroundMode.enable();
       cordova.plugins.backgroundMode.on("activate", function () {
@@ -2109,7 +2109,7 @@ window.addEventListener("deviceorientation", (e) => {
 
   if (leanMeter && currentLeanAngle > 5) {
     leanMeter.classList.remove("hidden");
-    leanVal.textContent = `${currentLeanAngle}Â°`;
+    leanVal.textContent = `${currentLeanAngle}°`;
 
     if (lean < 0) {
       fillL.style.width = `${Math.min(currentLeanAngle * 2, 100)}%`;

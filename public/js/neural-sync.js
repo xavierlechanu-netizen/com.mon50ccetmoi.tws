@@ -13,7 +13,7 @@ window.NeuralSync = {
   },
 
   analyzeIncident: function (accel) {
-    // DÃ©tection de panique (Force G brutale > 15)
+    // Détection de panique (Force G brutale > 15)
     const totalG = Math.abs(accel.x) + Math.abs(accel.y) + Math.abs(accel.z);
 
     if (totalG > 18 && !this.isShieldActive) {
@@ -26,7 +26,7 @@ window.NeuralSync = {
     Hardware.vibratePattern("danger");
     document.body.classList.add("stress-shield-active");
 
-    speak("Bouclier Neural activÃ©. Incident enregistrÃ© dans la Blackbox.");
+    speak("Bouclier Neural activé. Incident enregistré dans la Blackbox.");
 
     // Tag automatique du rapport Blackbox
     if (window.Blackbox) {
@@ -40,7 +40,7 @@ window.NeuralSync = {
   },
 
   startV2VScanner: function () {
-    // Simulation de dÃ©tection d'autres riders (V2V)
+    // Simulation de détection d'autres riders (V2V)
     setInterval(() => {
       if (window.isRiding && Math.random() > 0.98) {
         this.triggerV2VWave();
@@ -49,7 +49,7 @@ window.NeuralSync = {
   },
 
   triggerV2VWave: function () {
-    speak("Pilote Xavier Le Chanu dÃ©tectÃ©. Salut motard transmis.");
+    speak("Pilote Xavier Le Chanu détecté. Salut motard transmis.");
     Hardware.vibratePattern("warning"); // Double vibration "V"
 
     const halo = document.createElement("div");

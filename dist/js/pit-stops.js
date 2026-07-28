@@ -54,9 +54,9 @@ window.PitStopSystem = {
 
     const info = new google.maps.InfoWindow({
       content: `<div style="color:black; font-family:'Outfit';">
-                        <h3 style="margin:0;">${isGas ? "â›½" : "ðŸ”§"} ${data.name}</h3>
+                        <h3 style="margin:0;">${isGas ? "⛽" : "ðŸ”§"} ${data.name}</h3>
                         <p style="margin:5px 0;">${data.desc || ""}</p>
-                        <small>AjoutÃ© par: ${data.author}</small><br>
+                        <small>Ajouté par: ${data.author}</small><br>
                         <button onclick="window.calculateRoute(new google.maps.LatLng(${data.lat}, ${data.lng}))" style="margin-top:5px; background:#111; color:white; padding:5px 10px; border:none; border-radius:5px; cursor:pointer;">Y aller</button>
                       </div>`,
     });
@@ -84,15 +84,15 @@ window.PitStopSystem = {
 
     modal.innerHTML = `
             <div style="background:#111; border:1px solid #ff0055; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
-                <h2 style="color:#ff0055; margin-bottom:20px; font-family:'Outfit', sans-serif;">Ajouter un Point d'IntÃ©rÃªt</h2>
+                <h2 style="color:#ff0055; margin-bottom:20px; font-family:'Outfit', sans-serif;">Ajouter un Point d'Intérêt</h2>
                 
                 <select id="pitstop-type" style="width:100%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #333; border-radius:5px;">
-                    <option value="gas">â›½ Station Service (Friendly 50cc)</option>
+                    <option value="gas">⛽ Station Service (Friendly 50cc)</option>
                     <option value="garage">ðŸ”§ Garage 2-Roues de confiance</option>
                 </select>
                 
                 <input type="text" id="pitstop-name" placeholder="Nom du lieu (ex: Total Access)" style="width:100%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #333; border-radius:5px;">
-                <textarea id="pitstop-desc" placeholder="DÃ©tails (ex: SP98 pas cher, compresseur gratuit...)" style="width:100%; padding:10px; margin-bottom:20px; background:#222; color:white; border:1px solid #333; border-radius:5px; height:60px;"></textarea>
+                <textarea id="pitstop-desc" placeholder="Détails (ex: SP98 pas cher, compresseur gratuit...)" style="width:100%; padding:10px; margin-bottom:20px; background:#222; color:white; border:1px solid #333; border-radius:5px; height:60px;"></textarea>
                 
                 <button onclick="window.PitStopSystem.addPitStop()" style="width:100%; background:#ff0055; border:none; color:white; padding:12px; border-radius:20px; font-weight:bold; cursor:pointer; margin-bottom:10px;">Enregistrer ma position</button>
                 <button onclick="document.getElementById('pitstop-modal').style.display='none'" style="width:100%; background:transparent; border:1px solid #aaa; color:#fff; padding:10px; border-radius:20px; cursor:pointer;">Annuler</button>
@@ -121,15 +121,15 @@ window.PitStopSystem = {
         lng: window.currentPosition.lng,
         createdAt: Date.now(),
       });
-      alert("Pit Stop ajoutÃ© sur la carte globale !");
+      alert("Pit Stop ajouté sur la carte globale !");
       document.getElementById("pitstop-modal").style.display = "none";
     } catch (e) {
       console.error(e);
-      alert("Erreur rÃ©seau.");
+      alert("Erreur réseau.");
     }
   },
 
-  // Simulateur d'OBD pour faire baisser l'essence et dÃ©clencher l'alerte
+  // Simulateur d'OBD pour faire baisser l'essence et déclencher l'alerte
   simulateOBDFuelCheck: function () {
     if (window.obdFuelLevel === undefined) window.obdFuelLevel = 100;
 
@@ -142,7 +142,7 @@ window.PitStopSystem = {
         this.isFuelLow = true;
         if (typeof speak === "function") {
           speak(
-            "Alerte O B D. Niveau de carburant critique, infÃ©rieur Ã  15 pourcents. Voulez-vous que je vous guide vers la station la plus proche ?",
+            "Alerte O B D. Niveau de carburant critique, inférieur à 15 pourcents. Voulez-vous que je vous guide vers la station la plus proche ?",
           );
         }
 
@@ -170,7 +170,7 @@ window.PitStopSystem = {
         const uiHtml = `
                     <div id="fuel-alert" style="position:fixed; top:80px; left:50%; transform:translateX(-50%); background:rgba(255,165,0,0.95); color:black; padding:15px; border-radius:10px; z-index:99999; text-align:center; font-weight:bold; box-shadow:0 0 20px rgba(255,165,0,0.5);">
                         <i class="fa-solid fa-gas-pump"></i> CARBURANT CRITIQUE (${window.obdFuelLevel}%)<br>
-                        ${closestGas ? `<button onclick="window.calculateRoute(new google.maps.LatLng(${closestGas.getPosition().lat()}, ${closestGas.getPosition().lng()})); document.getElementById('fuel-alert').remove();" style="margin-top:10px; padding:8px 15px; background:black; color:white; border:none; border-radius:5px; cursor:pointer;">Aller Ã  la station la plus proche</button>` : '<div style="margin-top:10px;">Aucune station communautaire connue autour.</div>'}
+                        ${closestGas ? `<button onclick="window.calculateRoute(new google.maps.LatLng(${closestGas.getPosition().lat()}, ${closestGas.getPosition().lng()})); document.getElementById('fuel-alert').remove();" style="margin-top:10px; padding:8px 15px; background:black; color:white; border:none; border-radius:5px; cursor:pointer;">Aller à la station la plus proche</button>` : '<div style="margin-top:10px;">Aucune station communautaire connue autour.</div>'}
                         <button onclick="document.getElementById('fuel-alert').remove();" style="margin-top:10px; padding:8px 15px; background:transparent; color:black; border:1px solid black; border-radius:5px; cursor:pointer;">Ignorer</button>
                     </div>
                 `;

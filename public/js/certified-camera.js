@@ -1,6 +1,6 @@
 ﻿/**
  * CERTIFIED CAMERA MODULE (Dashcam Photo Experte)
- * GÃ¨re l'appareil photo, la capture et l'incrustation des donnÃ©es indÃ©lÃ©biles (Watermark).
+ * Gère l'appareil photo, la capture et l'incrustation des données indélébiles (Watermark).
  */
 
 window.CertifiedCamera = {
@@ -10,10 +10,10 @@ window.CertifiedCamera = {
   currentCaseCode: null,
 
   open: async function (caseCode = null) {
-    if (this.overlayEl) return; // DÃ©jÃ  ouvert
+    if (this.overlayEl) return; // Déjà ouvert
     this.currentCaseCode = caseCode;
 
-    // CrÃ©ation de l'interface en plein Ã©cran
+    // Création de l'interface en plein écran
     this.overlayEl = document.createElement("div");
     this.overlayEl.id = "certified-camera-overlay";
     this.overlayEl.style = `
@@ -27,7 +27,7 @@ window.CertifiedCamera = {
             justify-content: center;
         `;
 
-    // Ã‰lÃ©ment vidÃ©o
+    // Élément vidéo
     this.videoEl = document.createElement("video");
     this.videoEl.setAttribute("autoplay", "");
     this.videoEl.setAttribute("playsinline", "");
@@ -49,7 +49,7 @@ window.CertifiedCamera = {
     hudText.style =
       "color: #00ffcc; font-family: monospace; text-shadow: 0 0 5px #000; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 10px; font-size: 0.9rem;";
     const hudCase = caseCode ? ` - DOSSIER: ${caseCode}` : "";
-    hudText.innerHTML = `<i class="fa-solid fa-lock"></i> Mode Preuve CertifiÃ©e (mon50cc.com)${hudCase}`;
+    hudText.innerHTML = `<i class="fa-solid fa-lock"></i> Mode Preuve Certifiée (mon50cc.com)${hudCase}`;
 
     const btnCapture = document.createElement("button");
     btnCapture.innerHTML = '<i class="fa-solid fa-camera"></i> CAPTURER';
@@ -107,7 +107,7 @@ window.CertifiedCamera = {
     this.overlayEl.appendChild(uiContainer);
     document.body.appendChild(this.overlayEl);
 
-    // Lancement de la camÃ©ra arriÃ¨re
+    // Lancement de la caméra arrière
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" },
@@ -115,10 +115,10 @@ window.CertifiedCamera = {
       });
       this.videoEl.srcObject = this.stream;
       if (typeof speak === "function")
-        speak("CamÃ©ra certifiÃ©e activÃ©e. Ciblez le dommage.");
+        speak("Caméra certifiée activée. Ciblez le dommage.");
     } catch (err) {
-      console.error("Erreur camÃ©ra :", err);
-      alert("Impossible d'accÃ©der Ã  la camÃ©ra. VÃ©rifiez les permissions.");
+      console.error("Erreur caméra :", err);
+      alert("Impossible d'accéder à la caméra. Vérifiez les permissions.");
       this.close();
     }
   },
@@ -136,7 +136,7 @@ window.CertifiedCamera = {
 
     if ("vibrate" in navigator) navigator.vibrate(50); // Son du clic / vibration
 
-    // CrÃ©ation du canvas invisible
+    // Création du canvas invisible
     const canvas = document.createElement("canvas");
     canvas.width = this.videoEl.videoWidth;
     canvas.height = this.videoEl.videoHeight;
@@ -145,7 +145,7 @@ window.CertifiedCamera = {
     // Dessiner l'image
     ctx.drawImage(this.videoEl, 0, 0, canvas.width, canvas.height);
 
-    // RÃ©cupÃ©ration des donnÃ©es GPS & Vitesse
+    // Récupération des données GPS & Vitesse
     let lat = "INCONNU";
     let lng = "INCONNU";
     if (window.currentPosition) {
@@ -162,10 +162,10 @@ window.CertifiedCamera = {
     const timeStr = date.toLocaleTimeString("fr-FR");
 
     // ----------------------------------------------------
-    // INCRUSTATION DES DONNÃ‰ES (WATERMARKING)
+    // INCRUSTATION DES DONNÉES (WATERMARKING)
     // ----------------------------------------------------
 
-    // 1. FILIGRANE DIAGONAL (40 degrÃ©s)
+    // 1. FILIGRANE DIAGONAL (40 degrés)
     ctx.save();
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate((-40 * Math.PI) / 180);
@@ -178,16 +178,16 @@ window.CertifiedCamera = {
     ctx.fillText("CERTIFICATION mon50cc.com", 0, 0);
     ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
     ctx.font = `bold ${watermarkSize * 0.6}px sans-serif`;
-    ctx.fillText("PREUVE HORODATÃ‰E", 0, watermarkSize * 1.2);
+    ctx.fillText("PREUVE HORODATÉE", 0, watermarkSize * 1.2);
 
     ctx.restore();
 
-    // 2. BANDEAU DE DONNÃ‰ES EN BAS (Lecture Claire)
+    // 2. BANDEAU DE DONNÉES EN BAS (Lecture Claire)
     const bannerHeight = canvas.height * 0.15;
     ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
     ctx.fillRect(0, canvas.height - bannerHeight, canvas.width, bannerHeight);
 
-    // ParamÃ¨tres du texte
+    // Paramètres du texte
     ctx.fillStyle = "#ffffff";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
@@ -218,7 +218,7 @@ window.CertifiedCamera = {
     });
 
     // ----------------------------------------------------
-    // TÃ‰LÃ‰CHARGEMENT
+    // TÉLÉCHARGEMENT
     // ----------------------------------------------------
     const dataURL = canvas.toDataURL("image/jpeg", 0.9);
     const link = document.createElement("a");
@@ -230,9 +230,9 @@ window.CertifiedCamera = {
     link.click();
 
     if (typeof speak === "function")
-      speak("Preuve horodatÃ©e certifiÃ©e et enregistrÃ©e dans votre galerie.");
+      speak("Preuve horodatée certifiée et enregistrée dans votre galerie.");
 
-    // Fermeture automatique aprÃ¨s 1 seconde
+    // Fermeture automatique après 1 seconde
     setTimeout(() => this.close(), 1000);
   },
 

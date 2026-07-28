@@ -36,7 +36,7 @@ window.Web4Economy = {
       setTimeout(
         () =>
           alert(
-            "Nouvelle Saison ! Vos points BVC (Rouler & Gagner) ont expirÃ© et ont Ã©tÃ© remis Ã  zÃ©ro pour l'annÃ©e civile en cours.",
+            "Nouvelle Saison ! Vos points BVC (Rouler & Gagner) ont expiré et ont été remis à zéro pour l'année civile en cours.",
           ),
         2000,
       );
@@ -59,10 +59,10 @@ window.Web4Economy = {
       localStorage.setItem("braveCoins", this.balance.toFixed(2));
       this.updateUI();
 
-      return true; // Achat rÃ©ussi
+      return true; // Achat réussi
     } else {
       console.warn(`[Web4] Fonds insuffisants pour : ${reason}`);
-      return false; // Achat refusÃ©
+      return false; // Achat refusé
     }
   },
 
@@ -82,7 +82,7 @@ window.Web4Economy = {
         lawyerBtn.style.filter = "grayscale(100%)";
         lawyerBtn.innerHTML =
           '<i class="fa-solid fa-lock" style="filter: drop-shadow(0 0 5px #ff4d4d); color: #ff4d4d;"></i>';
-        lawyerBtn.title = `NÃ©cessite ${lawyerPrice} BVC`;
+        lawyerBtn.title = `Nécessite ${lawyerPrice} BVC`;
       } else {
         lawyerBtn.style.opacity = "1";
         lawyerBtn.style.filter = "none";

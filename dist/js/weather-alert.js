@@ -1,6 +1,6 @@
 ﻿/**
  * INTELLIGENT WEATHER ALERT v1.0
- * Analyse les conditions mÃ©tÃ©o sur l'itinÃ©raire du pilote et alerte
+ * Analyse les conditions météo sur l'itinéraire du pilote et alerte
  * vocalement en cas de danger (pluie, verglas, vent fort).
  */
 
@@ -12,21 +12,21 @@ window.WeatherAlert = {
 
   // Mock conditions for demo purposes
   CONDITIONS: {
-    CLEAR: { label: "DÃ©gagÃ©", danger: false, msg: "" },
+    CLEAR: { label: "Dégagé", danger: false, msg: "" },
     RAIN: {
       label: "Pluie",
       danger: true,
-      msg: "Alerte mÃ©tÃ©o. Pluie dÃ©tectÃ©e sur votre itinÃ©raire. AdhÃ©rence rÃ©duite, ralentissez.",
+      msg: "Alerte météo. Pluie détectée sur votre itinéraire. Adhérence réduite, ralentissez.",
     },
     WIND: {
       label: "Vent Fort",
       danger: true,
-      msg: "Alerte mÃ©tÃ©o. Fortes rafales de vent. Maintenez fermement votre guidon.",
+      msg: "Alerte météo. Fortes rafales de vent. Maintenez fermement votre guidon.",
     },
     ICE: {
       label: "Risque de Verglas",
       danger: true,
-      msg: "Alerte critique. TempÃ©rature proche de zÃ©ro. Risque extrÃªme de verglas.",
+      msg: "Alerte critique. Température proche de zéro. Risque extrême de verglas.",
     },
   },
 
@@ -36,10 +36,10 @@ window.WeatherAlert = {
     if (this.isMonitoring) return;
     this.isMonitoring = true;
 
-    // VÃ©rification immÃ©diate
+    // Vérification immédiate
     this.checkWeather(window.appMap?.currentPos);
 
-    // Puis vÃ©rification toutes les 15 minutes (900000 ms)
+    // Puis vérification toutes les 15 minutes (900000 ms)
     this.checkInterval = setInterval(() => {
       this.checkWeather(window.appMap?.currentPos);
     }, 900000);
@@ -54,11 +54,11 @@ window.WeatherAlert = {
     if (!position) return;
 
     const now = Date.now();
-    // Ã‰vite de spammer les alertes (1 alerte max toutes les 15 min)
+    // Évite de spammer les alertes (1 alerte max toutes les 15 min)
     if (now - this.lastCheckTime < 900000 && this.lastCheckTime !== 0) return;
 
-    // Dans un cas rÃ©el, appel vers OpenWeatherMap API ou MÃ©tÃ©o France
-    // Ici, nous simulons la mÃ©tÃ©o alÃ©atoirement pour la dÃ©mo
+    // Dans un cas réel, appel vers OpenWeatherMap API ou Météo France
+    // Ici, nous simulons la météo aléatoirement pour la démo
     const simulatedWeather = this.simulateWeatherAPI();
 
     if (
@@ -76,7 +76,7 @@ window.WeatherAlert = {
     const condition = this.CONDITIONS[conditionKey];
     if (!condition || !condition.danger) return;
 
-    console.warn(`ðŸŒ¦ï¸ ALERTE MÃ‰TÃ‰O : ${condition.label}`);
+    console.warn(`🌍¦ï¸ ALERTE MÉTÉO : ${condition.label}`);
 
     // Notification Vocale
     if (typeof speak === "function") {
@@ -117,8 +117,8 @@ window.WeatherAlert = {
     toast.innerHTML = `
             <span style="font-size:24px;">â˜ï¸</span>
             <div>
-                <div style="font-weight:bold; color:#00d2ff;">Alerte MÃ©tÃ©o : ${condition.label}</div>
-                <div style="font-size:12px; color:#aaa;">Prudence recommandÃ©e</div>
+                <div style="font-weight:bold; color:#00d2ff;">Alerte Météo : ${condition.label}</div>
+                <div style="font-size:12px; color:#aaa;">Prudence recommandée</div>
             </div>
         `;
 
@@ -137,7 +137,7 @@ window.WeatherAlert = {
     return "CLEAR";
   },
 
-  // DÃ©clenchÃ© depuis la console pour tester
+  // Déclenché depuis la console pour tester
   testAlert: function (type = "RAIN") {
     this.triggerAlert(type);
   },

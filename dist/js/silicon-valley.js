@@ -57,13 +57,13 @@ window.toggleARVision = async function () {
 
       if (typeof speak === "function")
         speak(
-          "RÃ©alitÃ© AugmentÃ©e activÃ©e. Superposition de navigation HUD en ligne.",
+          "Réalité Augmentée activée. Superposition de navigation HUD en ligne.",
         );
     } catch (err) {
       console.error("AR Error: ", err);
       window.isARActive = false;
       if (typeof speak === "function")
-        speak("Erreur d'accÃ¨s Ã  la camÃ©ra pour la rÃ©alitÃ© augmentÃ©e.");
+        speak("Erreur d'accès à la caméra pour la réalité augmentée.");
       if (btn) {
         btn.style.transform = "scale(1)";
         btn.style.color = "#00ffcc";
@@ -93,7 +93,7 @@ window.toggleARVision = async function () {
       mapContainer.style.mixBlendMode = "normal";
     }
     if (typeof speak === "function")
-      speak("RÃ©alitÃ© AugmentÃ©e dÃ©sactivÃ©e.");
+      speak("Réalité Augmentée désactivée.");
   }
 };
 
@@ -106,7 +106,7 @@ window.showCryptoWallet = function () {
   if (screen) screen.classList.remove("hidden");
   if (balance) balance.innerText = Math.floor(window.braveCoins) + " Pts BVC";
 
-  if (typeof speak === "function") speak("AccÃ¨s Ã  votre espace fidÃ©litÃ©.");
+  if (typeof speak === "function") speak("Accès à votre espace fidélité.");
 };
 
 window.hideCryptoWallet = function () {
@@ -125,7 +125,7 @@ if (typeof window.stopNavigation === "function") {
     if (typeof speak === "function")
       setTimeout(
         () =>
-          speak("Vous avez gagnÃ© 12 points BVC pour ce trajet sÃ©curisÃ©."),
+          speak("Vous avez gagné 12 points BVC pour ce trajet sécurisé."),
         8000,
       );
   };
@@ -163,7 +163,7 @@ window.initBiometrics = function () {
       // Randomly trigger voice if super stressed
       if (Math.random() > 0.95 && typeof speak === "function") {
         speak(
-          "Rythme cardiaque Ã©levÃ© dÃ©tectÃ©. Respirez calmement pour votre sÃ©curitÃ©.",
+          "Rythme cardiaque élevé détecté. Respirez calmement pour votre sécurité.",
         );
       }
     } else {

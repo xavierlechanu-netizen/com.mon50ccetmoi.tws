@@ -1,6 +1,6 @@
 ﻿/**
  * ORACLE VOICE ENGINE - Voice Recognition & Commands (PHASE SINGULARITY)
- * Permet au pilote de contrÃ´ler l'app sans lÃ¢cher le guidon.
+ * Permet au pilote de contrôler l'app sans lâcher le guidon.
  */
 class OracleVoice {
   constructor() {
@@ -16,7 +16,7 @@ class OracleVoice {
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       console.warn(
-        "Oracle Voice : Reconnaissance vocale non supportÃ©e par ce navigateur.",
+        "Oracle Voice : Reconnaissance vocale non supportée par ce navigateur.",
       );
       return;
     }
@@ -25,7 +25,7 @@ class OracleVoice {
     this.recognition.continuous = true;
     this.recognition.interimResults = false;
 
-    // Mapping des langues principales, mais on fallback sur n'importe quel dialecte du tÃ©lÃ©phone (les 7000+ supportÃ©s par l'OS)
+    // Mapping des langues principales, mais on fallback sur n'importe quel dialecte du téléphone (les 7000+ supportés par l'OS)
     const langMap = {
       fr: "fr-FR",
       en: "en-US",
@@ -40,7 +40,7 @@ class OracleVoice {
       ro: "ro-RO",
       hk: "zh-HK",
     };
-    // Utilise la langue choisie dans l'app, SINON utilise le dialecte exact du tÃ©lÃ©phone (ex: fr-CA, ar-DZ, sw-KE)
+    // Utilise la langue choisie dans l'app, SINON utilise le dialecte exact du téléphone (ex: fr-CA, ar-DZ, sw-KE)
     this.recognition.lang =
       langMap[window.currentLang] || navigator.language || "fr-FR";
 
@@ -53,7 +53,7 @@ class OracleVoice {
     };
 
     this.recognition.onerror = (e) => {
-      // Rate-limit les logs pour Ã©viter le spam console
+      // Rate-limit les logs pour éviter le spam console
       const now = Date.now();
       if (now - this.lastErrorTime < 1000) {
         this.errorCount++;
@@ -61,7 +61,7 @@ class OracleVoice {
       } else {
         if (this.errorCount > 3) {
           console.warn(
-            `Oracle Voice : ${this.errorCount} erreurs supprimÃ©es.`,
+            `Oracle Voice : ${this.errorCount} erreurs supprimées.`,
           );
         }
         this.errorCount = 0;
@@ -70,7 +70,7 @@ class OracleVoice {
 
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
         console.error(
-          "Oracle Voice : Permission micro refusÃ©e. ArrÃªt de la reconnaissance.",
+          "Oracle Voice : Permission micro refusée. Arrêt de la reconnaissance.",
         );
         this.active = false; // STOP â€” ne pas relancer
         const overlay = document.getElementById("oracle-listening-overlay");
@@ -78,7 +78,7 @@ class OracleVoice {
         // Informer l'utilisateur une seule fois
         if (typeof speak === "function") {
           speak(
-            "Permission micro refusÃ©e. Activez le micro dans les paramÃ¨tres de l'application.",
+            "Permission micro refusée. Activez le micro dans les paramètres de l'application.",
           );
         }
         return;
@@ -90,7 +90,7 @@ class OracleVoice {
 
     this.recognition.onend = () => {
       if (this.active) {
-        // DÃ©lai anti-spam : Ã©viter les boucles trop rapides
+        // Délai anti-spam : éviter les boucles trop rapides
         setTimeout(() => {
           if (this.active) {
             try {
@@ -111,17 +111,17 @@ class OracleVoice {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
-        // Permission accordÃ©e â€” libÃ©rer le stream immÃ©diatement
+        // Permission accordée â€” libérer le stream immédiatement
         stream.getTracks().forEach((track) => track.stop());
       }
     } catch (permErr) {
-      console.error("Oracle Voice : AccÃ¨s micro refusÃ© :", permErr.message);
+      console.error("Oracle Voice : Accès micro refusé :", permErr.message);
       if (typeof speak === "function") {
         speak(
-          "AccÃ¨s au micro refusÃ©. Activez le micro dans les paramÃ¨tres.",
+          "Accès au micro refusé. Activez le micro dans les paramètres.",
         );
       }
-      return; // Ne pas dÃ©marrer si le micro est bloquÃ©
+      return; // Ne pas démarrer si le micro est bloqué
     }
 
     this.active = true;
@@ -147,10 +147,10 @@ class OracleVoice {
   toggle() {
     if (this.active) {
       this.stop();
-      speak("Reconnaissance vocale dÃ©sactivÃ©e.");
+      speak("Reconnaissance vocale désactivée.");
     } else {
       this.start();
-      speak("Reconnaissance vocale activÃ©e.");
+      speak("Reconnaissance vocale activée.");
     }
   }
 
@@ -181,7 +181,7 @@ class OracleVoice {
     };
 
     if (this.recognition) {
-      // DÃ©bridage total : si la langue n'est pas dans la liste, on capte le dialecte natif de l'utilisateur (Android/iOS)
+      // Débridage total : si la langue n'est pas dans la liste, on capte le dialecte natif de l'utilisateur (Android/iOS)
       this.recognition.lang =
         langMap[window.currentLang] || navigator.language || "fr-FR";
     }
@@ -198,7 +198,7 @@ class OracleVoice {
       text.includes("voturette") ||
       text.includes("vsp") ||
       text.includes("ami") ||
-      text.includes("allÃ´");
+      text.includes("allô");
 
     if (!triggered) return;
 
@@ -207,11 +207,11 @@ class OracleVoice {
     // â”€â”€ Dangers & Alertes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (
       text.includes("alerte rouge") ||
-      text.includes("danger immÃ©diat") ||
+      text.includes("danger immédiat") ||
       text.includes("chauffard")
     ) {
       let description = "";
-      const triggers = ["alerte rouge", "danger immÃ©diat", "chauffard"];
+      const triggers = ["alerte rouge", "danger immédiat", "chauffard"];
       for (let t of triggers) {
         if (text.includes(t)) {
           description = text.substring(text.indexOf(t) + t.length).trim();
@@ -221,7 +221,7 @@ class OracleVoice {
       if (typeof window.saveHazard === "function") {
         window.saveHazard("danger_immediat", description);
         speak(
-          `Alerte rouge envoyÃ©e${description ? " pour " + description : ""}. Prudence.`,
+          `Alerte rouge envoyée${description ? " pour " + description : ""}. Prudence.`,
         );
       } else {
         speak("Je n'ai pas pu signaler le danger.");
@@ -230,14 +230,14 @@ class OracleVoice {
       text.includes("danger") ||
       text.includes("radar") ||
       text.includes("police") ||
-      text.includes("contrÃ´le")
+      text.includes("contrôle")
     ) {
       if (typeof window.saveHazard === "function") {
         window.saveHazard("radar");
-        speak("Danger signalÃ© Ã  la communautÃ©. Restez prudent.");
+        speak("Danger signalé à la communauté. Restez prudent.");
       } else {
         speak(
-          "Je n'ai pas pu signaler le danger. La carte n'est pas encore chargÃ©e.",
+          "Je n'ai pas pu signaler le danger. La carte n'est pas encore chargée.",
         );
       }
     }
@@ -252,13 +252,13 @@ class OracleVoice {
     }
     // â”€â”€ Navigation / Aller â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     else if (
-      text.includes("emmÃ¨ne") ||
-      text.includes("amÃ¨ne") ||
-      text.includes("aller Ã ") ||
+      text.includes("emmène") ||
+      text.includes("amène") ||
+      text.includes("aller à") ||
       text.includes("navigue")
     ) {
       const dest = text
-        .replace(/.*(?:emmÃ¨ne|amÃ¨ne|aller Ã |navigue(?:r)? vers?)\s+/i, "")
+        .replace(/.*(?:emmène|amène|aller à|navigue(?:r)? vers?)\s+/i, "")
         .trim();
       if (dest) {
         const input = document.getElementById("route-search");
@@ -266,7 +266,7 @@ class OracleVoice {
           input.value = dest;
           if (typeof window.searchDestination === "function")
             window.searchDestination();
-          speak(`Calcul de l'itinÃ©raire vers ${dest}.`);
+          speak(`Calcul de l'itinéraire vers ${dest}.`);
         }
       }
     }
@@ -279,19 +279,19 @@ class OracleVoice {
       window.toggleMenu();
       speak("Ouverture du menu.");
     }
-    // â”€â”€ KilomÃ©trage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // â”€â”€ Kilométrage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     else if (
-      text.includes("kilomÃ©trage") ||
+      text.includes("kilométrage") ||
       text.includes("distance") ||
       text.includes("combien") ||
       text.includes("parcouru")
     ) {
       const km = window.session?.totalDistance || 0;
-      speak(`Vous avez parcouru ${km.toFixed(1)} kilomÃ¨tres au total.`);
+      speak(`Vous avez parcouru ${km.toFixed(1)} kilomètres au total.`);
     }
     // â”€â”€ Localisation / Position â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     else if (
-      text.includes("oÃ¹") ||
+      text.includes("où") ||
       text.includes("position") ||
       text.includes("localisation") ||
       text.includes("suis-je")
@@ -299,29 +299,29 @@ class OracleVoice {
       const pos = window.currentPosition;
       if (pos) {
         speak(
-          `Vous Ãªtes Ã  latitude ${pos.lat.toFixed(4)}, longitude ${pos.lng.toFixed(4)}.`,
+          `Vous êtes à latitude ${pos.lat.toFixed(4)}, longitude ${pos.lng.toFixed(4)}.`,
         );
       } else {
         speak("Je n'ai pas encore de signal GPS.");
       }
     }
-    // â”€â”€ MÃ©tÃ©o â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // â”€â”€ Météo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     else if (
-      text.includes("mÃ©tÃ©o") ||
+      text.includes("météo") ||
       text.includes("temps") ||
       text.includes("pluie")
     ) {
       const temp = document.getElementById("weather-hud")?.textContent || "--";
-      speak(`La tempÃ©rature affichÃ©e est de ${temp}.`);
+      speak(`La température affichée est de ${temp}.`);
     }
-    // â”€â”€ Mode Constat / DÃ©fense Juridique â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // â”€â”€ Mode Constat / Défense Juridique â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     else if (
       text.includes("mode constat") ||
       text.includes("j'ai un accident") ||
-      text.includes("urgence extrÃªme") ||
+      text.includes("urgence extrême") ||
       text.includes("accrochage")
     ) {
-      speak("Mode urgence activÃ©. Ne paniquez pas.");
+      speak("Mode urgence activé. Ne paniquez pas.");
       if (window.SOSEmergency) {
         window.SOSEmergency.trigger();
       } else {
@@ -348,46 +348,46 @@ class OracleVoice {
       }
     }
     // â”€â”€ Premium / Mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (text.includes("mode jour") || text.includes("thÃ¨me clair")) {
+    else if (text.includes("mode jour") || text.includes("thème clair")) {
       document.body.classList.add("day-mode");
-      speak("Mode jour activÃ©. Conduisez prudemment avec ce soleil.");
-    } else if (text.includes("mode nuit") || text.includes("thÃ¨me sombre")) {
+      speak("Mode jour activé. Conduisez prudemment avec ce soleil.");
+    } else if (text.includes("mode nuit") || text.includes("thème sombre")) {
       document.body.classList.remove("day-mode");
-      speak("Mode nuit activÃ©. Interface tactique restaurÃ©e.");
+      speak("Mode nuit activé. Interface tactique restaurée.");
     } else if (text.includes("mon xp") || text.includes("mon niveau")) {
       const xp = window.session?.xp || 0;
       speak(
-        "Vous avez  points d'expÃ©rience. Continuez Ã  rouler pour passer au niveau supÃ©rieur !",
+        "Vous avez  points d'expérience. Continuez à rouler pour passer au niveau supérieur !",
       );
     } else if (
       text.includes("il pleut") ||
-      text.includes("mÃ©tÃ©o dÃ©taillÃ©e")
+      text.includes("météo détaillée")
     ) {
       if (typeof window.updateWeatherUI === "function")
         window.updateWeatherUI(true);
       speak(
-        "Pluie dÃ©tectÃ©e. J'adapte l'affichage et je modifie les paramÃ¨tres d'adhÃ©rence virtuels.",
+        "Pluie détectée. J'adapte l'affichage et je modifie les paramètres d'adhérence virtuels.",
       );
     }
-    // â”€â”€ Diagnostic IA / MÃ©canique â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // â”€â”€ Diagnostic IA / Mécanique â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     else if (
       text.includes("diagnostic") ||
-      text.includes("Ã©tat") ||
-      text.includes("santÃ©") ||
-      text.includes("mÃ©canique") ||
+      text.includes("état") ||
+      text.includes("santé") ||
+      text.includes("mécanique") ||
       text.includes("panne") ||
-      text.includes("rÃ©vision")
+      text.includes("révision")
     ) {
       if (window.PredictiveMeca) {
         const score = Math.round(window.PredictiveMeca.getGlobalHealthScore());
-        let message = `Votre vÃ©hicule est opÃ©rationnel Ã  ${score} %.`;
+        let message = `Votre véhicule est opérationnel à ${score} %.`;
         if (score < 50)
           message +=
             " Attention, maintenance urgente requise. J'affiche le diagnostic.";
         else if (score < 85)
-          message += " Une rÃ©vision est conseillÃ©e. J'affiche le diagnostic.";
+          message += " Une révision est conseillée. J'affiche le diagnostic.";
         else
-          message += " Tout semble en parfait Ã©tat. J'affiche le diagnostic.";
+          message += " Tout semble en parfait état. J'affiche le diagnostic.";
 
         speak(message);
 
@@ -397,7 +397,7 @@ class OracleVoice {
           window.PredictiveMeca.updateDashboardUI();
         }
       } else {
-        speak("L'analyse prÃ©dictive est hors ligne.");
+        speak("L'analyse prédictive est hors ligne.");
       }
     }
     // â”€â”€ Aide â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -408,7 +408,7 @@ class OracleVoice {
       text.includes("que sais")
     ) {
       speak(
-        "Je peux : Signaler un danger, Donner votre vitesse, Naviguer vers une destination, Ouvrir le menu, Donner votre kilomÃ©trage, et activer le SOS. Dites Oracle suivi de votre commande.",
+        "Je peux : Signaler un danger, Donner votre vitesse, Naviguer vers une destination, Ouvrir le menu, Donner votre kilométrage, et activer le SOS. Dites Oracle suivi de votre commande.",
       );
     }
     // â”€â”€ Salutation / Conversation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -420,18 +420,18 @@ class OracleVoice {
     ) {
       const hour = new Date().getHours();
       const greet =
-        hour < 12 ? "Bonjour" : hour < 18 ? "Bon aprÃ¨s-midi" : "Bonsoir";
+        hour < 12 ? "Bonjour" : hour < 18 ? "Bon après-midi" : "Bonsoir";
       const name = window.session?.username
         ? `, ${window.session.username}`
         : "";
       speak(
-        `${greet}${name}. Je suis Oracle, votre copilote intelligent. Dites oracle aide pour connaÃ®tre mes commandes.`,
+        `${greet}${name}. Je suis Oracle, votre copilote intelligent. Dites oracle aide pour connaître mes commandes.`,
       );
     }
-    // â”€â”€ RÃ©ponse par dÃ©faut â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // â”€â”€ Réponse par défaut â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     else {
       speak(
-        "Je vous Ã©coute. Dites Oracle aide pour connaÃ®tre mes commandes disponibles.",
+        "Je vous écoute. Dites Oracle aide pour connaître mes commandes disponibles.",
       );
     }
   }

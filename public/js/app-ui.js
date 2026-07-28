@@ -146,7 +146,7 @@ window.showPage = function (page) {
             </div>`;
   } else if (page === "garage") {
     const history = JSON.parse(secureGetItem("maint_history") || "[]");
-    const ctDate = secureGetItem("ct_date") || "Non dÃƒÂ©fini";
+    const ctDate = secureGetItem("ct_date") || "Non dÃƒ©fini";
 
     // Gamification Data
     const currentXP = parseInt(localStorage.getItem("pilot_xp") || "0");
@@ -189,7 +189,7 @@ window.showPage = function (page) {
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; text-align:center;">
                     <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;">
                         <small>ANGLE MAX</small><br>
-                        <strong style="font-size:1.2rem; color:var(--accent);">${maxLeanAngle}Ã‚Â°</strong>
+                        <strong style="font-size:1.2rem; color:var(--accent);">${maxLeanAngle}Ã‚°</strong>
                     </div>
                     <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;">
                         <small>VITESSE MAX</small><br>
@@ -244,8 +244,8 @@ window.showPage = function (page) {
             </div>`;
   } else if (page === "rodage") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3>ItinÃƒÂ©raires Rodage</h3>
-            <p>Routes limitÃƒÂ©es ÃƒÂ  45 km/h pour prÃƒÂ©server votre moteur.</p>
+      content.innerHTML = `<h3>ItinÃƒ©raires Rodage</h3>
+            <p>Routes limitÃƒ©es ÃƒÂ  45 km/h pour prÃƒ©server votre moteur.</p>
             <button class="btn-insurance" onclick="startRodage('Paris-Boucle')">Boucle Zen (Paris)</button>
             <button class="btn-insurance" onclick="startRodage('Lyon-Quais')">Quais SaÃƒÂ´ne (Lyon)</button>`;
   } else if (page === "insurance") {
@@ -256,16 +256,16 @@ window.showPage = function (page) {
             <div class="promo-box"><span>Votre code promo:</span><strong>CHEZBIGBOO</strong></div>
             <div class="broker-contact">
                 <strong>Robert - Courtier Partenaire</strong>
-                <a href="tel:0749555829">Ã°Å¸â€œÅ¾ 07 49 55 58 29</a>
-                <span>SpÃƒÂ©cialiste du jeune conducteur 50cc</span>
+                <a href="tel:0749555829">Ã°Å¸“Å¾ 07 49 55 58 29</a>
+                <span>SpÃƒ©cialiste du jeune conducteur 50cc</span>
             </div>
-            <p>BÃƒÂ©nÃƒÂ©ficiez de -15% sur votre assurance scooter en tant que membre.</p>
+            <p>BÃƒ©nÃƒ©ficiez de -15% sur votre assurance scooter en tant que membre.</p>
         </div>`;
   } else if (page === "roadbooks") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3>Roadbooks</h3>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button onclick="renderRoadbooks('all')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem;">Mes CrÃƒÂ©ations</button>
+                <button onclick="renderRoadbooks('all')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem;">Mes CrÃƒ©ations</button>
                 <button onclick="renderRoadbooks('favorites')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem; background:#f1c40f; color:black;"><i class="fa-solid fa-star"></i> Mes Favoris</button>
             </div>
             <ul id="roadbook-list" style="list-style:none; padding:0;"></ul>`;
@@ -273,18 +273,18 @@ window.showPage = function (page) {
   } else if (page === "mechanic") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-robot"></i> ${t("expert_meca_title")}</h3>
-            <p style="font-size:0.8rem; color:#aaa;">DÃƒÂ©crivez le symptÃƒÂ´me (bruit, fumÃƒÂ©e, panne...)</p>
-            <textarea id="meca-query" placeholder="Ex: Mon scoot broute ÃƒÂ  l'accÃƒÂ©lÃƒÂ©ration..." style="width:100%; height:80px; margin-top:10px; background:#111; color:white; border:1px solid #ffb703; border-radius:8px; padding:10px;"></textarea>
+            <p style="font-size:0.8rem; color:#aaa;">DÃƒ©crivez le symptÃƒÂ´me (bruit, fumÃƒ©e, panne...)</p>
+            <textarea id="meca-query" placeholder="Ex: Mon scoot broute ÃƒÂ  l'accÃƒ©lÃƒ©ration..." style="width:100%; height:80px; margin-top:10px; background:#111; color:white; border:1px solid #ffb703; border-radius:8px; padding:10px;"></textarea>
             <button class="btn-insurance" onclick="submitMecaV3()" style="margin-top:15px; width:100%;">Scanner mon 50cc</button>
             <div id="meca-response" style="margin-top:20px; font-size:0.9rem; line-height:1.4;"></div>`;
   } else if (page === "arbitre") {
     if (window.session && window.session.isGuest) {
-      alert("AccÃƒÂ¨s rÃƒÂ©servÃƒÂ© aux membres inscrits ! Ã°Å¸â€ºÂµ");
+      alert("AccÃƒÂ¨s rÃƒ©servÃƒ© aux membres inscrits ! Ã°Å¸â€ºÂµ");
       return;
     }
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> ${t("arbitre_title")}</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Posez votre question sur la rÃƒÂ©glementation 50cc (dÃƒÂ©bridage, ÃƒÂ©quipement, contrÃƒÂ´les...).</p>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Posez votre question sur la rÃƒ©glementation 50cc (dÃƒ©bridage, Ãƒ©quipement, contrÃƒÂ´les...).</p>
             
             <div id="arbitre-chat" style="background:rgba(0,0,0,0.3); border-radius:15px; padding:15px; min-height:150px; max-height:300px; overflow-y:auto; margin-bottom:15px; border:1px solid rgba(255,183,3,0.2);">
                 <div class="bot-msg" style="background:rgba(255,183,3,0.1); padding:10px; border-radius:10px 10px 10px 0; margin-bottom:10px; font-size:0.9rem; border-left:3px solid #ffb703;">
@@ -293,27 +293,27 @@ window.showPage = function (page) {
             </div>
 
             <div style="display:flex; gap:10px;">
-                <input type="text" id="arbitre-query" placeholder="Ex: Mon pot est-il homologuÃƒÂ© ?" style="flex:1; background:#111; color:white; border:1px solid #444; border-radius:20px; padding:10px 15px; font-size:0.9rem;">
+                <input type="text" id="arbitre-query" placeholder="Ex: Mon pot est-il homologuÃƒ© ?" style="flex:1; background:#111; color:white; border:1px solid #444; border-radius:20px; padding:10px 15px; font-size:0.9rem;">
                 <button onclick="submitArbitre()" style="background:#ffb703; color:black; border:none; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>`;
   } else if (page === "ia_predictive") {
     if (typeof content !== "undefined")
       content.innerHTML = `<div class="card-insurance" style="border: 2px solid #b700ff; background: rgba(20, 10, 40, 0.9);">
-            <div class="insurance-badge" style="background: #b700ff; color: white;">IA PrÃƒÂ©dictive & Courtier</div>
-            <h3 style="color: #00d2ff;"><i class="fa-solid fa-microchip"></i> IA PrÃƒÂ©dictive</h3>
+            <div class="insurance-badge" style="background: #b700ff; color: white;">IA PrÃƒ©dictive & Courtier</div>
+            <h3 style="color: #00d2ff;"><i class="fa-solid fa-microchip"></i> IA PrÃƒ©dictive</h3>
             <p style="font-size: 0.85rem; color: #ddd; margin-bottom: 15px;">L'IA analyse vos trajets pour anticiper les pannes et optimiser votre conduite 50cc.</p>
             
             <div class="glassmorphism" style="padding:15px; margin-bottom:20px; background: rgba(0,0,0,0.4);">
                 <h4 style="color: #ffb703; font-size: 0.9rem; margin-bottom: 10px;"><i class="fa-solid fa-star"></i> Avantages Courtier Partenaire</h4>
                 <ul style="color: #aaa; font-size: 0.8rem; text-align: left; padding-left: 20px;">
-                    <li><strong style="color: #fff;">-20% de rÃƒÂ©duction</strong> sur votre assurance tous risques grÃƒÂ¢ce ÃƒÂ  l'IA PrÃƒÂ©dictive.</li>
-                    <li><strong style="color: #fff;">Garantie panne 0 km</strong> incluse avec dÃƒÂ©pannage express.</li>
-                    <li><strong style="color: #fff;">Bonus de bonne conduite</strong> (Rouler & Gagner convertible en rÃƒÂ©ductions).</li>
+                    <li><strong style="color: #fff;">-20% de rÃƒ©duction</strong> sur votre assurance tous risques grÃƒÂ¢ce ÃƒÂ  l'IA PrÃƒ©dictive.</li>
+                    <li><strong style="color: #fff;">Garantie panne 0 km</strong> incluse avec dÃƒ©pannage express.</li>
+                    <li><strong style="color: #fff;">Bonus de bonne conduite</strong> (Rouler & Gagner convertible en rÃƒ©ductions).</li>
                 </ul>
                 <button class="btn-insurance" style="width:100%; margin-top:10px; background: #ffb703; color: black; font-weight: bold;" onclick="showPage('insurance')">VOIR MON OFFRE ASSURANCE</button>
             </div>
 
-            <button class="btn-insurance" style="width:100%; background: linear-gradient(135deg, #b700ff, #00d2ff); color: white; font-weight: bold; border: none; padding: 15px; border-radius: 10px;" onclick="PredictiveMeca.checkAlerts(); alert('L\'IA analyse vos donnÃƒÂ©es de tÃƒÂ©lÃƒÂ©mÃƒÂ©trie actuelles... Aucun risque de serrage moteur dÃƒÂ©tectÃƒÂ© pour le moment. Vous roulez de maniÃƒÂ¨re optimale !')"><i class="fa-solid fa-bolt"></i> LANCER L'ANALYSE IA</button>
+            <button class="btn-insurance" style="width:100%; background: linear-gradient(135deg, #b700ff, #00d2ff); color: white; font-weight: bold; border: none; padding: 15px; border-radius: 10px;" onclick="PredictiveMeca.checkAlerts(); alert('L\'IA analyse vos donnÃƒ©es de tÃƒ©lÃƒ©mÃƒ©trie actuelles... Aucun risque de serrage moteur dÃƒ©tectÃƒ© pour le moment. Vous roulez de maniÃƒÂ¨re optimale !')"><i class="fa-solid fa-bolt"></i> LANCER L'ANALYSE IA</button>
         </div>`;
   } else if (page === "profile") {
     if (typeof content !== "undefined")
@@ -330,7 +330,7 @@ window.showPage = function (page) {
   } else if (page === "insurance_expert") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-building-shield"></i> Portail Expert Assurance</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">AccÃƒÂ¨s sÃƒÂ©curisÃƒÂ© pour les compagnies d'assurance et experts judiciaires.</p>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">AccÃƒÂ¨s sÃƒ©curisÃƒ© pour les compagnies d'assurance et experts judiciaires.</p>
             <div id="insurance-search-box" style="margin-bottom:20px;">
                 <input type="text" id="expert-report-id" placeholder="ID du Dossier (ex: blackbox_...)" style="width:100%; padding:15px; background:rgba(255,255,255,0.05); border:1px solid #444; border-radius:10px; color:white; margin-bottom:10px;">
                 <button class="btn-insurance" onclick="InsurancePortal.searchReport(document.getElementById('expert-report-id').value)" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:10px; font-weight:bold;">RECHERCHER LE DOSSIER</button>
@@ -338,8 +338,8 @@ window.showPage = function (page) {
             <div id="insurance-content"></div>`;
   } else if (page === "pulse") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3><i class="fa-solid fa-microscope"></i> Labo MÃƒÂ©ca : StÃƒÂ©thoscope IA</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Analyse biomÃƒÂ©trique de la santÃƒÂ© de votre moteur via les capteurs du smartphone.</p>
+      content.innerHTML = `<h3><i class="fa-solid fa-microscope"></i> Labo MÃƒ©ca : StÃƒ©thoscope IA</h3>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Analyse biomÃƒ©trique de la santÃƒ© de votre moteur via les capteurs du smartphone.</p>
             
             <div class="glassmorphism" style="padding:20px; text-align:center;">
                 <div id="scan-visual" style="height:100px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; background:rgba(0,0,0,0.3); border-radius:15px; position:relative; overflow:hidden;">
@@ -347,28 +347,28 @@ window.showPage = function (page) {
                     <i class="fa-solid fa-gear" style="font-size:3rem; color:#ffb703; z-index:1;"></i>
                 </div>
                 <button class="btn-insurance" onclick="EnginePulse.startScan()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:10px; font-weight:bold; font-size:1.1rem;">LANCER LE DIAGNOSTIC</button>
-                <p style="font-size:0.7rem; color:#888; margin-top:10px;">Posez le tÃƒÂ©lÃƒÂ©phone sur la selle, moteur allumÃƒÂ© au ralenti.</p>
+                <p style="font-size:0.7rem; color:#888; margin-top:10px;">Posez le tÃƒ©lÃƒ©phone sur la selle, moteur allumÃƒ© au ralenti.</p>
             </div>
             <div id="pulse-result"></div>`;
   } else if (page === "ants_wallet") {
     const passport = Wallet.getSafetyPassport();
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-building-columns"></i> Mon Coffre-Fort ANTS</h3>
-            <p style="font-size:0.75rem; color:#aaa; margin-bottom:20px;">Titres sÃƒÂ©curisÃƒÂ©s et Passeport SÃƒÂ©curitÃƒÂ© certifiÃƒÂ© par mon50ccetmoi.</p>
+            <p style="font-size:0.75rem; color:#aaa; margin-bottom:20px;">Titres sÃƒ©curisÃƒ©s et Passeport SÃƒ©curitÃƒ© certifiÃƒ© par mon50ccetmoi.</p>
             
             <div class="glassmorphism" style="padding:15px; margin-bottom:15px; border-left:4px solid #2ecc71;">
-                <h4 style="font-size:0.9rem; color:#2ecc71;"><i class="fa-solid fa-id-card"></i> Passeport SÃƒÂ©curitÃƒÂ© Digital</h4>
+                <h4 style="font-size:0.9rem; color:#2ecc71;"><i class="fa-solid fa-id-card"></i> Passeport SÃƒ©curitÃƒ© Digital</h4>
                 <div style="font-size:0.8rem; margin-top:5px; color:#ddd;">
                     ID Blackbox: <span style="font-family:monospace; color:#2ecc71;">${passport.blackbox_id}</span><br>
                     Maintenance: <span style="color:#2ecc71;">${passport.maintenance_count} interventions</span><br>
-                    SantÃƒÂ© Moteur: <span style="color:#2ecc71;">${passport.engine_health}</span>
+                    SantÃƒ© Moteur: <span style="color:#2ecc71;">${passport.engine_health}</span>
                 </div>
             </div>
 
             <div class="menu-list" style="margin-top:20px;">
                 <div id="ants-docs-container" style="margin-bottom:15px;"></div>
-                <li onclick="window.uploadDocument('carte_grise')"><i class="fa-solid fa-camera"></i> NumÃƒÂ©riser Carte Grise</li>
-                <li onclick="window.uploadDocument('permis_am')"><i class="fa-solid fa-address-card"></i> NumÃƒÂ©riser Permis AM</li>
+                <li onclick="window.uploadDocument('carte_grise')"><i class="fa-solid fa-camera"></i> NumÃƒ©riser Carte Grise</li>
+                <li onclick="window.uploadDocument('permis_am')"><i class="fa-solid fa-address-card"></i> NumÃƒ©riser Permis AM</li>
                 <li onclick="window.uploadDocument('assurance')"><i class="fa-solid fa-shield-check"></i> Attestation Assurance</li>
             </div>
             
@@ -376,10 +376,10 @@ window.showPage = function (page) {
                 <i class="fa-solid fa-file-shield"></i> GÃƒâ€°NÃƒâ€°RER MON CERTIFICAT OFFICIEL
             </button>
             
-            <p style="font-size:0.65rem; color:#666; text-align:center; margin-top:20px;">Note : Ce coffre-fort facilite les contrÃƒÂ´les mais ne remplace pas les documents originaux selon la lÃƒÂ©gislation en vigueur.</p>`;
+            <p style="font-size:0.65rem; color:#666; text-align:center; margin-top:20px;">Note : Ce coffre-fort facilite les contrÃƒÂ´les mais ne remplace pas les documents originaux selon la lÃƒ©gislation en vigueur.</p>`;
   } else if (page === "meca_lab") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3><i class="fa-solid fa-oil-can"></i> Le Sorcier de la MÃƒÂ©ca</h3>
+      content.innerHTML = `<h3><i class="fa-solid fa-oil-can"></i> Le Sorcier de la MÃƒ©ca</h3>
             <div class="glassmorphism" style="padding:20px; margin-bottom:20px;">
                 <h4 style="color:var(--accent);">CALCULATEUR DE MÃƒâ€°LANGE</h4>
                 <div style="margin-top:15px;">
@@ -399,7 +399,7 @@ window.showPage = function (page) {
             </div>`;
   } else if (page === "about") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3><i class="fa-solid fa-circle-info"></i> Ãƒâ‚¬ Propos</h3>
+      content.innerHTML = `<h3><i class="fa-solid fa-circle-info"></i> Ãƒ€ Propos</h3>
             <div style="text-align:center; padding:20px;">
                 <div class="login-logo" style="font-size:3rem; color:var(--accent); margin-bottom:10px;">50</div>
                 <h2 style="color:var(--accent);">mon50ccetmoi</h2>
@@ -407,8 +407,8 @@ window.showPage = function (page) {
                 
                 <div class="glassmorphism" style="padding:20px; border:1px solid var(--accent); margin-bottom:30px; text-align:left;">
                     <p style="font-size:0.9rem; font-weight:bold; text-align:center;">SIGNATURE CORPORATE</p>
-                    <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriÃƒÂ©tÃƒÂ© exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
-                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">ProtÃƒÂ©gÃƒÂ© par les lois internationales sur la propriÃƒÂ©tÃƒÂ© intellectuelle. TÃƒÂ©lÃƒÂ©mÃƒÂ©trie certifiÃƒÂ©e conforme aux standards ANTS v100.00-GOLD.</p>
+                    <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriÃƒ©tÃƒ© exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
+                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">ProtÃƒ©gÃƒ© par les lois internationales sur la propriÃƒ©tÃƒ© intellectuelle. TÃƒ©lÃƒ©mÃƒ©trie certifiÃƒ©e conforme aux standards ANTS v100.00-GOLD.</p>
                 </div>
                 
                 <button onclick="document.getElementById('screen-overlay').classList.add('hidden')" class="btn-cancel" style="background:#333; color:white;">FERMER</button>
@@ -418,10 +418,10 @@ window.showPage = function (page) {
       { name: "Le Grand Raid", goal: 200, unit: "km" },
       { name: "L'Urbain Zen", goal: 100, unit: "km" },
       { name: "L'Explorateur", goal: 300, unit: "km" },
-      { name: "Le VÃƒÂ©lomoteur", goal: 50, unit: "km" },
+      { name: "Le VÃƒ©lomoteur", goal: 50, unit: "km" },
     ];
 
-    // Rotation tous les 14 jours basÃƒÂ©e sur l'Unix Time
+    // Rotation tous les 14 jours basÃƒ©e sur l'Unix Time
     const fortressPeriod = 14 * 24 * 60 * 60 * 1000;
     const currentPeriodIdx =
       Math.floor(Date.now() / fortressPeriod) % availableChallenges.length;
@@ -447,7 +447,7 @@ window.showPage = function (page) {
                 <div class="garage-bar-bg" style="height:12px;">
                     <div class="garage-bar-fill" style="width:${progress}%; background:#9b59b6;"></div>
                 </div>
-                <p style="font-size:0.8rem; color:#888; margin-top:10px; text-align:center;">Ã°Å¸Å½â€“Ã¯Â¸Â Vous avez rÃƒÂ©ussi <strong>${wins}/150</strong> dÃƒÂ©fis pour le Badge Pro</p>
+                <p style="font-size:0.8rem; color:#888; margin-top:10px; text-align:center;">Ã°Å¸Å½â€“ïÂ¸Â Vous avez rÃƒ©ussi <strong>${wins}/150</strong> dÃƒ©fis pour le Badge Pro</p>
             </div>
 
                           <button class="btn-insurance" style="margin-top:20px; width:100%; background:#9b59b6; color:white;" onclick="toggleMenu()">CONTINUER L''ASCENSION</button>
@@ -457,16 +457,16 @@ window.showPage = function (page) {
                   ? `
                   <button class="btn-insurance" style="margin-top:10px; width:100%; background:linear-gradient(90deg, #b700ff, #ff0055); color:white; font-weight:bold; box-shadow:0 0 15px rgba(183,0,255,0.5);" onclick="
                       if(window.Web4Economy) {
-                          window.Web4Economy.mineToken(5.0, 'DÃ©fi Quinzaine ComplÃ©tÃ©');
+                          window.Web4Economy.mineToken(5.0, 'Défi Quinzaine Complété');
                           localStorage.setItem('defi_claimed_${currentPeriodIdx}', 'true');
                           window.session.completedChallengesCount = (window.session.completedChallengesCount || 0) + 1;
-                          alert('FÃ©licitations ! Vous avez remportÃ© 5 BVC pour avoir complÃ©tÃ© le dÃ©fi.');
+                          alert('Félicitations ! Vous avez remporté 5 BVC pour avoir complété le défi.');
                           showPage('defis');
                       }
-                  ">RÃ‰CLAMER MES 5 BVC</button>
+                  ">RÉCLAMER MES 5 BVC</button>
               `
                   : progress >= 100
-                    ? `<button class="btn-insurance" style="margin-top:10px; width:100%; background:#333; color:#aaa; cursor:not-allowed;" disabled>RÃ‰COMPENSE DE 5 BVC RÃ‰CUPÃ‰RÃ‰E</button>`
+                    ? `<button class="btn-insurance" style="margin-top:10px; width:100%; background:#333; color:#aaa; cursor:not-allowed;" disabled>RÉCOMPENSE DE 5 BVC RÉCUPÉRÉE</button>`
                     : ""
               }
         </div>`;
@@ -474,8 +474,8 @@ window.showPage = function (page) {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-map-location-dot"></i> Navigation & Roadbooks</h3>
             <div class="glassmorphism" style="padding:20px; border-left:4px solid #f1c40f; margin-bottom:20px;">
-                <h4 style="color:#f1c40f;"><i class="fa-solid fa-stopwatch"></i> CHRONOS GUARD (ZÃƒÂ©ro Retard)</h4>
-                <p style="font-size:0.75rem; margin-top:5px; color:#aaa;">RÃƒÂ©glez votre heure d'arrivÃƒÂ©e cible. L'app inclut votre temps d'ÃƒÂ©quipement (5 min).</p>
+                <h4 style="color:#f1c40f;"><i class="fa-solid fa-stopwatch"></i> CHRONOS GUARD (ZÃƒ©ro Retard)</h4>
+                <p style="font-size:0.75rem; margin-top:5px; color:#aaa;">RÃƒ©glez votre heure d'arrivÃƒ©e cible. L'app inclut votre temps d'Ãƒ©quipement (5 min).</p>
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <input type="time" id="target-time" class="scooter-brand-select" style="flex:1;">
                     <button onclick="Chronos.setTarget(document.getElementById('target-time').value)" class="btn-insurance" style="flex:1; background:#f1c40f; color:black;">ACTIVER</button>
@@ -485,7 +485,7 @@ window.showPage = function (page) {
                 </button>
             </div>
             
-            <p style="text-align:center; padding:40px; color:#666;">Liste de vos roadbooks sauvegardÃƒÂ©s...</p>`;
+            <p style="text-align:center; padding:40px; color:#666;">Liste de vos roadbooks sauvegardÃƒ©s...</p>`;
   } else if (page === "arbitre") {
     if (
       window.Blackbox &&
@@ -494,19 +494,19 @@ window.showPage = function (page) {
       window.Blackbox.showLitigationInfo();
     } else {
       if (typeof content !== "undefined")
-        content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> Arbitre de la Route</h3><p>Service Blackbox momentanÃƒÂ©ment indisponible.</p>`;
+        content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> Arbitre de la Route</h3><p>Service Blackbox momentanÃƒ©ment indisponible.</p>`;
     }
   } else if (page === "privacy") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3>Mentions LÃƒÂ©gales & ConfidentialitÃƒÂ©</h3>
+      content.innerHTML = `<h3>Mentions LÃƒ©gales & ConfidentialitÃƒ©</h3>
             <div style="font-size:0.8rem; line-height:1.4; color:#ccc;">
                 <p><strong>Ãƒâ€°diteur :</strong> mon50ccetmoi (Engineering Unit)</p>
                 <p><strong>Responsable :</strong> mon50ccetmoi Admin (US)</p>
                 <p><strong>Contact :</strong> via l'application</p>
                 <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
-                <p><strong>DonnÃƒÂ©es GPS :</strong> Vos coordonnÃƒÂ©es sont traitÃƒÂ©es localement pour la navigation et la dÃƒÂ©tection de chute.</p>
-                <p><strong>Partage :</strong> Les signalements de dangers sont partagÃƒÂ©s de maniÃƒÂ¨re anonyme avec la communautÃƒÂ©.</p>
-                <p><strong>Stockage :</strong> Vos prÃƒÂ©fÃƒÂ©rences sont enregistrÃƒÂ©es dans votre navigateur (LocalStorage).</p>
+                <p><strong>DonnÃƒ©es GPS :</strong> Vos coordonnÃƒ©es sont traitÃƒ©es localement pour la navigation et la dÃƒ©tection de chute.</p>
+                <p><strong>Partage :</strong> Les signalements de dangers sont partagÃƒ©s de maniÃƒÂ¨re anonyme avec la communautÃƒ©.</p>
+                <p><strong>Stockage :</strong> Vos prÃƒ©fÃƒ©rences sont enregistrÃƒ©es dans votre navigateur (LocalStorage).</p>
                 <p><strong>Version :</strong> v100.00-GOLD-PRO Build 2026</p>
                 <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
@@ -516,13 +516,13 @@ window.showPage = function (page) {
     );
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-lightbulb"></i> Conseils de Pro 50cc</h3>
-            <p style="font-size:0.7rem; color:#aaa; margin-bottom:15px;">Fiches techniques rÃƒÂ©digÃƒÂ©es par nos experts et les garages certifiÃƒÂ©s.</p>
+            <p style="font-size:0.7rem; color:#aaa; margin-bottom:15px;">Fiches techniques rÃƒ©digÃƒ©es par nos experts et les garages certifiÃƒ©s.</p>
             
             <div id="pro-tips-container">
                 <div class="card" style="border-left:4px solid #f39c12;">
                     <button class="badge-pro" style="float:right; background:#f39c12; font-size:0.5rem; border:none; color:black; border-radius:5px; padding:2px 5px;">OFFICIEL</button>
                     <h4 style="color:#f39c12;"><i class="fa-solid fa-wrench"></i> Entretien Rapide</h4>
-                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bougie :</strong> Une bougie propre (couleur chocolat) = un moteur qui dure. Si elle est noire, votre mÃƒÂ©lange est trop riche.</p>
+                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bougie :</strong> Une bougie propre (couleur chocolat) = un moteur qui dure. Si elle est noire, votre mÃƒ©lange est trop riche.</p>
                 </div>
 
                 ${communityTips
@@ -539,8 +539,8 @@ window.showPage = function (page) {
 
                 <div class="card" style="border-left:4px solid #e74c3c;">
                     <button class="badge-pro" style="float:right; background:#e74c3c; font-size:0.5rem; border:none; color:white; border-radius:5px; padding:2px 5px;">OFFICIEL</button>
-                    <h4 style="color:#e74c3c;"><i class="fa-solid fa-scale-balanced"></i> Loi & SÃƒÂ©curitÃƒÂ©</h4>
-                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bridage :</strong> Le dÃƒÂ©bridage est interdit sur voie publique. En cas d'accident, votre assurance peut refuser de payer.</p>
+                    <h4 style="color:#e74c3c;"><i class="fa-solid fa-scale-balanced"></i> Loi & SÃƒ©curitÃƒ©</h4>
+                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bridage :</strong> Le dÃƒ©bridage est interdit sur voie publique. En cas d'accident, votre assurance peut refuser de payer.</p>
                 </div>
             </div>`;
   } else if (page === "pro-space") {
@@ -549,27 +549,27 @@ window.showPage = function (page) {
       content.innerHTML = `<h3><i class="fa-solid fa-briefcase"></i> ${t("pro_space_title")}</h3>
             <div class="card" style="border:1px solid #3498db; background: rgba(52, 152, 219, 0.05);">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong>VisibilitÃƒÂ© Mobile</strong>
+                    <strong>VisibilitÃƒ© Mobile</strong>
                     <button onclick="toggleGarageVisibility()" class="btn-circular ${window.isGarageVisible ? "btn-neon" : "btn-dark"}" style="width:40px; height:40px;">
                         <i class="fa-solid fa-eye"></i>
                     </button>
                 </div>
-                <small style="font-size:0.6rem; color:#aaa; margin-top:5px; display:block;">Si activÃƒÂ©, vous apparaissez en bleu sur la carte des pilotes.</small>
+                <small style="font-size:0.6rem; color:#aaa; margin-top:5px; display:block;">Si activÃƒ©, vous apparaissez en bleu sur la carte des pilotes.</small>
             </div>
 
             <div class="card">
-                <label style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immÃƒÂ©diat de l'atelier</label>
+                <label style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immÃƒ©diat de l'atelier</label>
                 <select id="garage-status-select" onchange="updateGarageStatus(this.value)" class="scooter-brand-select" style="width:100%; background:#111;">
-                    <option value="dispo" selected>Ã¢Å“â€¦ Prise en charge immÃƒÂ©diate</option>
-                    <option value="busy">Ã¢ÂÂ³ RDV nÃƒÂ©cessaire (>48h)</option>
-                    <option value="full">Ã°Å¸Å¡Â« Atelier Complet</option>
+                    <option value="dispo" selected>âÅ“… Prise en charge immÃƒ©diate</option>
+                    <option value="busy">âÂ³ RDV nÃƒ©cessaire (>48h)</option>
+                    <option value="full">Ã°Å¸Å¡« Atelier Complet</option>
                 </select>
             </div>
 
             <div class="card" style="border:1px solid #f1c40f;">
                 <h4 style="color:#f1c40f; margin-bottom:10px;"><i class="fa-solid fa-bolt"></i> Offre Flash (Promo)</h4>
                 <textarea id="flash-offer-text" placeholder="Ex: -20% sur les pneus Michelin ce weekend !" style="width:100%; height:60px; background:#000; color:white; border:1px solid #444; border-radius:8px; padding:10px; font-size:0.8rem;"></textarea>
-                <button onclick="publishFlashOffer()" class="btn-insurance" style="background:#f1c40f; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Diffuser ÃƒÂ  la communautÃƒÂ©</button>
+                <button onclick="publishFlashOffer()" class="btn-insurance" style="background:#f1c40f; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Diffuser ÃƒÂ  la communautÃƒ©</button>
             </div>
 
             ${
@@ -577,27 +577,27 @@ window.showPage = function (page) {
                 ? `
             <div class="card" style="text-align:center; background:rgba(52, 152, 219, 0.05); border:1px solid #3498db;">
                 <i class="fa-solid fa-certificate" style="font-size:2rem; color:#f1c40f;"></i><br>
-                <h4 style="margin:10px 0; color:#fff;">Droit d'EntrÃƒÂ©e & Certification</h4>
-                <p style="font-size:0.7rem; color:#aaa; margin-bottom:10px;">Devenez <strong>Garage CertifiÃƒÂ©</strong> pour seulement <strong>50Ã¢â€šÂ¬ TTC</strong> (Paiement unique).</p>
+                <h4 style="margin:10px 0; color:#fff;">Droit d'EntrÃƒ©e & Certification</h4>
+                <p style="font-size:0.7rem; color:#aaa; margin-bottom:10px;">Devenez <strong>Garage CertifiÃƒ©</strong> pour seulement <strong>50ââ€šÂ¬ TTC</strong> (Paiement unique).</p>
                 <ul style="font-size:0.65rem; color:#ccc; list-style:none; padding:0; text-align:left; margin-bottom:15px;">
-                    <li>Ã¢Å“â€¦ Badge <strong>CertifiÃƒÂ© mon50ccetmoi</strong></li>
-                    <li>Ã°Å¸Å¡â‚¬ <strong>Boost de visibilitÃƒÂ©</strong> sur la carte</li>
-                    <li>Ã°Å¸â€ºÂ Ã¯Â¸Â AccÃƒÂ¨s illimitÃƒÂ© aux fiches techniques</li>
-                    <li>Ã°Å¸â€˜â€ PrioritÃƒÂ© dans les rÃƒÂ©sultats de recherche</li>
+                    <li>âÅ“… Badge <strong>CertifiÃƒ© mon50ccetmoi</strong></li>
+                    <li>Ã°Å¸Å¡€ <strong>Boost de visibilitÃƒ©</strong> sur la carte</li>
+                    <li>Ã°Å¸â€ºÂ ïÂ¸Â AccÃƒÂ¨s illimitÃƒ© aux fiches techniques</li>
+                    <li>Ã°Å¸‘â€ PrioritÃƒ© dans les rÃƒ©sultats de recherche</li>
                 </ul>
-                <button onclick="payGarageEntryFee()" class="btn-insurance" style="background:#f1c40f; color:black; font-weight:bold;">S'acquitter du droit d'entrÃƒÂ©e (50Ã¢â€šÂ¬)</button>
+                <button onclick="payGarageEntryFee()" class="btn-insurance" style="background:#f1c40f; color:black; font-weight:bold;">S'acquitter du droit d'entrÃƒ©e (50ââ€šÂ¬)</button>
                 
                 <div style="margin-top:15px; padding-top:15px; border-top:1px solid #444;">
                     <p style="font-size:0.7rem; color:#2ecc71;"><strong>Ã°Å¸Å½Â OPTION "CROISSANCE" GRATUITE :</strong></p>
-                    <p style="font-size:0.6rem; color:#aaa;">Offrez <strong>-10% de rÃƒÂ©duction</strong> aux membres sur prÃƒÂ©sentation de l'app et soyez <strong>exonÃƒÂ©rÃƒÂ©</strong> des 50Ã¢â€šÂ¬ !</p>
+                    <p style="font-size:0.6rem; color:#aaa;">Offrez <strong>-10% de rÃƒ©duction</strong> aux membres sur prÃƒ©sentation de l'app et soyez <strong>exonÃƒ©rÃƒ©</strong> des 50ââ€šÂ¬ !</p>
                     <button onclick="applyPartnerExemption()" class="btn-insurance fa-beat" style="background:transparent; border:1px solid #2ecc71; color:#2ecc71; margin-top:5px; font-size:0.8rem; font-weight:bold;">REJOINDRE LE RÃƒâ€°SEAU GRATUITEMENT (-10%)</button>
                 </div>
             </div>`
                 : `
             <div class="card" style="text-align:center; background:rgba(46, 204, 113, 0.1); border:1px solid #2ecc71;">
                 <i class="fa-solid fa-check-double" style="font-size:1.5rem; color:#2ecc71;"></i>
-                <p style="font-size:0.8rem; color:#2ecc71; margin-top:5px;"><strong>Statut PRO CertifiÃƒÂ© Actif</strong></p>
-                <small style="font-size:0.6rem; color:#aaa;">Votre visibilitÃƒÂ© est boostÃƒÂ©e au maximum.</small>
+                <p style="font-size:0.8rem; color:#2ecc71; margin-top:5px;"><strong>Statut PRO CertifiÃƒ© Actif</strong></p>
+                <small style="font-size:0.6rem; color:#aaa;">Votre visibilitÃƒ© est boostÃƒ©e au maximum.</small>
             </div>`
             }
 
@@ -613,15 +613,15 @@ window.showPage = function (page) {
       content.innerHTML = `<h3><i class="fa-solid fa-heart"></i> ${t("donate_title")}</h3>
             <div class="card" style="text-align:center; background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(0,0,0,0)); border: 1px solid #e91e63;">
                 <i class="fa-solid fa-mug-hot fa-bounce" style="font-size:3rem; color:#e91e63; margin-bottom:15px;"></i>
-                <p style="font-size:0.9rem; line-height:1.5;"><strong>mon50ccetmoi</strong> est un projet de passionnÃƒÂ©, dÃƒÂ©veloppÃƒÂ© sur mon temps libre pour la communautÃƒÂ© des pilotes de 50cc.</p>
+                <p style="font-size:0.9rem; line-height:1.5;"><strong>mon50ccetmoi</strong> est un projet de passionnÃƒ©, dÃƒ©veloppÃƒ© sur mon temps libre pour la communautÃƒ© des pilotes de 50cc.</p>
                 <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">L'application restera 100% gratuite, mais les dons aident ÃƒÂ  payer les serveurs (Google Maps API, Firebase) et ÃƒÂ  financer les futures mises ÃƒÂ  jour.</p>
                 
                 <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
-                    <a href="https://www.buymeacoffee.com/mon50cc" target="_blank" class="btn-insurance" style="background:#ffdd00; color:black; text-decoration:none;">Ã¢Ëœâ€¢ Offrir un cafÃƒÂ© (Badge MÃƒÂ©cÃƒÂ¨ne Ã°Å¸â€™â€“)</a>
-                    <a href="https://paypal.me/mon50cc" target="_blank" class="btn-insurance" style="background:#0070ba; color:white; text-decoration:none;">Ã°Å¸â€™â„¢ Faire un don libre (PayPal)</a>
+                    <a href="https://www.buymeacoffee.com/mon50cc" target="_blank" class="btn-insurance" style="background:#ffdd00; color:black; text-decoration:none;">âËœ• Offrir un cafÃƒ© (Badge MÃƒ©cÃƒÂ¨ne Ã°Å¸’â€“)</a>
+                    <a href="https://paypal.me/mon50cc" target="_blank" class="btn-insurance" style="background:#0070ba; color:white; text-decoration:none;">Ã°Å¸’â„¢ Faire un don libre (PayPal)</a>
                 </div>
                 
-                <p style="font-size:0.7rem; color:#666; margin-top:15px;">Ã°Å¸Å½Â Chaque don dÃƒÂ©bloque le badge exclusif **"MÃƒÂ©cÃƒÂ¨ne"** sur votre profil et sur la carte communautaire !</p>
+                <p style="font-size:0.7rem; color:#666; margin-top:15px;">Ã°Å¸Å½Â Chaque don dÃƒ©bloque le badge exclusif **"MÃƒ©cÃƒÂ¨ne"** sur votre profil et sur la carte communautaire !</p>
             </div>
         `;
   } else if (page === "security") {
@@ -639,7 +639,7 @@ window.showPage = function (page) {
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <strong style="font-size:0.9rem;">Guardian Mode</strong><br>
-                    <small style="font-size:0.6rem; color:#aaa;">Alerte si arrÃƒÂªt prolongÃƒÂ© suspect</small>
+                    <small style="font-size:0.6rem; color:#aaa;">Alerte si arrÃƒÂªt prolongÃƒ© suspect</small>
                 </div>
                 <button onclick="toggleGuardian()" class="btn-circular ${isGuardian ? "btn-neon" : "btn-dark"}" style="width:50px; height:50px;">
                     <i class="fa-solid fa-bell"></i>
@@ -648,8 +648,8 @@ window.showPage = function (page) {
 
             <div class="card" style="background:rgba(255,255,255,0.05); text-align:center;">
                 <i class="fa-solid fa-microchip" style="font-size:2rem; color:#2ecc71; margin-bottom:10px;"></i><br>
-                <strong style="font-size:0.8rem;">DÃƒÂ©tecteur G-Force : ACTIF</strong><br>
-                <small style="font-size:0.6rem; color:#666;">Impact calibrÃƒÂ© ÃƒÂ  4.5G</small>
+                <strong style="font-size:0.8rem;">DÃƒ©tecteur G-Force : ACTIF</strong><br>
+                <small style="font-size:0.6rem; color:#666;">Impact calibrÃƒ© ÃƒÂ  4.5G</small>
             </div>`;
   }
   toggleMenu();
@@ -661,7 +661,7 @@ window.shareApp = async function () {
     id: "com.mon50ccetmoi.twa",
     lang: "fr-FR",
     title: "mon50ccetmoi",
-    text: "Rejoins la communautÃƒÂ© des scooters 50cc ! Navigation GPS, radars et sÃƒÂ©curitÃƒÂ©.",
+    text: "Rejoins la communautÃƒ© des scooters 50cc ! Navigation GPS, radars et sÃƒ©curitÃƒ©.",
     url: window.location.origin,
   };
   try {
@@ -669,7 +669,7 @@ window.shareApp = async function () {
       await navigator.share(shareData);
     } else {
       alert(
-        "Lien copiÃƒÂ© ! Partage-le avec tes potes : " + window.location.origin,
+        "Lien copiÃƒ© ! Partage-le avec tes potes : " + window.location.origin,
       );
     }
   } catch (err) {}
@@ -684,8 +684,8 @@ window.submitMecaV3 = function () {
   setTimeout(() => {
     res.innerHTML = `<div style="background:rgba(255,183,3,0.1); padding:15px; border-radius:10px; border-left:4px solid #ffb703;">
             <strong>Diagnostic IA:</strong><br>
-            Il est probable que votre bougie soit encrassÃƒÂ©e ou que le gicleur de votre carburateur soit bouchÃƒÂ©. 
-            VÃƒÂ©rifiez l'ÃƒÂ©tincelle et nettoyez votre cuve.
+            Il est probable que votre bougie soit encrassÃƒ©e ou que le gicleur de votre carburateur soit bouchÃƒ©. 
+            VÃƒ©rifiez l'Ãƒ©tincelle et nettoyez votre cuve.
         </div>`;
   }, 2000);
 };
@@ -700,7 +700,7 @@ window.addEventListener("devicemotion", (e) => {
     triggerFallAlert();
     if (window.isGuardianActive && typeof triggerEmergencySOS === "function") {
       triggerEmergencySOS(
-        "Chute brutale dÃƒÂ©tectÃƒÂ©e par l'accÃƒÂ©lÃƒÂ©romÃƒÂ¨tre.",
+        "Chute brutale dÃƒ©tectÃƒ©e par l'accÃƒ©lÃƒ©romÃƒÂ¨tre.",
       );
     }
   }
@@ -717,8 +717,8 @@ function triggerFallAlert(isManual = false) {
   if (typeof speak === "function") {
     speak(
       isManual
-        ? "SOS Manuel activÃ©. Alerte de la meute et de l'Ange Gardien."
-        : "Chute dÃ©tectÃ©e. Annulez si vous allez bien, sinon les secours seront prÃ©venus.",
+        ? "SOS Manuel activé. Alerte de la meute et de l'Ange Gardien."
+        : "Chute détectée. Annulez si vous allez bien, sinon les secours seront prévenus.",
     );
   }
 
@@ -731,7 +731,7 @@ function triggerFallAlert(isManual = false) {
         <h1>${isManual ? "SOS MANUEL" : t("fall_detected")}</h1>
         <p>${t("emergency_alert")} <br><br> <span id="sos-countdown" style="font-size:1.5rem; font-weight:bold; color:#ffb703;">15s</span></p>
         
-        <!-- NOUVEAU : Bouton Officiel d'Urgence (Conforme LÃ©gislation) -->
+        <!-- NOUVEAU : Bouton Officiel d'Urgence (Conforme Législation) -->
         <a href="tel:112" style="display:block; margin: 15px auto; padding:15px 30px; background:#ff0000; color:white; text-decoration:none; border-radius:50px; font-weight:900; font-size:1.2rem; box-shadow:0 0 15px rgba(255,0,0,0.6);">
             <i class="fa-solid fa-phone"></i> APPELER LES SECOURS (112 / 911)
         </a>
@@ -757,7 +757,7 @@ window.cancelFallAlert = function () {
   clearInterval(window.fallAlertInterval);
   const el = document.getElementById("fall-screen");
   if (el) el.remove();
-  if (typeof speak === "function") speak("Alerte annulÃ©e.");
+  if (typeof speak === "function") speak("Alerte annulée.");
 };
 
 window.executeAngeGardienProtocol = async function () {
@@ -779,7 +779,7 @@ window.executeAngeGardienProtocol = async function () {
   // Appel de la vraie Cloud Function
   try {
     const userId = window.session?.user_id || "anonymous";
-    // On suppose que firebase est initialisÃ© globalement
+    // On suppose que firebase est initialisé globalement
     const sendSOSCall = firebase
       .functions("europe-west1")
       .httpsCallable("sendEmergencySOS");
@@ -792,7 +792,7 @@ window.executeAngeGardienProtocol = async function () {
     });
 
     if (contacts.length > 0) {
-      message += ` Vos ${contacts.length} Ange(s) Gardien(s) ont Ã©tÃ© notifiÃ©s par SMS.`;
+      message += ` Vos ${contacts.length} Ange(s) Gardien(s) ont été notifiés par SMS.`;
     }
   } catch (e) {
     console.error("[SOS] Cloud Function failed", e);
@@ -806,10 +806,10 @@ window.executeAngeGardienProtocol = async function () {
         }),
       });
 
-      if (contacts.length > 0) message += ` Ange(s) Gardien(s) notifiÃ©s.`;
+      if (contacts.length > 0) message += ` Ange(s) Gardien(s) notifiés.`;
     } catch (errFetch) {
       message =
-        "Erreur rÃ©seau lors de la transmission du SOS automatisÃ©. Veuillez appeler les secours manuellement.";
+        "Erreur réseau lors de la transmission du SOS automatisé. Veuillez appeler les secours manuellement.";
     }
   }
 
@@ -818,7 +818,7 @@ window.executeAngeGardienProtocol = async function () {
   if (div) {
     div.innerHTML = `
             <i class="fa-solid fa-satellite-dish" style="font-size:5rem; margin-bottom:20px; color:#00d2ff;"></i>
-            <h1 style="color:#00d2ff;">ANGE GARDIEN ACTIVÃ‰</h1>
+            <h1 style="color:#00d2ff;">ANGE GARDIEN ACTIVÉ</h1>
             <p>${message}</p>
             <button onclick="window.cancelFallAlert()" style="margin-top:20px; padding:15px 30px; background:#00d2ff; color:#000; border:none; border-radius:50px; font-weight:bold; font-size:1rem;">OK</button>
         `;
@@ -835,7 +835,7 @@ window.saveGuardianContacts = function () {
   localStorage.setItem("guardian_contact_1", c1);
   localStorage.setItem("guardian_contact_2", c2);
   alert(
-    "Contacts Ange Gardien sauvegardÃ©s ! En cas de chute ou SOS, l'application tentera d'envoyer un message d'urgence.",
+    "Contacts Ange Gardien sauvegardés ! En cas de chute ou SOS, l'application tentera d'envoyer un message d'urgence.",
   );
 };
 
@@ -843,9 +843,9 @@ window.startRodage = function (name) {
   window.isRodageActive = true;
   refreshRodageUI();
   alert(
-    `Mode Rodage ActivÃ©: ${name}. Vitesse max conseillÃ©e: 45km/h. Distance cumulÃ©e comptabilisÃ©e.`,
+    `Mode Rodage Activé: ${name}. Vitesse max conseillée: 45km/h. Distance cumulée comptabilisée.`,
   );
-  speak("Mode rodage activÃ©. MÃ©nagez votre moteur.");
+  speak("Mode rodage activé. Ménagez votre moteur.");
   closeScreen();
   // Simulation d'un point de destination rodage
   if (currentPosition) {
@@ -872,12 +872,12 @@ window.closeMood = function () {
   const mood = document.getElementById("mood-overlay");
   if (mood) mood.classList.add("hidden");
 };
-// DÃ©sactivation du popup automatique (bloquait les tests)
+// Désactivation du popup automatique (bloquait les tests)
 // setTimeout(() => document.getElementById('mood-overlay')?.classList.remove('hidden'), 30000);
 
 window.requestAccountDeletion = function () {
   const confirm1 = confirm(
-    "âš ï¸ ATTENTION : Voulez-vous vraiment supprimer dÃ©finitivement votre compte et TOUTES vos donnÃ©es (garage, points, historique) ?",
+    "âš ï¸ ATTENTION : Voulez-vous vraiment supprimer définitivement votre compte et TOUTES vos données (garage, points, historique) ?",
   );
   if (confirm1) {
     const confirm2 = prompt(
@@ -893,10 +893,10 @@ window.requestAccountDeletion = function () {
       // Suppression session locale
       logout();
       alert(
-        "Votre compte a Ã©tÃ© supprimÃ© avec succÃ¨s. Vos donnÃ©es ont Ã©tÃ© purgÃ©es conformÃ©ment au RGPD.",
+        "Votre compte a été supprimé avec succès. Vos données ont été purgées conformément au RGPD.",
       );
     } else {
-      alert("Suppression annulÃ©e.");
+      alert("Suppression annulée.");
     }
   }
 };
@@ -919,7 +919,7 @@ updateTicker();
 setInterval(updateTicker, 60000);
 
 window.testFallDetection = function () {
-  alert("Simulation d'un impact dans 3 secondes... PrÃ©parez-vous !");
+  alert("Simulation d'un impact dans 3 secondes... Préparez-vous !");
   setTimeout(() => {
     triggerFallAlert();
   }, 3000);
@@ -954,12 +954,12 @@ window.toggleParkingMode = function () {
     btn.innerHTML =
       '<i class="fa-solid fa-shield-halved"></i> Mode Parking : ON';
     btn.classList.add("parking-active");
-    speak("Mode parking activÃ©. Votre scooter est sous surveillance.");
+    speak("Mode parking activé. Votre scooter est sous surveillance.");
   } else {
     btn.innerHTML =
       '<i class="fa-solid fa-shield-halved"></i> Mode Parking : OFF';
     btn.classList.remove("parking-active");
-    speak("Mode parking dÃ©sactivÃ©.");
+    speak("Mode parking désactivé.");
   }
   toggleMenu();
 };
@@ -972,7 +972,7 @@ function handleParkingMode(lat, lng) {
 
   if (dist > 30) {
     // Alerte si le scoot bouge de plus de 30m
-    speak("ALERTE ! Mouvement suspect dÃ©tectÃ© !");
+    speak("ALERTE ! Mouvement suspect détecté !");
     triggerFallAlert(); // Reuse the high-intensity alert UI
     isParkingMode = false;
     document
@@ -990,14 +990,14 @@ function handlePerfTracking(speedKmh) {
     isPerfTracking = true;
     perfStartTime = null;
     perfHud.classList.remove("hidden");
-    perfTimeEl.textContent = "0-50: PrÃªt...";
+    perfTimeEl.textContent = "0-50: Prêt...";
   } else if (speedKmh > 2 && isPerfTracking && !perfStartTime) {
     perfStartTime = Date.now();
     perfTimeEl.textContent = "0-50: GAZ !";
   } else if (speedKmh >= 50 && isPerfTracking && perfStartTime) {
     const time = ((Date.now() - perfStartTime) / 1000).toFixed(2);
     perfTimeEl.textContent = `0-50: ${time}s !`;
-    speak(`Performance rÃ©alisÃ©e : ${time} secondes.`);
+    speak(`Performance réalisée : ${time} secondes.`);
     isPerfTracking = false;
     setTimeout(() => perfHud.classList.add("hidden"), 10000);
   }

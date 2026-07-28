@@ -1,4 +1,14 @@
-﻿/**
+// Ajout pour la sécurité XSS
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>'"]/g, function(s) {
+    const entityMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+    return entityMap[s];
+  });
+}
+
+/**
+
  * GHOST RIDER v1.1 - Predictive Safety System (STABLE V2)
  */
 window.GhostRider = {
@@ -14,7 +24,7 @@ window.GhostRider = {
   lastAlertZone: null,
 
   monitor: function () {
-    // SÃ©curitÃ© maximale : si Maps n'est pas chargÃ© Ã  100%, on ne fait rien
+    // Sécurité maximale : si Maps n'est pas chargé à 100%, on ne fait rien
     if (
       typeof google === "undefined" ||
       !google.maps ||
@@ -37,7 +47,7 @@ window.GhostRider = {
         if (dist < zone.radius && this.lastAlertZone !== zone.name) {
           this.triggerAlert(
             "ZONE DANGEREUSE",
-            `Prudence : ${zone.name} Ã  proximitÃ©.`,
+            `Prudence : ${zone.name} à proximité.`,
           );
           this.lastAlertZone = zone.name;
         } else if (dist > zone.radius && this.lastAlertZone === zone.name) {
@@ -53,18 +63,18 @@ window.GhostRider = {
   triggerAlert: function (title, msg) {
     const banner = document.getElementById("safety-banner");
     if (!banner) return;
-    banner.innerHTML = `<i class="fa-solid fa-ghost"></i> <strong>${title}</strong>: ${msg}`;
+    banner.innerHTML = `<i class="fa-solid fa-ghost"></i> <strong>${escapeHTML(title)}</strong>: ${escapeHTML(msg)}`;
     banner.classList.remove("hidden");
     if (typeof speak === "function") speak(msg);
     setTimeout(() => banner.classList.add("hidden"), 6000);
   },
 
   checkCommunitySOS: function () {
-    // Temporairement dÃ©sactivÃ© pour la stabilitÃ© de la release
+    // Temporairement désactivé pour la stabilité de la release
   },
 };
 
-// Start monitoring loop (DÃ©lai de 15s au dÃ©marrage pour laisser Maps se stabiliser)
+// Start monitoring loop (Délai de 15s au démarrage pour laisser Maps se stabiliser)
 setTimeout(() => {
   setInterval(() => window.GhostRider.monitor(), 10000);
 }, 15000);

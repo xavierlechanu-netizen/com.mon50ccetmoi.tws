@@ -6,17 +6,17 @@
 window.Certificate = {
   generate: function () {
     if (window.session.isGuest) {
-      alert("ðŸ”’ Le Certificat Officiel est rÃ©servÃ© aux membres inscrits.");
+      alert("ðŸ”’ Le Certificat Officiel est réservé aux membres inscrits.");
       return;
     }
 
     speak(
-      "GÃ©nÃ©ration de votre Certificat de ConformitÃ© Digital. Analyse des donnÃ©es de bord en cours.",
+      "Génération de votre Certificat de Conformité Digital. Analyse des données de bord en cours.",
     );
 
     const passport = Wallet.getSafetyPassport();
     const scanResult =
-      localStorage.getItem("last_engine_scan") || "NON EFFECTUÃ‰";
+      localStorage.getItem("last_engine_scan") || "NON EFFECTUÉ";
     const array = new Uint32Array(1);
     window.crypto.getRandomValues(array);
     const certId = "CERT-" + array[0].toString(36).toUpperCase();
@@ -36,36 +36,36 @@ window.Certificate = {
 
                 <div style="position: relative; z-index: 1;">
                     <div style="text-align:center; border-bottom:2px solid #000; padding-bottom:20px; margin-bottom:30px;">
-                        <h1 style="margin:0; font-size:1.5rem;">CERTIFICAT DE CONFORMITÃ‰ DIGITALE</h1>
-                        <p style="font-size:0.8rem;">Ã‰mis par le systÃ¨me mon50ccetmoi Interceptor V26</p>
+                        <h1 style="margin:0; font-size:1.5rem;">CERTIFICAT DE CONFORMITÉ DIGITALE</h1>
+                        <p style="font-size:0.8rem;">Émis par le système mon50ccetmoi Interceptor V26</p>
                     </div>
 
                     <div style="margin-bottom:30px;">
-                        <p><strong>NÂ° CERTIFICAT :</strong> ${certId}</p>
-                        <p><strong>DÃ‰TENTEUR :</strong> ${window.session.username || "Utilisateur Anonyme"}</p>
-                        <p><strong>DATE D'Ã‰MISSION :</strong> ${new Date().toLocaleDateString()}</p>
+                        <p><strong>N° CERTIFICAT :</strong> ${certId}</p>
+                        <p><strong>DÉTENTEUR :</strong> ${window.session.username || "Utilisateur Anonyme"}</p>
+                        <p><strong>DATE D'ÉMISSION :</strong> ${new Date().toLocaleDateString()}</p>
                     </div>
 
-                    <h3 style="border-bottom:1px solid #000;">1. ANALYSE MÃ‰CANIQUE (AI ENGINE PULSE)</h3>
+                    <h3 style="border-bottom:1px solid #000;">1. ANALYSE MÉCANIQUE (AI ENGINE PULSE)</h3>
                     <p>Statut Vibratoire : <strong>${passport.engine_health}</strong></p>
                     <p>Dernier Scan : ${scanResult}</p>
 
-                    <h3 style="border-bottom:1px solid #000; margin-top:30px;">2. SÃ‰CURITÃ‰ & TÃ‰LÃ‰MÃ‰TRIE (BLACKBOX)</h3>
-                    <p>SystÃ¨me Blackbox : <strong>ACTIF & SÃ‰CURISÃ‰</strong></p>
+                    <h3 style="border-bottom:1px solid #000; margin-top:30px;">2. SÉCURITÉ & TÉLÉMÉTRIE (BLACKBOX)</h3>
+                    <p>Système Blackbox : <strong>ACTIF & SÉCURISÉ</strong></p>
                     <p>ID Dispositif : ${passport.blackbox_id}</p>
-                    <p>Vitesse Max EnregistrÃ©e : ${passport.vMax_History} km/h</p>
+                    <p>Vitesse Max Enregistrée : ${passport.vMax_History} km/h</p>
 
                     <h3 style="border-bottom:1px solid #000; margin-top:30px;">3. MAINTENANCE & ENTRETIEN</h3>
-                    <p>Nombre d'interventions tracÃ©es : ${passport.maintenance_count}</p>
+                    <p>Nombre d'interventions tracées : ${passport.maintenance_count}</p>
                     <p>Statut : CONFORME</p>
 
                     <div style="margin-top:50px; display:flex; justify-content:space-between; align-items:flex-end;">
                         <div style="text-align:center;">
-                            <div style="width:100px; height:100px; background:#000; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; font-size:0.6rem;">QR CODE CERTIFIÃ‰</div>
-                            <p style="font-size:0.6rem; margin-top:5px;">VÃ‰RIFICATION ANTS</p>
+                            <div style="width:100px; height:100px; background:#000; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; font-size:0.6rem;">QR CODE CERTIFIÉ</div>
+                            <p style="font-size:0.6rem; margin-top:5px;">VÉRIFICATION ANTS</p>
                         </div>
                         <div style="text-align:right;">
-                            <p style="font-size:0.8rem; font-style:italic;">Signature NumÃ©rique mon50ccetmoi</p>
+                            <p style="font-size:0.8rem; font-style:italic;">Signature Numérique mon50ccetmoi</p>
                             <div style="font-family:'Brush Script MT', cursive; font-size:1.5rem;">Netizen AI OS</div>
                         </div>
                     </div>
@@ -80,7 +80,7 @@ window.Certificate = {
 
   generateBattery: function (tier = "premium", predefinedCertId = null) {
     if (typeof speak === "function")
-      speak("GÃ©nÃ©ration du certificat de batterie pour la revente.");
+      speak("Génération du certificat de batterie pour la revente.");
 
     let certId = predefinedCertId;
     if (!certId) {
@@ -94,7 +94,7 @@ window.Certificate = {
       mileage: "12 450 km",
       cycles: "345 / 1000",
       age: "2 ans et 3 mois",
-      style: "Ã‰co-Responsable / Fluide",
+      style: "Éco-Responsable / Fluide",
       date: "15 Janvier 2024",
     };
 
@@ -116,15 +116,15 @@ window.Certificate = {
       iaAnalysisHTML = `
                 <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 40px; background: #fffcf0;">
                     <h3 style="color: #d97706; font-size: 0.9rem; margin-top: 0;">ANALYSE DU STYLE DE CONDUITE (IA)</h3>
-                    <p style="margin: 5px 0;">Profil dÃ©tectÃ© : <strong style="color: #d97706;">${bState.style}</strong></p>
-                    <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">L'analyse tÃ©lÃ©mÃ©trique de mon50ccetmoi atteste de ce profil de conduite, permettant de justifier de la sollicitation appliquÃ©e aux cellules de la batterie.</p>
+                    <p style="margin: 5px 0;">Profil détecté : <strong style="color: #d97706;">${bState.style}</strong></p>
+                    <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">L'analyse télémétrique de mon50ccetmoi atteste de ce profil de conduite, permettant de justifier de la sollicitation appliquée aux cellules de la batterie.</p>
                 </div>
             `;
     } else {
       iaAnalysisHTML = `
                 <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 40px; background: #f9f9f9;">
                     <h3 style="color: #888; font-size: 0.9rem; margin-top: 0;">ANALYSE DU STYLE DE CONDUITE (IA)</h3>
-                    <p style="margin: 5px 0; color: #aaa;"><i>Information masquÃ©e. Disponible uniquement avec le Certificat Premium.</i></p>
+                    <p style="margin: 5px 0; color: #aaa;"><i>Information masquée. Disponible uniquement avec le Certificat Premium.</i></p>
                 </div>
             `;
     }
@@ -136,7 +136,7 @@ window.Certificate = {
       blockchainHTML = `
                 <div style="border: 1px solid #b700ff; border-radius: 8px; padding: 15px; margin-bottom: 20px; background: rgba(183, 0, 255, 0.05);">
                     <h3 style="color: #b700ff; font-size: 0.9rem; margin-top: 0; display:flex; align-items:center; gap:10px;"><svg width="16" height="16" viewBox="0 0 320 512" fill="#b700ff"><path d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.6 160 512l152-221.4-152 92.8z"/></svg> CERTIFICATION QUANTUM SHIELD E2EE</h3>
-                    <p style="font-size: 0.75rem; color: #666; margin-bottom: 0; word-break: break-all; font-family: monospace;">ClÃ© de chiffrement : 0x${hash}a9f4c<br>Ce document est protÃ©gÃ© par un chiffrement de bout en bout de qualitÃ© militaire.</p>
+                    <p style="font-size: 0.75rem; color: #666; margin-bottom: 0; word-break: break-all; font-family: monospace;">Clé de chiffrement : 0x${hash}a9f4c<br>Ce document est protégé par un chiffrement de bout en bout de qualité militaire.</p>
                 </div>
             `;
     }
@@ -150,17 +150,17 @@ window.Certificate = {
 
                 <div style="position: relative; z-index: 1;">
                     <div style="text-align:center; border-bottom:2px solid ${borderColor}; padding-bottom:20px; margin-bottom:30px;">
-                        <h1 style="margin:0; font-size:1.8rem; color:${borderColor};">CERTIFICAT D'Ã‰TAT DE BATTERIE (SOH)</h1>
-                        <p style="font-size:0.9rem; color:#666;">Document officiel pour la revente du vÃ©hicule - Niveau : ${tier.toUpperCase()}</p>
+                        <h1 style="margin:0; font-size:1.8rem; color:${borderColor};">CERTIFICAT D'ÉTAT DE BATTERIE (SOH)</h1>
+                        <p style="font-size:0.9rem; color:#666;">Document officiel pour la revente du véhicule - Niveau : ${tier.toUpperCase()}</p>
                     </div>
 
                     ${blockchainHTML}
 
                     <div style="display: flex; justify-content: space-between; margin-bottom:30px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
                         <div>
-                            <p style="margin: 5px 0;"><strong>NÂ° CERTIFICAT :</strong> ${certId}</p>
-                            <p style="margin: 5px 0;"><strong>VÃ‰HICULE :</strong> Scooter Ã‰lectrique</p>
-                            <p style="margin: 5px 0;"><strong>PROPRIÃ‰TAIRE :</strong> ${window.session ? window.session.username || "Utilisateur" : "Utilisateur"}</p>
+                            <p style="margin: 5px 0;"><strong>N° CERTIFICAT :</strong> ${certId}</p>
+                            <p style="margin: 5px 0;"><strong>VÉHICULE :</strong> Scooter Électrique</p>
+                            <p style="margin: 5px 0;"><strong>PROPRIÉTAIRE :</strong> ${window.session ? window.session.username || "Utilisateur" : "Utilisateur"}</p>
                         </div>
                         <div style="text-align: right;">
                             <p style="margin: 5px 0;"><strong>DATE :</strong> ${new Date().toLocaleDateString()}</p>
@@ -170,13 +170,13 @@ window.Certificate = {
 
                     <div style="display: flex; gap: 20px; margin-bottom: 30px;">
                         <div style="flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-align: center;">
-                            <h3 style="color: #888; font-size: 0.9rem; margin-top: 0;">Ã‰TAT DE SANTÃ‰ (SOH)</h3>
+                            <h3 style="color: #888; font-size: 0.9rem; margin-top: 0;">ÉTAT DE SANTÉ (SOH)</h3>
                             <div style="font-size: 3rem; font-weight: 900; color: ${borderColor};">${bState.soh}</div>
-                            <p style="font-size: 0.8rem; color: #666; margin-bottom: 0;">Ã‰valuation validÃ©e</p>
+                            <p style="font-size: 0.8rem; color: #666; margin-bottom: 0;">Évaluation validée</p>
                         </div>
                         <div style="flex: 2; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
-                            <h3 style="color: #888; font-size: 0.9rem; margin-top: 0;">MÃ‰TRIQUES CLÃ‰S</h3>
-                            <p style="margin: 5px 0; display:flex; justify-content:space-between;"><span>KilomÃ©trage total :</span> <strong>${bState.mileage}</strong></p>
+                            <h3 style="color: #888; font-size: 0.9rem; margin-top: 0;">MÉTRIQUES CLÉS</h3>
+                            <p style="margin: 5px 0; display:flex; justify-content:space-between;"><span>Kilométrage total :</span> <strong>${bState.mileage}</strong></p>
                             <p style="margin: 5px 0; display:flex; justify-content:space-between;"><span>Cycles de charge :</span> <strong>${bState.cycles}</strong></p>
                             <p style="margin: 5px 0; display:flex; justify-content:space-between;"><span>Mise en circulation :</span> <strong>${bState.date}</strong></p>
                             <p style="margin: 5px 0; display:flex; justify-content:space-between;"><span>Ã‚ge batterie :</span> <strong>${bState.age}</strong></p>
@@ -187,10 +187,10 @@ window.Certificate = {
 
                     <div style="display:flex; justify-content:space-between; align-items:flex-end;">
                         <div style="text-align:center;">
-                            <div style="width:100px; height:100px; background:#000; border-radius: 10px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; font-size:0.6rem; margin:auto;">QR CODE<br>SÃ‰CURISÃ‰</div>
+                            <div style="width:100px; height:100px; background:#000; border-radius: 10px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:bold; font-size:0.6rem; margin:auto;">QR CODE<br>SÉCURISÉ</div>
                         </div>
                         <div style="text-align:right;">
-                            <p style="font-size:0.8rem; font-style:italic; color:#666; margin-bottom:0;">CertifiÃ© par la plateforme</p>
+                            <p style="font-size:0.8rem; font-style:italic; color:#666; margin-bottom:0;">Certifié par la plateforme</p>
                             <div style="font-size:1.5rem; font-weight: 900; color: ${borderColor};">mon50ccetmoi.com</div>
                         </div>
                     </div>
@@ -215,28 +215,28 @@ window.Certificate = {
   },
 
   purchaseBatteryCert: async function (tier) {
-    // Ferme la fenÃªtre de prix
+    // Ferme la fenêtre de prix
     const pricingScreen = document.getElementById("battery-pricing-screen");
     if (pricingScreen) pricingScreen.classList.add("hidden");
 
     if (typeof speak === "function")
-      speak("Connexion bancaire sÃ©curisÃ©e pour l'achat du certificat.");
+      speak("Connexion bancaire sécurisée pour l'achat du certificat.");
 
     const loader = document.createElement("div");
     loader.id = "payment-loader";
     loader.style =
       "position:fixed; top:0; left:0; width:100%; height:100%; z-index:50000; background:rgba(0,0,0,0.95); color:#fff; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:'Inter', sans-serif;";
     loader.innerHTML =
-      '<i class="fa-solid fa-circle-notch fa-spin" style="font-size:4rem; color:#00d2ff; margin-bottom:20px;"></i><h2 style="margin:0;">Paiement SÃ©curisÃ©</h2><p id="revolut-loader-text" style="color:#aaa;">Initialisation Revolut Pay...</p>';
+      '<i class="fa-solid fa-circle-notch fa-spin" style="font-size:4rem; color:#00d2ff; margin-bottom:20px;"></i><h2 style="margin:0;">Paiement Sécurisé</h2><p id="revolut-loader-text" style="color:#aaa;">Initialisation Revolut Pay...</p>';
     document.body.appendChild(loader);
 
     try {
-      // DÃ©terminer le montant en centimes
+      // Déterminer le montant en centimes
       let amountCents = 499;
       if (tier === "premium") amountCents = 1499;
       if (tier === "quantum") amountCents = 2999;
 
-      // Generate Cert ID (utilisÃ© comme case_id pour l'ordre Revolut)
+      // Generate Cert ID (utilisé comme case_id pour l'ordre Revolut)
       const array = new Uint32Array(1);
       window.crypto.getRandomValues(array);
       const certId = "BATT-" + array[0].toString(36).toUpperCase();
@@ -244,7 +244,7 @@ window.Certificate = {
       const projectId = window.CONFIG?.FIREBASE?.projectId || "mon50ccetmoi";
       const url = `https://europe-west1-${projectId}.cloudfunctions.net/createRevolutOrder`;
 
-      // CrÃ©ation de l'ordre via Firebase Function
+      // Création de l'ordre via Firebase Function
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -259,14 +259,14 @@ window.Certificate = {
 
       if (!response.ok) {
         throw new Error(
-          "Erreur serveur lors de la crÃ©ation de l'ordre Revolut.",
+          "Erreur serveur lors de la création de l'ordre Revolut.",
         );
       }
 
       const orderData = await response.json();
 
       if (!orderData?.order_token) {
-        throw new Error("Token Revolut non reÃ§u.");
+        throw new Error("Token Revolut non reçu.");
       }
 
       const txt = document.getElementById("revolut-loader-text");
@@ -281,14 +281,14 @@ window.Certificate = {
 
       const instance = await RevolutCheckout(orderData.order_token, "prod");
 
-      loader.remove(); // On enlÃ¨ve notre loader pour que la popup Revolut prenne le relais
+      loader.remove(); // On enlève notre loader pour que la popup Revolut prenne le relais
 
       instance.payWithPopup({
         onSuccess: async () => {
           if (typeof speak === "function")
-            speak("Paiement Revolut validÃ©. GÃ©nÃ©ration de votre document.");
+            speak("Paiement Revolut validé. Génération de votre document.");
 
-          // Sauvegarde Firestore uniquement si le paiement a rÃ©ussi
+          // Sauvegarde Firestore uniquement si le paiement a réussi
           try {
             if (
               window.firebase &&
@@ -301,7 +301,7 @@ window.Certificate = {
                 mileage: "12 450 km",
                 cycles: "345 / 1000",
                 age: "2 ans et 3 mois",
-                style: "Ã‰co-Responsable / Fluide",
+                style: "Éco-Responsable / Fluide",
                 date: "15 Janvier 2024",
               };
               await window.firebase
@@ -319,23 +319,23 @@ window.Certificate = {
                 });
             } else {
               console.warn(
-                "[Firestore] Mode hors-ligne. Le certificat n'est pas sauvegardÃ©.",
+                "[Firestore] Mode hors-ligne. Le certificat n'est pas sauvegardé.",
               );
             }
           } catch (err) {
             console.error("Erreur de sauvegarde Firestore :", err);
           }
 
-          // GÃ©nÃ©ration et affichage du certificat
+          // Génération et affichage du certificat
           this.generateBattery(tier, certId);
         },
         onError: (message) => {
           console.error("Erreur Revolut :", message);
           alert("Erreur de paiement Revolut : " + message);
-          if (typeof speak === "function") speak("Le paiement a Ã©chouÃ©.");
+          if (typeof speak === "function") speak("Le paiement a échoué.");
         },
         onCancel: () => {
-          if (typeof speak === "function") speak("Paiement annulÃ©.");
+          if (typeof speak === "function") speak("Paiement annulé.");
         },
       });
     } catch (error) {
@@ -344,7 +344,7 @@ window.Certificate = {
       alert(
         "Erreur de communication avec le serveur de paiement : " +
           error.message +
-          ". La gÃ©nÃ©ration du certificat sÃ©curisÃ© est impossible.",
+          ". La génération du certificat sécurisé est impossible.",
       );
     }
   },
@@ -356,7 +356,7 @@ window.Certificate = {
     const style = document.getElementById("man-style").value;
 
     if (!mileage || !cycles || !age) {
-      alert("Veuillez remplir tous les champs numÃ©riques.");
+      alert("Veuillez remplir tous les champs numériques.");
       return;
     }
 
@@ -384,10 +384,10 @@ window.Certificate = {
       cycles: cycles + " / 1000",
       age: ageStr,
       style: style,
-      date: "Date d'achat inconnue", // Pourrait Ãªtre amÃ©liorÃ© avec un champ date
+      date: "Date d'achat inconnue", // Pourrait être amélioré avec un champ date
     };
 
-    // Mise Ã  jour de l'UI du tableau de bord
+    // Mise à jour de l'UI du tableau de bord
     const elSoh = document.getElementById("battery-soh-value");
     if (elSoh) {
       elSoh.innerText = window.batteryState.soh;
@@ -412,11 +412,11 @@ window.Certificate = {
         style === "Sportive / Nerveuse" ? "#ff3366" : "#ffb703";
     }
 
-    // Fermer la fenÃªtre modale
+    // Fermer la fenêtre modale
     document.getElementById("battery-manual-screen").classList.add("hidden");
     if (typeof speak === "function")
       speak(
-        "DonnÃ©es enregistrÃ©es. Ã‰tat de santÃ© estimÃ© Ã  " +
+        "Données enregistrées. État de santé estimé à " +
           soh +
           " pourcent.",
       );

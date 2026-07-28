@@ -78,7 +78,7 @@ window.Blackbox = {
         this.saveToCloud("IMPACT_DETECTED_AUTO");
         if (typeof window.triggerEmergencySOS === "function") {
           window.triggerEmergencySOS(
-            "Impact violent dÃ©tectÃ© par la Blackbox (" + g.toFixed(1) + "G).",
+            "Impact violent détecté par la Blackbox (" + g.toFixed(1) + "G).",
           );
         }
       }
@@ -131,21 +131,21 @@ window.Blackbox = {
 
     content.innerHTML = `<h3><i class="fa-solid fa-box-archive"></i> Blackbox Sentinel v2.0</h3>
             <div class="glassmorphism" style="padding:20px; border-left:4px solid #ff4d4d;">
-                <h4 style="color:#ff4d4d;">SCELLÃ‰ NUMÃ‰RIQUE QUANTUM</h4>
+                <h4 style="color:#ff4d4d;">SCELLÉ NUMÉRIQUE QUANTUM</h4>
                 <p style="font-size:0.85rem; margin-top:15px; line-height:1.4;">
-                    Vos donnÃ©es de tÃ©lÃ©mÃ©trie haute frÃ©quence sont <strong>chiffrÃ©es de bout en bout</strong>.
+                    Vos données de télémétrie haute fréquence sont <strong>chiffrées de bout en bout</strong>.
                 </p>
                 <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px; margin-top:15px; font-size:0.75rem;">
                     <i class="fa-solid fa-lock"></i> Chiffrement : <strong>AES-256</strong><br>
-                    <i class="fa-solid fa-shield-check"></i> IntÃ©gritÃ© : <strong>SHA-256 Verified</strong><br>
-                    <i class="fa-solid fa-bolt"></i> FrÃ©quence : <strong>10Hz Motion Logging</strong>
+                    <i class="fa-solid fa-shield-check"></i> Intégrité : <strong>SHA-256 Verified</strong><br>
+                    <i class="fa-solid fa-bolt"></i> Fréquence : <strong>10Hz Motion Logging</strong>
                 </div>
                 <p style="font-size:0.7rem; color:#888; margin-top:20px;">
-                    En cas de litige, seul l'expert mandatÃ© peut demander le dÃ©chiffrement via votre clÃ© de session unique.
+                    En cas de litige, seul l'expert mandaté peut demander le déchiffrement via votre clé de session unique.
                 </p>
             </div>
             
-            <button onclick="document.getElementById('screen-overlay').classList.add('hidden')" class="btn-insurance" style="width:100%; margin-top:20px; background:#333; color:white;">TERMINÃ‰</button>`;
+            <button onclick="document.getElementById('screen-overlay').classList.add('hidden')" class="btn-insurance" style="width:100%; margin-top:20px; background:#333; color:white;">TERMINÉ</button>`;
   },
 };
 

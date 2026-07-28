@@ -1,21 +1,21 @@
 ﻿/**
  * DRIVING SCORE ENGINE v1.0 (InsurTech Core)
- * Score de conduite 0-100 calculÃ© en temps rÃ©el Ã  partir de la tÃ©lÃ©mÃ©trie.
- * ExploitÃ© par le portail B2B Assureur pour le "Pay How You Drive".
+ * Score de conduite 0-100 calculé en temps réel à partir de la télémétrie.
+ * Exploité par le portail B2B Assureur pour le "Pay How You Drive".
  */
 
 window.DrivingScore = {
-  currentScore: 100, // Commence Ã  100, les infractions font baisser
+  currentScore: 100, // Commence à 100, les infractions font baisser
   sessionPenalties: [],
   isTracking: false,
   lastGForce: 0,
   smoothAccelHistory: [],
 
-  // Seuils de pÃ©nalitÃ© (calibrÃ©s pour un 50cc / VSP)
+  // Seuils de pénalité (calibrés pour un 50cc / VSP)
   THRESHOLDS: {
     HARD_BRAKE: 2.5, // G-Force freinage brusque
-    HARD_ACCEL: 2.0, // G-Force accÃ©lÃ©ration violente
-    OVER_SPEED: 47, // km/h (limite lÃ©gale 45 + tolÃ©rance)
+    HARD_ACCEL: 2.0, // G-Force accélération violente
+    OVER_SPEED: 47, // km/h (limite légale 45 + tolérance)
     CORNERING: 1.8, // G-Force virage agressif
     PENALTY_HARD_BRAKE: -5,
     PENALTY_HARD_ACCEL: -3,
@@ -31,14 +31,14 @@ window.DrivingScore = {
     );
     this.createScoreHUD();
 
-    // Ã‰couter l'accÃ©lÃ©romÃ¨tre
+    // Écouter l'accéléromètre
     window.addEventListener("devicemotion", (event) => {
       if (!this.isTracking) return;
       this.analyzeMotion(event);
     });
   },
 
-  // CrÃ©er le petit badge de score flottant
+  // Créer le petit badge de score flottant
   createScoreHUD: function () {
     const badge = document.createElement("div");
     badge.id = "driving-score-badge";
@@ -68,7 +68,7 @@ window.DrivingScore = {
     this.updateScoreVisual();
   },
 
-  // Analyser les donnÃ©es de mouvement en temps rÃ©el
+  // Analyser les données de mouvement en temps réel
   analyzeMotion: function (event) {
     const acc = event.accelerationIncludingGravity;
     if (!acc) return;
@@ -77,7 +77,7 @@ window.DrivingScore = {
       Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z) / 9.81;
     this.lastGForce = gForce;
 
-    // Historique pour lissage (Ã©viter les faux positifs)
+    // Historique pour lissage (éviter les faux positifs)
     this.smoothAccelHistory.push(gForce);
     if (this.smoothAccelHistory.length > 5) this.smoothAccelHistory.shift();
     const avgG =
@@ -88,43 +88,43 @@ window.DrivingScore = {
     if (avgG > this.THRESHOLDS.HARD_BRAKE && acc.z < -15) {
       this.applyPenalty(
         "HARD_BRAKE",
-        `Freinage brusque dÃ©tectÃ© (${avgG.toFixed(1)}G)`,
+        `Freinage brusque détecté (${avgG.toFixed(1)}G)`,
       );
     }
-    // AccÃ©lÃ©ration violente
+    // Accélération violente
     else if (avgG > this.THRESHOLDS.HARD_ACCEL && acc.z > 15) {
       this.applyPenalty(
         "HARD_ACCEL",
-        `AccÃ©lÃ©ration agressive (${avgG.toFixed(1)}G)`,
+        `Accélération agressive (${avgG.toFixed(1)}G)`,
       );
     }
-    // Virage agressif (G latÃ©ral)
+    // Virage agressif (G latéral)
     else if (Math.abs(acc.x) / 9.81 > this.THRESHOLDS.CORNERING) {
       this.applyPenalty(
         "CORNERING",
-        `Virage agressif (${(Math.abs(acc.x) / 9.81).toFixed(1)}G latÃ©ral)`,
+        `Virage agressif (${(Math.abs(acc.x) / 9.81).toFixed(1)}G latéral)`,
       );
     }
   },
 
-  // VÃ©rifier l'excÃ¨s de vitesse (appelÃ© par le GPS de app-map.js)
+  // Vérifier l'excès de vitesse (appelé par le GPS de app-map.js)
   checkSpeed: function (currentSpeedKmh) {
     if (currentSpeedKmh > this.THRESHOLDS.OVER_SPEED) {
       this.applyPenalty(
         "OVER_SPEED",
-        `ExcÃ¨s de vitesse : ${currentSpeedKmh.toFixed(0)} km/h`,
+        `Excès de vitesse : ${currentSpeedKmh.toFixed(0)} km/h`,
       );
     }
   },
 
-  // Bonus par kilomÃ¨tre sans infraction (appelÃ© par la tÃ©lÃ©mÃ©trie)
+  // Bonus par kilomètre sans infraction (appelé par la télémétrie)
   awardSmoothKm: function () {
     const lastPenaltyTime =
       this.sessionPenalties.length > 0
         ? this.sessionPenalties[this.sessionPenalties.length - 1].time
         : 0;
 
-    // Si aucune pÃ©nalitÃ© dans les 5 derniÃ¨res minutes
+    // Si aucune pénalité dans les 5 dernières minutes
     if (Date.now() - lastPenaltyTime > 300000) {
       this.currentScore = Math.min(
         100,
@@ -134,7 +134,7 @@ window.DrivingScore = {
     }
   },
 
-  // Appliquer une pÃ©nalitÃ© (avec cooldown anti-spam de 10s)
+  // Appliquer une pénalité (avec cooldown anti-spam de 10s)
   applyPenalty: function (type, description) {
     const now = Date.now();
     const lastSameType = this.sessionPenalties
@@ -148,7 +148,7 @@ window.DrivingScore = {
     this.sessionPenalties.push({ type, description, penalty, time: now });
     this.saveAndUpdate();
 
-    console.warn(`ðŸ† DrivingScore : ${penalty} pts â†’ ${description}`);
+    console.warn(`ðŸ† DrivingScore : ${penalty} pts ←’ ${description}`);
 
     // Vibration d'avertissement
     if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
@@ -159,12 +159,12 @@ window.DrivingScore = {
     }
   },
 
-  // Sauvegarder et mettre Ã  jour le visuel
+  // Sauvegarder et mettre à jour le visuel
   saveAndUpdate: function () {
     localStorage.setItem("drivingScore", this.currentScore.toString());
     this.updateScoreVisual();
 
-    // Notifier le ReferralManager pour le bonus de conduite sÃ©curisÃ©e
+    // Notifier le ReferralManager pour le bonus de conduite sécurisée
     if (this.currentScore >= 80 && window.ReferralManager) {
       window.ReferralManager.checkSafeDrivingBonus(true);
     }
@@ -187,7 +187,7 @@ window.DrivingScore = {
     valueEl.style.color = color;
   },
 
-  // Activer/DÃ©sactiver le tracking (liÃ© Ã  GuardianAngel)
+  // Activer/Désactiver le tracking (lié à GuardianAngel)
   start: function () {
     this.isTracking = true;
     this.sessionPenalties = [];
@@ -197,7 +197,7 @@ window.DrivingScore = {
     this.isTracking = false;
   },
 
-  // Panneau de dÃ©tail (affiche les pÃ©nalitÃ©s de la session)
+  // Panneau de détail (affiche les pénalités de la session)
   showDetailPanel: function () {
     let existing = document.getElementById("ds-detail-panel");
     if (existing) {
@@ -225,7 +225,7 @@ window.DrivingScore = {
 
     let penaltiesHTML =
       this.sessionPenalties.length === 0
-        ? '<div style="color:#00ff88; text-align:center;">âœ… Aucune infraction</div>'
+        ? '<div style="color:#00ff88; text-align:center;">✅ Aucune infraction</div>'
         : this.sessionPenalties
             .slice(-5)
             .map(
@@ -241,7 +241,7 @@ window.DrivingScore = {
                 ðŸ“Š Score de Conduite : ${this.currentScore}/100
             </div>
             <div style="font-size:11px; color:#888; margin-bottom:8px;">
-                DerniÃ¨res infractions (session) :
+                Dernières infractions (session) :
             </div>
             ${penaltiesHTML}
             <div style="margin-top:12px; font-size:10px; color:#666; text-align:center;">
@@ -252,7 +252,7 @@ window.DrivingScore = {
     document.body.appendChild(panel);
   },
 
-  // GÃ©nÃ©rer un rÃ©sumÃ© pour le portail B2B Assureur
+  // Générer un résumé pour le portail B2B Assureur
   generateInsuranceReport: function () {
     return {
       score: this.currentScore,

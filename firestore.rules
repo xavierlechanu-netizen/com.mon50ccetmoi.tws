@@ -54,11 +54,18 @@ service cloud.firestore {
       allow create, update: if isSignedIn() && isOwner(request.resource.data.userId);
     }
 
-    // Alertes Communautaires (Hazards)
+    // Radar Social (Partage de position GPS temps réel)
+    match /social_radar/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isOwner(userId);
+    }
+
+    // Alertes Communautaires (Hazards & Danger Zones)
     match /hazards/{hazardId} {
       allow read: if true;
-      allow create: if isSignedIn() && getUsername() == request.resource.data.author;
-      allow delete: if isAdmin() || (isSignedIn() && getUsername() == resource.data.author);
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isAdmin() || (isSignedIn() && (getUsername() == resource.data.author || getUsername() == resource.data.reporter));
     }
 
     // Sessions de Balades
@@ -187,23 +194,18 @@ service cloud.firestore {
     match /crews/{crewId} {
       allow read: if true;
       allow create: if isSignedIn();
-      // Le leader peut tout modifier. Un utilisateur peut modifier pour rejoindre (s'il s'ajoute aux membres et ne change pas le leader)
       allow update: if isSignedIn() && (isOwner(resource.data.leaderUid) || (request.resource.data.leaderUid == resource.data.leaderUid && request.auth.uid in request.resource.data.members) || isAdmin());
       allow delete: if isAdmin();
     }
 
-    // ─────────────────────────────────────────────────────────────
     // CREW CHATS (Messagerie privée des groupes)
-    // ─────────────────────────────────────────────────────────────
     match /crew_chats/{crewId}/messages/{messageId} {
-      // Seuls les membres actuels du crew peuvent lire et écrire (OWASP A01)
       allow read, create: if isSignedIn() && (request.auth.uid in get(/databases/$(database)/documents/crews/$(crewId)).data.members);
       allow update, delete: if false; // Messages inaltérables
     }
 
     match /territory_sectors/{sectorId} {
       allow read: if true;
-      // On permet aux utilisateurs connectés de mettre à jour les kilomètres de leur Crew sur le secteur
       allow write: if isSignedIn();
     }
 
@@ -212,8 +214,8 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────
     match /loot_drops/{lootId} {
       allow read: if isSignedIn();
-      allow create: if isAdmin(); // Seuls les admins peuvent créer des loot drops
-      allow update: if isSignedIn(); // Pour permettre de claim le loot
+      allow create: if isAdmin();
+      allow update: if isSignedIn();
       allow delete: if isAdmin();
     }
 
@@ -280,7 +282,6 @@ service cloud.firestore {
       allow update: if isSignedIn();
       allow delete: if isSignedIn() && (request.auth.uid == resource.data.leaderUid || isAdmin());
 
-      // Sous-collection : positions GPS des membres
       match /positions/{memberId} {
         allow read: if isSignedIn();
         allow write: if isSignedIn() && request.auth.uid == memberId;
@@ -291,24 +292,35 @@ service cloud.firestore {
     // BOURSE D'ÉCHANGE (Marketplace communautaire)
     // ─────────────────────────────────────────────────────────────
     match /exchange_listings/{listingId} {
-      allow read: if isSignedIn();
+      allow read: if true;
       allow create: if isSignedIn()
-        && request.resource.data.seller is string
         && request.resource.data.title is string
         && request.resource.data.title.size() >= 3
         && request.resource.data.title.size() <= 100
         && request.resource.data.price is number
         && request.resource.data.price > 0
         && request.resource.data.price <= 50000;
-      allow update: if isSignedIn() && resource.data.seller == getUsername();
+      allow update: if isSignedIn() && (
+        resource.data.seller == getUsername() ||
+        (request.resource.data.status == "reserved" && resource.data.status == "active") ||
+        isAdmin()
+      );
       allow delete: if isSignedIn() && (resource.data.seller == getUsername() || isAdmin());
     }
 
     // Messages entre acheteur et vendeur
     match /exchange_messages/{msgId} {
-      // Seuls l'expéditeur et le destinataire peuvent lire le message
-      allow read: if isSignedIn() && (resource.data.sender == getUsername() || resource.data.receiver == getUsername() || isAdmin());
-      allow create: if isSignedIn() && request.resource.data.sender == getUsername();
+      allow read: if isSignedIn() && (
+        resource.data.from == getUsername() ||
+        resource.data.to == getUsername() ||
+        resource.data.sender == getUsername() ||
+        resource.data.receiver == getUsername() ||
+        isAdmin()
+      );
+      allow create: if isSignedIn() && (
+        request.resource.data.from == getUsername() ||
+        request.resource.data.sender == getUsername()
+      );
       allow update, delete: if false; // Messages immutables
     }
   }

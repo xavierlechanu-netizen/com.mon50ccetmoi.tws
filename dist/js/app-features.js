@@ -1,4 +1,4 @@
-﻿// Fallback if loaded before auth.js/database.js
+// Fallback if loaded before auth.js/database.js
 if (typeof window.secureGetItem === "undefined") {
   window.secureGetItem = function (key) {
     try {
@@ -18,7 +18,7 @@ if (typeof secureGetItem === "undefined") {
   var secureSetItem = window.secureSetItem;
 }
 
-// --- 7. SERVICES (MÃ©tÃ©o, Boussole, Garage) ---
+// --- 7. SERVICES (Météo, Boussole, Garage) ---
 window.fetchWeather = async function (lat, lon) {
   try {
     const res = await fetch(
@@ -34,30 +34,30 @@ window.fetchWeather = async function (lat, lon) {
     const wind = data.current_weather.windspeed;
     window.isVigilanceRouge = false; // Reset
 
-    // DÃ©tection mondiale Vigilance Rouge (Canicule ou TempÃªte)
+    // Détection mondiale Vigilance Rouge (Canicule ou Tempête)
     if (temp >= 38 || wind >= 70 || code === 99 || code === 77) {
       window.isVigilanceRouge = true;
       alertMsg =
-        "VIGILANCE ROUGE DÃ‰TECTÃ‰E : Conditions mÃ©tÃ©orologiques extrÃªmes.";
+        "VIGILANCE ROUGE DÉTECTÉE : Conditions météorologiques extrêmes.";
       icon =
         '<i class="fa-solid fa-triangle-exclamation" style="color:#ff0000; animation: flash 1s infinite;"></i>';
       const banner = document.getElementById("vigilance-rouge-banner");
       const textEl = document.getElementById("vigilance-rouge-text");
       if (banner && textEl) {
-        textEl.innerHTML = `ðŸš¨ <strong>VIGILANCE ROUGE (MONDIALE) :</strong> TempÃ©rature ${temp}Â°C, Vent ${wind}km/h. Soyez extrÃªmement prudents !`;
+        textEl.innerHTML = `🚨 <strong>VIGILANCE ROUGE (MONDIALE) :</strong> Température ${temp}°C, Vent ${wind}km/h. Soyez extrêmement prudents !`;
         banner.style.display = "block";
       }
     }
 
     if (!window.isVigilanceRouge) {
       if (code >= 95) {
-        alertMsg = "Alerte Orage : Prudence maximale conseillÃ©e.";
+        alertMsg = "Alerte Orage : Prudence maximale conseillée.";
         icon = '<i class="fa-solid fa-cloud-bolt" style="color:#f1c40f;"></i>';
       } else if (code >= 80) {
-        alertMsg = "Averses dÃ©tectÃ©es : Route potentiellement glissante.";
+        alertMsg = "Averses détectées : Route potentiellement glissante.";
         icon = '<i class="fa-solid fa-cloud-showers-heavy"></i>';
       } else if (code >= 61) {
-        alertMsg = "Pluie signalÃ©e par satellite. Ã‰quipez-vous.";
+        alertMsg = "Pluie signalée par satellite. Équipez-vous.";
         icon = '<i class="fa-solid fa-cloud-rain"></i>';
       } else if (code >= 71) {
         alertMsg = "Alerte Neige : Conditions de circulation difficiles.";
@@ -67,7 +67,7 @@ window.fetchWeather = async function (lat, lon) {
 
     const wHud = document.getElementById("weather-hud");
     if (wHud) {
-      wHud.innerHTML = `${icon} ${temp}Â°C`;
+      wHud.innerHTML = `${icon} ${temp}°C`;
       if (alertMsg) wHud.classList.add("weather-alert");
       else wHud.classList.remove("weather-alert");
     }
@@ -78,7 +78,7 @@ window.fetchWeather = async function (lat, lon) {
       setTimeout(() => (window.lastWeatherAlert = false), 3600000); // Reset alerte toutes les heures
     }
   } catch (e) {
-    console.warn("MÃ©tÃ©o fail");
+    console.warn("Météo fail");
   }
 };
 
@@ -134,7 +134,7 @@ function saveSessionAndCheckBadges() {
   secureSetItem("session", JSON.stringify(window.session));
   const odom = document.getElementById("display-odometer");
   if (odom)
-    odom.textContent = `OdomÃ¨tre: ${window.session.totalDistance.toFixed(2)} km`;
+    odom.textContent = `Odomètre: ${window.session.totalDistance.toFixed(2)} km`;
 
   const mileageHud = document.getElementById("mileage-hud");
   if (mileageHud)
@@ -174,8 +174,8 @@ function checkUserBadges() {
 
   // Badge Ecolo (100kg CO2)
   if (co2Saved >= 100) {
-    badgesHtml += `<div class="badge-eco" title="Badge Ã‰colo: 100kg CO2 sauvÃ©s" style="background:#2ecc71; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-right:5px;">
-            <i class="fa-solid fa-leaf"></i> Ã‰colo
+    badgesHtml += `<div class="badge-eco" title="Badge Écolo: 100kg CO2 sauvés" style="background:#2ecc71; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-right:5px;">
+            <i class="fa-solid fa-leaf"></i> Écolo
         </div>`;
   }
 
@@ -189,23 +189,23 @@ function checkUserBadges() {
 
   // Badge Diamant (10000km)
   if (total >= 10000) {
-    badgesHtml += `<div class="badge-diamant" title="LÃ©gende: 10000km" style="background:linear-gradient(135deg, #B9F2FF, #ffffff); color:#005c75; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; box-shadow:0 0 10px #B9F2FF; margin-right:5px;">
+    badgesHtml += `<div class="badge-diamant" title="Légende: 10000km" style="background:linear-gradient(135deg, #B9F2FF, #ffffff); color:#005c75; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; box-shadow:0 0 10px #B9F2FF; margin-right:5px;">
             <i class="fa-solid fa-gem"></i> Diamant
         </div>`;
   }
 
-  // Badge Pro des DÃ©fis (150 victoires)
+  // Badge Pro des Défis (150 victoires)
   const challengeWins = window.session?.completedChallengesCount || 0;
   if (challengeWins >= 150) {
-    badgesHtml += `<div class="badge-master-defi" title="Master DÃ©fis: 150 victoires" style="background:#9b59b6; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; border:1px solid #fff;">
-            <i class="fa-solid fa-trophy"></i> Pro des DÃ©fis
+    badgesHtml += `<div class="badge-master-defi" title="Master Défis: 150 victoires" style="background:#9b59b6; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; border:1px solid #fff;">
+            <i class="fa-solid fa-trophy"></i> Pro des Défis
         </div>`;
   }
 
-  // Badge MÃ©cÃ¨ne (Donateur)
+  // Badge Mécène (Donateur)
   if (window.session?.isDonator) {
-    badgesHtml += `<div class="badge-mecene" title="MÃ©cÃ¨ne: Soutien du projet" style="background:#e91e63; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-right:5px; box-shadow:0 0 5px #e91e63;">
-            <i class="fa-solid fa-heart"></i> MÃ©cÃ¨ne
+    badgesHtml += `<div class="badge-mecene" title="Mécène: Soutien du projet" style="background:#e91e63; color:white; padding:3px 8px; border-radius:5px; font-size:0.7rem; font-weight:bold; display:inline-block; margin-right:5px; box-shadow:0 0 5px #e91e63;">
+            <i class="fa-solid fa-heart"></i> Mécène
         </div>`;
   }
 
@@ -230,7 +230,7 @@ window.renderRoadbooks = function (filter = "all") {
       : savedRoadbooks;
 
   if (items.length === 0) {
-    list.innerHTML = `<p style="text-align:center; color:#666; margin-top:20px;">Aucun roadbook ${filter === "favorites" ? "favori" : "enregistrÃ©"}.</p>`;
+    list.innerHTML = `<p style="text-align:center; color:#666; margin-top:20px;">Aucun roadbook ${filter === "favorites" ? "favori" : "enregistré"}.</p>`;
     return;
   }
 
@@ -242,7 +242,7 @@ window.renderRoadbooks = function (filter = "all") {
             <li style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:10px; margin-bottom:5px; border-radius:8px;">
                 <div style="flex:1;">
                     <div style="font-weight:bold;">${rb.name}</div>
-                    <small style="color:#888;">${rb.waypoints?.length || 0} Ã©tapes</small>
+                    <small style="color:#888;">${rb.waypoints?.length || 0} étapes</small>
                 </div>
                 <div style="display:flex; gap:5px;">
                     <button onclick="toggleFavoriteRoadbook(${globalIdx})" style="background:transparent; color:${isFav ? "#f1c40f" : "#444"}; border:none; font-size:1.2rem; cursor:pointer;" title="Ajouter aux favoris">
@@ -262,10 +262,10 @@ window.toggleFavoriteRoadbook = function (idx) {
 
   if (favIdx > -1) {
     favorites.splice(favIdx, 1);
-    speak("RetirÃ© des favoris.");
+    speak("Retiré des favoris.");
   } else {
     favorites.push(idx);
-    speak("AjoutÃ© aux favoris !");
+    speak("Ajouté aux favoris !");
     vibrate(50);
   }
 
@@ -280,23 +280,23 @@ window.toggleFavoriteRoadbook = function (idx) {
 window.shareRoadbook = async function (i) {
   const rb = savedRoadbooks[i];
 
-  // MODÃ‰RATION : VÃ©rification de la grossiÃ¨retÃ©
+  // MODÉRATION : Vérification de la grossièreté
   if (
     Moderation.isProfane(rb.name) ||
     (rb.description && Moderation.isProfane(rb.description))
   ) {
     alert(
-      "Action bloquÃ©e : Le titre ou la description contient un langage inappropriÃ©.",
+      "Action bloquée : Le titre ou la description contient un langage inapproprié.",
     );
     return;
   }
 
-  // MODÃ‰RATION : VÃ©rification des images (si prÃ©sentes)
+  // MODÉRATION : Vérification des images (si présentes)
   if (rb.photo) {
     const scan = await Moderation.scanImage(rb.photo);
     if (!scan.safe) {
       alert(
-        "Action bloquÃ©e : L'image jointe n'est pas conforme aux rÃ¨gles communautaires.",
+        "Action bloquée : L'image jointe n'est pas conforme aux règles communautaires.",
       );
       return;
     }
@@ -305,7 +305,7 @@ window.shareRoadbook = async function (i) {
   // Publication Cloud (Si DB ok)
   if (typeof publishRoadbookCloud === "function") {
     const success = await publishRoadbookCloud(rb);
-    if (success) alert("Roadbook partagÃ© avec succÃ¨s Ã  la communautÃ© !");
+    if (success) alert("Roadbook partagé avec succès à la communauté !");
   } else {
     alert("Partage impossible : Serveur Cloud non disponible.");
   }
@@ -331,30 +331,30 @@ function updateOnlineStatus() {
     toast.style =
       "position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:rgba(231,76,60,0.9); color:white; padding:10px 20px; border-radius:30px; z-index:10000; font-size:0.8rem; display:flex; align-items:center; gap:10px; box-shadow:0 4px 15px rgba(0,0,0,0.5);";
     toast.innerHTML =
-      '<i class="fa-solid fa-plane"></i> Mode hors-ligne - Navigation limitÃ©e';
+      '<i class="fa-solid fa-plane"></i> Mode hors-ligne - Navigation limitée';
     document.body.appendChild(toast);
-    speak("Mode hors-ligne activÃ©.");
+    speak("Mode hors-ligne activé.");
   } else {
     const toast = document.getElementById("offline-toast");
     if (toast) {
       toast.style.background = "rgba(46,204,113,0.9)";
-      toast.innerHTML = '<i class="fa-solid fa-wifi"></i> Connexion rÃ©tablie';
+      toast.innerHTML = '<i class="fa-solid fa-wifi"></i> Connexion rétablie';
       setTimeout(() => toast.remove(), 3000);
-      speak("Connexion rÃ©tablie.");
+      speak("Connexion rétablie.");
     }
   }
 }
 window.saveEmergencyContact = function () {
   const num = document.getElementById("emergency-num").value;
   secureSetItem("emergency_contact", num);
-  speak("Contact d'urgence enregistrÃ©.");
+  speak("Contact d'urgence enregistré.");
   vibrate(50);
 };
 
 window.toggleGuardian = function () {
   const active = secureGetItem("guardian_enabled") === "true";
   secureSetItem("guardian_enabled", !active);
-  speak(!active ? "Guardian Mode activÃ©." : "Guardian Mode dÃ©sactivÃ©.");
+  speak(!active ? "Guardian Mode activé." : "Guardian Mode désactivé.");
   showPage("security");
 };
 
@@ -367,7 +367,7 @@ if (window.DeviceMotionEvent) {
     if (!acc) return;
     const totalG = Math.sqrt(acc.x ** 2 + acc.y ** 2 + acc.z ** 2) / 9.81;
     if (totalG > 4.5) {
-      // Impact massif dÃ©tectÃ©
+      // Impact massif détecté
       triggerFallAlert();
     }
   });
@@ -385,7 +385,7 @@ setInterval(() => {
 
 function startGuardianPrompt() {
   isGuardianPromptActive = true;
-  speak("Guardian Mode : Alerte d'immobilitÃ©. ÃŠtes-vous toujours lÃ  ?");
+  speak("Guardian Mode : Alerte d'immobilité. Êtes-vous toujours là ?");
   vibrate([1000, 500, 1000]);
 
   const toast = document.createElement("div");
@@ -395,8 +395,8 @@ function startGuardianPrompt() {
   toast.innerHTML = `
         <i class="fa-solid fa-shield-heart fa-beat" style="font-size:4rem; color:#00d2ff; margin-bottom:20px;"></i>
         <h2>Guardian Mode</h2>
-        <p>ArrÃªt prolongÃ© dÃ©tectÃ©. <br>Confirmation requise.</p>
-        <button onclick="dismissGuardian()" style="margin-top:20px; width:100%; border:none; padding:20px; border-radius:50px; background:#00d2ff; color:black; font-weight:bold; font-size:1.2rem;">TOUT VA BIEN âœ…</button>
+        <p>Arrêt prolongé détecté. <br>Confirmation requise.</p>
+        <button onclick="dismissGuardian()" style="margin-top:20px; width:100%; border:none; padding:20px; border-radius:50px; background:#00d2ff; color:black; font-weight:bold; font-size:1.2rem;">TOUT VA BIEN ✅</button>
     `;
   document.body.appendChild(toast);
 
@@ -424,7 +424,7 @@ function checkFerryProximity(lat, lng) {
     const p2 = ferryStep.start_location;
     const dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
 
-    // Alerte Ã  1km (1000 mÃ¨tres)
+    // Alerte à 1km (1000 mètres)
     if (dist < 1000 && lastSpokenFerryIndex !== index) {
       speak("ferry_ahead");
       lastSpokenFerryIndex = index;
@@ -444,7 +444,7 @@ function checkFerryProximity(lat, lng) {
 
 window.addCategorizedMaint = function (category) {
   if (window.session && window.session.isGuest) {
-    alert("ðŸ”’ Le Carnet CertifiÃ© est rÃ©servÃ© aux membres.");
+    alert("ðŸ”’ Le Carnet Certifié est réservé aux membres.");
     return;
   }
 
@@ -452,14 +452,14 @@ window.addCategorizedMaint = function (category) {
     `ðŸ”‘ VALIDATION PRO REQUISE\nPour certifier l'entretien "${category}", le garage doit entrer son code partenaire :`,
   );
 
-  // Simulation de validation (En prod, on vÃ©rifie contre la base des garages certifiÃ©s)
+  // Simulation de validation (En prod, on vérifie contre la base des garages certifiés)
   if (
     proCode === "PRO50" ||
     (window.session.isCertifiedGarage && proCode === "ME")
   ) {
     const action = prompt(
       `Description de l'intervention ${category} :`,
-      `RÃ©vision standard ${category}`,
+      `Révision standard ${category}`,
     );
     if (!action) return;
 
@@ -470,7 +470,7 @@ window.addCategorizedMaint = function (category) {
       certified: true,
       garage: window.session.isCertifiedGarage
         ? window.session.username
-        : "Garage Partenaire CertifiÃ©",
+        : "Garage Partenaire Certifié",
     };
 
     let history = JSON.parse(secureGetItem("maint_history") || "[]");
@@ -478,14 +478,14 @@ window.addCategorizedMaint = function (category) {
     secureSetItem("maint_history", JSON.stringify(history));
 
     speak(
-      "Intervention certifiÃ©e et enregistrÃ©e dans votre passeport entretien.",
+      "Intervention certifiée et enregistrée dans votre passeport entretien.",
     );
     showPage("garage");
   } else {
     alert(
-      "âŒ Code invalide. Seul un garage certifiÃ© peut valider cette intervention.",
+      "âŒ Code invalide. Seul un garage certifié peut valider cette intervention.",
     );
-    speak("Ã‰chec de la certification.");
+    speak("Échec de la certification.");
   }
 };
 
@@ -499,11 +499,11 @@ function getSOSActions() {
 
 window.saveCTDate = function (val) {
   secureSetItem("ct_date", val);
-  speak("Date du contrÃ´le technique enregistrÃ©e.");
+  speak("Date du contrôle technique enregistrée.");
 };
 
 window.addCategorizedMaint = function (cat) {
-  const action = prompt(`DÃ©tail pour l'entretien [${cat}] :`, "RÃ©vision");
+  const action = prompt(`Détail pour l'entretien [${cat}] :`, "Révision");
   if (!action) return;
 
   let history = JSON.parse(secureGetItem("maint_history") || "[]");
@@ -523,7 +523,7 @@ window.addCategorizedMaint = function (cat) {
   }
 
   showPage("garage");
-  speak(`Entretien ${cat} validÃ©.`);
+  speak(`Entretien ${cat} validé.`);
 };
 
 window.refreshRodageUI = function () {
@@ -542,12 +542,12 @@ window.toggleRodageHUD = function () {
   window.isRodageActive = !window.isRodageActive;
   refreshRodageUI();
   if (window.isRodageActive) {
-    speak("Mode Rodage activÃ©.");
+    speak("Mode Rodage activé.");
     alert(
-      "Mode Rodage : Le GPS Ã©vitera les voies rapides et vous guidera sur des routes tranquilles.",
+      "Mode Rodage : Le GPS évitera les voies rapides et vous guidera sur des routes tranquilles.",
     );
   } else {
-    speak("Mode Rodage dÃ©sactivÃ©.");
+    speak("Mode Rodage désactivé.");
   }
 };
 
@@ -556,7 +556,7 @@ window.toggleGarageVisibility = function () {
   speak(
     window.isGarageVisible
       ? "Votre garage est maintenant visible des pilotes."
-      : "VisibilitÃ© dÃ©sactivÃ©e.",
+      : "Visibilité désactivée.",
   );
   showPage("pro-space");
   if (currentPosition) {
@@ -570,7 +570,7 @@ window.toggleGarageVisibility = function () {
 
 window.updateGarageStatus = function (val) {
   window.garageStatus = val;
-  speak("DisponibilitÃ© de l'atelier mise Ã  jour.");
+  speak("Disponibilité de l'atelier mise à jour.");
   if (window.isGarageVisible && currentPosition) {
     publishUserLocation(
       currentPosition.lat,
@@ -583,25 +583,25 @@ window.updateGarageStatus = function (val) {
 window.publishFlashOffer = function () {
   const text = document.getElementById("flash-offer-text").value;
   if (!text) return;
-  speak("Offre Flash publiÃ©e.");
-  alert("Votre offre de promotion a Ã©tÃ© diffusÃ©e !");
+  speak("Offre Flash publiée.");
+  alert("Votre offre de promotion a été diffusée !");
   if (typeof publishMoodCloud === "function") {
     publishMoodCloud({ label: "âš¡ PROMO", text: text });
   }
 };
 
 window.requestCertification = function () {
-  alert("Demande de certification envoyÃ©e !");
-  speak("Demande enregistrÃ©e.");
+  alert("Demande de certification envoyée !");
+  speak("Demande enregistrée.");
 };
 
 window.payGarageEntryFee = async function () {
   const ok = confirm(
-    "Confirmez-vous le paiement du droit d'entrÃ©e de 50â‚¬ TTC pour devenir Garage CertifiÃ© ?",
+    "Confirmez-vous le paiement du droit d'entrée de 50€ TTC pour devenir Garage Certifié ?",
   );
   if (ok) {
     if (typeof speak === "function")
-      speak("Initialisation du paiement sÃ©curisÃ©.");
+      speak("Initialisation du paiement sécurisé.");
     try {
       const projectId = window.CONFIG?.FIREBASE?.projectId || "mon50ccetmoi";
       const url = `https://europe-west1-${projectId}.cloudfunctions.net/createRevolutOrder`;
@@ -620,7 +620,7 @@ window.payGarageEntryFee = async function () {
       });
 
       if (!response.ok)
-        throw new Error("Erreur lors de la crÃ©ation de la commande.");
+        throw new Error("Erreur lors de la création de la commande.");
       const orderData = await response.json();
 
       const instance = await RevolutCheckout(orderData.order_token, "prod");
@@ -644,7 +644,7 @@ window.payGarageEntryFee = async function () {
                 clearInterval(checkStatus);
                 if (typeof speak === "function")
                   speak(
-                    "Paiement validÃ© ! Vous Ãªtes maintenant un Garage CertifiÃ©.",
+                    "Paiement validé ! Vous êtes maintenant un Garage Certifié.",
                   );
                 if (window.session) {
                   window.session.isCertifiedGarage = true;
@@ -654,7 +654,7 @@ window.payGarageEntryFee = async function () {
               } else if (attempts > 10) {
                 clearInterval(checkStatus);
                 alert(
-                  "Le paiement est en cours de traitement par Revolut. Votre accÃ¨s pro sera activÃ© automatiquement sous peu.",
+                  "Le paiement est en cours de traitement par Revolut. Votre accès pro sera activé automatiquement sous peu.",
                 );
                 showPage("home");
               }
@@ -677,28 +677,34 @@ window.payGarageEntryFee = async function () {
 
 window.applyPartnerExemption = async function () {
   const ok = confirm(
-    "En choisissant cette option, vous vous engagez Ã  offrir une remise de 10% sur vos prestations aux membres prÃ©sentant l'application. En Ã©change, votre certification et votre boost sont OFFERTS. Valider ?",
+    "En choisissant cette option, vous vous engagez à offrir une remise de 10% sur vos prestations aux membres présentant l'application. En échange, votre certification et votre boost sont OFFERTS. Valider ?",
   );
   if (ok) {
     try {
       if (window.firebase && window.session?.uid) {
         const db = firebase.firestore();
-        await db.collection("users").doc(window.session.uid).update({
+        const batch = db.batch();
+        const userRef = db.collection("users").doc(window.session.uid);
+        const partnerRef = db.collection("garage_partners").doc(window.session.uid);
+        
+        batch.update(userRef, {
           isCertifiedGarage: true,
           isGaragePartner: true,
         });
-        await db.collection("garage_partners").doc(window.session.uid).set({
+        batch.set(partnerRef, {
           user_id: window.session.uid,
           exempted: true,
           certified_at: firebase.firestore.FieldValue.serverTimestamp(),
         });
+        
+        await batch.commit();
       }
     } catch (e) {
       console.error("[GARAGE] Failed to persist partner status", e);
     }
 
     speak(
-      "FÃ©licitations ! Vous Ãªtes dÃ©sormais Partenaire Officiel mon 50 cm3 et moi. Votre gÃ©nÃ©rositÃ© envers la communautÃ© est rÃ©compensÃ©e.",
+      "Félicitations ! Vous êtes désormais Partenaire Officiel mon 50 cm3 et moi. Votre générosité envers la communauté est récompensée.",
     );
     if (window.session) {
       window.session.isCertifiedGarage = true;
@@ -730,9 +736,9 @@ window.publishProTip = function () {
   secureSetItem("community_pro_tips", JSON.stringify(communityTips));
 
   speak(
-    "Votre fiche technique a Ã©tÃ© publiÃ©e avec succÃ¨s ! Elle est maintenant visible par tous les pilotes.",
+    "Votre fiche technique a été publiée avec succès ! Elle est maintenant visible par tous les pilotes.",
   );
-  alert("FÃ©licitations ! Votre conseil d'expert est en ligne.");
+  alert("Félicitations ! Votre conseil d'expert est en ligne.");
   showPage("pro-space");
 };
 window.resetTelemetry = function () {
@@ -741,14 +747,14 @@ window.resetTelemetry = function () {
     window.session.vMax = 0;
     secureSetItem("session", JSON.stringify(window.session));
   }
-  speak("DonnÃ©es de tÃ©lÃ©mÃ©trie rÃ©initialisÃ©es.");
+  speak("Données de télémétrie réinitialisées.");
   showPage("garage");
 };
 // --- AUTO-BOOT & FAIL-SAFE ---
-// On s'assure que le mode holographique n'est pas actif au dÃ©marrage (Correction Bug Web)
+// On s'assure que le mode holographique n'est pas actif au démarrage (Correction Bug Web)
 document.body.classList.remove("holographic-mode");
 
-// Si le SDK Maps est dÃ©jÃ  lÃ , on lance manuellement
+// Si le SDK Maps est déjà là, on lance manuellement
 if (typeof google !== "undefined" && google.maps) {
   window.mapsSDKLoaded = true;
   if (typeof window.initMapController === "function") {
@@ -788,7 +794,7 @@ window.submitArbitre = function () {
   } else {
     setTimeout(() => {
       botDiv.innerHTML =
-        "DÃ©solÃ©, le module juridique est en cours de mise Ã  jour.";
+        "Désolé, le module juridique est en cours de mise à jour.";
       chat.scrollTop = chat.scrollHeight;
     }, 1500);
   }
@@ -797,12 +803,12 @@ window.submitArbitre = function () {
 function generateRideCard() {
   if (window.session.isGuest) {
     alert(
-      "ðŸ”’ La Carte de Score est rÃ©servÃ©e aux membres. Inscrivez-vous pour partager vos exploits !",
+      "ðŸ”’ La Carte de Score est réservée aux membres. Inscrivez-vous pour partager vos exploits !",
     );
     return;
   }
 
-  speak("GÃ©nÃ©ration de votre carte de score personnalisÃ©e.");
+  speak("Génération de votre carte de score personnalisée.");
   const overlay = document.createElement("div");
   overlay.id = "ride-card-overlay";
   overlay.className = "glassmorphism";
@@ -816,7 +822,7 @@ function generateRideCard() {
             
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:40px;">
                 <div><span style="font-size:0.6rem; color:#666; display:block;">DISTANCE</span><strong style="font-size:1.2rem; color:#fff;">${document.getElementById("odometer")?.textContent || "0"} KM</strong></div>
-                <div><span style="font-size:0.6rem; color:#666; display:block;">MAX LEAN</span><strong style="font-size:1.2rem; color:#ff4d4d;">${window.maxLeanAngle || 0}Â°</strong></div>
+                <div><span style="font-size:0.6rem; color:#666; display:block;">MAX LEAN</span><strong style="font-size:1.2rem; color:#ff4d4d;">${window.maxLeanAngle || 0}°</strong></div>
                 <div><span style="font-size:0.6rem; color:#666; display:block;">V-MAX</span><strong style="font-size:1.2rem; color:var(--neon-blue);">${window.session.vMax || 0} KM/H</strong></div>
                 <div><span style="font-size:0.6rem; color:#666; display:block;">STATUS</span><strong style="font-size:1rem; color:#2ecc71;">LEGEND</strong></div>
             </div>
@@ -830,7 +836,7 @@ function generateRideCard() {
   document.body.appendChild(overlay);
 }
 
-// --- ORACLE: MESSAGES RÃ‰GIONAUX MULTILINGUES ---
+// --- ORACLE: MESSAGES RÉGIONAUX MULTILINGUES ---
 window.hasWelcomed = false;
 
 const REGION_MESSAGES = {
@@ -838,21 +844,21 @@ const REGION_MESSAGES = {
     "Bienvenue en Bretagne. Prudence sur les routes potentiellement humides.",
   normandie:
     "Bienvenue en Normandie. Restez vigilant face au vent et aux averses.",
-  "Ã®le-de-france":
-    "Bienvenue en ÃŽle-de-France. DensitÃ© de trafic Ã©levÃ©e, gardez vos distances.",
-  "provence-alpes-cÃ´te d'azur":
-    "Bienvenue dans le Sud. La route est dÃ©gagÃ©e. Pensez Ã  vous hydrater.",
-  "auvergne-rhÃ´ne-alpes":
-    "Bienvenue en rÃ©gion RhÃ´ne-Alpes. Attention aux routes sinueuses en montagne.",
+  "île-de-france":
+    "Bienvenue en ÃŽle-de-France. Densité de trafic élevée, gardez vos distances.",
+  "provence-alpes-côte d'azur":
+    "Bienvenue dans le Sud. La route est dégagée. Pensez à vous hydrater.",
+  "auvergne-rhône-alpes":
+    "Bienvenue en région Rhône-Alpes. Attention aux routes sinueuses en montagne.",
   "nouvelle-aquitaine":
     "Bienvenue en Nouvelle-Aquitaine. De belles balades en perspective.",
   occitanie: "Bienvenue en Occitanie. Soleil et belles routes vous attendent.",
-  "hauts-de-france": "Bienvenue dans les Hauts-de-France. Gardez le contrÃ´le.",
+  "hauts-de-france": "Bienvenue dans les Hauts-de-France. Gardez le contrôle.",
   "grand est": "Bienvenue dans le Grand Est. Excellente balade.",
-  "bourgogne-franche-comtÃ©":
-    "Bienvenue en Bourgogne. Conduite souple recommandÃ©e.",
-  "pays de la loire": "Bienvenue. L'Oracle est connectÃ© pour votre balade.",
-  default: "Oracle connectÃ©. Position GPS Ã©tablie, prÃªt pour le dÃ©part.",
+  "bourgogne-franche-comté":
+    "Bienvenue en Bourgogne. Conduite souple recommandée.",
+  "pays de la loire": "Bienvenue. L'Oracle est connecté pour votre balade.",
+  default: "Oracle connecté. Position GPS établie, prêt pour le départ.",
 };
 
 window.triggerRegionalWelcome = function (lat, lng) {
@@ -885,9 +891,9 @@ window.triggerRegionalWelcome = function (lat, lng) {
 
 window.getLocalizedRouteMsg = function (dist, etaText, isRodage) {
   if (isRodage) {
-    return `ItinÃ©raire rodage calculÃ©. ${dist} Ã  parcourir. Bonne route avec mon 50 cc et moi.`;
+    return `Itinéraire rodage calculé. ${dist} à parcourir. Bonne route avec mon 50 cc et moi.`;
   } else {
-    return `ItinÃ©raire calculÃ©. ${dist}, arrivÃ©e prÃ©vue Ã  ${etaText}. Bonne route avec mon 50 cc et moi.`;
+    return `Itinéraire calculé. ${dist}, arrivée prévue à ${etaText}. Bonne route avec mon 50 cc et moi.`;
   }
 };
 
@@ -900,7 +906,7 @@ window.toggleShadowMode = function () {
       ? '<i class="fa-solid fa-eye-slash" style="font-size: 1.2rem; color: #2ecc71;"></i><div style="font-size: 0.65rem; text-align: left; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Shadow<br><span style="color:#2ecc71;">ON</span></div>'
       : '<i class="fa-solid fa-eye-slash" style="font-size: 1.2rem; color: #666;"></i><div style="font-size: 0.65rem; text-align: left; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; color:#666;">Shadow<br><span>OFF</span></div>';
   }
-  if (isShadow) speak("Mode furtif activÃ©. Concentration maximale.");
+  if (isShadow) speak("Mode furtif activé. Concentration maximale.");
 };
 
 // --- 2. GRIP INDEX & 6. IA WINGMAN ---
@@ -928,27 +934,27 @@ setInterval(() => {
 
   if (grip <= 50 && !window.blackIceAlerted) {
     speak(
-      "Alerte Verglas et adhÃ©rence rÃ©duite dÃ©tectÃ©e. Grip en dessous de 50 pour cent.",
+      "Alerte Verglas et adhérence réduite détectée. Grip en dessous de 50 pour cent.",
     );
     window.blackIceAlerted = true;
   }
 
-  // IA Wingman (Temps de conduite et rappels rÃ©guliers)
+  // IA Wingman (Temps de conduite et rappels réguliers)
   if (window.isRiding) {
     if (!window.rideStartTime) window.rideStartTime = Date.now();
     const rideDuration = (Date.now() - window.rideStartTime) / 60000; // minutes
 
     window.wingmanAlertCount = window.wingmanAlertCount || 0;
-    const currentPeriod = Math.floor(rideDuration / 45); // VÃ©rifie chaque tranche de 45 min
+    const currentPeriod = Math.floor(rideDuration / 45); // Vérifie chaque tranche de 45 min
 
     if (currentPeriod > window.wingmanAlertCount) {
       if (window.isVigilanceRouge) {
         speak(
-          "Vigilance rouge dÃ©tectÃ©e. Vous roulez depuis 45 minutes supplÃ©mentaires. Jarvis vous demande d'effectuer une pause immÃ©diate et de vous hydrater abondamment !",
+          "Vigilance rouge détectée. Vous roulez depuis 45 minutes supplémentaires. Jarvis vous demande d'effectuer une pause immédiate et de vous hydrater abondamment !",
         );
       } else {
         speak(
-          "Vous roulez depuis 45 minutes. TempÃ©rature moteur optimale atteinte, mais attention Ã  la fatigue. Envisagez une pause bientÃ´t.",
+          "Vous roulez depuis 45 minutes. Température moteur optimale atteinte, mais attention à la fatigue. Envisagez une pause bientôt.",
         );
       }
       window.wingmanAlertCount = currentPeriod;
@@ -960,7 +966,7 @@ setInterval(() => {
   }
 }, 30000); // Check toutes les 30s
 
-// --- 3. SONAR DE COMMUNAUTÃ‰ ---
+// --- 3. SONAR DE COMMUNAUTÉ ---
 window.triggerCommunitySonar = function () {
   if (document.body.classList.contains("shadow-mode")) return; // Furtif
 
@@ -970,12 +976,12 @@ window.triggerCommunitySonar = function () {
   document.body.appendChild(sonar);
 
   setTimeout(() => {
-    // AlÃ©atoirement, trouver un alliÃ© (1 chance sur 4)
+    // Aléatoirement, trouver un allié (1 chance sur 4)
     if (Math.random() > 0.75) {
-      speak("Pilote alliÃ© dÃ©tectÃ© dans le secteur.");
+      speak("Pilote allié détecté dans le secteur.");
       const ally = document.createElement("div");
       ally.className = "ally-marker";
-      // Position alÃ©atoire sur l'Ã©cran
+      // Position aléatoire sur l'écran
       ally.style.top = 20 + Math.random() * 60 + "%";
       ally.style.left = 20 + Math.random() * 60 + "%";
       document.body.appendChild(ally);
@@ -986,27 +992,27 @@ window.triggerCommunitySonar = function () {
 };
 setInterval(window.triggerCommunitySonar, 120000); // Sonar toutes les 2 minutes
 
-// --- 5. EXPLORATION TACTIQUE (ROUTE ALÃ‰ATOIRE) ---
+// --- 5. EXPLORATION TACTIQUE (ROUTE ALÉATOIRE) ---
 window.generateTacticalExploration = function () {
   if (!navigator.geolocation) {
     alert("GPS requis pour l'exploration.");
     return;
   }
-  // GARDE : ne pas accÃ©der au GPS sans consentement de l'utilisateur
+  // GARDE : ne pas accéder au GPS sans consentement de l'utilisateur
   if (localStorage.getItem("location_consent_accepted") !== "true") {
     alert("Vous devez d'abord accepter l'utilisation de la localisation.");
     return;
   }
 
   document.getElementById("route-start").value = "Position Actuelle";
-  document.getElementById("route-search").value = "GÃ©nÃ©ration de boucle...";
-  speak("Calcul d'une boucle d'exploration tactique alÃ©atoire.");
+  document.getElementById("route-search").value = "Génération de boucle...";
+  speak("Calcul d'une boucle d'exploration tactique aléatoire.");
 
   navigator.geolocation.getCurrentPosition((pos) => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
 
-    // GÃ©nÃ©rer un point alÃ©atoire Ã  ~10-15km (1 degrÃ© lat = ~111km)
+    // Générer un point aléatoire à ~10-15km (1 degré lat = ~111km)
     const radiusInDegrees = (10 + Math.random() * 5) / 111;
     const randomAngle = Math.random() * Math.PI * 2;
 
@@ -1026,11 +1032,11 @@ window.generateTacticalExploration = function () {
 };
 
 // ============================================================
-// --- 6. VIGILANCE ROUGE MÃ‰TÃ‰O-FRANCE (OPENDATA) ---
+// --- 6. VIGILANCE ROUGE MÉTÉO-FRANCE (OPENDATA) ---
 // ============================================================
 window.checkVigilanceRouge = async function () {
   try {
-    // API Publique OpenDataSoft pour MÃ©tÃ©o-France (Filtre: Vigilance Rouge uniquement)
+    // API Publique OpenDataSoft pour Météo-France (Filtre: Vigilance Rouge uniquement)
     const url =
       "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/vigilance-meteorologique/records?limit=100&refine=etat_de_vigilance%3A%22Rouge%22";
     const response = await fetch(url);
@@ -1043,20 +1049,20 @@ window.checkVigilanceRouge = async function () {
     const textEl = document.getElementById("vigilance-rouge-text");
 
     if (alerts.length > 0 && banner && textEl) {
-      // Regrouper les dÃ©partements en alerte
+      // Regrouper les départements en alerte
       const deptsList = alerts
         .map(
           (a) =>
-            `${a.nom_dept || a.departement || "DÃ©partement inconnu"} (${a.risque || "Danger imminent"})`,
+            `${a.nom_dept || a.departement || "Département inconnu"} (${a.risque || "Danger imminent"})`,
         )
         .join(" | ");
-      textEl.innerHTML = `ðŸš¨ <strong>VIGILANCE ROUGE MÃ‰TÃ‰O-FRANCE :</strong> ${deptsList}. Soyez extrÃªmement prudents, limitez vos dÃ©placements en 2-roues.`;
+      textEl.innerHTML = `🚨 <strong>VIGILANCE ROUGE MÉTÉO-FRANCE :</strong> ${deptsList}. Soyez extrêmement prudents, limitez vos déplacements en 2-roues.`;
       banner.style.display = "block";
 
-      // Notification vocale (uniquement si ce n'est pas dÃ©jÃ  affichÃ© pour Ã©viter le spam)
+      // Notification vocale (uniquement si ce n'est pas déjà affiché pour éviter le spam)
       if (banner.dataset.alerted !== "true" && typeof speak === "function") {
         speak(
-          "Alerte de sÃ©curitÃ© absolue. Vigilance Rouge MÃ©tÃ©o France en cours.",
+          "Alerte de sécurité absolue. Vigilance Rouge Météo France en cours.",
         );
         banner.dataset.alerted = "true";
       }
@@ -1065,7 +1071,7 @@ window.checkVigilanceRouge = async function () {
       banner.dataset.alerted = "false";
     }
   } catch (err) {
-    console.warn("[Vigilance] Erreur de rÃ©cupÃ©ration :", err);
+    console.warn("[Vigilance] Erreur de récupération :", err);
   }
 };
 
@@ -1075,10 +1081,10 @@ setTimeout(() => {
     window.checkVigilanceRouge();
     setInterval(window.checkVigilanceRouge, 300000); // 5 minutes
   }
-}, 5000); // Lancement 5 secondes aprÃ¨s le chargement de l'app
+}, 5000); // Lancement 5 secondes après le chargement de l'app
 
 // ============================================================
-// --- 7. BOÃŽTE NOIRE (TÃ‰LÃ‰MÃ‰TRIE D'ASSURANCE) ---
+// --- 7. BOÃŽTE NOIRE (TÉLÉMÉTRIE D'ASSURANCE) ---
 // ============================================================
 window.BlackBox = [];
 setInterval(() => {
@@ -1105,7 +1111,7 @@ setInterval(() => {
 window.exportBlackBox = function () {
   if (window.BlackBox.length === 0) {
     alert(
-      "La boÃ®te noire est vide. Vous devez rouler pour enregistrer des donnÃ©es.",
+      "La boîte noire est vide. Vous devez rouler pour enregistrer des données.",
     );
     return;
   }
@@ -1121,7 +1127,7 @@ window.exportBlackBox = function () {
   document.body.appendChild(dlAnchorElem);
   dlAnchorElem.click();
   dlAnchorElem.remove();
-  speak("Rapport de boÃ®te noire exportÃ© avec succÃ¨s.");
+  speak("Rapport de boîte noire exporté avec succès.");
 };
 
 // ============================================================
@@ -1134,7 +1140,7 @@ window.joinSquad = function () {
   const code = prompt("Entrez le code secret de l'escouade (4 chiffres) :");
   if (!code || code.length < 3) return;
   window.currentSquadId = code;
-  speak(`Escouade ${code} rejointe. Activation du radar partagÃ©.`);
+  speak(`Escouade ${code} rejointe. Activation du radar partagé.`);
 
   // Upload de position toutes les 10 secondes
   setInterval(() => {
@@ -1157,7 +1163,7 @@ window.joinSquad = function () {
     }
   }, 10000);
 
-  // Ã‰coute des alliÃ©s
+  // Écoute des alliés
   if (window.db) {
     window.db
       .collection("convoys")
@@ -1167,7 +1173,7 @@ window.joinSquad = function () {
         snapshot.docChanges().forEach((change) => {
           const data = change.doc.data();
           const uid = change.doc.id;
-          if (uid === (window.user && window.user.uid)) return; // Ignorer soi-mÃªme
+          if (uid === (window.user && window.user.uid)) return; // Ignorer soi-même
 
           if (change.type === "added" || change.type === "modified") {
             const pos = new google.maps.LatLng(data.lat, data.lng);
@@ -1183,9 +1189,9 @@ window.joinSquad = function () {
                   strokeWeight: 2,
                   strokeColor: "#fff",
                 },
-                title: "Pilote AlliÃ©",
+                title: "Pilote Allié",
               });
-              speak("Nouvel alliÃ© dÃ©tectÃ© sur le radar.");
+              speak("Nouvel allié détecté sur le radar.");
             } else {
               window.convoyMarkers[uid].setPosition(pos);
             }

@@ -5,14 +5,14 @@
  */
 
 window.Chronos = {
-  gearUpTime: 5, // 5 minutes par dÃ©faut pour l'Ã©quipement
+  gearUpTime: 5, // 5 minutes par défaut pour l'équipement
   targetArrivalTime: null,
   nextEvent: null,
 
   syncCalendar: async function () {
     if (window.session && window.session.isGuest) {
       alert(
-        "ðŸ”’ La synchronisation Nexus Calendar est rÃ©servÃ©e aux membres officiels. Rejoignez la communautÃ© pour automatiser vos trajets !",
+        "ðŸ”’ La synchronisation Nexus Calendar est réservée aux membres officiels. Rejoignez la communauté pour automatiser vos trajets !",
       );
       return;
     }
@@ -31,7 +31,7 @@ window.Chronos = {
 
       this.targetArrivalTime = this.nextEvent.startTime;
       speak(
-        `Ã‰vÃ©nement dÃ©tectÃ© : ${this.nextEvent.title} Ã  ${this.nextEvent.startTime}. Destination prÃ©-chargÃ©e.`,
+        `Événement détecté : ${this.nextEvent.title} à ${this.nextEvent.startTime}. Destination pré-chargée.`,
       );
 
       const widget = document.getElementById("chronos-countdown");
@@ -44,7 +44,7 @@ window.Chronos = {
   setTarget: function (timeStr) {
     this.targetArrivalTime = timeStr;
     speak(
-      `Objectif d'arrivÃ©e fixÃ© Ã  ${timeStr}. Chronos Guard surveille dÃ©sormais votre fenÃªtre de dÃ©part.`,
+      `Objectif d'arrivée fixé à ${timeStr}. Chronos Guard surveille désormais votre fenêtre de départ.`,
     );
     this.startMonitoring();
   },
@@ -80,7 +80,7 @@ window.Chronos = {
 
       if (info.minutesRemaining <= 2 && info.minutesRemaining > 0) {
         speak(
-          `Alerte PonctualitÃ© : Il est temps de vous Ã©quiper. DÃ©part dans ${info.minutesRemaining} minutes.`,
+          `Alerte Ponctualité : Il est temps de vous équiper. Départ dans ${info.minutesRemaining} minutes.`,
         );
         Hardware.vibratePattern("warning");
       }

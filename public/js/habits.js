@@ -19,7 +19,7 @@ window.Habits = {
       new google.maps.LatLng(endPos.lat, endPos.lng),
     );
 
-    if (dist < 500) return; // Trop court pour Ãªtre un trajet
+    if (dist < 500) return; // Trop court pour être un trajet
 
     const habit = {
       start: startPos,
@@ -37,7 +37,7 @@ window.Habits = {
     this.currentRideStart = null;
   },
 
-  // VÃ©rifier si le trajet actuel ressemble Ã  une habitude
+  // Vérifier si le trajet actuel ressemble à une habitude
   detectHabit: function (currentPos) {
     const hour = new Date().getHours();
 
@@ -46,7 +46,7 @@ window.Habits = {
         new google.maps.LatLng(currentPos.lat, currentPos.lng),
         new google.maps.LatLng(h.start.lat, h.start.lng),
       );
-      // Si on part d'un endroit connu Ã  une heure similaire (+/- 2h)
+      // Si on part d'un endroit connu à une heure similaire (+/- 2h)
       return distStart < 300 && Math.abs(h.time - hour) <= 2;
     });
 
@@ -57,7 +57,7 @@ window.Habits = {
       ) {
         toggleGuardianAngel();
         speak(
-          "Trajet habituel dÃ©tectÃ©. Ange Gardien activÃ© automatiquement.",
+          "Trajet habituel détecté. Ange Gardien activé automatiquement.",
         );
       }
       return matchingHabit;
@@ -66,7 +66,7 @@ window.Habits = {
   },
 };
 
-// Monitoring de dÃ©but de trajet
+// Monitoring de début de trajet
 setInterval(() => {
   if (
     window.isRiding &&

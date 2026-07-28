@@ -1,49 +1,49 @@
 ﻿/**
- * âš–ï¸ POCKET LAWYER - MODULE DE DÃ‰FENSE JURIDIQUE
+ * ⚖️ POCKET LAWYER - MODULE DE DÉFENSE JURIDIQUE
  * Analyse du stationnement (Code de la Route FR : R417-10 et R417-11)
  */
 
 window.PocketLawyer = {
   isOpen: false,
 
-  // ScÃ©narios simulÃ©s pour l'environnement GPS actuel
+  // Scénarios simulés pour l'environnement GPS actuel
   scenarios: [
     {
       type: "Trottoir (Large)",
       status: "TOLERANCE",
       icon: "fa-solid fa-scale-balanced",
       color: "#ffb703", // Orange
-      law: "R417-10 (TrÃ¨s GÃªnant / GÃªnant)",
+      law: "R417-10 (Très Gênant / Gênant)",
       verdict:
-        "Stationnement techniquement interdit mais couramment tolÃ©rÃ© si le passage des piÃ©tons n'est pas entravÃ©.",
+        "Stationnement techniquement interdit mais couramment toléré si le passage des piétons n'est pas entravé.",
       defense:
-        "Plaidoirie : L'espace laissÃ© libre (plus de 1m50) permet le passage des poussettes et PMR. Aucune entrave caractÃ©risÃ©e. S'il y a amende (135â‚¬ ou 35â‚¬), vous pouvez invoquer l'absence de signalisation claire ou le manque de places 2RM.",
+        "Plaidoirie : L'espace laissé libre (plus de 1m50) permet le passage des poussettes et PMR. Aucune entrave caractérisée. S'il y a amende (135€ ou 35€), vous pouvez invoquer l'absence de signalisation claire ou le manque de places 2RM.",
       letterTemplate:
-        "Monsieur l'Officier du MinistÃ¨re Public,\nJe conteste le PV nÂ°XXX.\nLe stationnement de mon cyclomoteur ne constituait pas une entrave Ã  la circulation piÃ©tonne (largeur libre > 1,50m) et palliait un manque avÃ©rÃ© de stationnement 2RM dans ce secteur.",
+        "Monsieur l'Officier du Ministère Public,\nJe conteste le PV n°XXX.\nLe stationnement de mon cyclomoteur ne constituait pas une entrave à la circulation piétonne (largeur libre > 1,50m) et palliait un manque avéré de stationnement 2RM dans ce secteur.",
     },
     {
-      type: "Place 2-Roues MotorisÃ©s",
+      type: "Place 2-Roues Motorisés",
       status: "AUTORISE",
       icon: "fa-solid fa-check-double",
       color: "#00e676", // Vert
-      law: "R417-6 (RÃ©gulier)",
-      verdict: "Vous Ãªtes parfaitement en rÃ¨gle.",
+      law: "R417-6 (Régulier)",
+      verdict: "Vous êtes parfaitement en règle.",
       defense:
-        "Plaidoirie : VÃ©hicule stationnÃ© sur un emplacement dÃ©diÃ© et matÃ©rialisÃ©. Si la place est devenue payante (ex: Paris), assurez-vous d'avoir pris un ticket numÃ©rique ou le Pass 2RM.",
+        "Plaidoirie : Véhicule stationné sur un emplacement dédié et matérialisé. Si la place est devenue payante (ex: Paris), assurez-vous d'avoir pris un ticket numérique ou le Pass 2RM.",
       letterTemplate: "",
     },
     {
-      type: "Passage PiÃ©ton / Piste Cyclable",
+      type: "Passage Piéton / Piste Cyclable",
       status: "INTERDIT",
       icon: "fa-solid fa-gavel",
       color: "#ff4d4d", // Rouge
-      law: "R417-11 (TrÃ¨s GÃªnant)",
+      law: "R417-11 (Très Gênant)",
       verdict:
-        "Stationnement strictement interdit. Risque de mise en fourriÃ¨re immÃ©diate et 135â‚¬ d'amende.",
+        "Stationnement strictement interdit. Risque de mise en fourrière immédiate et 135€ d'amende.",
       defense:
         "Plaidoirie : Difficilement contestable (mise en danger d'autrui). Seule option : vice de forme sur le PV (erreur de plaque, de rue ou de date).",
       letterTemplate:
-        "Monsieur l'Officier,\nJe conteste ce PV sur la base d'un vice de forme caractÃ©risÃ© (erreur matÃ©rielle sur le lieu exact de l'infraction visÃ©).",
+        "Monsieur l'Officier,\nJe conteste ce PV sur la base d'un vice de forme caractérisé (erreur matérielle sur le lieu exact de l'infraction visé).",
     },
     {
       type: "Place Auto (Voiture)",
@@ -52,9 +52,9 @@ window.PocketLawyer = {
       color: "#ffb703",
       law: "R417-10",
       verdict:
-        "TolÃ©rÃ© si vous payez le stationnement (si applicable). Attention Ã  ne pas bloquer une voiture.",
+        "Toléré si vous payez le stationnement (si applicable). Attention à ne pas bloquer une voiture.",
       defense:
-        "Plaidoirie : Le code de la route n'interdit pas aux 2RM de se garer sur les places voitures, mais c'est mal vu. En cas de stationnement payant, le reÃ§u fait foi.",
+        "Plaidoirie : Le code de la route n'interdit pas aux 2RM de se garer sur les places voitures, mais c'est mal vu. En cas de stationnement payant, le reçu fait foi.",
       letterTemplate: "",
     },
   ],
@@ -69,14 +69,14 @@ window.PocketLawyer = {
 
   openLawyer: function () {
     if (typeof window.braveCoins === "undefined") {
-      alert("Erreur: Module de fidÃ©litÃ© introuvable.");
+      alert("Erreur: Module de fidélité introuvable.");
       return;
     }
 
     const price = 5; // 5 Pts BVC constants
     if (window.braveCoins < price) {
       alert(
-        `Fonds insuffisants ! Vous avez besoin de ${price} Pts BVC pour accÃ©der Ã  l'Avocat de Poche. Roulez plus pour en gagner.`,
+        `Fonds insuffisants ! Vous avez besoin de ${price} Pts BVC pour accéder à l'Avocat de Poche. Roulez plus pour en gagner.`,
       );
       return;
     }
@@ -103,18 +103,18 @@ window.PocketLawyer = {
             <button onclick="PocketLawyer.closeLawyer()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-scale-balanced fa-beat-fade" style="font-size: 3rem; color: #cca300; filter: drop-shadow(0 0 10px #cca300); margin-bottom: 5px;"></i>
             <h1 style="font-size: 1.5rem; margin: 0; text-transform: uppercase; color: #cca300;">Avocat de Poche</h1>
-            <div style="background: rgba(0,210,255,0.1); border: 1px solid #00d2ff; color: #00d2ff; font-size: 0.7rem; padding: 3px 10px; border-radius: 10px; margin-top: 5px; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; display: inline-block;"><i class="fa-solid fa-microchip"></i> PropulsÃ© par JARVIS 4.0</div>
-            <p style="color: #777; font-size: 0.8rem; margin-bottom: 15px; text-align: center; max-width: 80%; line-height: 1.2;">Avertissement (AI Act) : Aide indicative gÃ©nÃ©rÃ©e par IA. Ne remplace pas un conseil juridique. <strong>Soumis Ã  contrÃ´le humain.</strong></p>
+            <div style="background: rgba(0,210,255,0.1); border: 1px solid #00d2ff; color: #00d2ff; font-size: 0.7rem; padding: 3px 10px; border-radius: 10px; margin-top: 5px; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; display: inline-block;"><i class="fa-solid fa-microchip"></i> Propulsé par JARVIS 4.0</div>
+            <p style="color: #777; font-size: 0.8rem; margin-bottom: 15px; text-align: center; max-width: 80%; line-height: 1.2;">Avertissement (AI Act) : Aide indicative générée par IA. Ne remplace pas un conseil juridique. <strong>Soumis à contrôle humain.</strong></p>
             
             <div id="lawyer-chat-box" style="flex: 1; width: 90%; max-width: 500px; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; scroll-behavior: smooth;">
                 <div style="background: rgba(204,163,0,0.2); padding: 10px 15px; border-radius: 15px; align-self: flex-start; max-width: 85%; border-left: 3px solid #cca300; line-height: 1.4;">
                     Ma base de jurisprudence couvre <strong>16 pays</strong> avec des sources officielles. Essayez :<br>
-                    â€¢ Casque en France<br>
-                    â€¢ Permis IndonÃ©sie<br>
-                    â€¢ Protection donnÃ©es BrÃ©sil<br>
-                    â€¢ Casque UK<br>
-                    â€¢ CCPA USA<br><br>
-                    <em>â€¢ Tapez <strong>pays</strong> pour voir la liste complÃ¨te.</em>
+                    • Casque en France<br>
+                    • Permis Indonésie<br>
+                    • Protection données Brésil<br>
+                    • Casque UK<br>
+                    • CCPA USA<br><br>
+                    <em>• Tapez <strong>pays</strong> pour voir la liste complète.</em>
                 </div>
             </div>
             
@@ -125,7 +125,7 @@ window.PocketLawyer = {
             
             <button onclick="PocketLawyer.startGPSScan()" style="margin-bottom: 15px; background: transparent; border: 1px solid #cca300; color: #cca300; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-location-dot"></i> Scanner mon stationnement (GPS)</button>
             <button onclick="PocketLawyer.reportInsurer()" style="margin-bottom: 15px; background: rgba(255,51,51,0.1); border: 1px solid #ff3333; color: #ff3333; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-bullhorn"></i> Signaler un litige assureur (+15 BVC)</button>
-            <button onclick="window.open('https://www.legifrance.gouv.fr/', '_blank')" style="margin-bottom: 30px; background: rgba(0, 51, 153, 0.2); border: 1px solid #0055ff; color: #88bbff; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-book-section"></i> Base LÃ©gifrance (Textes Officiels)</button>
+            <button onclick="window.open('https://www.legifrance.gouv.fr/', '_blank')" style="margin-bottom: 30px; background: rgba(0, 51, 153, 0.2); border: 1px solid #0055ff; color: #88bbff; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-book-section"></i> Base Légifrance (Textes Officiels)</button>
             
             <style>
                 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -136,11 +136,11 @@ window.PocketLawyer = {
   },
 
   reportInsurer: function () {
-    const insurerName = prompt("Quel est le nom de l'assureur concernÃ© ?");
+    const insurerName = prompt("Quel est le nom de l'assureur concerné ?");
     if (!insurerName) return;
 
     const problem = prompt(
-      "DÃ©crivez briÃ¨vement le problÃ¨me (ex: refus de prise en charge, rÃ©siliation abusive, etc.) :",
+      "Décrivez brièvement le problème (ex: refus de prise en charge, résiliation abusive, etc.) :",
     );
     if (!problem) return;
 
@@ -153,7 +153,7 @@ window.PocketLawyer = {
     const safeInsurerName = sanitize(insurerName);
     const safeProblem = sanitize(problem);
 
-    // Envoi Ã  Firebase
+    // Envoi à Firebase
     try {
       if (typeof firebase !== "undefined") {
         firebase
@@ -167,10 +167,10 @@ window.PocketLawyer = {
           });
       }
     } catch (e) {
-      console.warn("Firebase non disponible, signalement simulÃ© en local.");
+      console.warn("Firebase non disponible, signalement simulé en local.");
     }
 
-    // RÃ©compense pour encourager la communautÃ©
+    // Récompense pour encourager la communauté
     let ptsAdded = false;
     if (typeof window.testAddPoints === "function") {
       window.testAddPoints(15);
@@ -199,7 +199,7 @@ window.PocketLawyer = {
     }
 
     this.addBotMessage(
-      `<strong>Signalement enregistrÃ© !</strong><br>Merci d'avoir signalÃ© <em>${safeInsurerName}</em>. Votre retour aide toute la communautÃ© Ã  Ã©viter les mauvaises expÃ©riences.<br><span style="color:#00e676;">+15 Pts BVC offerts pour votre contribution citoyenne.</span>`,
+      `<strong>Signalement enregistré !</strong><br>Merci d'avoir signalé <em>${safeInsurerName}</em>. Votre retour aide toute la communauté à éviter les mauvaises expériences.<br><span style="color:#00e676;">+15 Pts BVC offerts pour votre contribution citoyenne.</span>`,
     );
 
     if (
@@ -209,7 +209,7 @@ window.PocketLawyer = {
       const self = this;
       setTimeout(function () {
         self.addBotMessage(
-          "âš ï¸ <strong>Note de l'Avocat :</strong> Nous avons reÃ§u de nombreux signalements concernant cet assureur. Sachez qu'il est dÃ©sormais classÃ© \"Partenaire non recommandÃ©\" sur notre plateforme B2B et soumis Ã  des frais de vÃ©rification renforcÃ©e (10 000 â‚¬).",
+          "âš ï¸ <strong>Note de l'Avocat :</strong> Nous avons reçu de nombreux signalements concernant cet assureur. Sachez qu'il est désormais classé \"Partenaire non recommandé\" sur notre plateforme B2B et soumis à des frais de vérification renforcée (10 000 €).",
         );
       }, 3000);
     }
@@ -218,18 +218,18 @@ window.PocketLawyer = {
   devClearReports: async function () {
     if (
       confirm(
-        "âš ï¸ DANGER ADMIN : ÃŠtes-vous sÃ»r de vouloir supprimer TOUS les signalements assureurs de la base de donnÃ©es de production ?",
+        "âš ï¸ DANGER ADMIN : Êtes-vous sûr de vouloir supprimer TOUS les signalements assureurs de la base de données de production ?",
       )
     ) {
       try {
         if (typeof firebase === "undefined")
-          return alert("Erreur: Firebase non initialisÃ©");
+          return alert("Erreur: Firebase non initialisé");
         const snapshot = await firebase
           .firestore()
           .collection("insurer_reports")
           .get();
         if (snapshot.empty) {
-          alert("La base de donnÃ©es des signalements est dÃ©jÃ  vide !");
+          alert("La base de données des signalements est déjà vide !");
           return;
         }
         const batch = firebase.firestore().batch();
@@ -238,11 +238,11 @@ window.PocketLawyer = {
         });
         await batch.commit();
         alert(
-          `âœ… SuccÃ¨s : ${snapshot.size} signalement(s) effacÃ©(s) de la base de donnÃ©es.`,
+          `✅ Succès : ${snapshot.size} signalement(s) effacé(s) de la base de données.`,
         );
       } catch (e) {
         console.error(e);
-        alert("Erreur lors de la purge de la base de donnÃ©es : " + e.message);
+        alert("Erreur lors de la purge de la base de données : " + e.message);
       }
     }
   },
@@ -302,24 +302,24 @@ window.PocketLawyer = {
   processChatQuery: function (text) {
     const t = text.toLowerCase();
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    // ðŸŒ MOTEUR JURIDIQUE MONDIAL (LegalDatabase)
+    // ═══════════════════════════════════════════════════════
+    // 🌍 MOTEUR JURIDIQUE MONDIAL (LegalDatabase)
     // Cherche d'abord dans la base mondiale officielle
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ═══════════════════════════════════════════════════════
     if (
       window.LegalDatabase &&
       typeof window.LegalDatabase.search === "function"
     ) {
       const results = window.LegalDatabase.search(text);
       if (results.length > 0) {
-        // Prendre le rÃ©sultat le plus pertinent
+        // Prendre le résultat le plus pertinent
         const r = results[0];
         let html = `<strong>${r.title}</strong><br>${r.content}`;
         html += `<br><em style="color:#888; font-size:0.8em;">Source : ${r.source}</em>`;
 
-        // Si plusieurs rÃ©sultats, indiquer les autres disponibles
+        // Si plusieurs résultats, indiquer les autres disponibles
         if (results.length > 1) {
-          html += `<br><br><span style="color:#cca300; font-size:0.85em;">ðŸ“š ${results.length - 1} autre(s) rÃ©sultat(s) trouvÃ©(s). PrÃ©cisez votre question pour affiner.</span>`;
+          html += `<br><br><span style="color:#cca300; font-size:0.85em;">ðŸ“š ${results.length - 1} autre(s) résultat(s) trouvé(s). Précisez votre question pour affiner.</span>`;
         }
 
         // Suggestion automatique du Code Litige pour les cas pertinents
@@ -332,8 +332,8 @@ window.PocketLawyer = {
           t.includes("sinistre")
         ) {
           html += `<br><br><div style="background:rgba(255, 51, 51, 0.1); border:1px solid #ff3333; border-radius:10px; padding:10px; margin-top:10px;">
-                        <p style="margin:0 0 10px 0; color:#ffcccc; font-size:0.9rem;"><strong>Dossier d'Expertise (BoÃ®te Noire)</strong><br>Avez-vous besoin de gÃ©nÃ©rer un Code Litige pour votre assureur ?</p>
-                        <button onclick="if(window.DisputeAutomation) window.DisputeAutomation.initiateDispute(); else alert('Module introuvable.');" style="background:#ff3333; color:#fff; border:none; border-radius:20px; padding:8px 15px; cursor:pointer; font-weight:bold; width:100%;"><i class="fa-solid fa-gavel"></i> GÃ©nÃ©rer mon Code Litige</button>
+                        <p style="margin:0 0 10px 0; color:#ffcccc; font-size:0.9rem;"><strong>Dossier d'Expertise (Boîte Noire)</strong><br>Avez-vous besoin de générer un Code Litige pour votre assureur ?</p>
+                        <button onclick="if(window.DisputeAutomation) window.DisputeAutomation.initiateDispute(); else alert('Module introuvable.');" style="background:#ff3333; color:#fff; border:none; border-radius:20px; padding:8px 15px; cursor:pointer; font-weight:bold; width:100%;"><i class="fa-solid fa-gavel"></i> Générer mon Code Litige</button>
                     </div>`;
         }
 
@@ -341,9 +341,9 @@ window.PocketLawyer = {
       }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    // ðŸŒ LISTE DES PAYS DISPONIBLES (si question gÃ©nÃ©rale)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ═══════════════════════════════════════════════════════
+    // 🌍 LISTE DES PAYS DISPONIBLES (si question générale)
+    // ═══════════════════════════════════════════════════════
     if (
       t.includes("pays") ||
       t.includes("monde") ||
@@ -359,42 +359,42 @@ window.PocketLawyer = {
             country._flag &&
             key !== "search"
           ) {
-            countryList += `â€¢ ${country._flag} ${country._name}<br>`;
+            countryList += `• ${country._flag} ${country._name}<br>`;
           }
         }
-        return `<strong>ðŸŒ Base Juridique Mondiale</strong><br>Je couvre actuellement le droit de :<br>${countryList}<br>PrÃ©cisez un <strong>pays</strong> et un <strong>thÃ¨me</strong> (casque, permis, donnÃ©es, assurance...) pour obtenir les textes officiels.`;
+        return `<strong>🌍 Base Juridique Mondiale</strong><br>Je couvre actuellement le droit de :<br>${countryList}<br>Précisez un <strong>pays</strong> et un <strong>thème</strong> (casque, permis, données, assurance...) pour obtenir les textes officiels.`;
       }
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    // ðŸ‡«ðŸ‡· FALLBACK : JURISPRUDENCE FRANÃ‡AISE (Code de la route)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    if (t.includes("dÃ©brid") || t.includes("debride")) {
-      return "<strong>DÃ©bridage (Art. L317-5)</strong><br>C'est un dÃ©lit. Vous risquez jusqu'Ã  <strong>135â‚¬ d'amende</strong> pour le propriÃ©taire, mais surtout, <strong>votre assurance s'annule</strong> en cas d'accident corporel. Les assureurs se retournent contre vous pour payer les dommages aux victimes.";
+    // ═══════════════════════════════════════════════════════
+    // ðŸ‡«ðŸ‡· FALLBACK : JURISPRUDENCE FRANÇAISE (Code de la route)
+    // ═══════════════════════════════════════════════════════
+    if (t.includes("débrid") || t.includes("debride")) {
+      return "<strong>Débridage (Art. L317-5)</strong><br>C'est un délit. Vous risquez jusqu'à <strong>135€ d'amende</strong> pour le propriétaire, mais surtout, <strong>votre assurance s'annule</strong> en cas d'accident corporel. Les assureurs se retournent contre vous pour payer les dommages aux victimes.";
     }
     if (
       t.includes("stup") ||
       t.includes("drogue") ||
-      t.includes("fumÃ©") ||
+      t.includes("fumé") ||
       t.includes("positif") ||
       t.includes("cannabis") ||
       t.includes("thc")
     ) {
-      return "<strong>Conduite sous stupÃ©fiants (DÃ©lit)</strong><br>MÃªme avec un BSR, vous risquez jusqu'Ã  <strong>4500â‚¬ d'amende</strong>, 2 ans de prison, et l'immobilisation du scooter. Il n'y a pas de perte de points sur un BSR. S'il s'agit d'une premiÃ¨re infraction, le juge peut faire preuve de clÃ©mence si vous montrez des preuves mÃ©dicales de votre volontÃ© de vous soigner.";
+      return "<strong>Conduite sous stupéfiants (Délit)</strong><br>Même avec un BSR, vous risquez jusqu'à <strong>4500€ d'amende</strong>, 2 ans de prison, et l'immobilisation du scooter. Il n'y a pas de perte de points sur un BSR. S'il s'agit d'une première infraction, le juge peut faire preuve de clémence si vous montrez des preuves médicales de votre volonté de vous soigner.";
     }
     if (t.includes("alcool")) {
-      return "<strong>AlcoolÃ©mie</strong><br>Pour un permis probatoire ou BSR, la limite lÃ©gale est de 0,2 g/L. Vous risquez l'immobilisation immÃ©diate du cyclomoteur et de fortes amendes.";
+      return "<strong>Alcoolémie</strong><br>Pour un permis probatoire ou BSR, la limite légale est de 0,2 g/L. Vous risquez l'immobilisation immédiate du cyclomoteur et de fortes amendes.";
     }
     if (t.includes("assurance")) {
-      return "<strong>DÃ©faut d'assurance (DÃ©lit)</strong><br>Conduire sans assurance coÃ»te jusqu'Ã  <strong>3750â‚¬ d'amende</strong>. En cas d'accident, le Fonds de Garantie indemnise la victime mais vous rÃ©clamera le remboursement, potentiellement toute votre vie.";
+      return "<strong>Défaut d'assurance (Délit)</strong><br>Conduire sans assurance coûte jusqu'à <strong>3750€ d'amende</strong>. En cas d'accident, le Fonds de Garantie indemnise la victime mais vous réclamera le remboursement, potentiellement toute votre vie.";
     }
-    if (t.includes("fuite") || t.includes("obtempÃ©rer")) {
-      return "<strong>Refus d'obtempÃ©rer / DÃ©lit de fuite</strong><br>Cumuler ces dÃ©lits entraÃ®ne des peines de prison fermes, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrÃ´le de police.";
+    if (t.includes("fuite") || t.includes("obtempérer")) {
+      return "<strong>Refus d'obtempérer / Délit de fuite</strong><br>Cumuler ces délits entraîne des peines de prison fermes, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrôle de police.";
     }
 
     const safeText = window.escapeHTML ? window.escapeHTML(text) : text;
-    let baseMsg = `Ma base de jurisprudence couvre <strong>16 pays</strong> avec des sources officielles. Pour la France, les textes de rÃ©fÃ©rence sont sur <strong>LÃ©gifrance</strong>.<br><br>
-        <a href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=${encodeURIComponent(text)}" target="_blank" style="display:inline-block; padding:10px 15px; background:rgba(0, 51, 153, 0.3); border:1px solid #0055ff; color:#88bbff; border-radius:15px; text-decoration:none; margin-top:10px;"><i class="fa-solid fa-magnifying-glass"></i> Chercher "${safeText}" sur LÃ©gifrance</a>`;
+    let baseMsg = `Ma base de jurisprudence couvre <strong>16 pays</strong> avec des sources officielles. Pour la France, les textes de référence sont sur <strong>Légifrance</strong>.<br><br>
+        <a href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=${encodeURIComponent(text)}" target="_blank" style="display:inline-block; padding:10px 15px; background:rgba(0, 51, 153, 0.3); border:1px solid #0055ff; color:#88bbff; border-radius:15px; text-decoration:none; margin-top:10px;"><i class="fa-solid fa-magnifying-glass"></i> Chercher "${safeText}" sur Légifrance</a>`;
 
     if (
       t.includes("accident") ||
@@ -405,8 +405,8 @@ window.PocketLawyer = {
       t.includes("sinistre")
     ) {
       baseMsg += `<br><br><div style="background:rgba(255, 51, 51, 0.1); border:1px solid #ff3333; border-radius:10px; padding:10px; margin-top:10px;">
-                <p style="margin:0 0 10px 0; color:#ffcccc; font-size:0.9rem;"><strong>Dossier d'Expertise (BoÃ®te Noire)</strong><br>Avez-vous besoin de gÃ©nÃ©rer un Code Litige pour votre assureur ?</p>
-                <button onclick="if(window.DisputeAutomation) window.DisputeAutomation.initiateDispute(); else alert('Module introuvable.');" style="background:#ff3333; color:#fff; border:none; border-radius:20px; padding:8px 15px; cursor:pointer; font-weight:bold; width:100%;"><i class="fa-solid fa-gavel"></i> GÃ©nÃ©rer mon Code Litige</button>
+                <p style="margin:0 0 10px 0; color:#ffcccc; font-size:0.9rem;"><strong>Dossier d'Expertise (Boîte Noire)</strong><br>Avez-vous besoin de générer un Code Litige pour votre assureur ?</p>
+                <button onclick="if(window.DisputeAutomation) window.DisputeAutomation.initiateDispute(); else alert('Module introuvable.');" style="background:#ff3333; color:#fff; border:none; border-radius:20px; padding:8px 15px; cursor:pointer; font-weight:bold; width:100%;"><i class="fa-solid fa-gavel"></i> Générer mon Code Litige</button>
             </div>`;
     }
 
@@ -418,7 +418,7 @@ window.PocketLawyer = {
     if (!chatBox) return;
 
     this.addBotMessage(
-      '<div style="text-align: center;"><div style="width: 30px; height: 30px; border: 3px solid #333; border-top-color: #cca300; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div><p style="margin-top: 10px; font-size: 0.9rem;">VÃ©rification GPS en cours...</p></div>',
+      '<div style="text-align: center;"><div style="width: 30px; height: 30px; border: 3px solid #333; border-top-color: #cca300; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div><p style="margin-top: 10px; font-size: 0.9rem;">Vérification GPS en cours...</p></div>',
     );
 
     setTimeout(() => {
@@ -462,25 +462,25 @@ window.PocketLawyer = {
   startAudioDefense: function () {
     if (typeof speak === "function") {
       speak(
-        "Mode DÃ©fense Juridique activÃ©. RÃ¨gle numÃ©ro 1 : Ne reconnaissez aucun tort Ã  l'oral. RÃ¨gle numÃ©ro 2 : Prenez des photos de la situation et de la plaque adverse. RÃ¨gle numÃ©ro 3 : Remplissez le constat factuellement. En cas de dÃ©lit de fuite, relevez la plaque et contactez la police.",
+        "Mode Défense Juridique activé. Règle numéro 1 : Ne reconnaissez aucun tort à l'oral. Règle numéro 2 : Prenez des photos de la situation et de la plaque adverse. Règle numéro 3 : Remplissez le constat factuellement. En cas de délit de fuite, relevez la plaque et contactez la police.",
       );
     } else {
       console.warn(
-        "L'assistant vocal (speak) n'est pas disponible pour dicter la dÃ©fense.",
+        "L'assistant vocal (speak) n'est pas disponible pour dicter la défense.",
       );
     }
   },
 
   generateLetter: function () {
     if (typeof window.braveCoins === "undefined") {
-      alert("Erreur: Module de fidÃ©litÃ© introuvable.");
+      alert("Erreur: Module de fidélité introuvable.");
       return;
     }
 
     const price = 5;
     if (
       confirm(
-        `GÃ©nÃ©rer un recours juridique coÃ»te ${price} Pts BVC.\nVoulez-vous continuer ?`,
+        `Générer un recours juridique coûte ${price} Pts BVC.\nVoulez-vous continuer ?`,
       )
     ) {
       if (window.braveCoins >= price) {
@@ -493,7 +493,7 @@ window.PocketLawyer = {
 
         const letter =
           this.currentScenarioTemplate ||
-          "Monsieur l'Officier du MinistÃ¨re Public,\nJe conteste formellement ce PV.";
+          "Monsieur l'Officier du Ministère Public,\nJe conteste formellement ce PV.";
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard
@@ -502,10 +502,10 @@ window.PocketLawyer = {
               alert(
                 "Paiement de " +
                   price +
-                  " Pts BVC acceptÃ©.\n\nLa lettre de contestation a Ã©tÃ© copiÃ©e dans votre presse-papiers ! Vous pouvez la coller sur le site de l'ANTAI.",
+                  " Pts BVC accepté.\n\nLa lettre de contestation a été copiée dans votre presse-papiers ! Vous pouvez la coller sur le site de l'ANTAI.",
               );
               if (typeof speak === "function")
-                speak("Plaidoirie copiÃ©e dans le presse-papiers.");
+                speak("Plaidoirie copiée dans le presse-papiers.");
             })
             .catch(function () {
               alert(
@@ -517,7 +517,7 @@ window.PocketLawyer = {
           alert(
             "Paiement de " +
               price +
-              " Pts BVC acceptÃ©.\n\nVoici votre lettre :\n\n" +
+              " Pts BVC accepté.\n\nVoici votre lettre :\n\n" +
               letter,
           );
         }

@@ -1,3 +1,13 @@
+
+// Ajout pour la sécurité XSS
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>'"]/g, function(s) {
+    const entityMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+    return entityMap[s];
+  });
+}
+
 ﻿let currentCaseId = null;
 let currentReportType = "EXPERT";
 let currentPrice = 199.99;
@@ -25,11 +35,11 @@ async function authenticateInsurer() {
 
   if (isEuroAssuranceAttempt) {
     const accept = confirm(
-      "âš ï¸ ALERTE : Cet organisme est classÃ© 'Partenaire non recommandÃ©' suite Ã  de multiples signalements.\nPour crÃ©er un compte ou vous connecter, un tarif de vÃ©rification renforcÃ©e de 10 000 â‚¬ est exigÃ©.\n\nAcceptez-vous de payer ces 10 000 â‚¬ ?",
+      "âš ï¸ ALERTE : Cet organisme est classé 'Partenaire non recommandé' suite à de multiples signalements.\nPour créer un compte ou vous connecter, un tarif de vérification renforcée de 10 000 € est exigé.\n\nAcceptez-vous de payer ces 10 000 € ?",
     );
     if (!accept) {
       errorEl.innerHTML =
-        '<i class="fa-solid fa-triangle-exclamation"></i> <strong>AccÃ¨s refusÃ© :</strong> Frais de vÃ©rification renforcÃ©e de 10 000 â‚¬ requis pour cet organisme.';
+        '<i class="fa-solid fa-triangle-exclamation"></i> <strong>Accès refusé :</strong> Frais de vérification renforcée de 10 000 € requis pour cet organisme.';
       errorEl.style.display = "block";
       return;
     }
@@ -45,14 +55,14 @@ async function authenticateInsurer() {
         (firebaseError.code === "auth/user-not-found" ||
           firebaseError.code === "auth/wrong-password")
       ) {
-        // S'ils ont payÃ© les 10 000â‚¬ et que le compte n'existe pas, on le crÃ©e
+        // S'ils ont payé les 10 000€ et que le compte n'existe pas, on le crée
         await firebase.auth().createUserWithEmailAndPassword(user, pass);
       } else {
         throw firebaseError;
       }
     }
 
-    // SuccÃ¨s de l'authentification ou crÃ©ation
+    // Succès de l'authentification ou création
     errorEl.style.display = "none";
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("portal-content").style.display = "block";
@@ -61,17 +71,17 @@ async function authenticateInsurer() {
       const portalTitle = document.querySelector("#portal-content h1");
       if (portalTitle) {
         portalTitle.innerHTML +=
-          ' <span style="font-size:0.4em; background:#ff8800; color:#fff; padding:5px 10px; border-radius:10px; vertical-align:middle;" title="Partenaire non recommandÃ© - Signalements multiples"><i class="fa-solid fa-triangle-exclamation"></i> Partenaire non recommandÃ©</span>';
+          ' <span style="font-size:0.4em; background:#ff8800; color:#fff; padding:5px 10px; border-radius:10px; vertical-align:middle;" title="Partenaire non recommandé - Signalements multiples"><i class="fa-solid fa-triangle-exclamation"></i> Partenaire non recommandé</span>';
       }
     }
 
-    // Feedback vocal (si supportÃ© par l'app principale)
+    // Feedback vocal (si supporté par l'app principale)
     if (typeof speak === "function") {
-      speak("Connexion experte Ã©tablie. Bienvenue sur le portail.");
+      speak("Connexion experte établie. Bienvenue sur le portail.");
     }
   } catch (error) {
     errorEl.innerHTML =
-      '<i class="fa-solid fa-shield-cat"></i> <strong>AccÃ¨s refusÃ© :</strong> Identifiants invalides ou compte inexistant.';
+      '<i class="fa-solid fa-shield-cat"></i> <strong>Accès refusé :</strong> Identifiants invalides ou compte inexistant.';
     errorEl.style.display = "block";
     console.error("Auth error:", error);
   }
@@ -87,7 +97,7 @@ function selectReport(type, price) {
     .forEach((card) => card.classList.remove("selected"));
   event.currentTarget.classList.add("selected");
 
-  document.getElementById("btn-price").textContent = price.toFixed(2) + "â‚¬";
+  document.getElementById("btn-price").textContent = price.toFixed(2) + "€";
 }
 
 async function searchCase() {
@@ -109,10 +119,10 @@ async function searchCase() {
   payBtn.style.display = "none";
 
   try {
-    // Mode DÃ‰MO : Code de test pour les assureurs
+    // Mode DÉMO : Code de test pour les assureurs
     if (codeInput === "LIT-TEST-2026") {
       currentCaseId = codeInput;
-      statusEl.innerHTML = `<span style="color:#333;">Dossier <strong>${codeInput}</strong> trouvÃ©. Pilote : Pilote DÃ©mo.<br>Veuillez choisir le niveau d'expertise souhaitÃ© :</span>`;
+      statusEl.innerHTML = `<span style="color:#333;">Dossier <strong>${escapeHTML(codeInput)}</strong> trouvé. Pilote : Pilote Démo.<br>Veuillez choisir le niveau d'expertise souhaité :</span>`;
       optionsEl.style.display = "flex";
       payBtn.style.display = "block";
 
@@ -133,7 +143,7 @@ async function searchCase() {
       .get();
     if (!doc.exists) {
       statusEl.innerHTML =
-        '<span class="error">Dossier introuvable ou expirÃ©.</span>';
+        '<span class="error">Dossier introuvable ou expiré.</span>';
       return;
     }
 
@@ -142,7 +152,7 @@ async function searchCase() {
 
     if (data.payment_status === "PAID") {
       statusEl.innerHTML =
-        '<span class="success"><i class="fa-solid fa-check"></i> Ce rapport a dÃ©jÃ  Ã©tÃ© rÃ©glÃ© et dÃ©verrouillÃ©. AccÃ¨s autorisÃ©.</span>';
+        '<span class="success"><i class="fa-solid fa-check"></i> Ce rapport a déjà été réglé et déverrouillé. Accès autorisé.</span>';
       showExpertTelemetry(currentCaseId, data.report_type || "EXPERT");
       return;
     }
@@ -151,7 +161,7 @@ async function searchCase() {
     div1.textContent = codeInput;
     const div2 = document.createElement("div");
     div2.textContent = data.username || "N/A";
-    statusEl.innerHTML = `<span style="color:#333;">Dossier <strong>${div1.innerHTML}</strong> trouvÃ©. Pilote : ${div2.innerHTML}.<br>Veuillez choisir le niveau d'expertise souhaitÃ© :</span>`;
+    statusEl.innerHTML = `<span style="color:#333;">Dossier <strong>${div1.innerHTML}</strong> trouvé. Pilote : ${div2.innerHTML}.<br>Veuillez choisir le niveau d'expertise souhaité :</span>`;
     optionsEl.style.display = "flex";
     payBtn.style.display = "block";
 
@@ -159,8 +169,8 @@ async function searchCase() {
       const reportCards = document.querySelectorAll(".report-card");
       if (reportCards.length >= 3) {
         reportCards[0].style.display = "none"; // Cache Rapport Simple
-        reportCards[1].style.display = "none"; // Cache Rapport IntermÃ©diaire
-        selectReport("EXPERT", 199.99); // Force l'expertise la plus chÃ¨re
+        reportCards[1].style.display = "none"; // Cache Rapport Intermédiaire
+        selectReport("EXPERT", 199.99); // Force l'expertise la plus chère
       }
     }
   } catch (err) {
@@ -178,11 +188,11 @@ async function payReport() {
 
   payBtn.disabled = true;
   payBtn.innerHTML =
-    '<i class="fa-solid fa-spinner fa-spin"></i> CrÃ©ation de l\'ordre...';
+    '<i class="fa-solid fa-spinner fa-spin"></i> Création de l\'ordre...';
 
   try {
-    // Appeler Firebase Function pour crÃ©er l'ordre Revolut
-    // NOTE: Assurez-vous que l'URL correspond Ã  votre rÃ©gion / projet
+    // Appeler Firebase Function pour créer l'ordre Revolut
+    // NOTE: Assurez-vous que l'URL correspond à votre région / projet
     const functionUrl =
       "https://europe-west1-mon50ccetmoi.cloudfunctions.net/createRevolutOrder";
 
@@ -199,7 +209,7 @@ async function payReport() {
     });
 
     if (!response.ok)
-      throw new Error("Erreur de crÃ©ation de commande Revolut.");
+      throw new Error("Erreur de création de commande Revolut.");
 
     const orderData = await response.json();
 
@@ -209,7 +219,7 @@ async function payReport() {
     instance.payWithPopup({
       onSuccess: () => {
         statusEl.innerHTML =
-          '<span class="success"><i class="fa-solid fa-circle-check"></i> Paiement confirmÃ© ! Le rapport est dÃ©verrouillÃ© pour le client et votre agence.</span>';
+          '<span class="success"><i class="fa-solid fa-circle-check"></i> Paiement confirmé ! Le rapport est déverrouillé pour le client et votre agence.</span>';
         document.getElementById("report-options").style.display = "none";
         showExpertTelemetry(currentCaseId, currentReportType);
       },
@@ -221,12 +231,12 @@ async function payReport() {
           "</span>";
         payBtn.disabled = false;
         payBtn.innerHTML =
-          "RÃ©essayer le paiement " + currentPrice.toFixed(2) + "â‚¬";
+          "Réessayer le paiement " + currentPrice.toFixed(2) + "€";
       },
       onCancel: () => {
         payBtn.disabled = false;
         payBtn.innerHTML =
-          "Payer par virement (Revolut) " + currentPrice.toFixed(2) + "â‚¬";
+          "Payer par virement (Revolut) " + currentPrice.toFixed(2) + "€";
       },
     });
   } catch (err) {
@@ -234,7 +244,7 @@ async function payReport() {
     statusEl.innerHTML = '<span class="error">' + err.message + "</span>";
     payBtn.disabled = false;
     payBtn.innerHTML =
-      "Payer par virement (Revolut) " + currentPrice.toFixed(2) + "â‚¬";
+      "Payer par virement (Revolut) " + currentPrice.toFixed(2) + "€";
   }
 }
 
@@ -242,14 +252,14 @@ function showExpertTelemetry(caseId, reportType = "EXPERT") {
   const dashboard = document.getElementById("expert-dashboard");
   if (!dashboard) return;
 
-  // Mettre Ã  jour le titre avec le type de rapport
+  // Mettre à jour le titre avec le type de rapport
   const titleEl = document.querySelector("#expert-dashboard h3");
   if (titleEl) {
-    titleEl.innerHTML = `<i class="fa-solid fa-satellite-dish"></i> TÃ‰LÃ‰MÃ‰TRIE BLACKBOX : <span id="telemetry-id">${caseId}</span> <span style="font-size:0.6em; background:#ffb703; color:#000; padding:2px 8px; border-radius:10px; margin-left:10px; vertical-align:middle;">RAPPORT ${reportType}</span>`;
+    titleEl.innerHTML = `<i class="fa-solid fa-satellite-dish"></i> TÉLÉMÉTRIE BLACKBOX : <span id="telemetry-id">${caseId}</span> <span style="font-size:0.6em; background:#ffb703; color:#000; padding:2px 8px; border-radius:10px; margin-left:10px; vertical-align:middle;">RAPPORT ${reportType}</span>`;
   }
 
-  // GÃ©nÃ©ration de fausses donnÃ©es d'accident pour la dÃ©mo
-  // Dans une version finale, ces donnÃ©es proviendraient de db.collection('litigation_proposals')
+  // Génération de fausses données d'accident pour la démo
+  // Dans une version finale, ces données proviendraient de db.collection('litigation_proposals')
 
   document.getElementById("telemetry-id").textContent = caseId;
   document.getElementById("telemetry-speed").textContent =
@@ -257,7 +267,7 @@ function showExpertTelemetry(caseId, reportType = "EXPERT") {
   document.getElementById("telemetry-g").textContent =
     (Math.random() * (8 - 3) + 3).toFixed(2) + " G";
   document.getElementById("telemetry-lean").textContent =
-    (Math.random() * 90).toFixed(1) + " Â°";
+    (Math.random() * 90).toFixed(1) + " °";
 
   const now = new Date();
   document.getElementById("telemetry-time").textContent =

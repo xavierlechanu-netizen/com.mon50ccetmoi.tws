@@ -17,23 +17,117 @@
         background-color: #060913;
         color: #fff;
         padding: 20px;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
         overflow-y: auto;
       }
       .header-market {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
+        margin-bottom: 25px;
         border-bottom: 1px solid rgba(0, 242, 255, 0.3);
         padding-bottom: 15px;
       }
       .bvc-balance {
-        background: rgba(183, 0, 255, 0.2);
+        background: linear-gradient(135deg, rgba(183, 0, 255, 0.2), rgba(0, 242, 255, 0.15));
         border: 1px solid #b700ff;
-        padding: 8px 15px;
+        padding: 8px 16px;
         border-radius: 20px;
         font-family: "JetBrains Mono", monospace;
-        box-shadow: 0 0 10px rgba(183, 0, 255, 0.4);
+        font-weight: bold;
+        box-shadow: 0 0 15px rgba(183, 0, 255, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #e099ff;
+      }
+      .filter-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 25px;
+        background: rgba(15, 22, 36, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 15px;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 242, 255, 0.2);
+      }
+      .search-box {
+        position: relative;
+        flex: 1;
+        min-width: 240px;
+      }
+      .search-box input {
+        width: 100%;
+        background: rgba(8, 12, 22, 0.9);
+        border: 1px solid rgba(0, 242, 255, 0.3);
+        color: #fff;
+        padding: 10px 15px 10px 40px;
+        border-radius: 12px;
+        outline: none;
+        box-sizing: border-box;
+        font-size: 0.9rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .search-box input:focus {
+        border-color: #00f2ff;
+        box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+      }
+      .search-box i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #00f2ff;
+      }
+      .select-controls {
+        display: flex;
+        gap: 10px;
+      }
+      .select-controls select {
+        background: rgba(8, 12, 22, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 12px;
+        outline: none;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+      .cat-tabs {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        margin-bottom: 25px;
+        scrollbar-width: thin;
+      }
+      .market-cat-btn {
+        background: rgba(20, 28, 45, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #aaa;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .market-cat-btn:hover {
+        border-color: #00f2ff;
+        color: #fff;
+      }
+      .market-cat-btn.active {
+        background: linear-gradient(135deg, rgba(0, 242, 255, 0.2), rgba(0, 119, 255, 0.4));
+        border-color: #00f2ff;
+        color: #00f2ff;
+        font-weight: 600;
+        box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
       }
       .grid-market {
         display: grid;
@@ -41,49 +135,56 @@
         gap: 20px;
       }
       .product-card {
-        background: rgba(25, 25, 35, 0.6);
-        backdrop-filter: blur(10px);
+        background: rgba(20, 26, 40, 0.65);
+        backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        padding: 20px;
-        transition: transform 0.3s ease;
+        border-radius: 16px;
+        padding: 18px;
+        transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
       .product-card:hover {
         transform: translateY(-5px);
         border-color: #00f2ff;
-        box-shadow: 0 10px 20px rgba(0, 242, 255, 0.2);
+        box-shadow: 0 10px 25px rgba(0, 242, 255, 0.25);
       }
       .product-img {
         width: 100%;
         height: 150px;
-        background: #111;
-        border-radius: 10px;
+        background: rgba(10, 14, 25, 0.8);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 4rem;
-        color: #444;
-        margin-bottom: 15px;
+        font-size: 3.5rem;
+        color: #00f2ff;
+        margin-bottom: 12px;
+        overflow: hidden;
       }
       .price-tag {
         color: #00f2ff;
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         font-weight: bold;
         margin: 10px 0;
       }
       .buy-btn {
         width: 100%;
         padding: 12px;
-        background: linear-gradient(45deg, #00f2ff, #0055ff);
+        background: linear-gradient(135deg, #00f2ff, #0055ff);
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         color: white;
         font-weight: bold;
         cursor: pointer;
-        transition: filter 0.2s;
+        transition: filter 0.2s, transform 0.1s;
       }
       .buy-btn:hover {
         filter: brightness(1.2);
+      }
+      .buy-btn:active {
+        transform: scale(0.98);
       }
     </style>
   </head>
@@ -98,224 +199,65 @@
           font-size: 1.5rem;
           cursor: pointer;
         "
+        aria-label="Retour"
       >
         <i class="fa-solid fa-arrow-left"></i>
       </button>
       <h1 style="margin: 0; font-size: 1.5rem; text-shadow: 0 0 10px #00f2ff">
-        <i class="fa-solid fa-store"></i> Marketplace
+        <i class="fa-solid fa-store"></i> Marketplace 50cc
       </h1>
       <div class="bvc-balance">
-        <i class="fa-brands fa-ethereum"></i> 1,450 BVC
+        <i class="fa-brands fa-ethereum"></i> <span id="user-bvc-balance">1,450 BVC</span>
       </div>
     </div>
 
-    <p style="color: #aaa">
-      Échangez vos Brave Coins (BVC) gagnés en conduisant prudemment contre des
-      pièces détachées ou des réductions partenaires.
-    </p>
-
-    <div class="grid-market">
-      <!-- Produit 1 -->
-      <div class="product-card">
-        <div class="product-img">
-          <i class="fa-solid fa-oil-can"></i>
-        </div>
-        <h3>Huile Moteur 2T (Ipone)</h3>
-        <p style="color: #888; font-size: 0.9rem">
-          Huile de synthèse 1L haute performance.
-        </p>
-        <div class="price-tag">
-          350 BVC
-          <span
-            style="
-              font-size: 0.9rem;
-              color: #888;
-              text-decoration: line-through;
-            "
-            >14.99 €</span
-          >
-        </div>
-        <button
-          class="buy-btn"
-          onclick="alert('Achat validé ! Livraison estimée: 48h')"
-        >
-          Échanger
-        </button>
+    <!-- BARRE D'ACTION ET FILTRES -->
+    <div class="filter-toolbar">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="market-search-input" placeholder="Rechercher une pièce, marque, galets, échappement..." />
       </div>
-
-      <!-- Produit 2 -->
-      <div class="product-card">
-        <div class="product-img">
-          <i class="fa-solid fa-motorcycle"></i>
-        </div>
-        <h3>Pot d'échappement homologué</h3>
-        <p style="color: #888; font-size: 0.9rem">
-          Type origine, norme Euro 5.
-        </p>
-        <div class="price-tag">
-          2,500 BVC
-          <span
-            style="
-              font-size: 0.9rem;
-              color: #888;
-              text-decoration: line-through;
-            "
-            >129.00 €</span
-          >
-        </div>
-        <button
-          class="buy-btn"
-          style="background: #444; color: #888; cursor: not-allowed"
-          disabled
-        >
-          Fonds insuffisants
-        </button>
-      </div>
-
-      <!-- Produit 3 -->
-      <div class="product-card">
-        <div class="product-img">
-          <i class="fa-solid fa-helmet-safety"></i>
-        </div>
-        <h3>Visière Casque Teintée</h3>
-        <p style="color: #888; font-size: 0.9rem">
-          Visière universelle anti-rayures.
-        </p>
-        <div class="price-tag">
-          500 BVC
-          <span
-            style="
-              font-size: 0.9rem;
-              color: #888;
-              text-decoration: line-through;
-            "
-            >25.00 €</span
-          >
-        </div>
-        <button
-          class="buy-btn"
-          onclick="alert('Achat validé ! Livraison estimée: 48h')"
-        >
-          Échanger
-        </button>
+      <div class="select-controls">
+        <select id="market-pricetype-select">
+          <option value="all">Tous les modes de paiement</option>
+          <option value="bvc">Pts BVC uniquement</option>
+          <option value="euro">Euros (€) uniquement</option>
+        </select>
+        <select id="market-sort-select">
+          <option value="newest">Plus récents</option>
+          <option value="price_asc">Prix croissant</option>
+          <option value="price_desc">Prix décroissant</option>
+        </select>
       </div>
     </div>
 
-    <!-- MARCHÉ NOIR DE JARVIS (VOIX IA) -->
-    <div
-      style="
-        margin-top: 40px;
-        border-top: 1px solid rgba(255, 0, 255, 0.2);
-        padding-top: 30px;
-      "
-    >
-      <h2
-        style="
-          margin: 0 0 20px 0;
-          color: #ff00ff;
-          text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
-        "
-      >
-        <i class="fa-solid fa-robot"></i> Marché Noir IA (Skins Vocaux)
-      </h2>
-      <div class="products-grid">
-        <!-- Voix 1 -->
-        <div
-          class="product-card"
-          style="
-            border-color: #ff00ff;
-            box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);
-          "
-        >
-          <div class="product-img" style="color: #ff00ff">
-            <i class="fa-solid fa-microchip"></i>
-          </div>
-          <h3>Jarvis (Classique)</h3>
-          <p style="color: #888; font-size: 0.9rem">Voix de base.</p>
-          <div class="price-tag">Gratuit</div>
-          <button
-            class="buy-btn"
-            style="background: linear-gradient(135deg, #ff00ff, #8a2be2)"
-            onclick="setVoiceMode('standard')"
-          >
-            Activer
-          </button>
-        </div>
-
-        <!-- Voix 2 -->
-        <div
-          class="product-card"
-          style="
-            border-color: #ff00ff;
-            box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);
-          "
-        >
-          <div class="product-img" style="color: #ff00ff">
-            <i class="fa-solid fa-user-astronaut"></i>
-          </div>
-          <h3>Cyberpunk</h3>
-          <p style="color: #888; font-size: 0.9rem">Voix grave et robotique.</p>
-          <div class="price-tag">100 BVC</div>
-          <button
-            class="buy-btn"
-            style="background: linear-gradient(135deg, #ff00ff, #8a2be2)"
-            onclick="buyVoiceMode('cyberpunk', 100)"
-          >
-            Débloquer
-          </button>
-        </div>
-
-        <!-- Voix 3 -->
-        <div
-          class="product-card"
-          style="
-            border-color: #ff00ff;
-            box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);
-          "
-        >
-          <div class="product-img" style="color: #ff00ff">
-            <i class="fa-solid fa-flag-checkered"></i>
-          </div>
-          <h3>Pilote de Rallye</h3>
-          <p style="color: #888; font-size: 0.9rem">
-            Voix rapide et agressive.
-          </p>
-          <div class="price-tag">150 BVC</div>
-          <button
-            class="buy-btn"
-            style="background: linear-gradient(135deg, #ff00ff, #8a2be2)"
-            onclick="buyVoiceMode('rally', 150)"
-          >
-            Débloquer
-          </button>
-        </div>
-      </div>
+    <!-- ONGLETS DE CATÉGORIES -->
+    <div class="cat-tabs">
+      <button class="market-cat-btn active" onclick="ExchangeMarket.setCategory('all', this)">
+        <i class="fa-solid fa-border-all"></i> Toutes
+      </button>
+      <button class="market-cat-btn" onclick="ExchangeMarket.setCategory('mecanique', this)">
+        <i class="fa-solid fa-gears"></i> Galets & Variateurs
+      </button>
+      <button class="market-cat-btn" onclick="ExchangeMarket.setCategory('pot', this)">
+        <i class="fa-solid fa-wind"></i> Échappements
+      </button>
+      <button class="market-cat-btn" onclick="ExchangeMarket.setCategory('carenage', this)">
+        <i class="fa-solid fa-shield-halved"></i> Carénages
+      </button>
+      <button class="market-cat-btn" onclick="ExchangeMarket.setCategory('pneus', this)">
+        <i class="fa-solid fa-circle-dot"></i> Pneus & Freins
+      </button>
+      <button class="market-cat-btn" onclick="ExchangeMarket.setCategory('equipement', this)">
+        <i class="fa-solid fa-helmet-safety"></i> Équipements
+      </button>
     </div>
 
     <!-- BOURSE D'ÉCHANGE COMMUNAUTAIRE -->
-    <div
-      style="
-        margin-top: 40px;
-        border-top: 1px solid rgba(0, 210, 255, 0.2);
-        padding-top: 30px;
-      "
-    >
-      <div
-        style="
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-        "
-      >
-        <h2
-          style="
-            margin: 0;
-            color: #00d2ff;
-            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
-          "
-        >
-          <i class="fa-solid fa-arrows-rotate"></i> Bourse d'Échange
+    <div style="margin-bottom: 40px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0; color: #00d2ff; text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);">
+          <i class="fa-solid fa-arrows-rotate"></i> Annonces Communautaires
         </h2>
         <button
           onclick="if (window.ExchangeMarket) ExchangeMarket.openPublishForm();"
@@ -328,22 +270,126 @@
             font-weight: bold;
             cursor: pointer;
             font-size: 0.9rem;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
           "
         >
           <i class="fa-solid fa-plus"></i> Publier une annonce
         </button>
       </div>
-      <p style="color: #888; margin-bottom: 20px">
-        Achetez, vendez ou troquez des pièces détachées d'occasion avec la
-        communauté.
-      </p>
+
       <div class="grid-market" id="exchange-listings-container">
-        <div style="text-align: center; padding: 40px; color: #666">
-          <i
-            class="fa-solid fa-spinner fa-spin"
-            style="font-size: 2rem; margin-bottom: 10px"
-          ></i>
-          <p>Chargement des annonces…</p>
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px"></i>
+          <p>Chargement des annonces en temps réel…</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MARCHÉ OFFICIEL PARTENAIRES -->
+    <div style="border-top: 1px solid rgba(0, 242, 255, 0.2); padding-top: 30px; margin-bottom: 40px;">
+      <h2 style="margin: 0 0 20px 0; color: #00f2ff; text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);">
+        <i class="fa-solid fa-certificate"></i> Boutique Officielle & Réductions Partenaires
+      </h2>
+      <div class="grid-market">
+        <!-- Produit 1 -->
+        <div class="product-card">
+          <div class="product-img">
+            <i class="fa-solid fa-oil-can"></i>
+          </div>
+          <h3>Huile Moteur 2T (Ipone)</h3>
+          <p style="color: #888; font-size: 0.9rem">
+            Huile de synthèse 1L haute performance avec bec verseur.
+          </p>
+          <div class="price-tag">
+            350 BVC
+            <span style="font-size: 0.9rem; color: #888; text-decoration: line-through;">14.99 €</span>
+          </div>
+          <button class="buy-btn" onclick="alert('Achat validé ! Livraison estimée: 48h')">
+            Échanger
+          </button>
+        </div>
+
+        <!-- Produit 2 -->
+        <div class="product-card">
+          <div class="product-img">
+            <i class="fa-solid fa-motorcycle"></i>
+          </div>
+          <h3>Pot d'échappement homologué</h3>
+          <p style="color: #888; font-size: 0.9rem">
+            Type origine, norme Euro 5 pour Booster & Nitro.
+          </p>
+          <div class="price-tag">
+            2,500 BVC
+            <span style="font-size: 0.9rem; color: #888; text-decoration: line-through;">129.00 €</span>
+          </div>
+          <button class="buy-btn" style="background: #444; color: #888; cursor: not-allowed" disabled>
+            Fonds insuffisants
+          </button>
+        </div>
+
+        <!-- Produit 3 -->
+        <div class="product-card">
+          <div class="product-img">
+            <i class="fa-solid fa-helmet-safety"></i>
+          </div>
+          <h3>Visière Casque Teintée</h3>
+          <p style="color: #888; font-size: 0.9rem">
+            Visière universelle anti-rayures & anti-buée.
+          </p>
+          <div class="price-tag">
+            500 BVC
+            <span style="font-size: 0.9rem; color: #888; text-decoration: line-through;">25.00 €</span>
+          </div>
+          <button class="buy-btn" onclick="alert('Achat validé ! Livraison estimée: 48h')">
+            Échanger
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MARCHÉ NOIR DE JARVIS (VOIX IA) -->
+    <div style="border-top: 1px solid rgba(255, 0, 255, 0.2); padding-top: 30px; margin-bottom: 40px;">
+      <h2 style="margin: 0 0 20px 0; color: #ff00ff; text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);">
+        <i class="fa-solid fa-robot"></i> Marché Noir IA (Skins Vocaux)
+      </h2>
+      <div class="grid-market">
+        <!-- Voix 1 -->
+        <div class="product-card" style="border-color: #ff00ff; box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);">
+          <div class="product-img" style="color: #ff00ff">
+            <i class="fa-solid fa-microchip"></i>
+          </div>
+          <h3>Jarvis (Classique)</h3>
+          <p style="color: #888; font-size: 0.9rem">Voix de base et guidage vocal standard.</p>
+          <div class="price-tag" style="color: #ff00ff;">Gratuit</div>
+          <button class="buy-btn" style="background: linear-gradient(135deg, #ff00ff, #8a2be2)" onclick="setVoiceMode('standard')">
+            Activer
+          </button>
+        </div>
+
+        <!-- Voix 2 -->
+        <div class="product-card" style="border-color: #ff00ff; box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);">
+          <div class="product-img" style="color: #ff00ff">
+            <i class="fa-solid fa-user-astronaut"></i>
+          </div>
+          <h3>Cyberpunk</h3>
+          <p style="color: #888; font-size: 0.9rem">Voix grave et synthétiseur robotique.</p>
+          <div class="price-tag" style="color: #ff00ff;">100 BVC</div>
+          <button class="buy-btn" style="background: linear-gradient(135deg, #ff00ff, #8a2be2)" onclick="buyVoiceMode('cyberpunk', 100)">
+            Débloquer
+          </button>
+        </div>
+
+        <!-- Voix 3 -->
+        <div class="product-card" style="border-color: #ff00ff; box-shadow: 0 0 10px rgba(255, 0, 255, 0.2);">
+          <div class="product-img" style="color: #ff00ff">
+            <i class="fa-solid fa-flag-checkered"></i>
+          </div>
+          <h3>Pilote de Rallye</h3>
+          <p style="color: #888; font-size: 0.9rem">Voix dynamique avec alertes virage serré.</p>
+          <div class="price-tag" style="color: #ff00ff;">150 BVC</div>
+          <button class="buy-btn" style="background: linear-gradient(135deg, #ff00ff, #8a2be2)" onclick="buyVoiceMode('rally', 150)">
+            Débloquer
+          </button>
         </div>
       </div>
     </div>
@@ -374,7 +420,6 @@
     <script src="js/exchange.js"></script>
 
     <script>
-      // Fonctions Marché Noir IA
       function setVoiceMode(mode) {
         localStorage.setItem("jarvisVoiceMode", mode);
         alert(`Skin Vocal [${mode}] activé avec succès.`);
@@ -385,11 +430,11 @@
         if (currentBVC >= cost) {
           currentBVC -= cost;
           localStorage.setItem("bvc_points", currentBVC);
+          const el = document.getElementById("user-bvc-balance");
+          if (el) el.textContent = `${currentBVC.toLocaleString("fr-FR")} BVC`;
           setVoiceMode(mode);
         } else {
-          alert(
-            `Fonds insuffisants. Il vous manque ${cost - currentBVC} BVC pour débloquer cette voix.`,
-          );
+          alert(`Fonds insuffisants. Il vous manque ${cost - currentBVC} BVC pour débloquer cette voix.`);
         }
       }
     </script>

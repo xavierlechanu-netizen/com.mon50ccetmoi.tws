@@ -36,7 +36,7 @@ window.initSocialRadar = function () {
     }
   }, 10000);
 
-  // Ã‰couter les positions des autres utilisateurs
+  // Écouter les positions des autres utilisateurs
   window.socialRadarUnsubscribe = db
     .collection("user_locations")
     .onSnapshot((snapshot) => {
@@ -48,12 +48,12 @@ window.initSocialRadar = function () {
         if (window.session && uid === window.session.uid) return;
 
         if (change.type === "added" || change.type === "modified") {
-          // Mettre Ã  jour ou crÃ©er
+          // Mettre à jour ou créer
           let existingRider = window.ghostRiders.find((r) => r.uid === uid);
           if (existingRider) {
             existingRider.marker.setPosition({ lat: data.lat, lng: data.lng });
           } else {
-            // CrÃ©er un nouveau marqueur
+            // Créer un nouveau marqueur
             let marker = new google.maps.Marker({
               position: { lat: data.lat, lng: data.lng },
               map: window.isSocialRadarActive ? window.map : null,
@@ -116,7 +116,7 @@ window.toggleSocialRadar = function () {
     window.ghostRiders.forEach((ghost) => ghost.marker.setMap(window.map));
 
     if (typeof speak === "function") {
-      speak("Radar Social activÃ©. Connexion au rÃ©seau des pilotes en cours.");
+      speak("Radar Social activé. Connexion au réseau des pilotes en cours.");
     }
   } else {
     if (btn) {
@@ -128,7 +128,7 @@ window.toggleSocialRadar = function () {
     window.ghostRiders.forEach((ghost) => ghost.marker.setMap(null));
 
     if (typeof speak === "function") {
-      speak("Radar Social dÃ©sactivÃ©.");
+      speak("Radar Social désactivé.");
     }
   }
 };

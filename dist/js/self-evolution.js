@@ -11,7 +11,7 @@ window.initSelfEvolution = function () {
 
   consoleOverlay.innerHTML = `
         <button onclick="document.getElementById('ai-evolution-console').classList.add('hidden')" style="position:absolute; top:20px; right:20px; background:none; border:none; color:#0f0; font-size:2rem; cursor:pointer;"><i class="fa-solid fa-power-off"></i></button>
-        <h2 style="margin-top:40px; text-transform:uppercase; letter-spacing:2px; text-shadow:0 0 10px #0f0;"><i class="fa-solid fa-microchip"></i> Moteur d'Ã‰volution Neuronale v1.0</h2>
+        <h2 style="margin-top:40px; text-transform:uppercase; letter-spacing:2px; text-shadow:0 0 10px #0f0;"><i class="fa-solid fa-microchip"></i> Moteur d'Évolution Neuronale v1.0</h2>
         <div id="ai-log-output" style="margin-top:20px; flex-grow:1; overflow-y:auto; border-left:2px solid #0f0; padding-left:15px; font-size: 1.1rem; line-height: 1.5;"></div>
         <div style="margin-top:20px; text-align:center; padding-bottom: 50px;">
             <div style="width: 100%; height: 5px; background: rgba(0,255,0,0.2);"><div id="ai-progress-bar" style="width:0%; height:5px; background:#0f0; box-shadow:0 0 15px #0f0; transition:width 0.5s;"></div></div>
@@ -40,7 +40,7 @@ window.startEvolutionProtocol = function () {
 
   if (typeof speak === "function")
     speak(
-      "Attention. Moteur d'Ã©volution neuronale activÃ©. L'application se rÃ©Ã©crit elle-mÃªme.",
+      "Attention. Moteur d'évolution neuronale activé. L'application se réécrit elle-même.",
     );
 
   let i = 0;
@@ -107,7 +107,7 @@ window.applyRandomMutation = function () {
   }
 
   if (typeof speak === "function")
-    speak("Mutation terminÃ©e. Mon code source a Ã©voluÃ© avec succÃ¨s.");
+    speak("Mutation terminée. Mon code source a évolué avec succès.");
 };
 
 document.addEventListener("DOMContentLoaded", () => {

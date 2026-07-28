@@ -1,4 +1,14 @@
-﻿/**
+// Ajout pour la sécurité XSS
+function escapeHTML(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>'"]/g, function(s) {
+    const entityMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+    return entityMap[s];
+  });
+}
+
+/**
+
  * GHOST RIDER v1.0 - Predictive Safety System
  * Anticipates dangers and alerts the rider before impact.
  */
@@ -12,7 +22,7 @@ window.GhostRider = {
       radius: 200,
       level: "HIGH",
     },
-    // On pourra ajouter ici des points noirs rÃ©els (stats accidents)
+    // On pourra ajouter ici des points noirs réels (stats accidents)
   ],
   lastAlertZone: null,
 
@@ -36,7 +46,7 @@ window.GhostRider = {
       if (dist < zone.radius && this.lastAlertZone !== zone.name) {
         this.triggerAlert(
           "ZONE DANGEREUSE",
-          `Prudence : ${zone.name} Ã  proximitÃ©.`,
+          `Prudence : ${zone.name} à proximité.`,
         );
         this.lastAlertZone = zone.name;
       } else if (dist > zone.radius && this.lastAlertZone === zone.name) {
@@ -54,7 +64,7 @@ window.GhostRider = {
   updateHeatmap: function () {
     if (typeof google === "undefined" || !map) return;
 
-    // On rÃ©cupÃ¨re tous les signalements rÃ©cents (3h) pour crÃ©er la heatmap
+    // On récupère tous les signalements récents (3h) pour créer la heatmap
     if (typeof db === "undefined") return;
     db.collection("hazards")
       .where("timestamp", ">=", new Date(Date.now() - 10800000))
@@ -103,7 +113,7 @@ window.GhostRider = {
     const banner = document.getElementById("safety-banner");
     if (!banner) return;
 
-    banner.innerHTML = `<i class="fa-solid fa-ghost"></i> <strong>${title}</strong>: ${msg}`;
+    banner.innerHTML = `<i class="fa-solid fa-ghost"></i> <strong>${escapeHTML(title)}</strong>: ${escapeHTML(msg)}`;
     banner.classList.remove("hidden");
     banner.classList.add("pulse-alert");
 
@@ -142,8 +152,8 @@ window.GhostRider = {
           if (dist < 3000) {
             // 3km range
             this.triggerAlert(
-              "SOS PROXIMITÃ‰",
-              `Pilote en difficultÃ© Ã  ${Math.round(dist)}m ! Regardez la carte.`,
+              "SOS PROXIMITÉ",
+              `Pilote en difficulté à ${Math.round(dist)}m ! Regardez la carte.`,
             );
             this.showSOSMarkerOnMap(alert);
           }

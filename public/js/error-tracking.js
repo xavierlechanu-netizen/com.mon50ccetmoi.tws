@@ -1,5 +1,5 @@
 /**
- * ðŸ›¡ï¸ Crash Reporter & Error Tracking
+ * 🛡ï¸ Crash Reporter & Error Tracking
  * Enterprise-grade monitoring system for mon50ccetmoi
  * Captures JavaScript errors and unhandled promise rejections,
  * and logs them securely to Firestore without interrupting the user.
@@ -64,7 +64,7 @@ window.CrashReporter = {
         .then(() => {})
         .catch((err) =>
           console.warn(
-            "ðŸ›¡ï¸ Failed to send crash report (probably offline).",
+            "🛡ï¸ Failed to send crash report (probably offline).",
             err,
           ),
         );
@@ -77,7 +77,7 @@ window.CrashReporter = {
         });
       }
     } catch (e) {
-      console.warn("ðŸ›¡ï¸ CrashReporter internal error:", e);
+      console.warn("🛡ï¸ CrashReporter internal error:", e);
     }
   },
 };

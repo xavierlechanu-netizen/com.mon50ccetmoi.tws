@@ -1,4 +1,4 @@
-﻿// --- S.O.S COMMUNAUTAIRE ---
+// --- S.O.S COMMUNAUTAIRE ---
 window.SosSystem = {
   sosMarkers: {},
   alertDistance: 10000, // 10 km
@@ -13,7 +13,7 @@ window.SosSystem = {
       this.audioCtx = new AudioContext();
     } catch (e) {}
 
-    // Attendre que la carte et la position soient prÃªtes
+    // Attendre que la carte et la position soient prêtes
     const checkDependencies = setInterval(() => {
       if (typeof map !== "undefined" && map && window.currentPosition) {
         clearInterval(checkDependencies);
@@ -92,9 +92,9 @@ window.SosSystem = {
     if (dist <= this.alertDistance) {
       this.drawAlert(alertId, data);
 
-      if (!this.sosMarkers[alertId]) return; // Par sÃ©curitÃ© si drawAlert Ã©choue
+      if (!this.sosMarkers[alertId]) return; // Par sécurité si drawAlert échoue
 
-      // Si c'est nouveau et que ce n'est pas nous, on prÃ©vient vocalement
+      // Si c'est nouveau et que ce n'est pas nous, on prévient vocalement
       if (
         data.authorUid !== window.session.uid &&
         !this.sosMarkers[alertId].warned
@@ -106,17 +106,17 @@ window.SosSystem = {
           setTimeout(
             () =>
               speak(
-                `Alerte SOS : Pilote en dÃ©tresse Ã  ${distKm} kilomÃ¨tres.`,
+                `Alerte SOS : Pilote en détresse à ${distKm} kilomètres.`,
               ),
             1000,
           );
         }
         alert(
-          `ðŸš¨ SOS DÃ‰TECTÃ‰ ðŸš¨\n\nUn pilote (${data.author}) a signalÃ© une urgence : ${data.type}\nDistance : ${distKm} km.\nRegardez la carte !`,
+          `🚨 SOS DÉTECTÉ 🚨\n\nUn pilote (${data.author}) a signalé une urgence : ${data.type}\nDistance : ${distKm} km.\nRegardez la carte !`,
         );
       }
 
-      // Si c'est NOTRE alerte, on Ã©coute les sauveurs !
+      // Si c'est NOTRE alerte, on écoute les sauveurs !
       if (
         data.authorUid === window.session.uid &&
         !this.sosMarkers[alertId].listeningHelpers
@@ -188,12 +188,12 @@ window.SosSystem = {
 
     const info = new google.maps.InfoWindow({
       content: `<div style="color:red; font-family:'Outfit', sans-serif; text-align:center; padding:10px;">
-                        <h3 style="margin:0; font-size:1.2rem;">ðŸš¨ S.O.S</h3>
+                        <h3 style="margin:0; font-size:1.2rem;">🚨 S.O.S</h3>
                         <p style="margin:5px 0;"><b>Pilote :</b> ${data.author}</p>
-                        <p style="margin:5px 0; color:#000;"><b>ProblÃ¨me :</b> ${data.type}</p>
+                        <p style="margin:5px 0; color:#000;"><b>Problème :</b> ${data.type}</p>
                         ${
                           data.authorUid === window.session.uid
-                            ? `<button onclick="window.SosSystem.resolveAlert('${alertId}')" style="background:green; color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">ProblÃ¨me RÃ©solu</button>`
+                            ? `<button onclick="window.SosSystem.resolveAlert('${alertId}')" style="background:green; color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">Problème Résolu</button>`
                             : `<button onclick="window.SosSystem.volunteerToHelp('${alertId}')" style="background:#00d2ff; color:black; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">J'arrive pour aider !</button>`
                         }
                       </div>`,
@@ -227,12 +227,12 @@ window.SosSystem = {
     modal.innerHTML = `
             <div style="background:#111; border:2px solid #ff0000; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center; color:white;">
                 <h2 style="color:#ff0000; margin-bottom:20px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-triangle-exclamation"></i> LANCER UN S.O.S</h2>
-                <p style="margin-bottom:20px;">PrÃ©venez les pilotes autour de vous pour obtenir de l'aide.</p>
+                <p style="margin-bottom:20px;">Prévenez les pilotes autour de vous pour obtenir de l'aide.</p>
                 <select id="sos-type" style="width:100%; padding:15px; margin-bottom:20px; background:#222; color:white; border:1px solid #ff0000; border-radius:10px; font-size:1.1rem;">
-                    <option value="Panne d'essence">â›½ Panne d'essence</option>
+                    <option value="Panne d'essence">⛽ Panne d'essence</option>
                     <option value="Crevaison">ðŸ›ž Crevaison</option>
-                    <option value="Casse MÃ©canique">ðŸ”§ Casse MÃ©canique (Courroie, Serrage...)</option>
-                    <option value="Accident lÃ©ger">ðŸš‘ Accident lÃ©ger</option>
+                    <option value="Casse Mécanique">ðŸ”§ Casse Mécanique (Courroie, Serrage...)</option>
+                    <option value="Accident léger">ðŸš‘ Accident léger</option>
                 </select>
                 <button onclick="window.SosSystem.triggerAlert()" style="width:100%; background:#ff0000; color:white; border:none; padding:15px; border-radius:10px; font-weight:bold; font-size:1.2rem; cursor:pointer; margin-bottom:10px;">LANCER L'ALERTE</button>
                 <button onclick="document.getElementById('sos-modal').style.display='none'" style="width:100%; background:transparent; color:#aaa; border:1px solid #aaa; padding:10px; border-radius:10px; cursor:pointer;">Annuler</button>
@@ -265,14 +265,14 @@ window.SosSystem = {
       });
       this.lastAlertTime = Date.now();
       alert(
-        "Alerte SOS envoyÃ©e ! Restez prÃ¨s de votre scooter, l'aide arrive.",
+        "Alerte SOS envoyée ! Restez près de votre scooter, l'aide arrive.",
       );
       document.getElementById("sos-modal").style.display = "none";
       if (typeof speak === "function")
-        speak("Alerte de dÃ©tresse envoyÃ©e Ã  la communautÃ©.");
+        speak("Alerte de détresse envoyée à la communauté.");
     } catch (e) {
       console.error(e);
-      alert("Erreur rÃ©seau SOS.");
+      alert("Erreur réseau SOS.");
     }
   },
 
@@ -283,7 +283,7 @@ window.SosSystem = {
         .collection("sos_alerts")
         .doc(alertId)
         .update({ isActive: false });
-      alert("S.O.S clÃ´turÃ©. Bon retour sur la route !");
+      alert("S.O.S clôturé. Bon retour sur la route !");
     } catch (e) {
       console.error(e);
     }
@@ -303,11 +303,11 @@ window.SosSystem = {
           timestamp: Date.now(),
         });
       alert(
-        "Merci ! Le pilote en dÃ©tresse a Ã©tÃ© prÃ©venu que vous Ãªtes en route.",
+        "Merci ! Le pilote en détresse a été prévenu que vous êtes en route.",
       );
     } catch (e) {
       console.error(e);
-      alert("Erreur rÃ©seau.");
+      alert("Erreur réseau.");
     }
   },
 
@@ -324,7 +324,7 @@ window.SosSystem = {
           if (change.type === "added") {
             const helper = change.doc.data();
 
-            // Ignore si trÃ¨s vieux pour Ã©viter spam au rechargement
+            // Ignore si très vieux pour éviter spam au rechargement
             if (Date.now() - helper.timestamp < 3600000) {
               if (typeof speak === "function") {
                 speak(
@@ -335,7 +335,7 @@ window.SosSystem = {
               const toast = document.createElement("div");
               toast.style.cssText =
                 "position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,210,255,0.9);color:#000;padding:15px 25px;border-radius:25px;z-index:99999;font-weight:bold;font-family:'Outfit', sans-serif;box-shadow:0 0 20px rgba(0,210,255,0.5);font-size:1.1rem;opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:10px;";
-              toast.innerHTML = `<span style="font-size:1.5rem;">ðŸ¦¸â€â™‚ï¸</span> <span><b>${helper.name}</b> arrive pour vous aider !</span>`;
+              toast.innerHTML = `<span style="font-size:1.5rem;">ðŸ¦¸â€ â™‚ï¸ </span> <span><b>${escapeHTML(helper.name)}</b> arrive pour vous aider !</span>`;
               document.body.appendChild(toast);
 
               setTimeout(() => {

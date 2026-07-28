@@ -1,0 +1,1472 @@
+[
+  {
+    "file": "app-garage.js",
+    "line": 183,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: content.innerHTML = `<h3><i class=\"fa-solid fa-box-archive\"></i> ${t.title}</h3>"
+  },
+  {
+    "file": "app-ui.js",
+    "line": 92,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: content.innerHTML = `<h3><i class=\"fa-solid fa-chart-line\"></i> ${t(\"stats_title"
+  },
+  {
+    "file": "app-ui.js",
+    "line": 165,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: content.innerHTML = `<h3><i class=\"fa-solid fa-warehouse\"></i> ${t(\"garage_title"
+  },
+  {
+    "file": "app-ui.js",
+    "line": 275,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: content.innerHTML = `<h3><i class=\"fa-solid fa-robot\"></i> ${t(\"expert_meca_titl"
+  },
+  {
+    "file": "app-ui.js",
+    "line": 286,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: content.innerHTML = `<h3><i class=\"fa-solid fa-scale-balanced\"></i> ${t(\"arbitre"
+  },
+  {
+    "file": "app-ui.js",
+    "line": 549,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: content.innerHTML = `<h3><i class=\"fa-solid fa-briefcase\"></i> ${t(\"pro_space_ti"
+  },
+  {
+    "file": "app-ui.js",
+    "line": 613,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: content.innerHTML = `<h3><i class=\"fa-solid fa-heart\"></i> ${t(\"donate_title\")}<"
+  },
+  {
+    "file": "app-ui.js",
+    "line": 632,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: content.innerHTML = `<h3><i class=\"fa-solid fa-shield-heart\"></i> ${t(\"security_"
+  },
+  {
+    "file": "assureur.js",
+    "line": 115,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: statusEl.innerHTML = `<span style=\"color:#333;\">Dossier <strong>${codeInput}</st"
+  },
+  {
+    "file": "cortege-mode.js",
+    "line": 260,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: toast.innerHTML = `<span style=\"font-size:1.5rem;\">${signal.icon}</span> <span><"
+  },
+  {
+    "file": "crews-territory.js",
+    "line": 110,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: modal.innerHTML = `<i class=\"fa-solid fa-skull\"></i> ALERTE TERRITOIRE <br><smal"
+  },
+  {
+    "file": "crews-territory.js",
+    "line": 190,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: btn.innerHTML = `<i class=\"fa-solid fa-users\"></i> ${this.currentCrew.name}`;"
+  },
+  {
+    "file": "ghost-rider-v2.js",
+    "line": 56,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: banner.innerHTML = `<i class=\"fa-solid fa-ghost\"></i> <strong>${title}</strong>:"
+  },
+  {
+    "file": "ghost-rider.js",
+    "line": 106,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: banner.innerHTML = `<i class=\"fa-solid fa-ghost\"></i> <strong>${title}</strong>:"
+  },
+  {
+    "file": "safe-rider.js",
+    "line": 74,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: popup.innerHTML = `<i class=\"fa-solid fa-trophy\" style=\"font-size: 1.5rem;\"></i>"
+  },
+  {
+    "file": "self-evolution.js",
+    "line": 96,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: p.innerHTML = `[SUCCESS] Code mutated. UI theme dynamically adapted to <span sty"
+  },
+  {
+    "file": "sos-community.js",
+    "line": 338,
+    "severity": "HIGH",
+    "category": "XSS",
+    "message": "innerHTML with user-controlled variable. Use textContent instead: toast.innerHTML = `<span style=\"font-size:1.5rem;\">ðŸ¦¸â€â™‚ï¸</span> <span><b"
+  },
+  {
+    "file": "app-features.js",
+    "line": 686,
+    "severity": "HIGH",
+    "category": "RACE_CONDITION",
+    "message": "Multiple writes sans transaction Firestore → risque de données incohérentes"
+  },
+  {
+    "file": "exchange.js",
+    "line": 269,
+    "severity": "HIGH",
+    "category": "RACE_CONDITION",
+    "message": "Multiple writes sans transaction Firestore → risque de données incohérentes"
+  },
+  {
+    "file": "admin.html",
+    "line": 88,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"clearAllHazards()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "admin.html",
+    "line": 139,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"deleteUser()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "admin.html",
+    "line": 157,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"deleteHazard()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "admin.html",
+    "line": 171,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"deleteMood()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "admin.html",
+    "line": 188,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"deleteSuggestion()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 550,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 598,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 621,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 664,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 687,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"openMarketplaceCheck()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 836,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 1047,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 1069,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 1093,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 1117,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 1141,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 1166,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 1216,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 1954,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 3228,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 3634,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 3654,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 3688,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 3726,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app.html",
+    "line": 4957,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "login.html",
+    "line": 96,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"acceptProminentDisclosure()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "login.html",
+    "line": 112,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"declineProminentDisclosure()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "login.html",
+    "line": 178,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"doLogin()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "login.html",
+    "line": 273,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"toggleForm()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "login.html",
+    "line": 323,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"doRegister()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "login.html",
+    "line": 326,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"toggleForm()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "marketplace.html",
+    "line": 263,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"if()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "marketplace.html",
+    "line": 364,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"setVoiceMode()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "marketplace.html",
+    "line": 377,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"buyVoiceMode()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "marketplace.html",
+    "line": 390,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"buyVoiceMode()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "offline.html",
+    "line": 241,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"manualRetry()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 361,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"doLogin()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 364,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"forgotPassword()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 401,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"verifySiret()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 430,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"switchView()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 433,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"switchView()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 436,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"switchView()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 439,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"switchView()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 442,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"switchView()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 445,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"switchView()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 610,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"openReportModal()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 645,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"openReportModal()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 680,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"openReportModal()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 893,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"changePassword()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 942,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"addAgent()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 1407,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"submitCampaign()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 1571,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"addFunds()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "watch.html",
+    "line": 139,
+    "severity": "HIGH",
+    "category": "UNDEFINED_FUNC",
+    "message": "onclick appelle \"triggerWatchSOS()\" mais la fonction n'existe dans aucun JS"
+  },
+  {
+    "file": "app-ui.js",
+    "line": 81,
+    "severity": "MEDIUM",
+    "category": "NULL_REF",
+    "message": "getElementById(\"...\") result used without null check on \"overlay\""
+  },
+  {
+    "file": "app-ui.js",
+    "line": 82,
+    "severity": "MEDIUM",
+    "category": "NULL_REF",
+    "message": "getElementById(\"...\") result used without null check on \"content\""
+  },
+  {
+    "file": "assureur.js",
+    "line": 94,
+    "severity": "MEDIUM",
+    "category": "NULL_REF",
+    "message": "getElementById(\"...\") result used without null check on \"rawInput\""
+  },
+  {
+    "file": "carbon-trading.js",
+    "line": 118,
+    "severity": "MEDIUM",
+    "category": "NULL_REF",
+    "message": "getElementById(\"...\") result used without null check on \"button\""
+  },
+  {
+    "file": "community-gas.js",
+    "line": 172,
+    "severity": "MEDIUM",
+    "category": "NULL_REF",
+    "message": "getElementById(\"...\") result used without null check on \"listContainer\""
+  },
+  {
+    "file": "insurer-portal.js",
+    "line": 105,
+    "severity": "MEDIUM",
+    "category": "NULL_REF",
+    "message": "getElementById(\"...\") result used without null check on \"pricingBox\""
+  },
+  {
+    "file": "neural-hud.js",
+    "line": 283,
+    "severity": "MEDIUM",
+    "category": "NULL_REF",
+    "message": "getElementById(\"...\") result used without null check on \"core\""
+  },
+  {
+    "file": "self-evolution.js",
+    "line": 25,
+    "severity": "MEDIUM",
+    "category": "NULL_REF",
+    "message": "getElementById(\"...\") result used without null check on \"logOutput\""
+  },
+  {
+    "file": "self-evolution.js",
+    "line": 26,
+    "severity": "MEDIUM",
+    "category": "NULL_REF",
+    "message": "getElementById(\"...\") result used without null check on \"progressBar\""
+  },
+  {
+    "file": "app-features.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "onSnapshot() listener without stored unsubscribe function → memory leak"
+  },
+  {
+    "file": "cortege-mode.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "onSnapshot() listener without stored unsubscribe function → memory leak"
+  },
+  {
+    "file": "crews-territory.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "onSnapshot() listener without stored unsubscribe function → memory leak"
+  },
+  {
+    "file": "database.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "onSnapshot() listener without stored unsubscribe function → memory leak"
+  },
+  {
+    "file": "garage-market.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "onSnapshot() listener without stored unsubscribe function → memory leak"
+  },
+  {
+    "file": "ghost-rider.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "onSnapshot() listener without stored unsubscribe function → memory leak"
+  },
+  {
+    "file": "loot-drops.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "onSnapshot() listener without stored unsubscribe function → memory leak"
+  },
+  {
+    "file": "moderation-bot.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "onSnapshot() listener without stored unsubscribe function → memory leak"
+  },
+  {
+    "file": "pit-stops.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "onSnapshot() listener without stored unsubscribe function → memory leak"
+  },
+  {
+    "file": "roadbooks.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "onSnapshot() listener without stored unsubscribe function → memory leak"
+  },
+  {
+    "file": "sos-community.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "onSnapshot() listener without stored unsubscribe function → memory leak"
+  },
+  {
+    "file": "app-garage.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "app-map.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "2 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "blackbox.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "chronos.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "ghost-rider-v2.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "ghost-rider.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "2 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "habits.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "loot-drops.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "neural-sync.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "pit-stops.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "premium.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "safe-rider.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "sentinel-v2.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "silicon-valley.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "social-map.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "telemetry.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "2 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "web4-mining.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "1 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "zero-trust.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "MEMORY_LEAK",
+    "message": "2 setInterval() sans aucun clearInterval() → timer leak potentiel"
+  },
+  {
+    "file": "app-core.js & i18n.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.updateI18N\" définie dans 2 fichiers: app-core.js, i18n.js"
+  },
+  {
+    "file": "app-core.js & app-map.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.routeFerries\" définie dans 2 fichiers: app-core.js, app-map.js"
+  },
+  {
+    "file": "app-core.js & app-features.js & app-ui.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.isRodageActive\" définie dans 3 fichiers: app-core.js, app-features.js, app-ui.js"
+  },
+  {
+    "file": "app-core.js & app-features.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.isGarageVisible\" définie dans 2 fichiers: app-core.js, app-features.js"
+  },
+  {
+    "file": "app-core.js & app-features.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.garageStatus\" définie dans 2 fichiers: app-core.js, app-features.js"
+  },
+  {
+    "file": "app-core.js & app-features.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.initMapController\" définie dans 2 fichiers: app-core.js, app-features.js"
+  },
+  {
+    "file": "app-core.js & app-map.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.pendingDestinationName\" définie dans 2 fichiers: app-core.js, app-map.js"
+  },
+  {
+    "file": "app-core.js & app-features.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.hasWelcomed\" définie dans 2 fichiers: app-core.js, app-features.js"
+  },
+  {
+    "file": "app-core.js & app-garage.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.addTracePoint\" définie dans 2 fichiers: app-core.js, app-garage.js"
+  },
+  {
+    "file": "app-features.js & auth.js & config.js & database.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.secureGetItem\" définie dans 4 fichiers: app-features.js, auth.js, config.js, database.js"
+  },
+  {
+    "file": "app-features.js & auth.js & config.js & database.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.secureSetItem\" définie dans 4 fichiers: app-features.js, auth.js, config.js, database.js"
+  },
+  {
+    "file": "app-features.js & arbitre-bot.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.processArbitreQuery\" définie dans 2 fichiers: app-features.js, arbitre-bot.js"
+  },
+  {
+    "file": "app-garage.js & app-ui.js & secbot.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.showPage\" définie dans 3 fichiers: app-garage.js, app-ui.js, secbot.js"
+  },
+  {
+    "file": "app-map.js & beyond-maps.js & premium.js & vehicle-config.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.startPremiumNavigation\" définie dans 4 fichiers: app-map.js, beyond-maps.js, premium.js, vehicle-config.js"
+  },
+  {
+    "file": "app-map.js & jarvis-voice.js & oracle-voice.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.searchDestination\" définie dans 3 fichiers: app-map.js, jarvis-voice.js, oracle-voice.js"
+  },
+  {
+    "file": "app-map.js & neural-hud.js & oracle-voice.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.saveHazard\" définie dans 3 fichiers: app-map.js, neural-hud.js, oracle-voice.js"
+  },
+  {
+    "file": "app-map.js & premium.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.updateXP\" définie dans 2 fichiers: app-map.js, premium.js"
+  },
+  {
+    "file": "app-ui.js & auth.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.logout\" définie dans 2 fichiers: app-ui.js, auth.js"
+  },
+  {
+    "file": "beyond-maps.js & jarvis-voice.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.toggleSensationMode\" définie dans 2 fichiers: beyond-maps.js, jarvis-voice.js"
+  },
+  {
+    "file": "blackbox.js & guardian-angel.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.triggerEmergencySOS\" définie dans 2 fichiers: blackbox.js, guardian-angel.js"
+  },
+  {
+    "file": "community-gas.js & jarvis-voice.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.CommunityGas\" définie dans 2 fichiers: community-gas.js, jarvis-voice.js"
+  },
+  {
+    "file": "community-gas.js & pocket-lawyer.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.testAddPoints\" définie dans 2 fichiers: community-gas.js, pocket-lawyer.js"
+  },
+  {
+    "file": "error-tracking.js & infallible.js & sentinel-v2.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.onerror\" définie dans 3 fichiers: error-tracking.js, infallible.js, sentinel-v2.js"
+  },
+  {
+    "file": "ghost-rider-v2.js & ghost-rider.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.GhostRider\" définie dans 2 fichiers: ghost-rider-v2.js, ghost-rider.js"
+  },
+  {
+    "file": "infallible.js & sentinel-v2.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.onunhandledrejection\" définie dans 2 fichiers: infallible.js, sentinel-v2.js"
+  },
+  {
+    "file": "insurance-portal.js & litigation-ai.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.LitigationAI\" définie dans 2 fichiers: insurance-portal.js, litigation-ai.js"
+  },
+  {
+    "file": "jarvis-voice.js & social-map.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.toggleSocialRadar\" définie dans 2 fichiers: jarvis-voice.js, social-map.js"
+  },
+  {
+    "file": "jarvis-voice.js & rgpd-cnil.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.initVoiceAI\" définie dans 2 fichiers: jarvis-voice.js, rgpd-cnil.js"
+  },
+  {
+    "file": "meca-wizard.js & pocket-lawyer.js & referral.js & safe-rider.js & silicon-valley.js & web4-mining.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.braveCoins\" définie dans 6 fichiers: meca-wizard.js, pocket-lawyer.js, referral.js, safe-rider.js, silicon-valley.js, web4-mining.js"
+  },
+  {
+    "file": "oracle-voice.js & premium.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.updateWeatherUI\" définie dans 2 fichiers: oracle-voice.js, premium.js"
+  },
+  {
+    "file": "rgpd-cnil.js & v3-smartcity.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.initZeroClickDestiny\" définie dans 2 fichiers: rgpd-cnil.js, v3-smartcity.js"
+  },
+  {
+    "file": "silicon-valley.js & tim-cook.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "COLLISION",
+    "message": "Variable globale \"window.stopNavigation\" définie dans 2 fichiers: silicon-valley.js, tim-cook.js"
+  },
+  {
+    "file": "mon50cc-bundle.js",
+    "line": 0,
+    "severity": "MEDIUM",
+    "category": "DESYNC",
+    "message": "Fichier présent dans dist/js/ mais ABSENT de public/js/ (orphelin)"
+  },
+  {
+    "file": "offline-map.js",
+    "line": 344,
+    "severity": "LOW",
+    "category": "LOGIC",
+    "message": "Potential division by zero (no guard check): const pct = percent || Math.round((current / total) * 100);"
+  },
+  {
+    "file": "admin.html",
+    "line": 52,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/crypto-native.js"
+  },
+  {
+    "file": "app.html",
+    "line": 25,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/infallible.js"
+  },
+  {
+    "file": "app.html",
+    "line": 82,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "CSS manquant: css/premium.css"
+  },
+  {
+    "file": "app.html",
+    "line": 343,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/vehicle-config.js"
+  },
+  {
+    "file": "app.html",
+    "line": 344,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/beyond-maps.js"
+  },
+  {
+    "file": "app.html",
+    "line": 345,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/social-map.js"
+  },
+  {
+    "file": "app.html",
+    "line": 346,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/self-evolution.js"
+  },
+  {
+    "file": "app.html",
+    "line": 353,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/crews-territory.js"
+  },
+  {
+    "file": "app.html",
+    "line": 354,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/loot-drops.js"
+  },
+  {
+    "file": "app.html",
+    "line": 355,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/cortege-mode.js"
+  },
+  {
+    "file": "app.html",
+    "line": 356,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/safe-ride.js"
+  },
+  {
+    "file": "app.html",
+    "line": 357,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/garage-market.js"
+  },
+  {
+    "file": "app.html",
+    "line": 358,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/crew-chat.js"
+  },
+  {
+    "file": "app.html",
+    "line": 359,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/sos-community.js"
+  },
+  {
+    "file": "app.html",
+    "line": 360,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/roadbooks.js"
+  },
+  {
+    "file": "app.html",
+    "line": 361,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/pit-stops.js"
+  },
+  {
+    "file": "app.html",
+    "line": 362,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/privacy-manager.js"
+  },
+  {
+    "file": "app.html",
+    "line": 2064,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/tim-cook.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3238,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/app-core.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3239,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/app-map.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3240,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/app-features.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3241,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/app-ui.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3242,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/app-wallet.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3244,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/silicon-valley.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3245,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/jarvis-voice.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3246,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/community-gas.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3247,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/leaderboard.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3248,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/v3-smartcity.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3249,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/carbon-trading.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3250,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/rgpd-cnil.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3251,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/litigation-ai.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3252,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/insurance-portal.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3253,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/anti-theft.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3254,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/meca-wizard.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3255,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/obd-bluetooth.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3256,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/ar-navigation.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3257,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/social-radar.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3258,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/referral.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3260,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/driving-score.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3261,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/danger-zones.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3262,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/accident-report.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3263,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/weather-alert.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3318,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/web4-mining.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3319,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/insurer-portal.js"
+  },
+  {
+    "file": "app.html",
+    "line": 3320,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/zero-trust.js"
+  },
+  {
+    "file": "app.html",
+    "line": 5018,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/garage.js"
+  },
+  {
+    "file": "app.html",
+    "line": 5019,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/safe-rider.js"
+  },
+  {
+    "file": "app.html",
+    "line": 5020,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/convoy.js"
+  },
+  {
+    "file": "app.html",
+    "line": 5021,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/exchange.js"
+  },
+  {
+    "file": "app.html",
+    "line": 5022,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/legal-database.js"
+  },
+  {
+    "file": "app.html",
+    "line": 5023,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/pocket-lawyer.js"
+  },
+  {
+    "file": "assureur.html",
+    "line": 24,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/config.js"
+  },
+  {
+    "file": "assureur.html",
+    "line": 25,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/database.js"
+  },
+  {
+    "file": "banned.html",
+    "line": 14,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "CSS manquant: css/style.min.css"
+  },
+  {
+    "file": "beta.html",
+    "line": 25,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/config.js"
+  },
+  {
+    "file": "index.html",
+    "line": 728,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/config.js"
+  },
+  {
+    "file": "index.html",
+    "line": 732,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/crypto-native.js"
+  },
+  {
+    "file": "index.html",
+    "line": 733,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/auth.js"
+  },
+  {
+    "file": "insurance.html",
+    "line": 14,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "CSS manquant: css/style.min.css"
+  },
+  {
+    "file": "login.html",
+    "line": 22,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/config.js"
+  },
+  {
+    "file": "login.html",
+    "line": 27,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/crypto-native.js"
+  },
+  {
+    "file": "marketplace.html",
+    "line": 14,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "CSS manquant: css/style.min.css"
+  },
+  {
+    "file": "marketplace.html",
+    "line": 398,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/infallible.js"
+  },
+  {
+    "file": "marketplace.html",
+    "line": 399,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/config.js"
+  },
+  {
+    "file": "marketplace.html",
+    "line": 420,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/exchange.js"
+  },
+  {
+    "file": "partenaires.html",
+    "line": 17,
+    "severity": "CRITICAL",
+    "category": "BROKEN_REF",
+    "message": "Script manquant: js/config.js"
+  }
+]

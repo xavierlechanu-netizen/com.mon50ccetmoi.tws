@@ -1,7 +1,7 @@
 ﻿/**
  * OfflineMapManager â€” mon50ccetmoi v100.00-GOLD
- * Gestion complÃ¨te des cartes hors ligne avec Leaflet + OpenStreetMap
- * Basculement automatique : Google Maps (online) â†” Leaflet (offline)
+ * Gestion complète des cartes hors ligne avec Leaflet + OpenStreetMap
+ * Basculement automatique : Google Maps (online) ←” Leaflet (offline)
  */
 
 window.OfflineMapManager = (function () {
@@ -10,12 +10,12 @@ window.OfflineMapManager = (function () {
   // â”€â”€ Configuration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   const TILE_ATTRIBUTION =
-    'Â© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+    '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
   const MIN_ZOOM_CACHE = 10;
   const MAX_ZOOM_CACHE = 16;
   const NOMINATIM_URL = "https://nominatim.openstreetmap.org";
 
-  // â”€â”€ Ã‰tat interne â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ État interne â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   let leafletMap = null;
   let leafletMarker = null;
   let leafletRoute = null;
@@ -24,7 +24,7 @@ window.OfflineMapManager = (function () {
   let downloadJobId = null;
   let swMessageChannel = null;
 
-  // â”€â”€ DÃ©tection rÃ©seau â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ Détection réseau â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function isOnline() {
     return navigator.onLine;
   }
@@ -32,7 +32,7 @@ window.OfflineMapManager = (function () {
   window.addEventListener("online", () => {
     switchToGoogleMaps();
     showNetworkToast(
-      "ðŸŸ¢ RÃ©seau rÃ©tabli â€” Carte HD rÃ©activÃ©e",
+      "ðŸŸ¢ Réseau rétabli â€” Carte HD réactivée",
       "online",
     );
   });
@@ -42,7 +42,7 @@ window.OfflineMapManager = (function () {
     showNetworkToast("ðŸ”´ Mode Hors Ligne â€” Carte locale active", "offline");
   });
 
-  // â”€â”€ GÃ©nÃ©ration des URLs de tuiles pour une zone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ Génération des URLs de tuiles pour une zone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function lat2tile(lat, zoom) {
     return Math.floor(
       ((1 -
@@ -60,7 +60,7 @@ window.OfflineMapManager = (function () {
 
   function generateTileUrls(lat, lng, radiusKm) {
     const urls = [];
-    // Conversion km en degrÃ©s (approximation)
+    // Conversion km en degrés (approximation)
     const latDelta = radiusKm / 111;
     const lngDelta = radiusKm / (111 * Math.cos((lat * Math.PI) / 180));
 
@@ -116,7 +116,7 @@ window.OfflineMapManager = (function () {
       crossOrigin: true,
     }).addTo(leafletMap);
 
-    // IcÃ´ne personnalisÃ©e moto (style HUD)
+    // Icône personnalisée moto (style HUD)
     const motoIcon = L.divIcon({
       className: "",
       html: `<div style="
@@ -142,14 +142,14 @@ window.OfflineMapManager = (function () {
     isInitialized = true;
   }
 
-  // â”€â”€ Mise Ã  jour de la position sur Leaflet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ Mise à jour de la position sur Leaflet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function updateLeafletPosition(lat, lng) {
     if (!leafletMap || !leafletMarker) return;
     leafletMarker.setLatLng([lat, lng]);
     leafletMap.panTo([lat, lng]);
   }
 
-  // â”€â”€ Basculement Google Maps â†’ Leaflet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ Basculement Google Maps ←’ Leaflet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function switchToLeaflet() {
     if (isOfflineMode) return;
     isOfflineMode = true;
@@ -174,7 +174,7 @@ window.OfflineMapManager = (function () {
     }
   }
 
-  // â”€â”€ Basculement Leaflet â†’ Google Maps â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ Basculement Leaflet ←’ Google Maps â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function switchToGoogleMaps() {
     if (!isOfflineMode) return;
     isOfflineMode = false;
@@ -195,7 +195,7 @@ window.OfflineMapManager = (function () {
         q: query,
         format: "json",
         limit: 5,
-        // Pas de filtre countrycodes â€” conformitÃ© RÃ¨glement (UE) 2018/302 (Geo-blocking)
+        // Pas de filtre countrycodes â€” conformité Règlement (UE) 2018/302 (Geo-blocking)
         viewbox: `${lng - 0.5},${lat + 0.5},${lng + 0.5},${lat - 0.5}`,
         bounded: 1,
         email: "contact@mon50ccetmoi.com",
@@ -211,7 +211,7 @@ window.OfflineMapManager = (function () {
     }
   }
 
-  // â”€â”€ Toast rÃ©seau â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ Toast réseau â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function showNetworkToast(msg, type) {
     const existing = document.getElementById("network-status-toast");
     if (existing) existing.remove();
@@ -240,13 +240,13 @@ window.OfflineMapManager = (function () {
     setTimeout(() => toast.remove(), 4000);
   }
 
-  // â”€â”€ TÃ©lÃ©chargement d'une zone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ Téléchargement d'une zone â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function downloadZone(lat, lng, radiusKm = 15, zoneName = "Ma Zone") {
     if (
       !("serviceWorker" in navigator) ||
       !navigator.serviceWorker.controller
     ) {
-      alert("Service Worker non actif. Rechargez la page et rÃ©essayez.");
+      alert("Service Worker non actif. Rechargez la page et réessayez.");
       return;
     }
 
@@ -258,7 +258,7 @@ window.OfflineMapManager = (function () {
 
     if (
       !confirm(
-        `ðŸ“¥ TÃ©lÃ©charger la zone "${zoneName}" ?\n\n${totalCount} tuiles (~${estimatedMb} Mo)\nRayon : ${radiusKm} km\n\nCela peut prendre quelques minutes.`,
+        `ðŸ“¥ Télécharger la zone "${zoneName}" ?\n\n${totalCount} tuiles (~${estimatedMb} Mo)\nRayon : ${radiusKm} km\n\nCela peut prendre quelques minutes.`,
       )
     ) {
       return;
@@ -298,7 +298,7 @@ window.OfflineMapManager = (function () {
 
         hideDownloadProgress();
         showNetworkToast(
-          `âœ… Zone "${zoneName}" prÃªte hors ligne (${data.cached} tuiles)`,
+          `✅ Zone "${zoneName}" prête hors ligne (${data.cached} tuiles)`,
           "online",
         );
         refreshZoneList();
@@ -349,7 +349,7 @@ window.OfflineMapManager = (function () {
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                 <i class="fa-solid fa-download" style="color:var(--neon-blue); animation: pulse 1s infinite;"></i>
                 <div>
-                    <div style="font-size:0.75rem; color:var(--neon-blue); letter-spacing:1px;">TÃ‰LÃ‰CHARGEMENT EN COURS</div>
+                    <div style="font-size:0.75rem; color:var(--neon-blue); letter-spacing:1px;">TÉLÉCHARGEMENT EN COURS</div>
                     <div style="font-size:0.9rem; font-weight:bold;">${escapedZoneName}</div>
                 </div>
                 <div style="margin-left:auto; font-size:1.2rem; font-weight:900; color:var(--neon-blue);">${pct}%</div>
@@ -370,7 +370,7 @@ window.OfflineMapManager = (function () {
     }
   }
 
-  // â”€â”€ Affichage des zones sauvegardÃ©es â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ Affichage des zones sauvegardées â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function refreshZoneList() {
     const container = document.getElementById("offline-zones-list");
     if (!container) return;
@@ -381,7 +381,7 @@ window.OfflineMapManager = (function () {
       container.innerHTML = `
                 <div style="text-align:center; padding:20px; color:#444; font-size:0.8rem;">
                     <i class="fa-solid fa-map-location-dot" style="font-size:2rem; margin-bottom:10px; display:block; opacity:0.3;"></i>
-                    Aucune zone tÃ©lÃ©chargÃ©e
+                    Aucune zone téléchargée
                 </div>
             `;
       return;
@@ -410,7 +410,7 @@ window.OfflineMapManager = (function () {
                 </div>
                 <div style="flex:1;min-width:0;">
                     <div style="font-weight:bold;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${safeName}</div>
-                    <div style="font-size:0.65rem;color:#666;margin-top:2px;">${z.tiles} tuiles â€¢ ~${z.estimatedMb} Mo â€¢ ${z.date}</div>
+                    <div style="font-size:0.65rem;color:#666;margin-top:2px;">${z.tiles} tuiles • ~${z.estimatedMb} Mo • ${z.date}</div>
                     <div style="font-size:0.65rem;color:#444;">Rayon: ${z.radiusKm} km</div>
                 </div>
                 <button onclick="window.OfflineMapManager.deleteZone(${idx})" style="
@@ -438,7 +438,7 @@ window.OfflineMapManager = (function () {
     zones.splice(idx, 1);
     localStorage.setItem("offline_zones", JSON.stringify(zones));
     refreshZoneList();
-    // Note: Les tuiles individuelles restent dans le cache SW (trop complexe Ã  cibler)
+    // Note: Les tuiles individuelles restent dans le cache SW (trop complexe à cibler)
     // Un "Tout effacer" est disponible dans le panneau
   }
 
@@ -446,7 +446,7 @@ window.OfflineMapManager = (function () {
   function clearAllTiles() {
     if (
       !confirm(
-        "âš ï¸ Effacer TOUTES les tuiles hors ligne ?\nVos zones enregistrÃ©es seront supprimÃ©es.",
+        "âš ï¸ Effacer TOUTES les tuiles hors ligne ?\nVos zones enregistrées seront supprimées.",
       )
     )
       return;
@@ -456,7 +456,7 @@ window.OfflineMapManager = (function () {
       channel.port1.onmessage = () => {
         localStorage.removeItem("offline_zones");
         refreshZoneList();
-        showNetworkToast("ðŸ—‘ï¸ Cache tuiles effacÃ©", "offline");
+        showNetworkToast("ðŸ—‘ï¸ Cache tuiles effacé", "offline");
       };
       navigator.serviceWorker.controller.postMessage(
         { type: "CLEAR_TILES_CACHE" },
@@ -479,7 +479,7 @@ window.OfflineMapManager = (function () {
     );
   }
 
-  // â”€â”€ TÃ©lÃ©charger la zone autour du GPS actuel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // â”€â”€ Télécharger la zone autour du GPS actuel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function downloadCurrentZone() {
     const pos = window.currentPosition;
     if (!pos) {
@@ -490,18 +490,18 @@ window.OfflineMapManager = (function () {
     const radius = radiusSel ? parseInt(radiusSel.value) : 15;
     const nameSel = document.getElementById("offline-zone-name");
     const name =
-      nameSel && nameSel.value.trim() ? nameSel.value.trim() : "Ma RÃ©gion";
+      nameSel && nameSel.value.trim() ? nameSel.value.trim() : "Ma Région";
     downloadZone(pos.lat, pos.lng, radius, name);
   }
 
   // â”€â”€ Initialisation publique â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function init() {
-    // VÃ©rifier si on dÃ©marre hors ligne
+    // Vérifier si on démarre hors ligne
     if (!isOnline()) {
       setTimeout(switchToLeaflet, 1000);
     }
 
-    // PrÃ©-charger Leaflet CSS si pas dÃ©jÃ  lÃ
+    // Pré-charger Leaflet CSS si pas déjà lÃ
     if (!document.getElementById("leaflet-css")) {
       const link = document.createElement("link");
       link.id = "leaflet-css";
@@ -510,7 +510,7 @@ window.OfflineMapManager = (function () {
       document.head.appendChild(link);
     }
 
-    // Ã‰couter les mises Ã  jour GPS pour Leaflet
+    // Écouter les mises à jour GPS pour Leaflet
     const origUpdatePos = window.updatePositionLeaflet;
     window.updatePositionLeaflet = function (lat, lng) {
       if (isOfflineMode) updateLeafletPosition(lat, lng);

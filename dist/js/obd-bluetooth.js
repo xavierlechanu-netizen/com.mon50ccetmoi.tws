@@ -1,7 +1,7 @@
 ﻿/**
  * mon 50cc et moi - Module OBD-II Bluetooth
  * v100.00-GOLD
- * Utilise l'API Web Bluetooth pour se connecter aux boÃ®tiers ELM327
+ * Utilise l'API Web Bluetooth pour se connecter aux boîtiers ELM327
  */
 
 class OBDManager {
@@ -12,7 +12,7 @@ class OBDManager {
     this.txCharacteristic = null;
     this.isConnected = false;
 
-    // Services et caractÃ©ristiques standards pour les modules sÃ©rie Bluetooth (SPP over BLE / ELM327 BLE)
+    // Services et caractéristiques standards pour les modules série Bluetooth (SPP over BLE / ELM327 BLE)
     // Note : Ces UUIDs peuvent varier selon le dongle (JDY-33, Vgate, etc.). On utilise les plus courants (ex: JDY-08 / HM-10).
     this.serviceUuid = "0000ffe0-0000-1000-8000-00805f9b34fb";
     this.characteristicUuid = "0000ffe1-0000-1000-8000-00805f9b34fb";
@@ -20,7 +20,7 @@ class OBDManager {
     this.pollingInterval = null;
     this.buffer = "";
 
-    // PIDs de base Ã  interroger en boucle
+    // PIDs de base à interroger en boucle
     this.queries = [
       "01 0C", // RPM (Engine Speed)
       "01 0D", // Vehicle Speed
@@ -53,7 +53,7 @@ class OBDManager {
 
       const service = await this.server.getPrimaryService(this.serviceUuid);
 
-      // Pour beaucoup de modules ELM327 BLE, RX et TX partagent la mÃªme caractÃ©ristique
+      // Pour beaucoup de modules ELM327 BLE, RX et TX partagent la même caractéristique
       this.txCharacteristic = await service.getCharacteristic(
         this.characteristicUuid,
       );
@@ -113,7 +113,7 @@ class OBDManager {
     this.buffer += str;
 
     if (this.buffer.includes(">")) {
-      // Prompt de fin de rÃ©ponse ELM327
+      // Prompt de fin de réponse ELM327
       let response = this.buffer.replace(/>/g, "").trim();
       this.buffer = ""; // Reset buffer
       this.parseObdResponse(response);
@@ -121,10 +121,10 @@ class OBDManager {
   }
 
   parseObdResponse(response) {
-    // EnlÃ¨ve les espaces
+    // Enlève les espaces
     const hexData = response.replace(/\s/g, "");
 
-    // 41 = RÃ©ponse au Mode 01
+    // 41 = Réponse au Mode 01
     if (hexData.startsWith("41")) {
       const pid = hexData.substring(2, 4);
       const dataBytes = hexData.substring(4);
@@ -147,7 +147,7 @@ class OBDManager {
             type = "speed";
           }
           break;
-        case "05": // TempÃ©rature (1 byte)
+        case "05": // Température (1 byte)
           if (dataBytes.length >= 2) {
             value = parseInt(dataBytes.substring(0, 2), 16) - 40;
             type = "temp";
@@ -205,7 +205,7 @@ window.addEventListener("obd_status", (e) => {
   if (e.detail.connected) {
     statusEl.classList.remove("hidden");
     statusEl.innerHTML =
-      '<i class="fa-brands fa-bluetooth" style="margin-right:5px;"></i> OBD ConnectÃ© (Cliquez pour dÃ©connecter)';
+      '<i class="fa-brands fa-bluetooth" style="margin-right:5px;"></i> OBD Connecté (Cliquez pour déconnecter)';
     statusEl.style.color = "#2ecc71";
     statusEl.style.borderColor = "#2ecc71";
     statusEl.style.background = "rgba(46, 204, 113, 0.2)";
@@ -236,14 +236,14 @@ window.addEventListener("obd_data", (e) => {
       if (value > 8500) {
         el.style.color = "#ff0055";
         el.style.textShadow = "0 0 20px #ff0055";
-        // Alerte IA Sur-rÃ©gime (toutes les 10s max)
+        // Alerte IA Sur-régime (toutes les 10s max)
         if (
           window.obdManager &&
           Date.now() - window.obdManager.lastRpmAlertTime > 10000
         ) {
           if (typeof speak === "function")
             speak(
-              "Alerte ! RÃ©gime moteur critique. Ralentissez pour prÃ©server le cylindre.",
+              "Alerte ! Régime moteur critique. Ralentissez pour préserver le cylindre.",
             );
           window.obdManager.lastRpmAlertTime = Date.now();
         }
@@ -282,7 +282,7 @@ window.addEventListener("obd_data", (e) => {
         ) {
           if (typeof speak === "function")
             speak(
-              "Alerte, surchauffe moteur dÃ©tectÃ©e. Coupez le contact immÃ©diatement.",
+              "Alerte, surchauffe moteur détectée. Coupez le contact immédiatement.",
             );
           window.obdManager.lastTempAlertTime = Date.now();
         }

@@ -32,7 +32,7 @@ window.GuardianAngel = {
   toggle: async function () {
     if (window.session && window.session.isGuest) {
       alert(
-        "L'Ange Gardien est rÃ©servÃ© aux membres inscrits. SÃ©curisez vos rides maintenant ! ðŸ›¡ï¸",
+        "L'Ange Gardien est réservé aux membres inscrits. Sécurisez vos rides maintenant ! 🛡ï¸",
       );
       return;
     }
@@ -50,7 +50,7 @@ window.GuardianAngel = {
       if (statusText) statusText.textContent = "ON";
 
       await this.startSession();
-      speak("start_guardian"); // Utilise la clÃ© du lexique
+      speak("start_guardian"); // Utilise la clé du lexique
       vibrate([100, 50, 100]);
     } else {
       // DESACTIVATION
@@ -89,12 +89,12 @@ window.GuardianAngel = {
       if (navigator.share) {
         try {
           const confirmShare = confirm(
-            "Ange Gardien actif. Voulez-vous partager votre lien de suivi en temps rÃ©el avec un proche ?",
+            "Ange Gardien actif. Voulez-vous partager votre lien de suivi en temps réel avec un proche ?",
           );
           if (confirmShare) {
             await navigator.share({
               title: "Suis mon ride en direct !",
-              text: `Je roule avec mon50ccetmoi. Si j'ai un problÃ¨me, tu seras alertÃ© ici :`,
+              text: `Je roule avec mon50ccetmoi. Si j'ai un problème, tu seras alerté ici :`,
               url: `https://mon50ccetmoi.app/track?s=${this.sessionId}`,
             });
           }
@@ -161,7 +161,7 @@ window.GuardianAngel = {
   checkOvertakingSafety: function (speed, leanAngle) {
     if (!this.isActive || speed < 35) return;
 
-    // Pattern: High lean (>30Â°) while at relatively high speed for a 50cc
+    // Pattern: High lean (>30°) while at relatively high speed for a 50cc
     if (Math.abs(leanAngle) > 30) {
       const now = Date.now();
       if (now - this.lastOvertakeWarning > 12000) {
@@ -178,7 +178,7 @@ window.GuardianAngel = {
   triggerSafetyPrompt: function () {
     vibrate([500, 200, 500]);
     speak(
-      "Alerte Ange Gardien. Vous Ãªtes Ã  l'arrÃªt depuis longtemps. Tout va bien ?",
+      "Alerte Ange Gardien. Vous êtes à l'arrêt depuis longtemps. Tout va bien ?",
     );
 
     const prompt = document.createElement("div");
@@ -187,15 +187,15 @@ window.GuardianAngel = {
       "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:20000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; padding:30px; text-align:center;";
     prompt.innerHTML = `
             <i class="fa-solid fa-shield-halved" style="font-size:4rem; color:#00d2ff; margin-bottom:20px;"></i>
-            <h2>VÃ©rification de SÃ©curitÃ©</h2>
-            <p>L'Ange Gardien dÃ©tecte un arrÃªt prolongÃ©.</p>
-            <button id="btn-safety-ok" style="width:100%; padding:20px; background:#00d2ff; color:black; border:none; border-radius:15px; font-weight:bold; font-size:1.2rem; margin-top:20px;">JE VAIS BIEN âœ…</button>
-            <button id="btn-safety-sos" style="width:100%; padding:15px; background:#ff4444; color:white; border:none; border-radius:15px; font-weight:bold; margin-top:15px;">BESOIN D'AIDE ðŸ†˜</button>
+            <h2>Vérification de Sécurité</h2>
+            <p>L'Ange Gardien détecte un arrêt prolongé.</p>
+            <button id="btn-safety-ok" style="width:100%; padding:20px; background:#00d2ff; color:black; border:none; border-radius:15px; font-weight:bold; font-size:1.2rem; margin-top:20px;">JE VAIS BIEN ✅</button>
+            <button id="btn-safety-sos" style="width:100%; padding:15px; background:#ff4444; color:white; border:none; border-radius:15px; font-weight:bold; margin-top:15px;">BESOIN D'AIDE 🆘</button>
         `;
     document.body.appendChild(prompt);
 
     const timer = setTimeout(() => {
-      this.triggerSOS("InactivitÃ© prolongÃ©e dÃ©tectÃ©e.");
+      this.triggerSOS("Inactivité prolongée détectée.");
       prompt.remove();
     }, 30000);
 
@@ -218,10 +218,10 @@ window.GuardianAngel = {
   detectCrash: function () {
     if (this.crashCountdown) return;
 
-    console.warn("CRASH DÃ‰TECTÃ‰ (>5G) !");
+    console.warn("CRASH DÉTECTÉ (>5G) !");
     vibrate([1000, 500, 1000, 500, 1000]);
     speak(
-      "Alerte de collision majeure dÃ©tectÃ©e. Appel des secours dans 15 secondes.",
+      "Alerte de collision majeure détectée. Appel des secours dans 15 secondes.",
     );
 
     const prompt = document.createElement("div");
@@ -230,7 +230,7 @@ window.GuardianAngel = {
       "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255, 0, 0, 0.95); z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; padding:30px; text-align:center; animation: pulseRed 1s infinite;";
     prompt.innerHTML = `
             <i class="fa-solid fa-triangle-exclamation" style="font-size:5rem; color:#fff; margin-bottom:20px;"></i>
-            <h1 style="font-size:3rem; margin:0;">CRASH DÃ‰TECTÃ‰</h1>
+            <h1 style="font-size:3rem; margin:0;">CRASH DÉTECTÉ</h1>
             <p style="font-size:1.2rem; font-weight:bold;">Envoi des secours dans <span id="crash-timer" style="font-size:2rem;">15</span>s</p>
             <button id="btn-crash-cancel" style="width:100%; padding:20px; background:#fff; color:red; border:none; border-radius:15px; font-weight:900; font-size:1.5rem; margin-top:40px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">JE VAIS BIEN (ANNULER)</button>
         `;
@@ -246,7 +246,7 @@ window.GuardianAngel = {
         clearInterval(this.crashCountdown);
         this.crashCountdown = null;
         prompt.remove();
-        this.triggerSOS("Choc violent (>5G). Aucune rÃ©ponse du pilote.");
+        this.triggerSOS("Choc violent (>5G). Aucune réponse du pilote.");
       }
     }, 1000);
 
@@ -254,14 +254,14 @@ window.GuardianAngel = {
       clearInterval(this.crashCountdown);
       this.crashCountdown = null;
       prompt.remove();
-      speak("Alerte de collision annulÃ©e. Restez prudent.");
+      speak("Alerte de collision annulée. Restez prudent.");
     };
   },
 
   triggerSOS: async function (reason) {
     if (!this.sessionId || typeof db === "undefined") return;
 
-    speak("ALERTE SOS LANÃ‡Ã‰E. Transfert des donnÃ©es aux secours.");
+    speak("ALERTE SOS LANÇÉE. Transfert des données aux secours.");
     if (typeof Hardware !== "undefined" && Hardware.vibratePattern) {
       Hardware.vibratePattern("sos");
     }

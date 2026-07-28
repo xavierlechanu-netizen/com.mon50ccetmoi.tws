@@ -14,8 +14,8 @@ if not exist "%JARSIGNER%" (
 )
 
 set "AAB_UNSIGNED=app\build\outputs\bundle\release\app-release.aab"
-set "AAB_SIGNED=C:\Users\xavie\Desktop\mon50ccetmoi_v100.80.00_SIGNED.aab"
-set "KEYSTORE_PATH=new-upload-keystore.jks"
+set "AAB_SIGNED=D:\mon50ccetmoi_v100.90.02_SIGNED.aab"
+set "KEYSTORE_PATH=D:\keystore\upload-keystore.jks"
 set "KEYSTORE_ALIAS=upload"
 
 echo ======================================================================
@@ -51,7 +51,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo.
 echo ======================================================================
 echo [SUCCES] Signature terminee ! 
-echo Votre fichier SIGNE se trouve sur votre bureau :
-echo mon50ccetmoi_v100.80.00_SIGNED.aab
+echo Votre fichier SIGNE se trouve sur le disque D :
+echo mon50ccetmoi_v100.90.02_SIGNED.aab
 echo ======================================================================
 endlocal

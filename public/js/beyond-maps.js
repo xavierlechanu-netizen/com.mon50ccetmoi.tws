@@ -17,7 +17,7 @@ window.initPotholeScanner = function () {
       lastZ = z;
 
       if (deltaZ > shockThreshold && !cooldown) {
-        // Choc violent dÃ©tectÃ© !
+        // Choc violent détecté !
         cooldown = true;
 
         // Effet visuel
@@ -26,13 +26,13 @@ window.initPotholeScanner = function () {
 
         if (typeof speak === "function") {
           speak(
-            "Alerte choc violent dÃ©tectÃ©. Signalement automatique de route dÃ©gradÃ©e envoyÃ© Ã  la communautÃ©.",
+            "Alerte choc violent détecté. Signalement automatique de route dégradée envoyé à la communauté.",
           );
         }
 
-        // Ajouter un danger fictif sur la carte (simulÃ© ici)
+        // Ajouter un danger fictif sur la carte (simulé ici)
 
-        // Cooldown de 10 secondes pour Ã©viter le spam
+        // Cooldown de 10 secondes pour éviter le spam
         setTimeout(() => (cooldown = false), 10000);
       }
     });
@@ -43,7 +43,7 @@ window.initPotholeScanner = function () {
 window.checkPredictiveDanger = function (instructionText) {
   if (!instructionText) return;
 
-  // Mots clÃ©s d'intersections complexes
+  // Mots clés d'intersections complexes
   const dangerKeywords = [
     "rond-point",
     "carrefour",
@@ -55,7 +55,7 @@ window.checkPredictiveDanger = function (instructionText) {
   );
 
   if (isDangerous) {
-    // DÃ©clencher le HUD Rouge
+    // Déclencher le HUD Rouge
     const hud = document.getElementById("turn-by-turn-hud");
     if (hud) {
       hud.style.borderColor = "#ff0000";
@@ -66,13 +66,13 @@ window.checkPredictiveDanger = function (instructionText) {
         setTimeout(
           () =>
             speak(
-              "Attention, zone rouge dÃ©tectÃ©e. Risque d'accident Ã©levÃ©, ralentissez.",
+              "Attention, zone rouge détectée. Risque d'accident élevé, ralentissez.",
             ),
           3000,
         );
       }
 
-      // Revenir Ã  la normale aprÃ¨s 15 secondes
+      // Revenir à la normale après 15 secondes
       setTimeout(() => {
         hud.style.borderColor = "#00d2ff";
         hud.style.boxShadow =
@@ -116,7 +116,7 @@ window.toggleSensationMode = function () {
     }
     if (typeof speak === "function") {
       speak(
-        "Mode Sensation activÃ©. Je vais chercher les routes les plus sinueuses pour un maximum de plaisir de conduite.",
+        "Mode Sensation activé. Je vais chercher les routes les plus sinueuses pour un maximum de plaisir de conduite.",
       );
     }
   } else {
@@ -127,7 +127,7 @@ window.toggleSensationMode = function () {
     }
     if (typeof speak === "function") {
       speak(
-        "Mode Sensation dÃ©sactivÃ©. Retour Ã  la navigation la plus rapide.",
+        "Mode Sensation désactivé. Retour à la navigation la plus rapide.",
       );
     }
   }

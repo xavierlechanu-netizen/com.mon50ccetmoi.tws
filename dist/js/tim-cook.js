@@ -31,7 +31,7 @@ window.triggerCrashUI = function () {
 
   if (typeof speak === "function") {
     speak(
-      "Alerte critique. Chute dÃ©tectÃ©e. Vous avez 10 secondes pour annuler avant l'envoi des secours.",
+      "Alerte critique. Chute détectée. Vous avez 10 secondes pour annuler avant l'envoi des secours.",
     );
   }
 
@@ -47,9 +47,9 @@ window.triggerCrashUI = function () {
       clearInterval(window.sosInterval);
       if (typeof speak === "function")
         speak(
-          "DÃ©lai expirÃ©. Protocole SOS engagÃ©. Alerte envoyÃ©e Ã  la communautÃ©.",
+          "Délai expiré. Protocole SOS engagé. Alerte envoyée à la communauté.",
         );
-      if (timerEl) timerEl.innerText = "SOS ENVOYÃ‰";
+      if (timerEl) timerEl.innerText = "SOS ENVOYÉ";
     }
   }, 1000);
 };
@@ -59,7 +59,7 @@ window.cancelSOS = function () {
   const sosScreen = document.getElementById("tim-cook-sos-screen");
   if (sosScreen) sosScreen.classList.add("hidden");
   if (typeof speak === "function")
-    speak("Alerte annulÃ©e. Reprise de la navigation.");
+    speak("Alerte annulée. Reprise de la navigation.");
   // Resets crash state after a short delay
   setTimeout(() => {
     // Technically we should reset a local var but for simulation we just let it be.
@@ -80,7 +80,7 @@ window.showEcoReport = function (distanceKm) {
 
     if (typeof speak === "function") {
       speak(
-        "Trajet terminÃ©. FÃ©licitations, vous avez Ã©conomisÃ© " +
+        "Trajet terminé. Félicitations, vous avez économisé " +
           Math.round(savedGrams) +
           " grammes de CO2.",
       );

@@ -17,14 +17,14 @@ const BANNED_WORDS = [
 ];
 
 window.Moderation = {
-  // VÃ©rifie si le texte contient des mots interdits
+  // Vérifie si le texte contient des mots interdits
   isProfane: function (text) {
     if (!text) return false;
     const low = text.toLowerCase();
     return BANNED_WORDS.some((word) => low.includes(word));
   },
 
-  // Nettoie le texte (remplace par des Ã©toiles)
+  // Nettoie le texte (remplace par des étoiles)
   clean: function (text) {
     if (!text) return "";
     let cleaned = text;
@@ -39,7 +39,7 @@ window.Moderation = {
   scanImage: async function (imageData) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Simulation : On accepte tout ce qui n'est pas "vide" pour la dÃ©mo
+        // Simulation : On accepte tout ce qui n'est pas "vide" pour la démo
         // Dans le futur, on appellerait une API de reconnaissance d'image
         resolve({ safe: true, score: 0.99 });
       }, 1000);

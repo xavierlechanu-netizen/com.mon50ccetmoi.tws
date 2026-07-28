@@ -24,7 +24,7 @@ window.Sentinel = {
       // SNATCH DETECTION: Sudden violent jerk ( > 40 m/s2 )
       const force = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
       if (force > 45) {
-        this.logToSentinel("ALERTE_ARRACHAGE: DÃ‰TECTÃ‰");
+        this.logToSentinel("ALERTE_ARRACHAGE: DÉTECTÉ");
         this.triggerLockdown();
       }
     });
@@ -93,14 +93,14 @@ window.Sentinel = {
 
   // 2. Autonomous Security Shield
   startSecurityShield: function () {
-    // Detect DevTools (Anti-Debug) - DÃ©sactivÃ© en mode dev local
+    // Detect DevTools (Anti-Debug) - Désactivé en mode dev local
     setInterval(() => {
       if (
         window.location.hostname !== "localhost" &&
         window.location.hostname !== "127.0.0.1"
       ) {
         const startTime = performance.now();
-        // debugger; // RetirÃ© pour permettre le debug
+        // debugger; // Retiré pour permettre le debug
         const endTime = performance.now();
         if (endTime - startTime > 100) {
           this.triggerPanicMode("DEBUGGER_DETECTED");
@@ -122,7 +122,7 @@ window.Sentinel = {
   },
 
   checkTampering: function () {
-    // DÃ©sactivÃ© temporairement pour permettre au SDK Maps d'injecter ses scripts fils
+    // Désactivé temporairement pour permettre au SDK Maps d'injecter ses scripts fils
     // if (document.scripts.length > 100) {
     //     this.triggerPanicMode("SUSPICIOUS_SCRIPT_COUNT");
     // }
@@ -131,7 +131,7 @@ window.Sentinel = {
   triggerPanicMode: function (reason) {
     this.healthStatus = "COMPROMISED";
     console.error(
-      `ðŸš¨ SECURITY ALERT : ${reason}. Terminating sensitive sessions.`,
+      `🚨 SECURITY ALERT : ${reason}. Terminating sensitive sessions.`,
     );
 
     if (typeof logout === "function") logout();
@@ -139,7 +139,7 @@ window.Sentinel = {
     document.body.innerHTML = `
             <div style="background:#000; color:#ff4d4d; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-family:monospace; padding:20px;">
                 <h1 style="font-size:3rem;">SYSTEM_COMPROMISED</h1>
-                <p>Sentinel a dÃ©tectÃ© une intrusion ou une tentative de modification du code source.</p>
+                <p>Sentinel a détecté une intrusion ou une tentative de modification du code source.</p>
                 <p style="color:#666;">Code d'erreur: ${reason}</p>
                 <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px; background:#ff4d4d; border:none; color:black; font-weight:bold;">RE-BOOT SYSTEM</button>
             </div>
@@ -155,13 +155,13 @@ window.Sentinel = {
   handleBug: function (type, detail) {
     const now = Date.now();
     console.warn(
-      `ðŸš€ Sentinel : Bug interceptÃ© (${type}). Analyse en cours...`,
+      `ðŸš€ Sentinel : Bug intercepté (${type}). Analyse en cours...`,
     );
 
     this.errorLog.push({ type, detail, time: now });
     this.healthStatus = "MONITORING";
 
-    // On ne rÃ©pare plus automatiquement pour Ã©viter les boucles au dÃ©marrage
+    // On ne répare plus automatiquement pour éviter les boucles au démarrage
     // if (detail && detail.msg && detail.msg.includes('google')) this.repairModule('Maps');
 
     setTimeout(() => {
@@ -171,7 +171,7 @@ window.Sentinel = {
 
   repairModule: function (name) {
     if (name === "Maps" && typeof initMap === "function") {
-      // On ne relance pas initMap si on sait que la clÃ© est bloquÃ©e
+      // On ne relance pas initMap si on sait que la clé est bloquée
       if (window.mapsSDKLoaded) return;
       initMap();
     }

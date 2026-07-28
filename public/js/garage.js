@@ -1,6 +1,6 @@
 ﻿/**
  * ðŸï¸ GARAGE VIRTUEL
- * Suivi d'entretien et Ã©tat des piÃ¨ces en fonction du kilomÃ©trage.
+ * Suivi d'entretien et état des pièces en fonction du kilométrage.
  */
 
 window.VirtualGarage = {
@@ -53,7 +53,7 @@ window.VirtualGarage = {
     this.saveData();
     this.renderUI();
     if (typeof speak === "function")
-      speak(`Entretien enregistrÃ© pour : ${this.data.parts[partKey].name}.`);
+      speak(`Entretien enregistré pour : ${this.data.parts[partKey].name}.`);
   },
 
   getPartWear: function (partKey) {
@@ -120,7 +120,7 @@ window.VirtualGarage = {
                         <div style="width: ${wear.percentage}%; height: 100%; background: ${wear.isCritical ? "#ff4d4d" : part.color}; transition: width 0.5s;"></div>
                     </div>
                     <button onclick="VirtualGarage.resetPart('${key}')" style="background: transparent; border: 1px solid ${part.color}; color: ${part.color}; padding: 5px 15px; border-radius: 15px; font-size: 0.8rem; cursor: pointer;">
-                        <i class="fa-solid fa-rotate"></i> RemplacÃ©
+                        <i class="fa-solid fa-rotate"></i> Remplacé
                     </button>
                     ${wear.isCritical ? '<p style="color: #ff4d4d; font-size: 0.8rem; margin: 10px 0 0 0;"><i class="fa-solid fa-triangle-exclamation"></i> Remplacement urgent !</p>' : ""}
                 </div>
@@ -131,18 +131,18 @@ window.VirtualGarage = {
             <button onclick="VirtualGarage.closeUI()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-motorcycle" style="font-size: 3rem; color: #00d2ff; filter: drop-shadow(0 0 10px #00d2ff); margin-bottom: 10px;"></i>
             <h1 style="font-size: 1.5rem; margin: 0; text-transform: uppercase; color: #00d2ff;">Mon Garage</h1>
-            <p style="color: #aaa; margin-bottom: 20px; text-align: center;">Suivi d'entretien kilomÃ©trique</p>
+            <p style="color: #aaa; margin-bottom: 20px; text-align: center;">Suivi d'entretien kilométrique</p>
             
             <div style="width: 90%; max-width: 500px; background: rgba(0,0,0,0.4); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.8rem; color: #777;">ModÃ¨le du scooter</label>
+                        <label style="font-size: 0.8rem; color: #777;">Modèle du scooter</label>
                         <input type="text" id="garage-model" value="${this.data.model}" style="width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; box-sizing: border-box; margin-top: 5px; outline: none;">
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.8rem; color: #777;">KilomÃ©trage initial (compteur)</label>
+                        <label style="font-size: 0.8rem; color: #777;">Kilométrage initial (compteur)</label>
                         <input type="number" id="garage-initial-km" value="${this.data.initialKm}" style="width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; box-sizing: border-box; margin-top: 5px; outline: none;">
                     </div>
                 </div>
@@ -153,7 +153,7 @@ window.VirtualGarage = {
             
             <div style="width: 90%; max-width: 500px; padding-bottom: 30px;">
                 <h3 style="color: #fff; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span>PiÃ¨ces d'usure</span>
+                    <span>Pièces d'usure</span>
                     <span style="color: #00d2ff;">${currentKm} km</span>
                 </h3>
                 ${partsHTML}

@@ -67,7 +67,7 @@ window.secureRemoveItem = function (key) {
 };
 
 window.getSyncKey = function () {
-  // ClÃ© dÃ©rivÃ©e de l'utilisateur pour le chiffrement E2EE communautaire
+  // Clé dérivée de l'utilisateur pour le chiffrement E2EE communautaire
   return _QUANTUM_SALT + "SYNC_E2EE_VAULT";
 };
 
@@ -103,7 +103,7 @@ window.login = async function (username, password) {
     // Process review login via Firebase or internal bypass if configured in CONFIG
   }
 
-  // Pour compatibilitÃ© avec l'ancien systÃ¨me de pseudos, on utilise un email fictif
+  // Pour compatibilité avec l'ancien système de pseudos, on utilise un email fictif
   const email = username.includes("@")
     ? username
     : `${username.toLowerCase()}@mon50cc.internal`;
@@ -114,7 +114,7 @@ window.login = async function (username, password) {
       .signInWithEmailAndPassword(email, password);
     const user = userCredential.user;
 
-    // RÃ©cupÃ©rer le profil complet depuis Firestore
+    // Récupérer le profil complet depuis Firestore
     const doc = await firebase
       .firestore()
       .collection("users")
@@ -122,7 +122,7 @@ window.login = async function (username, password) {
       .get();
     const userData = doc.exists ? doc.data() : { username, role: "user" };
 
-    // Mettre Ã  jour la session locale
+    // Mettre à jour la session locale
     const session = { ...userData, uid: user.uid, lastSeen: Date.now() };
 
     if (session.role === "admin" || username.toLowerCase() === "admin") {
@@ -148,7 +148,7 @@ window.register = async function (username, password, brand, model) {
 
   // --- REGISTRATION SECURITY ---
 
-  if (!brand || !model) return alert("Veuillez renseigner votre vÃ©hicule.");
+  if (!brand || !model) return alert("Veuillez renseigner votre véhicule.");
 
   const email = `${username.toLowerCase()}@mon50cc.internal`;
 
@@ -158,7 +158,7 @@ window.register = async function (username, password, brand, model) {
       .createUserWithEmailAndPassword(email, password);
     const user = userCredential.user;
 
-    // Capturer IP et Fingerprint pour la sÃ©curitÃ©
+    // Capturer IP et Fingerprint pour la sécurité
     let userIp = "0.0.0.0";
     try {
       const ipRes = await fetch("https://api.ipify.org?format=json");
@@ -241,10 +241,10 @@ window.loginAsInvestor = function () {
 
 window.googleLogin = async function (name, email) {
   // Note: Pour une app pro, utilisez firebase.auth.GoogleAuthProvider()
-  // Ici on simule pour garder la compatibilitÃ© avec le bouton GSI actuel
+  // Ici on simule pour garder la compatibilité avec le bouton GSI actuel
   try {
-    // On crÃ©e/connecte via un mot de passe gÃ©nÃ©rÃ© si c'est la premiÃ¨re fois
-    // Mais l'idÃ©al est de migrer vers Firebase Google Auth
+    // On crée/connecte via un mot de passe généré si c'est la première fois
+    // Mais l'idéal est de migrer vers Firebase Google Auth
     alert(
       "Migration Google Auth en cours... Utilisez la connexion classique pour l'instant.",
     );
@@ -265,7 +265,7 @@ window.registerBiometric = async function () {
   try {
     const sessionStr = window.secureGetItem("session");
     if (!sessionStr)
-      throw new Error("Vous devez Ãªtre connectÃ© pour activer la biomÃ©trie.");
+      throw new Error("Vous devez être connecté pour activer la biométrie.");
     const session = JSON.parse(sessionStr);
 
     const challenge = new Uint8Array(32);
@@ -290,7 +290,7 @@ window.registerBiometric = async function () {
       attestation: "none",
     };
 
-    // Si on n'est pas sur localhost, on prÃ©cise le domaine
+    // Si on n'est pas sur localhost, on précise le domaine
     if (
       window.location.hostname !== "localhost" &&
       window.location.hostname !== "127.0.0.1"
@@ -317,12 +317,12 @@ window.registerBiometric = async function () {
     window.secureSetItem("fido2_uid", session.uid);
 
     alert(
-      "âœ… Appareil sÃ©curisÃ© ! Vous pourrez dÃ©sormais vous connecter avec votre visage ou empreinte.",
+      "✅ Appareil sécurisé ! Vous pourrez désormais vous connecter avec votre visage ou empreinte.",
     );
   } catch (e) {
     console.error("WebAuthn Register Error:", e);
     if (e.name === "NotAllowedError") {
-      alert("AccÃ¨s biomÃ©trique refusÃ© ou annulÃ©.");
+      alert("Accès biométrique refusé ou annulé.");
     } else {
       alert(
         "Votre appareil ne supporte pas FIDO2 ou une erreur est survenue : " +
@@ -339,7 +339,7 @@ window.loginBiometric = async function () {
 
     if (!storedCredId || !storedUid) {
       return alert(
-        "Aucune clÃ© biomÃ©trique trouvÃ©e sur cet appareil. Veuillez d'abord vous connecter avec votre mot de passe et l'activer dans les paramÃ¨tres.",
+        "Aucune clé biométrique trouvée sur cet appareil. Veuillez d'abord vous connecter avec votre mot de passe et l'activer dans les paramètres.",
       );
     }
 
@@ -357,7 +357,7 @@ window.loginBiometric = async function () {
       timeout: 60000,
     };
 
-    // Supprime rpId si local pour Ã©viter les erreurs
+    // Supprime rpId si local pour éviter les erreurs
     if (!options.rpId) delete options.rpId;
 
     const assertion = await navigator.credentials.get({ publicKey: options });
@@ -365,7 +365,7 @@ window.loginBiometric = async function () {
     if (assertion) {
       // MVP Authentication Bypass via Local Verification
 
-      // On rÃ©cupÃ¨re le profil complet depuis Firestore en simulant la connexion
+      // On récupère le profil complet depuis Firestore en simulant la connexion
       if (typeof firebase !== "undefined") {
         const doc = await firebase
           .firestore()
@@ -385,12 +385,12 @@ window.loginBiometric = async function () {
           throw new Error("Profil introuvable.");
         }
       } else {
-        throw new Error("Firebase non initialisÃ©.");
+        throw new Error("Firebase non initialisé.");
       }
     }
   } catch (e) {
     console.error("WebAuthn Login Error:", e);
-    alert("Ã‰chec de la connexion biomÃ©trique : " + e.message);
+    alert("Échec de la connexion biométrique : " + e.message);
   }
 };
 
@@ -405,7 +405,7 @@ window.checkAuth = function (requireAdmin = false) {
   const session = JSON.parse(rawSession);
 
   if (requireAdmin && session.role !== "admin") {
-    alert("AccÃ¨s refusÃ©.");
+    alert("Accès refusé.");
     window.location.href = "app.html";
     return null;
   }
@@ -430,7 +430,7 @@ window.checkAuth = function (requireAdmin = false) {
   return session;
 };
 
-// Ã‰couteur de changement d'Ã©tat (Sync Firebase -> Local)
+// Écouteur de changement d'état (Sync Firebase -> Local)
 if (typeof firebase !== "undefined" && firebase.auth()) {
   firebase.auth().onAuthStateChanged(async (user) => {
     if (user) {

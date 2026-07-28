@@ -3,7 +3,7 @@
 // 1. WATCHDOG (Auto-Healing)
 window.onerror = function (message, source, lineno, colno, error) {
   console.warn(
-    "[WATCHDOG] Erreur fatale interceptÃ©e : ",
+    "[WATCHDOG] Erreur fatale interceptée : ",
     message,
     " | Source:",
     source,
@@ -12,26 +12,26 @@ window.onerror = function (message, source, lineno, colno, error) {
     " | Col:",
     colno,
   );
-  // Au lieu de crasher, on tente un "Soft Reset" du module concernÃ©
+  // Au lieu de crasher, on tente un "Soft Reset" du module concerné
   const body = document.body;
   if (body && body.style.display === "none") {
-    body.style.display = "block"; // EmpÃªche l'Ã©cran blanc mortel
+    body.style.display = "block"; // Empêche l'écran blanc mortel
   }
 
-  // Si l'erreur vient du chargement Maps, on force le mode dÃ©gradÃ©
+  // Si l'erreur vient du chargement Maps, on force le mode dégradé
   if (message.includes("google") || message.includes("maps")) {
-    console.warn("[WATCHDOG] Bascule en mode Hors-Ligne forcÃ©.");
+    console.warn("[WATCHDOG] Bascule en mode Hors-Ligne forcé.");
     if (typeof window.initOfflineMap === "function") {
       window.initOfflineMap();
     }
   }
-  // L'erreur est interceptÃ©e, l'app ne s'arrÃªte pas
+  // L'erreur est interceptée, l'app ne s'arrête pas
   return true;
 };
 
 window.onunhandledrejection = function (event) {
-  console.warn("[WATCHDOG] Promesse rejetÃ©e silencieusement : ", event.reason);
-  event.preventDefault(); // EmpÃªche l'application de s'effondrer
+  console.warn("[WATCHDOG] Promesse rejetée silencieusement : ", event.reason);
+  event.preventDefault(); // Empêche l'application de s'effondrer
 };
 
 // 2. DEAD RECKONING (Mode Tunnel / Perte GPS)
@@ -46,13 +46,13 @@ window.updateWatchdogTelemetry = function (speed, heading) {
   window.lastKnownHeading = heading;
   window.gpsLastUpdate = Date.now();
 
-  // Si on a rÃ©cupÃ©rÃ© le signal
+  // Si on a récupéré le signal
   if (window.isDeadReckoning) {
     window.isDeadReckoning = false;
     clearInterval(window.deadReckoningInterval);
     const tunnelAlert = document.getElementById("tunnel-warning");
     if (tunnelAlert) tunnelAlert.classList.add("hidden");
-    if (typeof speak === "function") speak("Signal GPS rÃ©cupÃ©rÃ©.");
+    if (typeof speak === "function") speak("Signal GPS récupéré.");
   }
 };
 
@@ -73,11 +73,11 @@ window.checkGPSSignal = function () {
 
     if (typeof speak === "function")
       speak(
-        "Signal perdu. Mode tunnel activÃ©, navigation mathÃ©matique en cours.",
+        "Signal perdu. Mode tunnel activé, navigation mathématique en cours.",
       );
-    console.warn("[DEAD RECKONING] Mode tunnel activÃ© !");
+    console.warn("[DEAD RECKONING] Mode tunnel activé !");
 
-    // Commencer Ã  avancer le marqueur artificiellement
+    // Commencer à avancer le marqueur artificiellement
     window.deadReckoningInterval = setInterval(() => {
       if (!window.userLocation || !window.userMarker) return;
 
@@ -85,8 +85,8 @@ window.checkGPSSignal = function () {
       // km/h -> m/s = / 3.6
       const distanceMeters = window.lastKnownSpeedKmh / 3.6;
 
-      // Calcul mathÃ©matique trÃ¨s simplifiÃ© pour trouver les nouvelles coordonnÃ©es
-      // 1 degrÃ© de latitude = ~111km
+      // Calcul mathématique très simplifié pour trouver les nouvelles coordonnées
+      // 1 degré de latitude = ~111km
       const latOffset =
         (distanceMeters / 111000) *
         Math.cos((window.lastKnownHeading * Math.PI) / 180);
@@ -98,12 +98,12 @@ window.checkGPSSignal = function () {
       window.userLocation.lat += latOffset;
       window.userLocation.lng += lngOffset;
 
-      // Mettre Ã  jour visuellement
+      // Mettre à jour visuellement
       window.userMarker.setPosition(window.userLocation);
       if (window.map) window.map.panTo(window.userLocation);
     }, 1000);
   }
 };
 
-// Lancer le vÃ©rificateur de signal
+// Lancer le vérificateur de signal
 setInterval(window.checkGPSSignal, 2000);

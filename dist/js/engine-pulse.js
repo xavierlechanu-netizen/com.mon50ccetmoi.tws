@@ -80,7 +80,7 @@ window.addEventListener(
         window.AudioContext || window.webkitAudioContext
       )();
 
-      // Si le HUD est dÃ©jÃ  lÃ , on lance le synthÃ©
+      // Si le HUD est déjà là, on lance le synthé
       if (document.getElementById("hud")) window.EnginePulse.startSynth();
     }
   },
