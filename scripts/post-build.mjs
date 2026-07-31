@@ -10,11 +10,11 @@ if (!fs.existsSync(appHtmlPath)) {
     process.exit(1);
 }
 
-let htmlContent = fs.readFileSync(appHtmlPath, 'utf8');
+let htmlContent = fs.readFileSync(appHtmlPath, 'utf8').replace(/^\uFEFF/, ''); // Retirer le BOM UTF-8
 
-// Regex pour trouver tous les scripts pointant vers le dossier js/ local (avec ou sans defer)
-// On capture les balises exactes.
-const scriptRegex = /<script\s*(?:defer\s*)?src="js\/([^"]+)"\s*><\/script>/g;
+// Regex pour trouver tous les scripts pointant vers le dossier js/ local
+// Gère tous les attributs possibles (defer, charset, async) dans n'importe quel ordre
+const scriptRegex = /<script\s+(?:(?:defer|async|charset="[^"]*")\s+)*src="js\/([^"]+)"(?:\s+(?:defer|async|charset="[^"]*"))*\s*><\/script>/g;
 let match;
 const scriptsToBundle = [];
 let bundledContent = '';
@@ -59,13 +59,14 @@ for (let i = 0; i < scriptsToBundle.length; i++) {
     const scriptInfo = scriptsToBundle[i];
     
     // Lire le contenu et l'ajouter au bundle avec un saut de ligne
-    const content = fs.readFileSync(scriptInfo.path, 'utf8');
+    let content = fs.readFileSync(scriptInfo.path, 'utf8');
+    content = content.replace(/\uFEFF/g, ''); // Retirer tous les BOM UTF-8
     bundledContent += `\n/* --- ${scriptInfo.name} --- */\n` + content + '\n';
     
     // Retirer la balise script du HTML
     if (i === 0) {
         // Remplacer la première balise par la balise du bundle avec defer
-        htmlContentModified = htmlContentModified.replace(scriptInfo.tag, '<script defer src="js/mon50cc-bundle.js"></script>');
+        htmlContentModified = htmlContentModified.replace(scriptInfo.tag, '<script defer src="js/mon50cc-bundle.js" charset="utf-8"></script>');
     } else {
         // Supprimer les autres balises
         htmlContentModified = htmlContentModified.replace(scriptInfo.tag, '');
@@ -75,7 +76,10 @@ for (let i = 0; i < scriptsToBundle.length; i++) {
 // Retirer les lignes vides causées par la suppression des balises
 htmlContentModified = htmlContentModified.replace(/^\s*[\r\n]/gm, '\n');
 
-// Sauvegarder le bundle
+// Ajouter l'en-tête du bundle
+bundledContent = '/** MON50CCETMOI MASTER BUNDLE — UTF-8 **/\n' + bundledContent;
+
+// Sauvegarder le bundle (sans BOM)
 fs.writeFileSync(bundlePath, bundledContent, 'utf8');
 console.log(`✅ Bundle généré : ${bundlePath} (${(bundledContent.length / 1024).toFixed(2)} KB)`);
 

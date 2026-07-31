@@ -107,13 +107,31 @@ function calculateDistanceAndBadges(lat, lng) {
   window.session.rodageKm = window.session.rodageKm || 0;
 
   if (lastPositionForOdometer) {
-    const p1 = new google.maps.LatLng(
-      lastPositionForOdometer.lat,
-      lastPositionForOdometer.lng,
-    );
-    const p2 = new google.maps.LatLng(lat, lng);
-    const d =
-      google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000;
+    let d = 0;
+    if (window.google && window.google.maps && window.google.maps.geometry) {
+      const p1 = new google.maps.LatLng(
+        lastPositionForOdometer.lat,
+        lastPositionForOdometer.lng,
+      );
+      const p2 = new google.maps.LatLng(lat, lng);
+      d = google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000;
+    } else if (window.L && typeof window.L.latLng === "function") {
+      const p1 = window.L.latLng(lastPositionForOdometer.lat, lastPositionForOdometer.lng);
+      const p2 = window.L.latLng(lat, lng);
+      d = p1.distanceTo(p2) / 1000;
+    } else {
+      const R = 6371;
+      const dLat = ((lat - lastPositionForOdometer.lat) * Math.PI) / 180;
+      const dLng = ((lng - lastPositionForOdometer.lng) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lastPositionForOdometer.lat * Math.PI) / 180) *
+          Math.cos((lat * Math.PI) / 180) *
+          Math.sin(dLng / 2) *
+          Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      d = R * c;
+    }
 
     if (d > 0.005 && d < 0.2) {
       window.session.totalDistance += d;
@@ -1041,7 +1059,10 @@ window.checkVigilanceRouge = async function () {
       "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/vigilance-meteorologique/records?limit=100&refine=etat_de_vigilance%3A%22Rouge%22";
     const response = await fetch(url);
 
-    if (!response.ok) throw new Error("API Vigilance Inaccessible");
+    if (!response.ok) {
+        // L'API OpenDataSoft renvoie parfois 404, on ignore silencieusement
+        return;
+    }
 
     const data = await response.json();
     const alerts = data.results || [];

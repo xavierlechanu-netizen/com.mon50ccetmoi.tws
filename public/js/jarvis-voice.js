@@ -1,4 +1,4 @@
-﻿/* --- J.A.R.V.I.S. 4.0 PROPRIETARY NEURAL ENGINE --- */
+/* --- J.A.R.V.I.S. 4.0 PROPRIETARY NEURAL ENGINE --- */
 
 window.JarvisEngine = {
   context: {
@@ -399,7 +399,7 @@ window.initVoiceAI = function () {
 
       // Si la commande est vide après "jarvis"
       if (command.length < 2) {
-        window.JarvisEngine.speak("Ã€ vos ordres, pilote.");
+        window.JarvisEngine.speak("À vos ordres, pilote.");
         return;
       }
 
@@ -409,6 +409,9 @@ window.initVoiceAI = function () {
   };
 
   window.voiceAI.onerror = function (event) {
+    if (event.error === 'not-allowed' || event.error === 'service-not-allowed' || event.error === 'audio-capture') {
+      window.voiceAI.permissionDenied = true;
+    }
     console.warn("[J.A.R.V.I.S 4.0] Erreur micro : ", event.error);
     const micIcon = document.getElementById("jarvis-mic-icon");
     if (micIcon) {
@@ -426,11 +429,15 @@ window.initVoiceAI = function () {
       micIcon.style.color = "";
     }
 
+    if (window.voiceAI.permissionDenied) {
+      return; // Ne pas réessayer si la permission est refusée
+    }
+
     setTimeout(() => {
       try {
         window.voiceAI.start();
       } catch (e) {}
-    }, 1000);
+    }, 2000);
   };
 
   try {

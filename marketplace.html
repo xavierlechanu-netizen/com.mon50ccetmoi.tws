@@ -7,6 +7,7 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>Marketplace 50cc - mon50ccetmoi</title>
+    <link rel="canonical" href="https://mon50ccetmoi.com/marketplace.html" />
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
       rel="stylesheet"
@@ -219,15 +220,32 @@
       </div>
       <div class="select-controls">
         <select id="market-pricetype-select">
-          <option value="all">Tous les modes de paiement</option>
-          <option value="bvc">Pts BVC uniquement</option>
-          <option value="euro">Euros (€) uniquement</option>
+          <option value="all">Tous les paiements</option>
+          <option value="bvc">BVC uniquement</option>
+          <option value="euro">Euros uniquement</option>
+        </select>
+        <select id="market-state-select">
+          <option value="all">Tous les états</option>
+          <option value="neuf">Neuf</option>
+          <option value="occasion">Occasion</option>
+          <option value="service">Service / Recharge</option>
         </select>
         <select id="market-sort-select">
           <option value="newest">Plus récents</option>
           <option value="price_asc">Prix croissant</option>
           <option value="price_desc">Prix décroissant</option>
         </select>
+      </div>
+
+      <!-- Garage Virtuel Toggle -->
+      <div style="margin-top: 15px; display: flex; align-items: center; justify-content: space-between; background: rgba(0,242,255,0.1); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(0,242,255,0.3);">
+        <div style="display: flex; align-items: center; gap: 10px; color: #00f2ff; font-weight: 600; font-size: 0.9rem;">
+          <i class="fa-solid fa-motorcycle"></i> Pièces compatibles avec mon Garage
+        </div>
+        <label class="switch" style="width: 40px; height: 22px;">
+          <input type="checkbox" id="market-garage-filter">
+          <span class="slider" style="background-color: rgba(0,242,255,0.2); border: none;"></span>
+        </label>
       </div>
     </div>
 
@@ -250,6 +268,9 @@
       </button>
       <button class="market-cat-btn" onclick="ExchangeMarket.setCategory('equipement', this)">
         <i class="fa-solid fa-helmet-safety"></i> Équipements
+      </button>
+      <button class="market-cat-btn" onclick="ExchangeMarket.setCategory('services', this)" style="border-color: #00f2ff; color: #00f2ff;">
+        <i class="fa-solid fa-bolt"></i> Recharge & Services
       </button>
     </div>
 
@@ -395,11 +416,11 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script src="js/infallible.js"></script>
-    <script src="js/config.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/infallible.js" charset="utf-8"></script>
+    <script src="js/config.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" charset="utf-8"></script>
     <script>
       if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
         if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
@@ -417,7 +438,7 @@
         window.session = { username: "Invité", isGuest: true };
       }
     </script>
-    <script src="js/exchange.js"></script>
+    <script src="js/exchange.js" charset="utf-8"></script>
 
     <script>
       function setVoiceMode(mode) {

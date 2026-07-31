@@ -22,9 +22,9 @@
     <meta name="apple-mobile-web-app-title" content="mon 50cc et moi" />
 
     <!-- WATCHDOG ANTI-CRASH -->
-    <script src="js/infallible.js"></script>
+    <script src="js/infallible.js" charset="utf-8"></script>
     <script>
-      // SÃ©curitÃ© immÃ©diate : Redirection si banni dÃ©finitivement
+      // Sécurité immédiate : Redirection si banni définitivement
       try {
         const rawSession = localStorage.getItem("session");
         if (rawSession) {
@@ -34,7 +34,7 @@
             if (session.isPermanentlyBanned)
               window.location.href = "banned.html";
           }
-          // Si c'est chiffrÃ©, le checkAuth s'en occupera aprÃ¨s le chargement d'auth.js
+          // Si c'est chiffré, le checkAuth s'en occupera après le chargement d'auth.js
         }
       } catch (e) {}
       try {
@@ -93,15 +93,15 @@
     <!-- SEO & Social Sharing (Open Graph) -->
     <meta
       name="description"
-      content="La premiÃ¨re communautÃ© de scooters 50cc. Navigation sans autoroute, alertes radars et dÃ©tection de chute."
+      content="La première communauté de scooters 50cc. Navigation sans autoroute, alertes radars et détection de chute."
     />
     <meta
       property="og:title"
-      content="mon 50cc et moi | GPS & SÃ©curitÃ© Scooter"
+      content="mon 50cc et moi | GPS & Sécurité Scooter"
     />
     <meta
       property="og:description"
-      content="L'application indispensable pour rouler en 50cc en toute sÃ©curitÃ©."
+      content="L'application indispensable pour rouler en 50cc en toute sécurité."
     />
     <meta
       property="og:image"
@@ -110,7 +110,7 @@
     <meta property="og:url" content="https://mon50ccetmoi.com/" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="canonical" href="https://mon50ccetmoi.com/" />
+    <link rel="canonical" href="https://mon50ccetmoi.com/app.html" />
 
     <!-- Structured Data (JSON-LD) for Google Rich Results -->
     <script type="application/ld+json">
@@ -152,13 +152,14 @@
     </script>
 
     <!-- Firebase Analytics -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js" charset="utf-8"></script>
 
     <link rel="manifest" href="manifest.json" />
     <title>mon 50cc et moi | v100.00-GOLD</title>
     <!-- Config chargé via config.js -->
     <script src="js/config.js?v=60019"></script>
     <script src="js/error-tracking.js?v=1008000"></script>
+    <script src="js/jarvis-gemini.js?v=1000"></script>
     <script src="js/oracle-voice.js?v=60019"></script>
     <!-- Chargeur Dynamique Google Maps avec Gestion d'Erreur -->
     <script>
@@ -291,7 +292,7 @@
         });
       }
 
-      // On lance le chargement dÃ¨s que config.js est lÃ
+      // On lance le chargement dès que config.js est lÃ
       window.addEventListener("load", () => {
         // FORCE LEAFLET OVER GOOGLE MAPS FOR DEMO/MOBILE RELIABILITY
         initFallbackMap();
@@ -330,36 +331,36 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" charset="utf-8"></script>
     <link rel="stylesheet" href="css/style.min.css?v=1008000" />
     <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png" />
     <!-- Firebase SDK (v9 Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" charset="utf-8"></script>
 
     <!-- Revolut Merchant SDK -->
-    <script src="https://merchant.revolut.com/embed.js" async></script>
-    <script src="js/vehicle-config.js"></script>
-    <script src="js/beyond-maps.js"></script>
-    <script src="js/social-map.js"></script>
-    <script src="js/self-evolution.js"></script>
+    <script src="https://merchant.revolut.com/embed.js" async charset="utf-8"></script>
+    <script src="js/vehicle-config.js" charset="utf-8"></script>
+    <script src="js/beyond-maps.js" charset="utf-8"></script>
+    <script src="js/social-map.js" charset="utf-8"></script>
+    <script src="js/self-evolution.js" charset="utf-8"></script>
 
     <!-- SOCIAL RADAR BUTTON -->
 
     <!-- FUN MODE / SENSATION BUTTON -->
 
     <!-- MODULES ADDITIONNELS (defer = chargés après le DOM) -->
-    <script defer src="js/crews-territory.js"></script>
-    <script defer src="js/loot-drops.js"></script>
-    <script defer src="js/cortege-mode.js"></script>
-    <script defer src="js/safe-ride.js"></script>
-    <script defer src="js/garage-market.js"></script>
-    <script defer src="js/crew-chat.js"></script>
-    <script defer src="js/sos-community.js"></script>
-    <script defer src="js/roadbooks.js"></script>
-    <script defer src="js/pit-stops.js"></script>
-    <script defer src="js/privacy-manager.js"></script>
+    <script defer src="js/crews-territory.js" charset="utf-8"></script>
+    <script defer src="js/loot-drops.js" charset="utf-8"></script>
+    <script defer src="js/cortege-mode.js" charset="utf-8"></script>
+    <script defer src="js/safe-ride.js" charset="utf-8"></script>
+    <script defer src="js/garage-market.js" charset="utf-8"></script>
+    <script defer src="js/crew-chat.js" charset="utf-8"></script>
+    <script defer src="js/sos-community.js" charset="utf-8"></script>
+    <script defer src="js/roadbooks.js" charset="utf-8"></script>
+    <script defer src="js/pit-stops.js" charset="utf-8"></script>
+    <script defer src="js/privacy-manager.js" charset="utf-8"></script>
     <script>
       try {
         window.session =
@@ -435,6 +436,41 @@
         transition: opacity 0.5s;
       "
     ></div>
+
+    <!-- Jarvis Weather Assistant -->
+    <div
+      id="weather-assistant-card"
+      class="glass-card-premium"
+      style="
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        width: 90%;
+        max-width: 400px;
+        display: none;
+        align-items: center;
+        gap: 15px;
+        padding: 12px 20px;
+        border-left: 4px solid #ffd700;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        cursor: pointer;
+      "
+      onclick="if(window.WeatherAssistant) window.WeatherAssistant.hide()"
+    >
+      <div id="weather-icon" style="font-size: 2rem; color: #ffd700;">
+        <i class="fa-solid fa-sun"></i>
+      </div>
+      <div>
+        <div style="font-size: 0.75rem; color: #00f2ff; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+          Assistant Trajet Jarvis
+        </div>
+        <div id="weather-text" style="color: #fff; font-size: 0.95rem; margin-top: 2px;">
+          Analyse météo en cours...
+        </div>
+      </div>
+    </div>
 
     <!-- Lien Espace Assureur (Accès Rapide) -->
     <a
@@ -702,6 +738,29 @@
         ></i>
       </button>
 
+      <!-- Profil Utilisateur / BVC -->
+      <button
+        id="dock-btn-profile"
+        aria-label="Mon Profil"
+        role="button"
+        onclick="window.location.href = 'profile.html'"
+        style="
+          background: none;
+          border: none;
+          color: #00ff88;
+          font-size: 1.5rem;
+          cursor: pointer;
+          transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          padding: 5px;
+        "
+      >
+        <i
+          class="fa-solid fa-user-circle"
+          aria-hidden="true"
+          style="filter: drop-shadow(0 0 5px #00ff88)"
+        ></i>
+      </button>
+
       <!-- Radar Social -->
       <button
         id="dock-btn-radar"
@@ -751,14 +810,9 @@
       <!-- Predictive Mechanics AI -->
       <button
         id="dock-btn-brain"
-        aria-label="Ouvrir le Diagnostic IA"
+        aria-label="Ouvrir Jarvis Chat"
         role="button"
-        onclick="
-          document
-            .getElementById('ai-diagnostic-modal')
-            .classList.remove('hidden');
-          if (window.PredictiveMeca) window.PredictiveMeca.updateDashboardUI();
-        "
+        onclick="if(window.JarvisChat) window.JarvisChat.open();"
         style="
           background: none;
           border: none;
@@ -1380,6 +1434,89 @@
       </div>
     </nav>
 
+    <!-- JARVIS CHAT MODAL (Nouveau) -->
+    <div
+      id="jarvis-chat-modal"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(10, 10, 10, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 10000;
+        display: none;
+        flex-direction: column;
+      "
+    >
+      <!-- Header -->
+      <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0; color: #fff; font-size: 1.5rem;">
+          <i class="fa-solid fa-microchip" style="color: #ffd700;"></i> Jarvis AI
+        </h2>
+        <button onclick="if(window.JarvisChat) window.JarvisChat.close();" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+
+      <!-- AI Act Legal Warning -->
+      <div style="background: #ffb703; color: #000; padding: 10px 15px; font-size: 0.85rem; font-weight: bold; text-align: center;">
+        <i class="fa-solid fa-triangle-exclamation"></i> AI ACT (UE) : Jarvis agit à titre d'assistance. Validez toujours avec un expert.
+      </div>
+
+      <!-- Messages Area -->
+      <div
+        id="jarvis-chat-messages"
+        style="
+          flex: 1;
+          padding: 20px;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+        "
+      ></div>
+
+      <!-- Input Area -->
+      <div style="padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.1); background: #111;">
+        <div style="display: flex; gap: 10px;">
+          <input aria-label="Posez une question à Jarvis..." 
+            id="jarvis-chat-input"
+            type="text"
+            placeholder="Posez une question à Jarvis..."
+            onkeypress="if(window.JarvisChat) window.JarvisChat.handleEnter(event)"
+            style="
+              flex: 1;
+              background: #222;
+              border: 1px solid #333;
+              color: #fff;
+              padding: 12px 15px;
+              border-radius: 20px;
+              outline: none;
+            "
+          />
+          <button
+            onclick="if(window.JarvisChat) window.JarvisChat.sendMessage()"
+            style="
+              background: #00f2ff;
+              color: #000;
+              border: none;
+              border-radius: 50%;
+              width: 45px;
+              height: 45px;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 1.2rem;
+            "
+          >
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- BANNIÈRE VIGILANCE ROUGE (Cachée par défaut) -->
     <div
       id="vigilance-rouge-banner"
@@ -1549,7 +1686,7 @@
           <p style="color: #aaa; font-size: 0.8rem; margin-bottom: 15px">
             Numéros prévenus automatiquement en cas de chute grave.
           </p>
-          <input
+          <input aria-label="Contact 1 (ex: 0612345678)" 
             type="tel"
             id="guardian-contact-1"
             placeholder="Contact 1 (ex: 0612345678)"
@@ -1563,7 +1700,7 @@
               color: #fff;
             "
           />
-          <input
+          <input aria-label="Contact 2 (Optionnel)" 
             type="tel"
             id="guardian-contact-2"
             placeholder="Contact 2 (Optionnel)"
@@ -2061,7 +2198,7 @@
       </p>
     </div>
 
-    <script src="js/tim-cook.js"></script>
+    <script src="js/tim-cook.js" charset="utf-8"></script>
 
     <!-- INSURER PORTAL SCREEN (B2B) -->
     <div
@@ -2186,7 +2323,7 @@
           Espace
           <span style="color: #fff; font-weight: 600">Professionnel</span>
         </h3>
-        <input
+        <input aria-label="Identifiant Assureur (Ex: AXA-001)" 
           type="text"
           id="insurer-id-input"
           class="cyber-input"
@@ -2198,7 +2335,7 @@
             text-transform: uppercase;
           "
         />
-        <input
+        <input aria-label="Mot de passe" 
           type="password"
           id="insurer-pwd-input"
           class="cyber-input"
@@ -2263,7 +2400,7 @@
         <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 25px">
           Veuillez saisir le Code Litige du client pour accéder au dossier.
         </p>
-        <input
+        <input aria-label="LIT-XXXX" 
           type="text"
           id="insurer-code-input"
           class="cyber-input"
@@ -3235,32 +3372,33 @@
     </div>
 
     <!-- CORE APP (chargé en premier, sans defer) -->
-    <script src="js/app-core.js"></script>
-    <script src="js/app-map.js"></script>
-    <script src="js/app-features.js"></script>
-    <script src="js/app-ui.js"></script>
-    <script src="js/app-wallet.js"></script>
+    <script src="js/app-core.js" charset="utf-8"></script>
+    <script src="js/app-map.js" charset="utf-8"></script>
+    <script src="js/app-features.js" charset="utf-8"></script>
+    <script src="js/app-ui.js" charset="utf-8"></script>
+    <script src="js/app-wallet.js" charset="utf-8"></script>
 
-    <script src="js/silicon-valley.js"></script>
-    <script src="js/jarvis-voice.js"></script>
-    <script src="js/community-gas.js"></script>
-    <script src="js/leaderboard.js"></script>
-    <script src="js/v3-smartcity.js"></script>
-    <script src="js/carbon-trading.js"></script>
-    <script src="js/rgpd-cnil.js"></script>
-    <script src="js/litigation-ai.js"></script>
-    <script src="js/insurance-portal.js"></script>
-    <script src="js/anti-theft.js"></script>
-    <script src="js/meca-wizard.js"></script>
-    <script src="js/obd-bluetooth.js"></script>
-    <script src="js/ar-navigation.js"></script>
-    <script src="js/social-radar.js"></script>
-    <script src="js/referral.js"></script>
+    <script src="js/silicon-valley.js" charset="utf-8"></script>
+    <script src="js/jarvis-voice.js" charset="utf-8"></script>
+    <script src="js/community-gas.js" charset="utf-8"></script>
+    <script src="js/leaderboard.js" charset="utf-8"></script>
+    <script src="js/v3-smartcity.js" charset="utf-8"></script>
+    <script src="js/carbon-trading.js" charset="utf-8"></script>
+    <script src="js/rgpd-cnil.js" charset="utf-8"></script>
+    <script src="js/litigation-ai.js" charset="utf-8"></script>
+    <script src="js/insurance-portal.js" charset="utf-8"></script>
+    <script src="js/anti-theft.js" charset="utf-8"></script>
+    <script src="js/meca-wizard.js" charset="utf-8"></script>
+    <script src="js/obd-bluetooth.js" charset="utf-8"></script>
+    <script src="js/ar-navigation.js" charset="utf-8"></script>
+    <script src="js/weather-assistant.js" charset="utf-8"></script>
+    <script src="js/social-radar.js" charset="utf-8"></script>
+    <script src="js/referral.js" charset="utf-8"></script>
     <!-- Nouveaux modules InsurTech & Sécurité -->
-    <script src="js/driving-score.js"></script>
-    <script src="js/danger-zones.js"></script>
-    <script src="js/accident-report.js"></script>
-    <script src="js/weather-alert.js"></script>
+    <script src="js/driving-score.js" charset="utf-8"></script>
+    <script src="js/danger-zones.js" charset="utf-8"></script>
+    <script src="js/accident-report.js" charset="utf-8"></script>
+    <script src="js/weather-alert.js" charset="utf-8"></script>
 
     <!-- MECA-WIZARD MODAL -->
     <div
@@ -3315,9 +3453,9 @@
     ></div>
 
     <!-- CORE MODULES -->
-    <script src="js/web4-mining.js"></script>
-    <script src="js/insurer-portal.js"></script>
-    <script src="js/zero-trust.js"></script>
+    <script src="js/web4-mining.js" charset="utf-8"></script>
+    <script src="js/insurer-portal.js" charset="utf-8"></script>
+    <script src="js/zero-trust.js" charset="utf-8"></script>
 
     <script>
       // INIT APEX SENTINEL
@@ -3435,7 +3573,7 @@
         >
           <i class="fa-solid fa-location-crosshairs"></i>
         </button>
-        <input
+        <input aria-label="Point de départ (par défaut: GPS)" 
           type="text"
           id="route-start"
           placeholder="Point de départ (par défaut: GPS)"
@@ -3475,7 +3613,7 @@
         >
           <i class="fa-solid fa-map-pin"></i>
         </button>
-        <input
+        <input aria-label="O&ugrave; allez-vous ?" 
           type="text"
           id="route-search"
           placeholder="O&ugrave; allez-vous ?"
@@ -4000,7 +4138,7 @@
         >
           <div>
             <div style="color: #aaa; font-size: 0.9rem; margin-bottom: 5px">
-              Âge de la batterie
+              ge de la batterie
             </div>
             <div
               id="battery-age-value"
@@ -4316,7 +4454,7 @@
             <label style="color: #aaa; font-size: 0.8rem"
               >Kilométrage du véhicule (km)</label
             >
-            <input
+            <input aria-label="Ex: 12450" 
               type="number"
               id="man-mileage"
               placeholder="Ex: 12450"
@@ -4336,7 +4474,7 @@
             <label style="color: #aaa; font-size: 0.8rem"
               >Nombre de cycles estimé</label
             >
-            <input
+            <input aria-label="Ex: 345" 
               type="number"
               id="man-cycles"
               placeholder="Ex: 345"
@@ -4354,9 +4492,9 @@
           </div>
           <div>
             <label style="color: #aaa; font-size: 0.8rem"
-              >Âge de la batterie (en mois)</label
+              >ge de la batterie (en mois)</label
             >
-            <input
+            <input aria-label="Ex: 27" 
               type="number"
               id="man-age"
               placeholder="Ex: 27"
@@ -5015,12 +5153,13 @@
       }
     </style>
 
-    <script src="js/garage.js"></script>
-    <script src="js/safe-rider.js"></script>
-    <script src="js/convoy.js"></script>
-    <script src="js/exchange.js"></script>
-    <script src="js/legal-database.js"></script>
-    <script src="js/pocket-lawyer.js"></script>
+    <script src="js/garage.js" charset="utf-8"></script>
+    <script src="js/safe-rider.js" charset="utf-8"></script>
+    <script src="js/convoy.js" charset="utf-8"></script>
+    <script src="js/exchange.js" charset="utf-8"></script>
+    <script src="js/legal-database.js" charset="utf-8"></script>
+    <script src="js/pocket-lawyer.js" charset="utf-8"></script>
+    <script src="js/jarvis-chat.js" charset="utf-8"></script>
 
     <!-- Jarvis Security: Masquage OBD-II pour les US (Conformité matérielle) -->
     <script>

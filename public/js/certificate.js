@@ -72,7 +72,7 @@ window.Certificate = {
                 </div>
 
                 <button onclick="window.print()" style="margin-top:40px; width:100%; padding:15px; background:#000; color:#fff; border:none; cursor:pointer; font-weight:bold; position: relative; z-index: 1;">IMPRIMER / EXPORTER (PDF)</button>
-                <button onclick="document.getElementById('cert-overlay').remove()" style="margin-top:10px; width:100%; padding:10px; background:transparent; color:#888; border:none; cursor:pointer; font-size:0.8rem; position: relative; z-index: 1;">RETOUR Ã€ L'APPLICATION</button>
+                <button onclick="document.getElementById('cert-overlay').remove()" style="margin-top:10px; width:100%; padding:10px; background:transparent; color:#888; border:none; cursor:pointer; font-size:0.8rem; position: relative; z-index: 1;">RETOUR À L'APPLICATION</button>
             </div>
         `;
     document.body.appendChild(overlay);

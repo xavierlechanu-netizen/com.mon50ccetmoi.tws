@@ -70,7 +70,7 @@ window.SecBot = {
                 <!-- Quick actions grid -->
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
                     <button onclick="window.SecBot.runSystemAudit()" class="secbot-action-btn">
-                        <i class="fa-solid fa-microchip"></i> AUDIT SYSTÃˆME
+                        <i class="fa-solid fa-microchip"></i> AUDIT SYSTÈME
                     </button>
                     <button onclick="window.SecBot.scanIP()" class="secbot-action-btn">
                         <i class="fa-solid fa-globe"></i> ANALYSE IP/PROXY
@@ -226,7 +226,7 @@ window.SecBot = {
     const executeNext = () => {
       if (index >= steps.length) {
         this.addTerminalLine(
-          "AUDIT SYSTÃˆME TERMINÉ. ZÉRO INTRA-MENACES DÉTECTÉES.",
+          "AUDIT SYSTÈME TERMINÉ. ZÉRO INTRA-MENACES DÉTECTÉES.",
           "success",
         );
         this.isScanning = false;

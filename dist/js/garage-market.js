@@ -56,7 +56,7 @@ window.GarageMarket = {
       title: data.title,
     });
 
-    const typeStr = isWTB ? "RECHERCHE" : "Ã€ VENDRE";
+    const typeStr = isWTB ? "RECHERCHE" : "À VENDRE";
     const info = new google.maps.InfoWindow({
       content: `<div style="color:black; font-family:'Outfit', sans-serif; max-width:200px;">
                         <span style="font-size:0.7rem; background:${isWTB ? "#ffaa00" : "#00d2ff"}; color:white; padding:2px 5px; border-radius:3px;">${typeStr}</span>

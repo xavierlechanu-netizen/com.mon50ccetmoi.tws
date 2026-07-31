@@ -12,6 +12,8 @@ window.ExchangeMarket = {
   currentCategory: "all",
   searchQuery: "",
   priceTypeFilter: "all",
+  stateFilter: "all",
+  garageFilterActive: false,
   sortBy: "newest",
   userBvc: 0,
 
@@ -37,9 +39,13 @@ window.ExchangeMarket = {
           .onSnapshot((doc) => {
             if (doc.exists) {
               const data = doc.data();
-              this.userBvc = data.bvc_points || data.bvcPoints || 0;
+              this.userBvc = data.bvc_points || data.bvcPoints || data.bvc || 0;
+              if (window.session) {
+                window.session.vehicleModel = data.vehicleModel || "universel";
+              }
               localStorage.setItem("bvc_points", this.userBvc);
               this.updateBvcDisplay(this.userBvc);
+              this.applyFiltersAndRender(); // Re-render in case vehicleModel changed
             }
           });
       } else {
@@ -114,6 +120,22 @@ window.ExchangeMarket = {
         this.applyFiltersAndRender();
       });
     }
+
+    const stateFilterSelect = document.getElementById("market-state-select");
+    if (stateFilterSelect) {
+      stateFilterSelect.addEventListener("change", (e) => {
+        this.stateFilter = e.target.value;
+        this.applyFiltersAndRender();
+      });
+    }
+
+    const garageFilterToggle = document.getElementById("market-garage-filter");
+    if (garageFilterToggle) {
+      garageFilterToggle.addEventListener("change", (e) => {
+        this.garageFilterActive = e.target.checked;
+        this.applyFiltersAndRender();
+      });
+    }
   },
 
   setCategory: function (category, btnElement) {
@@ -147,6 +169,21 @@ window.ExchangeMarket = {
       result = result.filter((item) => item.priceType === this.priceTypeFilter);
     }
 
+    // Filtre par état (neuf, occasion, service)
+    if (this.stateFilter !== "all") {
+      result = result.filter((item) => item.condition === this.stateFilter);
+    }
+
+    // Filtre Garage Virtuel
+    if (this.garageFilterActive && window.session && window.session.vehicleModel) {
+      const myVehicle = window.session.vehicleModel;
+      if (myVehicle !== "universel") {
+        result = result.filter((item) => {
+          return !item.compatibility || item.compatibility === "universel" || item.compatibility === myVehicle;
+        });
+      }
+    }
+
     // Filtre par recherche textuelle
     if (this.searchQuery) {
       result = result.filter((item) => {
@@ -174,7 +211,7 @@ window.ExchangeMarket = {
   /**
    * Publie une nouvelle annonce dans Firestore.
    */
-  publishListing: async function (title, description, priceType, price, category, condition, photoUrl) {
+  publishListing: async function (title, description, priceType, price, category, condition, photoUrl, compatibility) {
     if (!window.db) {
       alert("Connexion Firestore requise.");
       return;
@@ -210,6 +247,7 @@ window.ExchangeMarket = {
       price: price,
       category: category || "autre",
       condition: condition || "good",
+      compatibility: compatibility || "universel",
       photoUrl: photoUrl || "",
       seller: window.session.username || "Membre",
       sellerUid: firebase.auth().currentUser ? firebase.auth().currentUser.uid : "",
@@ -227,7 +265,15 @@ window.ExchangeMarket = {
 
     try {
       await window.db.collection("exchange_listings").add(listing);
-      alert("🎉 Annonce publiée avec succès sur le réseau !");
+      
+      // Mettre à jour le profil utilisateur pour débloquer le Badge Mécano
+      if (listing.sellerUid) {
+        await window.db.collection('users').doc(listing.sellerUid).update({
+            hasPublishedListing: true
+        }).catch(e => console.warn("Erreur MAJ Badge Mécano:", e));
+      }
+
+      alert("🚀 Annonce publiée avec succès sur le réseau !");
       this.closePublishForm();
     } catch (e) {
       console.error("[ExchangeMarket] Publication échouée :", e);
@@ -417,9 +463,24 @@ window.ExchangeMarket = {
     this.filteredListings.forEach((listing) => {
       const icon = this.getCategoryIcon(listing.category);
       const catLabel = this.getCategoryLabel(listing.category);
-      const condLabel = this.getConditionLabel(listing.condition);
       const isBvc = listing.priceType === "bvc";
       const priceLabel = isBvc ? `${listing.price} Pts BVC` : `${listing.price.toFixed(2)} €`;
+
+      const isService = listing.condition === "service";
+      const isAffordable = listing.priceType === "bvc" && this.userBvc >= listing.price;
+      
+      let conditionBadge = "";
+      let condLabel = "";
+      if (isService) {
+        conditionBadge = `<span class="badge" style="background: rgba(0, 242, 255, 0.2); color: #00f2ff; border-color: #00f2ff;"><i class="fa-solid fa-bolt"></i> Recharge</span>`;
+        condLabel = "Service Recharge";
+      } else {
+        const conditionText = listing.condition === "neuf" ? "Neuf" : "Occasion";
+        const conditionColor = listing.condition === "neuf" ? "#00ff88" : "#ffb703";
+        conditionBadge = `<span class="badge" style="color: ${conditionColor}; border-color: ${conditionColor}">${conditionText}</span>`;
+        condLabel = this.getConditionLabel(listing.condition);
+      }
+      
       const isOwner = window.session && window.session.username === listing.seller;
       const isReserved = listing.status === "reserved" || listing.status === "sold";
       const date = listing.createdAt?.toDate ? listing.createdAt.toDate().toLocaleDateString("fr-FR") : "";
@@ -540,15 +601,29 @@ window.ExchangeMarket = {
             <div style="flex:1;">
               <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">État *</label>
               <select id="ex-condition" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
-                <option value="good">👍 Bon état</option>
-                <option value="new">✨ Neuf (Emballé)</option>
-                <option value="like_new">🌟 Très bon état</option>
-                <option value="parts">🛠️ Pour pièces</option>
+                <option value="good">Bon état</option>
+                <option value="new">Neuf (Emballé)</option>
+                <option value="like_new">Très bon état</option>
+                <option value="parts">Pour pièces</option>
               </select>
             </div>
           </div>
 
           <div>
+            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Compatibilité (Garage Virtuel) *</label>
+            <select id="ex-compatibility" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
+              <option value="universel">Universel</option>
+              <option value="ami">Citroën Ami</option>
+              <option value="kisbee">Peugeot Kisbee</option>
+              <option value="booster">MBK Booster / Stunt</option>
+              <option value="typhoon">Piaggio Typhoon</option>
+              <option value="ludix">Peugeot Ludix</option>
+              <option value="chatenet">Chatenet</option>
+              <option value="aixam">Aixam</option>
+            </select>
+          </div>
+
+          <div style="margin-top: 10px;">
             <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Lien Photo / Image (Optionnel)</label>
             <input type="url" id="ex-photourl" placeholder="https://..." style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
           </div>
@@ -574,7 +649,8 @@ window.ExchangeMarket = {
             document.getElementById('ex-price').value,
             document.getElementById('ex-category').value,
             document.getElementById('ex-condition').value,
-            document.getElementById('ex-photourl').value
+            document.getElementById('ex-photourl').value,
+            document.getElementById('ex-compatibility').value
           )" style="margin-top:10px; width:100%; background:linear-gradient(135deg, #00f2ff, #0077ff); color:#fff; border:none; padding:15px; border-radius:12px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 0 15px rgba(0,242,255,0.3);">
             <i class="fa-solid fa-paper-plane"></i> Publier l'annonce
           </button>

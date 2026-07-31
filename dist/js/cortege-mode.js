@@ -1,4 +1,4 @@
-// --- MODE CORTÃˆGE (Balade Synchro) ---
+﻿// --- MODE CORTÈGE (Balade Synchro) ---
 window.CortegeSystem = {
   sessionId: null,
   members: {}, // uid -> data (lat, lng, name, color)
@@ -192,7 +192,7 @@ window.CortegeSystem = {
     }
 
     const code = prompt(
-      "CORTÃˆGE : Entrez le code secret à 4 chiffres d'un ami pour le rejoindre, ou laissez le champ vide et cliquez sur OK pour CRÉER votre propre cortège :",
+      "CORTÈGE : Entrez le code secret à 4 chiffres d'un ami pour le rejoindre, ou laissez le champ vide et cliquez sur OK pour CRÉER votre propre cortège :",
     );
     if (code === null) return;
 

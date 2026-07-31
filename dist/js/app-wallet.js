@@ -3,11 +3,11 @@
 window.CommunityRoadbooks = {
   shareMyRoute() {
     if (!window.currentRoute && !window.currentPosition) {
-      alert("Lancez d'abord un itinÃƒ©raire pour pouvoir le partager !");
+      alert("Lancez d'abord un itinéraire pour pouvoir le partager !");
       return;
     }
     const name = prompt(
-      "Donnez un nom ÃƒÂ  votre itinÃƒ©raire (ex: Boucle des Alpilles) :",
+      "Donnez un nom Ãƒ  votre itinéraire (ex: Boucle des Alpilles) :",
     );
     if (!name) return;
     const desc = prompt("Description courte (optionnel) :") || "";
@@ -30,7 +30,7 @@ window.CommunityRoadbooks = {
     if (existing.length > 50) existing.pop();
     localStorage.setItem("community_roadbooks", JSON.stringify(existing));
     speak(
-      "ItinÃƒ©raire partagÃƒ© avec la communautÃƒ©. Merci pour votre contribution !",
+      "Itinéraire partagé avec la communauté. Merci pour votre contribution !",
     );
     showPage("community_roadbooks");
   },
@@ -39,7 +39,7 @@ window.CommunityRoadbooks = {
     const rbs = JSON.parse(localStorage.getItem("community_roadbooks") || "[]");
     const rb = rbs.find((r) => r.id === id);
     if (!rb) return;
-    speak("Chargement de l'itinÃƒ©raire " + rb.name);
+    speak("Chargement de l'itinéraire " + rb.name);
     // On met le nom dans la barre de recherche pour relancer
     if (document.getElementById("route-search")) {
       document.getElementById("route-search").value = rb.name;

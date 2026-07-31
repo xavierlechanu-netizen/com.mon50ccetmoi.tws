@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Mon Profil - mon50ccetmoi</title>
+    <link rel="canonical" href="https://mon50ccetmoi.com/profile.html" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.min.css" />
+    <style>
+      body {
+        background-color: #060913;
+        color: #fff;
+        padding: 20px;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        overflow-y: auto;
+        padding-bottom: 90px; /* Espace pour la bottom nav */
+      }
+      .profile-header {
+        text-align: center;
+        margin-bottom: 30px;
+        position: relative;
+      }
+      .back-btn {
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        backdrop-filter: blur(5px);
+        transition: background 0.3s;
+      }
+      .back-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .avatar-container {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 15px auto;
+        border-radius: 50%;
+        padding: 4px;
+        background: linear-gradient(135deg, #00f2ff, #b700ff);
+        box-shadow: 0 0 25px rgba(0, 242, 255, 0.4);
+        position: relative;
+      }
+      .avatar-container img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #111;
+        border: 2px solid #060913;
+      }
+      .edit-avatar {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: #00f2ff;
+        color: #000;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: 2px solid #060913;
+        box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+      }
+      .profile-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .profile-bio {
+        color: #aaa;
+        font-size: 0.9rem;
+        max-width: 300px;
+        margin: 0 auto;
+        line-height: 1.4;
+      }
+
+      /* Sections de cartes Premium */
+      .premium-card {
+        background: rgba(20, 26, 40, 0.65);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #00f2ff;
+      }
+      .card-title.purple {
+        color: #e099ff;
+      }
+
+      /* Garage Virtuel */
+      .garage-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.4);
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 242, 255, 0.2);
+      }
+      .garage-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .garage-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 242, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #00f2ff;
+        font-size: 1.2rem;
+      }
+      .garage-select {
+        background: rgba(8, 12, 22, 0.9);
+        border: 1px solid rgba(0, 242, 255, 0.5);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        outline: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+
+      /* Badges & Succès */
+      .badges-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-top: 15px;
+      }
+      .badge-item {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 15px 10px;
+        text-align: center;
+        transition: all 0.3s ease;
+        opacity: 0.4;
+        filter: grayscale(100%);
+      }
+      .badge-item.unlocked {
+        opacity: 1;
+        filter: grayscale(0%);
+        border-color: rgba(255, 215, 0, 0.5);
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
+      }
+      .badge-item.unlocked .badge-icon {
+        color: #ffd700;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+      }
+      .badge-icon {
+        font-size: 2rem;
+        margin-bottom: 8px;
+        color: #888;
+      }
+      .badge-title {
+        font-size: 0.75rem;
+        font-weight: bold;
+        color: #fff;
+      }
+      .badge-desc {
+        font-size: 0.65rem;
+        color: #aaa;
+        margin-top: 4px;
+      }
+
+      /* Portefeuille BVC */
+      .bvc-wallet {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, rgba(183, 0, 255, 0.15), rgba(0, 242, 255, 0.1));
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid rgba(183, 0, 255, 0.3);
+      }
+      .bvc-amount {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #e099ff;
+        text-shadow: 0 0 10px rgba(183, 0, 255, 0.5);
+      }
+      .bvc-label {
+        color: #aaa;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Recharge Hte */
+      .host-toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .host-toggle-row:last-child {
+        border-bottom: none;
+      }
+      .host-info h4 {
+        margin: 0 0 5px 0;
+        font-size: 1rem;
+      }
+      .host-info p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #aaa;
+      }
+      
+      /* Toggle Switch */
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 28px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.1);
+        transition: .4s;
+        border-radius: 34px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+      }
+      input:checked + .slider {
+        background-color: #00f2ff;
+        box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+        border-color: transparent;
+      }
+      input:checked + .slider:before {
+        transform: translateX(20px);
+      }
+
+      /* Rglages Scurit */
+      .settings-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .settings-list li {
+        padding: 15px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+      .settings-list li:hover {
+        color: #00f2ff;
+      }
+      .settings-list li:last-child {
+        border-bottom: none;
+      }
+      .settings-list li i.fa-chevron-right {
+        color: #555;
+        font-size: 0.9rem;
+      }
+      .settings-list li:hover i.fa-chevron-right {
+        color: #00f2ff;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <div class="profile-header">
+      <a href="app.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+      <div class="avatar-container">
+        <img src="https://ui-avatars.com/api/?name=User&background=111&color=fff" id="profile-avatar" alt="Avatar">
+        <div class="edit-avatar"><i class="fa-solid fa-pen"></i></div>
+      </div>
+      <div class="profile-name" id="profile-name">Chargement...</div>
+      <div class="profile-bio" id="profile-bio">Conducteur passionné de VSP. Prêt à explorer de nouvelles routes.</div>
+    </div>
+
+    <!-- Garage Virtuel -->
+    <div class="premium-card">
+      <div class="card-title" style="color: #00f2ff;"><i class="fa-solid fa-motorcycle"></i> Mon Garage Virtuel</div>
+      <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;">Sélectionnez votre véhicule pour filtrer automatiquement la Marketplace.</p>
+      <div class="garage-box">
+        <div class="garage-info">
+          <div class="garage-icon"><i class="fa-solid fa-car-side"></i></div>
+          <div>
+            <div style="font-weight: bold;" id="current-vehicle-label">Véhicule Universel</div>
+            <div style="font-size: 0.8rem; color: #888;">Modèle actuel</div>
+          </div>
+        </div>
+        <select class="garage-select" id="profile-vehicle-select">
+          <option value="universel">Universel / Aucun</option>
+          <option value="ami">Citroën Ami</option>
+          <option value="kisbee">Peugeot Kisbee</option>
+          <option value="booster">MBK Booster / Stunt</option>
+          <option value="typhoon">Piaggio Typhoon</option>
+          <option value="ludix">Peugeot Ludix</option>
+          <option value="chatenet">Chatenet</option>
+          <option value="aixam">Aixam</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Mes Documents & Assurances (Scanner IA) -->
+    <div class="premium-card">
+      <div class="card-title" style="color: #00f2ff;"><i class="fa-solid fa-file-contract"></i> Mes Documents & Contrats</div>
+      <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;">Faites analyser votre contrat d'assurance par l'IA Jarvis pour savoir ce qui est réellement couvert.</p>
+      
+      <div style="background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(0, 242, 255, 0.5); padding: 20px; text-align: center; border-radius: 12px; cursor: pointer; transition: all 0.3s;" id="contract-upload-zone" onclick="if(window.InsuranceScanner) window.InsuranceScanner.startScan()">
+        <i class="fa-solid fa-file-pdf" style="font-size: 2.5rem; color: #ff0055; margin-bottom: 10px;"></i>
+        <div style="font-weight: bold; color: #fff;">Scanner mon contrat (PDF)</div>
+        <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Jarvis AI Document Scanner</div>
+      </div>
+
+      <!-- Zone de résultat (cachée au départ) -->
+      <div id="contract-scan-result" style="display: none; margin-top: 15px; background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2); padding: 15px; border-radius: 12px;">
+        <h4 style="margin: 0 0 10px 0; color: #00f2ff;"><i class="fa-solid fa-microchip"></i> Résumé de Couverture (IA)</h4>
+        <div id="contract-scan-content" style="font-size: 0.9rem; color: #eee; line-height: 1.6;">
+          <!-- Le résultat Gemini viendra ici -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Badges & Succès -->
+    <div class="premium-card">
+      <div class="card-title" style="color: #ffd700;"><i class="fa-solid fa-medal"></i> Mes Badges & Succès</div>
+      <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;">Participez à la communauté pour débloquer ces récompenses exclusives.</p>
+      
+      <div class="badges-grid">
+        <!-- Badge Fondateur -->
+        <div class="badge-item unlocked" id="badge-founder">
+          <div class="badge-icon"><i class="fa-solid fa-crown"></i></div>
+          <div class="badge-title">Fondateur</div>
+          <div class="badge-desc">Membre de la 1ère heure</div>
+        </div>
+        
+        <!-- Badge Hôte -->
+        <div class="badge-item" id="badge-host">
+          <div class="badge-icon"><i class="fa-solid fa-bolt"></i></div>
+          <div class="badge-title">Hôte de Choc</div>
+          <div class="badge-desc">Partage sa prise de charge</div>
+        </div>
+
+        <!-- Badge Mécano -->
+        <div class="badge-item" id="badge-mechanic">
+          <div class="badge-icon"><i class="fa-solid fa-wrench"></i></div>
+          <div class="badge-title">Mécano</div>
+          <div class="badge-desc">A publié une annonce</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Portefeuille BVC -->
+    <div class="premium-card">
+      <div class="card-title purple"><i class="fa-solid fa-wallet"></i> Portefeuille Communautaire</div>
+      <div class="bvc-wallet">
+        <div>
+          <div class="bvc-label">Solde Actuel</div>
+          <div class="bvc-amount" id="profile-bvc">0 BVC</div>
+        </div>
+        <i class="fa-brands fa-ethereum fa-2x" style="color: rgba(183, 0, 255, 0.5);"></i>
+      </div>
+    </div>
+
+    <!-- Hte de Recharge -->
+    <div class="premium-card">
+      <div class="card-title"><i class="fa-solid fa-bolt"></i> Recharge Communautaire</div>
+      <div class="host-toggle-row">
+        <div class="host-info">
+          <h4>Devenir Hôte de Recharge</h4>
+          <p>Proposez votre prise électrique et gagnez des BVC.</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="host-toggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="host-toggle-row" id="host-settings" style="display: none;">
+        <div class="host-info">
+          <h4>Tarif de recharge</h4>
+          <p>BVC par heure de charge complète.</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <input type="number" id="host-price" value="50" style="width: 60px; background: rgba(0,0,0,0.5); border: 1px solid #00f2ff; color: white; padding: 5px; border-radius: 5px; text-align: center;"> BVC/h
+        </div>
+      </div>
+    </div>
+
+    <!-- Scurit et Paramtres -->
+    <div class="premium-card">
+      <div class="card-title"><i class="fa-solid fa-shield-halved"></i> Sécurité & Données</div>
+      <ul class="settings-list">
+        <li onclick="window.location.href='privacy.html'">
+          <span><i class="fa-solid fa-user-lock" style="width: 25px; color: #aaa;"></i> Confidentialité (RGPD)</span>
+          <i class="fa-solid fa-chevron-right"></i>
+        </li>
+        <li onclick="alert('Configuration FIDO2 en dveloppement.');">
+          <span><i class="fa-solid fa-fingerprint" style="width: 25px; color: #aaa;"></i> Authentification Biométrique (FIDO2)</span>
+          <i class="fa-solid fa-chevron-right"></i>
+        </li>
+        <li onclick="window.location.href='cgv.html'">
+          <span><i class="fa-solid fa-file-contract" style="width: 25px; color: #aaa;"></i> Conditions Générales</span>
+          <i class="fa-solid fa-chevron-right"></i>
+        </li>
+      </ul>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+      <button onclick="logout()" style="background: rgba(255, 50, 50, 0.1); border: 1px solid rgba(255, 50, 50, 0.5); color: #ff5555; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: background 0.3s;">
+        Se déconnecter
+      </button>
+    </div>
+
+    <!-- Firebase & Scripts -->
+    <script src="js/config.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" charset="utf-8"></script>
+    <script>
+      if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
+        if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
+        window.db = firebase.firestore();
+        window.auth = firebase.auth();
+      }
+    </script>
+    <script src="js/profile.js" charset="utf-8"></script>
+    <script src="js/jarvis-gemini.js" charset="utf-8"></script>
+    <script src="js/insurance-scanner.js" charset="utf-8"></script>
+
+    <script>
+      function logout() {
+        if (window.auth) {
+          window.auth.signOut().then(() => {
+            window.location.href = "login.html";
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

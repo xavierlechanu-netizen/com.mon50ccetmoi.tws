@@ -1,0 +1,684 @@
+
+s      10141 Tue Jul 28 12:16:20 CEST 2026 META-INF/MANIFEST.MF
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+       10303 Tue Jul 28 12:16:20 CEST 2026 META-INF/UPLOAD.SF
+        1589 Tue Jul 28 12:16:20 CEST 2026 META-INF/UPLOAD.RSA
+sm       628 Thu Jan 01 01:00:00 CET 1970 BundleConfig.pb
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm       242 Thu Jan 01 01:00:00 CET 1970 BUNDLE-METADATA/com.android.tools.build.profiles/baseline.prof
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        84 Thu Jan 01 01:00:00 CET 1970 BUNDLE-METADATA/com.android.tools.build.profiles/baseline.profm
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      5085 Thu Jan 01 01:00:00 CET 1970 BUNDLE-METADATA/com.android.tools.build.libraries/dependencies.pb
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm    1669904 Thu Jan 01 01:00:00 CET 1970 BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        56 Thu Jan 01 01:00:00 CET 1970 BUNDLE-METADATA/com.android.tools.build.gradle/app-metadata.properties
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      1432 Thu Jan 01 01:00:00 CET 1970 BUNDLE-METADATA/com.android.tools/r8.json
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm    210208 Thu Jan 01 01:00:00 CET 1970 base/dex/classes.dex
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      1738 Thu Jan 01 01:00:00 CET 1970 base/root/DebugProbesKt.bin
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.activity_activity.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.annotation_annotation-experimental.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.appcompat_appcompat-resources.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.appcompat_appcompat.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        67 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.arch.core_core-runtime.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         7 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.browser_browser.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         7 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.core_core-ktx.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.core_core-viewtree.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         7 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.core_core.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.cursoradapter_cursoradapter.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.customview_customview.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.drawerlayout_drawerlayout.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.emoji2_emoji2-views-helper.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.emoji2_emoji2.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.fragment_fragment.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.interpolator_interpolator.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        78 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.lifecycle_lifecycle-livedata-core.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        73 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.lifecycle_lifecycle-livedata.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        72 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.lifecycle_lifecycle-process.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        72 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.lifecycle_lifecycle-runtime.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        85 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.lifecycle_lifecycle-viewmodel-savedstate.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        74 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.lifecycle_lifecycle-viewmodel.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.loader_loader.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.profileinstaller_profileinstaller.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.savedstate_savedstate.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.startup_startup-runtime.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.tracing_tracing.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.vectordrawable_vectordrawable-animated.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.vectordrawable_vectordrawable.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.versionedparcelable_versionedparcelable.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         6 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx.viewpager_viewpager.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     10175 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/androidx/annotation/annotation/LICENSE.txt
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         5 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/kotlinx_coroutines_android.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm         5 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/kotlinx_coroutines_core.version
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      1006 Thu Jan 01 01:00:00 CET 1970 base/root/kotlin/annotation/annotation.kotlin_builtins
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      8308 Thu Jan 01 01:00:00 CET 1970 base/root/kotlin/collections/collections.kotlin_builtins
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      2674 Thu Jan 01 01:00:00 CET 1970 base/root/kotlin/concurrent/atomics/atomics.kotlin_builtins
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm       137 Thu Jan 01 01:00:00 CET 1970 base/root/kotlin/coroutines/coroutines.kotlin_builtins
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm       590 Thu Jan 01 01:00:00 CET 1970 base/root/kotlin/internal/internal.kotlin_builtins
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     29399 Thu Jan 01 01:00:00 CET 1970 base/root/kotlin/kotlin.kotlin_builtins
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      4184 Thu Jan 01 01:00:00 CET 1970 base/root/kotlin/ranges/ranges.kotlin_builtins
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      4827 Thu Jan 01 01:00:00 CET 1970 base/root/kotlin/reflect/reflect.kotlin_builtins
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      1212 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-hdpi-v4/ic_notification_icon.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm       357 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-hdpi-v4/ic_site_settings.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     35713 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-hdpi-v4/splash.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm       770 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-mdpi-v4/ic_notification_icon.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm       262 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-mdpi-v4/ic_site_settings.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     19138 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-mdpi-v4/splash.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      1537 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-xhdpi-v4/ic_notification_icon.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm       471 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-xhdpi-v4/ic_site_settings.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     55800 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-xhdpi-v4/splash.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      2466 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-xxhdpi-v4/ic_notification_icon.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm       655 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-xxhdpi-v4/ic_site_settings.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm    104230 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-xxhdpi-v4/splash.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      3088 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-xxxhdpi-v4/ic_notification_icon.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm    163730 Thu Jan 01 01:00:00 CET 1970 base/res/drawable-xxxhdpi-v4/splash.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm       918 Thu Jan 01 01:00:00 CET 1970 base/res/mipmap-anydpi-v26/ic_launcher.xml
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      9769 Thu Jan 01 01:00:00 CET 1970 base/res/mipmap-hdpi-v4/ic_launcher.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      9769 Thu Jan 01 01:00:00 CET 1970 base/res/mipmap-hdpi-v4/ic_maskable.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      4657 Thu Jan 01 01:00:00 CET 1970 base/res/mipmap-mdpi-v4/ic_launcher.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm      4657 Thu Jan 01 01:00:00 CET 1970 base/res/mipmap-mdpi-v4/ic_maskable.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     16553 Thu Jan 01 01:00:00 CET 1970 base/res/mipmap-xhdpi-v4/ic_launcher.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     16553 Thu Jan 01 01:00:00 CET 1970 base/res/mipmap-xhdpi-v4/ic_maskable.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     34838 Thu Jan 01 01:00:00 CET 1970 base/res/mipmap-xxhdpi-v4/ic_launcher.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     34838 Thu Jan 01 01:00:00 CET 1970 base/res/mipmap-xxhdpi-v4/ic_maskable.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     58855 Thu Jan 01 01:00:00 CET 1970 base/res/mipmap-xxxhdpi-v4/ic_launcher.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     58855 Thu Jan 01 01:00:00 CET 1970 base/res/mipmap-xxxhdpi-v4/ic_maskable.png
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        78 Thu Jan 01 01:00:00 CET 1970 base/res/xml/filepaths.xml
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        80 Thu Jan 01 01:00:00 CET 1970 base/res/xml/shortcuts.xml
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm        56 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/com/android/build/gradle/app-metadata.properties
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm       120 Thu Jan 01 01:00:00 CET 1970 base/root/META-INF/version-control-info.textproto
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm     16348 Thu Jan 01 01:00:00 CET 1970 base/manifest/AndroidManifest.xml
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+sm    110954 Thu Jan 01 01:00:00 CET 1970 base/resources.pb
+
+      >>> Signer
+      X.509, CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR
+      Signature algorithm: SHA256withRSA, 2048-bit key
+      [certificate is valid from 14/06/2026 20:43 to 30/10/2053 19:43]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+
+  s = signature was verified 
+  m = entry is listed in manifest
+  k = at least one certificate was found in keystore
+
+- Signed by "CN=Xavier Le Chanu, OU=mon50ccetmoi, O=mon50ccetmoi, L=Paris, ST=Ile-de-France, C=FR"
+    Digest algorithm: SHA-256
+    Signature algorithm: SHA256withRSA, 2048-bit key
+
+jar verified.
+
+Warning: 
+This jar contains entries whose certificate chain is invalid. Reason: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+This jar contains entries whose signer certificate is self-signed.
+This jar contains signatures that do not include a timestamp. Without a timestamp, users may not be able to validate this jar after any of the signer certificates expire (as early as 2053-10-30).
+
+The signer certificate will expire on 2053-10-30.

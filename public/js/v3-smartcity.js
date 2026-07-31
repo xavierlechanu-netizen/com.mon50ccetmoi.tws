@@ -97,10 +97,10 @@ window.initV2XGreenWave = function () {
     } else if (currentSpeed > 0 && currentSpeed < 38) {
       // Trop lent
       v2xHud.style.borderColor = "#ffaa00";
-      v2xStatus.innerText = "ACCÉLÉREZ LÉGÃˆREMENT";
+      v2xStatus.innerText = "ACCÉLÉREZ LÉGÈREMENT";
       v2xStatus.style.color = "#ffaa00";
     } else {
-      // Ã€ l'arrêt
+      // À l'arrêt
       v2xHud.style.borderColor = "#555";
       v2xStatus.innerText = "ATTENTE FEU VERT...";
       v2xStatus.style.color = "#aaa";

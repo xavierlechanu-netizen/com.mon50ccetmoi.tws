@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ORACLE VOICE ENGINE - Voice Recognition & Commands (PHASE SINGULARITY)
  * Permet au pilote de contrôler l'app sans lâcher le guidon.
  */
@@ -105,6 +105,14 @@ class OracleVoice {
   async start() {
     if (!this.recognition || this.active) return;
 
+    // Protection des performances : Désactiver en Mode Éco (Lite Mode)
+    if (window.isLiteMode) {
+      console.warn("Oracle Voice : Désactivé car le Mode Éco (Performances) est actif.");
+      const overlay = document.getElementById("oracle-listening-overlay");
+      if (overlay) overlay.classList.add("hidden");
+      return;
+    }
+
     // Demander la permission micro AVANT de lancer la reconnaissance
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -149,6 +157,10 @@ class OracleVoice {
       this.stop();
       speak("Reconnaissance vocale désactivée.");
     } else {
+      if (window.isLiteMode) {
+        speak("Impossible de lancer la reconnaissance vocale. Désactivez le Mode Éco dans les paramètres pour utiliser Oracle.");
+        return;
+      }
       this.start();
       speak("Reconnaissance vocale activée.");
     }
@@ -189,250 +201,287 @@ class OracleVoice {
     if (wasActive) this.start();
   }
 
-  processCommand(text) {
-    // Trigger principal : "Oracle", "mon 50", "ma voturette", "mon vsp", "ami"
-    const triggered =
-      text.includes("oracle") ||
-      text.includes("mon 50") ||
-      text.includes("mon50") ||
-      text.includes("voturette") ||
-      text.includes("vsp") ||
-      text.includes("ami") ||
-      text.includes("allô");
-
-    if (!triggered) return;
+  async processCommand(text) {
+    // 1. Détection du mot d'activation avec tolérance
+    const activationRegex = /(oracle|ortacle|auracle|oncle|orale|mon\s?50|mon\s?cinquante|voiturette|voturette|vsp|ami|allô)/i;
+    if (!activationRegex.test(text)) return;
 
     vibrate(100);
 
-    // â”€â”€ Dangers & Alertes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    if (
-      text.includes("alerte rouge") ||
-      text.includes("danger immédiat") ||
-      text.includes("chauffard")
-    ) {
-      let description = "";
-      const triggers = ["alerte rouge", "danger immédiat", "chauffard"];
-      for (let t of triggers) {
-        if (text.includes(t)) {
-          description = text.substring(text.indexOf(t) + t.length).trim();
-          break;
-        }
-      }
-      if (typeof window.saveHazard === "function") {
-        window.saveHazard("danger_immediat", description);
-        speak(
-          `Alerte rouge envoyée${description ? " pour " + description : ""}. Prudence.`,
-        );
-      } else {
-        speak("Je n'ai pas pu signaler le danger.");
-      }
-    } else if (
-      text.includes("danger") ||
-      text.includes("radar") ||
-      text.includes("police") ||
-      text.includes("contrôle")
-    ) {
-      if (typeof window.saveHazard === "function") {
-        window.saveHazard("radar");
-        speak("Danger signalé à la communauté. Restez prudent.");
-      } else {
-        speak(
-          "Je n'ai pas pu signaler le danger. La carte n'est pas encore chargée.",
-        );
-      }
-    }
-    // â”€â”€ Vitesse â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (
-      text.includes("vitesse") ||
-      text.includes("vite") ||
-      text.includes("rapide")
-    ) {
-      const speed = document.getElementById("speed")?.textContent || "0";
-      speak(`Vitesse actuelle : ${speed} km/h.`);
-    }
-    // â”€â”€ Navigation / Aller â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (
-      text.includes("emmène") ||
-      text.includes("amène") ||
-      text.includes("aller à") ||
-      text.includes("navigue")
-    ) {
-      const dest = text
-        .replace(/.*(?:emmène|amène|aller à|navigue(?:r)? vers?)\s+/i, "")
-        .trim();
-      if (dest) {
-        const input = document.getElementById("route-search");
-        if (input) {
-          input.value = dest;
-          if (typeof window.searchDestination === "function")
-            window.searchDestination();
-          speak(`Calcul de l'itinéraire vers ${dest}.`);
-        }
-      }
-    }
-    // â”€â”€ Menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (
-      text.includes("menu") ||
-      text.includes("ouvre") ||
-      text.includes("panneau")
-    ) {
-      window.toggleMenu();
-      speak("Ouverture du menu.");
-    }
-    // â”€â”€ Kilométrage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (
-      text.includes("kilométrage") ||
-      text.includes("distance") ||
-      text.includes("combien") ||
-      text.includes("parcouru")
-    ) {
-      const km = window.session?.totalDistance || 0;
-      speak(`Vous avez parcouru ${km.toFixed(1)} kilomètres au total.`);
-    }
-    // â”€â”€ Localisation / Position â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (
-      text.includes("où") ||
-      text.includes("position") ||
-      text.includes("localisation") ||
-      text.includes("suis-je")
-    ) {
-      const pos = window.currentPosition;
-      if (pos) {
-        speak(
-          `Vous êtes à latitude ${pos.lat.toFixed(4)}, longitude ${pos.lng.toFixed(4)}.`,
-        );
-      } else {
-        speak("Je n'ai pas encore de signal GPS.");
-      }
-    }
-    // â”€â”€ Météo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (
-      text.includes("météo") ||
-      text.includes("temps") ||
-      text.includes("pluie")
-    ) {
-      const temp = document.getElementById("weather-hud")?.textContent || "--";
-      speak(`La température affichée est de ${temp}.`);
-    }
-    // â”€â”€ Mode Constat / Défense Juridique â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (
-      text.includes("mode constat") ||
-      text.includes("j'ai un accident") ||
-      text.includes("urgence extrême") ||
-      text.includes("accrochage")
-    ) {
-      speak("Mode urgence activé. Ne paniquez pas.");
-      if (window.SOSEmergency) {
-        window.SOSEmergency.trigger();
-      } else {
-        const timCook = document.getElementById("tim-cook-sos-screen");
-        if (timCook) timCook.classList.remove("hidden");
-      }
-      if (window.PocketLawyer && window.PocketLawyer.startAudioDefense) {
-        setTimeout(() => {
-          window.PocketLawyer.startAudioDefense();
-        }, 4000); // Attendre la fin du premier message audio
-      }
-    }
-    // â”€â”€ SOS / Urgence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (
-      text.includes("sos") ||
-      text.includes("secours") ||
-      text.includes("urgence")
-    ) {
-      speak("Activation du protocole SOS. Restez immobile.");
-      if (window.SOSEmergency) window.SOSEmergency.trigger();
-      else {
-        const timCook = document.getElementById("tim-cook-sos-screen");
-        if (timCook) timCook.classList.remove("hidden");
-      }
-    }
-    // â”€â”€ Premium / Mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (text.includes("mode jour") || text.includes("thème clair")) {
-      document.body.classList.add("day-mode");
-      speak("Mode jour activé. Conduisez prudemment avec ce soleil.");
-    } else if (text.includes("mode nuit") || text.includes("thème sombre")) {
-      document.body.classList.remove("day-mode");
-      speak("Mode nuit activé. Interface tactique restaurée.");
-    } else if (text.includes("mon xp") || text.includes("mon niveau")) {
-      const xp = window.session?.xp || 0;
-      speak(
-        "Vous avez  points d'expérience. Continuez à rouler pour passer au niveau supérieur !",
-      );
-    } else if (
-      text.includes("il pleut") ||
-      text.includes("météo détaillée")
-    ) {
-      if (typeof window.updateWeatherUI === "function")
-        window.updateWeatherUI(true);
-      speak(
-        "Pluie détectée. J'adapte l'affichage et je modifie les paramètres d'adhérence virtuels.",
-      );
-    }
-    // â”€â”€ Diagnostic IA / Mécanique â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (
-      text.includes("diagnostic") ||
-      text.includes("état") ||
-      text.includes("santé") ||
-      text.includes("mécanique") ||
-      text.includes("panne") ||
-      text.includes("révision")
-    ) {
-      if (window.PredictiveMeca) {
-        const score = Math.round(window.PredictiveMeca.getGlobalHealthScore());
-        let message = `Votre véhicule est opérationnel à ${score} %.`;
-        if (score < 50)
-          message +=
-            " Attention, maintenance urgente requise. J'affiche le diagnostic.";
-        else if (score < 85)
-          message += " Une révision est conseillée. J'affiche le diagnostic.";
-        else
-          message += " Tout semble en parfait état. J'affiche le diagnostic.";
+    // 2. Nettoyage de la commande en retirant le mot d'activation
+    let commandText = text.replace(activationRegex, "").trim().toLowerCase();
+    
+    // Fonction utilitaire pour le dynamisme des réponses
+    const reply = (responses) => {
+        const msg = Array.isArray(responses) ? responses[Math.floor(Math.random() * responses.length)] : responses;
+        speak(msg);
+    };
 
-        speak(message);
+    // Si la commande est vide (juste l'appel du nom)
+    if (commandText.length < 3 || commandText.match(/^(es-tu là|tu m'entends|ça va|quoi de neuf)$/i)) {
+        reply([
+            "Oui, je vous écoute.", 
+            "À vos ordres, pilote.", 
+            "Système en ligne. Que puis-je faire pour vous ?", 
+            "Je suis prêt. Quelle est la destination ?"
+        ]);
+        return;
+    }
 
-        const modal = document.getElementById("ai-diagnostic-modal");
-        if (modal) {
-          modal.classList.remove("hidden");
-          window.PredictiveMeca.updateDashboardUI();
+    // ── NOUVEAU : TENTATIVE VIA L'INTELLIGENCE ARTIFICIELLE GEMINI ──
+    if (window.JarvisGemini && !window.isLiteMode) {
+        try {
+            const aiResponse = await window.JarvisGemini.ask(commandText);
+            
+            // L'IA a répondu avec succès
+            if (aiResponse.reply) speak(aiResponse.reply);
+            
+            // Exécution de l'action déduite par l'IA
+            switch (aiResponse.action) {
+                case "NAVIGATE":
+                    let dest = aiResponse.parameter;
+                    if (dest) {
+                        const input = document.getElementById("route-search");
+                        if (input) {
+                            input.value = dest;
+                            if (typeof window.searchDestination === "function") {
+                                window.searchDestination();
+                                setTimeout(() => {
+                                    if (typeof window.launchNativeGPS === "function") window.launchNativeGPS();
+                                }, 2000);
+                            }
+                        }
+                    }
+                    break;
+                case "SOS":
+                    if (window.SOSEmergency) window.SOSEmergency.trigger();
+                    else document.getElementById("tim-cook-sos-screen")?.classList.remove("hidden");
+                    break;
+                case "WEATHER":
+                    if (typeof window.updateWeatherUI === "function") window.updateWeatherUI(true);
+                    break;
+                case "DANGER":
+                case "RADAR":
+                    if (typeof window.saveHazard === "function") window.saveHazard(aiResponse.action === "DANGER" ? "danger_immediat" : "radar", aiResponse.parameter);
+                    break;
+                case "DIAGNOSTIC":
+                    const modal = document.getElementById("ai-diagnostic-modal");
+                    if (modal) {
+                        modal.classList.remove("hidden");
+                        if (window.PredictiveMeca) window.PredictiveMeca.updateDashboardUI();
+                    }
+                    break;
+                case "DAY_MODE":
+                    document.body.classList.add("day-mode");
+                    break;
+                case "NIGHT_MODE":
+                    document.body.classList.remove("day-mode");
+                    break;
+                case "MARKETPLACE":
+                    if (aiResponse.parameter) window.location.href = "marketplace.html?q=" + encodeURIComponent(aiResponse.parameter);
+                    break;
+                case "MENU":
+                    window.toggleMenu();
+                    break;
+                case "GHOST_MODE":
+                    if (window.GhostRider && window.GhostRider.toggleGhostMode) window.GhostRider.toggleGhostMode(true);
+                    break;
+                case "CORTEGE":
+                    if (window.CortegeMode && window.CortegeMode.start) window.CortegeMode.start();
+                    break;
+                case "LAWYER":
+                    if (window.PocketLawyer && window.PocketLawyer.toggleLawyer) window.PocketLawyer.toggleLawyer();
+                    break;
+                case "LOCK":
+                    if (window.SentinelV2 && window.SentinelV2.arm) window.SentinelV2.arm();
+                    else if (window.Sentinel && window.Sentinel.arm) window.Sentinel.arm();
+                    break;
+            }
+            // Si l'IA a géré la commande, on s'arrête ici
+            return;
+        } catch (error) {
+            console.warn("Oracle Voice : Gemini indisponible, basculement sur le moteur local.");
+            // Si l'API échoue (bloquée ou pas de réseau), on laisse le code ci-dessous prendre le relais (Fallback)
         }
-      } else {
-        speak("L'analyse prédictive est hors ligne.");
-      }
     }
-    // â”€â”€ Aide â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (
-      text.includes("aide") ||
-      text.includes("commande") ||
-      text.includes("que peux") ||
-      text.includes("que sais")
-    ) {
-      speak(
-        "Je peux : Signaler un danger, Donner votre vitesse, Naviguer vers une destination, Ouvrir le menu, Donner votre kilométrage, et activer le SOS. Dites Oracle suivi de votre commande.",
-      );
+
+    // 3. Moteur de détection d'intentions (Regex NLP) - FALLBACK LOCAL
+    
+    // â”€â”€ Dangers & Alertes â”€â”€
+    if (commandText.match(/(alerte rouge|danger immédiat|chauffard|accident)/i)) {
+        if (typeof window.saveHazard === "function") {
+            window.saveHazard("danger_immediat", commandText);
+            reply(["Alerte rouge signalée au réseau. Ralentissez immédiatement.", "Danger extrême signalé. Soyez très prudent."]);
+        }
+    } 
+    else if (commandText.match(/(danger|radar|police|contrôle)/i)) {
+        if (typeof window.saveHazard === "function") {
+            window.saveHazard("radar");
+            reply(["C'est noté, j'ai signalé la zone à la communauté.", "Information transmise au réseau. Gardez l'œil ouvert."]);
+        }
     }
-    // â”€â”€ Salutation / Conversation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-    else if (
-      text.includes("bonjour") ||
-      text.includes("salut") ||
-      text.includes("coucou") ||
-      text.includes("comment")
-    ) {
-      const hour = new Date().getHours();
-      const greet =
-        hour < 12 ? "Bonjour" : hour < 18 ? "Bon après-midi" : "Bonsoir";
-      const name = window.session?.username
-        ? `, ${window.session.username}`
-        : "";
-      speak(
-        `${greet}${name}. Je suis Oracle, votre copilote intelligent. Dites oracle aide pour connaître mes commandes.`,
-      );
+    // â”€â”€ Vitesse & Dashboard â”€â”€
+    else if (commandText.match(/(vitesse|vite|rapide)/i)) {
+        const speed = document.getElementById("speed")?.textContent || "0";
+        reply([`Vous roulez actuellement à ${speed} kilomètres-heure.`, `Vitesse enregistrée à ${speed} km/h.`]);
     }
-    // â”€â”€ Réponse par défaut â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    else if (commandText.match(/(kilométrage|distance|combien|parcouru)/i)) {
+        const km = window.session?.totalDistance || 0;
+        reply([`Vous avez parcouru ${km.toFixed(1)} kilomètres.`, `Le compteur affiche ${km.toFixed(1)} kilomètres pour cette session.`]);
+    }
+    // â”€â”€ Navigation Intelligente (Extraction) â”€â”€
+    else if (commandText.match(/(emmène|amène|aller|navigue|itinéraire|route|guidage)/i)) {
+        // Extraction intelligente de la destination
+        let dest = commandText
+            .replace(/.*(?:emmène(?:-moi)?|amène|aller|naviguer?|itinéraire|vers|à|au)\s+/i, "")
+            .replace(/s'il te pla[iî]t/i, "")
+            .trim();
+            
+        const nativeMaps = dest.match(/sur (google )?maps/i);
+        const nativeWaze = dest.match(/sur waze/i);
+        
+        if (nativeMaps) dest = dest.replace(/sur (google )?maps/i, "").trim();
+        if (nativeWaze) dest = dest.replace(/sur waze/i, "").trim();
+
+        if (dest && dest.length > 2) {
+            const input = document.getElementById("route-search");
+            if (input) {
+                input.value = dest;
+                if (typeof window.searchDestination === "function") {
+                    window.searchDestination();
+                    
+                    if (nativeMaps || nativeWaze) {
+                        reply([
+                            `Bien reçu. Calcul de la route vers ${dest} et basculement sur votre GPS natif.`,
+                            `C'est parti pour ${dest}. Ouverture du GPS externe en cours.`
+                        ]);
+                        setTimeout(() => {
+                            if (typeof window.launchNativeGPS === "function") window.launchNativeGPS();
+                        }, 2000);
+                    } else {
+                         reply([
+                             `Calcul de l'itinéraire optimal vers ${dest}.`,
+                             `Je cherche la meilleure route pour aller à ${dest}.`
+                         ]);
+                    }
+                }
+            }
+        } else {
+            reply("Je n'ai pas bien compris la destination. Pouvez-vous répéter le nom de la ville ou de la rue ?");
+        }
+    }
+    // â”€â”€ Menu & Thèmes â”€â”€
+    else if (commandText.match(/(menu|ouvre|panneau)/i)) {
+        window.toggleMenu();
+        reply(["Menu ouvert.", "Voici vos options.", "J'ouvre le panneau de contrôle."]);
+    }
+    else if (commandText.match(/(mode jour|thème clair|il fait beau)/i)) {
+        document.body.classList.add("day-mode");
+        reply(["Passage en mode jour. Gardez vos lunettes de soleil à portée de main !", "Mode clair activé."]);
+    } 
+    else if (commandText.match(/(mode nuit|thème sombre|il fait nuit)/i)) {
+        document.body.classList.remove("day-mode");
+        reply(["Passage en mode nuit. Interface tactique restaurée.", "Mode sombre activé pour reposer vos yeux."]);
+    }
+    // â”€â”€ Localisation & Météo â”€â”€
+    else if (commandText.match(/(où|position|localisation|suis-je)/i)) {
+        const pos = window.currentPosition;
+        if (pos) reply([`Vos coordonnées actuelles sont latitude ${pos.lat.toFixed(3)} et longitude ${pos.lng.toFixed(3)}.`, "Je vous ai localisé sur la grille. Tout est normal."]);
+        else reply("Mes capteurs satellites cherchent encore votre position. Un instant.");
+    }
+    else if (commandText.match(/(météo|temps|pluie|pleut)/i)) {
+        if (commandText.match(/(pleut|pluie)/i) && typeof window.updateWeatherUI === "function") {
+            window.updateWeatherUI(true);
+            reply("J'ai détecté de la pluie. J'adapte l'affichage et je modifie les paramètres de freinage virtuels.");
+        } else {
+            const temp = document.getElementById("weather-hud")?.textContent || "inconnue";
+            reply([`Mes capteurs indiquent qu'il fait environ ${temp}.`, `La température extérieure est de ${temp}.`]);
+        }
+    }
+    // â”€â”€ Mécanique & Diagnostic â”€â”€
+    else if (commandText.match(/(diagnostic|état|santé|mécanique|panne|révision|cassé|bruit)/i)) {
+        if (window.PredictiveMeca) {
+            const score = Math.round(window.PredictiveMeca.getGlobalHealthScore());
+            let message = `Votre machine est opérationnelle à ${score} %.`;
+            if (score < 50) message += " Attention, une visite au garage s'impose.";
+            else if (score < 85) message += " Pensez à faire une révision bientôt.";
+            else message += " Le moteur tourne comme une horloge.";
+
+            reply(message);
+            const modal = document.getElementById("ai-diagnostic-modal");
+            if (modal) {
+                modal.classList.remove("hidden");
+                window.PredictiveMeca.updateDashboardUI();
+            }
+        } else {
+            reply("Mes modules de diagnostic sont temporairement indisponibles.");
+        }
+    }
+    // â”€â”€ Urgences (SOS, Constat, Avocat) â”€â”€
+    else if (commandText.match(/(mode constat|sos|secours|urgence|accrochage)/i)) {
+        reply("Activation du protocole d'urgence. Restez calme, je m'occupe de tout.");
+        if (window.SOSEmergency) window.SOSEmergency.trigger();
+        else {
+            const timCook = document.getElementById("tim-cook-sos-screen");
+            if (timCook) timCook.classList.remove("hidden");
+        }
+    }
+    else if (commandText.match(/(avocat|litige)/i)) {
+        reply("J'invoque l'avocat de poche. Préparez-vous à exposer votre défense.");
+        if (window.PocketLawyer && window.PocketLawyer.toggleLawyer) window.PocketLawyer.toggleLawyer();
+    }
+    // â”€â”€ Marketplace & Wallet â”€â”€
+    else if (commandText.match(/(solde|points|bvc|combien j'ai)/i)) {
+        const solde = window.session?.bvc_points || 0;
+        reply([`Votre compte affiche ${solde} points BVC.`, `Vous avez ${solde} crédits BVC en banque.`]);
+    }
+    else if (commandText.match(/(cherche|trouver|acheter)/i)) {
+        const query = commandText.replace(/.*(?:cherche|trouver(?: une pièce)?|acheter)\s+/i, "").trim();
+        if (query && query.length > 2) {
+            reply(`Recherche de "${query}" sur le marché clandestin. Un instant.`);
+            window.location.href = "marketplace.html?q=" + encodeURIComponent(query);
+        } else {
+            reply("Que cherchez-vous exactement sur la Marketplace ?");
+        }
+    }
+    // â”€â”€ Modes Spéciaux (Social, Ghost, Cortège) â”€â”€
+    else if (commandText.match(/(équipe|autres|crew|radar)/i)) {
+        if (window.SocialRadar) {
+            const count = window.SocialRadar.getNearbyCrewCount ? window.SocialRadar.getNearbyCrewCount() : 0;
+            reply(count > 0 ? `J'ai détecté ${count} alliés dans le secteur.` : "Radar balayé. Vous êtes seul dans la zone.");
+            window.SocialRadar.toggleRadar();
+        }
+    }
+    else if (commandText.match(/(mode cortège|convoi|balade)/i)) {
+        reply("Système de convoi enclenché. Regroupement imminent.");
+        if (window.CortegeMode && window.CortegeMode.start) window.CortegeMode.start();
+    }
+    else if (commandText.match(/(mode fantôme|ghost rider)/i)) {
+        reply(["Mode furtif activé. Vous avez disparu des radars.", "Brouillage des signaux en cours. Mode Fantôme actif."]);
+        if (window.GhostRider && window.GhostRider.toggleGhostMode) window.GhostRider.toggleGhostMode(true);
+    }
+    else if (commandText.match(/(verrouille|sécurité|alarme)/i)) {
+        reply("Boucliers activés. Sentinelle en ligne.");
+        if (window.SentinelV2 && window.SentinelV2.arm) window.SentinelV2.arm();
+        else if (window.Sentinel && window.Sentinel.arm) window.Sentinel.arm();
+    }
+    // â”€â”€ Easter Eggs & Conversations â”€â”€
+    else if (commandText.match(/(merci|t'es le meilleur|super)/i)) {
+        reply(["C'est un plaisir de vous assister.", "À votre service.", "Je suis là pour ça !"]);
+    }
+    else if (commandText.match(/(blague|raconte|humour)/i)) {
+        reply(["Pourquoi les scooters n'ont jamais faim ? Parce qu'ils ont toujours un plein !", "Désolé, ma carte mère manque d'humour aujourd'hui."]);
+    }
+    else if (commandText.match(/(aide|commande|que peux|que sais)/i)) {
+        reply("Je peux lancer le GPS, activer le mode fantôme, analyser la mécanique, ou vous donner la météo. Parlez-moi naturellement !");
+    }
+    // â”€â”€ Fallback NLP â”€â”€
     else {
-      speak(
-        "Je vous écoute. Dites Oracle aide pour connaître mes commandes disponibles.",
-      );
+        reply([
+            "Je n'ai pas saisi votre demande. Pouvez-vous reformuler ?", 
+            "La transmission était floue, répétez s'il vous plaît.",
+            "Je ne suis pas programmé pour ça... du moins pas encore."
+        ]);
     }
   }
 }

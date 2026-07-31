@@ -222,7 +222,7 @@ window.publishMoodCloud = async function (mood) {
   }
 };
 
-// --- SYSTÃˆME ANTI-FRAUDE SIGNALEMENT DGCCRF ---
+// --- SYSTÈME ANTI-FRAUDE SIGNALEMENT DGCCRF ---
 
 window.reportStationAbuse = async function (
   stationId,
@@ -360,7 +360,7 @@ window.getBlacklist = async function () {
   }
 };
 
-// --- SYSTÃˆME ÉVALUATION GARAGES (COMMUNAUTÉ) ---
+// --- SYSTÈME ÉVALUATION GARAGES (COMMUNAUTÉ) ---
 
 window.evaluateGarage = async function (placeId, name, score) {
   if (!db || !window.session || window.session.isGuest) {

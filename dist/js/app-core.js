@@ -1639,10 +1639,10 @@ window.OracleEngine = {
           "Dis, ton dépassement était un peu dangereux, hein !",
       },
       andalucia: {
-        start: "Â¡Ole! L'Oracle est prêt, mon ami. On y va !",
+        start: "¡Ole! L'Oracle est prêt, mon ami. On y va !",
         speed: "Eh, l'ami ! Tu vas trop vite, doucement sur l'accélérateur.",
         threat_detected: "Attention, y'a du jaleo sur la route devant.",
-        level_up: "Â¡Qué arte! Tu as monté de niveau, bravo !",
+        level_up: "¡Qué arte! Tu as monté de niveau, bravo !",
         start_guardian: "L'Ange Gardien est avec toi, l'ami.",
         stop_guardian: "L'Ange Gardien fait une petite sieste, sois prudent.",
         danger_overtake:
@@ -1684,14 +1684,14 @@ window.OracleEngine = {
     },
     es: {
       andalucia: {
-        start: "Â¡Ole! El OrÃ¡culo estÃ¡ listo, mi arma. Â¡VÃ¡monos!",
-        speed: "Â¡Eh, chiquillo! Vas mu' rÃ¡pido, frena un poco.",
+        start: "¡Ole! El OrÃ¡culo estÃ¡ listo, mi arma. ¡VÃ¡monos!",
+        speed: "¡Eh, chiquillo! Vas mu' rÃ¡pido, frena un poco.",
         threat_detected: "Cuidao, que hay un jaleo ahÃ­ delante.",
-        level_up: "Â¡Qué arte tienes! Has subido de nivel.",
+        level_up: "¡Qué arte tienes! Has subido de nivel.",
         start_guardian: "El Ãngel de la Guarda estÃ¡ contigo, mi arma.",
         stop_guardian: "El Ãngel se va a echar una siestecita, ten cuidao.",
         danger_overtake:
-          "Â¡Chiquillo! Ese adelantamiento ha sÃ­o mu' peligroso.",
+          "¡Chiquillo! Ese adelantamiento ha sÃ­o mu' peligroso.",
       },
       standard: {
         start: "Sistemas listos. ConexiÃ³n establecida.",

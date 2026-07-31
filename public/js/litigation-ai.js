@@ -433,7 +433,7 @@ window.LitigationAI = {
                     <p style="color:#aaa; margin-bottom: 20px;">Vos données certifiées sont cryptées et inaccessibles sans ce code.</p>
                     
                     <div style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 15px; border: 2px dashed #00e676; display: inline-block; margin-bottom: 20px;">
-                        <span style="display: block; font-size: 1rem; color: #888; margin-bottom: 10px;">CODE LITIGE Ã€ TRANSMETTRE Ã€ VOTRE ASSUREUR :</span>
+                        <span style="display: block; font-size: 1rem; color: #888; margin-bottom: 10px;">CODE LITIGE À TRANSMETTRE À VOTRE ASSUREUR :</span>
                         <strong style="font-size: 2.5rem; letter-spacing: 5px; color: #fff;">${disputeCode}</strong>
                     </div>
 

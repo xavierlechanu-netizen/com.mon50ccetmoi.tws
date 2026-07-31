@@ -22,7 +22,7 @@ function runCinematicStartup() {
 
   // Needle Sweep 0 -> 80 -> 0
   setTimeout(() => {
-    if (needle) needle.style.transform = "rotate(40deg)"; // 120 -> 40 pour ÃƒÂªtre proportionnel
+    if (needle) needle.style.transform = "rotate(40deg)"; // 120 -> 40 pour Ãƒªtre proportionnel
     if (gaugeFill) gaugeFill.style.strokeDashoffset = "220";
 
     let speed = 0;
@@ -146,7 +146,7 @@ window.showPage = function (page) {
             </div>`;
   } else if (page === "garage") {
     const history = JSON.parse(secureGetItem("maint_history") || "[]");
-    const ctDate = secureGetItem("ct_date") || "Non dÃƒ©fini";
+    const ctDate = secureGetItem("ct_date") || "Non défini";
 
     // Gamification Data
     const currentXP = parseInt(localStorage.getItem("pilot_xp") || "0");
@@ -244,10 +244,10 @@ window.showPage = function (page) {
             </div>`;
   } else if (page === "rodage") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3>ItinÃƒ©raires Rodage</h3>
-            <p>Routes limitÃƒ©es ÃƒÂ  45 km/h pour prÃƒ©server votre moteur.</p>
+      content.innerHTML = `<h3>Itinéraires Rodage</h3>
+            <p>Routes limitées Ãƒ  45 km/h pour préserver votre moteur.</p>
             <button class="btn-insurance" onclick="startRodage('Paris-Boucle')">Boucle Zen (Paris)</button>
-            <button class="btn-insurance" onclick="startRodage('Lyon-Quais')">Quais SaÃƒÂ´ne (Lyon)</button>`;
+            <button class="btn-insurance" onclick="startRodage('Lyon-Quais')">Quais SaÃƒ´ne (Lyon)</button>`;
   } else if (page === "insurance") {
     if (typeof content !== "undefined")
       content.innerHTML = `<div class="card-insurance">
@@ -257,15 +257,15 @@ window.showPage = function (page) {
             <div class="broker-contact">
                 <strong>Robert - Courtier Partenaire</strong>
                 <a href="tel:0749555829">Ã°Å¸“Å¾ 07 49 55 58 29</a>
-                <span>SpÃƒ©cialiste du jeune conducteur 50cc</span>
+                <span>Spécialiste du jeune conducteur 50cc</span>
             </div>
-            <p>BÃƒ©nÃƒ©ficiez de -15% sur votre assurance scooter en tant que membre.</p>
+            <p>Bénéficiez de -15% sur votre assurance scooter en tant que membre.</p>
         </div>`;
   } else if (page === "roadbooks") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3>Roadbooks</h3>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button onclick="renderRoadbooks('all')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem;">Mes CrÃƒ©ations</button>
+                <button onclick="renderRoadbooks('all')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem;">Mes Créations</button>
                 <button onclick="renderRoadbooks('favorites')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem; background:#f1c40f; color:black;"><i class="fa-solid fa-star"></i> Mes Favoris</button>
             </div>
             <ul id="roadbook-list" style="list-style:none; padding:0;"></ul>`;
@@ -273,18 +273,18 @@ window.showPage = function (page) {
   } else if (page === "mechanic") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-robot"></i> ${t("expert_meca_title")}</h3>
-            <p style="font-size:0.8rem; color:#aaa;">DÃƒ©crivez le symptÃƒÂ´me (bruit, fumÃƒ©e, panne...)</p>
-            <textarea id="meca-query" placeholder="Ex: Mon scoot broute ÃƒÂ  l'accÃƒ©lÃƒ©ration..." style="width:100%; height:80px; margin-top:10px; background:#111; color:white; border:1px solid #ffb703; border-radius:8px; padding:10px;"></textarea>
+            <p style="font-size:0.8rem; color:#aaa;">Décrivez le symptÃƒ´me (bruit, fumée, panne...)</p>
+            <textarea id="meca-query" placeholder="Ex: Mon scoot broute Ãƒ  l'accélération..." style="width:100%; height:80px; margin-top:10px; background:#111; color:white; border:1px solid #ffb703; border-radius:8px; padding:10px;"></textarea>
             <button class="btn-insurance" onclick="submitMecaV3()" style="margin-top:15px; width:100%;">Scanner mon 50cc</button>
             <div id="meca-response" style="margin-top:20px; font-size:0.9rem; line-height:1.4;"></div>`;
   } else if (page === "arbitre") {
     if (window.session && window.session.isGuest) {
-      alert("AccÃƒÂ¨s rÃƒ©servÃƒ© aux membres inscrits ! Ã°Å¸â€ºÂµ");
+      alert("Accès réservé aux membres inscrits ! Ã°Å¸â€ºµ");
       return;
     }
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> ${t("arbitre_title")}</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Posez votre question sur la rÃƒ©glementation 50cc (dÃƒ©bridage, Ãƒ©quipement, contrÃƒÂ´les...).</p>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Posez votre question sur la réglementation 50cc (débridage, équipement, contrÃƒ´les...).</p>
             
             <div id="arbitre-chat" style="background:rgba(0,0,0,0.3); border-radius:15px; padding:15px; min-height:150px; max-height:300px; overflow-y:auto; margin-bottom:15px; border:1px solid rgba(255,183,3,0.2);">
                 <div class="bot-msg" style="background:rgba(255,183,3,0.1); padding:10px; border-radius:10px 10px 10px 0; margin-bottom:10px; font-size:0.9rem; border-left:3px solid #ffb703;">
@@ -293,27 +293,27 @@ window.showPage = function (page) {
             </div>
 
             <div style="display:flex; gap:10px;">
-                <input type="text" id="arbitre-query" placeholder="Ex: Mon pot est-il homologuÃƒ© ?" style="flex:1; background:#111; color:white; border:1px solid #444; border-radius:20px; padding:10px 15px; font-size:0.9rem;">
+                <input type="text" id="arbitre-query" placeholder="Ex: Mon pot est-il homologué ?" style="flex:1; background:#111; color:white; border:1px solid #444; border-radius:20px; padding:10px 15px; font-size:0.9rem;">
                 <button onclick="submitArbitre()" style="background:#ffb703; color:black; border:none; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>`;
   } else if (page === "ia_predictive") {
     if (typeof content !== "undefined")
       content.innerHTML = `<div class="card-insurance" style="border: 2px solid #b700ff; background: rgba(20, 10, 40, 0.9);">
-            <div class="insurance-badge" style="background: #b700ff; color: white;">IA PrÃƒ©dictive & Courtier</div>
-            <h3 style="color: #00d2ff;"><i class="fa-solid fa-microchip"></i> IA PrÃƒ©dictive</h3>
+            <div class="insurance-badge" style="background: #b700ff; color: white;">IA Prédictive & Courtier</div>
+            <h3 style="color: #00d2ff;"><i class="fa-solid fa-microchip"></i> IA Prédictive</h3>
             <p style="font-size: 0.85rem; color: #ddd; margin-bottom: 15px;">L'IA analyse vos trajets pour anticiper les pannes et optimiser votre conduite 50cc.</p>
             
             <div class="glassmorphism" style="padding:15px; margin-bottom:20px; background: rgba(0,0,0,0.4);">
                 <h4 style="color: #ffb703; font-size: 0.9rem; margin-bottom: 10px;"><i class="fa-solid fa-star"></i> Avantages Courtier Partenaire</h4>
                 <ul style="color: #aaa; font-size: 0.8rem; text-align: left; padding-left: 20px;">
-                    <li><strong style="color: #fff;">-20% de rÃƒ©duction</strong> sur votre assurance tous risques grÃƒÂ¢ce ÃƒÂ  l'IA PrÃƒ©dictive.</li>
-                    <li><strong style="color: #fff;">Garantie panne 0 km</strong> incluse avec dÃƒ©pannage express.</li>
-                    <li><strong style="color: #fff;">Bonus de bonne conduite</strong> (Rouler & Gagner convertible en rÃƒ©ductions).</li>
+                    <li><strong style="color: #fff;">-20% de réduction</strong> sur votre assurance tous risques grÃƒ¢ce Ãƒ  l'IA Prédictive.</li>
+                    <li><strong style="color: #fff;">Garantie panne 0 km</strong> incluse avec dépannage express.</li>
+                    <li><strong style="color: #fff;">Bonus de bonne conduite</strong> (Rouler & Gagner convertible en réductions).</li>
                 </ul>
                 <button class="btn-insurance" style="width:100%; margin-top:10px; background: #ffb703; color: black; font-weight: bold;" onclick="showPage('insurance')">VOIR MON OFFRE ASSURANCE</button>
             </div>
 
-            <button class="btn-insurance" style="width:100%; background: linear-gradient(135deg, #b700ff, #00d2ff); color: white; font-weight: bold; border: none; padding: 15px; border-radius: 10px;" onclick="PredictiveMeca.checkAlerts(); alert('L\'IA analyse vos donnÃƒ©es de tÃƒ©lÃƒ©mÃƒ©trie actuelles... Aucun risque de serrage moteur dÃƒ©tectÃƒ© pour le moment. Vous roulez de maniÃƒÂ¨re optimale !')"><i class="fa-solid fa-bolt"></i> LANCER L'ANALYSE IA</button>
+            <button class="btn-insurance" style="width:100%; background: linear-gradient(135deg, #b700ff, #00d2ff); color: white; font-weight: bold; border: none; padding: 15px; border-radius: 10px;" onclick="PredictiveMeca.checkAlerts(); alert('L\'IA analyse vos données de télémétrie actuelles... Aucun risque de serrage moteur détecté pour le moment. Vous roulez de manière optimale !')"><i class="fa-solid fa-bolt"></i> LANCER L'ANALYSE IA</button>
         </div>`;
   } else if (page === "profile") {
     if (typeof content !== "undefined")
@@ -321,7 +321,7 @@ window.showPage = function (page) {
             <div class="glassmorphism" style="padding:20px; margin-bottom:20px;">
                 <label style="color:#aaa; font-size:0.8rem;">Pseudo :</label>
                 <input type="text" id="edit-username" value="" style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
-                <label style="color:#aaa; font-size:0.8rem;">ModÃƒÂ¨le de scooter :</label>
+                <label style="color:#aaa; font-size:0.8rem;">Modèle de scooter :</label>
                 <input type="text" id="edit-scooter" value="" placeholder="Ex: Peugeot Kisbee 50cc" style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
                 <label style="color:#aaa; font-size:0.8rem;">Email de contact :</label>
                 <input type="email" id="edit-email" value="" placeholder="contact@exemple.com" style="width:100%; padding:10px; margin-top:5px; margin-bottom:20px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
@@ -330,7 +330,7 @@ window.showPage = function (page) {
   } else if (page === "insurance_expert") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-building-shield"></i> Portail Expert Assurance</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">AccÃƒÂ¨s sÃƒ©curisÃƒ© pour les compagnies d'assurance et experts judiciaires.</p>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Accès sécurisé pour les compagnies d'assurance et experts judiciaires.</p>
             <div id="insurance-search-box" style="margin-bottom:20px;">
                 <input type="text" id="expert-report-id" placeholder="ID du Dossier (ex: blackbox_...)" style="width:100%; padding:15px; background:rgba(255,255,255,0.05); border:1px solid #444; border-radius:10px; color:white; margin-bottom:10px;">
                 <button class="btn-insurance" onclick="InsurancePortal.searchReport(document.getElementById('expert-report-id').value)" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:10px; font-weight:bold;">RECHERCHER LE DOSSIER</button>
@@ -338,8 +338,8 @@ window.showPage = function (page) {
             <div id="insurance-content"></div>`;
   } else if (page === "pulse") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3><i class="fa-solid fa-microscope"></i> Labo MÃƒ©ca : StÃƒ©thoscope IA</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Analyse biomÃƒ©trique de la santÃƒ© de votre moteur via les capteurs du smartphone.</p>
+      content.innerHTML = `<h3><i class="fa-solid fa-microscope"></i> Labo Méca : Stéthoscope IA</h3>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Analyse biométrique de la santé de votre moteur via les capteurs du smartphone.</p>
             
             <div class="glassmorphism" style="padding:20px; text-align:center;">
                 <div id="scan-visual" style="height:100px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; background:rgba(0,0,0,0.3); border-radius:15px; position:relative; overflow:hidden;">
@@ -347,28 +347,28 @@ window.showPage = function (page) {
                     <i class="fa-solid fa-gear" style="font-size:3rem; color:#ffb703; z-index:1;"></i>
                 </div>
                 <button class="btn-insurance" onclick="EnginePulse.startScan()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:10px; font-weight:bold; font-size:1.1rem;">LANCER LE DIAGNOSTIC</button>
-                <p style="font-size:0.7rem; color:#888; margin-top:10px;">Posez le tÃƒ©lÃƒ©phone sur la selle, moteur allumÃƒ© au ralenti.</p>
+                <p style="font-size:0.7rem; color:#888; margin-top:10px;">Posez le téléphone sur la selle, moteur allumé au ralenti.</p>
             </div>
             <div id="pulse-result"></div>`;
   } else if (page === "ants_wallet") {
     const passport = Wallet.getSafetyPassport();
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-building-columns"></i> Mon Coffre-Fort ANTS</h3>
-            <p style="font-size:0.75rem; color:#aaa; margin-bottom:20px;">Titres sÃƒ©curisÃƒ©s et Passeport SÃƒ©curitÃƒ© certifiÃƒ© par mon50ccetmoi.</p>
+            <p style="font-size:0.75rem; color:#aaa; margin-bottom:20px;">Titres sécurisés et Passeport Sécurité certifié par mon50ccetmoi.</p>
             
             <div class="glassmorphism" style="padding:15px; margin-bottom:15px; border-left:4px solid #2ecc71;">
-                <h4 style="font-size:0.9rem; color:#2ecc71;"><i class="fa-solid fa-id-card"></i> Passeport SÃƒ©curitÃƒ© Digital</h4>
+                <h4 style="font-size:0.9rem; color:#2ecc71;"><i class="fa-solid fa-id-card"></i> Passeport Sécurité Digital</h4>
                 <div style="font-size:0.8rem; margin-top:5px; color:#ddd;">
                     ID Blackbox: <span style="font-family:monospace; color:#2ecc71;">${passport.blackbox_id}</span><br>
                     Maintenance: <span style="color:#2ecc71;">${passport.maintenance_count} interventions</span><br>
-                    SantÃƒ© Moteur: <span style="color:#2ecc71;">${passport.engine_health}</span>
+                    Santé Moteur: <span style="color:#2ecc71;">${passport.engine_health}</span>
                 </div>
             </div>
 
             <div class="menu-list" style="margin-top:20px;">
                 <div id="ants-docs-container" style="margin-bottom:15px;"></div>
-                <li onclick="window.uploadDocument('carte_grise')"><i class="fa-solid fa-camera"></i> NumÃƒ©riser Carte Grise</li>
-                <li onclick="window.uploadDocument('permis_am')"><i class="fa-solid fa-address-card"></i> NumÃƒ©riser Permis AM</li>
+                <li onclick="window.uploadDocument('carte_grise')"><i class="fa-solid fa-camera"></i> Numériser Carte Grise</li>
+                <li onclick="window.uploadDocument('permis_am')"><i class="fa-solid fa-address-card"></i> Numériser Permis AM</li>
                 <li onclick="window.uploadDocument('assurance')"><i class="fa-solid fa-shield-check"></i> Attestation Assurance</li>
             </div>
             
@@ -376,16 +376,16 @@ window.showPage = function (page) {
                 <i class="fa-solid fa-file-shield"></i> GÃƒâ€°NÃƒâ€°RER MON CERTIFICAT OFFICIEL
             </button>
             
-            <p style="font-size:0.65rem; color:#666; text-align:center; margin-top:20px;">Note : Ce coffre-fort facilite les contrÃƒÂ´les mais ne remplace pas les documents originaux selon la lÃƒ©gislation en vigueur.</p>`;
+            <p style="font-size:0.65rem; color:#666; text-align:center; margin-top:20px;">Note : Ce coffre-fort facilite les contrÃƒ´les mais ne remplace pas les documents originaux selon la législation en vigueur.</p>`;
   } else if (page === "meca_lab") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3><i class="fa-solid fa-oil-can"></i> Le Sorcier de la MÃƒ©ca</h3>
+      content.innerHTML = `<h3><i class="fa-solid fa-oil-can"></i> Le Sorcier de la Méca</h3>
             <div class="glassmorphism" style="padding:20px; margin-bottom:20px;">
                 <h4 style="color:var(--accent);">CALCULATEUR DE MÃƒâ€°LANGE</h4>
                 <div style="margin-top:15px;">
                     <input type="number" id="mix-liters" placeholder="Litres d'essence" class="scooter-brand-select" style="width:100%; margin-bottom:10px;">
                     <input type="number" id="mix-percent" placeholder="% d'huile (ex: 2)" class="scooter-brand-select" style="width:100%; margin-bottom:10px;">
-                    <button onclick="const vol = MecaWizard.calculateMix(document.getElementById('mix-liters').value, document.getElementById('mix-percent').value); document.getElementById('mix-res').innerHTML = vol + ' ml d\'huile ÃƒÂ  ajouter';" 
+                    <button onclick="const vol = MecaWizard.calculateMix(document.getElementById('mix-liters').value, document.getElementById('mix-percent').value); document.getElementById('mix-res').innerHTML = vol + ' ml d\'huile Ãƒ  ajouter';" 
                             class="btn-insurance" style="width:100%; background:var(--accent); color:black;">CALCULER</button>
                     <div id="mix-res" style="margin-top:15px; font-weight:bold; text-align:center; color:var(--neon-blue);"></div>
                 </div>
@@ -407,8 +407,8 @@ window.showPage = function (page) {
                 
                 <div class="glassmorphism" style="padding:20px; border:1px solid var(--accent); margin-bottom:30px; text-align:left;">
                     <p style="font-size:0.9rem; font-weight:bold; text-align:center;">SIGNATURE CORPORATE</p>
-                    <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriÃƒ©tÃƒ© exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
-                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">ProtÃƒ©gÃƒ© par les lois internationales sur la propriÃƒ©tÃƒ© intellectuelle. TÃƒ©lÃƒ©mÃƒ©trie certifiÃƒ©e conforme aux standards ANTS v100.00-GOLD.</p>
+                    <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriété exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
+                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">Protégé par les lois internationales sur la propriété intellectuelle. Télémétrie certifiée conforme aux standards ANTS v100.00-GOLD.</p>
                 </div>
                 
                 <button onclick="document.getElementById('screen-overlay').classList.add('hidden')" class="btn-cancel" style="background:#333; color:white;">FERMER</button>
@@ -418,10 +418,10 @@ window.showPage = function (page) {
       { name: "Le Grand Raid", goal: 200, unit: "km" },
       { name: "L'Urbain Zen", goal: 100, unit: "km" },
       { name: "L'Explorateur", goal: 300, unit: "km" },
-      { name: "Le VÃƒ©lomoteur", goal: 50, unit: "km" },
+      { name: "Le Vélomoteur", goal: 50, unit: "km" },
     ];
 
-    // Rotation tous les 14 jours basÃƒ©e sur l'Unix Time
+    // Rotation tous les 14 jours basée sur l'Unix Time
     const fortressPeriod = 14 * 24 * 60 * 60 * 1000;
     const currentPeriodIdx =
       Math.floor(Date.now() / fortressPeriod) % availableChallenges.length;
@@ -434,7 +434,7 @@ window.showPage = function (page) {
     if (typeof content !== "undefined")
       content.innerHTML = `<div class="card" style="border:1px solid #9b59b6;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="color:#9b59b6; margin:0;">Ã°Å¸Ââ€  ${t("challenges_title")} : ${challenge.name}</h3>
+                <h3 style="color:#9b59b6; margin:0;">Ã°Å¸â€  ${t("challenges_title")} : ${challenge.name}</h3>
                 <span style="font-size:0.7rem; background:#9b59b6; color:white; padding:2px 6px; border-radius:10px;">CYCLE LIVE</span>
             </div>
             <p style="font-size:0.8rem; margin-top:10px;">Objectif : ${challenge.goal} ${challenge.unit} par quinzaine.</p>
@@ -447,7 +447,7 @@ window.showPage = function (page) {
                 <div class="garage-bar-bg" style="height:12px;">
                     <div class="garage-bar-fill" style="width:${progress}%; background:#9b59b6;"></div>
                 </div>
-                <p style="font-size:0.8rem; color:#888; margin-top:10px; text-align:center;">Ã°Å¸Å½â€“ïÂ¸Â Vous avez rÃƒ©ussi <strong>${wins}/150</strong> dÃƒ©fis pour le Badge Pro</p>
+                <p style="font-size:0.8rem; color:#888; margin-top:10px; text-align:center;">Ã°Å¸Å½â€“ï¸ Vous avez réussi <strong>${wins}/150</strong> défis pour le Badge Pro</p>
             </div>
 
                           <button class="btn-insurance" style="margin-top:20px; width:100%; background:#9b59b6; color:white;" onclick="toggleMenu()">CONTINUER L''ASCENSION</button>
@@ -474,8 +474,8 @@ window.showPage = function (page) {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-map-location-dot"></i> Navigation & Roadbooks</h3>
             <div class="glassmorphism" style="padding:20px; border-left:4px solid #f1c40f; margin-bottom:20px;">
-                <h4 style="color:#f1c40f;"><i class="fa-solid fa-stopwatch"></i> CHRONOS GUARD (ZÃƒ©ro Retard)</h4>
-                <p style="font-size:0.75rem; margin-top:5px; color:#aaa;">RÃƒ©glez votre heure d'arrivÃƒ©e cible. L'app inclut votre temps d'Ãƒ©quipement (5 min).</p>
+                <h4 style="color:#f1c40f;"><i class="fa-solid fa-stopwatch"></i> CHRONOS GUARD (Zéro Retard)</h4>
+                <p style="font-size:0.75rem; margin-top:5px; color:#aaa;">Réglez votre heure d'arrivée cible. L'app inclut votre temps d'équipement (5 min).</p>
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <input type="time" id="target-time" class="scooter-brand-select" style="flex:1;">
                     <button onclick="Chronos.setTarget(document.getElementById('target-time').value)" class="btn-insurance" style="flex:1; background:#f1c40f; color:black;">ACTIVER</button>
@@ -485,7 +485,7 @@ window.showPage = function (page) {
                 </button>
             </div>
             
-            <p style="text-align:center; padding:40px; color:#666;">Liste de vos roadbooks sauvegardÃƒ©s...</p>`;
+            <p style="text-align:center; padding:40px; color:#666;">Liste de vos roadbooks sauvegardés...</p>`;
   } else if (page === "arbitre") {
     if (
       window.Blackbox &&
@@ -494,19 +494,19 @@ window.showPage = function (page) {
       window.Blackbox.showLitigationInfo();
     } else {
       if (typeof content !== "undefined")
-        content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> Arbitre de la Route</h3><p>Service Blackbox momentanÃƒ©ment indisponible.</p>`;
+        content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> Arbitre de la Route</h3><p>Service Blackbox momentanément indisponible.</p>`;
     }
   } else if (page === "privacy") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3>Mentions LÃƒ©gales & ConfidentialitÃƒ©</h3>
+      content.innerHTML = `<h3>Mentions Légales & Confidentialité</h3>
             <div style="font-size:0.8rem; line-height:1.4; color:#ccc;">
                 <p><strong>Ãƒâ€°diteur :</strong> mon50ccetmoi (Engineering Unit)</p>
                 <p><strong>Responsable :</strong> mon50ccetmoi Admin (US)</p>
                 <p><strong>Contact :</strong> via l'application</p>
                 <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
-                <p><strong>DonnÃƒ©es GPS :</strong> Vos coordonnÃƒ©es sont traitÃƒ©es localement pour la navigation et la dÃƒ©tection de chute.</p>
-                <p><strong>Partage :</strong> Les signalements de dangers sont partagÃƒ©s de maniÃƒÂ¨re anonyme avec la communautÃƒ©.</p>
-                <p><strong>Stockage :</strong> Vos prÃƒ©fÃƒ©rences sont enregistrÃƒ©es dans votre navigateur (LocalStorage).</p>
+                <p><strong>Données GPS :</strong> Vos coordonnées sont traitées localement pour la navigation et la détection de chute.</p>
+                <p><strong>Partage :</strong> Les signalements de dangers sont partagés de manière anonyme avec la communauté.</p>
+                <p><strong>Stockage :</strong> Vos préférences sont enregistrées dans votre navigateur (LocalStorage).</p>
                 <p><strong>Version :</strong> v100.00-GOLD-PRO Build 2026</p>
                 <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
@@ -516,13 +516,13 @@ window.showPage = function (page) {
     );
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-lightbulb"></i> Conseils de Pro 50cc</h3>
-            <p style="font-size:0.7rem; color:#aaa; margin-bottom:15px;">Fiches techniques rÃƒ©digÃƒ©es par nos experts et les garages certifiÃƒ©s.</p>
+            <p style="font-size:0.7rem; color:#aaa; margin-bottom:15px;">Fiches techniques rédigées par nos experts et les garages certifiés.</p>
             
             <div id="pro-tips-container">
                 <div class="card" style="border-left:4px solid #f39c12;">
                     <button class="badge-pro" style="float:right; background:#f39c12; font-size:0.5rem; border:none; color:black; border-radius:5px; padding:2px 5px;">OFFICIEL</button>
                     <h4 style="color:#f39c12;"><i class="fa-solid fa-wrench"></i> Entretien Rapide</h4>
-                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bougie :</strong> Une bougie propre (couleur chocolat) = un moteur qui dure. Si elle est noire, votre mÃƒ©lange est trop riche.</p>
+                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bougie :</strong> Une bougie propre (couleur chocolat) = un moteur qui dure. Si elle est noire, votre mélange est trop riche.</p>
                 </div>
 
                 ${communityTips
@@ -539,8 +539,8 @@ window.showPage = function (page) {
 
                 <div class="card" style="border-left:4px solid #e74c3c;">
                     <button class="badge-pro" style="float:right; background:#e74c3c; font-size:0.5rem; border:none; color:white; border-radius:5px; padding:2px 5px;">OFFICIEL</button>
-                    <h4 style="color:#e74c3c;"><i class="fa-solid fa-scale-balanced"></i> Loi & SÃƒ©curitÃƒ©</h4>
-                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bridage :</strong> Le dÃƒ©bridage est interdit sur voie publique. En cas d'accident, votre assurance peut refuser de payer.</p>
+                    <h4 style="color:#e74c3c;"><i class="fa-solid fa-scale-balanced"></i> Loi & Sécurité</h4>
+                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bridage :</strong> Le débridage est interdit sur voie publique. En cas d'accident, votre assurance peut refuser de payer.</p>
                 </div>
             </div>`;
   } else if (page === "pro-space") {
@@ -549,19 +549,19 @@ window.showPage = function (page) {
       content.innerHTML = `<h3><i class="fa-solid fa-briefcase"></i> ${t("pro_space_title")}</h3>
             <div class="card" style="border:1px solid #3498db; background: rgba(52, 152, 219, 0.05);">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong>VisibilitÃƒ© Mobile</strong>
+                    <strong>Visibilité Mobile</strong>
                     <button onclick="toggleGarageVisibility()" class="btn-circular ${window.isGarageVisible ? "btn-neon" : "btn-dark"}" style="width:40px; height:40px;">
                         <i class="fa-solid fa-eye"></i>
                     </button>
                 </div>
-                <small style="font-size:0.6rem; color:#aaa; margin-top:5px; display:block;">Si activÃƒ©, vous apparaissez en bleu sur la carte des pilotes.</small>
+                <small style="font-size:0.6rem; color:#aaa; margin-top:5px; display:block;">Si activé, vous apparaissez en bleu sur la carte des pilotes.</small>
             </div>
 
             <div class="card">
-                <label style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immÃƒ©diat de l'atelier</label>
+                <label style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immédiat de l'atelier</label>
                 <select id="garage-status-select" onchange="updateGarageStatus(this.value)" class="scooter-brand-select" style="width:100%; background:#111;">
-                    <option value="dispo" selected>âÅ“… Prise en charge immÃƒ©diate</option>
-                    <option value="busy">âÂ³ RDV nÃƒ©cessaire (>48h)</option>
+                    <option value="dispo" selected>âÅ“… Prise en charge immédiate</option>
+                    <option value="busy">â³ RDV nécessaire (>48h)</option>
                     <option value="full">Ã°Å¸Å¡« Atelier Complet</option>
                 </select>
             </div>
@@ -569,7 +569,7 @@ window.showPage = function (page) {
             <div class="card" style="border:1px solid #f1c40f;">
                 <h4 style="color:#f1c40f; margin-bottom:10px;"><i class="fa-solid fa-bolt"></i> Offre Flash (Promo)</h4>
                 <textarea id="flash-offer-text" placeholder="Ex: -20% sur les pneus Michelin ce weekend !" style="width:100%; height:60px; background:#000; color:white; border:1px solid #444; border-radius:8px; padding:10px; font-size:0.8rem;"></textarea>
-                <button onclick="publishFlashOffer()" class="btn-insurance" style="background:#f1c40f; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Diffuser ÃƒÂ  la communautÃƒ©</button>
+                <button onclick="publishFlashOffer()" class="btn-insurance" style="background:#f1c40f; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Diffuser Ãƒ  la communauté</button>
             </div>
 
             ${
@@ -577,27 +577,27 @@ window.showPage = function (page) {
                 ? `
             <div class="card" style="text-align:center; background:rgba(52, 152, 219, 0.05); border:1px solid #3498db;">
                 <i class="fa-solid fa-certificate" style="font-size:2rem; color:#f1c40f;"></i><br>
-                <h4 style="margin:10px 0; color:#fff;">Droit d'EntrÃƒ©e & Certification</h4>
-                <p style="font-size:0.7rem; color:#aaa; margin-bottom:10px;">Devenez <strong>Garage CertifiÃƒ©</strong> pour seulement <strong>50ââ€šÂ¬ TTC</strong> (Paiement unique).</p>
+                <h4 style="margin:10px 0; color:#fff;">Droit d'Entrée & Certification</h4>
+                <p style="font-size:0.7rem; color:#aaa; margin-bottom:10px;">Devenez <strong>Garage Certifié</strong> pour seulement <strong>50ââ€š¬ TTC</strong> (Paiement unique).</p>
                 <ul style="font-size:0.65rem; color:#ccc; list-style:none; padding:0; text-align:left; margin-bottom:15px;">
-                    <li>âÅ“… Badge <strong>CertifiÃƒ© mon50ccetmoi</strong></li>
-                    <li>Ã°Å¸Å¡€ <strong>Boost de visibilitÃƒ©</strong> sur la carte</li>
-                    <li>Ã°Å¸â€ºÂ ïÂ¸Â AccÃƒÂ¨s illimitÃƒ© aux fiches techniques</li>
-                    <li>Ã°Å¸‘â€ PrioritÃƒ© dans les rÃƒ©sultats de recherche</li>
+                    <li>âÅ“… Badge <strong>Certifié mon50ccetmoi</strong></li>
+                    <li>Ã°Å¸Å¡€ <strong>Boost de visibilité</strong> sur la carte</li>
+                    <li>Ã°Å¸â€º ï¸ Accès illimité aux fiches techniques</li>
+                    <li>Ã°Å¸‘" Priorité dans les résultats de recherche</li>
                 </ul>
-                <button onclick="payGarageEntryFee()" class="btn-insurance" style="background:#f1c40f; color:black; font-weight:bold;">S'acquitter du droit d'entrÃƒ©e (50ââ€šÂ¬)</button>
+                <button onclick="payGarageEntryFee()" class="btn-insurance" style="background:#f1c40f; color:black; font-weight:bold;">S'acquitter du droit d'entrée (50ââ€š¬)</button>
                 
                 <div style="margin-top:15px; padding-top:15px; border-top:1px solid #444;">
-                    <p style="font-size:0.7rem; color:#2ecc71;"><strong>Ã°Å¸Å½Â OPTION "CROISSANCE" GRATUITE :</strong></p>
-                    <p style="font-size:0.6rem; color:#aaa;">Offrez <strong>-10% de rÃƒ©duction</strong> aux membres sur prÃƒ©sentation de l'app et soyez <strong>exonÃƒ©rÃƒ©</strong> des 50ââ€šÂ¬ !</p>
+                    <p style="font-size:0.7rem; color:#2ecc71;"><strong>Ã°Å¸Å½ OPTION "CROISSANCE" GRATUITE :</strong></p>
+                    <p style="font-size:0.6rem; color:#aaa;">Offrez <strong>-10% de réduction</strong> aux membres sur présentation de l'app et soyez <strong>exonéré</strong> des 50ââ€š¬ !</p>
                     <button onclick="applyPartnerExemption()" class="btn-insurance fa-beat" style="background:transparent; border:1px solid #2ecc71; color:#2ecc71; margin-top:5px; font-size:0.8rem; font-weight:bold;">REJOINDRE LE RÃƒâ€°SEAU GRATUITEMENT (-10%)</button>
                 </div>
             </div>`
                 : `
             <div class="card" style="text-align:center; background:rgba(46, 204, 113, 0.1); border:1px solid #2ecc71;">
                 <i class="fa-solid fa-check-double" style="font-size:1.5rem; color:#2ecc71;"></i>
-                <p style="font-size:0.8rem; color:#2ecc71; margin-top:5px;"><strong>Statut PRO CertifiÃƒ© Actif</strong></p>
-                <small style="font-size:0.6rem; color:#aaa;">Votre visibilitÃƒ© est boostÃƒ©e au maximum.</small>
+                <p style="font-size:0.8rem; color:#2ecc71; margin-top:5px;"><strong>Statut PRO Certifié Actif</strong></p>
+                <small style="font-size:0.6rem; color:#aaa;">Votre visibilité est boostée au maximum.</small>
             </div>`
             }
 
@@ -613,15 +613,15 @@ window.showPage = function (page) {
       content.innerHTML = `<h3><i class="fa-solid fa-heart"></i> ${t("donate_title")}</h3>
             <div class="card" style="text-align:center; background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(0,0,0,0)); border: 1px solid #e91e63;">
                 <i class="fa-solid fa-mug-hot fa-bounce" style="font-size:3rem; color:#e91e63; margin-bottom:15px;"></i>
-                <p style="font-size:0.9rem; line-height:1.5;"><strong>mon50ccetmoi</strong> est un projet de passionnÃƒ©, dÃƒ©veloppÃƒ© sur mon temps libre pour la communautÃƒ© des pilotes de 50cc.</p>
-                <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">L'application restera 100% gratuite, mais les dons aident ÃƒÂ  payer les serveurs (Google Maps API, Firebase) et ÃƒÂ  financer les futures mises ÃƒÂ  jour.</p>
+                <p style="font-size:0.9rem; line-height:1.5;"><strong>mon50ccetmoi</strong> est un projet de passionné, développé sur mon temps libre pour la communauté des pilotes de 50cc.</p>
+                <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">L'application restera 100% gratuite, mais les dons aident Ãƒ  payer les serveurs (Google Maps API, Firebase) et Ãƒ  financer les futures mises Ãƒ  jour.</p>
                 
                 <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
-                    <a href="https://www.buymeacoffee.com/mon50cc" target="_blank" class="btn-insurance" style="background:#ffdd00; color:black; text-decoration:none;">âËœ• Offrir un cafÃƒ© (Badge MÃƒ©cÃƒÂ¨ne Ã°Å¸’â€“)</a>
+                    <a href="https://www.buymeacoffee.com/mon50cc" target="_blank" class="btn-insurance" style="background:#ffdd00; color:black; text-decoration:none;">âËœ• Offrir un café (Badge Mécène Ã°Å¸’â€“)</a>
                     <a href="https://paypal.me/mon50cc" target="_blank" class="btn-insurance" style="background:#0070ba; color:white; text-decoration:none;">Ã°Å¸’â„¢ Faire un don libre (PayPal)</a>
                 </div>
                 
-                <p style="font-size:0.7rem; color:#666; margin-top:15px;">Ã°Å¸Å½Â Chaque don dÃƒ©bloque le badge exclusif **"MÃƒ©cÃƒÂ¨ne"** sur votre profil et sur la carte communautaire !</p>
+                <p style="font-size:0.7rem; color:#666; margin-top:15px;">Ã°Å¸Å½ Chaque don débloque le badge exclusif **"Mécène"** sur votre profil et sur la carte communautaire !</p>
             </div>
         `;
   } else if (page === "security") {
@@ -639,7 +639,7 @@ window.showPage = function (page) {
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <strong style="font-size:0.9rem;">Guardian Mode</strong><br>
-                    <small style="font-size:0.6rem; color:#aaa;">Alerte si arrÃƒÂªt prolongÃƒ© suspect</small>
+                    <small style="font-size:0.6rem; color:#aaa;">Alerte si arrÃƒªt prolongé suspect</small>
                 </div>
                 <button onclick="toggleGuardian()" class="btn-circular ${isGuardian ? "btn-neon" : "btn-dark"}" style="width:50px; height:50px;">
                     <i class="fa-solid fa-bell"></i>
@@ -648,8 +648,8 @@ window.showPage = function (page) {
 
             <div class="card" style="background:rgba(255,255,255,0.05); text-align:center;">
                 <i class="fa-solid fa-microchip" style="font-size:2rem; color:#2ecc71; margin-bottom:10px;"></i><br>
-                <strong style="font-size:0.8rem;">DÃƒ©tecteur G-Force : ACTIF</strong><br>
-                <small style="font-size:0.6rem; color:#666;">Impact calibrÃƒ© ÃƒÂ  4.5G</small>
+                <strong style="font-size:0.8rem;">Détecteur G-Force : ACTIF</strong><br>
+                <small style="font-size:0.6rem; color:#666;">Impact calibré Ãƒ  4.5G</small>
             </div>`;
   }
   toggleMenu();
@@ -661,7 +661,7 @@ window.shareApp = async function () {
     id: "com.mon50ccetmoi.twa",
     lang: "fr-FR",
     title: "mon50ccetmoi",
-    text: "Rejoins la communautÃƒ© des scooters 50cc ! Navigation GPS, radars et sÃƒ©curitÃƒ©.",
+    text: "Rejoins la communauté des scooters 50cc ! Navigation GPS, radars et sécurité.",
     url: window.location.origin,
   };
   try {
@@ -669,7 +669,7 @@ window.shareApp = async function () {
       await navigator.share(shareData);
     } else {
       alert(
-        "Lien copiÃƒ© ! Partage-le avec tes potes : " + window.location.origin,
+        "Lien copié ! Partage-le avec tes potes : " + window.location.origin,
       );
     }
   } catch (err) {}
@@ -684,8 +684,8 @@ window.submitMecaV3 = function () {
   setTimeout(() => {
     res.innerHTML = `<div style="background:rgba(255,183,3,0.1); padding:15px; border-radius:10px; border-left:4px solid #ffb703;">
             <strong>Diagnostic IA:</strong><br>
-            Il est probable que votre bougie soit encrassÃƒ©e ou que le gicleur de votre carburateur soit bouchÃƒ©. 
-            VÃƒ©rifiez l'Ãƒ©tincelle et nettoyez votre cuve.
+            Il est probable que votre bougie soit encrassée ou que le gicleur de votre carburateur soit bouché. 
+            Vérifiez l'étincelle et nettoyez votre cuve.
         </div>`;
   }, 2000);
 };
@@ -700,7 +700,7 @@ window.addEventListener("devicemotion", (e) => {
     triggerFallAlert();
     if (window.isGuardianActive && typeof triggerEmergencySOS === "function") {
       triggerEmergencySOS(
-        "Chute brutale dÃƒ©tectÃƒ©e par l'accÃƒ©lÃƒ©romÃƒÂ¨tre.",
+        "Chute brutale détectée par l'accéléromètre.",
       );
     }
   }

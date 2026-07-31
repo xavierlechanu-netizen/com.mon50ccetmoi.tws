@@ -25,7 +25,7 @@ window.processArbitreQuery = async function (query) {
         },
         {
           keywords: ["débridage", "vitesse", "45", "km/h", "moteur"],
-          response: `<strong>ðŸš€ RÃˆGLE : Vitesse & Catégorie AM</strong><br><br>
+          response: `<strong>ðŸš€ RÈGLE : Vitesse & Catégorie AM</strong><br><br>
                     ⚖️ <strong>Loi :</strong> Article R311-1 (France).<br>
                     🌍 <strong>International :</strong> Directive Européenne 2006/126/CE : La catégorie AM est limitée à <strong>45 km/h</strong>.<br>
                     ðŸ”¹ <strong>Sanction :</strong> Amende (135€ en FR) et confiscation du véhicule.`,
@@ -46,7 +46,7 @@ window.processArbitreQuery = async function (query) {
         },
         {
           keywords: ["interfiles", "remontée", "file"],
-          response: `<strong>ðŸï¸ RÃˆGLE : Circulation Inter-Files</strong><br><br>
+          response: `<strong>ðŸï¸ RÈGLE : Circulation Inter-Files</strong><br><br>
                     🌍 <strong>Convention de Vienne :</strong> Le dépassement doit se faire par la gauche.<br>
                     ⚖️ <strong>Spécificité :</strong> En France, la CIF est en expérimentation sur certaines voies rapides (50 km/h max). Interdite partout ailleurs.`,
         },

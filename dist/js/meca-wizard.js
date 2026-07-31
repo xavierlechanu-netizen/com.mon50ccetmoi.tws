@@ -104,7 +104,7 @@ window.MecaWizard = {
     resultDiv.innerHTML = `
             <div class="glassmorphism biometric-scan" style="padding:20px; text-align:center;">
                 <i class="fa-solid fa-volume-high fa-beat" style="font-size:2rem; color:var(--neon-blue);"></i>
-                <p style="margin-top:15px; font-weight:bold;">INITIALISATION DU DÉCIBELMÃˆTRE...</p>
+                <p style="margin-top:15px; font-weight:bold;">INITIALISATION DU DÉCIBELMÈTRE...</p>
             </div>
         `;
 

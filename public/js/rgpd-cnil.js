@@ -1,4 +1,4 @@
-﻿/* ═══════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    CONFORMITÉ GLOBALE : RGPD, CCPA, PIPL & GOOGLE PLAY CONSOLE
    ═══════════════════════════════════════════════════════════════ */
 
@@ -131,6 +131,8 @@ window.acceptGlobalPrivacy = function () {
   localStorage.setItem("global_privacy_consent", "true");
   localStorage.setItem("cnil_consent", "true"); // legacy support
   localStorage.setItem("legal_consent_accepted", "true"); // bypass app-core modal
+  localStorage.setItem("location_consent_accepted", "true"); // Fix GPS blocage
+  localStorage.setItem("rgpd_gps_consent", "true"); // Fix Privacy manager
   localStorage.setItem("privacy_consent_record", JSON.stringify(consentRecord));
   localStorage.setItem("cnil_mic", micChecked ? "true" : "false");
   localStorage.setItem("cnil_cam", camChecked ? "true" : "false");

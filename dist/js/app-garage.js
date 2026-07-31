@@ -1,10 +1,10 @@
-﻿// F11 : MÃƒâ€°CANO Ãƒ€ LA DEMANDE (Garages Partenaires CertifiÃƒ©s)
-// ModÃƒÂ¨le : Frais d'entrÃƒ©e unique 49,90ââ€šÂ¬ pour le garage
-// L'accÃƒÂ¨s pilote est entiÃƒÂ¨rement GRATUIT
+﻿// F11 : MÃƒâ€°CANO Ãƒ€ LA DEMANDE (Garages Partenaires Certifiés)
+// Modèle : Frais d'entrée unique 49,90ââ€š¬ pour le garage
+// L'accès pilote est entièrement GRATUIT
 // ============================================================
 window.MecanoDemande = {
-  // Garages certifiÃƒ©s (frais d'entrÃƒ©e unique 49,90ââ€šÂ¬ pour ÃƒÂªtre rÃƒ©fÃƒ©rencÃƒ©)
-  // En production, ces donnÃƒ©es viendront de Firebase
+  // Garages certifiés (frais d'entrée unique 49,90ââ€š¬ pour Ãƒªtre référencé)
+  // En production, ces données viendront de Firebase
   _getCertifiedGarages() {
     return JSON.parse(localStorage.getItem("certified_garages") || "[]");
   },
@@ -17,7 +17,7 @@ window.MecanoDemande = {
     const { lat, lng } = window.currentPosition;
     const garages = this._getCertifiedGarages();
 
-    // Filtrage : uniquement les certifiÃƒ©s avec statut disponible
+    // Filtrage : uniquement les certifiés avec statut disponible
     const nearby = garages.filter((g) => {
       const dist = window.haversineDistance
         ? window.haversineDistance(lat, lng, g.lat, g.lng)
@@ -34,10 +34,10 @@ window.MecanoDemande = {
       return `<div style="text-align:center; padding:30px; color:#444;">
                 <i class="fa-solid fa-wrench" style="font-size:2rem; margin-bottom:10px; display:block;"></i>
                 <p style="font-size:0.85rem;">Aucun garage partenaire dans votre secteur pour le moment.</p>
-                <p style="font-size:0.7rem; color:#333; margin-top:10px;">Vous ÃƒÂªtes garagiste ? Rejoignez notre rÃƒ©seau.</p>
+                <p style="font-size:0.7rem; color:#333; margin-top:10px;">Vous Ãƒªtes garagiste ? Rejoignez notre réseau.</p>
                 <a href="mailto:contact@mon50ccetmoi.com?subject=Rejoindre le réseau partenaire" 
                    style="display:inline-block; margin-top:10px; padding:8px 15px; background:var(--accent); color:#000; border-radius:10px; font-size:0.75rem; text-decoration:none; font-weight:bold;">
-                   âÅ“â€°ïÂ¸Â Nous contacter
+                   âÅ“â€°ï¸ Nous contacter
                 </a>
             </div>`;
     }
@@ -53,7 +53,7 @@ window.MecanoDemande = {
                     </div>
                     <div style="text-align:right;">
                         <div style="font-size:0.65rem; font-weight:bold; color:${g.status === "dispo" ? "#2ecc71" : g.status === "busy" ? "#f1c40f" : "#ff4d4d"};">
-                            ${g.status === "dispo" ? "âÅ“… Dispo" : g.status === "busy" ? "âÂ³ Sur RDV" : "Ã°Å¸Å¡« Complet"}
+                            ${g.status === "dispo" ? "âÅ“… Dispo" : g.status === "busy" ? "â³ Sur RDV" : "Ã°Å¸Å¡« Complet"}
                         </div>
                         <div style="font-size:0.6rem; color:#555; margin-top:2px;">âËœ… CERTIFIÃƒâ€°</div>
                     </div>
@@ -72,7 +72,7 @@ window.MecanoDemande = {
   },
 };
 
-// Ajout de la page mÃƒ©cano dans showPage (hook)
+// Ajout de la page mécano dans showPage (hook)
 const _origShowPage = window.showPage;
 window.showPage = function (page) {
   const hud = document.getElementById("hud");
@@ -88,10 +88,10 @@ window.showPage = function (page) {
     if (navigator.vibrate) navigator.vibrate(50);
     setTimeout(() => content.classList.add("page-enter-active"), 50);
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3><i class="fa-solid fa-wrench"></i> MÃƒ©cano ÃƒÂ  la Demande</h3>
-            <p style="font-size:0.75rem; color:#aaa; margin-bottom:5px;">Garages certifiÃƒ©s partenaires â€â€ accÃƒÂ¨s gratuit pour les pilotes.</p>
+      content.innerHTML = `<h3><i class="fa-solid fa-wrench"></i> Mécano Ãƒ  la Demande</h3>
+            <p style="font-size:0.75rem; color:#aaa; margin-bottom:5px;">Garages certifiés partenaires â€" accès gratuit pour les pilotes.</p>
             <div style="font-size:0.6rem; color:#555; background:rgba(255,183,3,0.05); border:1px solid #333; border-radius:8px; padding:8px; margin-bottom:15px;">
-                <i class="fa-solid fa-certificate" style="color:#f1c40f;"></i> Tous les garages affichÃƒ©s ont rejoint le rÃƒ©seau <strong>mon50ccetmoi</strong>.
+                <i class="fa-solid fa-certificate" style="color:#f1c40f;"></i> Tous les garages affichés ont rejoint le réseau <strong>mon50ccetmoi</strong>.
             </div>
             ${window.MecanoDemande.getHTMLPanel()}`;
     return;
@@ -258,7 +258,7 @@ window.BlackBoxInsurance = {
       sessionStorage.getItem("blackbox_last_ride") || "[]",
     );
     if (!frames.length) {
-      alert("Aucune donnÃƒ©e disponible / No data");
+      alert("Aucune donnée disponible / No data");
       return;
     }
 
@@ -266,11 +266,11 @@ window.BlackBoxInsurance = {
       fr: {
         rTitle: "=== RAPPORT BLACK BOX mon50ccetmoi ===",
         rDate: "Date :",
-        rPts: "Points enregistrÃƒ©s :",
+        rPts: "Points enregistrés :",
         rMaxSpd: "Vitesse maximum :",
-        rStart: "DÃƒ©part GPS :",
-        rEnd: "ArrivÃƒ©e GPS :",
-        rGen: "Ce rapport est gÃƒ©nÃƒ©rÃƒ© par l'application mon50ccetmoi.",
+        rStart: "Départ GPS :",
+        rEnd: "Arrivée GPS :",
+        rGen: "Ce rapport est généré par l'application mon50ccetmoi.",
         rContact:
           "Pour toute expertise assurance, contactez : contact@mon50ccetmoi.fr",
         rEndTxt: "=== FIN DU RAPPORT ===",
@@ -290,7 +290,7 @@ window.BlackBoxInsurance = {
         rTitle: "=== INFORME BLACK BOX mon50ccetmoi ===",
         rDate: "Fecha:",
         rPts: "Puntos registrados:",
-        rMaxSpd: "Velocidad mÃƒÂ¡xima:",
+        rMaxSpd: "Velocidad mÃƒ¡xima:",
         rStart: "Salida GPS:",
         rEnd: "Llegada GPS:",
         rGen: "Este informe es generado por la aplicaciÃƒ³n mon50ccetmoi.",
@@ -302,10 +302,10 @@ window.BlackBoxInsurance = {
         rTitle: "=== RAPPORTO BLACK BOX mon50ccetmoi ===",
         rDate: "Data:",
         rPts: "Punti registrati:",
-        rMaxSpd: "VelocitÃƒÂ  massima:",
+        rMaxSpd: "VelocitÃƒ  massima:",
         rStart: "Partenza GPS:",
         rEnd: "Arrivo GPS:",
-        rGen: "Questo rapporto ÃƒÂ¨ generato dall'applicazione mon50ccetmoi.",
+        rGen: "Questo rapporto è generato dall'applicazione mon50ccetmoi.",
         rContact:
           "Per perizie assicurative, contattare: contact@mon50ccetmoi.fr",
         rEndTxt: "=== FINE DEL RAPPORTO ===",
@@ -314,12 +314,12 @@ window.BlackBoxInsurance = {
         rTitle: "=== BLACK BOX BERICHT mon50ccetmoi ===",
         rDate: "Datum:",
         rPts: "Aufgezeichnete Punkte:",
-        rMaxSpd: "HÃƒÂ¶chstgeschwindigkeit:",
+        rMaxSpd: "HÃƒ¶chstgeschwindigkeit:",
         rStart: "GPS Start:",
         rEnd: "GPS Ziel:",
         rGen: "Dieser Bericht wurde von der App mon50ccetmoi erstellt.",
         rContact:
-          "FÃƒÂ¼r Versicherungsfragen kontaktieren Sie: contact@mon50ccetmoi.fr",
+          "FÃƒ¼r Versicherungsfragen kontaktieren Sie: contact@mon50ccetmoi.fr",
         rEndTxt: "=== ENDE DES BERICHTS ===",
       },
     };
@@ -334,7 +334,7 @@ window.BlackBoxInsurance = {
 
     speak(
       lang === "fr"
-        ? "GÃƒ©nÃƒ©ration du rapport Black Box en cours."
+        ? "Génération du rapport Black Box en cours."
         : "Generating Black Box report.",
     );
 

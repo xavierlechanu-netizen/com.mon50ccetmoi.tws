@@ -25,6 +25,7 @@ const db = admin.firestore();
 // ─── Clés secrètes Revolut via Firebase Secret Manager ──────────────────────
 const REVOLUT_SECRET_KEY = defineSecret("REVOLUT_SECRET_KEY");
 const REVOLUT_WEBHOOK_SECRET = defineSecret("REVOLUT_WEBHOOK_SECRET");
+const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
 
 // ─── Constantes API Revolut ─────────────────────────────────────────────────
 // PRODUCTION : merchant.revolut.com (anciennement sandbox-merchant.revolut.com)
@@ -480,6 +481,62 @@ exports.sendWelcomeEmail = onDocumentCreated(
             console.log(`Welcome email sent to ${email}`);
         } catch (error) {
             console.error("Error sending email:", error);
+        }
+    }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. askJarvisGemini (Relais sécurisé pour l'IA)
+//    Reçoit l'historique de conversation, interroge l'API Gemini et renvoie la réponse.
+// ─────────────────────────────────────────────────────────────────────────────
+exports.askJarvisGemini = onRequest(
+    { secrets: [GEMINI_API_KEY], region: "europe-west1" },
+    async (req, res) => {
+        setCorsHeaders(res);
+        if (req.method === "OPTIONS") return res.status(204).send("");
+        if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
+
+        const { history, systemPrompt } = req.body;
+        if (!history || !systemPrompt) {
+            return res.status(400).json({ error: "history and systemPrompt are required" });
+        }
+
+        const apiKey = GEMINI_API_KEY.value();
+        if (!apiKey) {
+            return res.status(500).json({ error: "Clé API Gemini non configurée." });
+        }
+
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+        try {
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    system_instruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                    contents: history,
+                    generationConfig: {
+                        temperature: 0.3,
+                        response_mime_type: "application/json"
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                console.error("[Jarvis Gemini] Erreur API externe :", err);
+                return res.status(response.status).json({ error: err.error?.message || "Erreur API Gemini" });
+            }
+
+            const data = await response.json();
+            return res.status(200).json(data);
+        } catch (err) {
+            console.error("[Jarvis Gemini] Exception serveur :", err);
+            return res.status(500).json({ error: "Erreur interne", message: err.message });
         }
     }
 );

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ðŸ‘ï¸ APEX SENTINEL - ZERO-TRUST ARCHITECTURE
  * Biométrie comportementale & Continuous Authentication
  * Bloque l'application si l'utilisateur change soudainement de comportement (ex: vol à l'arraché).
@@ -64,13 +64,15 @@ const ZeroTrust = {
       this.threatLevel += 100; // Trigger instant lockdown
     }
 
-    // 2. Anti-Debugger / DevTools Detection
+    // 2. Anti-Debugger / DevTools Detection (non-bloquant)
+    // Note: La méthode `debugger;` a été retirée car elle bloquait le développement.
+    // On utilise une détection passive basée sur la taille de la fenêtre.
     setInterval(() => {
-      const start = performance.now();
-      debugger; // If DevTools is open, this will pause execution and time difference will be huge
-      if (performance.now() - start > 100) {
-        console.error("[ZERO-TRUST] DevTools tampering detected.");
-        this.threatLevel += 20;
+      const widthThreshold = window.outerWidth - window.innerWidth > 160;
+      const heightThreshold = window.outerHeight - window.innerHeight > 160;
+      if (widthThreshold || heightThreshold) {
+        console.warn("[ZERO-TRUST] DevTools potentially open.");
+        this.threatLevel += 5;
       }
     }, 3000);
 

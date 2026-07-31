@@ -294,7 +294,9 @@ window.searchDestination = function () {
         const startPos = resStart[0].geometry.location;
         geocoder.geocode({ address: query }, (resEnd, statusEnd) => {
           if (statusEnd === "OK") {
-            calculateRouteSansAutoroute(startPos, resEnd[0].geometry.location);
+            const dest = resEnd[0].geometry.location;
+            window.currentRouteDestination = dest;
+            calculateRouteSansAutoroute(startPos, dest);
           } else {
             speak("Destination introuvable.");
           }
@@ -318,6 +320,7 @@ window.searchDestination = function () {
   geocoder.geocode({ address: query }, (res, status) => {
     if (status === "OK") {
       const dest = res[0].geometry.location;
+      window.currentRouteDestination = dest;
       calculateRouteSansAutoroute(currentPosition, dest);
       map.panTo(dest);
       const btnCancel = document.getElementById("btn-cancel-route");

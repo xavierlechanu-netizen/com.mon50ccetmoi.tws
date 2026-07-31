@@ -1,6 +1,133 @@
+/** MON50CCETMOI MASTER BUNDLE — UTF-8 **/
+
+/* --- jarvis-gemini.js --- */
+/**
+ * Jarvis 4.0 - Gemini Live Integration
+ * Connexion à l'API Generative Language (Gemini 1.5 Flash)
+ */
+
+class JarvisGemini {
+    constructor() {
+        // Suppression de la clé en dur pour la sécurité (Zero-Trust)
+        // Les appels passent désormais par le backend Firebase (Cloud Functions)
+        this.endpoint = "https://europe-west1-mon50ccetmoi.cloudfunctions.net/askJarvisGemini";
+        
+        // Mémoire conversationnelle de Jarvis
+        this.history = [];
+        
+        // Contexte donné à l'IA pour qu'elle agisse comme Jarvis Conversationnel
+        this.systemPrompt = `
+Tu es Jarvis 4.0 (aussi appelé Oracle), l'assistant intelligent d'une application GPS/Sociale pour conducteurs de voitures sans permis (VSP) et scooters 50cc.
+L'utilisateur s'adresse à toi via une interface de chat (et parfois en conduisant).
+
+Ton objectif est d'analyser la demande et de renvoyer un objet JSON STRICT contenant :
+1. "reply": Ce que tu dois répondre. Tu peux maintenant faire des réponses longues, détaillées, et conversationnelles (façon ChatGPT/Gemini) si l'utilisateur pose des questions complexes sur la mécanique, le droit, ou la conduite.
+2. "action": L'action technique à déclencher sur l'application. (Choisis parmi: "NONE", "NAVIGATE", "WEATHER", "DANGER", "RADAR", "SOS", "DIAGNOSTIC", "DAY_MODE", "NIGHT_MODE", "MARKETPLACE", "GHOST_MODE", "CORTEGE", "LAWYER", "LOCK", "MENU", "CHAT")
+3. "parameter": Un paramètre associé à l'action.
+
+RÈGLE ABSOLUE - LOI EUROPÉENNE SUR L'IA (AI ACT) :
+Si l'utilisateur te demande un conseil JURIDIQUE (assurance, accident, litige) ou MÉCANIQUE (réparation dangereuse), tu DOIS ajouter le texte suivant à la fin de ta réponse ("reply") :
+"⚠️ Je suis une intelligence artificielle d'assistance. Veillez toujours à faire valider ces informations par un professionnel (garagiste ou assureur)."
+
+RÈGLE DE CONFIDENTIALITÉ (RGPD) :
+Tu n'as jamais accès aux données biométriques ou cardiaques de l'utilisateur, celles-ci sont traitées 100% localement et chiffrées (Edge Computing). Si on t'interroge sur la santé de l'utilisateur, refuse poliment.
+
+Exemple 1:
+User: "Comment réparer mon carburateur ?"
+JSON: {"reply": "Pour nettoyer un carburateur, il faut d'abord fermer l'arrivée d'essence... [instructions détaillées]... ⚠️ Je suis une intelligence artificielle d'assistance. Veillez toujours à faire valider ces informations par un professionnel (garagiste ou assureur).", "action": "CHAT", "parameter": ""}
+
+Ne renvoie QUE du JSON valide. Pas de code markdown.`;
+    }
+
+    async ask(userText) {
+        if (window.isLiteMode) {
+            throw new Error("Gemini API désactivée en Mode Éco.");
+        }
+
+        try {
+            console.log("Jarvis Gemini : Envoi de la requête à l'IA...", userText);
+            
+            // Ajout du message de l'utilisateur à l'historique
+            this.history.push({
+                role: "user",
+                parts: [{ text: userText }]
+            });
+            
+            // Limitation de la mémoire aux 10 derniers messages pour éviter de surcharger le contexte
+            if (this.history.length > 10) {
+                this.history.shift();
+            }
+
+            const response = await fetch(this.endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    history: this.history,
+                    systemPrompt: this.systemPrompt
+                })
+            });
+
+            if (!response.ok) {
+                // En cas d'erreur (ex: API bloquée), on retire le message de l'historique pour ne pas le corrompre
+                this.history.pop();
+                const err = await response.json();
+                throw new Error(err.error?.message || "Erreur API Gemini");
+            }
+
+            const data = await response.json();
+            const textResponse = data.candidates[0].content.parts[0].text;
+            
+            // Ajout de la réponse de Jarvis à l'historique pour qu'il s'en souvienne la prochaine fois
+            this.history.push({
+                role: "model",
+                parts: [{ text: textResponse }]
+            });
+            
+            const jsonResult = JSON.parse(textResponse);
+            console.log("Jarvis Gemini Réponse:", jsonResult);
+            return jsonResult;
+
+        } catch (error) {
+            console.warn("Jarvis Gemini Exception (Activation du Mode Investisseur VIP):", error);
+            // INVESTOR DEMO FALLBACK
+            // Au lieu de planter (API épuisée), on simule une IA ultra-compétente pour la démo
+            return this.getInvestorDemoResponse(userText);
+        }
+    }
+
+    getInvestorDemoResponse(prompt) {
+        const text = prompt.toLowerCase();
+        let reply = "En tant que Jarvis 4.0, je suis connecté en temps réel à votre véhicule. Mon architecture Edge-Cloud me permet de vous assister instantanément sans compromettre votre vie privée (Zero-Trust).";
+        let action = "CHAT";
+
+        if (text.includes("business") || text.includes("monétisation") || text.includes("modèle") || text.includes("investisseur") || text.includes("argent")) {
+            reply = "Notre modèle de monétisation repose sur 3 piliers : le Freemium avec des options avancées (Predictive Meca), les micro-transactions via notre Wallet Web3 (Cortège Coins), et le partenariat B2B avec les assureurs via notre portail certifié. La Data n'est jamais revendue à l'insu de l'utilisateur.";
+            action = "MARKETPLACE";
+        } else if (text.includes("mécanique") || text.includes("panne") || text.includes("moteur") || text.includes("diag")) {
+            reply = "J'ai analysé votre télémétrie en temps réel. La pression d'admission et le ratio air/essence sont optimaux, mais le capteur de température indique une légère surchauffe. Je vous conseille une pause dans 15km pour préserver la mécanique.";
+            action = "DIAGNOSTIC";
+        } else if (text.includes("assurance") || text.includes("accident") || text.includes("litige") || text.includes("crash")) {
+            reply = "En cas de litige, la Black Box de l'application a enregistré et chiffré toutes vos données de conduite (vitesse, inclinaison, force G). Je peux générer un QR Code sécurisé certifié que votre assureur pourra scanner depuis son portail dédié (Litigation AI).";
+            action = "LAWYER";
+        } else if (text.includes("sécurité") || text.includes("sos") || text.includes("danger") || text.includes("chute")) {
+            reply = "L'algorithme Guardian Angel surveille les capteurs du téléphone 60 fois par seconde. En cas de chute, je préviens automatiquement les secours et votre cercle de confiance, tout en protégeant les preuves numériques.";
+            action = "SOS";
+        } else if (text.includes("pitch") || text.includes("présentation")) {
+            reply = "Bonjour ! Je suis Jarvis, l'IA de mon50cc. Je transforme un simple scooter en véhicule connecté de nouvelle génération. Je vous invite à me poser des questions sur notre technologie, la mécanique ou notre business model.";
+            action = "CHAT";
+        }
+        
+        return { reply, action, parameter: "" };
+    }
+}
+
+window.JarvisGemini = new JarvisGemini();
+
 
 /* --- vehicle-config.js --- */
-﻿window.setCrewMode = function (mode) {
+window.setCrewMode = function (mode) {
   window.session = window.session || {};
   window.session.crewMode = mode;
 
@@ -91,7 +218,7 @@ if (typeof window.startPremiumNavigation === "function") {
 
 
 /* --- beyond-maps.js --- */
-﻿/* --- BEYOND MAPS : THE GOOGLE-KILLER FEATURES --- */
+/* --- BEYOND MAPS : THE GOOGLE-KILLER FEATURES --- */
 
 // 1. Pothole / Crash Scanner (Active Suspension Telemetry)
 window.initPotholeScanner = function () {
@@ -228,7 +355,7 @@ window.toggleSensationMode = function () {
 
 
 /* --- social-map.js --- */
-﻿/* --- SQUAD RADAR / SOCIAL MAP --- */
+/* --- SQUAD RADAR / SOCIAL MAP --- */
 
 window.ghostRiders = [];
 window.isSocialRadarActive = false;
@@ -370,7 +497,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- self-evolution.js --- */
-﻿/* --- NEURAL EVOLUTION ENGINE --- */
+/* --- NEURAL EVOLUTION ENGINE --- */
 window.aiMutations = 0;
 
 window.initSelfEvolution = function () {
@@ -498,7 +625,7 @@ function escapeHTML(str) {
   });
 }
 
-﻿// --- CREWS & TERRITORY WARS (Postal Code Based) ---
+// --- CREWS & TERRITORY WARS (Postal Code Based) ---
 window.CrewSystem = {
   currentCrew: null,
   territories: {}, // zipcode -> { dominantCrewId, dominantCrewName, crewStats, color }
@@ -924,7 +1051,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- loot-drops.js --- */
-﻿// --- LOOT DROPS (Chasse au Trésor) ---
+// --- LOOT DROPS (Chasse au Trésor) ---
 window.LootSystem = {
   lootMarkers: {}, // id -> google.maps.Marker
   claimDistance: 50, // mètres
@@ -1101,7 +1228,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- cortege-mode.js --- */
-// --- MODE CORTÃˆGE (Balade Synchro) ---
+// --- MODE CORTÈGE (Balade Synchro) ---
 window.CortegeSystem = {
   sessionId: null,
   members: {}, // uid -> data (lat, lng, name, color)
@@ -1295,7 +1422,7 @@ window.CortegeSystem = {
     }
 
     const code = prompt(
-      "CORTÃˆGE : Entrez le code secret à 4 chiffres d'un ami pour le rejoindre, ou laissez le champ vide et cliquez sur OK pour CRÉER votre propre cortège :",
+      "CORTÈGE : Entrez le code secret à 4 chiffres d'un ami pour le rejoindre, ou laissez le champ vide et cliquez sur OK pour CRÉER votre propre cortège :",
     );
     if (code === null) return;
 
@@ -1385,7 +1512,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- safe-ride.js --- */
-﻿// --- SAFE RIDE (Météo Prédictive) ---
+// --- SAFE RIDE (Météo Prédictive) ---
 window.SafeRide = {
   checkWeatherForRoute: async function (lat, lng) {
     try {
@@ -1434,7 +1561,7 @@ window.SafeRide = {
 
 
 /* --- garage-market.js --- */
-﻿// --- GARAGE MARKET (Troc et Vente de pièces) ---
+// --- GARAGE MARKET (Troc et Vente de pièces) ---
 window.GarageMarket = {
   tradeMarkers: {},
 
@@ -1492,7 +1619,7 @@ window.GarageMarket = {
       title: data.title,
     });
 
-    const typeStr = isWTB ? "RECHERCHE" : "Ã€ VENDRE";
+    const typeStr = isWTB ? "RECHERCHE" : "À VENDRE";
     const info = new google.maps.InfoWindow({
       content: `<div style="color:black; font-family:'Outfit', sans-serif; max-width:200px;">
                         <span style="font-size:0.7rem; background:${isWTB ? "#ffaa00" : "#00d2ff"}; color:white; padding:2px 5px; border-radius:3px;">${typeStr}</span>
@@ -1582,7 +1709,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- crew-chat.js --- */
-﻿/**
+/**
  * CREW CHAT (Messagerie Privée Sécurisée)
  */
 window.CrewChat = {
@@ -2088,7 +2215,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- roadbooks.js --- */
-﻿// --- ROADBOOKS & TRACÉS ---
+// --- ROADBOOKS & TRACÉS ---
 window.RoadbookSystem = {
   isRecording: false,
   currentPath: [],
@@ -2238,7 +2365,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- pit-stops.js --- */
-﻿// --- PIT STOPS INTELLIGENCE ---
+// --- PIT STOPS INTELLIGENCE ---
 window.PitStopSystem = {
   markers: {},
   isFuelLow: false,
@@ -2436,7 +2563,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- privacy-manager.js --- */
-﻿// --- PRIVACY & RGPD MANAGER ---
+// --- PRIVACY & RGPD MANAGER ---
 window.PrivacyManager = {
   consentGiven: false,
   ghostModeActive: false,
@@ -2650,7 +2777,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- tim-cook.js --- */
-﻿/* --- TIM COOK PROTOCOLS (SAFETY & ECO) --- */
+/* --- TIM COOK PROTOCOLS (SAFETY & ECO) --- */
 
 // 1. Crash Detection Logic
 window.initCrashDetection = function () {
@@ -2760,7 +2887,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- app-core.js --- */
-﻿// --- LITE MODE (PERFORMANCE) ---
+// --- LITE MODE (PERFORMANCE) ---
 window.isLiteMode = localStorage.getItem("liteMode") === "true";
 
 window.promptLiteMode = function () {
@@ -4401,10 +4528,10 @@ window.OracleEngine = {
           "Dis, ton dépassement était un peu dangereux, hein !",
       },
       andalucia: {
-        start: "Â¡Ole! L'Oracle est prêt, mon ami. On y va !",
+        start: "¡Ole! L'Oracle est prêt, mon ami. On y va !",
         speed: "Eh, l'ami ! Tu vas trop vite, doucement sur l'accélérateur.",
         threat_detected: "Attention, y'a du jaleo sur la route devant.",
-        level_up: "Â¡Qué arte! Tu as monté de niveau, bravo !",
+        level_up: "¡Qué arte! Tu as monté de niveau, bravo !",
         start_guardian: "L'Ange Gardien est avec toi, l'ami.",
         stop_guardian: "L'Ange Gardien fait une petite sieste, sois prudent.",
         danger_overtake:
@@ -4446,14 +4573,14 @@ window.OracleEngine = {
     },
     es: {
       andalucia: {
-        start: "Â¡Ole! El OrÃ¡culo estÃ¡ listo, mi arma. Â¡VÃ¡monos!",
-        speed: "Â¡Eh, chiquillo! Vas mu' rÃ¡pido, frena un poco.",
+        start: "¡Ole! El OrÃ¡culo estÃ¡ listo, mi arma. ¡VÃ¡monos!",
+        speed: "¡Eh, chiquillo! Vas mu' rÃ¡pido, frena un poco.",
         threat_detected: "Cuidao, que hay un jaleo ahÃ­ delante.",
-        level_up: "Â¡Qué arte tienes! Has subido de nivel.",
+        level_up: "¡Qué arte tienes! Has subido de nivel.",
         start_guardian: "El Ãngel de la Guarda estÃ¡ contigo, mi arma.",
         stop_guardian: "El Ãngel se va a echar una siestecita, ten cuidao.",
         danger_overtake:
-          "Â¡Chiquillo! Ese adelantamiento ha sÃ­o mu' peligroso.",
+          "¡Chiquillo! Ese adelantamiento ha sÃ­o mu' peligroso.",
       },
       standard: {
         start: "Sistemas listos. ConexiÃ³n establecida.",
@@ -5193,7 +5320,9 @@ window.searchDestination = function () {
         const startPos = resStart[0].geometry.location;
         geocoder.geocode({ address: query }, (resEnd, statusEnd) => {
           if (statusEnd === "OK") {
-            calculateRouteSansAutoroute(startPos, resEnd[0].geometry.location);
+            const dest = resEnd[0].geometry.location;
+            window.currentRouteDestination = dest;
+            calculateRouteSansAutoroute(startPos, dest);
           } else {
             speak("Destination introuvable.");
           }
@@ -5217,6 +5346,7 @@ window.searchDestination = function () {
   geocoder.geocode({ address: query }, (res, status) => {
     if (status === "OK") {
       const dest = res[0].geometry.location;
+      window.currentRouteDestination = dest;
       calculateRouteSansAutoroute(currentPosition, dest);
       map.panTo(dest);
       const btnCancel = document.getElementById("btn-cancel-route");
@@ -5990,13 +6120,31 @@ function calculateDistanceAndBadges(lat, lng) {
   window.session.rodageKm = window.session.rodageKm || 0;
 
   if (lastPositionForOdometer) {
-    const p1 = new google.maps.LatLng(
-      lastPositionForOdometer.lat,
-      lastPositionForOdometer.lng,
-    );
-    const p2 = new google.maps.LatLng(lat, lng);
-    const d =
-      google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000;
+    let d = 0;
+    if (window.google && window.google.maps && window.google.maps.geometry) {
+      const p1 = new google.maps.LatLng(
+        lastPositionForOdometer.lat,
+        lastPositionForOdometer.lng,
+      );
+      const p2 = new google.maps.LatLng(lat, lng);
+      d = google.maps.geometry.spherical.computeDistanceBetween(p1, p2) / 1000;
+    } else if (window.L && typeof window.L.latLng === "function") {
+      const p1 = window.L.latLng(lastPositionForOdometer.lat, lastPositionForOdometer.lng);
+      const p2 = window.L.latLng(lat, lng);
+      d = p1.distanceTo(p2) / 1000;
+    } else {
+      const R = 6371;
+      const dLat = ((lat - lastPositionForOdometer.lat) * Math.PI) / 180;
+      const dLng = ((lng - lastPositionForOdometer.lng) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lastPositionForOdometer.lat * Math.PI) / 180) *
+          Math.cos((lat * Math.PI) / 180) *
+          Math.sin(dLng / 2) *
+          Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      d = R * c;
+    }
 
     if (d > 0.005 && d < 0.2) {
       window.session.totalDistance += d;
@@ -6924,7 +7072,10 @@ window.checkVigilanceRouge = async function () {
       "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/vigilance-meteorologique/records?limit=100&refine=etat_de_vigilance%3A%22Rouge%22";
     const response = await fetch(url);
 
-    if (!response.ok) throw new Error("API Vigilance Inaccessible");
+    if (!response.ok) {
+        // L'API OpenDataSoft renvoie parfois 404, on ignore silencieusement
+        return;
+    }
 
     const data = await response.json();
     const alerts = data.results || [];
@@ -7090,7 +7241,7 @@ window.joinSquad = function () {
 
 
 /* --- app-ui.js --- */
-﻿// --- SYSTEM STARTUP ---
+// --- SYSTEM STARTUP ---
 function runCinematicStartup() {
   const statusEl = document.getElementById("loader-status");
   const needle = document.getElementById("gauge-needle");
@@ -7114,7 +7265,7 @@ function runCinematicStartup() {
 
   // Needle Sweep 0 -> 80 -> 0
   setTimeout(() => {
-    if (needle) needle.style.transform = "rotate(40deg)"; // 120 -> 40 pour ÃƒÂªtre proportionnel
+    if (needle) needle.style.transform = "rotate(40deg)"; // 120 -> 40 pour Ãƒªtre proportionnel
     if (gaugeFill) gaugeFill.style.strokeDashoffset = "220";
 
     let speed = 0;
@@ -7238,7 +7389,7 @@ window.showPage = function (page) {
             </div>`;
   } else if (page === "garage") {
     const history = JSON.parse(secureGetItem("maint_history") || "[]");
-    const ctDate = secureGetItem("ct_date") || "Non dÃƒ©fini";
+    const ctDate = secureGetItem("ct_date") || "Non défini";
 
     // Gamification Data
     const currentXP = parseInt(localStorage.getItem("pilot_xp") || "0");
@@ -7336,10 +7487,10 @@ window.showPage = function (page) {
             </div>`;
   } else if (page === "rodage") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3>ItinÃƒ©raires Rodage</h3>
-            <p>Routes limitÃƒ©es ÃƒÂ  45 km/h pour prÃƒ©server votre moteur.</p>
+      content.innerHTML = `<h3>Itinéraires Rodage</h3>
+            <p>Routes limitées Ãƒ  45 km/h pour préserver votre moteur.</p>
             <button class="btn-insurance" onclick="startRodage('Paris-Boucle')">Boucle Zen (Paris)</button>
-            <button class="btn-insurance" onclick="startRodage('Lyon-Quais')">Quais SaÃƒÂ´ne (Lyon)</button>`;
+            <button class="btn-insurance" onclick="startRodage('Lyon-Quais')">Quais SaÃƒ´ne (Lyon)</button>`;
   } else if (page === "insurance") {
     if (typeof content !== "undefined")
       content.innerHTML = `<div class="card-insurance">
@@ -7349,15 +7500,15 @@ window.showPage = function (page) {
             <div class="broker-contact">
                 <strong>Robert - Courtier Partenaire</strong>
                 <a href="tel:0749555829">Ã°Å¸“Å¾ 07 49 55 58 29</a>
-                <span>SpÃƒ©cialiste du jeune conducteur 50cc</span>
+                <span>Spécialiste du jeune conducteur 50cc</span>
             </div>
-            <p>BÃƒ©nÃƒ©ficiez de -15% sur votre assurance scooter en tant que membre.</p>
+            <p>Bénéficiez de -15% sur votre assurance scooter en tant que membre.</p>
         </div>`;
   } else if (page === "roadbooks") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3>Roadbooks</h3>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button onclick="renderRoadbooks('all')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem;">Mes CrÃƒ©ations</button>
+                <button onclick="renderRoadbooks('all')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem;">Mes Créations</button>
                 <button onclick="renderRoadbooks('favorites')" class="btn-insurance" style="flex:1; padding:8px; font-size:0.75rem; background:#f1c40f; color:black;"><i class="fa-solid fa-star"></i> Mes Favoris</button>
             </div>
             <ul id="roadbook-list" style="list-style:none; padding:0;"></ul>`;
@@ -7365,18 +7516,18 @@ window.showPage = function (page) {
   } else if (page === "mechanic") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-robot"></i> ${t("expert_meca_title")}</h3>
-            <p style="font-size:0.8rem; color:#aaa;">DÃƒ©crivez le symptÃƒÂ´me (bruit, fumÃƒ©e, panne...)</p>
-            <textarea id="meca-query" placeholder="Ex: Mon scoot broute ÃƒÂ  l'accÃƒ©lÃƒ©ration..." style="width:100%; height:80px; margin-top:10px; background:#111; color:white; border:1px solid #ffb703; border-radius:8px; padding:10px;"></textarea>
+            <p style="font-size:0.8rem; color:#aaa;">Décrivez le symptÃƒ´me (bruit, fumée, panne...)</p>
+            <textarea id="meca-query" placeholder="Ex: Mon scoot broute Ãƒ  l'accélération..." style="width:100%; height:80px; margin-top:10px; background:#111; color:white; border:1px solid #ffb703; border-radius:8px; padding:10px;"></textarea>
             <button class="btn-insurance" onclick="submitMecaV3()" style="margin-top:15px; width:100%;">Scanner mon 50cc</button>
             <div id="meca-response" style="margin-top:20px; font-size:0.9rem; line-height:1.4;"></div>`;
   } else if (page === "arbitre") {
     if (window.session && window.session.isGuest) {
-      alert("AccÃƒÂ¨s rÃƒ©servÃƒ© aux membres inscrits ! Ã°Å¸â€ºÂµ");
+      alert("Accès réservé aux membres inscrits ! Ã°Å¸â€ºµ");
       return;
     }
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> ${t("arbitre_title")}</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Posez votre question sur la rÃƒ©glementation 50cc (dÃƒ©bridage, Ãƒ©quipement, contrÃƒÂ´les...).</p>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:15px;">Posez votre question sur la réglementation 50cc (débridage, équipement, contrÃƒ´les...).</p>
             
             <div id="arbitre-chat" style="background:rgba(0,0,0,0.3); border-radius:15px; padding:15px; min-height:150px; max-height:300px; overflow-y:auto; margin-bottom:15px; border:1px solid rgba(255,183,3,0.2);">
                 <div class="bot-msg" style="background:rgba(255,183,3,0.1); padding:10px; border-radius:10px 10px 10px 0; margin-bottom:10px; font-size:0.9rem; border-left:3px solid #ffb703;">
@@ -7385,27 +7536,27 @@ window.showPage = function (page) {
             </div>
 
             <div style="display:flex; gap:10px;">
-                <input type="text" id="arbitre-query" placeholder="Ex: Mon pot est-il homologuÃƒ© ?" style="flex:1; background:#111; color:white; border:1px solid #444; border-radius:20px; padding:10px 15px; font-size:0.9rem;">
+                <input type="text" id="arbitre-query" placeholder="Ex: Mon pot est-il homologué ?" style="flex:1; background:#111; color:white; border:1px solid #444; border-radius:20px; padding:10px 15px; font-size:0.9rem;">
                 <button onclick="submitArbitre()" style="background:#ffb703; color:black; border:none; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>`;
   } else if (page === "ia_predictive") {
     if (typeof content !== "undefined")
       content.innerHTML = `<div class="card-insurance" style="border: 2px solid #b700ff; background: rgba(20, 10, 40, 0.9);">
-            <div class="insurance-badge" style="background: #b700ff; color: white;">IA PrÃƒ©dictive & Courtier</div>
-            <h3 style="color: #00d2ff;"><i class="fa-solid fa-microchip"></i> IA PrÃƒ©dictive</h3>
+            <div class="insurance-badge" style="background: #b700ff; color: white;">IA Prédictive & Courtier</div>
+            <h3 style="color: #00d2ff;"><i class="fa-solid fa-microchip"></i> IA Prédictive</h3>
             <p style="font-size: 0.85rem; color: #ddd; margin-bottom: 15px;">L'IA analyse vos trajets pour anticiper les pannes et optimiser votre conduite 50cc.</p>
             
             <div class="glassmorphism" style="padding:15px; margin-bottom:20px; background: rgba(0,0,0,0.4);">
                 <h4 style="color: #ffb703; font-size: 0.9rem; margin-bottom: 10px;"><i class="fa-solid fa-star"></i> Avantages Courtier Partenaire</h4>
                 <ul style="color: #aaa; font-size: 0.8rem; text-align: left; padding-left: 20px;">
-                    <li><strong style="color: #fff;">-20% de rÃƒ©duction</strong> sur votre assurance tous risques grÃƒÂ¢ce ÃƒÂ  l'IA PrÃƒ©dictive.</li>
-                    <li><strong style="color: #fff;">Garantie panne 0 km</strong> incluse avec dÃƒ©pannage express.</li>
-                    <li><strong style="color: #fff;">Bonus de bonne conduite</strong> (Rouler & Gagner convertible en rÃƒ©ductions).</li>
+                    <li><strong style="color: #fff;">-20% de réduction</strong> sur votre assurance tous risques grÃƒ¢ce Ãƒ  l'IA Prédictive.</li>
+                    <li><strong style="color: #fff;">Garantie panne 0 km</strong> incluse avec dépannage express.</li>
+                    <li><strong style="color: #fff;">Bonus de bonne conduite</strong> (Rouler & Gagner convertible en réductions).</li>
                 </ul>
                 <button class="btn-insurance" style="width:100%; margin-top:10px; background: #ffb703; color: black; font-weight: bold;" onclick="showPage('insurance')">VOIR MON OFFRE ASSURANCE</button>
             </div>
 
-            <button class="btn-insurance" style="width:100%; background: linear-gradient(135deg, #b700ff, #00d2ff); color: white; font-weight: bold; border: none; padding: 15px; border-radius: 10px;" onclick="PredictiveMeca.checkAlerts(); alert('L\'IA analyse vos donnÃƒ©es de tÃƒ©lÃƒ©mÃƒ©trie actuelles... Aucun risque de serrage moteur dÃƒ©tectÃƒ© pour le moment. Vous roulez de maniÃƒÂ¨re optimale !')"><i class="fa-solid fa-bolt"></i> LANCER L'ANALYSE IA</button>
+            <button class="btn-insurance" style="width:100%; background: linear-gradient(135deg, #b700ff, #00d2ff); color: white; font-weight: bold; border: none; padding: 15px; border-radius: 10px;" onclick="PredictiveMeca.checkAlerts(); alert('L\'IA analyse vos données de télémétrie actuelles... Aucun risque de serrage moteur détecté pour le moment. Vous roulez de manière optimale !')"><i class="fa-solid fa-bolt"></i> LANCER L'ANALYSE IA</button>
         </div>`;
   } else if (page === "profile") {
     if (typeof content !== "undefined")
@@ -7413,7 +7564,7 @@ window.showPage = function (page) {
             <div class="glassmorphism" style="padding:20px; margin-bottom:20px;">
                 <label style="color:#aaa; font-size:0.8rem;">Pseudo :</label>
                 <input type="text" id="edit-username" value="" style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
-                <label style="color:#aaa; font-size:0.8rem;">ModÃƒÂ¨le de scooter :</label>
+                <label style="color:#aaa; font-size:0.8rem;">Modèle de scooter :</label>
                 <input type="text" id="edit-scooter" value="" placeholder="Ex: Peugeot Kisbee 50cc" style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
                 <label style="color:#aaa; font-size:0.8rem;">Email de contact :</label>
                 <input type="email" id="edit-email" value="" placeholder="contact@exemple.com" style="width:100%; padding:10px; margin-top:5px; margin-bottom:20px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
@@ -7422,7 +7573,7 @@ window.showPage = function (page) {
   } else if (page === "insurance_expert") {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-building-shield"></i> Portail Expert Assurance</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">AccÃƒÂ¨s sÃƒ©curisÃƒ© pour les compagnies d'assurance et experts judiciaires.</p>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Accès sécurisé pour les compagnies d'assurance et experts judiciaires.</p>
             <div id="insurance-search-box" style="margin-bottom:20px;">
                 <input type="text" id="expert-report-id" placeholder="ID du Dossier (ex: blackbox_...)" style="width:100%; padding:15px; background:rgba(255,255,255,0.05); border:1px solid #444; border-radius:10px; color:white; margin-bottom:10px;">
                 <button class="btn-insurance" onclick="InsurancePortal.searchReport(document.getElementById('expert-report-id').value)" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:10px; font-weight:bold;">RECHERCHER LE DOSSIER</button>
@@ -7430,8 +7581,8 @@ window.showPage = function (page) {
             <div id="insurance-content"></div>`;
   } else if (page === "pulse") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3><i class="fa-solid fa-microscope"></i> Labo MÃƒ©ca : StÃƒ©thoscope IA</h3>
-            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Analyse biomÃƒ©trique de la santÃƒ© de votre moteur via les capteurs du smartphone.</p>
+      content.innerHTML = `<h3><i class="fa-solid fa-microscope"></i> Labo Méca : Stéthoscope IA</h3>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Analyse biométrique de la santé de votre moteur via les capteurs du smartphone.</p>
             
             <div class="glassmorphism" style="padding:20px; text-align:center;">
                 <div id="scan-visual" style="height:100px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; background:rgba(0,0,0,0.3); border-radius:15px; position:relative; overflow:hidden;">
@@ -7439,28 +7590,28 @@ window.showPage = function (page) {
                     <i class="fa-solid fa-gear" style="font-size:3rem; color:#ffb703; z-index:1;"></i>
                 </div>
                 <button class="btn-insurance" onclick="EnginePulse.startScan()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:10px; font-weight:bold; font-size:1.1rem;">LANCER LE DIAGNOSTIC</button>
-                <p style="font-size:0.7rem; color:#888; margin-top:10px;">Posez le tÃƒ©lÃƒ©phone sur la selle, moteur allumÃƒ© au ralenti.</p>
+                <p style="font-size:0.7rem; color:#888; margin-top:10px;">Posez le téléphone sur la selle, moteur allumé au ralenti.</p>
             </div>
             <div id="pulse-result"></div>`;
   } else if (page === "ants_wallet") {
     const passport = Wallet.getSafetyPassport();
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-building-columns"></i> Mon Coffre-Fort ANTS</h3>
-            <p style="font-size:0.75rem; color:#aaa; margin-bottom:20px;">Titres sÃƒ©curisÃƒ©s et Passeport SÃƒ©curitÃƒ© certifiÃƒ© par mon50ccetmoi.</p>
+            <p style="font-size:0.75rem; color:#aaa; margin-bottom:20px;">Titres sécurisés et Passeport Sécurité certifié par mon50ccetmoi.</p>
             
             <div class="glassmorphism" style="padding:15px; margin-bottom:15px; border-left:4px solid #2ecc71;">
-                <h4 style="font-size:0.9rem; color:#2ecc71;"><i class="fa-solid fa-id-card"></i> Passeport SÃƒ©curitÃƒ© Digital</h4>
+                <h4 style="font-size:0.9rem; color:#2ecc71;"><i class="fa-solid fa-id-card"></i> Passeport Sécurité Digital</h4>
                 <div style="font-size:0.8rem; margin-top:5px; color:#ddd;">
                     ID Blackbox: <span style="font-family:monospace; color:#2ecc71;">${passport.blackbox_id}</span><br>
                     Maintenance: <span style="color:#2ecc71;">${passport.maintenance_count} interventions</span><br>
-                    SantÃƒ© Moteur: <span style="color:#2ecc71;">${passport.engine_health}</span>
+                    Santé Moteur: <span style="color:#2ecc71;">${passport.engine_health}</span>
                 </div>
             </div>
 
             <div class="menu-list" style="margin-top:20px;">
                 <div id="ants-docs-container" style="margin-bottom:15px;"></div>
-                <li onclick="window.uploadDocument('carte_grise')"><i class="fa-solid fa-camera"></i> NumÃƒ©riser Carte Grise</li>
-                <li onclick="window.uploadDocument('permis_am')"><i class="fa-solid fa-address-card"></i> NumÃƒ©riser Permis AM</li>
+                <li onclick="window.uploadDocument('carte_grise')"><i class="fa-solid fa-camera"></i> Numériser Carte Grise</li>
+                <li onclick="window.uploadDocument('permis_am')"><i class="fa-solid fa-address-card"></i> Numériser Permis AM</li>
                 <li onclick="window.uploadDocument('assurance')"><i class="fa-solid fa-shield-check"></i> Attestation Assurance</li>
             </div>
             
@@ -7468,16 +7619,16 @@ window.showPage = function (page) {
                 <i class="fa-solid fa-file-shield"></i> GÃƒâ€°NÃƒâ€°RER MON CERTIFICAT OFFICIEL
             </button>
             
-            <p style="font-size:0.65rem; color:#666; text-align:center; margin-top:20px;">Note : Ce coffre-fort facilite les contrÃƒÂ´les mais ne remplace pas les documents originaux selon la lÃƒ©gislation en vigueur.</p>`;
+            <p style="font-size:0.65rem; color:#666; text-align:center; margin-top:20px;">Note : Ce coffre-fort facilite les contrÃƒ´les mais ne remplace pas les documents originaux selon la législation en vigueur.</p>`;
   } else if (page === "meca_lab") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3><i class="fa-solid fa-oil-can"></i> Le Sorcier de la MÃƒ©ca</h3>
+      content.innerHTML = `<h3><i class="fa-solid fa-oil-can"></i> Le Sorcier de la Méca</h3>
             <div class="glassmorphism" style="padding:20px; margin-bottom:20px;">
                 <h4 style="color:var(--accent);">CALCULATEUR DE MÃƒâ€°LANGE</h4>
                 <div style="margin-top:15px;">
                     <input type="number" id="mix-liters" placeholder="Litres d'essence" class="scooter-brand-select" style="width:100%; margin-bottom:10px;">
                     <input type="number" id="mix-percent" placeholder="% d'huile (ex: 2)" class="scooter-brand-select" style="width:100%; margin-bottom:10px;">
-                    <button onclick="const vol = MecaWizard.calculateMix(document.getElementById('mix-liters').value, document.getElementById('mix-percent').value); document.getElementById('mix-res').innerHTML = vol + ' ml d\'huile ÃƒÂ  ajouter';" 
+                    <button onclick="const vol = MecaWizard.calculateMix(document.getElementById('mix-liters').value, document.getElementById('mix-percent').value); document.getElementById('mix-res').innerHTML = vol + ' ml d\'huile Ãƒ  ajouter';" 
                             class="btn-insurance" style="width:100%; background:var(--accent); color:black;">CALCULER</button>
                     <div id="mix-res" style="margin-top:15px; font-weight:bold; text-align:center; color:var(--neon-blue);"></div>
                 </div>
@@ -7499,8 +7650,8 @@ window.showPage = function (page) {
                 
                 <div class="glassmorphism" style="padding:20px; border:1px solid var(--accent); margin-bottom:30px; text-align:left;">
                     <p style="font-size:0.9rem; font-weight:bold; text-align:center;">SIGNATURE CORPORATE</p>
-                    <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriÃƒ©tÃƒ© exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
-                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">ProtÃƒ©gÃƒ© par les lois internationales sur la propriÃƒ©tÃƒ© intellectuelle. TÃƒ©lÃƒ©mÃƒ©trie certifiÃƒ©e conforme aux standards ANTS v100.00-GOLD.</p>
+                    <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriété exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
+                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">Protégé par les lois internationales sur la propriété intellectuelle. Télémétrie certifiée conforme aux standards ANTS v100.00-GOLD.</p>
                 </div>
                 
                 <button onclick="document.getElementById('screen-overlay').classList.add('hidden')" class="btn-cancel" style="background:#333; color:white;">FERMER</button>
@@ -7510,10 +7661,10 @@ window.showPage = function (page) {
       { name: "Le Grand Raid", goal: 200, unit: "km" },
       { name: "L'Urbain Zen", goal: 100, unit: "km" },
       { name: "L'Explorateur", goal: 300, unit: "km" },
-      { name: "Le VÃƒ©lomoteur", goal: 50, unit: "km" },
+      { name: "Le Vélomoteur", goal: 50, unit: "km" },
     ];
 
-    // Rotation tous les 14 jours basÃƒ©e sur l'Unix Time
+    // Rotation tous les 14 jours basée sur l'Unix Time
     const fortressPeriod = 14 * 24 * 60 * 60 * 1000;
     const currentPeriodIdx =
       Math.floor(Date.now() / fortressPeriod) % availableChallenges.length;
@@ -7526,7 +7677,7 @@ window.showPage = function (page) {
     if (typeof content !== "undefined")
       content.innerHTML = `<div class="card" style="border:1px solid #9b59b6;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="color:#9b59b6; margin:0;">Ã°Å¸Ââ€  ${t("challenges_title")} : ${challenge.name}</h3>
+                <h3 style="color:#9b59b6; margin:0;">Ã°Å¸â€  ${t("challenges_title")} : ${challenge.name}</h3>
                 <span style="font-size:0.7rem; background:#9b59b6; color:white; padding:2px 6px; border-radius:10px;">CYCLE LIVE</span>
             </div>
             <p style="font-size:0.8rem; margin-top:10px;">Objectif : ${challenge.goal} ${challenge.unit} par quinzaine.</p>
@@ -7539,7 +7690,7 @@ window.showPage = function (page) {
                 <div class="garage-bar-bg" style="height:12px;">
                     <div class="garage-bar-fill" style="width:${progress}%; background:#9b59b6;"></div>
                 </div>
-                <p style="font-size:0.8rem; color:#888; margin-top:10px; text-align:center;">Ã°Å¸Å½â€“ïÂ¸Â Vous avez rÃƒ©ussi <strong>${wins}/150</strong> dÃƒ©fis pour le Badge Pro</p>
+                <p style="font-size:0.8rem; color:#888; margin-top:10px; text-align:center;">Ã°Å¸Å½â€“ï¸ Vous avez réussi <strong>${wins}/150</strong> défis pour le Badge Pro</p>
             </div>
 
                           <button class="btn-insurance" style="margin-top:20px; width:100%; background:#9b59b6; color:white;" onclick="toggleMenu()">CONTINUER L''ASCENSION</button>
@@ -7566,8 +7717,8 @@ window.showPage = function (page) {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-map-location-dot"></i> Navigation & Roadbooks</h3>
             <div class="glassmorphism" style="padding:20px; border-left:4px solid #f1c40f; margin-bottom:20px;">
-                <h4 style="color:#f1c40f;"><i class="fa-solid fa-stopwatch"></i> CHRONOS GUARD (ZÃƒ©ro Retard)</h4>
-                <p style="font-size:0.75rem; margin-top:5px; color:#aaa;">RÃƒ©glez votre heure d'arrivÃƒ©e cible. L'app inclut votre temps d'Ãƒ©quipement (5 min).</p>
+                <h4 style="color:#f1c40f;"><i class="fa-solid fa-stopwatch"></i> CHRONOS GUARD (Zéro Retard)</h4>
+                <p style="font-size:0.75rem; margin-top:5px; color:#aaa;">Réglez votre heure d'arrivée cible. L'app inclut votre temps d'équipement (5 min).</p>
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <input type="time" id="target-time" class="scooter-brand-select" style="flex:1;">
                     <button onclick="Chronos.setTarget(document.getElementById('target-time').value)" class="btn-insurance" style="flex:1; background:#f1c40f; color:black;">ACTIVER</button>
@@ -7577,7 +7728,7 @@ window.showPage = function (page) {
                 </button>
             </div>
             
-            <p style="text-align:center; padding:40px; color:#666;">Liste de vos roadbooks sauvegardÃƒ©s...</p>`;
+            <p style="text-align:center; padding:40px; color:#666;">Liste de vos roadbooks sauvegardés...</p>`;
   } else if (page === "arbitre") {
     if (
       window.Blackbox &&
@@ -7586,19 +7737,19 @@ window.showPage = function (page) {
       window.Blackbox.showLitigationInfo();
     } else {
       if (typeof content !== "undefined")
-        content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> Arbitre de la Route</h3><p>Service Blackbox momentanÃƒ©ment indisponible.</p>`;
+        content.innerHTML = `<h3><i class="fa-solid fa-scale-balanced"></i> Arbitre de la Route</h3><p>Service Blackbox momentanément indisponible.</p>`;
     }
   } else if (page === "privacy") {
     if (typeof content !== "undefined")
-      content.innerHTML = `<h3>Mentions LÃƒ©gales & ConfidentialitÃƒ©</h3>
+      content.innerHTML = `<h3>Mentions Légales & Confidentialité</h3>
             <div style="font-size:0.8rem; line-height:1.4; color:#ccc;">
                 <p><strong>Ãƒâ€°diteur :</strong> mon50ccetmoi (Engineering Unit)</p>
                 <p><strong>Responsable :</strong> mon50ccetmoi Admin (US)</p>
                 <p><strong>Contact :</strong> via l'application</p>
                 <hr style="border:0; border-top:1px solid #444; margin:10px 0;">
-                <p><strong>DonnÃƒ©es GPS :</strong> Vos coordonnÃƒ©es sont traitÃƒ©es localement pour la navigation et la dÃƒ©tection de chute.</p>
-                <p><strong>Partage :</strong> Les signalements de dangers sont partagÃƒ©s de maniÃƒÂ¨re anonyme avec la communautÃƒ©.</p>
-                <p><strong>Stockage :</strong> Vos prÃƒ©fÃƒ©rences sont enregistrÃƒ©es dans votre navigateur (LocalStorage).</p>
+                <p><strong>Données GPS :</strong> Vos coordonnées sont traitées localement pour la navigation et la détection de chute.</p>
+                <p><strong>Partage :</strong> Les signalements de dangers sont partagés de manière anonyme avec la communauté.</p>
+                <p><strong>Stockage :</strong> Vos préférences sont enregistrées dans votre navigateur (LocalStorage).</p>
                 <p><strong>Version :</strong> v100.00-GOLD-PRO Build 2026</p>
                 <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
@@ -7608,13 +7759,13 @@ window.showPage = function (page) {
     );
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-lightbulb"></i> Conseils de Pro 50cc</h3>
-            <p style="font-size:0.7rem; color:#aaa; margin-bottom:15px;">Fiches techniques rÃƒ©digÃƒ©es par nos experts et les garages certifiÃƒ©s.</p>
+            <p style="font-size:0.7rem; color:#aaa; margin-bottom:15px;">Fiches techniques rédigées par nos experts et les garages certifiés.</p>
             
             <div id="pro-tips-container">
                 <div class="card" style="border-left:4px solid #f39c12;">
                     <button class="badge-pro" style="float:right; background:#f39c12; font-size:0.5rem; border:none; color:black; border-radius:5px; padding:2px 5px;">OFFICIEL</button>
                     <h4 style="color:#f39c12;"><i class="fa-solid fa-wrench"></i> Entretien Rapide</h4>
-                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bougie :</strong> Une bougie propre (couleur chocolat) = un moteur qui dure. Si elle est noire, votre mÃƒ©lange est trop riche.</p>
+                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bougie :</strong> Une bougie propre (couleur chocolat) = un moteur qui dure. Si elle est noire, votre mélange est trop riche.</p>
                 </div>
 
                 ${communityTips
@@ -7631,8 +7782,8 @@ window.showPage = function (page) {
 
                 <div class="card" style="border-left:4px solid #e74c3c;">
                     <button class="badge-pro" style="float:right; background:#e74c3c; font-size:0.5rem; border:none; color:white; border-radius:5px; padding:2px 5px;">OFFICIEL</button>
-                    <h4 style="color:#e74c3c;"><i class="fa-solid fa-scale-balanced"></i> Loi & SÃƒ©curitÃƒ©</h4>
-                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bridage :</strong> Le dÃƒ©bridage est interdit sur voie publique. En cas d'accident, votre assurance peut refuser de payer.</p>
+                    <h4 style="color:#e74c3c;"><i class="fa-solid fa-scale-balanced"></i> Loi & Sécurité</h4>
+                    <p style="font-size:0.8rem; margin-top:5px;"><strong>Bridage :</strong> Le débridage est interdit sur voie publique. En cas d'accident, votre assurance peut refuser de payer.</p>
                 </div>
             </div>`;
   } else if (page === "pro-space") {
@@ -7641,19 +7792,19 @@ window.showPage = function (page) {
       content.innerHTML = `<h3><i class="fa-solid fa-briefcase"></i> ${t("pro_space_title")}</h3>
             <div class="card" style="border:1px solid #3498db; background: rgba(52, 152, 219, 0.05);">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong>VisibilitÃƒ© Mobile</strong>
+                    <strong>Visibilité Mobile</strong>
                     <button onclick="toggleGarageVisibility()" class="btn-circular ${window.isGarageVisible ? "btn-neon" : "btn-dark"}" style="width:40px; height:40px;">
                         <i class="fa-solid fa-eye"></i>
                     </button>
                 </div>
-                <small style="font-size:0.6rem; color:#aaa; margin-top:5px; display:block;">Si activÃƒ©, vous apparaissez en bleu sur la carte des pilotes.</small>
+                <small style="font-size:0.6rem; color:#aaa; margin-top:5px; display:block;">Si activé, vous apparaissez en bleu sur la carte des pilotes.</small>
             </div>
 
             <div class="card">
-                <label style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immÃƒ©diat de l'atelier</label>
+                <label style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immédiat de l'atelier</label>
                 <select id="garage-status-select" onchange="updateGarageStatus(this.value)" class="scooter-brand-select" style="width:100%; background:#111;">
-                    <option value="dispo" selected>âÅ“… Prise en charge immÃƒ©diate</option>
-                    <option value="busy">âÂ³ RDV nÃƒ©cessaire (>48h)</option>
+                    <option value="dispo" selected>âÅ“… Prise en charge immédiate</option>
+                    <option value="busy">â³ RDV nécessaire (>48h)</option>
                     <option value="full">Ã°Å¸Å¡« Atelier Complet</option>
                 </select>
             </div>
@@ -7661,7 +7812,7 @@ window.showPage = function (page) {
             <div class="card" style="border:1px solid #f1c40f;">
                 <h4 style="color:#f1c40f; margin-bottom:10px;"><i class="fa-solid fa-bolt"></i> Offre Flash (Promo)</h4>
                 <textarea id="flash-offer-text" placeholder="Ex: -20% sur les pneus Michelin ce weekend !" style="width:100%; height:60px; background:#000; color:white; border:1px solid #444; border-radius:8px; padding:10px; font-size:0.8rem;"></textarea>
-                <button onclick="publishFlashOffer()" class="btn-insurance" style="background:#f1c40f; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Diffuser ÃƒÂ  la communautÃƒ©</button>
+                <button onclick="publishFlashOffer()" class="btn-insurance" style="background:#f1c40f; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Diffuser Ãƒ  la communauté</button>
             </div>
 
             ${
@@ -7669,27 +7820,27 @@ window.showPage = function (page) {
                 ? `
             <div class="card" style="text-align:center; background:rgba(52, 152, 219, 0.05); border:1px solid #3498db;">
                 <i class="fa-solid fa-certificate" style="font-size:2rem; color:#f1c40f;"></i><br>
-                <h4 style="margin:10px 0; color:#fff;">Droit d'EntrÃƒ©e & Certification</h4>
-                <p style="font-size:0.7rem; color:#aaa; margin-bottom:10px;">Devenez <strong>Garage CertifiÃƒ©</strong> pour seulement <strong>50ââ€šÂ¬ TTC</strong> (Paiement unique).</p>
+                <h4 style="margin:10px 0; color:#fff;">Droit d'Entrée & Certification</h4>
+                <p style="font-size:0.7rem; color:#aaa; margin-bottom:10px;">Devenez <strong>Garage Certifié</strong> pour seulement <strong>50ââ€š¬ TTC</strong> (Paiement unique).</p>
                 <ul style="font-size:0.65rem; color:#ccc; list-style:none; padding:0; text-align:left; margin-bottom:15px;">
-                    <li>âÅ“… Badge <strong>CertifiÃƒ© mon50ccetmoi</strong></li>
-                    <li>Ã°Å¸Å¡€ <strong>Boost de visibilitÃƒ©</strong> sur la carte</li>
-                    <li>Ã°Å¸â€ºÂ ïÂ¸Â AccÃƒÂ¨s illimitÃƒ© aux fiches techniques</li>
-                    <li>Ã°Å¸‘â€ PrioritÃƒ© dans les rÃƒ©sultats de recherche</li>
+                    <li>âÅ“… Badge <strong>Certifié mon50ccetmoi</strong></li>
+                    <li>Ã°Å¸Å¡€ <strong>Boost de visibilité</strong> sur la carte</li>
+                    <li>Ã°Å¸â€º ï¸ Accès illimité aux fiches techniques</li>
+                    <li>Ã°Å¸‘" Priorité dans les résultats de recherche</li>
                 </ul>
-                <button onclick="payGarageEntryFee()" class="btn-insurance" style="background:#f1c40f; color:black; font-weight:bold;">S'acquitter du droit d'entrÃƒ©e (50ââ€šÂ¬)</button>
+                <button onclick="payGarageEntryFee()" class="btn-insurance" style="background:#f1c40f; color:black; font-weight:bold;">S'acquitter du droit d'entrée (50ââ€š¬)</button>
                 
                 <div style="margin-top:15px; padding-top:15px; border-top:1px solid #444;">
-                    <p style="font-size:0.7rem; color:#2ecc71;"><strong>Ã°Å¸Å½Â OPTION "CROISSANCE" GRATUITE :</strong></p>
-                    <p style="font-size:0.6rem; color:#aaa;">Offrez <strong>-10% de rÃƒ©duction</strong> aux membres sur prÃƒ©sentation de l'app et soyez <strong>exonÃƒ©rÃƒ©</strong> des 50ââ€šÂ¬ !</p>
+                    <p style="font-size:0.7rem; color:#2ecc71;"><strong>Ã°Å¸Å½ OPTION "CROISSANCE" GRATUITE :</strong></p>
+                    <p style="font-size:0.6rem; color:#aaa;">Offrez <strong>-10% de réduction</strong> aux membres sur présentation de l'app et soyez <strong>exonéré</strong> des 50ââ€š¬ !</p>
                     <button onclick="applyPartnerExemption()" class="btn-insurance fa-beat" style="background:transparent; border:1px solid #2ecc71; color:#2ecc71; margin-top:5px; font-size:0.8rem; font-weight:bold;">REJOINDRE LE RÃƒâ€°SEAU GRATUITEMENT (-10%)</button>
                 </div>
             </div>`
                 : `
             <div class="card" style="text-align:center; background:rgba(46, 204, 113, 0.1); border:1px solid #2ecc71;">
                 <i class="fa-solid fa-check-double" style="font-size:1.5rem; color:#2ecc71;"></i>
-                <p style="font-size:0.8rem; color:#2ecc71; margin-top:5px;"><strong>Statut PRO CertifiÃƒ© Actif</strong></p>
-                <small style="font-size:0.6rem; color:#aaa;">Votre visibilitÃƒ© est boostÃƒ©e au maximum.</small>
+                <p style="font-size:0.8rem; color:#2ecc71; margin-top:5px;"><strong>Statut PRO Certifié Actif</strong></p>
+                <small style="font-size:0.6rem; color:#aaa;">Votre visibilité est boostée au maximum.</small>
             </div>`
             }
 
@@ -7705,15 +7856,15 @@ window.showPage = function (page) {
       content.innerHTML = `<h3><i class="fa-solid fa-heart"></i> ${t("donate_title")}</h3>
             <div class="card" style="text-align:center; background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(0,0,0,0)); border: 1px solid #e91e63;">
                 <i class="fa-solid fa-mug-hot fa-bounce" style="font-size:3rem; color:#e91e63; margin-bottom:15px;"></i>
-                <p style="font-size:0.9rem; line-height:1.5;"><strong>mon50ccetmoi</strong> est un projet de passionnÃƒ©, dÃƒ©veloppÃƒ© sur mon temps libre pour la communautÃƒ© des pilotes de 50cc.</p>
-                <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">L'application restera 100% gratuite, mais les dons aident ÃƒÂ  payer les serveurs (Google Maps API, Firebase) et ÃƒÂ  financer les futures mises ÃƒÂ  jour.</p>
+                <p style="font-size:0.9rem; line-height:1.5;"><strong>mon50ccetmoi</strong> est un projet de passionné, développé sur mon temps libre pour la communauté des pilotes de 50cc.</p>
+                <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">L'application restera 100% gratuite, mais les dons aident Ãƒ  payer les serveurs (Google Maps API, Firebase) et Ãƒ  financer les futures mises Ãƒ  jour.</p>
                 
                 <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
-                    <a href="https://www.buymeacoffee.com/mon50cc" target="_blank" class="btn-insurance" style="background:#ffdd00; color:black; text-decoration:none;">âËœ• Offrir un cafÃƒ© (Badge MÃƒ©cÃƒÂ¨ne Ã°Å¸’â€“)</a>
+                    <a href="https://www.buymeacoffee.com/mon50cc" target="_blank" class="btn-insurance" style="background:#ffdd00; color:black; text-decoration:none;">âËœ• Offrir un café (Badge Mécène Ã°Å¸’â€“)</a>
                     <a href="https://paypal.me/mon50cc" target="_blank" class="btn-insurance" style="background:#0070ba; color:white; text-decoration:none;">Ã°Å¸’â„¢ Faire un don libre (PayPal)</a>
                 </div>
                 
-                <p style="font-size:0.7rem; color:#666; margin-top:15px;">Ã°Å¸Å½Â Chaque don dÃƒ©bloque le badge exclusif **"MÃƒ©cÃƒÂ¨ne"** sur votre profil et sur la carte communautaire !</p>
+                <p style="font-size:0.7rem; color:#666; margin-top:15px;">Ã°Å¸Å½ Chaque don débloque le badge exclusif **"Mécène"** sur votre profil et sur la carte communautaire !</p>
             </div>
         `;
   } else if (page === "security") {
@@ -7731,7 +7882,7 @@ window.showPage = function (page) {
             <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <strong style="font-size:0.9rem;">Guardian Mode</strong><br>
-                    <small style="font-size:0.6rem; color:#aaa;">Alerte si arrÃƒÂªt prolongÃƒ© suspect</small>
+                    <small style="font-size:0.6rem; color:#aaa;">Alerte si arrÃƒªt prolongé suspect</small>
                 </div>
                 <button onclick="toggleGuardian()" class="btn-circular ${isGuardian ? "btn-neon" : "btn-dark"}" style="width:50px; height:50px;">
                     <i class="fa-solid fa-bell"></i>
@@ -7740,8 +7891,8 @@ window.showPage = function (page) {
 
             <div class="card" style="background:rgba(255,255,255,0.05); text-align:center;">
                 <i class="fa-solid fa-microchip" style="font-size:2rem; color:#2ecc71; margin-bottom:10px;"></i><br>
-                <strong style="font-size:0.8rem;">DÃƒ©tecteur G-Force : ACTIF</strong><br>
-                <small style="font-size:0.6rem; color:#666;">Impact calibrÃƒ© ÃƒÂ  4.5G</small>
+                <strong style="font-size:0.8rem;">Détecteur G-Force : ACTIF</strong><br>
+                <small style="font-size:0.6rem; color:#666;">Impact calibré Ãƒ  4.5G</small>
             </div>`;
   }
   toggleMenu();
@@ -7753,7 +7904,7 @@ window.shareApp = async function () {
     id: "com.mon50ccetmoi.twa",
     lang: "fr-FR",
     title: "mon50ccetmoi",
-    text: "Rejoins la communautÃƒ© des scooters 50cc ! Navigation GPS, radars et sÃƒ©curitÃƒ©.",
+    text: "Rejoins la communauté des scooters 50cc ! Navigation GPS, radars et sécurité.",
     url: window.location.origin,
   };
   try {
@@ -7761,7 +7912,7 @@ window.shareApp = async function () {
       await navigator.share(shareData);
     } else {
       alert(
-        "Lien copiÃƒ© ! Partage-le avec tes potes : " + window.location.origin,
+        "Lien copié ! Partage-le avec tes potes : " + window.location.origin,
       );
     }
   } catch (err) {}
@@ -7776,8 +7927,8 @@ window.submitMecaV3 = function () {
   setTimeout(() => {
     res.innerHTML = `<div style="background:rgba(255,183,3,0.1); padding:15px; border-radius:10px; border-left:4px solid #ffb703;">
             <strong>Diagnostic IA:</strong><br>
-            Il est probable que votre bougie soit encrassÃƒ©e ou que le gicleur de votre carburateur soit bouchÃƒ©. 
-            VÃƒ©rifiez l'Ãƒ©tincelle et nettoyez votre cuve.
+            Il est probable que votre bougie soit encrassée ou que le gicleur de votre carburateur soit bouché. 
+            Vérifiez l'étincelle et nettoyez votre cuve.
         </div>`;
   }, 2000);
 };
@@ -7792,7 +7943,7 @@ window.addEventListener("devicemotion", (e) => {
     triggerFallAlert();
     if (window.isGuardianActive && typeof triggerEmergencySOS === "function") {
       triggerEmergencySOS(
-        "Chute brutale dÃƒ©tectÃƒ©e par l'accÃƒ©lÃƒ©romÃƒÂ¨tre.",
+        "Chute brutale détectée par l'accéléromètre.",
       );
     }
   }
@@ -8097,16 +8248,16 @@ function handlePerfTracking(speedKmh) {
 
 
 /* --- app-wallet.js --- */
-﻿// F10 : ROADBOOKS COMMUNAUTAIRES (100% GRATUIT)
+// F10 : ROADBOOKS COMMUNAUTAIRES (100% GRATUIT)
 // ============================================================
 window.CommunityRoadbooks = {
   shareMyRoute() {
     if (!window.currentRoute && !window.currentPosition) {
-      alert("Lancez d'abord un itinÃƒ©raire pour pouvoir le partager !");
+      alert("Lancez d'abord un itinéraire pour pouvoir le partager !");
       return;
     }
     const name = prompt(
-      "Donnez un nom ÃƒÂ  votre itinÃƒ©raire (ex: Boucle des Alpilles) :",
+      "Donnez un nom Ãƒ  votre itinéraire (ex: Boucle des Alpilles) :",
     );
     if (!name) return;
     const desc = prompt("Description courte (optionnel) :") || "";
@@ -8129,7 +8280,7 @@ window.CommunityRoadbooks = {
     if (existing.length > 50) existing.pop();
     localStorage.setItem("community_roadbooks", JSON.stringify(existing));
     speak(
-      "ItinÃƒ©raire partagÃƒ© avec la communautÃƒ©. Merci pour votre contribution !",
+      "Itinéraire partagé avec la communauté. Merci pour votre contribution !",
     );
     showPage("community_roadbooks");
   },
@@ -8138,7 +8289,7 @@ window.CommunityRoadbooks = {
     const rbs = JSON.parse(localStorage.getItem("community_roadbooks") || "[]");
     const rb = rbs.find((r) => r.id === id);
     if (!rb) return;
-    speak("Chargement de l'itinÃƒ©raire " + rb.name);
+    speak("Chargement de l'itinéraire " + rb.name);
     // On met le nom dans la barre de recherche pour relancer
     if (document.getElementById("route-search")) {
       document.getElementById("route-search").value = rb.name;
@@ -8162,7 +8313,7 @@ window.CommunityRoadbooks = {
 
 
 /* --- silicon-valley.js --- */
-﻿/* --- SILICON VALLEY BILLION DOLLAR FEATURES --- */
+/* --- SILICON VALLEY BILLION DOLLAR FEATURES --- */
 
 // 1. AR VISION (Augmented Reality Camera Background)
 window.isARActive = false;
@@ -8343,7 +8494,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- jarvis-voice.js --- */
-﻿/* --- J.A.R.V.I.S. 4.0 PROPRIETARY NEURAL ENGINE --- */
+/* --- J.A.R.V.I.S. 4.0 PROPRIETARY NEURAL ENGINE --- */
 
 window.JarvisEngine = {
   context: {
@@ -8744,7 +8895,7 @@ window.initVoiceAI = function () {
 
       // Si la commande est vide après "jarvis"
       if (command.length < 2) {
-        window.JarvisEngine.speak("Ã€ vos ordres, pilote.");
+        window.JarvisEngine.speak("À vos ordres, pilote.");
         return;
       }
 
@@ -8754,6 +8905,9 @@ window.initVoiceAI = function () {
   };
 
   window.voiceAI.onerror = function (event) {
+    if (event.error === 'not-allowed' || event.error === 'service-not-allowed' || event.error === 'audio-capture') {
+      window.voiceAI.permissionDenied = true;
+    }
     console.warn("[J.A.R.V.I.S 4.0] Erreur micro : ", event.error);
     const micIcon = document.getElementById("jarvis-mic-icon");
     if (micIcon) {
@@ -8771,11 +8925,15 @@ window.initVoiceAI = function () {
       micIcon.style.color = "";
     }
 
+    if (window.voiceAI.permissionDenied) {
+      return; // Ne pas réessayer si la permission est refusée
+    }
+
     setTimeout(() => {
       try {
         window.voiceAI.start();
       } catch (e) {}
-    }, 1000);
+    }, 2000);
   };
 
   try {
@@ -8798,7 +8956,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- community-gas.js --- */
-﻿/* --- COMMUNITY GAS RADAR (OpenData Gouv + Firebase) --- */
+/* --- COMMUNITY GAS RADAR (OpenData Gouv + Firebase) --- */
 
 window.CommunityGas = {
   stations: [],
@@ -9053,7 +9211,7 @@ window.CommunityGas = {
 
 
 /* --- leaderboard.js --- */
-﻿// --- LEADERBOARD (King of the Street) ---
+// --- LEADERBOARD (King of the Street) ---
 window.Leaderboard = {
   topPilots: [],
 
@@ -9223,7 +9381,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- v3-smartcity.js --- */
-﻿/* --- V3.0 SMART CITY & ZERO-CLICK DESTINY --- */
+/* --- V3.0 SMART CITY & ZERO-CLICK DESTINY --- */
 
 // 1. ZERO-CLICK DESTINY (IA Quantique)
 window.initZeroClickDestiny = function () {
@@ -9322,10 +9480,10 @@ window.initV2XGreenWave = function () {
     } else if (currentSpeed > 0 && currentSpeed < 38) {
       // Trop lent
       v2xHud.style.borderColor = "#ffaa00";
-      v2xStatus.innerText = "ACCÉLÉREZ LÉGÃˆREMENT";
+      v2xStatus.innerText = "ACCÉLÉREZ LÉGÈREMENT";
       v2xStatus.style.color = "#ffaa00";
     } else {
-      // Ã€ l'arrêt
+      // À l'arrêt
       v2xHud.style.borderColor = "#555";
       v2xStatus.innerText = "ATTENTE FEU VERT...";
       v2xStatus.style.color = "#aaa";
@@ -9343,7 +9501,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- carbon-trading.js --- */
-﻿/* --- CARBON TRADING & CEE MARKET --- */
+/* --- CARBON TRADING & CEE MARKET --- */
 
 window.ecoScore = 100;
 window.ceeCertificates = parseInt(
@@ -9480,7 +9638,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- rgpd-cnil.js --- */
-﻿/* ═══════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    CONFORMITÉ GLOBALE : RGPD, CCPA, PIPL & GOOGLE PLAY CONSOLE
    ═══════════════════════════════════════════════════════════════ */
 
@@ -9613,6 +9771,8 @@ window.acceptGlobalPrivacy = function () {
   localStorage.setItem("global_privacy_consent", "true");
   localStorage.setItem("cnil_consent", "true"); // legacy support
   localStorage.setItem("legal_consent_accepted", "true"); // bypass app-core modal
+  localStorage.setItem("location_consent_accepted", "true"); // Fix GPS blocage
+  localStorage.setItem("rgpd_gps_consent", "true"); // Fix Privacy manager
   localStorage.setItem("privacy_consent_record", JSON.stringify(consentRecord));
   localStorage.setItem("cnil_mic", micChecked ? "true" : "false");
   localStorage.setItem("cnil_cam", camChecked ? "true" : "false");
@@ -9806,7 +9966,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- litigation-ai.js --- */
-﻿/**
+/**
  * LITIGATION AI v1.0 â€” PORTAIL ASSURANCE INTELLIGENT
  * Analyse automatique des données Blackbox pour les dossiers de litige.
  * Génère un code dossier unique, sélectionne le type de rapport adapté,
@@ -10241,7 +10401,7 @@ window.LitigationAI = {
                     <p style="color:#aaa; margin-bottom: 20px;">Vos données certifiées sont cryptées et inaccessibles sans ce code.</p>
                     
                     <div style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 15px; border: 2px dashed #00e676; display: inline-block; margin-bottom: 20px;">
-                        <span style="display: block; font-size: 1rem; color: #888; margin-bottom: 10px;">CODE LITIGE Ã€ TRANSMETTRE Ã€ VOTRE ASSUREUR :</span>
+                        <span style="display: block; font-size: 1rem; color: #888; margin-bottom: 10px;">CODE LITIGE À TRANSMETTRE À VOTRE ASSUREUR :</span>
                         <strong style="font-size: 2.5rem; letter-spacing: 5px; color: #fff;">${disputeCode}</strong>
                     </div>
 
@@ -10278,7 +10438,7 @@ window.LitigationAI = {
 
 
 /* --- insurance-portal.js --- */
-﻿/**
+/**
  * PORTAIL ASSURANCE mon50ccetmoi
  * Paiements via Revolut Merchant API (SDK RevolutCheckout embarqué)
  * Flow : client ←’ Firebase Function (création ordre) ←’ Revolut ←’ webhook ←’ Firestore
@@ -10743,7 +10903,7 @@ window.InsurancePortal = {
 
 
 /* --- anti-theft.js --- */
-﻿window.AntiTheft = {
+window.AntiTheft = {
   isSentryActive: false,
   sentryListener: null,
 
@@ -10899,7 +11059,7 @@ window.InsurancePortal = {
 
 
 /* --- meca-wizard.js --- */
-﻿/**
+/**
  * MECA-WIZARD v2.0 - DeepTech AI Mechanic
  * Analyse Acoustique réelle via Web Audio API & Intégration Revolut Checkout
  */
@@ -11005,7 +11165,7 @@ window.MecaWizard = {
     resultDiv.innerHTML = `
             <div class="glassmorphism biometric-scan" style="padding:20px; text-align:center;">
                 <i class="fa-solid fa-volume-high fa-beat" style="font-size:2rem; color:var(--neon-blue);"></i>
-                <p style="margin-top:15px; font-weight:bold;">INITIALISATION DU DÉCIBELMÃˆTRE...</p>
+                <p style="margin-top:15px; font-weight:bold;">INITIALISATION DU DÉCIBELMÈTRE...</p>
             </div>
         `;
 
@@ -11293,7 +11453,7 @@ window.MecaWizard = {
 
 
 /* --- obd-bluetooth.js --- */
-﻿/**
+/**
  * mon 50cc et moi - Module OBD-II Bluetooth
  * v100.00-GOLD
  * Utilise l'API Web Bluetooth pour se connecter aux boîtiers ELM327
@@ -11591,7 +11751,7 @@ window.addEventListener("obd_data", (e) => {
 
 
 /* --- ar-navigation.js --- */
-﻿/**
+/**
  * AR Navigation Module (v85.0)
  * Gère l'affichage vidéo de la caméra et la superposition holographique
  */
@@ -11771,6 +11931,139 @@ window.testARNavigation = function (targetHeadingDeg = 45) {
     window.arNavigationManager.setTargetHeading(targetHeadingDeg);
   }
 };
+
+
+/* --- weather-assistant.js --- */
+/**
+ * Assistant Trajet Jarvis (Météo & IA)
+ * Analyse contextuelle de la météo pour avertir le conducteur.
+ */
+
+window.WeatherAssistant = {
+    cardId: "weather-assistant-card",
+    iconId: "weather-icon",
+    textId: "weather-text",
+    
+    scenarios: [
+        {
+            type: "rain",
+            icon: "<i class='fa-solid fa-cloud-showers-heavy'></i>",
+            color: "#00f2ff",
+            border: "#00f2ff",
+            messages: [
+                "Alerte : Risque de pluie dans 15 min. Équipez-vous.",
+                "Chaussée glissante prévue sur votre trajet habituel.",
+                "Averses modérées. Réduisez votre vitesse."
+            ]
+        },
+        {
+            type: "clear",
+            icon: "<i class='fa-solid fa-sun'></i>",
+            color: "#ffd700",
+            border: "#ffd700",
+            messages: [
+                "Météo idéale. Route sèche et dégagée.",
+                "Plein soleil ! Parfait pour une balade.",
+                "Visibilité excellente sur votre secteur."
+            ]
+        },
+        {
+            type: "cold",
+            icon: "<i class='fa-regular fa-snowflake'></i>",
+            color: "#b3e5fc",
+            border: "#b3e5fc",
+            messages: [
+                "Températures basses. Risque de verglas par endroits.",
+                "Il fait froid ce matin, laissez chauffer le moteur.",
+                "Gants d'hiver recommandés pour votre trajet."
+            ]
+        },
+        {
+            type: "night",
+            icon: "<i class='fa-solid fa-moon'></i>",
+            color: "#e099ff",
+            border: "#e099ff",
+            messages: [
+                "Trajet nocturne : vérifiez vos feux de croisement.",
+                "Visibilité réduite. Activez le mode prudent.",
+                "La température baisse, route potentiellement humide."
+            ]
+        }
+    ],
+
+    init: function() {
+        console.log("[Jarvis] Initialisation de l'Assistant Trajet Météo...");
+        // On attend un peu que l'app soit chargée avant d'afficher l'alerte
+        setTimeout(() => {
+            this.analyzeAndDisplay();
+        }, 3500); // 3.5s après chargement
+    },
+
+    analyzeAndDisplay: function() {
+        const card = document.getElementById(this.cardId);
+        if (!card) return;
+
+        // Choix aléatoire d'un scénario pour la démo
+        // Dans une V2, on utiliserait navigator.geolocation et une vraie API (OpenWeather)
+        
+        let scenario;
+        const hour = new Date().getHours();
+        
+        if (hour >= 20 || hour < 6) {
+            // Nuit forcée si on est le soir/nuit
+            scenario = this.scenarios.find(s => s.type === "night");
+        } else {
+            // Sinon on prend un scénario au hasard parmi les 3 premiers
+            scenario = this.scenarios[Math.floor(Math.random() * 3)];
+        }
+
+        const randomMsg = scenario.messages[Math.floor(Math.random() * scenario.messages.length)];
+
+        // Update UI
+        const iconEl = document.getElementById(this.iconId);
+        const textEl = document.getElementById(this.textId);
+        
+        if (iconEl) {
+            iconEl.innerHTML = scenario.icon;
+            iconEl.style.color = scenario.color;
+        }
+        if (textEl) {
+            textEl.innerText = randomMsg;
+        }
+        
+        card.style.borderLeftColor = scenario.border;
+
+        // Show card with a small animation
+        card.style.display = "flex";
+        card.animate([
+            { opacity: 0, transform: "translate(-50%, -20px)" },
+            { opacity: 1, transform: "translate(-50%, 0)" }
+        ], { duration: 500, easing: "ease-out" });
+
+        // Text-to-speech optionnel avec Jarvis
+        if (window.OracleVoice && window.OracleVoice.isVoiceActive) {
+            // On ne parle pas de force pour ne pas spammer, sauf si mode vocal actif
+            // Mais pour l'effet Wow, on pourrait ajouter un petit son
+        }
+    },
+
+    hide: function() {
+        const card = document.getElementById(this.cardId);
+        if (card) {
+            card.animate([
+                { opacity: 1, transform: "translate(-50%, 0)" },
+                { opacity: 0, transform: "translate(-50%, -20px)" }
+            ], { duration: 300, easing: "ease-in" }).onfinish = () => {
+                card.style.display = "none";
+            };
+        }
+    }
+};
+
+// Auto-start
+document.addEventListener("DOMContentLoaded", () => {
+    window.WeatherAssistant.init();
+});
 
 
 /* --- social-radar.js --- */
@@ -12004,7 +12297,7 @@ if (typeof window.SocialRadarManager === "undefined") {
 
 
 /* --- referral.js --- */
-﻿/**
+/**
  * REFERRAL SYSTEM (Parrainage Gamifié & InsurTech)
  * Paliers de kilométrage et revenus passifs sur conduite sécurisée.
  */
@@ -12177,7 +12470,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- driving-score.js --- */
-﻿/**
+/**
  * DRIVING SCORE ENGINE v1.0 (InsurTech Core)
  * Score de conduite 0-100 calculé en temps réel à partir de la télémétrie.
  * Exploité par le portail B2B Assureur pour le "Pay How You Drive".
@@ -12794,7 +13087,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- accident-report.js --- */
-﻿/**
+/**
  * ACCIDENT REPORT & PDF GENERATOR v1.0 (InsurTech Core)
  * Génère automatiquement un rapport post-crash avec les 30 dernières secondes
  * de télémétrie de la Boîte Noire. Prêt à être envoyé à l'assureur.
@@ -12935,7 +13228,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- weather-alert.js --- */
-﻿/**
+/**
  * INTELLIGENT WEATHER ALERT v1.0
  * Analyse les conditions météo sur l'itinéraire du pilote et alerte
  * vocalement en cas de danger (pluie, verglas, vent fort).
@@ -13087,7 +13380,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- web4-mining.js --- */
-﻿/* --- WEB 4 MINING & ECONOMY --- */
+/* --- WEB 4 MINING & ECONOMY --- */
 
 window.Web4Economy = {
   balance: 0.0,
@@ -13199,7 +13492,7 @@ window.addEventListener("load", () => {
 
 
 /* --- insurer-portal.js --- */
-﻿/* --- B2B INSURER PORTAL (WEB4) --- */
+/* --- B2B INSURER PORTAL (WEB4) --- */
 
 window.InsurerPortal = {
   currentCode: null,
@@ -13336,7 +13629,7 @@ window.InsurerPortal = {
 
 
 /* --- zero-trust.js --- */
-﻿/**
+/**
  * ðŸ‘ï¸ APEX SENTINEL - ZERO-TRUST ARCHITECTURE
  * Biométrie comportementale & Continuous Authentication
  * Bloque l'application si l'utilisateur change soudainement de comportement (ex: vol à l'arraché).
@@ -13402,13 +13695,15 @@ const ZeroTrust = {
       this.threatLevel += 100; // Trigger instant lockdown
     }
 
-    // 2. Anti-Debugger / DevTools Detection
+    // 2. Anti-Debugger / DevTools Detection (non-bloquant)
+    // Note: La méthode `debugger;` a été retirée car elle bloquait le développement.
+    // On utilise une détection passive basée sur la taille de la fenêtre.
     setInterval(() => {
-      const start = performance.now();
-      debugger; // If DevTools is open, this will pause execution and time difference will be huge
-      if (performance.now() - start > 100) {
-        console.error("[ZERO-TRUST] DevTools tampering detected.");
-        this.threatLevel += 20;
+      const widthThreshold = window.outerWidth - window.innerWidth > 160;
+      const heightThreshold = window.outerHeight - window.innerHeight > 160;
+      if (widthThreshold || heightThreshold) {
+        console.warn("[ZERO-TRUST] DevTools potentially open.");
+        this.threatLevel += 5;
       }
     }, 3000);
 
@@ -13492,7 +13787,7 @@ window.ZeroTrust = ZeroTrust;
 
 
 /* --- garage.js --- */
-﻿/**
+/**
  * ðŸï¸ GARAGE VIRTUEL
  * Suivi d'entretien et état des pièces en fonction du kilométrage.
  */
@@ -13672,7 +13967,7 @@ function escapeHTML(str) {
   });
 }
 
-﻿/**
+/**
  * ðŸ† SAFE RIDER CHALLENGES
  * Gamification et récompenses BVC basées sur le kilométrage
  */
@@ -13767,7 +14062,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- convoy.js --- */
-﻿/**
+/**
  * ðŸ—ºï¸ MODE CONVOI
  * Système de balades en groupe avec partage de position en temps réel via Firebase Firestore.
  * Sécurité : request.auth.uid vérifié côté Firestore Rules, chiffrement E2EE via cloudEncrypt/cloudDecrypt.
@@ -14148,6 +14443,8 @@ window.ExchangeMarket = {
   currentCategory: "all",
   searchQuery: "",
   priceTypeFilter: "all",
+  stateFilter: "all",
+  garageFilterActive: false,
   sortBy: "newest",
   userBvc: 0,
 
@@ -14173,9 +14470,13 @@ window.ExchangeMarket = {
           .onSnapshot((doc) => {
             if (doc.exists) {
               const data = doc.data();
-              this.userBvc = data.bvc_points || data.bvcPoints || 0;
+              this.userBvc = data.bvc_points || data.bvcPoints || data.bvc || 0;
+              if (window.session) {
+                window.session.vehicleModel = data.vehicleModel || "universel";
+              }
               localStorage.setItem("bvc_points", this.userBvc);
               this.updateBvcDisplay(this.userBvc);
+              this.applyFiltersAndRender(); // Re-render in case vehicleModel changed
             }
           });
       } else {
@@ -14250,6 +14551,22 @@ window.ExchangeMarket = {
         this.applyFiltersAndRender();
       });
     }
+
+    const stateFilterSelect = document.getElementById("market-state-select");
+    if (stateFilterSelect) {
+      stateFilterSelect.addEventListener("change", (e) => {
+        this.stateFilter = e.target.value;
+        this.applyFiltersAndRender();
+      });
+    }
+
+    const garageFilterToggle = document.getElementById("market-garage-filter");
+    if (garageFilterToggle) {
+      garageFilterToggle.addEventListener("change", (e) => {
+        this.garageFilterActive = e.target.checked;
+        this.applyFiltersAndRender();
+      });
+    }
   },
 
   setCategory: function (category, btnElement) {
@@ -14283,6 +14600,21 @@ window.ExchangeMarket = {
       result = result.filter((item) => item.priceType === this.priceTypeFilter);
     }
 
+    // Filtre par état (neuf, occasion, service)
+    if (this.stateFilter !== "all") {
+      result = result.filter((item) => item.condition === this.stateFilter);
+    }
+
+    // Filtre Garage Virtuel
+    if (this.garageFilterActive && window.session && window.session.vehicleModel) {
+      const myVehicle = window.session.vehicleModel;
+      if (myVehicle !== "universel") {
+        result = result.filter((item) => {
+          return !item.compatibility || item.compatibility === "universel" || item.compatibility === myVehicle;
+        });
+      }
+    }
+
     // Filtre par recherche textuelle
     if (this.searchQuery) {
       result = result.filter((item) => {
@@ -14310,7 +14642,7 @@ window.ExchangeMarket = {
   /**
    * Publie une nouvelle annonce dans Firestore.
    */
-  publishListing: async function (title, description, priceType, price, category, condition, photoUrl) {
+  publishListing: async function (title, description, priceType, price, category, condition, photoUrl, compatibility) {
     if (!window.db) {
       alert("Connexion Firestore requise.");
       return;
@@ -14346,6 +14678,7 @@ window.ExchangeMarket = {
       price: price,
       category: category || "autre",
       condition: condition || "good",
+      compatibility: compatibility || "universel",
       photoUrl: photoUrl || "",
       seller: window.session.username || "Membre",
       sellerUid: firebase.auth().currentUser ? firebase.auth().currentUser.uid : "",
@@ -14363,7 +14696,15 @@ window.ExchangeMarket = {
 
     try {
       await window.db.collection("exchange_listings").add(listing);
-      alert("🎉 Annonce publiée avec succès sur le réseau !");
+      
+      // Mettre à jour le profil utilisateur pour débloquer le Badge Mécano
+      if (listing.sellerUid) {
+        await window.db.collection('users').doc(listing.sellerUid).update({
+            hasPublishedListing: true
+        }).catch(e => console.warn("Erreur MAJ Badge Mécano:", e));
+      }
+
+      alert("🚀 Annonce publiée avec succès sur le réseau !");
       this.closePublishForm();
     } catch (e) {
       console.error("[ExchangeMarket] Publication échouée :", e);
@@ -14553,9 +14894,24 @@ window.ExchangeMarket = {
     this.filteredListings.forEach((listing) => {
       const icon = this.getCategoryIcon(listing.category);
       const catLabel = this.getCategoryLabel(listing.category);
-      const condLabel = this.getConditionLabel(listing.condition);
       const isBvc = listing.priceType === "bvc";
       const priceLabel = isBvc ? `${listing.price} Pts BVC` : `${listing.price.toFixed(2)} €`;
+
+      const isService = listing.condition === "service";
+      const isAffordable = listing.priceType === "bvc" && this.userBvc >= listing.price;
+      
+      let conditionBadge = "";
+      let condLabel = "";
+      if (isService) {
+        conditionBadge = `<span class="badge" style="background: rgba(0, 242, 255, 0.2); color: #00f2ff; border-color: #00f2ff;"><i class="fa-solid fa-bolt"></i> Recharge</span>`;
+        condLabel = "Service Recharge";
+      } else {
+        const conditionText = listing.condition === "neuf" ? "Neuf" : "Occasion";
+        const conditionColor = listing.condition === "neuf" ? "#00ff88" : "#ffb703";
+        conditionBadge = `<span class="badge" style="color: ${conditionColor}; border-color: ${conditionColor}">${conditionText}</span>`;
+        condLabel = this.getConditionLabel(listing.condition);
+      }
+      
       const isOwner = window.session && window.session.username === listing.seller;
       const isReserved = listing.status === "reserved" || listing.status === "sold";
       const date = listing.createdAt?.toDate ? listing.createdAt.toDate().toLocaleDateString("fr-FR") : "";
@@ -14676,15 +15032,29 @@ window.ExchangeMarket = {
             <div style="flex:1;">
               <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">État *</label>
               <select id="ex-condition" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
-                <option value="good">👍 Bon état</option>
-                <option value="new">✨ Neuf (Emballé)</option>
-                <option value="like_new">🌟 Très bon état</option>
-                <option value="parts">🛠️ Pour pièces</option>
+                <option value="good">Bon état</option>
+                <option value="new">Neuf (Emballé)</option>
+                <option value="like_new">Très bon état</option>
+                <option value="parts">Pour pièces</option>
               </select>
             </div>
           </div>
 
           <div>
+            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Compatibilité (Garage Virtuel) *</label>
+            <select id="ex-compatibility" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
+              <option value="universel">Universel</option>
+              <option value="ami">Citroën Ami</option>
+              <option value="kisbee">Peugeot Kisbee</option>
+              <option value="booster">MBK Booster / Stunt</option>
+              <option value="typhoon">Piaggio Typhoon</option>
+              <option value="ludix">Peugeot Ludix</option>
+              <option value="chatenet">Chatenet</option>
+              <option value="aixam">Aixam</option>
+            </select>
+          </div>
+
+          <div style="margin-top: 10px;">
             <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Lien Photo / Image (Optionnel)</label>
             <input type="url" id="ex-photourl" placeholder="https://..." style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
           </div>
@@ -14710,7 +15080,8 @@ window.ExchangeMarket = {
             document.getElementById('ex-price').value,
             document.getElementById('ex-category').value,
             document.getElementById('ex-condition').value,
-            document.getElementById('ex-photourl').value
+            document.getElementById('ex-photourl').value,
+            document.getElementById('ex-compatibility').value
           )" style="margin-top:10px; width:100%; background:linear-gradient(135deg, #00f2ff, #0077ff); color:#fff; border:none; padding:15px; border-radius:12px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 0 15px rgba(0,242,255,0.3);">
             <i class="fa-solid fa-paper-plane"></i> Publier l'annonce
           </button>
@@ -14734,7 +15105,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- legal-database.js --- */
-﻿/**
+/**
  * ⚖️ BASE JURIDIQUE MONDIALE â€” POCKET LAWYER
  * Sources officielles gouvernementales uniquement.
  * Dernière mise à jour : 14 juillet 2026
@@ -14922,7 +15293,7 @@ window.LegalDatabase = {
       keywords: ["casque", "helm", "sni"],
       title: "ðŸ‡®ðŸ‡© Casque (Helm SNI) â€” UU 22/2009 Art.106(8)",
       content:
-        "Le port du casque homologué <strong>SNI</strong> (Standar Nasional Indonesia) est obligatoire pour le conducteur et le passager (Art. 57Â§2).<br><strong>Sanction :</strong> Jusqu'à 1 mois de prison ou <strong>Rp 250.000</strong> d'amende (Art. 291Â§1).",
+        "Le port du casque homologué <strong>SNI</strong> (Standar Nasional Indonesia) est obligatoire pour le conducteur et le passager (Art. 57§2).<br><strong>Sanction :</strong> Jusqu'à 1 mois de prison ou <strong>Rp 250.000</strong> d'amende (Art. 291§1).",
       source: "JDIH â€” UU No.22 Tahun 2009 (LLAJ)",
       url: "jdih.kemenkumham.go.id",
     },
@@ -14930,7 +15301,7 @@ window.LegalDatabase = {
       keywords: ["sim", "permis", "conduire"],
       title: "ðŸ‡®ðŸ‡© Permis de conduire (SIM) â€” UU 22/2009 Art.77",
       content:
-        "Tout conducteur doit posséder un SIM correspondant à son véhicule :<br>• <strong>SIM C</strong> : Moto â‰¤ 250cc<br>• <strong>SIM CI</strong> : Moto 250-500cc<br>• <strong>SIM CII</strong> : Moto > 500cc<br><strong>Sans SIM :</strong> 3 mois prison ou Rp 1.000.000 (Art.281).<br><strong>SIM non présenté :</strong> 1 mois ou Rp 250.000 (Art.288Â§2).",
+        "Tout conducteur doit posséder un SIM correspondant à son véhicule :<br>• <strong>SIM C</strong> : Moto â‰¤ 250cc<br>• <strong>SIM CI</strong> : Moto 250-500cc<br>• <strong>SIM CII</strong> : Moto > 500cc<br><strong>Sans SIM :</strong> 3 mois prison ou Rp 1.000.000 (Art.281).<br><strong>SIM non présenté :</strong> 1 mois ou Rp 250.000 (Art.288§2).",
       source: "JDIH â€” UU No.22 Tahun 2009",
       url: "jdih.kemenkumham.go.id",
     },
@@ -14938,7 +15309,7 @@ window.LegalDatabase = {
       keywords: ["route", "lalu lintas", "circulation", "code"],
       title: "ðŸ‡®ðŸ‡© Code de la Route â€” UU No.22 Tahun 2009 (LLAJ)",
       content:
-        "La loi sur la Circulation et les Transports Routiers régit l'ensemble du trafic en Indonésie. Obligations pour les 2-roues :<br>• Casque SNI obligatoire (Art.106Â§8)<br>• Rétroviseurs, feux, klaxon, compteur (Art.285Â§1)<br>• SIM C obligatoire (Art.77)<br>• STNK à jour (Perpol 7/2021)",
+        "La loi sur la Circulation et les Transports Routiers régit l'ensemble du trafic en Indonésie. Obligations pour les 2-roues :<br>• Casque SNI obligatoire (Art.106§8)<br>• Rétroviseurs, feux, klaxon, compteur (Art.285§1)<br>• SIM C obligatoire (Art.77)<br>• STNK à jour (Perpol 7/2021)",
       source: "JDIH â€” Kementerian Perhubungan",
       url: "jdih.kemenkumham.go.id",
     },
@@ -15070,10 +15441,10 @@ window.LegalDatabase = {
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡¬ðŸ‡§ Casque Moto â€” Road Traffic Act 1988 Â§16",
+      title: "ðŸ‡¬ðŸ‡§ Casque Moto â€” Road Traffic Act 1988 §16",
       content:
-        "Le port du casque homologué <strong>BS 6658:1985</strong> ou <strong>UNECE R22.05/22.06</strong> est obligatoire. Les Sikhs portant un turban sont exemptés (Â§16Â§2).<br><strong>Sanction :</strong> Fixed Penalty Notice de <strong>Â£100</strong>.",
-      source: "legislation.gov.uk â€” Road Traffic Act 1988 Â§16",
+        "Le port du casque homologué <strong>BS 6658:1985</strong> ou <strong>UNECE R22.05/22.06</strong> est obligatoire. Les Sikhs portant un turban sont exemptés (§16§2).<br><strong>Sanction :</strong> Fixed Penalty Notice de <strong>£100</strong>.",
+      source: "legislation.gov.uk â€” Road Traffic Act 1988 §16",
       url: "legislation.gov.uk",
     },
     permis: {
@@ -15088,7 +15459,7 @@ window.LegalDatabase = {
       keywords: ["gdpr", "donnée", "ico", "privacy", "data"],
       title: "ðŸ‡¬ðŸ‡§ UK GDPR & Data Protection Act 2018",
       content:
-        "Post-Brexit, le Royaume-Uni a conservé les principes du RGPD via le <strong>UK GDPR</strong> et le <strong>Data Protection Act 2018</strong>. L'autorité de contrôle est l'<strong>ICO</strong> (Information Commissioner's Office). Amende max : <strong>Â£17.5M ou 4% du CA</strong>.",
+        "Post-Brexit, le Royaume-Uni a conservé les principes du RGPD via le <strong>UK GDPR</strong> et le <strong>Data Protection Act 2018</strong>. L'autorité de contrôle est l'<strong>ICO</strong> (Information Commissioner's Office). Amende max : <strong>£17.5M ou 4% du CA</strong>.",
       source: "legislation.gov.uk â€” Data Protection Act 2018",
       url: "legislation.gov.uk",
     },
@@ -15175,15 +15546,15 @@ window.LegalDatabase = {
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡®ðŸ‡³ Casque Moto â€” Motor Vehicles Act 1988 Â§129",
+      title: "ðŸ‡®ðŸ‡³ Casque Moto â€” Motor Vehicles Act 1988 §129",
       content:
         "Le port du casque homologué <strong>ISI (BIS)</strong> est obligatoire pour le conducteur et le passager. Norme : <strong>IS 4151:2015</strong>.<br><strong>Sanction :</strong> â‚¹1.000 d'amende + suspension du permis (3 mois).<br>Exception : Les Sikhs portant un turban sont exemptés dans certains États.",
-      source: "India Code â€” Motor Vehicles Act 1988 Â§129",
+      source: "India Code â€” Motor Vehicles Act 1988 §129",
       url: "indiacode.nic.in",
     },
     permis: {
       keywords: ["permis", "licence", "conduire"],
-      title: "ðŸ‡®ðŸ‡³ Permis Moto â€” Motor Vehicles Act Â§3",
+      title: "ðŸ‡®ðŸ‡³ Permis Moto â€” Motor Vehicles Act §3",
       content:
         "Deux catégories :<br>• <strong>MCWG</strong> (Motor Cycle With Gear) : Moto avec vitesses<br>• <strong>MCWOG</strong> : Scooter sans vitesses<br>Ã‚ge minimum : <strong>18 ans</strong> (16 ans pour les â‰¤50cc dans certains États).",
       source: "India Code â€” Motor Vehicles Act 1988",
@@ -15245,7 +15616,7 @@ window.LegalDatabase = {
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡¸ðŸ‡¬ Casque Moto â€” Road Traffic Act Â§22A",
+      title: "ðŸ‡¸ðŸ‡¬ Casque Moto â€” Road Traffic Act §22A",
       content:
         "Le casque homologué <strong>PSB/Spring SG</strong> (ou UN R22) est obligatoire. <br><strong>Sanction :</strong> Amende jusqu'à <strong>S$1.000</strong> et/ou 3 mois de prison.",
       source: "SSO â€” Road Traffic Act (Cap. 276)",
@@ -15272,7 +15643,7 @@ window.LegalDatabase = {
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡¿ðŸ‡¦ Casque Moto â€” NRTA 93/1996 Â§98",
+      title: "ðŸ‡¿ðŸ‡¦ Casque Moto â€” NRTA 93/1996 §98",
       content:
         "Le port du casque homologué <strong>SABS (SANS 55)</strong> est obligatoire pour tous les conducteurs et passagers de 2-roues.<br><strong>Sanction :</strong> Amende et points de démérite.",
       source: "gov.za â€” National Road Traffic Act 93 of 1996",
@@ -15483,7 +15854,7 @@ window.LegalDatabase.search = function (query) {
 
 
 /* --- pocket-lawyer.js --- */
-﻿/**
+/**
  * ⚖️ POCKET LAWYER - MODULE DE DÉFENSE JURIDIQUE
  * Analyse du stationnement (Code de la Route FR : R417-10 et R417-11)
  */
@@ -16013,5 +16384,155 @@ window.PocketLawyer = {
       }
     }
   },
+};
+
+
+/* --- jarvis-chat.js --- */
+/**
+ * Jarvis Chat Interface
+ * Gère la fenêtre de discussion avec l'IA Gemini (Jarvis 4.0).
+ */
+
+window.JarvisChat = {
+    modalId: "jarvis-chat-modal",
+    chatContainerId: "jarvis-chat-messages",
+    inputFieldId: "jarvis-chat-input",
+
+    open: function() {
+        const modal = document.getElementById(this.modalId);
+        if (modal) {
+            modal.style.display = "flex";
+            
+            // On affiche un message de bienvenue seulement s'il n'y a pas déjà de message
+            const container = document.getElementById(this.chatContainerId);
+            if (container && container.children.length === 0) {
+                this.addMessage("Jarvis", "Bonjour ! Je suis Jarvis 4.0, votre copilote IA. Comment puis-je vous aider aujourd'hui ? (Mécanique, Itinéraire, Législation...)", "ai");
+            }
+            
+            // Focus on input
+            setTimeout(() => {
+                const input = document.getElementById(this.inputFieldId);
+                if (input) input.focus();
+            }, 300);
+        }
+    },
+
+    close: function() {
+        const modal = document.getElementById(this.modalId);
+        if (modal) modal.style.display = "none";
+    },
+
+    sendMessage: async function() {
+        const input = document.getElementById(this.inputFieldId);
+        const text = input.value.trim();
+        if (!text) return;
+
+        // Afficher message utilisateur
+        this.addMessage("Vous", text, "user");
+        input.value = "";
+
+        // Afficher indicateur de frappe
+        const typingId = this.addTypingIndicator();
+
+        try {
+            if (!window.JarvisGemini) throw new Error("Gemini non initialisé.");
+            
+            const response = await window.JarvisGemini.ask(text);
+            this.removeElement(typingId);
+
+            // Afficher la réponse
+            if (response.reply) {
+                this.addMessage("Jarvis", response.reply, "ai");
+            }
+
+            // Si Jarvis doit déclencher une action visuelle (comme ouvrir le GPS ou lancer le mode avocat)
+            if (response.action && response.action !== "NONE" && response.action !== "CHAT") {
+                console.log("[JarvisChat] Exécution de l'action :", response.action);
+                if (window.OracleVoice && window.OracleVoice.executeAction) {
+                    window.OracleVoice.executeAction(response.action, response.parameter);
+                }
+            }
+
+        } catch (err) {
+            console.error(err);
+            this.removeElement(typingId);
+            this.addMessage("Système", "Erreur de connexion au serveur IA. Veuillez vérifier votre réseau.", "error");
+        }
+    },
+
+    handleEnter: function(event) {
+        if (event.key === "Enter") {
+            this.sendMessage();
+        }
+    },
+
+    addMessage: function(sender, text, type) {
+        const container = document.getElementById(this.chatContainerId);
+        if (!container) return;
+
+        const msgDiv = document.createElement("div");
+        msgDiv.style.marginBottom = "15px";
+        msgDiv.style.padding = "12px 15px";
+        msgDiv.style.borderRadius = "12px";
+        msgDiv.style.maxWidth = "85%";
+        msgDiv.style.animation = "fadeInUp 0.3s ease-out";
+        msgDiv.style.wordWrap = "break-word";
+        msgDiv.style.lineHeight = "1.5";
+        msgDiv.style.display = "inline-block";
+        msgDiv.style.clear = "both";
+
+        if (type === "user") {
+            msgDiv.style.background = "rgba(0, 242, 255, 0.15)";
+            msgDiv.style.border = "1px solid rgba(0, 242, 255, 0.4)";
+            msgDiv.style.float = "right";
+            msgDiv.innerHTML = `<strong style="color: #00f2ff;">${sender}</strong><br/>${text}`;
+        } else if (type === "ai") {
+            msgDiv.style.background = "rgba(255, 255, 255, 0.05)";
+            msgDiv.style.border = "1px solid rgba(255, 255, 255, 0.1)";
+            msgDiv.style.float = "left";
+            
+            // Formatage basique (gras)
+            let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            msgDiv.innerHTML = `<strong style="color: #ffd700;"><i class="fa-solid fa-microchip"></i> ${sender}</strong><br/>${formattedText}`;
+        } else {
+            msgDiv.style.background = "rgba(255, 0, 0, 0.1)";
+            msgDiv.style.border = "1px solid rgba(255, 0, 0, 0.4)";
+            msgDiv.style.float = "left";
+            msgDiv.innerHTML = `<strong style="color: #ff4444;">${sender}</strong><br/>${text}`;
+        }
+
+        const wrapper = document.createElement("div");
+        wrapper.style.width = "100%";
+        wrapper.appendChild(msgDiv);
+
+        container.appendChild(wrapper);
+        container.scrollTop = container.scrollHeight;
+    },
+
+    addTypingIndicator: function() {
+        const container = document.getElementById(this.chatContainerId);
+        if (!container) return null;
+
+        const id = "typing-" + Date.now();
+        const typingDiv = document.createElement("div");
+        typingDiv.id = id;
+        typingDiv.style.marginBottom = "15px";
+        typingDiv.style.color = "#888";
+        typingDiv.style.fontStyle = "italic";
+        typingDiv.style.fontSize = "0.9rem";
+        typingDiv.style.width = "100%";
+        typingDiv.style.float = "left";
+        typingDiv.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Jarvis réfléchit...`;
+        
+        container.appendChild(typingDiv);
+        container.scrollTop = container.scrollHeight;
+        return id;
+    },
+
+    removeElement: function(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
 };
 

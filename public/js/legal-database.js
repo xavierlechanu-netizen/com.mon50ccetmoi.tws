@@ -186,7 +186,7 @@ window.LegalDatabase = {
       keywords: ["casque", "helm", "sni"],
       title: "ðŸ‡®ðŸ‡© Casque (Helm SNI) â€” UU 22/2009 Art.106(8)",
       content:
-        "Le port du casque homologué <strong>SNI</strong> (Standar Nasional Indonesia) est obligatoire pour le conducteur et le passager (Art. 57Â§2).<br><strong>Sanction :</strong> Jusqu'à 1 mois de prison ou <strong>Rp 250.000</strong> d'amende (Art. 291Â§1).",
+        "Le port du casque homologué <strong>SNI</strong> (Standar Nasional Indonesia) est obligatoire pour le conducteur et le passager (Art. 57§2).<br><strong>Sanction :</strong> Jusqu'à 1 mois de prison ou <strong>Rp 250.000</strong> d'amende (Art. 291§1).",
       source: "JDIH â€” UU No.22 Tahun 2009 (LLAJ)",
       url: "jdih.kemenkumham.go.id",
     },
@@ -194,7 +194,7 @@ window.LegalDatabase = {
       keywords: ["sim", "permis", "conduire"],
       title: "ðŸ‡®ðŸ‡© Permis de conduire (SIM) â€” UU 22/2009 Art.77",
       content:
-        "Tout conducteur doit posséder un SIM correspondant à son véhicule :<br>• <strong>SIM C</strong> : Moto â‰¤ 250cc<br>• <strong>SIM CI</strong> : Moto 250-500cc<br>• <strong>SIM CII</strong> : Moto > 500cc<br><strong>Sans SIM :</strong> 3 mois prison ou Rp 1.000.000 (Art.281).<br><strong>SIM non présenté :</strong> 1 mois ou Rp 250.000 (Art.288Â§2).",
+        "Tout conducteur doit posséder un SIM correspondant à son véhicule :<br>• <strong>SIM C</strong> : Moto â‰¤ 250cc<br>• <strong>SIM CI</strong> : Moto 250-500cc<br>• <strong>SIM CII</strong> : Moto > 500cc<br><strong>Sans SIM :</strong> 3 mois prison ou Rp 1.000.000 (Art.281).<br><strong>SIM non présenté :</strong> 1 mois ou Rp 250.000 (Art.288§2).",
       source: "JDIH â€” UU No.22 Tahun 2009",
       url: "jdih.kemenkumham.go.id",
     },
@@ -202,7 +202,7 @@ window.LegalDatabase = {
       keywords: ["route", "lalu lintas", "circulation", "code"],
       title: "ðŸ‡®ðŸ‡© Code de la Route â€” UU No.22 Tahun 2009 (LLAJ)",
       content:
-        "La loi sur la Circulation et les Transports Routiers régit l'ensemble du trafic en Indonésie. Obligations pour les 2-roues :<br>• Casque SNI obligatoire (Art.106Â§8)<br>• Rétroviseurs, feux, klaxon, compteur (Art.285Â§1)<br>• SIM C obligatoire (Art.77)<br>• STNK à jour (Perpol 7/2021)",
+        "La loi sur la Circulation et les Transports Routiers régit l'ensemble du trafic en Indonésie. Obligations pour les 2-roues :<br>• Casque SNI obligatoire (Art.106§8)<br>• Rétroviseurs, feux, klaxon, compteur (Art.285§1)<br>• SIM C obligatoire (Art.77)<br>• STNK à jour (Perpol 7/2021)",
       source: "JDIH â€” Kementerian Perhubungan",
       url: "jdih.kemenkumham.go.id",
     },
@@ -334,10 +334,10 @@ window.LegalDatabase = {
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡¬ðŸ‡§ Casque Moto â€” Road Traffic Act 1988 Â§16",
+      title: "ðŸ‡¬ðŸ‡§ Casque Moto â€” Road Traffic Act 1988 §16",
       content:
-        "Le port du casque homologué <strong>BS 6658:1985</strong> ou <strong>UNECE R22.05/22.06</strong> est obligatoire. Les Sikhs portant un turban sont exemptés (Â§16Â§2).<br><strong>Sanction :</strong> Fixed Penalty Notice de <strong>Â£100</strong>.",
-      source: "legislation.gov.uk â€” Road Traffic Act 1988 Â§16",
+        "Le port du casque homologué <strong>BS 6658:1985</strong> ou <strong>UNECE R22.05/22.06</strong> est obligatoire. Les Sikhs portant un turban sont exemptés (§16§2).<br><strong>Sanction :</strong> Fixed Penalty Notice de <strong>£100</strong>.",
+      source: "legislation.gov.uk â€” Road Traffic Act 1988 §16",
       url: "legislation.gov.uk",
     },
     permis: {
@@ -352,7 +352,7 @@ window.LegalDatabase = {
       keywords: ["gdpr", "donnée", "ico", "privacy", "data"],
       title: "ðŸ‡¬ðŸ‡§ UK GDPR & Data Protection Act 2018",
       content:
-        "Post-Brexit, le Royaume-Uni a conservé les principes du RGPD via le <strong>UK GDPR</strong> et le <strong>Data Protection Act 2018</strong>. L'autorité de contrôle est l'<strong>ICO</strong> (Information Commissioner's Office). Amende max : <strong>Â£17.5M ou 4% du CA</strong>.",
+        "Post-Brexit, le Royaume-Uni a conservé les principes du RGPD via le <strong>UK GDPR</strong> et le <strong>Data Protection Act 2018</strong>. L'autorité de contrôle est l'<strong>ICO</strong> (Information Commissioner's Office). Amende max : <strong>£17.5M ou 4% du CA</strong>.",
       source: "legislation.gov.uk â€” Data Protection Act 2018",
       url: "legislation.gov.uk",
     },
@@ -439,15 +439,15 @@ window.LegalDatabase = {
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡®ðŸ‡³ Casque Moto â€” Motor Vehicles Act 1988 Â§129",
+      title: "ðŸ‡®ðŸ‡³ Casque Moto â€” Motor Vehicles Act 1988 §129",
       content:
         "Le port du casque homologué <strong>ISI (BIS)</strong> est obligatoire pour le conducteur et le passager. Norme : <strong>IS 4151:2015</strong>.<br><strong>Sanction :</strong> â‚¹1.000 d'amende + suspension du permis (3 mois).<br>Exception : Les Sikhs portant un turban sont exemptés dans certains États.",
-      source: "India Code â€” Motor Vehicles Act 1988 Â§129",
+      source: "India Code â€” Motor Vehicles Act 1988 §129",
       url: "indiacode.nic.in",
     },
     permis: {
       keywords: ["permis", "licence", "conduire"],
-      title: "ðŸ‡®ðŸ‡³ Permis Moto â€” Motor Vehicles Act Â§3",
+      title: "ðŸ‡®ðŸ‡³ Permis Moto â€” Motor Vehicles Act §3",
       content:
         "Deux catégories :<br>• <strong>MCWG</strong> (Motor Cycle With Gear) : Moto avec vitesses<br>• <strong>MCWOG</strong> : Scooter sans vitesses<br>Ã‚ge minimum : <strong>18 ans</strong> (16 ans pour les â‰¤50cc dans certains États).",
       source: "India Code â€” Motor Vehicles Act 1988",
@@ -509,7 +509,7 @@ window.LegalDatabase = {
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡¸ðŸ‡¬ Casque Moto â€” Road Traffic Act Â§22A",
+      title: "ðŸ‡¸ðŸ‡¬ Casque Moto â€” Road Traffic Act §22A",
       content:
         "Le casque homologué <strong>PSB/Spring SG</strong> (ou UN R22) est obligatoire. <br><strong>Sanction :</strong> Amende jusqu'à <strong>S$1.000</strong> et/ou 3 mois de prison.",
       source: "SSO â€” Road Traffic Act (Cap. 276)",
@@ -536,7 +536,7 @@ window.LegalDatabase = {
 
     casque: {
       keywords: ["casque", "helmet"],
-      title: "ðŸ‡¿ðŸ‡¦ Casque Moto â€” NRTA 93/1996 Â§98",
+      title: "ðŸ‡¿ðŸ‡¦ Casque Moto â€” NRTA 93/1996 §98",
       content:
         "Le port du casque homologué <strong>SABS (SANS 55)</strong> est obligatoire pour tous les conducteurs et passagers de 2-roues.<br><strong>Sanction :</strong> Amende et points de démérite.",
       source: "gov.za â€” National Road Traffic Act 93 of 1996",
