@@ -11,6 +11,8 @@ upload-keystore.jks
 service-account.json
 mon50ccetmoi-firebase-adminsdk-*.json
 js/secrets.js
+local.properties
+*.pem
 
 # ─── Android Build Artifacts ───
 android/app/build/

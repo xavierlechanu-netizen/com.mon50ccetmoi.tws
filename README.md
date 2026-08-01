@@ -4,7 +4,7 @@
 
 ### Le copilote IA pour les conducteurs de 50cc et Voitures Sans Permis
 
-[![Version](https://img.shields.io/badge/version-70.0.0-gold?style=for-the-badge)](https://mon50ccetmoi.com)
+[![Version](https://img.shields.io/badge/version-101.00.01-gold?style=for-the-badge)](https://mon50ccetmoi.com)
 [![Platform](https://img.shields.io/badge/platform-PWA%20%7C%20Android-00d2ff?style=for-the-badge)](https://play.google.com/store/apps/details?id=com.mon50ccetmoi.twa)
 [![License](https://img.shields.io/badge/license-Proprietary-ff0055?style=for-the-badge)](#licence)
 [![Firebase](https://img.shields.io/badge/backend-Firebase-ffca28?style=for-the-badge&logo=firebase)](https://firebase.google.com)
@@ -251,8 +251,9 @@ jarsigner -keystore upload-keystore.jks app-release-unsigned.aab upload
 | v50.0 | ✅ Livré | Publication Google Play Store, Firebase Auth |
 | v60.0 | ✅ Livré | Portail Assureur B2B, Revolut, Litige IA, FIDO2 |
 | v70.0 | ✅ Livré | Architecture modulaire, Neural HUD, Self-Evolution |
-| v80.0 | ✅ Actuel | OBD-II Bluetooth (HUD Temps réel), Compatibilité Android 16 |
-| v85.0 | 🔜 Prévu | Réalité Augmentée pour la navigation, App Apple Watch / Wear OS |
+| v80.0 | ✅ Livré | OBD-II Bluetooth (HUD Temps réel), Compatibilité Android 16 |
+| v101.00.01 | ✅ Actuel | API Vigilance Météo-France officielle et sécurisation de production |
+| v102.00.00 | 🔜 Prévu | Réalité Augmentée pour la navigation, App Apple Watch / Wear OS |
 | v90.0 | 📋 Planifié | Marketplace pièces, assurance intégrée, API ouverte |
 
 ---

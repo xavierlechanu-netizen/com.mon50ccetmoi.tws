@@ -29,9 +29,9 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Certificats de Batterie : Lecture publique pour la vérification acheteur, création par le propriétaire
+    // Certificats de Batterie : Lecture restreinte, création par le propriétaire
     match /battery_certificates/{certId} {
-      allow read: if true;
+      allow read: if isSignedIn() && (isOwner(resource.data.userId) || resource.data.isShared == true);
       allow create: if isSignedIn() && isOwner(request.resource.data.userId);
       allow update, delete: if false; // Les certificats sont inaltérables
     }
@@ -48,9 +48,9 @@ service cloud.firestore {
       allow read, write: if isOwner(walletId);
     }
 
-    // Guardian Angel Sessions : Partage public via lien unique, mais écriture privée
+    // Guardian Angel Sessions : Partage à durée limitée, ou propriétaire
     match /guardian_sessions/{sessionId} {
-      allow read: if true; // Requis pour le partage web (hors app)
+      allow read: if isOwner(resource.data.userId) || (resource.data.isShared == true && resource.data.expiresAt > request.time);
       allow create, update: if isSignedIn() && isOwner(request.resource.data.userId);
     }
 
@@ -62,7 +62,7 @@ service cloud.firestore {
 
     // Alertes Communautaires (Hazards & Danger Zones)
     match /hazards/{hazardId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow create: if isSignedIn();
       allow update: if isSignedIn() && (isOwner(resource.data.author) || isOwner(resource.data.reporter));
       allow delete: if isAdmin() || (isSignedIn() && (getUsername() == resource.data.author || getUsername() == resource.data.reporter));
@@ -70,7 +70,7 @@ service cloud.firestore {
 
     // Sessions de Balades
     match /balades/{baladeId} {
-      allow read: if true;
+      allow read: if isSignedIn() && (isOwner(resource.data.userId) || resource.data.isPublic == true);
       allow create: if isSignedIn() && isOwner(request.resource.data.userId);
       allow update, delete: if isOwner(resource.data.userId);
     }
