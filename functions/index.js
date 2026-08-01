@@ -29,6 +29,7 @@ const REVOLUT_WEBHOOK_SECRET = defineSecret("REVOLUT_WEBHOOK_SECRET");
 const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
 const NOTION_API_KEY = defineSecret("NOTION_API_KEY");
 const NOTION_DATABASE_ID = defineSecret("NOTION_DATABASE_ID");
+const METEO_FRANCE_API_KEY = defineSecret("METEO_FRANCE_API_KEY");
 
 // ─── Constantes API Revolut ─────────────────────────────────────────────────
 // PRODUCTION : merchant.revolut.com (anciennement sandbox-merchant.revolut.com)
@@ -607,6 +608,33 @@ exports.reportToNotion = onRequest(
         } catch (error) {
             console.error("[Notion] Erreur lors de la création du ticket :", error.message);
             return res.status(500).json({ error: "Erreur interne", details: error.message });
+        }
+    }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. getVigilanceMeteo
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getVigilanceMeteo = onRequest(
+    { secrets: [METEO_FRANCE_API_KEY], cors: true },
+    async (req, res) => {
+        setCorsHeaders(res);
+        if (req.method === "OPTIONS") return res.status(204).send("");
+
+        try {
+            const token = METEO_FRANCE_API_KEY.value();
+            const response = await fetch("https://public-api.meteofrance.fr/public/DPVigilance/v1/cartevigilance/encours", {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json"
+                }
+            });
+            if (!response.ok) throw new Error("Erreur HTTP " + response.status);
+            const data = await response.json();
+            return res.status(200).json(data);
+        } catch (error) {
+            console.error("[Meteo] Erreur :", error.message);
+            return res.status(500).json({ error: "Erreur Météo-France" });
         }
     }
 );
