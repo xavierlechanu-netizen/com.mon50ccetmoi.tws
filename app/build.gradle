@@ -62,8 +62,8 @@ android {
         applicationId "com.mon50ccetmoi.twa"
         minSdkVersion 23
         targetSdkVersion 36
-        versionCode 1010001
-        versionName "101.00.01"
+        versionCode 1010002
+        versionName "101.00.02"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name

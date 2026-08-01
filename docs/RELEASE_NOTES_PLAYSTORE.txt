@@ -1,137 +1,137 @@
 <fr-FR>
-Mon50ccetMoi v101.00.01 :
+Mon50ccetMoi v101.00.02 :
 • Migration vers l'API de Vigilance Météo-France officielle et sécurisée.
 • Renforcement des règles de sécurité de la base de données Firebase.
 • Nettoyage du dépôt de code et gestion sécurisée des clés secrètes.
 </fr-FR>
 <da-DK>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migration til den officielle og sikre Météo-France Vigilance API.
 • Styrkelse af Firebase-databassikkerhedsregler.
 • Oprydning af kodelager og sikker styring af hemmelige nøgler.
 </da-DK>
 <de-DE>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migration zur offiziellen und sicheren Météo-France Vigilance-API.
 • Stärkung der Sicherheitsregeln der Firebase-Datenbank.
 • Bereinigung des Code-Repositorys und sichere Verwaltung von Geheimschlüsseln.
 </de-DE>
 <es-419>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migración a la API de Vigilancia oficial y segura de Météo-France.
 • Fortalecimiento de las reglas de seguridad de la base de datos Firebase.
 • Limpieza del repositorio de código y gestión segura de claves secretas.
 </es-419>
 <es-ES>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migración a la API de Vigilancia oficial y segura de Météo-France.
 • Fortalecimiento de las reglas de seguridad de la base de datos Firebase.
 • Limpieza del repositorio de código y gestión segura de claves secretas.
 </es-ES>
 <fi-FI>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Siirtyminen viralliseen ja turvalliseen Météo-France Vigilance API -liittymään.
 • Firebase-tietokannan suojaussääntöjen vahvistaminen.
 • Koodivaraston puhdistus ja salaisten avuinten turvallinen hallinta.
 </fi-FI>
 <hi-IN>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • आधिकारिक और सुरक्षित मेटीओ-फ्रांस सतर्कता एपीआई में प्रवासन।
 • फायरबेस डेटाबेस सुरक्षा नियमों को सुदृढ़ करना।
 • कोड रिपॉजिटरी की सफाई और गुप्त कुंजी का सुरक्षित प्रबंधन।
 </hi-IN>
 <hu-HU>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Áttérés a hivatalos és biztonságos Météo-France Vigilance API-ra.
 • A Firebase adatbázis biztonsági szabályainak megerősítése.
 • Kódtár tisztítása és a titkos kulcsok biztonságos kezelése.
 </hu-HU>
 <id>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migrasi ke API Kewaspadaan Météo-France yang resmi dan aman.
 • Penguatan aturan keamanan database Firebase.
 • Pembersihan repositori kode dan pengelolaan kunci rahasia yang aman.
 </id>
 <it-IT>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migrazione all'API di Vigilanza Météo-France ufficiale e sicura.
 • Rafforzamento delle regole de sicurezza del database Firebase.
 • Pulizia del repository del codice e gestione sicura delle chiavi segrete.
 </it-IT>
 <iw-IL>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • מעבר ל-API הרשמי והמאובטח של Météo-France Vigilance.
 • חיזוק כללי האבטחה של מסד הנתונים Firebase.
 • ניקוי מאגר הקוד וניהול מאובטח של מפתחות סודיים.
 </iw-IL>
 <ja-JP>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • 公式かつ安全なMétéo-France気象警告APIへの移行。
 • Firebaseデータベースセキュリティルールの強化。
 • コードリポジティのクリーンアップと秘密鍵の安全な管理。
 </ja-JP>
 <ko-KR>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • 공식적이고 안전한 Météo-France 기상 경보 API로 이전.
 • Firebase 데이터베이스 보안 규칙 강화.
 • 코드 저장소 정리 및 비밀 키의 안전한 관리.
 </ko-KR>
 <nl-NL>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migratie naar de officiële en veilige Météo-France Vigilance API.
 • Versterking van de beveiligingsregels van de Firebase-database.
 • Opschoning van de coderepository en beveiligd beheer van geheime sleutels.
 </nl-NL>
 <no-NO>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migrering til den offisielle og sikre Météo-France Vigilance API.
 • Styrking af sikkerhetsregler for Firebase-databasen.
 • Opprydding i kodelager og sikker administrasjon av hemmelige nøkler.
 </no-NO>
 <pl-PL>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migracja do oficjalnego i bezpiecznego API Météo-France Vigilance.
 • Wzmocnienie reguł bezpieczeństwa bazy danych Firebase.
 • Oczyszczenie repozytorium kodu i bezpieczne zarządzanie kluczami tajnymi.
 </pl-PL>
 <pt-BR>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migração para a API de Vigilância oficial e segura da Météo-France.
 • Fortalecimento das regras de segurança do banco de dados Firebase.
 • Limpeza do repositório de código e gerenciamento seguro de chaves secretas.
 </pt-BR>
 <ro>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migrarea la API-ul oficial și securizat de vigilență Météo-France.
 • Consolidarea regulilor de securitate a bazei de date Firebase.
 • Curățarea depozitului de cod și gestionarea securizată a cheilor secrete.
 </ro>
 <sk>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migrácia na oficiálne a bezpečné rozhranie API Météo-France Vigilance.
 • Posilnenie bezpečnostných pravidiel databázy Firebase.
 • Vyčistenie úložiska kódu a bezpečné spravovanie tajných kľúčov.
 </sk>
 <sv-SE>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Migrering till det officiella och säkra Météo-France Vigilance API.
 • Stärkning av säkerhetsregler för Firebase-databasen.
 • Rensning av källkodsarkiv och säker hantering av hemliga nycklar.
 </sv-SE>
 <th>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • ย้ายไปยัง API เฝ้าระวัง Météo-France ที่เป็นทางการและปลอดภัย
 • เสริมความแข็งแกร่งของกฎความปลอดภัยฐานข้อมูล Firebase
 • ล้างที่เก็บโค้ดและการจัดการคีย์ลับอย่างปลอดภัย
 </th>
 <tr-TR>
-Mon50ccetMoi v101.00.01:
+Mon50ccetMoi v101.00.02:
 • Resmi ve güvenli Météo-France Uyarı API'sine geçiş.
 • Firebase veritabanı güvenlik kurallarının güçlendirilmesi.
 • Kod deposunun temizlenmesi ve gizli anahtarların güvenli yönetimi.
 </tr-TR>
 <zh-CN>
-Mon50ccetMoi v101.00.01：
+Mon50ccetMoi v101.00.02：
 • 迁移到官方且安全的 Météo-France 气象预警 API。
 • 加强 Firebase 数据库的安全规则。
 • 清理代码仓库并安全地管理密钥。
