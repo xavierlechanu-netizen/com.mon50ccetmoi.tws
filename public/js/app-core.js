@@ -1,4 +1,4 @@
-﻿// --- LITE MODE (PERFORMANCE) ---
+// --- LITE MODE (PERFORMANCE) ---
 window.isLiteMode = localStorage.getItem("liteMode") === "true";
 
 window.promptLiteMode = function () {
@@ -1215,6 +1215,25 @@ function updatePosition(position) {
   const speedEl = document.getElementById("speed");
   const speedBar = document.getElementById("speed-bar");
 
+  // Broadcast telemetry to smartwatch
+  if (!window.watchChannel) {
+    window.watchChannel = new BroadcastChannel("mon50cc_watch_sync");
+  }
+  
+  // Calculate crew count if CrewSystem is available
+  let currentCrewCount = 0;
+  if (window.CrewSystem && window.CrewSystem.crewData) {
+      currentCrewCount = window.CrewSystem.crewData.length;
+  }
+  
+  window.watchChannel.postMessage({
+    type: "TELEMETRY_UPDATE",
+    payload: {
+      speed: speedKmh,
+      crewCount: currentCrewCount
+    }
+  });
+
   if (speedEl) {
     speedEl.textContent = speedKmh;
     if (speedBar) {
@@ -2132,3 +2151,13 @@ window.addEventListener("deviceorientation", (e) => {
 
 setInterval(checkNightMode, 60000);
 checkNightMode();
+// --- CHANNELS DE COMMUNICATION ---
+if (!window.watchChannel) {
+  window.watchChannel = new BroadcastChannel(" mon50cc_watch_sync\);
+ window.watchChannel.onmessage = function(event) {
+ if (event.data.type === \SOS_TRIGGERED\ && window.sosActivate) {
+ console.log(\SOS triggered from smartwatch!\);
+ window.sosActivate();
+ }
+ };
+}

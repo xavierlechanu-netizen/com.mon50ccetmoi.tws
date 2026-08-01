@@ -1,4 +1,4 @@
-﻿// --- SYSTEM STARTUP ---
+// --- SYSTEM STARTUP ---
 function runCinematicStartup() {
   const statusEl = document.getElementById("loader-status");
   const needle = document.getElementById("gauge-needle");
@@ -319,11 +319,11 @@ window.showPage = function (page) {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-user-pen"></i> Mon Profil</h3>
             <div class="glassmorphism" style="padding:20px; margin-bottom:20px;">
-                <label style="color:#aaa; font-size:0.8rem;">Pseudo :</label>
+                <label for="edit-username" style="color:#aaa; font-size:0.8rem;">Pseudo :</label>
                 <input type="text" id="edit-username" value="" style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
-                <label style="color:#aaa; font-size:0.8rem;">Modèle de scooter :</label>
+                <label for="edit-scooter" style="color:#aaa; font-size:0.8rem;">Modèle de scooter :</label>
                 <input type="text" id="edit-scooter" value="" placeholder="Ex: Peugeot Kisbee 50cc" style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
-                <label style="color:#aaa; font-size:0.8rem;">Email de contact :</label>
+                <label for="edit-email" style="color:#aaa; font-size:0.8rem;">Email de contact :</label>
                 <input type="email" id="edit-email" value="" placeholder="contact@exemple.com" style="width:100%; padding:10px; margin-top:5px; margin-bottom:20px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
                 <button onclick="saveProfileInfo()" class="btn-insurance" style="width:100%; background:var(--neon-blue); color:black; font-weight:bold; border:none; padding:12px; border-radius:8px;">ENREGISTRER</button>
             </div>`;
@@ -558,7 +558,7 @@ window.showPage = function (page) {
             </div>
 
             <div class="card">
-                <label style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immédiat de l'atelier</label>
+                <label for="garage-status-select" style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immédiat de l'atelier</label>
                 <select id="garage-status-select" onchange="updateGarageStatus(this.value)" class="scooter-brand-select" style="width:100%; background:#111;">
                     <option value="dispo" selected>âÅ“… Prise en charge immédiate</option>
                     <option value="busy">â³ RDV nécessaire (>48h)</option>
@@ -631,7 +631,7 @@ window.showPage = function (page) {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-shield-heart"></i> ${t("security_title")}</h3>
             <div class="card" style="border:1px solid #00d2ff; background: rgba(0, 210, 255, 0.05);">
-                <label style="display:block; font-size:0.8rem; margin-bottom:10px;">Contact d'Urgence (Tel)</label>
+                <label for="emergency-num" style="display:block; font-size:0.8rem; margin-bottom:10px;">Contact d'Urgence (Tel)</label>
                 <input type="tel" id="emergency-num" value="${emergencyNum}" placeholder="Ex: 0612345678" style="width:100%; padding:10px; background:#000; border:1px solid #00d2ff; color:white; border-radius:8px;">
                 <button onclick="saveEmergencyContact()" class="btn-insurance" style="background:#00d2ff; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Enregistrer</button>
             </div>

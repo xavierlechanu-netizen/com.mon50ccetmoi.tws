@@ -137,6 +137,10 @@
         <span id="watch-bpm">72</span> bpm
       </div>
 
+      <div class="crew-container" style="font-size: 1.2rem; color: #00d2ff; margin-bottom: 10px; font-weight: bold;">
+        <i class="fa-solid fa-users"></i> Crew: <span id="watch-crew">0</span>
+      </div>
+
       <button class="btn-sos" onclick="triggerWatchSOS()">SOS</button>
     </div>
 
@@ -150,47 +154,48 @@
       setInterval(updateTime, 1000);
       updateTime();
 
-      // Simulate Bluetooth / Phone Sync connection
-      let currentSpeed = 0;
-      let currentBPM = 72;
+      // Sync with Phone via BroadcastChannel
+      const watchChannel = new BroadcastChannel("mon50cc_watch_sync");
 
-      function simulateWatchSensors() {
-        // Simulate Speed Changes
-        if (Math.random() > 0.5) {
-          currentSpeed += Math.floor(Math.random() * 5);
-        } else {
-          currentSpeed -= Math.floor(Math.random() * 5);
+      watchChannel.onmessage = function(event) {
+        if (event.data.type === "TELEMETRY_UPDATE") {
+          const payload = event.data.payload;
+          
+          if (payload.speed !== undefined) {
+            const speed = Math.floor(payload.speed);
+            document.getElementById("watch-speed").innerText = speed;
+            const speedEl = document.getElementById("watch-speed");
+            if (speed >= 50) {
+              speedEl.style.color = "#ff0055";
+              speedEl.style.textShadow = "0 0 15px #ff0055";
+            } else {
+              speedEl.style.color = "#00f2ff";
+              speedEl.style.textShadow = "0 0 10px #00f2ff";
+            }
+          }
+
+          if (payload.bpm !== undefined) {
+            document.getElementById("watch-bpm").innerText = payload.bpm;
+          }
+
+          if (payload.crewCount !== undefined) {
+            document.getElementById("watch-crew").innerText = payload.crewCount;
+          }
         }
-        if (currentSpeed < 0) currentSpeed = 0;
-        if (currentSpeed > 55) currentSpeed = 55; // 50cc limit
-
-        document.getElementById("watch-speed").innerText = currentSpeed;
-
-        // Dynamic Color for Speed
-        const speedEl = document.getElementById("watch-speed");
-        if (currentSpeed >= 50) {
-          speedEl.style.color = "#ff0055";
-          speedEl.style.textShadow = "0 0 15px #ff0055";
-        } else {
-          speedEl.style.color = "#00f2ff";
-          speedEl.style.textShadow = "0 0 10px #00f2ff";
-        }
-
-        // Simulate Heart Rate Changes
-        currentBPM += Math.floor((Math.random() - 0.5) * 4);
-        if (currentBPM < 60) currentBPM = 60;
-        if (currentBPM > 140) currentBPM = 140; // Adrenaline rush
-
-        document.getElementById("watch-bpm").innerText = currentBPM;
-      }
-
-      setInterval(simulateWatchSensors, 1000);
+      };
 
       function triggerWatchSOS() {
         // Trigger haptic feedback if supported by the watch
         if (navigator.vibrate) {
           navigator.vibrate([200, 100, 200, 100, 500]);
         }
+        
+        // Notify phone
+        watchChannel.postMessage({
+          type: "SOS_TRIGGERED",
+          payload: { source: "watch", timestamp: Date.now() }
+        });
+        
         alert("ALERTE SOS ENVOYÉE DEPUIS LA MONTRE !");
       }
     </script>

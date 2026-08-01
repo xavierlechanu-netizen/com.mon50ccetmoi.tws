@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ðŸï¸ GARAGE VIRTUEL
  * Suivi d'entretien et état des pièces en fonction du kilométrage.
  */
@@ -136,13 +136,13 @@ window.VirtualGarage = {
             <div style="width: 90%; max-width: 500px; background: rgba(0,0,0,0.4); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.8rem; color: #777;">Modèle du scooter</label>
+                        <label for="garage-model" style="font-size: 0.8rem; color: #777;">Modèle du scooter</label>
                         <input type="text" id="garage-model" value="${this.data.model}" style="width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; box-sizing: border-box; margin-top: 5px; outline: none;">
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.8rem; color: #777;">Kilométrage initial (compteur)</label>
+                        <label for="garage-initial-km" style="font-size: 0.8rem; color: #777;">Kilométrage initial (compteur)</label>
                         <input type="number" id="garage-initial-km" value="${this.data.initialKm}" style="width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; box-sizing: border-box; margin-top: 5px; outline: none;">
                     </div>
                 </div>

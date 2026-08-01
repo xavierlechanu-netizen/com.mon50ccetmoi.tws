@@ -18,6 +18,7 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const admin = require("firebase-admin");
+const { Client } = require("@notionhq/client");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -26,6 +27,8 @@ const db = admin.firestore();
 const REVOLUT_SECRET_KEY = defineSecret("REVOLUT_SECRET_KEY");
 const REVOLUT_WEBHOOK_SECRET = defineSecret("REVOLUT_WEBHOOK_SECRET");
 const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
+const NOTION_API_KEY = defineSecret("NOTION_API_KEY");
+const NOTION_DATABASE_ID = defineSecret("NOTION_DATABASE_ID");
 
 // ─── Constantes API Revolut ─────────────────────────────────────────────────
 // PRODUCTION : merchant.revolut.com (anciennement sandbox-merchant.revolut.com)
@@ -540,3 +543,71 @@ exports.askJarvisGemini = onRequest(
         }
     }
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. reportToNotion
+//    Envoie un ticket/rapport vers une base de données Notion (Bug tracker / CRM).
+//
+//    POST body : { title, description, category, priority }
+// ─────────────────────────────────────────────────────────────────────────────
+exports.reportToNotion = onRequest(
+    { secrets: [NOTION_API_KEY, NOTION_DATABASE_ID] },
+    async (req, res) => {
+        setCorsHeaders(res);
+        if (req.method === "OPTIONS") return res.status(204).send("");
+        if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+
+        try {
+            const { title, description, category, priority } = req.body;
+            if (!title) {
+                return res.status(400).json({ error: "Le paramètre 'title' est requis." });
+            }
+
+            const notion = new Client({ auth: NOTION_API_KEY.value() });
+            
+            const response = await notion.pages.create({
+                parent: { database_id: NOTION_DATABASE_ID.value() },
+                properties: {
+                    // Les noms de propriétés doivent correspondre aux colonnes de votre base Notion
+                    "Name": { // Colonne Titre par défaut
+                        title: [
+                            { text: { content: title } }
+                        ]
+                    },
+                    "Tags": { // Colonne Multi-select
+                        multi_select: [
+                            { name: category || "Feedback" }
+                        ]
+                    },
+                    "Priority": { // Colonne Select
+                        select: { name: priority || "Low" }
+                    }
+                },
+                children: [
+                    {
+                        object: 'block',
+                        type: 'paragraph',
+                        paragraph: {
+                            rich_text: [
+                                {
+                                    type: 'text',
+                                    text: {
+                                        content: description || "Aucune description fournie."
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            });
+
+            console.log("[Notion] Ticket créé avec succès :", response.id);
+            return res.status(200).json({ success: true, id: response.id });
+            
+        } catch (error) {
+            console.error("[Notion] Erreur lors de la création du ticket :", error.message);
+            return res.status(500).json({ error: "Erreur interne", details: error.message });
+        }
+    }
+);
+

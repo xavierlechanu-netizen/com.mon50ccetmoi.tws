@@ -1,4 +1,4 @@
-﻿/**
+/**
  * AR Navigation Module (v85.0)
  * Gère l'affichage vidéo de la caméra et la superposition holographique
  */
@@ -84,6 +84,12 @@ class ARNavigationManager {
         mapEl.style.backdropFilter = "blur(2px)";
       }
 
+      const btn = document.getElementById("ar-hud-btn");
+      if (btn) {
+        btn.style.background = "rgba(0, 242, 255, 0.2)";
+        btn.style.boxShadow = "0 0 10px #00f2ff";
+      }
+
       document.body.classList.add("ar-mode-active");
       this.isActive = true;
 
@@ -118,6 +124,12 @@ class ARNavigationManager {
     if (mapEl) {
       mapEl.style.backgroundColor = "#060913";
       mapEl.style.backdropFilter = "none";
+    }
+
+    const btn = document.getElementById("ar-hud-btn");
+    if (btn) {
+      btn.style.background = "none";
+      btn.style.boxShadow = "none";
     }
 
     document.body.classList.remove("ar-mode-active");

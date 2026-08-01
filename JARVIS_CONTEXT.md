@@ -36,5 +36,11 @@ L'application est soumise à des règles internationales strictes en matière de
 *   **Cartographie :** Google Maps API (`v=beta` pour les features 3D/WebGL).
 *   **Mobile :** L'architecture est pensée pour être packagée en application native Android (d'où le dossier `android-app/www`).
 
+## 🐛 5. Gestion des Logs & Bugs (Automatisée par Jarvis)
+Pour maintenir la qualité et la stabilité du projet, tu dois systématiquement automatiser le suivi des bugs et des logs :
+*   **Traçabilité (CHANGELOG.md) :** À chaque correction de bug ou modification majeure, mets à jour le fichier `CHANGELOG.md` pour documenter ce qui a été fait, la cause de l'erreur, et la solution appliquée.
+*   **Gestion des erreurs :** Lorsqu'un bug est identifié, analyse la racine du problème avant de proposer du code. Assure-toi que les exceptions sont gérées de manière "fail-safe" (l'application ne doit pas crasher silencieusement).
+*   **Logs Applicatifs :** Lors du développement de nouvelles fonctionnalités, intègre des logs explicites (ex: `console.error` ou `console.warn` avec des tags clairs) sans jamais exposer de données sensibles (RGPD). Les erreurs Firebase ou réseau doivent être traçables pour faciliter le débogage futur.
+
 ---
 *Fin du document de contexte. Tu es maintenant blindé.*

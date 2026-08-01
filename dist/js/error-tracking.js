@@ -61,7 +61,19 @@ window.CrashReporter = {
 
       db.collection("crash_reports")
         .add(payload)
-        .then(() => {})
+        .then(() => {
+          // Send to Notion Bug Tracker via Cloud Functions
+          fetch("https://us-central1-mon50ccetmoi.cloudfunctions.net/reportToNotion", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: `[BUG] ${errorData.type}: ${String(errorData.message).substring(0, 50)}`,
+              description: `Message: ${errorData.message}\nURL: ${payload.url}\nUserAgent: ${payload.userAgent}\nStack: ${errorData.stack}`,
+              category: "Bug Technique",
+              priority: "High"
+            })
+          }).catch(err => console.warn("🛡ï¸  Failed to sync to Notion", err));
+        })
         .catch((err) =>
           console.warn(
             "🛡ï¸ Failed to send crash report (probably offline).",
@@ -84,3 +96,22 @@ window.CrashReporter = {
 
 // Auto-init as early as possible
 window.CrashReporter.init();
+
+// Global Logger Utility
+window.logger = {
+  error: function(message, details = null) {
+    console.error("🚨 " + message, details || "");
+    window.CrashReporter.logError({
+      type: "ManualErrorLog",
+      message: message,
+      details: details ? JSON.stringify(details) : "N/A",
+      stack: new Error().stack
+    });
+  },
+  warn: function(message, details = null) {
+    console.warn("⚠️ " + message, details || "");
+  },
+  info: function(message, details = null) {
+    console.info("ℹ️ " + message, details || "");
+  }
+};

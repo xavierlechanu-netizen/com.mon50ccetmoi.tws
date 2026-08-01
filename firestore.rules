@@ -64,7 +64,7 @@ service cloud.firestore {
     match /hazards/{hazardId} {
       allow read: if true;
       allow create: if isSignedIn();
-      allow update: if isSignedIn();
+      allow update: if isSignedIn() && (isOwner(resource.data.author) || isOwner(resource.data.reporter));
       allow delete: if isAdmin() || (isSignedIn() && (getUsername() == resource.data.author || getUsername() == resource.data.reporter));
     }
 
@@ -127,6 +127,12 @@ service cloud.firestore {
       allow read: if isOwner(testerId) || isAdmin(); 
       allow create: if isSignedIn(); 
       allow update, delete: if isAdmin();
+    }
+
+    // Rapports d'erreurs (Crash Reports / Bugs)
+    match /crash_reports/{reportId} {
+      allow create: if true; // Autoriser tout le monde (pour attraper les erreurs pré-login)
+      allow read, update, delete: if isAdmin();
     }
 
     // Alertes d'administration (Admin Alerts)
@@ -279,7 +285,7 @@ service cloud.firestore {
     match /convoys/{convoyId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.auth.uid == request.resource.data.leaderUid;
-      allow update: if isSignedIn();
+      allow update: if isSignedIn() && (request.auth.uid == resource.data.leaderUid || isAdmin());
       allow delete: if isSignedIn() && (request.auth.uid == resource.data.leaderUid || isAdmin());
 
       match /positions/{memberId} {

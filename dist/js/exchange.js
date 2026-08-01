@@ -574,18 +574,18 @@ window.ExchangeMarket = {
 
         <div style="display:flex; flex-direction:column; gap:12px;">
           <div>
-            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Titre de l'annonce *</label>
+            <label for="ex-title" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Titre de l'annonce *</label>
             <input type="text" id="ex-title" placeholder="ex: Galets Malossi 6.5g Neufs" maxlength="100" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
           </div>
 
           <div>
-            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Description *</label>
+            <label for="ex-desc" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Description *</label>
             <textarea id="ex-desc" placeholder="Précisez l'état, la compatibilité de la pièce (ex: Booster/MBK Nitro)..." maxlength="500" rows="3" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none; resize:none;"></textarea>
           </div>
 
           <div style="display:flex; gap:10px;">
             <div style="flex:1;">
-              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Catégorie *</label>
+              <label for="ex-category" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Catégorie *</label>
               <select id="ex-category" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
                 <option value="galets">⚙️ Galets</option>
                 <option value="variateur">⚙️ Variateur</option>
@@ -599,7 +599,7 @@ window.ExchangeMarket = {
             </div>
 
             <div style="flex:1;">
-              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">État *</label>
+              <label for="ex-condition" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">État *</label>
               <select id="ex-condition" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
                 <option value="good">Bon état</option>
                 <option value="new">Neuf (Emballé)</option>
@@ -610,7 +610,7 @@ window.ExchangeMarket = {
           </div>
 
           <div>
-            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Compatibilité (Garage Virtuel) *</label>
+            <label for="ex-compatibility" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Compatibilité (Garage Virtuel) *</label>
             <select id="ex-compatibility" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
               <option value="universel">Universel</option>
               <option value="ami">Citroën Ami</option>
@@ -624,17 +624,17 @@ window.ExchangeMarket = {
           </div>
 
           <div style="margin-top: 10px;">
-            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Lien Photo / Image (Optionnel)</label>
+            <label for="ex-photourl" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Lien Photo / Image (Optionnel)</label>
             <input type="url" id="ex-photourl" placeholder="https://..." style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
           </div>
 
           <div style="display:flex; gap:10px;">
             <div style="flex:2;">
-              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Prix *</label>
+              <label for="ex-price" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Prix *</label>
               <input type="number" id="ex-price" placeholder="Prix" min="1" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
             </div>
             <div style="flex:1;">
-              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Monnaie</label>
+              <label for="ex-price-type" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Monnaie</label>
               <select id="ex-price-type" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
                 <option value="bvc">Pts BVC</option>
                 <option value="euro">Euros (€)</option>

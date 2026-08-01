@@ -151,6 +151,11 @@
       }
     </script>
 
+    <!-- Firebase SDK (v9 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" charset="utf-8"></script>
+
     <!-- Firebase Analytics -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js" charset="utf-8"></script>
 
@@ -334,10 +339,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" charset="utf-8"></script>
     <link rel="stylesheet" href="css/style.min.css?v=1008000" />
     <link rel="icon" type="image/png" href="/assets/icon-192x192-CsrcJCmh.png" />
-    <!-- Firebase SDK (v9 Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" charset="utf-8"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" charset="utf-8"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" charset="utf-8"></script>
 
     <!-- Revolut Merchant SDK -->
     <script src="https://merchant.revolut.com/embed.js" async charset="utf-8"></script>
@@ -1126,6 +1127,30 @@
         title="Guerre de Territoires"
       >
         <i class="fa-solid fa-flag"></i> Crew
+      </button>
+
+      <!-- Mode AR (Réalité Augmentée) -->
+      <button
+        id="ar-hud-btn"
+        onclick="if (window.arNavigationManager) window.arNavigationManager.toggleAR();"
+        style="
+          background: none;
+          border: 1px solid #00f2ff;
+          border-radius: 20px;
+          color: #00f2ff;
+          font-size: 1rem;
+          font-weight: bold;
+          cursor: pointer;
+          transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          padding: 8px 15px;
+          margin-left: 10px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        "
+        title="Mode AR (HUD)"
+      >
+        <i class="fa-solid fa-vr-cardboard"></i> AR
       </button>
 
       <!-- Mode Cortège -->

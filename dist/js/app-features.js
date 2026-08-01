@@ -1055,8 +1055,7 @@ window.generateTacticalExploration = function () {
 window.checkVigilanceRouge = async function () {
   try {
     // API Publique OpenDataSoft pour Météo-France (Filtre: Vigilance Rouge uniquement)
-    const url =
-      "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/vigilance-meteorologique/records?limit=100&refine=etat_de_vigilance%3A%22Rouge%22";
+    const url = "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/weatherref-france-vigilance-meteo-departement/records?limit=100&refine=couleur%3A%22Rouge%22";
     const response = await fetch(url);
 
     if (!response.ok) {

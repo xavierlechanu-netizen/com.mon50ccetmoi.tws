@@ -4104,6 +4104,25 @@ function updatePosition(position) {
   const speedEl = document.getElementById("speed");
   const speedBar = document.getElementById("speed-bar");
 
+  // Broadcast telemetry to smartwatch
+  if (!window.watchChannel) {
+    window.watchChannel = new BroadcastChannel("mon50cc_watch_sync");
+  }
+  
+  // Calculate crew count if CrewSystem is available
+  let currentCrewCount = 0;
+  if (window.CrewSystem && window.CrewSystem.crewData) {
+      currentCrewCount = window.CrewSystem.crewData.length;
+  }
+  
+  window.watchChannel.postMessage({
+    type: "TELEMETRY_UPDATE",
+    payload: {
+      speed: speedKmh,
+      crewCount: currentCrewCount
+    }
+  });
+
   if (speedEl) {
     speedEl.textContent = speedKmh;
     if (speedBar) {
@@ -5021,6 +5040,16 @@ window.addEventListener("deviceorientation", (e) => {
 
 setInterval(checkNightMode, 60000);
 checkNightMode();
+// --- CHANNELS DE COMMUNICATION ---
+if (!window.watchChannel) {
+  window.watchChannel = new BroadcastChannel(" mon50cc_watch_sync\);
+ window.watchChannel.onmessage = function(event) {
+ if (event.data.type === \SOS_TRIGGERED\ && window.sosActivate) {
+ console.log(\SOS triggered from smartwatch!\);
+ window.sosActivate();
+ }
+ };
+}
 
 
 /* --- app-map.js --- */
@@ -7068,8 +7097,7 @@ window.generateTacticalExploration = function () {
 window.checkVigilanceRouge = async function () {
   try {
     // API Publique OpenDataSoft pour Météo-France (Filtre: Vigilance Rouge uniquement)
-    const url =
-      "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/vigilance-meteorologique/records?limit=100&refine=etat_de_vigilance%3A%22Rouge%22";
+    const url = "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/weatherref-france-vigilance-meteo-departement/records?limit=100&refine=couleur%3A%22Rouge%22";
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -7562,11 +7590,11 @@ window.showPage = function (page) {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-user-pen"></i> Mon Profil</h3>
             <div class="glassmorphism" style="padding:20px; margin-bottom:20px;">
-                <label style="color:#aaa; font-size:0.8rem;">Pseudo :</label>
+                <label for="edit-username" style="color:#aaa; font-size:0.8rem;">Pseudo :</label>
                 <input type="text" id="edit-username" value="" style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
-                <label style="color:#aaa; font-size:0.8rem;">Modèle de scooter :</label>
+                <label for="edit-scooter" style="color:#aaa; font-size:0.8rem;">Modèle de scooter :</label>
                 <input type="text" id="edit-scooter" value="" placeholder="Ex: Peugeot Kisbee 50cc" style="width:100%; padding:10px; margin-top:5px; margin-bottom:15px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
-                <label style="color:#aaa; font-size:0.8rem;">Email de contact :</label>
+                <label for="edit-email" style="color:#aaa; font-size:0.8rem;">Email de contact :</label>
                 <input type="email" id="edit-email" value="" placeholder="contact@exemple.com" style="width:100%; padding:10px; margin-top:5px; margin-bottom:20px; background:rgba(255,255,255,0.1); border:1px solid #444; color:#fff; border-radius:8px;">
                 <button onclick="saveProfileInfo()" class="btn-insurance" style="width:100%; background:var(--neon-blue); color:black; font-weight:bold; border:none; padding:12px; border-radius:8px;">ENREGISTRER</button>
             </div>`;
@@ -7801,7 +7829,7 @@ window.showPage = function (page) {
             </div>
 
             <div class="card">
-                <label style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immédiat de l'atelier</label>
+                <label for="garage-status-select" style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immédiat de l'atelier</label>
                 <select id="garage-status-select" onchange="updateGarageStatus(this.value)" class="scooter-brand-select" style="width:100%; background:#111;">
                     <option value="dispo" selected>âÅ“… Prise en charge immédiate</option>
                     <option value="busy">â³ RDV nécessaire (>48h)</option>
@@ -7874,7 +7902,7 @@ window.showPage = function (page) {
     if (typeof content !== "undefined")
       content.innerHTML = `<h3><i class="fa-solid fa-shield-heart"></i> ${t("security_title")}</h3>
             <div class="card" style="border:1px solid #00d2ff; background: rgba(0, 210, 255, 0.05);">
-                <label style="display:block; font-size:0.8rem; margin-bottom:10px;">Contact d'Urgence (Tel)</label>
+                <label for="emergency-num" style="display:block; font-size:0.8rem; margin-bottom:10px;">Contact d'Urgence (Tel)</label>
                 <input type="tel" id="emergency-num" value="${emergencyNum}" placeholder="Ex: 0612345678" style="width:100%; padding:10px; background:#000; border:1px solid #00d2ff; color:white; border-radius:8px;">
                 <button onclick="saveEmergencyContact()" class="btn-insurance" style="background:#00d2ff; color:black; margin-top:10px; width:100%; font-size:0.8rem;">Enregistrer</button>
             </div>
@@ -11837,6 +11865,12 @@ class ARNavigationManager {
         mapEl.style.backdropFilter = "blur(2px)";
       }
 
+      const btn = document.getElementById("ar-hud-btn");
+      if (btn) {
+        btn.style.background = "rgba(0, 242, 255, 0.2)";
+        btn.style.boxShadow = "0 0 10px #00f2ff";
+      }
+
       document.body.classList.add("ar-mode-active");
       this.isActive = true;
 
@@ -11871,6 +11905,12 @@ class ARNavigationManager {
     if (mapEl) {
       mapEl.style.backgroundColor = "#060913";
       mapEl.style.backdropFilter = "none";
+    }
+
+    const btn = document.getElementById("ar-hud-btn");
+    if (btn) {
+      btn.style.background = "none";
+      btn.style.boxShadow = "none";
     }
 
     document.body.classList.remove("ar-mode-active");
@@ -13925,13 +13965,13 @@ window.VirtualGarage = {
             <div style="width: 90%; max-width: 500px; background: rgba(0,0,0,0.4); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.8rem; color: #777;">Modèle du scooter</label>
+                        <label for="garage-model" style="font-size: 0.8rem; color: #777;">Modèle du scooter</label>
                         <input type="text" id="garage-model" value="${this.data.model}" style="width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; box-sizing: border-box; margin-top: 5px; outline: none;">
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <div style="flex: 1;">
-                        <label style="font-size: 0.8rem; color: #777;">Kilométrage initial (compteur)</label>
+                        <label for="garage-initial-km" style="font-size: 0.8rem; color: #777;">Kilométrage initial (compteur)</label>
                         <input type="number" id="garage-initial-km" value="${this.data.initialKm}" style="width: 100%; background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; box-sizing: border-box; margin-top: 5px; outline: none;">
                     </div>
                 </div>
@@ -15005,18 +15045,18 @@ window.ExchangeMarket = {
 
         <div style="display:flex; flex-direction:column; gap:12px;">
           <div>
-            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Titre de l'annonce *</label>
+            <label for="ex-title" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Titre de l'annonce *</label>
             <input type="text" id="ex-title" placeholder="ex: Galets Malossi 6.5g Neufs" maxlength="100" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
           </div>
 
           <div>
-            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Description *</label>
+            <label for="ex-desc" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Description *</label>
             <textarea id="ex-desc" placeholder="Précisez l'état, la compatibilité de la pièce (ex: Booster/MBK Nitro)..." maxlength="500" rows="3" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none; resize:none;"></textarea>
           </div>
 
           <div style="display:flex; gap:10px;">
             <div style="flex:1;">
-              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Catégorie *</label>
+              <label for="ex-category" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Catégorie *</label>
               <select id="ex-category" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
                 <option value="galets">⚙️ Galets</option>
                 <option value="variateur">⚙️ Variateur</option>
@@ -15030,7 +15070,7 @@ window.ExchangeMarket = {
             </div>
 
             <div style="flex:1;">
-              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">État *</label>
+              <label for="ex-condition" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">État *</label>
               <select id="ex-condition" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
                 <option value="good">Bon état</option>
                 <option value="new">Neuf (Emballé)</option>
@@ -15041,7 +15081,7 @@ window.ExchangeMarket = {
           </div>
 
           <div>
-            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Compatibilité (Garage Virtuel) *</label>
+            <label for="ex-compatibility" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Compatibilité (Garage Virtuel) *</label>
             <select id="ex-compatibility" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
               <option value="universel">Universel</option>
               <option value="ami">Citroën Ami</option>
@@ -15055,17 +15095,17 @@ window.ExchangeMarket = {
           </div>
 
           <div style="margin-top: 10px;">
-            <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Lien Photo / Image (Optionnel)</label>
+            <label for="ex-photourl" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Lien Photo / Image (Optionnel)</label>
             <input type="url" id="ex-photourl" placeholder="https://..." style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
           </div>
 
           <div style="display:flex; gap:10px;">
             <div style="flex:2;">
-              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Prix *</label>
+              <label for="ex-price" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Prix *</label>
               <input type="number" id="ex-price" placeholder="Prix" min="1" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
             </div>
             <div style="flex:1;">
-              <label style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Monnaie</label>
+              <label for="ex-price-type" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Monnaie</label>
               <select id="ex-price-type" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
                 <option value="bvc">Pts BVC</option>
                 <option value="euro">Euros (€)</option>
