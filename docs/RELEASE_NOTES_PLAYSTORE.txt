@@ -1,184 +1,138 @@
 <fr-FR>
-Mon50ccetMoi v100.90.01 :
-• Compatibilité officielle Android 16 (API 36).
-• Optimisation majeure des performances & nettoyage du code source.
-• Amélioration de la stabilité de la commande vocale Oracle / Jarvis & gestion du micro.
-• Synchronisation fluide du suivi GPS & correctifs carte Leaflet.
-• Sécurité renforcée et conformité globale.
+Mon50ccetMoi v101.00.01 :
+• Migration vers l'API de Vigilance Météo-France officielle et sécurisée.
+• Renforcement des règles de sécurité de la base de données Firebase.
+• Nettoyage du dépôt de code et gestion sécurisée des clés secrètes.
 </fr-FR>
 <da-DK>
-Mon50ccetMoi v100.90.01:
-• Officiel Android 16 (API 36) kompatibilitet.
-• Omfattende ydeevneoptimering og oprydning af kildekode.
-• Forbedret Oracle / Jarvis stemmeassistent stabilitet.
-• Jævn GPS-sporingssynkronisering og kortrettelser.
-• Forstærket sikkerhed og global overholdelse.
+Mon50ccetMoi v101.00.01:
+• Migration til den officielle og sikre Météo-France Vigilance API.
+• Styrkelse af Firebase-databassikkerhedsregler.
+• Oprydning af kodelager og sikker styring af hemmelige nøgler.
 </da-DK>
 <de-DE>
-Mon50ccetMoi v100.90.01:
-• Offizielle Android 16 (API 36) Kompatibilität.
-• Große Leistungsoptimierung & Quellcode-Bereinigung.
-• Verbesserte Stabilität des Sprachassistenten Oracle / Jarvis & Mikrofon-Fix.
-• Reibungslose GPS-Tracking-Synchronisierung & Karten-Korrekturen.
-• Erhöhte Sicherheit und globale Compliance.
+Mon50ccetMoi v101.00.01:
+• Migration zur offiziellen und sicheren Météo-France Vigilance-API.
+• Stärkung der Sicherheitsregeln der Firebase-Datenbank.
+• Bereinigung des Code-Repositorys und sichere Verwaltung von Geheimschlüsseln.
 </de-DE>
 <es-419>
-Mon50ccetMoi v100.90.01:
-• Compatibilidad oficial con Android 16 (API 36).
-• Gran optimización de rendimiento y limpieza de código.
-• Estabilidad mejorada del asistente de voz Oracle / Jarvis y micrófono.
-• Sincronización fluida del GPS y correcciones en el mapa.
-• Seguridad reforzada y cumplimiento normativo.
+Mon50ccetMoi v101.00.01:
+• Migración a la API de Vigilancia oficial y segura de Météo-France.
+• Fortalecimiento de las reglas de seguridad de la base de datos Firebase.
+• Limpieza del repositorio de código y gestión segura de claves secretas.
 </es-419>
 <es-ES>
-Mon50ccetMoi v100.90.01:
-• Compatibilidad oficial con Android 16 (API 36).
-• Gran optimización de rendimiento y limpieza de código fuente.
-• Mejora en la estabilidad del asistente vocal Oracle / Jarvis y micrófono.
-• Sincronización fluida del seguimiento GPS y correcciones en el mapa.
-• Seguridad reforzada y cumplimiento normativo.
+Mon50ccetMoi v101.00.01:
+• Migración a la API de Vigilancia oficial y segura de Météo-France.
+• Fortalecimiento de las reglas de seguridad de la base de datos Firebase.
+• Limpieza del repositorio de código y gestión segura de claves secretas.
 </es-ES>
 <fi-FI>
-Mon50ccetMoi v100.90.01:
-• Virallinen Android 16 (API 36) -yhteensopivuus.
-• Suuri suorituskyvyn optimointi ja lähdekoodin puhdistus.
-• Parannettu Oracle / Jarvis -ääniavustajan vakavuus.
-• Sujuva GPS-seurannan synchronointi ja karttakorjaukset.
-• Vahvistettu turvallisuus ja maailmanlaajuinen vaatimustenmukaisuus.
+Mon50ccetMoi v101.00.01:
+• Siirtyminen viralliseen ja turvalliseen Météo-France Vigilance API -liittymään.
+• Firebase-tietokannan suojaussääntöjen vahvistaminen.
+• Koodivaraston puhdistus ja salaisten avuinten turvallinen hallinta.
 </fi-FI>
 <hi-IN>
-Mon50ccetMoi v100.90.01:
-• आधिकारिक एंड्रॉइड 16 (API 36) अनुकूलता।
-• प्रमुख प्रदर्शन अनुकूलन और स्रोत कोड सफाई।
-• ओरेकल / जार्विस वॉयस असिस्टेंट स्थिरता में सुधार।
-• निर्बाध जीपीएस ट्रैकिंग सिंक्रोनाइज़ेशन और मानचित्र सुधार।
-• सुदृढ़ सुरक्षा और वैश्विक अनुपालन।
+Mon50ccetMoi v101.00.01:
+• आधिकारिक और सुरक्षित मेटीओ-फ्रांस सतर्कता एपीआई में प्रवासन।
+• फायरबेस डेटाबेस सुरक्षा नियमों को सुदृढ़ करना।
+• कोड रिपॉजिटरी की सफाई और गुप्त कुंजी का सुरक्षित प्रबंधन।
 </hi-IN>
 <hu-HU>
-Mon50ccetMoi v100.90.01:
-• Hivatalos Android 16 (API 36) kompatibilitás.
-• Jelentős teljesítmény-optimalizálás és forráskód-tisztítás.
-• Fejlesztett Oracle / Jarvis hangasszisztens stabilitás.
-• Sima GPS-követési szinkronizálás és térképjavítások.
-• Megerősített biztonság és globális megfelelőség.
+Mon50ccetMoi v101.00.01:
+• Áttérés a hivatalos és biztonságos Météo-France Vigilance API-ra.
+• A Firebase adatbázis biztonsági szabályainak megerősítése.
+• Kódtár tisztítása és a titkos kulcsok biztonságos kezelése.
 </hu-HU>
 <id>
-Mon50ccetMoi v100.90.01:
-• Kompatibilitas resmi Android 16 (API 36).
-• Optimasi kinerja besar & pembersihan kode sumber.
-• Peningkatan stabilitas asisten suara Oracle / Jarvis.
-• Sinkronisasi pelacakan GPS yang lancar & perbaikan peta.
-• Keamanan diperkuat & kepatuhan global.
+Mon50ccetMoi v101.00.01:
+• Migrasi ke API Kewaspadaan Météo-France yang resmi dan aman.
+• Penguatan aturan keamanan database Firebase.
+• Pembersihan repositori kode dan pengelolaan kunci rahasia yang aman.
 </id>
 <it-IT>
-Mon50ccetMoi v100.90.01:
-• Compatibilità ufficiale Android 16 (API 36).
-• Grande ottimizzazione delle prestazioni e pulizia del codice sorgente.
-• Miglioramento della stabilità dell'assistente vocale Oracle / Jarvis.
-• Sincronizzazione fluida del tracciamento GPS e correzioni alla mappa.
-• Sicurezza rafforzata e conformità globale.
+Mon50ccetMoi v101.00.01:
+• Migrazione all'API di Vigilanza Météo-France ufficiale e sicura.
+• Rafforzamento delle regole de sicurezza del database Firebase.
+• Pulizia del repository del codice e gestione sicura delle chiavi segrete.
 </it-IT>
 <iw-IL>
-Mon50ccetMoi v100.90.01:
-• תאימות רשמית לאנדרואיד 16 (API 36).
-• אופטימיזציה משמעותית בביצועים וניקוי קוד מקור.
-• שיפור יציבות עוזר הקול Oracle / Jarvis.
-• סנכרון מעקב GPS חלק ותיקוני מפה.
-• אבטחה משודרגת ועמידה בתקנים עולמיים.
+Mon50ccetMoi v101.00.01:
+• מעבר ל-API הרשמי והמאובטח של Météo-France Vigilance.
+• חיזוק כללי האבטחה של מסד הנתונים Firebase.
+• ניקוי מאגר הקוד וניהול מאובטח של מפתחות סודיים.
 </iw-IL>
 <ja-JP>
-Mon50ccetMoi v100.90.01:
-• 公式Android 16（API 36）互換性。
-• 大幅なパフォーマンス最適化とソースコードのクリーンアップ。
-• Oracle / Jarvis音声アシスタントの安定性向上。
-• スムーズなGPSトラッキング同期とマップの修正。
-• セキュリティの強化とグローバルコンプライアンス。
+Mon50ccetMoi v101.00.01:
+• 公式かつ安全なMétéo-France気象警告APIへの移行。
+• Firebaseデータベースセキュリティルールの強化。
+• コードリポジティのクリーンアップと秘密鍵の安全な管理。
 </ja-JP>
 <ko-KR>
-Mon50ccetMoi v100.90.01:
-• 공식 Android 16 (API 36) 호환성.
-• 대대적인 성능 최적화 및 소스 코드 정돈.
-• Oracle / Jarvis 음성 비서 안정성 향상.
-• 매끄러운 GPS 추적 동기화 및 지도 오류 수정.
-• 보안 강화 및 글로벌 규정 준수.
+Mon50ccetMoi v101.00.01:
+• 공식적이고 안전한 Météo-France 기상 경보 API로 이전.
+• Firebase 데이터베이스 보안 규칙 강화.
+• 코드 저장소 정리 및 비밀 키의 안전한 관리.
 </ko-KR>
 <nl-NL>
-Mon50ccetMoi v100.90.01:
-• Officiële Android 16 (API 36) compatibiliteit.
-• Grote prestatie-optimalisatie & opschoning van de broncode.
-• Verbeterde stabiliteit van de Oracle / Jarvis spraakassistent.
-• Soepele GPS-tracking synchronisatie & kaartoplossingen.
-• Versterkte beveiliging en wereldwijde naleving.
+Mon50ccetMoi v101.00.01:
+• Migratie naar de officiële en veilige Météo-France Vigilance API.
+• Versterking van de beveiligingsregels van de Firebase-database.
+• Opschoning van de coderepository en beveiligd beheer van geheime sleutels.
 </nl-NL>
 <no-NO>
-Mon50ccetMoi v100.90.01:
-• Offisiell Android 16 (API 36) kompatibilitet.
-• Omfattende ytelsesoptimalisering og opprydding i kildekode.
-• Forbedret Oracle / Jarvis stemmeassistent-stabilitet.
-• Jevn GPS-sporingssynkronisering og kartrettelser.
-• Styrket sikkerhet og global samsvar.
+Mon50ccetMoi v101.00.01:
+• Migrering til den offisielle og sikre Météo-France Vigilance API.
+• Styrking af sikkerhetsregler for Firebase-databasen.
+• Opprydding i kodelager og sikker administrasjon av hemmelige nøkler.
 </no-NO>
 <pl-PL>
-Mon50ccetMoi v100.90.01:
-• Oficjalna kompatybilność z Android 16 (API 36).
-• Duża optymalizacja wydajności i czyszczenie kodu źródłowego.
-• Poprawiona stabilność asystenta głosowego Oracle / Jarvis.
-• Płynna synchronizacja śledzenia GPS i poprawki mapy.
-• Wzmocnione bezpieczeństwo i zgodność z przepisami.
+Mon50ccetMoi v101.00.01:
+• Migracja do oficjalnego i bezpiecznego API Météo-France Vigilance.
+• Wzmocnienie reguł bezpieczeństwa bazy danych Firebase.
+• Oczyszczenie repozytorium kodu i bezpieczne zarządzanie kluczami tajnymi.
 </pl-PL>
 <pt-BR>
-Mon50ccetMoi v100.90.01:
-• Compatibilidade oficial com Android 16 (API 36).
-• Grande otimização de desempenho e limpeza de código.
-• Melhoria na estabilidade do assistente de voz Oracle / Jarvis.
-• Sincronização fluida do rastreamento GPS e correções no mapa.
-• Segurança reforçada e conformidade global.
+Mon50ccetMoi v101.00.01:
+• Migração para a API de Vigilância oficial e segura da Météo-France.
+• Fortalecimento das regras de segurança do banco de dados Firebase.
+• Limpeza do repositório de código e gerenciamento seguro de chaves secretas.
 </pt-BR>
 <ro>
-Mon50ccetMoi v100.90.01:
-• Compatibilitate oficială cu Android 16 (API 36).
-• Optimizare majoră a performanței și curățarea codului sursă.
-• Stabilitate îmbunătățită a asistentului vocal Oracle / Jarvis.
-• Sincronizare lină a urmăririi GPS și remedieri de hartă.
-• Securitate consolidată și conformitate globală.
+Mon50ccetMoi v101.00.01:
+• Migrarea la API-ul oficial și securizat de vigilență Météo-France.
+• Consolidarea regulilor de securitate a bazei de date Firebase.
+• Curățarea depozitului de cod și gestionarea securizată a cheilor secrete.
 </ro>
 <sk>
-Mon50ccetMoi v100.90.01:
-• Oficiálna kompatibilita s Android 16 (API 36).
-• Významná optimalizácia výkonu a vyčistenie zdrojového kódu.
-• Vylepšená stabilita hlasového asistenta Oracle / Jarvis.
-• Plynulá synchronizácia GPS sledovania a opravy mapy.
-• Posilnená bezpečnosť a globálna zhoda.
+Mon50ccetMoi v101.00.01:
+• Migrácia na oficiálne a bezpečné rozhranie API Météo-France Vigilance.
+• Posilnenie bezpečnostných pravidiel databázy Firebase.
+• Vyčistenie úložiska kódu a bezpečné spravovanie tajných kľúčov.
 </sk>
 <sv-SE>
-Mon50ccetMoi v100.90.01:
-• Officiell Android 16 (API 36) kompatibilitet.
-• Stor prestandaoptimering och rensning av källkod.
-• Förbättrad stabilitet för Oracle / Jarvis röstassistent.
-• Smidig GPS-spårningssynkronisering och kartkorrigeringar.
-• Förstärkt säkerhet och global efterlevnad.
+Mon50ccetMoi v101.00.01:
+• Migrering till det officiella och säkra Météo-France Vigilance API.
+• Stärkning av säkerhetsregler för Firebase-databasen.
+• Rensning av källkodsarkiv och säker hantering av hemliga nycklar.
 </sv-SE>
 <th>
-Mon50ccetMoi v100.90.01:
-• รองรับ Android 16 (API 36) อย่างเป็นทางการ
-• เพิ่มประสิทธิภาพการทำงานและทำความสะอาดโค้ดอย่างมาก
-• ปรับปรุงความเสถียรของระบบสั่งการด้วยเสียง Oracle / Jarvis
-• ซิงค์การติดตาม GPS ที่ราบรื่นและการแก้ไขแผนที่
-• เพิ่มความปลอดภัยและการปฏิบัติตามมาตรฐานสากล
+Mon50ccetMoi v101.00.01:
+• ย้ายไปยัง API เฝ้าระวัง Météo-France ที่เป็นทางการและปลอดภัย
+• เสริมความแข็งแกร่งของกฎความปลอดภัยฐานข้อมูล Firebase
+• ล้างที่เก็บโค้ดและการจัดการคีย์ลับอย่างปลอดภัย
 </th>
 <tr-TR>
-Mon50ccetMoi v100.90.01:
-• Resmi Android 16 (API 36) uyumluluğu.
-• Büyük performans optimizasyonu ve kaynak kod temizliği.
-• Geliştirilmiş Oracle / Jarvis sesli asistan kararlılığı.
-• Sorunsuz GPS takip senkronizasyonu ve harita düzeltmeleri.
-• Güçlendirilmiş güvenlik ve küresel uyumluluk.
+Mon50ccetMoi v101.00.01:
+• Resmi ve güvenli Météo-France Uyarı API'sine geçiş.
+• Firebase veritabanı güvenlik kurallarının güçlendirilmesi.
+• Kod deposunun temizlenmesi ve gizli anahtarların güvenli yönetimi.
 </tr-TR>
 <zh-CN>
-Mon50ccetMoi v100.90.01：
-• 官方支持 Android 16 (API 36)。
-• 重大性能优化与源代码清理。
-• 提升 Oracle / Jarvis 语音助手稳定性。
-• 流畅的 GPS 追踪同步与地图修复。
-• 强化安全性与全球合规性。
+Mon50ccetMoi v101.00.01：
+• 迁移到官方且安全的 Météo-France 气象预警 API。
+• 加强 Firebase 数据库的安全规则。
+• 清理代码仓库并安全地管理密钥。
 </zh-CN>
