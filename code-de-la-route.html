@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="fr-FR" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <title>Examinateur IA - mon50ccetmoi</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@700;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Firebase SDK (Mocked or Real based on config) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <script src="js/config.js"></script>
+    <script>
+      if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
+        if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
+        window.db = firebase.firestore();
+        window.auth = firebase.auth();
+      }
+    </script>
+    
+    <script src="js/crypto-native.js" charset="utf-8"></script>
+    <script src="js/code-de-la-route.js" defer></script>
+
+    <style>
+      :root {
+        --bg-dark: #020204;
+        --nexus-cyan: #00f0ff;
+        --nexus-red: #ff0055;
+        --nexus-gold: #ffb703;
+        --text-main: #e0e0e0;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--bg-dark);
+        font-family: 'JetBrains Mono', monospace; /* Terminal font */
+        color: var(--text-main);
+        overflow: hidden;
+      }
+
+      /* AI Act Disclaimer */
+      .ai-act-banner {
+        background: rgba(255, 183, 3, 0.1);
+        border-bottom: 1px solid rgba(255, 183, 3, 0.3);
+        color: var(--nexus-gold);
+        padding: 8px 16px;
+        font-size: 0.75rem;
+        text-align: center;
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        z-index: 10;
+      }
+
+      /* Header */
+      .chat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        background: rgba(0, 240, 255, 0.05);
+        border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+        box-shadow: 0 4px 30px rgba(0, 240, 255, 0.1);
+      }
+      .ai-identity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .ai-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--nexus-cyan);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #000;
+        font-size: 1.2rem;
+        box-shadow: 0 0 15px var(--nexus-cyan);
+        animation: pulseAvatar 2s infinite;
+      }
+      .ai-info h1 {
+        margin: 0;
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.2rem;
+        color: var(--nexus-cyan);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+      .ai-info p {
+        margin: 2px 0 0 0;
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.5);
+      }
+
+      .btn-close {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-close:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: #fff;
+      }
+
+      /* Chat Box */
+      .chat-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        scroll-behavior: smooth;
+      }
+      
+      .message {
+        display: flex;
+        flex-direction: column;
+        max-width: 85%;
+        animation: fadeIn 0.3s ease;
+      }
+      
+      /* AI Message */
+      .message.nexus {
+        align-self: flex-start;
+      }
+      .nexus .bubble {
+        background: rgba(0, 240, 255, 0.05);
+        border-left: 3px solid var(--nexus-cyan);
+        padding: 16px;
+        border-radius: 0 12px 12px 12px;
+        color: #fff;
+        line-height: 1.6;
+        font-size: 0.95rem;
+      }
+      .nexus .bubble .score-update {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 4px 8px;
+        background: rgba(255,183,3,0.2);
+        border: 1px solid var(--nexus-gold);
+        color: var(--nexus-gold);
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+
+      /* User Message */
+      .message.user {
+        align-self: flex-end;
+      }
+      .user .bubble {
+        background: rgba(255, 255, 255, 0.1);
+        border-right: 3px solid #fff;
+        padding: 12px 16px;
+        border-radius: 12px 0 12px 12px;
+        color: #fff;
+        font-size: 0.95rem;
+      }
+
+      /* Status */
+      .typing-indicator {
+        display: none;
+        align-self: flex-start;
+        padding: 10px;
+        color: var(--nexus-cyan);
+        font-size: 0.8rem;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* Input Area */
+      .input-area {
+        padding: 16px 24px;
+        background: rgba(0,0,0,0.5);
+        border-top: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        gap: 12px;
+      }
+      .chat-input {
+        flex: 1;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 24px;
+        padding: 12px 20px;
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s;
+      }
+      .chat-input:focus {
+        border-color: var(--nexus-cyan);
+      }
+      .btn-send {
+        background: var(--nexus-cyan);
+        color: #000;
+        border: none;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 0 15px rgba(0,240,255,0.3);
+      }
+      .btn-send:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(0,240,255,0.5);
+      }
+      .btn-send:disabled {
+        background: #333;
+        color: #666;
+        box-shadow: none;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Result Overlay */
+      #exam-result {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.9);
+        z-index: 100;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+        animation: fadeIn 0.5s ease;
+      }
+      .result-title { font-family: 'Outfit'; font-size: 3rem; margin: 0; }
+      .pass { color: var(--nexus-cyan); text-shadow: 0 0 20px var(--nexus-cyan); }
+      .fail { color: var(--nexus-red); text-shadow: 0 0 20px var(--nexus-red); }
+      
+      .btn-return {
+        margin-top: 30px;
+        padding: 12px 24px;
+        background: transparent;
+        border: 2px solid #fff;
+        color: #fff;
+        font-family: 'JetBrains Mono';
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .btn-return:hover { background: #fff; color: #000; }
+
+      @keyframes pulseAvatar {
+        0% { box-shadow: 0 0 10px var(--nexus-cyan); }
+        50% { box-shadow: 0 0 25px var(--nexus-cyan); }
+        100% { box-shadow: 0 0 10px var(--nexus-cyan); }
+      }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      
+      /* Scrollbar */
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+    </style>
+  </head>
+  <body>
+    <!-- AI Act Compliance -->
+    <div class="ai-act-banner">
+      <i class="fa-solid fa-scale-balanced"></i>
+      <span><strong>Transparence IA :</strong> Nexus Atlas agit à titre d'assistance. Seul le Code de la Route officiel fait foi.</span>
+    </div>
+
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="ai-identity">
+        <div class="ai-avatar"><i class="fa-solid fa-microchip"></i></div>
+        <div class="ai-info">
+          <h1>Nexus Atlas</h1>
+          <p>Examinateur IA Implacable - Spécialité 50cc/VSP</p>
+        </div>
+      </div>
+      <button class="btn-close" onclick="window.location.href='app.html'"><i class="fa-solid fa-xmark"></i></button>
+    </header>
+
+    <!-- Chat Area -->
+    <div class="chat-container" id="chat-container">
+      <!-- Messages injected here -->
+    </div>
+    
+    <div class="typing-indicator" id="typing-indicator">
+      <i class="fa-solid fa-circle-notch fa-spin"></i> Analyse en cours...
+    </div>
+
+    <!-- Input Area -->
+    <form class="input-area" id="chat-form">
+      <input type="text" id="chat-input" class="chat-input" placeholder="Tape ta réponse ici..." autocomplete="off" />
+      <button type="submit" id="btn-send" class="btn-send"><i class="fa-solid fa-paper-plane"></i></button>
+    </form>
+
+    <!-- Result Screen -->
+    <div id="exam-result">
+      <h1 class="result-title" id="result-title">EVALUATION</h1>
+      <p id="result-desc" style="font-size: 1.2rem; color: #aaa; margin: 20px 0; max-width: 600px; line-height: 1.5;"></p>
+      <div id="reward-box" style="display:none; font-size:1.5rem; color: var(--nexus-gold); border: 1px solid var(--nexus-gold); padding: 10px 20px; border-radius: 8px;">
+        <i class="fa-solid fa-coins"></i> +5 BVC Points
+      </div>
+      <button class="btn-return" onclick="window.location.href='app.html'">RETOURNER A LA BASE</button>
+    </div>
+
+  </body>
+</html>

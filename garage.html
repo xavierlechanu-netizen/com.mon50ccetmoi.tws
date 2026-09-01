@@ -586,12 +586,12 @@
           const profile = doc.data();
           profile.uid = uid;
           if (typeof secureSetItem === "function") {
-            secureSetItem("session", JSON.stringify(profile));
+            await secureSetItem("session", JSON.stringify(profile));
           } else {
             localStorage.setItem("session", JSON.stringify(profile));
           }
 
-          window.location.href = "app.html";
+          window.location.href = "garage-dashboard.html";
 
         } catch (error) {
           console.error("Erreur connexion Garage:", error);

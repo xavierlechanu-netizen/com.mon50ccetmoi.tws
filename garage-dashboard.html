@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="fr-FR" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <title>Tableau de Bord - Espace Garage Pro</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@700;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="js/config.js"></script>
+    <script>
+      if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
+        if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
+        window.db = firebase.firestore();
+        window.auth = firebase.auth();
+      }
+    </script>
+
+    <!-- Design System -->
+    <link rel="stylesheet" href="css/design-system.css" />
+
+    <style>
+      body {
+        padding: var(--space-lg);
+        min-height: 100vh;
+        overflow-y: auto;
+        background-image:
+          radial-gradient(circle at 10% 20%, rgba(255, 183, 3, 0.05), transparent 30%),
+          radial-gradient(circle at 90% 80%, rgba(255, 102, 0, 0.04), transparent 30%);
+      }
+
+      .dashboard-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xl);
+      }
+
+      /* ─── Header ────────────────────────────────────────── */
+      .dash-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        animation: fadeInUp 0.5s ease both;
+      }
+
+      .dash-greeting h1 {
+        font-family: var(--font-display);
+        font-size: var(--text-2xl);
+        font-weight: 900;
+        margin-bottom: 4px;
+        background: linear-gradient(135deg, var(--neon-gold), #ff6600);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .dash-greeting p { color: var(--text-muted); font-size: var(--text-sm); }
+
+      .header-actions {
+        display: flex;
+        gap: var(--space-md);
+      }
+
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: var(--text-sm);
+        transition: all var(--transition-fast);
+      }
+      .btn-outline:hover {
+        background: rgba(255,255,255,0.05);
+        border-color: var(--neon-gold);
+        color: var(--neon-gold);
+      }
+
+      /* ─── KPI Grid ──────────────────────────────────────── */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-md);
+        animation: fadeInUp 0.5s ease 0.1s both;
+      }
+      .kpi-card {
+        padding: var(--space-lg);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs);
+        border-top: 3px solid transparent;
+      }
+      .kpi-card:nth-child(1) { border-top-color: var(--neon-gold); }
+      .kpi-card:nth-child(2) { border-top-color: var(--neon-cyan); }
+      .kpi-card:nth-child(3) { border-top-color: var(--neon-green); }
+
+      .kpi-value {
+        font-family: var(--font-mono);
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-primary);
+      }
+      .kpi-label { color: var(--text-muted); font-size: var(--text-sm); font-weight: 500; }
+
+      /* ─── Predictive Section ────────────────────────────── */
+      .predictive-section {
+        animation: fadeInUp 0.5s ease 0.2s both;
+      }
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-md);
+      }
+      .section-header h2 {
+        font-family: var(--font-display);
+        font-size: var(--text-xl);
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-header h2 i { color: var(--neon-gold); animation: pulseGlow 2s infinite; }
+
+      .alert-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-sm);
+      }
+
+      .alert-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--space-md) var(--space-lg);
+        background: rgba(255, 183, 3, 0.05);
+        border: 1px solid rgba(255, 183, 3, 0.2);
+        border-radius: var(--radius-md);
+        transition: transform var(--transition-fast);
+      }
+      .alert-item:hover {
+        transform: translateX(4px);
+        background: rgba(255, 183, 3, 0.1);
+      }
+      
+      .alert-item.critical {
+        background: rgba(255, 0, 85, 0.05);
+        border-color: rgba(255, 0, 85, 0.3);
+      }
+      .alert-item.critical:hover { background: rgba(255, 0, 85, 0.1); }
+
+      .alert-info { display: flex; flex-direction: column; gap: 4px; }
+      .alert-title { font-weight: 700; font-size: var(--text-base); }
+      .alert-subtitle { color: var(--text-muted); font-size: var(--text-sm); }
+      .alert-reason { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--neon-gold); }
+      .alert-item.critical .alert-reason { color: var(--neon-red); }
+
+      .btn-push {
+        background: linear-gradient(135deg, var(--neon-gold), #ff6600);
+        color: #000;
+        border: none;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform var(--transition-fast);
+      }
+      .btn-push:hover { transform: scale(1.05); }
+      .btn-push:active { transform: scale(0.95); }
+
+      /* ─── Logs Section ──────────────────────────────────── */
+      .logs-section {
+        animation: fadeInUp 0.5s ease 0.3s both;
+      }
+      
+      .logs-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .logs-table th {
+        text-align: left;
+        padding: var(--space-sm) var(--space-md);
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--glass-border);
+      }
+      .logs-table td {
+        padding: var(--space-md);
+        font-size: var(--text-sm);
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+      }
+      .logs-table tr:last-child td { border-bottom: none; }
+      
+      .badge-certified {
+        background: rgba(0, 230, 118, 0.1);
+        color: var(--neon-green);
+        padding: 2px 8px;
+        border-radius: var(--radius-full);
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      @media (max-width: 768px) {
+        .kpi-grid { grid-template-columns: 1fr; }
+        .alert-item { flex-direction: column; align-items: flex-start; gap: var(--space-md); }
+        .btn-push { width: 100%; justify-content: center; }
+        .dash-header { flex-direction: column; align-items: flex-start; gap: var(--space-md); }
+      }
+      
+      /* Toast */
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--neon-green);
+        color: #000;
+        padding: 12px 24px;
+        border-radius: var(--radius-md);
+        font-weight: 700;
+        box-shadow: 0 4px 15px rgba(0,230,118,0.4);
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        z-index: 1000;
+      }
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+
+    <div class="dashboard-container">
+      
+      <!-- HEADER -->
+      <header class="dash-header">
+        <div class="dash-greeting">
+          <h1>Espace Garage Pro</h1>
+          <p id="garage-name">Chargement de votre atelier...</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-outline" onclick="generateDemoData()"><i class="fa-solid fa-flask"></i> Générer Démo</button>
+          <button class="btn-outline" onclick="logoutGarage()"><i class="fa-solid fa-power-off"></i> Déconnexion</button>
+        </div>
+      </header>
+
+      <!-- KPI -->
+      <div class="kpi-grid">
+        <div class="glass-card kpi-card">
+          <div class="kpi-label">Clients Actifs</div>
+          <div class="kpi-value" id="kpi-clients">--</div>
+        </div>
+        <div class="glass-card kpi-card">
+          <div class="kpi-label">Interventions Scellées</div>
+          <div class="kpi-value" id="kpi-interventions">--</div>
+        </div>
+        <div class="glass-card kpi-card">
+          <div class="kpi-label">CA Potentiel (Alertes)</div>
+          <div class="kpi-value" id="kpi-revenue">-- €</div>
+        </div>
+      </div>
+
+      <!-- MAINTENANCE PREDICTIVE -->
+      <section class="predictive-section">
+        <div class="section-header">
+          <h2><i class="fa-solid fa-calculator"></i> Algorithme de Maintenance Prédictive</h2>
+          <span class="badge" style="background: rgba(255,183,3,0.1); color: var(--neon-gold);">Basé sur KM</span>
+        </div>
+        
+        <div class="alert-list" id="predictive-alerts">
+          <div style="padding: 20px; text-align: center; color: var(--text-muted);">
+            <i class="fa-solid fa-spinner fa-spin"></i> Analyse de l'usure de vos clients...
+          </div>
+        </div>
+      </section>
+
+      <!-- LOGS RECENTS -->
+      <section class="logs-section glass-card">
+        <div class="section-header">
+          <h2 style="font-size: 1.2rem; color: #fff;"><i class="fa-solid fa-book-medical"></i> Derniers Entretiens Scellés</h2>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="logs-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Client / Véhicule</th>
+                <th>Intervention</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody id="logs-tbody">
+              <!-- JS Populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"><i class="fa-solid fa-check"></i> Promotion envoyée avec succès !</div>
+
+    <!-- Scripts -->
+    <script src="js/crypto-native.js"></script>
+    <script src="js/garage-dashboard.js"></script>
+  </body>
+</html>

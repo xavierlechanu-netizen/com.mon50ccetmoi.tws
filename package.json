@@ -8,9 +8,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/post-build.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest"
   },
   "devDependencies": {
+    "jest": "^30.5.1",
     "prettier": "^3.9.6",
     "vite": "^8.1.4"
   },

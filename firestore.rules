@@ -73,9 +73,10 @@ service cloud.firestore {
       allow read: if isSignedIn() && isOwner(userId);
       allow create: if isSignedIn() && isOwner(userId);
       allow update: if isSignedIn() && isOwner(userId)
-        && request.resource.data.xp is number
-        && request.resource.data.xp >= 0
-        && (request.resource.data.xp <= resource.data.xp + 2000); // OWASP A01: Anti-Cheat (limite +2000 XP/req)
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['xp'])
+                    && request.resource.data.xp is number
+                    && request.resource.data.xp >= 0
+                    && (request.resource.data.xp <= resource.data.xp + 2000); // Anti-cheat (OWASP A01)
       allow delete: if false; // On ne supprime pas un profil de gamification
     }
 
@@ -162,7 +163,7 @@ service cloud.firestore {
 
     // Rapports d'erreurs (Crash Reports / Bugs)
     match /crash_reports/{reportId} {
-      allow create: if true; // Autoriser tout le monde (pour attraper les erreurs pré-login)
+      allow create: if isSignedIn(); // Protection contre le DoS (OWASP A11)
       allow read, update, delete: if isAdmin();
     }
 
