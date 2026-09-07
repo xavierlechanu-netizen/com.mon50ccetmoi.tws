@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="fr-FR" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Ma Progression — mon50ccetmoi</title>
+    <meta name="description" content="Consulte ta progression de conducteur : score de sécurité, BVC Points, contrats signés, et bilan hebdomadaire pour les parents." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="dist/js/config.js"></script>
+    <script>
+      if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
+        if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
+        window.db = firebase.firestore();
+        window.auth = firebase.auth();
+      }
+    </script>
+
+    <style>
+      :root {
+        --bg: #020204;
+        --cyan: #00f0ff;
+        --gold: #ffb703;
+        --red: #ff0055;
+        --green: #00e676;
+        --orange: #ff9800;
+        --text: #e0e0e0;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background: var(--bg); color: var(--text);
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh; overflow-x: hidden;
+      }
+      body::before {
+        content: '';
+        position: fixed; top: 0; left: 0; width: 100%; height: 40vh;
+        background: radial-gradient(ellipse at 50% 0%, rgba(0,240,255,0.06) 0%, transparent 70%);
+        pointer-events: none; z-index: 0;
+      }
+
+      /* Header */
+      .top-bar {
+        position: relative; z-index: 1;
+        display: flex; align-items: center; gap: 12px;
+        padding: 16px 20px;
+      }
+      .btn-back {
+        background: transparent; border: 1px solid rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.5); width: 38px; height: 38px;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        text-decoration: none; transition: all .2s; font-size: 0.9rem;
+      }
+      .btn-back:hover { border-color: var(--cyan); color: var(--cyan); }
+      .top-title {
+        font-family: 'Outfit', sans-serif; font-size: 1.1rem;
+        font-weight: 700; color: #fff;
+      }
+
+      .page-content {
+        position: relative; z-index: 1;
+        max-width: 680px; margin: 0 auto;
+        padding: 0 20px 60px;
+        display: flex; flex-direction: column; gap: 16px;
+      }
+
+      /* Loading / Empty */
+      .loading-state, .empty-state {
+        text-align: center; padding: 60px 20px;
+        color: rgba(255,255,255,0.3); font-size: 0.95rem;
+      }
+      .empty-state i { font-size: 2.5rem; margin-bottom: 16px; display: block; }
+      .btn-primary {
+        display: inline-block; margin-top: 16px;
+        padding: 12px 28px; background: var(--cyan);
+        color: #000; border-radius: 30px; font-weight: 700;
+        text-decoration: none; transition: all .2s;
+      }
+      .btn-primary:hover { transform: scale(1.04); }
+
+      /* Score Hero */
+      .score-hero {
+        display: flex; align-items: center; gap: 24px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 24px; padding: 24px;
+      }
+      .score-ring-container { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
+      .score-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+      .ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
+      .ring-fill {
+        fill: none; stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);
+      }
+      .score-value {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+      }
+      .score-number { font-family:'Outfit',sans-serif; font-size: 2.2rem; font-weight: 900; color: #fff; }
+      .score-label { font-size: 0.7rem; color: rgba(255,255,255,0.35); }
+      .score-info { flex: 1; }
+      .score-name { font-family:'Outfit',sans-serif; font-size: 1.3rem; font-weight: 700; color: #fff; }
+      .score-vehicle { font-size: 0.82rem; color: rgba(255,255,255,0.4); margin: 4px 0 12px; }
+      .score-badge {
+        display: inline-block; padding: 5px 14px;
+        border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+        border: 1px solid;
+      }
+
+      /* Stats Grid */
+      .stats-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      }
+      .stat-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 18px; padding: 18px 14px;
+        text-align: center; transition: all .2s;
+      }
+      .stat-card:hover { transform: translateY(-2px); }
+      .stat-icon { font-size: 1.4rem; margin-bottom: 8px; }
+      .stat-value { font-family:'Outfit',sans-serif; font-size: 1.8rem; font-weight: 900; }
+      .stat-label { font-size: 0.72rem; color: rgba(255,255,255,0.35); margin-top: 2px; }
+      .stat-card.gold .stat-icon, .stat-card.gold .stat-value { color: var(--gold); }
+      .stat-card.cyan .stat-icon, .stat-card.cyan .stat-value { color: var(--cyan); }
+      .stat-card.orange .stat-icon, .stat-card.orange .stat-value { color: var(--orange); }
+
+      /* Level Bar */
+      .level-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 18px; padding: 20px;
+      }
+      .level-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+      .level-title { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.6); }
+      .level-badge {
+        font-size: 0.8rem; font-weight: 700;
+        padding: 3px 12px; border-radius: 20px;
+        background: rgba(255,183,3,0.12); border: 1px solid rgba(255,183,3,0.3);
+        color: var(--gold);
+      }
+      .level-bar-bg {
+        background: rgba(255,255,255,0.06); border-radius: 8px;
+        height: 8px; overflow: hidden; margin-bottom: 8px;
+      }
+      .level-bar-fill { height: 100%; border-radius: 8px; transition: width 1.5s ease; }
+      .level-next { display: flex; justify-content: space-between; font-size: 0.75rem; color: rgba(255,255,255,0.3); }
+
+      /* Mode Entraîneur */
+      .entraineur-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(0,240,255,0.1);
+        border-radius: 18px; padding: 20px;
+      }
+      .entraineur-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+      .entraineur-title { font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+      .entraineur-title i { color: var(--cyan); margin-right: 6px; }
+      .entraineur-desc { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
+      .btn-bilan {
+        white-space: nowrap; padding: 10px 16px;
+        background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(0,240,255,0.05));
+        border: 1px solid rgba(0,240,255,0.3); border-radius: 12px;
+        color: var(--cyan); font-family:'Inter',sans-serif; font-weight:700;
+        font-size: 0.82rem; cursor: pointer; transition: all .2s;
+        display: flex; align-items: center; gap: 6px;
+      }
+      .btn-bilan:hover { background: rgba(0,240,255,0.2); }
+      .btn-bilan:disabled { opacity: .5; cursor: not-allowed; }
+      .bilan-content { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+      .bilan-score-line {
+        display: flex; justify-content: space-between; align-items: center;
+        font-size: 0.85rem; color: rgba(255,255,255,0.5);
+        padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05);
+      }
+      .bilan-score-val { font-family:'Outfit',sans-serif; font-size: 1.4rem; font-weight: 900; }
+      .bilan-section {
+        padding: 12px 14px; border-radius: 12px;
+        font-size: 0.82rem; line-height: 1.6;
+      }
+      .bilan-section strong { display: block; margin-bottom: 6px; }
+      .bilan-section.green { background: rgba(0,230,118,0.07); border: 1px solid rgba(0,230,118,0.2); color: #ccc; }
+      .bilan-section.green strong { color: var(--green); }
+      .bilan-section.orange { background: rgba(255,152,0,0.07); border: 1px solid rgba(255,152,0,0.2); color: #ccc; }
+      .bilan-section.orange strong { color: var(--orange); }
+      .bilan-section.cyan { background: rgba(0,240,255,0.05); border: 1px solid rgba(0,240,255,0.15); color: #ccc; }
+      .bilan-section.cyan strong { color: var(--cyan); }
+      .bilan-disclaimer { font-size: 0.72rem; color: rgba(255,183,3,0.5); display: flex; align-items: center; gap: 6px; }
+      .error-text { color: var(--red); font-size: 0.82rem; }
+
+      /* Quick Actions */
+      .quick-actions {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+      }
+      .quick-btn {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 16px; padding: 16px 10px;
+        text-align: center; text-decoration: none;
+        color: rgba(255,255,255,0.6); font-size: 0.8rem;
+        transition: all .2s;
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+      }
+      .quick-btn i { font-size: 1.3rem; color: var(--cyan); }
+      .quick-btn:hover { border-color: rgba(0,240,255,0.2); color: #fff; transform: translateY(-2px); }
+
+      @media (max-width: 480px) {
+        .stats-grid { grid-template-columns: repeat(3,1fr); }
+        .score-hero { flex-direction: column; text-align: center; }
+        .quick-actions { grid-template-columns: repeat(3,1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <a href="app.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i></a>
+      <span class="top-title">Ma Progression</span>
+    </div>
+
+    <div class="page-content">
+      <div id="progression-container">
+        <div class="loading-state"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...</div>
+      </div>
+    </div>
+
+    <script src="js/ma-progression.js" defer></script>
+  </body>
+</html>

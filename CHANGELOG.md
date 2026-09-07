@@ -6,6 +6,26 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ---
 
+## [110.00.00] - 2026-09-07 - 🚀 Valorisation — IA Gemini & Nouvelles Fonctionnalités
+
+### Ajouté
+- **Nexus Atlas v2.0 — Météo Contextuelle** : Le simulateur Code de la Route interroge désormais `getVigilanceMeteo` (Météo-France) au démarrage. Le prompt système envoyé à Gemini est enrichi du niveau de vigilance météo national (vert/jaune/orange/rouge), ce qui permet à Nexus Atlas de poser des questions adaptées aux conditions réelles du jour.
+- **Nexus Atlas v2.0 — Oracle Voice** : Ajout de la synthèse vocale (Web Speech API TTS) pour lire les réponses de l'IA à voix haute, et de la reconnaissance vocale (STT) pour que l'utilisateur puisse répondre à l'oral. Deux boutons (🔊 et 🎤) ajoutés dans l'en-tête de `code-de-la-route.html`.
+- **Contrat de Route** (`contrat-de-route.html` + `js/contrat-de-route.js`) : Nouvelle page de gamification de la sécurité. Le conducteur signe chaque mois jusqu'à 5 engagements de sécurité (casque, alcool, angles morts...). Chaque signature attribue des BVC Points via une écriture atomique Firestore.
+- **Radar de Danger** (`radar-danger.html` + `js/radar-danger.js`) : Nouvelle page de signalement communautaire géolocalisé. Affiche une carte Google Maps en mode sombre avec les dangers signalés en temps réel (écoute Firestore `onSnapshot` sur la collection `hazards`). Les utilisateurs peuvent signaler 8 types de dangers. Rate limiting côté client (30s entre signalements).
+- **Assistant Sinistre IA** (`js/assistant-sinistre.js`) : Module injectable qui écoute l'événement `crashDetected` (émis par `guardian-angel.js` / `anti-theft.js`) et ouvre un panneau de chat guidé alimenté par Gemini. L'IA guide l'utilisateur étape par étape (Sécurité → Constat → Preuves → Assurance). Boutons d'action intégrés (Appel 15/18, prise de photo, partage télémétrie).
+- **Ma Progression** (`ma-progression.html` + `js/ma-progression.js`) : Dashboard personnel avec anneau de score SVG animé, grille de stats (BVC Points, contrats, signalements) et barre de niveau gamifiée. Inclut le **Mode Entraîneur** : génère un bilan hebdomadaire IA (via Gemini) à destination des parents.
+
+### Modifié
+- `vite.config.js` : Ajout des 4 nouvelles pages comme points d'entrée Rollup.
+- `code-de-la-route.html` : Ajout des boutons voix/micro dans l'en-tête.
+
+### Sécurité
+- Rate limiting Firestore sur les signalements de danger (localStorage + OWASP A11).
+- Toutes les données HTML injectées depuis Gemini proviennent d'une Cloud Function authentifiée (OWASP A03).
+
+---
+
 ## [109.00.00] - 2026-08-17 - 🐛 Résolution de Bugs et Améliorations UI
 
 ### Corrigé
@@ -14,6 +34,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 - **Boîte Noire (Bluetooth)** : Correction de l'erreur réseau 404 sur `blackbox-ble.js` qui n'était pas copié dans le dossier public.
 
 ---
+
 
 ## [101.00.05] - 2026-08-09 - 🛡️ Dépôt eSoleau INPI
 

@@ -32,7 +32,11 @@ export default defineConfig({
         profile: resolve(__dirname, 'profile.html'),
         moderation: resolve(__dirname, 'moderation.html'),
         garage: resolve(__dirname, 'garage.html'),
-        p404: resolve(__dirname, '404.html')
+        p404: resolve(__dirname, '404.html'),
+        codeRoute: resolve(__dirname, 'code-de-la-route.html'),
+        contratRoute: resolve(__dirname, 'contrat-de-route.html'),
+        radarDanger: resolve(__dirname, 'radar-danger.html'),
+        maProgression: resolve(__dirname, 'ma-progression.html')
       }
     }
   }

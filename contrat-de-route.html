@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="fr-FR" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Contrat de Route — mon50ccetmoi</title>
+    <meta name="description" content="Signe ton Contrat de Route mensuel et engage-toi pour ta sécurité. Gagne des BVC Points en respectant le code de la route." />
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="dist/js/config.js"></script>
+    <script>
+      if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
+        if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
+        window.db = firebase.firestore();
+        window.auth = firebase.auth();
+      }
+    </script>
+
+    <style>
+      :root {
+        --bg: #020204;
+        --cyan: #00f0ff;
+        --gold: #ffb703;
+        --red: #ff0055;
+        --green: #00e676;
+        --text: #e0e0e0;
+        --card-bg: rgba(255,255,255,0.04);
+        --card-border: rgba(255,255,255,0.08);
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Animated BG */
+      body::before {
+        content: '';
+        position: fixed;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(ellipse at 30% 20%, rgba(0,240,255,0.04) 0%, transparent 60%),
+                    radial-gradient(ellipse at 70% 80%, rgba(255,183,3,0.03) 0%, transparent 60%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* Header */
+      .page-header {
+        position: relative;
+        z-index: 1;
+        padding: 20px 24px 0;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .btn-back {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.15);
+        color: rgba(255,255,255,0.6);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        text-decoration: none;
+        font-size: 1rem;
+      }
+      .btn-back:hover { border-color: var(--cyan); color: var(--cyan); }
+
+      /* Hero Section */
+      .hero {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 40px 24px 30px;
+      }
+      .hero-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(255,183,3,0.1));
+        border: 2px solid rgba(0,240,255,0.3);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--gold);
+        margin: 0 auto 20px;
+        box-shadow: 0 0 30px rgba(0,240,255,0.1);
+      }
+      .hero h1 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--cyan), var(--gold));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 12px;
+      }
+      .hero p {
+        color: rgba(255,255,255,0.55);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        max-width: 500px;
+        margin: 0 auto 24px;
+      }
+
+      /* Points Bar */
+      .points-bar {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255,183,3,0.1);
+        border: 1px solid rgba(255,183,3,0.3);
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-size: 0.9rem;
+        color: var(--gold);
+        font-weight: 600;
+      }
+
+      /* AI Act Banner */
+      .ai-banner {
+        margin: 0 24px;
+        padding: 10px 16px;
+        background: rgba(255,183,3,0.06);
+        border: 1px solid rgba(255,183,3,0.2);
+        border-radius: 12px;
+        color: rgba(255,183,3,0.8);
+        font-size: 0.78rem;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        z-index: 1;
+        margin-bottom: 30px;
+      }
+
+      /* Grid des contrats */
+      .contrats-grid {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+        padding: 0 24px 40px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .contrat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .contrat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .contrat-card:hover {
+        border-color: rgba(0,240,255,0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      }
+      .contrat-card:hover::before { opacity: 1; }
+      .contrat-card.signed {
+        background: rgba(0,230,118,0.04);
+        border-color: rgba(0,230,118,0.25);
+      }
+      .contrat-card.signed::before {
+        opacity: 1;
+        background: linear-gradient(90deg, transparent, var(--green), transparent);
+      }
+      .contrat-card.signing {
+        animation: signPulse 0.6s ease;
+      }
+
+      .contrat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        background: rgba(0,240,255,0.08);
+        border: 1px solid rgba(0,240,255,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: var(--cyan);
+      }
+      .contrat-card.signed .contrat-icon {
+        background: rgba(0,230,118,0.08);
+        border-color: rgba(0,230,118,0.3);
+        color: var(--green);
+      }
+
+      .contrat-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #fff;
+        line-height: 1.3;
+      }
+      .contrat-desc {
+        font-size: 0.88rem;
+        color: rgba(255,255,255,0.6);
+        line-height: 1.6;
+      }
+      .contrat-loi {
+        font-size: 0.78rem;
+        color: rgba(255,183,3,0.7);
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        font-style: italic;
+      }
+
+      .btn-signer {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(0,240,255,0.05));
+        border: 1px solid rgba(0,240,255,0.4);
+        border-radius: 12px;
+        color: var(--cyan);
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn-signer:hover {
+        background: rgba(0,240,255,0.2);
+        box-shadow: 0 0 20px rgba(0,240,255,0.2);
+        transform: scale(1.02);
+      }
+
+      .contrat-signed-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: var(--green);
+        font-weight: 700;
+        font-size: 0.9rem;
+        padding: 12px;
+        background: rgba(0,230,118,0.08);
+        border-radius: 12px;
+        border: 1px solid rgba(0,230,118,0.2);
+      }
+
+      /* Toast */
+      #toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: rgba(10,10,20,0.95);
+        border: 1px solid var(--gold);
+        color: var(--gold);
+        padding: 14px 24px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        z-index: 9999;
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        white-space: nowrap;
+        max-width: 90vw;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      }
+      #toast.show { transform: translateX(-50%) translateY(0); }
+
+      @keyframes signPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.03); box-shadow: 0 0 40px rgba(0,240,255,0.3); }
+        100% { transform: scale(1); }
+      }
+
+      /* Mobile */
+      @media (max-width: 480px) {
+        .hero h1 { font-size: 1.6rem; }
+        .contrats-grid { padding: 0 16px 40px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <a href="app.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i></a>
+    </div>
+
+    <div class="hero">
+      <div class="hero-icon"><i class="fa-solid fa-pen-nib"></i></div>
+      <h1>Contrat de Route</h1>
+      <p>Engage-toi chaque mois sur les règles de sécurité essentielles. Chaque signature t'apporte des <strong style="color: var(--gold)">BVC Points</strong> et renforce ta réputation de conducteur responsable.</p>
+      <div class="points-bar">
+        <i class="fa-solid fa-coins"></i>
+        Mon solde : <span id="bvc-points-display">—</span> BVC Points
+      </div>
+    </div>
+
+    <div class="ai-banner">
+      <i class="fa-solid fa-scale-balanced"></i>
+      <span><strong>Transparence IA :</strong> Ces contrats sont des engagements moraux personnels. Ils ne remplacent pas le Code de la Route officiel ni les obligations légales.</span>
+    </div>
+
+    <div class="contrats-grid" id="contrats-grid">
+      <!-- Injecté par JS -->
+    </div>
+
+    <div id="toast"></div>
+
+    <script src="js/contrat-de-route.js" defer></script>
+  </body>
+</html>

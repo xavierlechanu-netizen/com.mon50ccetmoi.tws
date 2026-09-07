@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="fr-FR" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Radar de Danger — mon50ccetmoi</title>
+    <meta name="description" content="Signale et consulte les dangers en temps réel sur ta route : nids-de-poule, routes glissantes, angles morts, accidents." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="dist/js/config.js"></script>
+    <script>
+      if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
+        if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
+        window.db = firebase.firestore();
+        window.auth = firebase.auth();
+      }
+    </script>
+
+    <style>
+      :root {
+        --bg: #020204;
+        --cyan: #00f0ff;
+        --gold: #ffb703;
+        --red: #ff0055;
+        --text: #e0e0e0;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+      /* HEADER */
+      .top-bar {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 16px;
+        background: rgba(0,0,0,0.7);
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        z-index: 10;
+        backdrop-filter: blur(10px);
+      }
+      .btn-back {
+        background: transparent; border: 1px solid rgba(255,255,255,0.15);
+        color: rgba(255,255,255,0.6); width: 36px; height: 36px;
+        border-radius: 50%; cursor: pointer; display: flex;
+        align-items: center; justify-content: center;
+        text-decoration: none; transition: all .2s;
+      }
+      .btn-back:hover { border-color: var(--cyan); color: var(--cyan); }
+      .top-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.1rem; color: #fff; }
+      .top-title span { color: var(--red); }
+      #gps-status { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-left: auto; }
+      .btn-signal-header {
+        background: linear-gradient(135deg, var(--red), #c60040);
+        border: none; color: #fff; padding: 8px 16px;
+        border-radius: 20px; cursor: pointer; font-weight: 700;
+        font-size: 0.8rem; display: flex; align-items: center; gap: 6px;
+        box-shadow: 0 0 15px rgba(255,0,85,0.3); transition: all .2s;
+      }
+      .btn-signal-header:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(255,0,85,0.5); }
+
+      /* LAYOUT */
+      .main-layout { flex: 1; display: flex; overflow: hidden; }
+
+      /* CARTE */
+      #radar-map { flex: 1; height: 100%; }
+
+      /* SIDEBAR */
+      .sidebar {
+        width: 300px; background: rgba(5,5,15,0.9);
+        border-left: 1px solid rgba(255,255,255,0.06);
+        display: flex; flex-direction: column; overflow: hidden;
+      }
+      .sidebar-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .sidebar-title { font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.7); }
+      .signal-badge {
+        background: rgba(255,0,85,0.15); border: 1px solid rgba(255,0,85,0.3);
+        color: var(--red); font-size: 0.75rem; font-weight: 700;
+        padding: 2px 10px; border-radius: 20px;
+      }
+
+      .feed-list { flex: 1; overflow-y: auto; }
+      .feed-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+        transition: background .15s;
+      }
+      .feed-item:hover { background: rgba(255,255,255,0.03); }
+      .feed-icon { font-size: 1.4rem; width: 30px; text-align: center; flex-shrink: 0; }
+      .feed-body { flex: 1; min-width: 0; }
+      .feed-label { display: block; font-size: 0.82rem; font-weight: 600; color: #fff; }
+      .feed-time { display: block; font-size: 0.72rem; color: rgba(255,255,255,0.35); }
+      .feed-votes { font-size: 0.72rem; color: rgba(255,255,255,0.3); white-space: nowrap; }
+      .feed-empty { padding: 24px 16px; font-size: 0.85rem; color: rgba(255,255,255,0.3); text-align: center; }
+
+      /* FAB centre utilisateur */
+      .fab-center {
+        position: absolute; bottom: 100px; right: 320px;
+        width: 44px; height: 44px;
+        background: rgba(0,240,255,0.15);
+        border: 1px solid rgba(0,240,255,0.4);
+        border-radius: 50%; color: var(--cyan);
+        font-size: 1rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        transition: all .2s; z-index: 5;
+      }
+      .fab-center:hover { background: rgba(0,240,255,0.25); transform: scale(1.1); }
+
+      /* PANEL SIGNALEMENT */
+      .panel-signal {
+        position: fixed; inset: 0; z-index: 100;
+        background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+        display: flex; align-items: flex-end; justify-content: center;
+        padding: 20px;
+        opacity: 0; pointer-events: none;
+        transition: opacity .3s;
+      }
+      .panel-signal.open { opacity: 1; pointer-events: all; }
+      .panel-inner {
+        width: 100%; max-width: 480px;
+        background: #0d0d18;
+        border: 1px solid rgba(255,0,85,0.3);
+        border-radius: 24px;
+        padding: 24px;
+        animation: slideUp .4s ease;
+      }
+      @keyframes slideUp { from { transform: translateY(60px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+      .panel-title { font-family:'Outfit',sans-serif; font-size:1.2rem; font-weight:700; color:#fff; margin-bottom:6px; }
+      .panel-sub { font-size:0.8rem; color:rgba(255,255,255,0.4); margin-bottom:20px; }
+
+      .types-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 8px; margin-bottom: 20px;
+      }
+      .type-btn {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px; padding: 10px 4px;
+        cursor: pointer; text-align: center;
+        transition: all .2s;
+      }
+      .type-btn .t-icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+      .type-btn .t-label { font-size: 0.65rem; color: rgba(255,255,255,0.5); display: block; }
+      .type-btn.selected {
+        background: rgba(255,0,85,0.12);
+        border-color: rgba(255,0,85,0.5);
+      }
+      .type-btn.selected .t-label { color: var(--red); }
+      .type-btn:hover { border-color: rgba(255,255,255,0.2); }
+
+      .panel-actions { display: flex; gap: 10px; }
+      .btn-confirm {
+        flex: 1; padding: 14px;
+        background: linear-gradient(135deg, var(--red), #c60040);
+        border: none; border-radius: 14px;
+        color: #fff; font-family:'Inter',sans-serif; font-weight:700;
+        font-size: 0.95rem; cursor: pointer; transition: all .2s;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+      }
+      .btn-confirm:disabled { opacity: .4; cursor: not-allowed; }
+      .btn-confirm:not(:disabled):hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(255,0,85,0.4); }
+      .btn-cancel {
+        padding: 14px 20px;
+        background: transparent; border: 1px solid rgba(255,255,255,0.15);
+        color: rgba(255,255,255,0.5); border-radius: 14px;
+        cursor: pointer; font-family:'Inter',sans-serif; transition: all .2s;
+      }
+      .btn-cancel:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+
+      /* TOAST */
+      #toast {
+        position: fixed; bottom: 30px; left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: rgba(10,10,20,0.95); border: 1px solid var(--gold);
+        color: var(--gold); padding: 12px 24px; border-radius: 30px;
+        font-weight: 600; font-size: 0.9rem; z-index: 9999;
+        transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+        white-space: nowrap;
+      }
+      #toast.show { transform: translateX(-50%) translateY(0); }
+
+      /* Mobile */
+      @media (max-width: 600px) {
+        .sidebar { display: none; }
+        .fab-center { right: 16px; }
+        .types-grid { grid-template-columns: repeat(4, 1fr); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <a href="app.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i></a>
+      <div class="top-title">Radar <span>Danger</span></div>
+      <span id="gps-status">⏳ Localisation...</span>
+      <button class="btn-signal-header" onclick="openPanelSignal()">
+        <i class="fa-solid fa-flag"></i> Signaler
+      </button>
+    </div>
+
+    <div class="main-layout">
+      <div id="radar-map"></div>
+
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <span class="sidebar-title">Signalements actifs</span>
+          <span class="signal-badge" id="signal-count">0</span>
+        </div>
+        <div class="feed-list" id="danger-feed">
+          <p class="feed-empty"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...</p>
+        </div>
+      </aside>
+    </div>
+
+    <!-- FAB centrage GPS -->
+    <button class="fab-center" onclick="centerOnUser()" title="Centrer sur moi">
+      <i class="fa-solid fa-location-crosshairs"></i>
+    </button>
+
+    <!-- Panel de signalement -->
+    <div class="panel-signal" id="panel-signal">
+      <div class="panel-inner">
+        <div class="panel-title"><i class="fa-solid fa-flag" style="color:var(--red)"></i> Signaler un danger</div>
+        <p class="panel-sub">Ta position GPS sera utilisée. +2 BVC Points pour chaque signalement validé !</p>
+
+        <div class="types-grid" id="types-grid">
+          <!-- Injecté par JS -->
+        </div>
+
+        <div class="panel-actions">
+          <button class="btn-cancel" onclick="closePanelSignal()">Annuler</button>
+          <button class="btn-confirm" id="btn-confirm-signal" onclick="signalerDanger()" disabled>
+            <i class="fa-solid fa-flag"></i> Confirmer le signalement
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <!-- Injection des boutons de types avant le JS principal -->
+    <script>
+      // Pré-rendu des types de danger (avant l'init de la carte)
+      const TYPES_PRE = [
+        { id: 'POTHOLE',    icon: '🕳️', label: 'Nid-de-poule' },
+        { id: 'GRAVEL',     icon: '⚠️', label: 'Gravillons' },
+        { id: 'SLIPPERY',   icon: '🌧️', label: 'Glissant' },
+        { id: 'ROADWORKS',  icon: '🚧', label: 'Travaux' },
+        { id: 'ACCIDENT',   icon: '🚨', label: 'Accident' },
+        { id: 'BLIND_SPOT', icon: '🚛', label: 'Angle mort' },
+        { id: 'POLICE',     icon: '👮', label: 'Contrôle' },
+        { id: 'ANIMAL',     icon: '🦊', label: 'Animal' },
+      ];
+      const grid = document.getElementById('types-grid');
+      if (grid) {
+        grid.innerHTML = TYPES_PRE.map(t => `
+          <button class="type-btn" data-id="${t.id}" onclick="selectDangerType('${t.id}')">
+            <span class="t-icon">${t.icon}</span>
+            <span class="t-label">${t.label}</span>
+          </button>
+        `).join('');
+      }
+    </script>
+
+    <script src="dist/js/config.js"></script>
+    <script src="js/radar-danger.js" defer></script>
+    <!-- Google Maps API — chargé en dernier, appelle initMap() via callback -->
+    <script>
+      function loadGoogleMaps() {
+        if (typeof CONFIG === 'undefined' || !CONFIG.MAPS) return;
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${CONFIG.MAPS.PC}&callback=initMap&v=beta`;
+        script.async = true;
+        document.head.appendChild(script);
+      }
+      document.addEventListener('DOMContentLoaded', loadGoogleMaps);
+    </script>
+  </body>
+</html>
