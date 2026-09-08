@@ -85,7 +85,8 @@ window.NexusAtlasChat = {
         } catch (err) {
             console.error(err);
             this.removeElement(typingId);
-            this.addMessage("Système", "Erreur de connexion au serveur IA. Veuillez vérifier votre réseau.", "error");
+            const userFriendlyMsg = err.message ? `Erreur IA : ${err.message}` : "Erreur de connexion au serveur IA. Veuillez vérifier votre réseau.";
+            this.addMessage("Système", userFriendlyMsg, "error");
         }
     },
 

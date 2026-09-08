@@ -201,8 +201,12 @@ Ne renvoie QUE du JSON valide. Pas de code markdown.`;
             if (!response.ok) {
                 // En cas d'erreur (ex: API bloquée), on retire le message de l'historique pour ne pas le corrompre
                 this.history.pop();
-                const err = await response.json();
-                throw new Error(err.error?.message || "Erreur API Gemini");
+                let errMsg = `Erreur serveur IA (${response.status})`;
+                try {
+                    const err = await response.json();
+                    errMsg = err.error?.message || (typeof err.error === 'string' ? err.error : errMsg);
+                } catch(e) {}
+                throw new Error(errMsg);
             }
 
             const data = await response.json();
@@ -18381,7 +18385,8 @@ window.NexusAtlasChat = {
         } catch (err) {
             console.error(err);
             this.removeElement(typingId);
-            this.addMessage("Système", "Erreur de connexion au serveur IA. Veuillez vérifier votre réseau.", "error");
+            const userFriendlyMsg = err.message ? `Erreur IA : ${err.message}` : "Erreur de connexion au serveur IA. Veuillez vérifier votre réseau.";
+            this.addMessage("Système", userFriendlyMsg, "error");
         }
     },
 

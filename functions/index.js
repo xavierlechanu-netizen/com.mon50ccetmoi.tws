@@ -19,10 +19,12 @@ const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https")
 const { defineSecret } = require("firebase-functions/params");
 const admin = require("firebase-admin");
 const { Client } = require("@notionhq/client");
+const { GoogleAuth } = require("google-auth-library");
 const crypto = require("crypto");
 
 admin.initializeApp();
 const db = admin.firestore();
+const googleAuth = new GoogleAuth({ scopes: ["https://www.googleapis.com/auth/cloud-platform"] });
 
 // ─── Clés secrètes Revolut via Firebase Secret Manager ──────────────────────
 const REVOLUT_SECRET_KEY = defineSecret("REVOLUT_SECRET_KEY");
@@ -609,39 +611,60 @@ exports.askNexusAtlasGemini = onRequest(
             console.warn("[Rate Limit] Erreur non bloquante :", rlErr.message);
         }
 
-        const apiKey = GEMINI_API_KEY.value();
-        if (!apiKey) {
-            return res.status(500).json({ error: "Clé API Gemini non configurée." });
-        }
-
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
         try {
-            const response = await fetch(endpoint, {
+            // 1. Appel natif à Google Cloud Vertex AI (europe-west1, authentification IAM native)
+            const client = await googleAuth.getClient();
+            const tokenResponse = await client.getAccessToken();
+            const accessToken = tokenResponse.token;
+
+            const vertexEndpoint = "https://europe-west1-aiplatform.googleapis.com/v1/projects/mon50ccetmoi/locations/europe-west1/publishers/google/models/gemini-2.5-flash:generateContent";
+
+            const vertexResponse = await fetch(vertexEndpoint, {
                 method: "POST",
                 headers: {
+                    "Authorization": `Bearer ${accessToken}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    system_instruction: {
+                    systemInstruction: {
                         parts: [{ text: systemPrompt }]
                     },
                     contents: history,
                     generationConfig: {
                         temperature: 0.3,
-                        response_mime_type: "application/json"
+                        responseMimeType: "application/json"
                     }
                 })
             });
 
-            if (!response.ok) {
-                const err = await response.json();
-                console.error("[Nexus Atlas Gemini] Erreur API externe :", err);
-                return res.status(response.status).json({ error: err.error?.message || "Erreur API Gemini" });
+            if (vertexResponse.ok) {
+                const data = await vertexResponse.json();
+                return res.status(200).json(data);
             }
 
-            const data = await response.json();
-            return res.status(200).json(data);
+            // 2. Fallback vers Google AI Studio si configuré
+            const vertexErr = await vertexResponse.text();
+            console.warn("[Nexus Atlas Gemini] Fallback Vertex -> AI Studio:", vertexErr);
+
+            const apiKey = GEMINI_API_KEY.value();
+            if (apiKey) {
+                const fallbackEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+                const fallbackRes = await fetch(fallbackEndpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        system_instruction: { parts: [{ text: systemPrompt }] },
+                        contents: history,
+                        generationConfig: { temperature: 0.3, response_mime_type: "application/json" }
+                    })
+                });
+                if (fallbackRes.ok) {
+                    const fallbackData = await fallbackRes.json();
+                    return res.status(200).json(fallbackData);
+                }
+            }
+
+            return res.status(vertexResponse.status).json({ error: "Erreur lors de la génération de réponse par le modèle IA." });
         } catch (err) {
             console.error("[Nexus Atlas Gemini] Exception serveur :", err);
             return res.status(500).json({ error: "Erreur interne", message: err.message });
