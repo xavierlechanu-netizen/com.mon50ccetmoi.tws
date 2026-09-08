@@ -41,11 +41,11 @@ class BlackBoxBLE {
     this.onTelemetryData = null;    // Callback Data
     this.onDiagnosticUpdate = null; // Callback UI
     
-    // Batching logic
+    // Batching logic : 3000 trames (~5 minutes à 10Hz) pour économiser Firestore
     this.telemetryBuffer = [];
-    this.MAX_BATCH_SIZE = 50;
+    this.MAX_BATCH_SIZE = 3000;
     this.batchTimeout = null;
-    this.BATCH_TIMEOUT_MS = 5000;
+    this.BATCH_TIMEOUT_MS = 300000;
   }
 
   buildUuid(shortHex) {

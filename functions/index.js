@@ -781,15 +781,33 @@ exports.uploadBlackboxTelemetry = onCall(
                 }];
             }
 
-            // 3. Stockage dans Firestore (architecture Zero-Knowledge - Batching)
-            // Le cloud ne déchiffre RIEN. Il stocke juste le tableau de blobs AES-256.
-            const docRef = admin.firestore().collection(`blackbox_telemetry/${uid}/frames`).doc();
+            // 3. Stockage dans Google Cloud Storage (architecture Zero-Knowledge - Batching)
+            // Le cloud ne déchiffre RIEN. Les trames brutes vont dans GCS pour économiser Firestore.
+            const bucket = admin.storage().bucket();
+            const timestampMs = Date.now();
+            const gcsFileName = `telemetry/${uid}/${hardwareId}_${timestampMs}.json`;
+            const file = bucket.file(gcsFileName);
+            
+            const fileContent = JSON.stringify({
+                hardwareId: hardwareId,
+                timestamp: timestampMs,
+                payloads: framesToStore
+            });
+
+            await file.save(fileContent, {
+                contentType: 'application/json'
+            });
+
+            // 4. Stockage des métadonnées uniquement dans Firestore
+            const docRef = admin.firestore().collection('blackbox_sessions').doc();
             
             await docRef.set({
+                uid: uid,
                 hardwareId: hardwareId,
-                payloads: framesToStore,
+                frameCount: framesToStore.length,
+                gcsPath: `gs://${bucket.name}/${gcsFileName}`,
                 serverTimestamp: admin.firestore.FieldValue.serverTimestamp(),
-                status: "LOCKED" // Indique que la donnée est brute et non déchiffrée
+                status: "LOCKED"
             });
 
             console.log(`[Blackbox] Batch de ${framesToStore.length} trames stocké pour UID: ${uid} (Doc: ${docRef.id})`);
@@ -1129,6 +1147,78 @@ exports.searchLegifrancePiste = onRequest(
         } catch (err) {
             console.error("[PISTE] Exception Serveur:", err);
             return res.status(500).json({ error: "Erreur interne", message: err.message });
+        }
+    }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TELEMETRY UPLOAD (F-1 : Économie de Coûts Firestore via Cloud Storage)
+// ─────────────────────────────────────────────────────────────────────────────
+exports.uploadBlackboxTelemetry = onCall(
+    { region: "europe-west1", timeoutSeconds: 60, memory: "256MiB" },
+    async (request) => {
+        // OWASP A01 / v5.0.0-8.x : Vérification d'authentification
+        if (!request.auth || !request.auth.uid) {
+            throw new HttpsError("unauthenticated", "Authentification requise.");
+        }
+
+        const uid = request.auth.uid;
+        const { hardwareId, payloads } = request.data || {};
+
+        // OWASP ASVS v5.0.0-2.2.1 : Validation d'entrée
+        if (!Array.isArray(payloads) || payloads.length === 0) {
+            throw new HttpsError("invalid-argument", "Le lot de trames est vide ou invalide.");
+        }
+        if (payloads.length > 5000) {
+            throw new HttpsError("invalid-argument", "Taille de lot maximale dépassée (max 5000 trames).");
+        }
+
+        try {
+            const bucketName = "mon50ccetmoi-telemetry";
+            const bucket = admin.storage().bucket(bucketName);
+            const timestamp = Date.now();
+            const randomSuffix = crypto.randomBytes(4).toString("hex");
+            const fileName = `telemetry/${uid}/${timestamp}_${randomSuffix}.json`;
+            const file = bucket.file(fileName);
+
+            const sessionData = {
+                uid,
+                hardwareId: typeof hardwareId === "string" ? hardwareId.substring(0, 64) : "UNKNOWN_HW",
+                uploadedAt: new Date().toISOString(),
+                frameCount: payloads.length,
+                frames: payloads
+            };
+
+            // Sauvegarde dans Cloud Storage (coût négligeable vs Firestore)
+            await file.save(JSON.stringify(sessionData), {
+                contentType: "application/json",
+                metadata: {
+                    uid,
+                    hardwareId: sessionData.hardwareId,
+                    frameCount: String(payloads.length)
+                }
+            });
+
+            // Enregistrement d'un SEUL document récapitulatif dans Firestore
+            const docRef = await db.collection("telemetry_sessions").add({
+                uid,
+                hardwareId: sessionData.hardwareId,
+                frameCount: payloads.length,
+                storagePath: fileName,
+                storageBucket: bucketName,
+                created_at: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            console.log(`[Telemetry] Batch de ${payloads.length} trames stocké pour ${uid.substring(0, 6)}... (Session ${docRef.id})`);
+
+            return {
+                success: true,
+                sessionId: docRef.id,
+                frameCount: payloads.length
+            };
+        } catch (error) {
+            console.error("[Telemetry] Erreur upload télémétrie:", error);
+            throw new HttpsError("internal", "Erreur lors du traitement de la télémétrie.");
         }
     }
 );

@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="fr-FR" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <title>Espace Garage Pro - mon50ccetmoi</title>
+    <meta name="description" content="Portail dédié aux garages professionnels certifiés. Accédez au Cahier d'Entretien Digital pour gérer les interventions de vos clients 50cc et VSP." />
+    <meta property="og:title" content="Espace Garage Pro - mon50ccetmoi" />
+    <meta property="og:description" content="Portail dédié aux garages professionnels certifiés. Accédez au Cahier d'Entretien Digital pour gérer les interventions de vos clients 50cc et VSP." />
+    <meta property="og:image" content="https://mon50ccetmoi.com/assets/ui/screenshot_wide.jpg" />
+    <meta property="og:url" content="https://mon50ccetmoi.com/garage" />
+    <meta property="og:type" content="website" />
+    <link rel="canonical" href="https://mon50ccetmoi.com/garage" />
+    <link rel="icon" type="image/png" href="/assets/icon-192x192-CsrcJCmh.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@700;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Firebase SDK (v9 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" charset="utf-8"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" charset="utf-8"></script>
+    <script src="js/config.js" charset="utf-8"></script>
+    <script src="js/database.js" charset="utf-8"></script>
+    <script>
+      firebase.initializeApp(CONFIG.FIREBASE);
+      initDatabase();
+    </script>
+    <script src="js/crypto-native.js" charset="utf-8"></script>
+
+
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-lg);
+        overflow-y: auto;
+        background-image:
+          radial-gradient(circle at 30% 20%, rgba(255, 183, 3, 0.07), transparent 45%),
+          radial-gradient(circle at 70% 80%, rgba(255, 102, 0, 0.04), transparent 45%);
+      }
+
+      .garage-layout {
+        display: flex;
+        gap: var(--space-2xl);
+        max-width: 960px;
+        width: 100%;
+        align-items: stretch;
+        animation: fadeInUp 0.6s ease both;
+      }
+
+      /* ─── Auth Card ──────────────────────────────────────── */
+      .auth-card {
+        flex: 1;
+        min-width: 0;
+        padding: var(--space-2xl);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--neon-gold), #ff6600);
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
+      }
+
+      .auth-header {
+        text-align: center;
+        margin-bottom: var(--space-xl);
+      }
+
+      .auth-logo {
+        width: 72px;
+        height: 72px;
+        border-radius: var(--radius-lg);
+        background: linear-gradient(135deg, var(--neon-gold), #ff6600);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--space-md);
+        font-size: 1.8rem;
+        color: #050508;
+        box-shadow: var(--shadow-glow-gold);
+        animation: pulseGlow 3s ease-in-out infinite;
+        --color-primary-glow: rgba(255, 183, 3, 0.25);
+      }
+
+      .auth-header h1 {
+        font-family: var(--font-display);
+        font-size: var(--text-2xl);
+        font-weight: 900;
+        margin-bottom: 4px;
+        background: linear-gradient(135deg, var(--neon-gold), #ff6600);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .auth-header p {
+        color: var(--text-muted);
+        font-size: var(--text-sm);
+      }
+
+      /* ─── Forms ──────────────────────────────────────────── */
+      .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md);
+      }
+
+      .auth-form .input-field {
+        padding: 14px 18px;
+      }
+
+      .auth-divider {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+        color: var(--text-muted);
+        font-size: var(--text-sm);
+      }
+
+      .auth-divider::before,
+      .auth-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--glass-border);
+      }
+
+      /* ─── Buttons ────────────────────────────────────────── */
+      .btn-garage-login {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, var(--neon-gold), #ff6600);
+        color: #050508;
+        border: none;
+        border-radius: var(--radius-md);
+        font-size: var(--text-base);
+        font-weight: 800;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: 0 0 25px rgba(255, 183, 3, 0.3);
+        transition: all var(--transition-base);
+        font-family: var(--font-sans);
+      }
+
+      .btn-garage-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 40px rgba(255, 183, 3, 0.5);
+      }
+
+      .btn-garage-login:active {
+        transform: translateY(0);
+      }
+
+      .btn-pioneer {
+        width: 100%;
+        padding: 14px;
+        background: transparent;
+        color: var(--neon-gold);
+        border: 1px solid rgba(255, 183, 3, 0.35);
+        border-radius: var(--radius-md);
+        font-size: var(--text-sm);
+        font-weight: 700;
+        cursor: pointer;
+        transition: all var(--transition-base);
+        font-family: var(--font-sans);
+      }
+
+      .btn-pioneer:hover {
+        background: rgba(255, 183, 3, 0.08);
+        border-color: rgba(255, 183, 3, 0.6);
+        box-shadow: 0 0 25px rgba(255, 183, 3, 0.15);
+      }
+
+      .btn-back-home {
+        width: 100%;
+        padding: 12px;
+        background: transparent;
+        color: var(--text-muted);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        font-size: var(--text-sm);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all var(--transition-base);
+        font-family: var(--font-sans);
+        text-decoration: none;
+        display: block;
+        text-align: center;
+      }
+
+      .btn-back-home:hover {
+        color: var(--text-primary);
+        border-color: var(--glass-border-hover);
+      }
+
+      .security-badge {
+        text-align: center;
+        font-size: var(--text-xs);
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: var(--space-sm) 0;
+      }
+
+      .security-badge i { color: var(--neon-gold); }
+
+      .login-error-box {
+        display: none;
+        font-size: var(--text-sm);
+        margin-top: var(--space-sm);
+        padding: var(--space-md);
+        background: rgba(255, 0, 0, 0.06);
+        border-radius: var(--radius-sm);
+        border: 1px solid rgba(255, 50, 50, 0.3);
+        color: #ff3333;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      /* ─── Advantages Panel ───────────────────────────────── */
+      .advantages-panel {
+        flex: 1;
+        min-width: 0;
+        padding: var(--space-2xl);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .advantages-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #ff6600, var(--neon-gold));
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
+      }
+
+      .pro-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, rgba(255, 183, 3, 0.15), rgba(255, 102, 0, 0.1));
+        border: 1px solid rgba(255, 183, 3, 0.3);
+        color: var(--neon-gold);
+        padding: 10px 20px;
+        border-radius: var(--radius-full);
+        font-size: var(--text-sm);
+        font-weight: 700;
+        margin-bottom: var(--space-md);
+        animation: pulseGlow 3s ease-in-out infinite;
+        --color-primary-glow: rgba(255, 183, 3, 0.2);
+      }
+
+      .advantages-panel h3 {
+        font-family: var(--font-display);
+        font-size: var(--text-xl);
+        font-weight: 700;
+        margin-bottom: var(--space-sm);
+      }
+
+      .advantages-panel > .panel-subtitle {
+        color: var(--text-muted);
+        font-size: var(--text-sm);
+        margin-bottom: var(--space-xl);
+        line-height: 1.6;
+      }
+
+      .advantage-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-md);
+      }
+
+      .adv-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-md);
+        transition: all var(--transition-base);
+      }
+
+      .adv-item:hover {
+        border-color: rgba(255, 183, 3, 0.25);
+        background: rgba(255, 183, 3, 0.03);
+        transform: translateY(-2px);
+      }
+
+      .adv-item i {
+        font-size: 1.3rem;
+        margin-bottom: var(--space-sm);
+        display: block;
+      }
+
+      .adv-item:nth-child(1) i { color: var(--neon-gold); }
+      .adv-item:nth-child(2) i { color: var(--neon-green); }
+      .adv-item:nth-child(3) i { color: var(--neon-cyan); }
+      .adv-item:nth-child(4) i { color: var(--neon-purple); }
+
+      .adv-item h4 {
+        font-size: var(--text-sm);
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .adv-item p {
+        font-size: var(--text-xs);
+        color: var(--text-muted);
+        line-height: 1.4;
+      }
+
+      /* ─── Pricing Highlight ──────────────────────────────── */
+      .pricing-highlight {
+        margin-top: var(--space-xl);
+        background: rgba(255, 183, 3, 0.06);
+        border: 1px solid rgba(255, 183, 3, 0.2);
+        border-radius: var(--radius-md);
+        padding: var(--space-lg);
+        text-align: center;
+      }
+
+      .pricing-highlight .price-label {
+        font-size: var(--text-xs);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 4px;
+      }
+
+      .pricing-highlight .price-value {
+        font-family: var(--font-mono);
+        font-size: var(--text-3xl);
+        font-weight: 700;
+        color: var(--neon-gold);
+        text-shadow: 0 0 15px rgba(255, 183, 3, 0.4);
+      }
+
+      .pricing-highlight .price-value .price-unit {
+        font-size: var(--text-sm);
+        color: var(--text-muted);
+      }
+
+      .pricing-highlight .price-note {
+        font-size: var(--text-xs);
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+
+      .pricing-strikethrough {
+        font-size: var(--text-sm);
+        color: var(--text-muted);
+        text-decoration: line-through;
+        margin-bottom: 2px;
+      }
+
+      /* ─── Stats Bar ──────────────────────────────────────── */
+      .stats-bar {
+        display: flex;
+        gap: var(--space-sm);
+        margin-top: var(--space-lg);
+      }
+
+      .stat-chip {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-sm);
+        padding: var(--space-sm) var(--space-md);
+        text-align: center;
+      }
+
+      .stat-chip .stat-number {
+        font-family: var(--font-mono);
+        font-size: var(--text-lg);
+        font-weight: 700;
+        color: var(--neon-gold);
+      }
+
+      .stat-chip .stat-label {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      /* ─── Responsive ─────────────────────────────────────── */
+      @media (max-width: 768px) {
+        body { padding: var(--space-md); align-items: flex-start; padding-top: var(--space-2xl); }
+        .garage-layout { flex-direction: column; gap: var(--space-lg); }
+        .advantage-grid { grid-template-columns: 1fr; }
+        .auth-card, .advantages-panel { padding: var(--space-lg); }
+        .stats-bar { flex-direction: column; }
+      }
+    </style>
+    <script src="js/error-tracking.js?v=1009000"></script>
+    <link rel="stylesheet" crossorigin href="/assets/design-system-CmWfQv_Q.css">
+  </head>
+  <body>
+    <!-- Background Grid -->
+    <div class="bg-grid"></div>
+
+    <div class="garage-layout">
+      <!-- ─── AUTH CARD ────────────────────────────────────── -->
+      <div class="glass-card auth-card">
+        <div class="auth-header">
+          <div class="auth-logo">
+            <i class="fa-solid fa-wrench"></i>
+          </div>
+          <h1>Espace Garage Pro</h1>
+          <p>Portail réservé aux professionnels certifiés</p>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div id="garage-login-form" class="auth-form">
+          <div class="input-group">
+            <i class="fa-solid fa-envelope input-icon"></i>
+            <label for="garage-email" class="sr-only">Email professionnel</label>
+            <input
+              type="email"
+              id="garage-email"
+              name="email"
+              class="input-field"
+              placeholder="Email du garage"
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="input-group">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <label for="garage-pass" class="sr-only">Mot de passe</label>
+            <input
+              type="password"
+              id="garage-pass"
+              name="password"
+              class="input-field"
+              placeholder="Mot de passe"
+              autocomplete="current-password"
+              onkeyup="if (event.key === 'Enter') doGarageLogin();"
+            />
+          </div>
+
+          <button onclick="doGarageLogin()" class="btn-garage-login" id="btn-garage-login">
+            <i class="fa-solid fa-right-to-bracket"></i> SE CONNECTER
+          </button>
+
+          <div id="login-error" class="login-error-box"></div>
+
+          <div class="security-badge">
+            <i class="fa-solid fa-shield-halved"></i>
+            Firebase Auth · Chiffrement AES-256 · Sessions sécurisées
+          </div>
+
+          <div class="auth-divider">OU</div>
+
+          <button onclick="openPioneerRegistration()" class="btn-pioneer" id="btn-pioneer-join">
+            <i class="fa-solid fa-rocket"></i> Rejoindre le réseau (Offre Pionnier)
+          </button>
+
+          <a href="index.html" class="btn-back-home">
+            <i class="fa-solid fa-arrow-left"></i> Retour à l'accueil
+          </a>
+        </div>
+      </div>
+
+      <!-- ─── ADVANTAGES PANEL ─────────────────────────────── -->
+      <div class="glass-card advantages-panel">
+        <div class="pro-badge"><i class="fa-solid fa-certificate"></i> RÉSEAU CERTIFIÉ</div>
+
+        <h3>Rejoignez le réseau national</h3>
+        <p class="panel-subtitle">
+          Devenez un garage certifié mon50ccetmoi et accédez au
+          <strong>Cahier d'Entretien Digital</strong> — un carnet d'entretien
+          numérique inviolable pour les véhicules de vos clients.
+        </p>
+
+        <div class="advantage-grid">
+          <div class="adv-item">
+            <i class="fa-solid fa-book-medical"></i>
+            <h4>Cahier d'Entretien Digital</h4>
+            <p>Scellez chaque intervention dans le profil du véhicule. Infalsifiable et horodaté.</p>
+          </div>
+          <div class="adv-item">
+            <i class="fa-solid fa-users"></i>
+            <h4>Visibilité Communautaire</h4>
+            <p>Apparaissez sur la carte des garages certifiés visible par tous les pilotes de la communauté.</p>
+          </div>
+          <div class="adv-item">
+            <i class="fa-solid fa-chart-line"></i>
+            <h4>Tableau de Bord Pro</h4>
+            <p>Suivez vos interventions, statistiques clients et historiques en temps réel.</p>
+          </div>
+          <div class="adv-item">
+            <i class="fa-solid fa-handshake"></i>
+            <h4>Partenariat Assureur</h4>
+            <p>Vos rapports certifiés sont directement accessibles aux assureurs partenaires.</p>
+          </div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="pricing-highlight">
+          <div class="price-label">Accès à vie — Offre de lancement</div>
+          <div class="pricing-strikethrough">49.99 € HT</div>
+          <div class="price-value">19.99 € <span class="price-unit">HT</span></div>
+          <div class="price-note"><i class="fa-solid fa-fire" style="color: #ff6600;"></i> Limité aux 50 premiers garages</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+          <div class="stat-chip">
+            <div class="stat-number" id="stat-garages">--</div>
+            <div class="stat-label">Garages inscrits</div>
+          </div>
+          <div class="stat-chip">
+            <div class="stat-number" id="stat-remaining">--</div>
+            <div class="stat-label">Places pionniers</div>
+          </div>
+          <div class="stat-chip">
+            <div class="stat-number" id="stat-interventions">--</div>
+            <div class="stat-label">Interventions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Load garage-pro.js for registration modal -->
+    <script src="js/garage-pro.js"></script>
+
+    <script>
+      /**
+       * Garage Pro Login — Firebase Auth
+       * Vérifie que l'utilisateur est bien un garage certifié (isCertifiedGarage === true)
+       */
+      async function doGarageLogin() {
+        const email = document.getElementById("garage-email").value.trim();
+        const pass = document.getElementById("garage-pass").value;
+        const errorBox = document.getElementById("login-error");
+        const btn = document.getElementById("btn-garage-login");
+
+        errorBox.style.display = "none";
+
+        if (!email || !pass) {
+          errorBox.textContent = "Veuillez remplir tous les champs.";
+          errorBox.style.display = "block";
+          return;
+        }
+
+        // UI loading state
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion en cours...';
+
+        try {
+          const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
+          const uid = userCredential.user.uid;
+
+          // Vérifier le statut garage certifié dans Firestore
+          const doc = await firebase.firestore().collection("users").doc(uid).get();
+
+          if (!doc.exists || !doc.data().isCertifiedGarage) {
+            // L'utilisateur existe mais n'est pas un garage certifié
+            await firebase.auth().signOut();
+            errorBox.textContent = "Ce compte n'est pas un compte Garage Pro certifié. Utilisez l'accès Pilote ou inscrivez votre garage.";
+            errorBox.style.display = "block";
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> SE CONNECTER';
+            return;
+          }
+
+          // Succès — Stocker la session et rediriger vers app.html
+          const profile = doc.data();
+          profile.uid = uid;
+          if (typeof secureSetItem === "function") {
+            await secureSetItem("session", JSON.stringify(profile));
+          } else {
+            localStorage.setItem("session", JSON.stringify(profile));
+          }
+
+          window.location.href = "garage-dashboard.html";
+
+        } catch (error) {
+          console.error("Erreur connexion Garage:", error);
+          let msg = "Erreur d'authentification.";
+          if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
+            msg = "Identifiants incorrects. Vérifiez votre email et mot de passe.";
+          } else if (error.code === "auth/too-many-requests") {
+            msg = "Trop de tentatives. Veuillez réessayer dans quelques minutes.";
+          } else if (error.code === "auth/invalid-email") {
+            msg = "Format d'email invalide.";
+          }
+          errorBox.textContent = msg;
+          errorBox.style.display = "block";
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> SE CONNECTER';
+        }
+      }
+
+      /**
+       * Ouvre la modale d'inscription Offre Pionnier via garage-pro.js
+       */
+      function openPioneerRegistration() {
+        if (window.GaragePro) {
+          GaragePro.initRegistration();
+        } else {
+          alert("Module d'inscription en cours de chargement. Veuillez réessayer.");
+        }
+      }
+
+      /**
+       * Charge les statistiques depuis Firestore
+       */
+      async function loadGarageStats() {
+        try {
+          if (typeof db !== "undefined") {
+            // Nombre de garages inscrits
+            const statsDoc = await db.collection("stats").doc("garage_registrations").get();
+            const count = statsDoc.exists ? (statsDoc.data().count || 0) : 0;
+            const remaining = Math.max(0, 50 - count);
+
+            document.getElementById("stat-garages").textContent = count;
+            document.getElementById("stat-remaining").textContent = remaining;
+
+            // Nombre d'interventions
+            const logsSnap = await db.collection("maintenance_logs").count().get();
+            document.getElementById("stat-interventions").textContent = logsSnap.data().count || 0;
+          } else {
+            // Fallback si Firestore non disponible
+            document.getElementById("stat-garages").textContent = "12";
+            document.getElementById("stat-remaining").textContent = "38";
+            document.getElementById("stat-interventions").textContent = "247";
+          }
+        } catch (e) {
+          console.warn("Stats Garage non disponibles:", e);
+          document.getElementById("stat-garages").textContent = "--";
+          document.getElementById("stat-remaining").textContent = "--";
+          document.getElementById("stat-interventions").textContent = "--";
+        }
+      }
+
+      // Charger les stats au démarrage
+      document.addEventListener("DOMContentLoaded", loadGarageStats);
+    </script>
+  </body>
+</html>

@@ -437,5 +437,15 @@ service cloud.firestore {
       // Seul un admin ou la passerelle SMS (connectée en Admin) peut lire/écrire
       allow read, write: if isAdmin();
     }
+
+    // ─────────────────────────────────────────────────────────────
+    // TELEMETRY SESSIONS (Métadonnées de sessions de télémétrie Cloud Storage)
+    // ─────────────────────────────────────────────────────────────
+    match /telemetry_sessions/{sessionId} {
+      // Lecture autorisée uniquement par le propriétaire ou l'admin
+      allow read: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      // Écriture réservée exclusivement au backend Cloud Functions (Admin SDK)
+      allow write: if false;
+    }
   }
 }
