@@ -30,10 +30,10 @@
   --color-success:      var(--neon-green);
   --color-success-glow: rgba(0, 230, 118, 0.35);
 
-  /* Text */
+  /* Text — Optimisé RGAA 4.1.2 / WCAG AA (> 4.5:1 sur fond sombre) */
   --text-primary:   #ffffff;
   --text-secondary: #b0b8c8;
-  --text-muted:     #6b7280;
+  --text-muted:     #94a3b8; /* Rehaussé de #6b7280 pour contraste suffisant */
   --text-inverted:  #050508;
 
   /* Glassmorphism */
@@ -1192,3 +1192,109 @@ img, video {
 .skeleton-card {
   height: 200px;
 }
+
+
+/* ─── 21. ACCESSIBILITÉ NUMÉRIQUE (RGAA 4.1.2 / WCAG 2.1 AA) ──── */
+
+/* Focus visible universel : obligatoire pour la navigation clavier sans souris */
+:focus-visible {
+  outline: 2px solid var(--neon-cyan) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 10px rgba(0, 242, 255, 0.4) !important;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--neon-cyan) !important;
+  outline-offset: 2px !important;
+}
+
+/* Suppression du contour par défaut au clic souris si focus-visible est supporté */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Classe d'accessibilité pour les lecteurs d'écran (Screen Readers) */
+.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Lien d'évitement (Skip link) pour accéder directement au contenu principal */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  background: var(--neon-cyan);
+  color: #050508;
+  font-weight: 700;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  z-index: 10000;
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: 16px;
+}
+
+
+/* ─── 22. ÉCO-CONCEPTION & SOBRIÉTÉ ÉNERGÉTIQUE (GREEN IT / FRUGGR) ── */
+
+/* Respect de la préférence système de réduction de mouvement (Sobriété GPU & RGAA 13.8) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .skeleton {
+    animation: none !important;
+  }
+
+  [data-glow],
+  .btn-primary,
+  .badge-glow {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
+
+/* Mode Éco Sobriété Énergétique (.lite-mode) : allègement massif GPU/CPU */
+body.lite-mode {
+  --glass-blur: 0px;
+  --glass-glow: none;
+  --shadow-glow-cyan: none;
+  --shadow-glow-gold: none;
+  --shadow-glow-red: none;
+  --shadow-glow-green: none;
+}
+
+body.lite-mode * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-shadow: none !important;
+}
+
+body.lite-mode .skeleton {
+  animation: none !important;
+  background: rgba(255, 255, 255, 0.05);
+}
+

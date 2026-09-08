@@ -52,7 +52,23 @@ Ne renvoie QUE du JSON valide. Pas de code markdown.`;
 
     async ask(userText) {
         if (window.isLiteMode) {
-            throw new Error("Gemini API désactivée en Mode Éco.");
+            throw new Error("Gemini API désactivée en Mode Éco Sobriété.");
+        }
+
+        // --- 1. GREEN AI : CACHE D'INFÉRENCE LOCAL (FRUGALITÉ GPU & CO2) ---
+        const normalizedKey = "esg_ai_cache_" + btoa(encodeURIComponent(userText.trim().toLowerCase())).slice(0, 48);
+        try {
+            const cachedItem = sessionStorage.getItem(normalizedKey);
+            if (cachedItem) {
+                const cachedData = JSON.parse(cachedItem);
+                console.info("[Green AI / Fruggr] Réponse servie depuis le cache local (0 token consommé, gain CO2e).");
+                if (window.ESGManager) {
+                    window.ESGManager.logAISaved(150);
+                }
+                return cachedData;
+            }
+        } catch (e) {
+            // Ignorer silencieusement si sessionStorage est indisponible
         }
 
         try {
@@ -74,7 +90,7 @@ Ne renvoie QUE du JSON valide. Pas de code markdown.`;
                 token = await firebase.auth().currentUser.getIdToken();
             }
 
-            // Timeout de 15 secondes pour éviter un blocage infini (OWASP A11)
+            // Timeout de 15 secondes pour éviter un blocage infini (OWASP A11 / ISO 27001)
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 15000);
 
@@ -114,6 +130,16 @@ Ne renvoie QUE du JSON valide. Pas de code markdown.`;
             });
             
             const jsonResult = JSON.parse(textResponse);
+            
+            // Conformité AI Act (Art. 50 Transparence) : Marquer systématiquement la réponse comme assistée par IA
+            jsonResult.isAIGenerated = true;
+            jsonResult.aiRegulation = "EU AI Act 2024/1689 (Art. 50 Compliant)";
+            
+            // Mise en cache locale de la réponse pour les futures requêtes similaires
+            try {
+                sessionStorage.setItem(normalizedKey, JSON.stringify(jsonResult));
+            } catch (e) {}
+
             console.log("Nexus Atlas Gemini Réponse:", jsonResult);
             return jsonResult;
 

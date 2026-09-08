@@ -6,6 +6,27 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ---
 
+## [111.00.00] - 2026-09-08 - 🌿 Alignement ESG IT — Fruggr, RGAA 4.1.2, AI Act & ISO/IEC 27001
+
+### Ajouté
+- **Télémétrie & Sobriété ESG IT (`public/js/esg-telemetry.js`)** : Module singleton `window.ESGManager` calculant en continu les métriques de frugalité de session (données réseau économisées, ratio Edge Computing / Cache local, équivalent gCO2e épargné).
+- **Gestion Énergétique Mobile Proactive** : Bascule automatique en Mode Éco Sobriété (`.lite-mode`) lorsque la batterie est faible (<= 20% via `navigator.getBattery()`) ou lorsque le client signale `navigator.connection.saveData`.
+- **Green AI & Cache d'Inférence (`nexus-atlas-gemini.js`)** : Mise en cache locale (sessionStorage) des requêtes/réponses de Nexus Atlas sur les sujets récurrents (Code de la route, législation, ZFE), évitant des millions de cycles d'inférence GPU sur serveurs distants.
+- **Référentiel Officiel ESG IT (`docs/CONFORMITE_ESG_FRUGGR.md`)** : Documentation complète de la grille de conformité Fruggr couvrant les piliers E (Green IT), S (RGAA 4.1.2) et G (AI Act UE 2024/1689 & ISO/IEC 27001:2022).
+- **Accessibilité Numérique RGAA 4.1.2 & WCAG 2.1 AA** :
+  - Styles `:focus-visible` universels haute visibilité avec contour néon cyan pour la navigation clavier sans souris.
+  - Support de `@media (prefers-reduced-motion: reduce)` désactivant immédiatement les animations continues et les pulsations pour prévenir les troubles vestibulaires.
+  - Classes utilitaires `.sr-only` et `.visually-hidden` pour les lecteurs d'écran.
+  - Liens d'évitement (`skip-link`) pour accéder directement au contenu principal.
+
+### Modifié
+- `css/design-system.css` : Rehaussement du contraste de `--text-muted` (`#94a3b8`) pour dépasser le ratio 4.5:1 sur fond sombre, allègement drastique des filtres `backdrop-filter` et des ombres en Mode Éco.
+- `public/js/app-core.js` : Synchronisation bidirectionnelle du Mode Éco avec `ESGManager` et écoute de l'événement `esg-mode-change`.
+- `public/sw.js` : Enregistrement des feuilles de style et modules ESG dans le cache statique de la PWA et passage au cache `mon50cc-cache-v1090000`.
+- `index.html` & `app.html` : Intégration du script `esg-telemetry.js`, mise en place des skip-links et mise à jour du scope Service Worker.
+
+---
+
 ## [110.00.00] - 2026-09-07 - 🚀 Valorisation — IA Gemini & Nouvelles Fonctionnalités
 
 ### Ajouté

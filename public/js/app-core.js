@@ -71,6 +71,9 @@ if (localStorage.getItem("liteMode") === null) {
 window.toggleLiteMode = function () {
   window.isLiteMode = !window.isLiteMode;
   localStorage.setItem("liteMode", window.isLiteMode ? "true" : "false");
+  if (window.ESGManager) {
+    window.ESGManager.setEcoMode(window.isLiteMode);
+  }
   if (window.isLiteMode) {
     document.body.classList.add("lite-mode");
     if (typeof speak === "function") speak("Mode Éco Performances activé.");
@@ -81,6 +84,18 @@ window.toggleLiteMode = function () {
   }
   setTimeout(() => location.reload(), 1500);
 };
+
+// Écoute des bascules automatiques ESG (ex: batterie faible <= 20% ou save-data)
+window.addEventListener("esg-mode-change", (e) => {
+  if (e.detail && e.detail.isLiteMode !== undefined) {
+    window.isLiteMode = e.detail.isLiteMode;
+    if (window.isLiteMode) {
+      document.body.classList.add("lite-mode");
+    } else {
+      document.body.classList.remove("lite-mode");
+    }
+  }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   if (window.isLiteMode) document.body.classList.add("lite-mode");
