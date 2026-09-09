@@ -512,23 +512,67 @@
     <script>
       function checkProminentDisclosure() {
         if (localStorage.getItem("location_consent_accepted") !== "true") {
-          document.getElementById("prominent-disclosure-modal").style.display = "flex";
+          const modal = document.getElementById("prominent-disclosure-modal");
+          modal.style.display = "flex";
+          const wrapper = document.getElementById("app-wrapper");
+          if (wrapper) wrapper.setAttribute("inert", "true");
+          
+          // Focus automatique
+          setTimeout(() => {
+            const acceptBtn = document.getElementById("btn-accept-disclosure");
+            if (acceptBtn) acceptBtn.focus();
+          }, 100);
         }
       }
+      
       document.addEventListener("DOMContentLoaded", function () {
         checkProminentDisclosure();
-        document.getElementById("btn-accept-disclosure").addEventListener("click", function () {
+        
+        const modal = document.getElementById("prominent-disclosure-modal");
+        const acceptBtn = document.getElementById("btn-accept-disclosure");
+        const refuseBtn = document.getElementById("btn-refuse-disclosure");
+        const wrapper = document.getElementById("app-wrapper");
+        
+        acceptBtn.addEventListener("click", function () {
           localStorage.setItem("location_consent_accepted", "true");
-          document.getElementById("prominent-disclosure-modal").style.display = "none";
+          modal.style.display = "none";
+          if (wrapper) wrapper.removeAttribute("inert");
         });
-        document.getElementById("btn-refuse-disclosure").addEventListener("click", function () {
-          document.getElementById("prominent-disclosure-modal").style.display = "none";
+        
+        refuseBtn.addEventListener("click", function () {
+          modal.style.display = "none";
+          if (wrapper) wrapper.removeAttribute("inert");
           alert("L'application nécessite l'accès à votre position pour fonctionner correctement.");
         });
+
+        // Focus Trap Logic
+        modal.addEventListener("keydown", function (e) {
+          if (e.key === "Tab") {
+            const focusableElements = modal.querySelectorAll('a[href], button:not([disabled]), textarea, input, select');
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+
+            if (e.shiftKey) { // Shift + Tab
+              if (document.activeElement === firstElement) {
+                lastElement.focus();
+                e.preventDefault();
+              }
+            } else { // Tab
+              if (document.activeElement === lastElement) {
+                firstElement.focus();
+                e.preventDefault();
+              }
+            }
+          }
+        });
       });
+      
       if (document.readyState === "complete" || document.readyState === "interactive")
         checkProminentDisclosure();
     </script>
+
+    <!-- App Wrapper for inert/focus trap -->
+    <div id="app-wrapper">
 
     <!-- Background Grid Pattern -->
     <div class="bg-grid"></div>
@@ -931,5 +975,7 @@
     </script>
     <!-- Module de Télémétrie ESG IT / Green IT / RGAA / ISO 27001 -->
     <script src="js/esg-telemetry.js"></script>
+
+    </div> <!-- End #app-wrapper -->
   </body>
 </html>

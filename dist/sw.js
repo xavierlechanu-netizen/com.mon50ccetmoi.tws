@@ -1,20 +1,10 @@
-const CACHE_NAME = 'mon50cc-cache-v1090000';
-const urlsToCache = [
+const CACHE_NAME = 'mon50cc-cache-v1110000';
+const STATIC_ASSETS = [
   '/',
-  '/index.html?v=1090000',
-  '/app.html?v=1090000',
+  '/index.html',
   '/offline.html',
   '/css/design-system.css',
-  '/css/premium.css?v=1090000',
-  '/css/style.min.css?v=1090000',
-  '/js/config.js?v=1090000',
-  '/js/infallible.js?v=1090000',
-  '/js/error-tracking.js?v=1090000',
   '/js/esg-telemetry.js',
-  '/js/oracle-voice.js?v=1090000',
-  '/js/crypto-native.js?v=1090000',
-  '/js/auth.js?v=1090000',
-  '/js/database.js?v=1090000',
   '/js/mon50cc-bundle.js'
 ];
 
@@ -22,10 +12,10 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        // Cache each URL individually so one failure doesn't break everything
+        // Cache initial des ressources critiques
         return Promise.allSettled(
-          urlsToCache.map(url => cache.add(url).catch(err => {
-            console.warn('[SW] Failed to cache:', url, err.message || err);
+          STATIC_ASSETS.map(url => cache.add(url).catch(err => {
+            console.warn('[SW] Failed to cache:', url, err);
           }))
         );
       })
@@ -34,7 +24,6 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  // Clean up old caches
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
@@ -47,14 +36,65 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Only handle same-origin GET requests
+  // Ignorer les requêtes non-GET et les requêtes cross-origin non prévues
   if (event.request.method !== 'GET') return;
   if (!event.request.url.startsWith(self.location.origin)) return;
-  
+
+  const url = new URL(event.request.url);
+
+  // Stratégie 1 : Network-First pour les pages HTML (Navigation)
+  if (event.request.mode === 'navigate' || url.pathname.endsWith('.html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          // Si le réseau répond, on met à jour le cache et on retourne la réponse
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+          return networkResponse;
+        })
+        .catch(() => {
+          // Si le réseau échoue (hors ligne), on cherche dans le cache
+          return caches.match(event.request).then(cachedResponse => {
+            if (cachedResponse) return cachedResponse;
+            // Si pas dans le cache, on affiche la page hors ligne
+            return caches.match('/offline.html');
+          });
+        })
+    );
+    return;
+  }
+
+  // Stratégie 2 : Cache-First pour les assets statiques (CSS, JS, Images, Fonts)
+  const isStaticAsset = url.pathname.match(/\.(css|js|png|jpg|jpeg|svg|woff2|webp)$/i);
+  if (isStaticAsset) {
+    event.respondWith(
+      caches.match(event.request).then(cachedResponse => {
+        if (cachedResponse) return cachedResponse;
+
+        // Si absent du cache, on va le chercher sur le réseau et on le cache
+        return fetch(event.request).then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
+        }).catch(err => {
+          console.warn('[SW] Fetch statique échoué en mode hors-ligne:', event.request.url);
+          throw err;
+        });
+      })
+    );
+    return;
+  }
+
+  // Fallback global : Stale-While-Revalidate
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       const fetchPromise = fetch(event.request).then(networkResponse => {
-        // Mettre à jour le cache silencieusement en arrière-plan
         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then(cache => {
@@ -62,18 +102,10 @@ self.addEventListener('fetch', event => {
           });
         }
         return networkResponse;
-      }).catch((err) => {
-        // Offline fallback for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('/offline.html');
-        }
-        // Pour éviter l'erreur "Failed to convert value to 'Response'" 
-        // quand fetchPromise retourne undefined.
+      }).catch(err => {
+        if (cachedResponse) return cachedResponse;
         throw err;
       });
-      
-      // Retourner la version en cache immédiatement (instantané),
-      // ou attendre le réseau si non mis en cache
       return cachedResponse || fetchPromise;
     })
   );

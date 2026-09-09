@@ -241,11 +241,27 @@ service cloud.firestore {
       allow update, delete: if false; // Inaltérable
     }
 
-    // Statistiques globales (pour le compteur de garantie à vie)
+    // Statistiques globales (pour les compteurs : garage_registrations, etc.)
     match /stats/{statId} {
       allow read: if true; // Public pour voir le stock restant
-      allow create: if true;
-      allow update: if true; // MVP : Tolérance pour incrémenter le compteur côté client
+      allow create: if false; // Uniquement via Firebase Admin SDK
+      allow update: if false; // Uniquement via Firebase Admin SDK
+      allow delete: if false;
+    }
+
+    // Garages Professionnels Certifiés
+    match /garages/{garageId} {
+      allow read: if true; // Annuaire public
+      allow create: if isSignedIn() && isOwner(garageId); // Inscription par le garage
+      allow update: if isOwner(garageId) || isAdmin(); // Mise à jour par le garage ou admin
+      allow delete: if isAdmin();
+    }
+
+    // Cahier d'Entretien Digital (Logs d'intervention)
+    match /maintenance_logs/{logId} {
+      allow read: if true; // Lecture publique pour afficher le compteur d'interventions global
+      allow create: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isCertifiedGarage == true; // Seul un garage certifié peut créer un log
+      allow update, delete: if isAdmin(); // Inaltérable sauf par admin
     }
 
     // ─────────────────────────────────────────────────────────────
