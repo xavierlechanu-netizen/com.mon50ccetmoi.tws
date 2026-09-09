@@ -40,7 +40,19 @@ public class MeshScannerService extends Service {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .build();
-        startForeground(1, notification);
+        try {
+            if (Build.VERSION.SDK_INT >= 34) { // Android 14+ (UPSIDE_DOWN_CAKE)
+                startForeground(1, notification, 
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE | 
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+            } else {
+                startForeground(1, notification);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur SecurityException au démarrage du Foreground Service (permissions manquantes ?)", e);
+            stopSelf();
+            return;
+        }
         
         initBluetoothScanner();
     }
