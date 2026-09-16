@@ -411,8 +411,15 @@ window.initVoiceAI = function () {
   window.voiceAI.onerror = function (event) {
     if (event.error === 'not-allowed' || event.error === 'service-not-allowed' || event.error === 'audio-capture') {
       window.voiceAI.permissionDenied = true;
+      const nexusAtlasFeedback = document.getElementById("nexus-atlas-feedback-text");
+      if (nexusAtlasFeedback) {
+        nexusAtlasFeedback.innerText = "Accès au microphone refusé. Fonction vocale désactivée.";
+        nexusAtlasFeedback.classList.add("visible");
+        setTimeout(() => nexusAtlasFeedback.classList.remove("visible"), 5000);
+      }
+    } else {
+      console.warn("[Nexus Atlas 4.0] Erreur micro : ", event.error);
     }
-    console.warn("[Nexus Atlas 4.0] Erreur micro : ", event.error);
     const micIcon = document.getElementById("nexus-atlas-mic-icon");
     if (micIcon) {
       micIcon.style.color = "#ff0055";

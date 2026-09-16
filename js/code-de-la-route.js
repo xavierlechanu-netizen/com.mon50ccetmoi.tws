@@ -46,7 +46,7 @@ async function fetchMeteoContext() {
   }
 }
 
-function buildSystemPrompt(meteo) {
+function buildSystemPrompt(meteo, profile) {
   let meteoSection = '';
   if (meteo) {
     meteoSection = `
@@ -54,6 +54,15 @@ CONTEXTE MÉTÉO DU JOUR (Météo-France) :
 - Niveau de vigilance national : ${meteo.label}
 - Risques signalés : ${meteo.hazards}
 - INSTRUCTION : Adapte tes questions de mise en situation à ce contexte. Si la vigilance est jaune ou plus, pose AU MOINS UNE question sur la conduite par temps difficile (pluie, verglas, vent fort, brouillard). Si elle est verte, tu peux poser des questions plus générales.
+`;
+  }
+
+  let profileSection = '';
+  if (profile && profile.bvcPoints !== undefined) {
+    profileSection = `
+PROFIL DE L'UTILISATEUR :
+- Score BVC (Bonne Volonté Communautaire) : ${profile.bvcPoints}
+- INSTRUCTION : Adapte la difficulté. Si le score est faible, pose des questions fondamentales. Si le score est élevé, pose des questions plus pointues (ex: ZFE, législation pointue).
 `;
   }
 
@@ -72,7 +81,9 @@ LES RÈGLES MAJEURES À MAÎTRISER ET À ENSEIGNER :
 4. Les règles d'alcoolémie strictes (0,2 g/L, soit tolérance zéro pour les jeunes conducteurs).
 5. Le partage de la route avec les usagers vulnérables (piétons, trottinettes).
 6. La conduite par temps difficile (pluie, verglas, vent, brouillard) : distances de sécurité, vitesse adaptée, visibilité réduite.
+7. Les règles de circulation en ZFE (Zones à Faibles Émissions) et la vignette Crit'Air pour les 50cc.
 ${meteoSection}
+${profileSection}
 INSTRUCTIONS DE COMPORTEMENT :
 - Si l'utilisateur propose une action dangereuse, corrige-le doucement en lui expliquant *pourquoi* c'est dangereux.
 - Pose des questions de mise en situation concrètes une par une.
@@ -105,9 +116,15 @@ class NexusAtlasAI {
   }
 
   async initialize() {
-    // Charger le contexte météo avant le démarrage
     this.meteoContext = await fetchMeteoContext();
-    this.systemPrompt = buildSystemPrompt(this.meteoContext);
+    let profile = null;
+    try {
+      if (typeof window.secureGetItem === 'function') {
+        const sessionStr = await window.secureGetItem('session');
+        if (sessionStr) profile = JSON.parse(sessionStr);
+      }
+    } catch(e) {}
+    this.systemPrompt = buildSystemPrompt(this.meteoContext, profile);
     return this.meteoContext;
   }
 
@@ -138,6 +155,19 @@ class NexusAtlasAI {
         return "Erreur : Tu dois être connecté pour discuter avec Nexus Atlas.";
       }
 
+      // Cache IA (Green AI - économie GPU)
+      const historyStr = JSON.stringify(this.history.map(h => h.parts[0].text));
+      let hash = 0;
+      for (let i = 0; i < historyStr.length; i++) hash = Math.imul(31, hash) + historyStr.charCodeAt(i) | 0;
+      const cacheKey = 'nexus_cache_' + hash;
+      
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        console.log("[Nexus Atlas] Using cached response (Green AI)");
+        this.history.push({ role: "model", parts: [{ text: cached }] });
+        return this.handleGeminiParsed(cached);
+      }
+
       const idToken = await window.auth.currentUser.getIdToken(true);
 
       const response = await fetch(this.endpoint, {
@@ -148,7 +178,7 @@ class NexusAtlasAI {
         },
         body: JSON.stringify({
           history: this.history,
-          systemPrompt: this.systemPrompt || buildSystemPrompt(null)
+          systemPrompt: this.systemPrompt || buildSystemPrompt(null, null)
         })
       });
 
@@ -164,47 +194,15 @@ class NexusAtlasAI {
 
       if (data.candidates && data.candidates[0] && data.candidates[0].content) {
         let rawText = data.candidates[0].content.parts[0].text;
+        
+        sessionStorage.setItem(cacheKey, rawText); // Sauvegarde en cache
 
         this.history.push({
           role: "model",
           parts: [{ text: rawText }]
         });
 
-        // Nettoyage si Gemini encapsule dans des backticks markdown
-        if (rawText.includes('```json')) {
-          rawText = rawText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-        }
-
-        try {
-          const parsed = JSON.parse(rawText.trim());
-
-          if (parsed.score_update > 0) {
-            this.score += parsed.score_update;
-          }
-
-          let responseTxt = parsed.reply;
-
-          if (parsed.score_update > 0) {
-            responseTxt += `<br><span class="score-update">+${parsed.score_update} Point (Score: ${this.score})</span>`;
-          }
-
-          if (parsed.is_finished) {
-            this.state = "RESULT";
-            setTimeout(() => finalizeExam(this.score, Math.max(3, this.score)), 3000);
-            responseTxt += `<br><br><em>Analyse des résultats en cours...</em>`;
-          }
-
-          // Oracle Voice — lire la réponse à voix haute si activé
-          if (window.nexusVoiceEnabled) {
-            speakText(parsed.reply.replace(/<[^>]*>/g, '')); // Lire sans HTML
-          }
-
-          return responseTxt;
-
-        } catch (parseError) {
-          console.error("[Nexus Atlas] Erreur parsing JSON Gemini :", rawText);
-          return "Erreur d'analyse. Mais continuons — reformule ta réponse !";
-        }
+        return this.handleGeminiParsed(rawText);
       } else {
         return "Désolé, je n'ai pas pu formuler une réponse. Peux-tu reformuler ?";
       }
@@ -212,6 +210,42 @@ class NexusAtlasAI {
     } catch (error) {
       console.error("[Nexus Atlas] Gemini API Error:", error);
       return "Une erreur de communication est survenue. Veuillez réessayer.";
+    }
+  }
+
+  handleGeminiParsed(rawText) {
+    if (rawText.includes('```json')) {
+      rawText = rawText.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+    }
+
+    try {
+      const parsed = JSON.parse(rawText.trim());
+
+      if (parsed.score_update > 0) {
+        this.score += parsed.score_update;
+      }
+
+      let responseTxt = parsed.reply;
+
+      if (parsed.score_update > 0) {
+        responseTxt += `<br><span class="score-update">+${parsed.score_update} Point (Score: ${this.score})</span>`;
+      }
+
+      if (parsed.is_finished) {
+        this.state = "RESULT";
+        setTimeout(() => finalizeExam(this.score, Math.max(3, this.score)), 3000);
+        responseTxt += `<br><br><em>Analyse des résultats en cours...</em>`;
+      }
+
+      if (window.nexusVoiceEnabled) {
+        speakText(parsed.reply.replace(/<[^>]*>/g, ''));
+      }
+
+      return responseTxt;
+
+    } catch (parseError) {
+      console.error("[Nexus Atlas] Erreur parsing JSON Gemini :", rawText);
+      return "Erreur d'analyse. Mais continuons — reformule ta réponse !";
     }
   }
 }
@@ -367,10 +401,14 @@ chatForm.addEventListener('submit', async (e) => {
 function addMessage(sender, htmlContent) {
   const div = document.createElement("div");
   div.className = `message ${sender}`;
-  // Sécurité XSS : le contenu HTML vient de Gemini (côté serveur contrôlé) ou de nos propres chaînes.
-  // On accepte le HTML ici uniquement car la source est notre Cloud Function authentifiée,
-  // et non une saisie utilisateur directe.
-  div.innerHTML = `<div class="bubble">${htmlContent}</div>`;
+  // Sécurité XSS : Assainissement avec DOMPurify si dispo, sinon on utilise textContent pour le user
+  if (sender === "user") {
+    div.innerHTML = `<div class="bubble"></div>`;
+    div.querySelector('.bubble').textContent = htmlContent;
+  } else {
+    const cleanHtml = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(htmlContent) : htmlContent;
+    div.innerHTML = `<div class="bubble">${cleanHtml}</div>`;
+  }
   chatContainer.appendChild(div);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }

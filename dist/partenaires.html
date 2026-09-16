@@ -21,8 +21,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" charset="utf-8"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" charset="utf-8"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" charset="utf-8"></script>
-    <script src="js/config.js" charset="utf-8"></script>
-    <script src="js/garage-pro.js" charset="utf-8"></script>
+    <script type="module" src="/js/config.js" charset="utf-8"></script>
+    <script type="module" src="/js/garage-pro.js" charset="utf-8"></script>
 
     <script>
       // Initialisation de Firebase
@@ -158,7 +158,8 @@
       .modal-content input:focus { border-color: var(--neon-cyan); outline: none; box-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
       #siret-result { margin-top: var(--space-md); font-size: var(--text-sm); }
     </style>
-    <link rel="stylesheet" crossorigin href="/assets/design-system-O8N8s65g.css">
+    <script type="module" crossorigin src="/assets/modulepreload-polyfill-Dezn_h7o.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/design-system-2q-fbcwT.css">
   </head>
   <body>
     <!-- Login Wall -->

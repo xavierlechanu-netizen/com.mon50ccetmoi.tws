@@ -56,9 +56,16 @@ service cloud.firestore {
       allow update, delete: if false; // IMMUABILITE ABSOLUE
     }
 
-    // Coffre-fort ANTS : Sanctuaire absolu
+    // Coffre-fort ANTS : Sanctuaire absolu (validation de schéma renforcée)
     match /ants_wallet/{walletId} {
-      allow read, write: if isOwner(walletId);
+      allow read: if isOwner(walletId);
+      allow create: if isOwner(walletId)
+        && request.resource.data.keys().hasOnly(['permis', 'carte_grise', 'assurance', 'controle_technique', 'updated_at'])
+        && request.resource.data.updated_at == request.time;
+      allow update: if isOwner(walletId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['permis', 'carte_grise', 'assurance', 'controle_technique', 'updated_at'])
+        && request.resource.data.updated_at == request.time;
+      allow delete: if false; // Les documents ANTS ne doivent jamais être supprimés
     }
 
     // OBD-II Sessions (Historique des balades)
@@ -70,7 +77,7 @@ service cloud.firestore {
 
     // Gamification Stats (XP, Badges, Rangs)
     match /gamification_stats/{userId} {
-      allow read: if isSignedIn() && isOwner(userId);
+      allow read: if isSignedIn();
       allow create: if isSignedIn() && isOwner(userId);
       allow update: if isSignedIn() && isOwner(userId)
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['xp'])
@@ -113,9 +120,9 @@ service cloud.firestore {
       allow write: if isSignedIn() && getUsername() == username;
     }
 
-    // Humeurs / Ticker Social (Moods)
+    // Humeurs / Ticker Social (Moods) — Lecture authentifiée uniquement (OWASP A01)
     match /moods/{moodId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow create: if isSignedIn() && getUsername() == request.resource.data.username;
       allow delete: if isAdmin();
     }
@@ -257,12 +264,8 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Cahier d'Entretien Digital (Logs d'intervention)
-    match /maintenance_logs/{logId} {
-      allow read: if true; // Lecture publique pour afficher le compteur d'interventions global
-      allow create: if isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isCertifiedGarage == true; // Seul un garage certifié peut créer un log
-      allow update, delete: if isAdmin(); // Inaltérable sauf par admin
-    }
+    // Cahier d'Entretien Digital — Règle déplacée en section unifiée (voir L428+)
+    // (Doublon supprimé pour éviter les conflits de règles Firestore)
 
     // ─────────────────────────────────────────────────────────────
     // CREWS & TERRITORIES (Guerre de Territoire)
@@ -283,7 +286,13 @@ service cloud.firestore {
 
     match /territory_sectors/{sectorId} {
       allow read: if true;
-      allow write: if isSignedIn();
+      // OWASP A01 : écriture restreinte au leader du crew propriétaire ou admin
+      allow create: if isSignedIn() && isAdmin();
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        (resource.data.ownerCrewId != null && get(/databases/$(database)/documents/crews/$(resource.data.ownerCrewId)).data.leaderUid == request.auth.uid)
+      );
+      allow delete: if isAdmin();
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -292,7 +301,9 @@ service cloud.firestore {
     match /loot_drops/{lootId} {
       allow read: if isSignedIn();
       allow create: if isAdmin();
-      allow update: if isSignedIn();
+      // OWASP A01 : seul l'admin peut modifier un loot. Les utilisateurs ne peuvent que le "claim"
+      // via une Cloud Function sécurisée qui valide la position GPS.
+      allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 
@@ -306,7 +317,9 @@ service cloud.firestore {
       allow delete: if isSignedIn() && (request.auth.uid == resource.data.leaderId || isAdmin());
       
       match /members/{memberId} {
-        allow read, write: if isSignedIn();
+        allow read: if isSignedIn();
+        // OWASP A01 : un membre ne peut écrire que sa propre entrée de position
+        allow write: if isSignedIn() && request.auth.uid == memberId;
       }
     }
 
@@ -328,7 +341,11 @@ service cloud.firestore {
       allow update: if isSignedIn() && request.auth.uid == resource.data.authorUid;
       
       match /helpers/{helperId} {
-        allow read, write: if isSignedIn();
+        allow read: if isSignedIn();
+        // OWASP A01 : un helper ne peut écrire que sa propre entrée d'aide
+        allow create: if isSignedIn() && request.auth.uid == helperId;
+        allow update: if isSignedIn() && request.auth.uid == helperId;
+        allow delete: if false; // Les traces d'aide sont conservées
       }
     }
 

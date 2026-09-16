@@ -1,4 +1,4 @@
-﻿// --- LOOT DROPS (Chasse au Trésor) ---
+// --- LOOT DROPS (Chasse au Trésor) ---
 window.LootSystem = {
   lootMarkers: {}, // id -> google.maps.Marker
   claimDistance: 50, // mètres
@@ -42,18 +42,18 @@ window.LootSystem = {
     // Clean existing
     this.removeLoot(lootId);
 
-    const m = new google.maps.Marker({
+    const lootIcon = document.createElement("div");
+    lootIcon.style.width = "16px";
+    lootIcon.style.height = "16px";
+    lootIcon.style.backgroundColor = "#ffd700";
+    lootIcon.style.border = "2px solid #fff";
+    lootIcon.style.borderRadius = "50%";
+
+    const m = new window.googleLibraries.AdvancedMarkerElement({
       position: { lat: data.lat, lng: data.lng },
       map: map,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        fillColor: "#ffd700", // Gold
-        fillOpacity: 1,
-        strokeColor: "#fff",
-        strokeWeight: 2,
-        scale: 8,
-      },
       title: "Loot Drop",
+      content: lootIcon,
     });
 
     const info = new google.maps.InfoWindow({
@@ -70,7 +70,7 @@ window.LootSystem = {
 
   removeLoot: function (lootId) {
     if (this.lootMarkers[lootId]) {
-      this.lootMarkers[lootId].setMap(null);
+      this.lootMarkers[lootId].map = null;
       delete this.lootMarkers[lootId];
     }
   },
@@ -84,7 +84,7 @@ window.LootSystem = {
     );
 
     for (const [lootId, marker] of Object.entries(this.lootMarkers)) {
-      const lootPos = marker.getPosition();
+      const lootPos = new google.maps.LatLng(marker.position.lat, marker.position.lng);
       const dist = google.maps.geometry.spherical.computeDistanceBetween(
         pos,
         lootPos,

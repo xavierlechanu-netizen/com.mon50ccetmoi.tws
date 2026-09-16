@@ -219,8 +219,7 @@ history.pushState(null, null, window.location.pathname);
 let map;
 let geocoder;
 let trafficLayer;
-let directionsService;
-let directionsRenderer;
+
 let userMarker = null;
 let accuracyCircle = null;
 let currentPosition = null;
@@ -397,6 +396,7 @@ window.initMapController = async function () {
     map = new Map(mapElement, {
       center: { lat: 48.8566, lng: 2.3522 },
       zoom: 16,
+      mapId: (typeof CONFIG !== 'undefined' && CONFIG?.MAPS?.MAP_ID) ? CONFIG.MAPS.MAP_ID : "DEMO_MAP_ID",
       styles: window.isLiteMode ? [] : GOOGLE_MAPS_STYLE, // Retirer style lourd en lite
       disableDefaultUI: true,
       zoomControl: false,
@@ -410,24 +410,9 @@ window.initMapController = async function () {
     trafficLayer.setMap(map);
     try {
       const routesLib = await google.maps.importLibrary("routes");
-      if (routesLib.DirectionsService && routesLib.DirectionsRenderer) {
-        directionsService = new routesLib.DirectionsService();
-        directionsRenderer = new routesLib.DirectionsRenderer({
-          map: map,
-          suppressMarkers: true,
-          polylineOptions: {
-            strokeColor: "#00f2ff",
-            strokeOpacity: 0.8,
-            strokeWeight: 6,
-          },
-        });
-      } else {
-        console.warn(
-          "mon50cc Maps : DirectionsService non disponible dans routesLib.",
-        );
-      }
+      window.googleLibraries.routes = routesLib;
     } catch (e) {
-      console.warn("mon50cc Maps : Erreur initialisation DirectionsService");
+      console.warn("mon50cc Maps : Erreur initialisation Routes API");
     }
 
     // Autocomplete Classique pour le Départ
@@ -1386,22 +1371,15 @@ function updatePosition(position) {
       iconContent.innerHTML = `<div style="background-color: #1a1a1a; color: ${color}; font-size: 16px; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; border: 2px solid white; box-shadow: ${shadow}; transition: all 0.5s ease;"><i class="fa-solid ${vehicleIcon}"></i></div>`;
 
       try {
-        if (false) {
-          // AdvancedMarkerElement removed due to mapId styling conflict
+        if (!window.googleLibraries || !window.googleLibraries.AdvancedMarkerElement) {
+           console.warn("AdvancedMarkerElement not loaded, map might not show user marker correctly.");
         } else {
-          userMarker = new google.maps.Marker({
-            map: map,
-            position: currentPosition,
-            title: "Votre Position",
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 10,
-              fillColor: color,
-              fillOpacity: 1,
-              strokeColor: "white",
-              strokeWeight: 2,
-            },
-          });
+           userMarker = new window.googleLibraries.AdvancedMarkerElement({
+             map: map,
+             position: currentPosition,
+             title: "Votre Position",
+             content: iconContent,
+           });
         }
       } catch (e) {
         console.error("Marker init fail", e);

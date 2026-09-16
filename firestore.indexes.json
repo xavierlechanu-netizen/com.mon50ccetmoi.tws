@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "loot_drops",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isClaimed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "expiresAt",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

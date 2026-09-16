@@ -57,6 +57,34 @@ function runCinematicStartup() {
   }, 2000);
 }
 
+window.showToast = function(message, type = 'success') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+
+  const iconClass = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-info-circle';
+  
+  const cleanMsg = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(message) : message;
+  toast.innerHTML = `<i class="fa-solid ${iconClass}"></i> <span>${cleanMsg}</span>`;
+  
+  container.appendChild(toast);
+
+  if (navigator.vibrate) {
+      navigator.vibrate(type === 'error' ? [50, 50, 50] : 50);
+  }
+
+  setTimeout(() => {
+    if (toast.parentElement) toast.remove();
+  }, 4300);
+};
+
 // Fail-safe Loader removal (after 5s)
 setTimeout(() => {
   const loader = document.getElementById("app-loader");

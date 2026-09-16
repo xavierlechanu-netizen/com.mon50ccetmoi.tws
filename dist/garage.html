@@ -22,13 +22,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" charset="utf-8"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" charset="utf-8"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" charset="utf-8"></script>
-    <script src="js/config.js" charset="utf-8"></script>
-    <script src="js/database.js" charset="utf-8"></script>
+    <script type="module" src="/js/config.js" charset="utf-8"></script>
+    <script type="module" src="/js/database.js" charset="utf-8"></script>
     <script>
       firebase.initializeApp(CONFIG.FIREBASE);
       initDatabase();
     </script>
-    <script src="js/crypto-native.js" charset="utf-8"></script>
+    <script type="module" src="/js/crypto-native.js" charset="utf-8"></script>
 
 
     <style>
@@ -409,8 +409,9 @@
         .stats-bar { flex-direction: column; }
       }
     </style>
-    <script src="js/error-tracking.js?v=1009000"></script>
-    <link rel="stylesheet" crossorigin href="/assets/design-system-O8N8s65g.css">
+    <script type="module" src="/js/error-tracking.js?v=1009000"></script>
+    <script type="module" crossorigin src="/assets/modulepreload-polyfill-Dezn_h7o.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/design-system-2q-fbcwT.css">
   </head>
   <body>
     <!-- Background Grid -->
@@ -540,7 +541,7 @@
     </div>
 
     <!-- Load garage-pro.js for registration modal -->
-    <script src="js/garage-pro.js"></script>
+    <script type="module" src="/js/garage-pro.js"></script>
 
     <script>
       /**

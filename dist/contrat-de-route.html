@@ -16,7 +16,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="dist/js/config.js"></script>
     <script>
       if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
         if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
@@ -319,6 +318,8 @@
         .contrats-grid { padding: 0 16px 40px; }
       }
     </style>
+    <script type="module" crossorigin src="/assets/modulepreload-polyfill-Dezn_h7o.js"></script>
+    <script type="module" crossorigin src="/assets/config-S5ZR84_b.js"></script>
   </head>
   <body>
     <div class="page-header">
@@ -346,6 +347,6 @@
 
     <div id="toast"></div>
 
-    <script src="js/contrat-de-route.js" defer></script>
+    <script type="module" src="/js/contrat-de-route.js" defer></script>
   </body>
 </html>

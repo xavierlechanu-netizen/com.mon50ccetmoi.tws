@@ -22,7 +22,7 @@
     <meta name="apple-mobile-web-app-title" content="mon 50cc et moi" />
 
     <!-- WATCHDOG ANTI-CRASH -->
-    <script src="js/infallible.js" charset="utf-8"></script>
+    <script type="module" src="/js/infallible.js" charset="utf-8"></script>
     <script>
       // Sécurité immédiate : Redirection si banni définitivement
       try {
@@ -146,18 +146,18 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" charset="utf-8"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" charset="utf-8"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-appcheck-compat.js" charset="utf-8"></script>
-
+    
     <!-- Firebase Analytics -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js" charset="utf-8"></script>
 
     <link rel="manifest" href="manifest.json" />
     <title>mon 50cc et moi | v109.00.00</title>
     <!-- Config chargé via config.js -->
-    <script src="js/config.js?v=60019"></script>
-    <script defer src="js/mon50cc-bundle.js" charset="utf-8"></script>
-    <script src="js/error-tracking.js?v=1008000"></script>
-
-    <script src="js/oracle-voice.js?v=60019"></script>
+    <script type="module" src="/js/config.js?v=60019"></script>
+    <script type="module" src="/js/bvc-manager.js?v=1"></script>
+    <script type="module" src="/js/error-tracking.js?v=1008000"></script>
+    <script type="module" src="/js/nexus-atlas-gemini.js?v=1000"></script>
+    <script type="module" src="/js/oracle-voice.js?v=60019"></script>
     <!-- Chargeur Dynamique Google Maps avec Gestion d'Erreur -->
     <script>
       window.mapsSDKLoaded = false;
@@ -293,7 +293,7 @@
       window.addEventListener("load", () => {
         // TENTATIVE DE CHARGEMENT DE GOOGLE MAPS (Priorité)
         loadMapsSDK();
-
+        
         // Timeout de sécurité : si Maps ne charge pas en 5s, on force le fallback
         setTimeout(() => {
           if (!window.mapsSDKLoaded) {
@@ -353,6 +353,11 @@
         });
       };
     </script>
+    <script type="module" defer src="/js/vehicle-config.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/beyond-maps.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/self-evolution.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/gamification.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/radar-social.js" charset="utf-8"></script>
 
     <!-- GAMIFICATION HUD -->
     <div id="gamification-hud" class="gami-hud-cyber">
@@ -383,7 +388,16 @@
     <!-- FUN MODE / SENSATION BUTTON -->
 
     <!-- MODULES ADDITIONNELS (defer = chargés après le DOM) -->
-
+    <script type="module" defer src="/js/crews-territory.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/loot-drops.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/cortege-mode.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/safe-ride.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/garage-market.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/crew-chat.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/sos-community.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/roadbooks.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/pit-stops.js" charset="utf-8"></script>
+    <script type="module" defer src="/js/privacy-manager.js" charset="utf-8"></script>
     <script>
       try {
         window.session =
@@ -392,6 +406,7 @@
             : { username: "Pilote", isGuest: true };
       } catch (e) {}
     </script>
+    <script type="module" crossorigin src="/assets/modulepreload-polyfill-Dezn_h7o.js"></script>
   </head>
   <body style="margin: 0; padding: 0; background: #000; overflow: hidden">
     <!-- APEX SENTINEL: Holographic Quantum Background -->
@@ -2225,6 +2240,8 @@
       </p>
     </div>
 
+    <script type="module" src="/js/tim-cook.js" charset="utf-8"></script>
+
     <!-- INSURER PORTAL SCREEN (B2B) -->
     <div
       id="insurer-portal-screen"
@@ -3397,8 +3414,35 @@
     </div>
 
     <!-- CORE APP (chargé en premier, sans defer) -->
+    <script type="module" src="/js/auth.js" charset="utf-8"></script>
+    <script type="module" src="/js/database.js" charset="utf-8"></script>
+    <script type="module" src="/js/app-core.js" charset="utf-8"></script>
+    <script type="module" src="/js/app-map.js" charset="utf-8"></script>
+    <script type="module" src="/js/app-features.js" charset="utf-8"></script>
+    <script type="module" src="/js/app-ui.js" charset="utf-8"></script>
+    <script type="module" src="/js/app-wallet.js" charset="utf-8"></script>
 
+    <script type="module" src="/js/silicon-valley.js" charset="utf-8"></script>
+    <script type="module" src="/js/nexus-atlas-voice.js" charset="utf-8"></script>
+    <script type="module" src="/js/community-gas.js" charset="utf-8"></script>
+    <script type="module" src="/js/leaderboard.js" charset="utf-8"></script>
+    <script type="module" src="/js/v3-smartcity.js" charset="utf-8"></script>
+    <script type="module" src="/js/carbon-trading.js" charset="utf-8"></script>
+    <script type="module" src="/js/rgpd-cnil.js" charset="utf-8"></script>
+    <script type="module" src="/js/litigation-ai.js" charset="utf-8"></script>
+    <script type="module" src="/js/insurance-portal.js" charset="utf-8"></script>
+    <script type="module" src="/js/anti-theft.js" charset="utf-8"></script>
+    <script type="module" src="/js/meca-wizard.js" charset="utf-8"></script>
+    <script type="module" src="/js/obd-bluetooth.js" charset="utf-8"></script>
+    <script type="module" src="/js/ar-navigation.js" charset="utf-8"></script>
+    <script type="module" src="/js/weather-assistant.js" charset="utf-8"></script>
+    <script type="module" src="/js/social-radar.js" charset="utf-8"></script>
+    <script type="module" src="/js/referral.js" charset="utf-8"></script>
     <!-- Nouveaux modules InsurTech & Sécurité -->
+    <script type="module" src="/js/driving-score.js" charset="utf-8"></script>
+    <script type="module" src="/js/danger-zones.js" charset="utf-8"></script>
+    <script type="module" src="/js/accident-report.js" charset="utf-8"></script>
+    <script type="module" src="/js/weather-alert.js" charset="utf-8"></script>
 
     <!-- MECA-WIZARD MODAL -->
     <div
@@ -3453,6 +3497,10 @@
     ></div>
 
     <!-- CORE MODULES -->
+    <script type="module" src="/js/web4-mining.js" charset="utf-8"></script>
+    <script type="module" src="/js/insurer-portal.js" charset="utf-8"></script>
+    <script type="module" src="/js/zero-trust.js" charset="utf-8"></script>
+    <script type="module" src="/js/esg-telemetry.js" charset="utf-8"></script>
 
     <script>
       // INIT APEX SENTINEL
@@ -5002,7 +5050,7 @@
             <i class="fa-solid fa-download"></i> PDF
           </button>
         </h3>
-
+        
         <div id="maintenance-logs-container" style="display:flex; flex-direction:column; gap:10px;">
           <div style="text-align:center; padding:20px; color:#888; border:1px dashed #333; border-radius:10px; font-size:0.9rem;">
             <i class="fa-solid fa-spinner fa-spin"></i> Synchronisation Blockchain...
@@ -5166,6 +5214,15 @@
       }
     </style>
 
+    <script type="module" src="/js/garage.js" charset="utf-8"></script>
+    <script type="module" src="/js/safe-rider.js" charset="utf-8"></script>
+    <script type="module" src="/js/convoy.js" charset="utf-8"></script>
+    <script type="module" src="/js/exchange.js" charset="utf-8"></script>
+    <script type="module" src="/js/legal-database.js" charset="utf-8"></script>
+    <script type="module" src="/js/pocket-lawyer.js" charset="utf-8"></script>
+    <script type="module" src="/js/badwords.js" charset="utf-8"></script>
+    <script type="module" src="/js/nexus-atlas-chat.js" charset="utf-8"></script>
+
     <!-- Nexus Atlas Security: Masquage OBD-II pour les US (Conformité matérielle) -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
@@ -5203,11 +5260,11 @@
       <button onclick="document.getElementById('blackbox-ui-panel').classList.add('hidden');" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;">
         <i class="fa-solid fa-times"></i>
       </button>
-
+      
       <i class="fa-solid fa-microchip" style="font-size: 3rem; color: #ff3333; margin-bottom: 15px; filter: drop-shadow(0 0 10px #ff3333);"></i>
       <h3 style="color: #fff; margin: 0 0 5px; font-family: 'Inter', sans-serif;">Boîte Noire Officielle</h3>
       <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 20px;">Connexion BLE sécurisée (AES-256)</p>
-
+      
       <div style="display: flex; justify-content: space-around; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px;">
         <div style="text-align: center;">
           <i class="fa-solid fa-battery-half" style="color: #00ff88; font-size: 1.2rem;"></i>
@@ -5227,7 +5284,7 @@
       <div style="margin-top: 20px; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
         <h4 style="color: #ffaa00; margin: 0 0 10px; font-family: 'Inter', sans-serif;"><i class="fa-solid fa-gem"></i> Sentinel Care</h4>
         <p style="color: #ccc; font-size: 0.8rem; margin-bottom: 15px;">Remplacement gratuit du matériel en fin de vie.<br><strong style="color: #00ff88;">1ère année incluse à l'achat du boîtier !</strong></p>
-
+        
         <div style="display: flex; flex-direction: column; gap: 10px;">
           <button onclick="window.Wallet && window.Wallet.createRevolutOrder('BLACKBOX_CARE_MONTHLY')" style="background: rgba(255, 170, 0, 0.2); color: #ffaa00; border: 1px solid #ffaa00; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">
             S'abonner - 5.00€ / mois
@@ -5269,6 +5326,7 @@
       </button>
     </div>
 
+    <script type="module" src="/js/blackbox-ble.js" charset="utf-8"></script>
     <script>
       // Binding UI pour la Boîte Noire
       document.addEventListener('DOMContentLoaded', () => {

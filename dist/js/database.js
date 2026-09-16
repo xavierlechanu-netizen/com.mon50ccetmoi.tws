@@ -28,6 +28,19 @@ function initDatabase() {
     }
     db = firebase.firestore();
 
+    // Connexion aux émulateurs en environnement local pour éviter de toucher à la production
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      try {
+        db.useEmulator('localhost', 8080);
+        if (typeof firebase.auth === 'function') {
+          firebase.auth().useEmulator('http://localhost:9099');
+        }
+        console.log("[FIREBASE] Connecté aux émulateurs locaux (Firestore/Auth).");
+      } catch (e) {
+        console.warn("[FIREBASE] Émulateur déjà initialisé ou non disponible.", e);
+      }
+    }
+
     // Démarrer l'écoute temps réel des dangers
     syncHazards();
     // Démarrer l'écoute des autres pilotes

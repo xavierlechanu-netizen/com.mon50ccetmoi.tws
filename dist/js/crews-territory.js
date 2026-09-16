@@ -208,21 +208,21 @@ window.CrewSystem = {
     if (!map || !this.currentCrew) return;
 
     if (this.qgMarker) {
-      this.qgMarker.setMap(null);
+      this.qgMarker.map = null;
     }
 
-    this.qgMarker = new google.maps.Marker({
+    const qgIcon = document.createElement("div");
+    qgIcon.style.width = "16px";
+    qgIcon.style.height = "16px";
+    qgIcon.style.backgroundColor = this.currentCrew.color;
+    qgIcon.style.border = "2px solid #fff";
+    qgIcon.style.borderRadius = "50%";
+
+    this.qgMarker = new window.googleLibraries.AdvancedMarkerElement({
       position: { lat: lat, lng: lng },
       map: map,
-      icon: {
-        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-        fillColor: this.currentCrew.color,
-        fillOpacity: 1,
-        strokeColor: "#fff",
-        strokeWeight: 2,
-        scale: 6,
-      },
       title: `QG: ${this.currentCrew.name}`,
+      content: qgIcon,
     });
 
     const info = new google.maps.InfoWindow({

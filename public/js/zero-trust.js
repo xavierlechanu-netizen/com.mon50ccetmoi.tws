@@ -71,8 +71,9 @@ const ZeroTrust = {
       const widthThreshold = window.outerWidth - window.innerWidth > 160;
       const heightThreshold = window.outerHeight - window.innerHeight > 160;
       if (widthThreshold || heightThreshold) {
-        console.warn("[ZERO-TRUST] DevTools potentially open.");
-        this.threatLevel += 5;
+        // Disabled for development convenience
+        // console.warn("[ZERO-TRUST] DevTools potentially open.");
+        // this.threatLevel += 5;
       }
     }, 3000);
 

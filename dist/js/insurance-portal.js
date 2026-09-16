@@ -187,14 +187,20 @@ window.InsurancePortal = {
     }
 
     const instance = await RevolutCheckout(orderData.order_token, "prod");
-    // Mode production activé — anciennement 'sandbox'
+    
+    // Vider le texte de chargement
+    const container = document.getElementById("revolut-pay-button-container");
+    if (container) {
+        container.innerHTML = "";
+    }
 
-    instance.payWithPopup({
+    // Utilisation de Revolut Pay (bouton natif) au lieu de la popup classique
+    instance.revolutPay({
+      target: document.getElementById("revolut-pay-button-container"),
       onSuccess: () => {
         speak("Paiement Revolut confirmé. Vérification en cours.");
         this.renderRevolutPendingConfirmation(caseId, orderData.order_id);
         // Le webhook Revolut va débloquer le rapport dans Firestore.
-        // On poll Firebase toutes les 3s pour détecter la confirmation.
         this.pollPaymentConfirmation(caseId);
       },
       onError: (message) => {
@@ -289,31 +295,17 @@ window.InsurancePortal = {
                             <i class="fa-solid fa-lock" style="color:#7c4dff; font-size:1.8rem;"></i>
                         </div>
                         <h3>Paiement Sécurisé</h3>
-                        <p style="color:#aaa; font-size:0.82rem;">Préparation du checkout <strong style="color:#fff;">Revolut</strong>…</p>
+                        <p style="color:#aaa; font-size:0.82rem;">Préparation de <strong style="color:#fff;">Revolut Pay</strong>…</p>
                     </div>
                     <div class="revolut-amount-badge">
                         <span class="revolut-amount-value">${price.toFixed(2)} €</span>
                         <span class="revolut-amount-label">Rapport Assurance certifié — ${caseId}</span>
                     </div>
-                    <div class="ai-progress-bar" style="margin-top:20px;">
-                        <div class="ai-progress-fill revolut-progress" style="width:30%;"></div>
+                    <div id="revolut-pay-button-container" style="margin-top:20px; min-height:50px; display:flex; justify-content:center; align-items:center;">
+                        <p class="ai-status-text" id="revolut-status-txt">Génération du lien de paiement…</p>
                     </div>
-                    <p class="ai-status-text" id="revolut-status-txt">Création de l'ordre de paiement…</p>
                 </div>
             </div>`;
-    // Animation de la barre
-    setTimeout(() => {
-      const fill = content.querySelector(".revolut-progress");
-      const txt = content.querySelector("#revolut-status-txt");
-      if (fill) fill.style.width = "70%";
-      if (txt) txt.textContent = "Connexion à Revolut Merchant…";
-    }, 800);
-    setTimeout(() => {
-      const fill = content.querySelector(".revolut-progress");
-      const txt = content.querySelector("#revolut-status-txt");
-      if (fill) fill.style.width = "90%";
-      if (txt) txt.textContent = "Ouverture du checkout…";
-    }, 1800);
   },
 
   renderRevolutPendingConfirmation(caseId, orderId) {

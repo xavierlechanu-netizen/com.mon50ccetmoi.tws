@@ -75,7 +75,8 @@ window.ExchangeMarket = {
    */
   listenToListings: function () {
     if (!window.db) {
-      console.warn("[ExchangeMarket] Firestore non disponible.");
+      console.warn("[ExchangeMarket] Firestore non disponible. Nouvelle tentative dans 1s...");
+      setTimeout(() => this.listenToListings(), 1000);
       return;
     }
 

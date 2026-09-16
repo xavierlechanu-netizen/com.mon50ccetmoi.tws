@@ -1,4 +1,4 @@
-﻿/* --- SQUAD RADAR / SOCIAL MAP --- */
+/* --- SQUAD RADAR / SOCIAL MAP --- */
 
 window.ghostRiders = [];
 window.isSocialRadarActive = false;
@@ -54,18 +54,18 @@ window.initSocialRadar = function () {
             existingRider.marker.setPosition({ lat: data.lat, lng: data.lng });
           } else {
             // Créer un nouveau marqueur
-            let marker = new google.maps.Marker({
+            const socialIcon = document.createElement("div");
+            socialIcon.style.width = "16px";
+            socialIcon.style.height = "16px";
+            socialIcon.style.backgroundColor = "#00d2ff";
+            socialIcon.style.border = "2px solid #fff";
+            socialIcon.style.borderRadius = "50%";
+
+            let marker = new window.googleLibraries.AdvancedMarkerElement({
               position: { lat: data.lat, lng: data.lng },
               map: window.isSocialRadarActive ? window.map : null,
-              icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 8,
-                fillColor: "#00d2ff",
-                fillOpacity: 1,
-                strokeColor: "#fff",
-                strokeWeight: 2,
-              },
               title: data.pseudo,
+              content: socialIcon,
             });
 
             let infoWindow = new google.maps.InfoWindow({
@@ -90,7 +90,7 @@ window.initSocialRadar = function () {
             (r) => r.uid === uid,
           );
           if (existingIndex > -1) {
-            window.ghostRiders[existingIndex].marker.setMap(null);
+            window.ghostRiders[existingIndex].marker.map = null;
             window.ghostRiders.splice(existingIndex, 1);
           }
         }

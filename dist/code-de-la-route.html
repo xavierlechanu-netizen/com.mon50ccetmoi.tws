@@ -16,7 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
-    <script src="js/config.js"></script>
+    <script type="module" src="/js/config.js"></script>
     <script>
       if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
         if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
@@ -25,8 +25,8 @@
       }
     </script>
     
-    <script src="js/crypto-native.js" charset="utf-8"></script>
-    <script src="js/code-de-la-route.js" defer></script>
+    <script type="module" src="/js/crypto-native.js" charset="utf-8"></script>
+    <script type="module" src="/js/code-de-la-route.js" defer></script>
 
     <style>
       :root {
@@ -319,6 +319,7 @@
       ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
       ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
     </style>
+    <script type="module" crossorigin src="/assets/modulepreload-polyfill-Dezn_h7o.js"></script>
   </head>
   <body>
     <!-- AI Act Compliance -->

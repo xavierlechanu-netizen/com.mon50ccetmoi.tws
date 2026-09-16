@@ -1,4 +1,4 @@
-﻿// --- PIT STOPS INTELLIGENCE ---
+// --- PIT STOPS INTELLIGENCE ---
 window.PitStopSystem = {
   markers: {},
   isFuelLow: false,
@@ -38,18 +38,18 @@ window.PitStopSystem = {
 
     const isGas = data.type === "gas";
 
-    const m = new google.maps.Marker({
+    const pitIcon = document.createElement("div");
+    pitIcon.style.width = "12px";
+    pitIcon.style.height = "12px";
+    pitIcon.style.backgroundColor = isGas ? "#ff0055" : "#00d2ff";
+    pitIcon.style.border = "2px solid #fff";
+    pitIcon.style.borderRadius = "50%";
+
+    const m = new window.googleLibraries.AdvancedMarkerElement({
       position: { lat: data.lat, lng: data.lng },
       map: map,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        fillColor: isGas ? "#ff0055" : "#00d2ff",
-        fillOpacity: 1,
-        strokeColor: "#fff",
-        strokeWeight: 2,
-        scale: 6,
-      },
       title: data.name,
+      content: pitIcon,
     });
 
     const info = new google.maps.InfoWindow({
@@ -67,7 +67,7 @@ window.PitStopSystem = {
 
   removePitStop: function (id) {
     if (this.markers[id]) {
-      this.markers[id].setMap(null);
+      this.markers[id].map = null;
       delete this.markers[id];
     }
   },

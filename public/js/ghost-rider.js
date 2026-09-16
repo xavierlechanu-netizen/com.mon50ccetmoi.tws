@@ -163,29 +163,34 @@ window.GhostRider = {
 
   showSOSMarkerOnMap: function (alert) {
     if (!map) return;
-    const marker = new google.maps.Marker({
+
+    const sosIcon = document.createElement("div");
+    sosIcon.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+    sosIcon.style.color = "white";
+    sosIcon.style.fontSize = "14px";
+    sosIcon.style.backgroundColor = "#ff4444";
+    sosIcon.style.border = "2px solid white";
+    sosIcon.style.borderRadius = "50%";
+    sosIcon.style.width = "24px";
+    sosIcon.style.height = "24px";
+    sosIcon.style.display = "flex";
+    sosIcon.style.alignItems = "center";
+    sosIcon.style.justifyContent = "center";
+
+    const marker = new window.googleLibraries.AdvancedMarkerElement({
       position: alert.pos,
       map: map,
-      icon: {
-        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-        scale: 8,
-        fillColor: "#ff4444",
-        fillOpacity: 1,
-        strokeWeight: 2,
-        rotation: 0, // Will pulse
-      },
       title: "SOS " + alert.username,
+      content: sosIcon,
     });
 
     let angle = 0;
     setInterval(() => {
       angle = (angle + 45) % 360;
-      const icon = marker.getIcon();
-      icon.rotation = angle;
-      marker.setIcon(icon);
+      sosIcon.style.transform = `rotate(${angle}deg)`;
     }, 500);
 
-    setTimeout(() => marker.setMap(null), 300000); // 5 mins
+    setTimeout(() => { marker.map = null; }, 300000); // 5 mins
   },
 };
 

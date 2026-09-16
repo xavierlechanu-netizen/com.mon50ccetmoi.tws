@@ -287,7 +287,13 @@ window.Gamification = {
 
 // Auto-init
 window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        window.Gamification.init();
-    }, 500);
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+        firebase.auth().onAuthStateChanged((user) => {
+            window.Gamification.init();
+        });
+    } else {
+        setTimeout(() => {
+            window.Gamification.init();
+        }, 500);
+    }
 });

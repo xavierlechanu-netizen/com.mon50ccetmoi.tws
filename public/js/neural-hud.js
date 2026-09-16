@@ -1,4 +1,4 @@
-﻿window.NeuralHUD = {
+window.NeuralHUD = {
   isNightVisionActive: false,
   tokenBalance: parseFloat(localStorage.getItem("mon50_tokens") || "0"),
   leanHistory: [],
@@ -492,18 +492,19 @@
     if (Math.random() > 0.95) {
       const lat = window.currentPosition.lat + (Math.random() - 0.5) * 0.005;
       const lng = window.currentPosition.lng + (Math.random() - 0.5) * 0.005;
-      const marker = new google.maps.Marker({
+      const interceptorIcon = document.createElement("div");
+      interceptorIcon.style.width = "8px";
+      interceptorIcon.style.height = "8px";
+      interceptorIcon.style.backgroundColor = "#00d2ff";
+      interceptorIcon.style.opacity = "0.6";
+      interceptorIcon.style.borderRadius = "50%";
+
+      const marker = new window.googleLibraries.AdvancedMarkerElement({
         position: { lat, lng },
         map: window.map,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 4,
-          fillColor: "#00d2ff",
-          fillOpacity: 0.6,
-          strokeWeight: 0,
-        },
+        content: interceptorIcon,
       });
-      setTimeout(() => marker.setMap(null), 5000);
+      setTimeout(() => marker.map = null, 5000);
     }
   },
 };

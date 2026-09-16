@@ -36,7 +36,7 @@ function initMap() {
   map = new google.maps.Map(document.getElementById('radar-map'), {
     center: defaultPos,
     zoom: 14,
-    mapId: CONFIG?.MAPS?.MAP_ID || undefined,
+    mapId: (typeof CONFIG !== 'undefined' && CONFIG?.MAPS?.MAP_ID) ? CONFIG.MAPS.MAP_ID : "DEMO_MAP_ID",
     disableDefaultUI: true,
     styles: darkMapStyle()
   });
@@ -60,20 +60,19 @@ function initMap() {
 function updateUserPosition(pos) {
   currentPosition = { lat: pos.coords.latitude, lng: pos.coords.longitude };
 
-  if (!userMarker) {
-    // Créer marqueur utilisateur
-    userMarker = new google.maps.Marker({
+    const userMarkerElement = document.createElement("div");
+    userMarkerElement.style.width = "20px";
+    userMarkerElement.style.height = "20px";
+    userMarkerElement.style.backgroundColor = "#00f0ff";
+    userMarkerElement.style.border = "2px solid #fff";
+    userMarkerElement.style.borderRadius = "50%";
+    userMarkerElement.style.boxShadow = "0 0 10px #00f0ff";
+
+    userMarker = new google.maps.marker.AdvancedMarkerElement({
       position: currentPosition,
-      map,
+      map: map,
       title: 'Ma position',
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 10,
-        fillColor: '#00f0ff',
-        fillOpacity: 1,
-        strokeColor: '#fff',
-        strokeWeight: 2,
-      },
+      content: userMarkerElement,
       zIndex: 999
     });
     map.setCenter(currentPosition);
@@ -110,19 +109,23 @@ function loadDangers() {
 
         // Marqueur carte
         if (d.lat && d.lng && map) {
-          const marker = new google.maps.Marker({
+          const dangerMarkerElement = document.createElement("div");
+          dangerMarkerElement.style.width = "32px";
+          dangerMarkerElement.style.height = "32px";
+          dangerMarkerElement.style.backgroundColor = type.color + "33";
+          dangerMarkerElement.style.border = "2px solid " + type.color;
+          dangerMarkerElement.style.borderRadius = "50%";
+          dangerMarkerElement.style.display = "flex";
+          dangerMarkerElement.style.alignItems = "center";
+          dangerMarkerElement.style.justifyContent = "center";
+          dangerMarkerElement.style.fontSize = "16px";
+          dangerMarkerElement.innerText = type.icon;
+
+          const marker = new google.maps.marker.AdvancedMarkerElement({
             position: { lat: d.lat, lng: d.lng },
-            map,
+            map: map,
             title: type.label,
-            label: { text: type.icon, fontSize: '20px' },
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 14,
-              fillColor: type.color,
-              fillOpacity: 0.2,
-              strokeColor: type.color,
-              strokeWeight: 2,
-            }
+            content: dangerMarkerElement,
           });
 
           const infoWindow = new google.maps.InfoWindow({

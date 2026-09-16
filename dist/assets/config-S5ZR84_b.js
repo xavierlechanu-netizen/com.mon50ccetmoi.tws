@@ -1,0 +1,10 @@
+atob(`QUl6YVN5Q05fZmV2VGlHOEF2V1B1RFMyS2NfV3B3bFlmRHk0azRN`),atob(`QUl6YVN5Q05fZmV2VGlHOEF2V1B1RFMyS2NfV3B3bFlmRHk0azRN`),window.secureSetItem===void 0&&(window.secureSetItem=function(e,t){try{localStorage.setItem(e,t)}catch(e){console.warn(`secureSetItem fallback error:`,e)}}),window.secureGetItem===void 0&&(window.secureGetItem=function(e){try{return localStorage.getItem(e)}catch{return null}}),window.secureSetItem,window.secureGetItem,document.addEventListener(`DOMContentLoaded`,function(){if(localStorage.getItem(`cookie_consent_accepted`)!==`true`){let e=document.createElement(`div`);e.id=`cookie-consent-banner`,e.style.cssText=`position:fixed; bottom:0; left:0; width:100%; background:#1a1a1a; color:white; padding:15px 20px; z-index:9999999; display:flex; justify-content:space-between; align-items:center; border-top:2px solid #ffb703; flex-wrap:wrap; box-sizing:border-box; font-family:'Inter', sans-serif;`,e.innerHTML=`
+      <div style="flex: 1 1 300px; margin-right: 15px; font-size: 0.9rem; margin-bottom: 10px;">
+        Nous utilisons des cookies strictement nécessaires pour assurer le bon fonctionnement de l'application (authentification, préférences locales). 
+        En continuant votre navigation, vous acceptez l'utilisation de ces traceurs fonctionnels. 
+        <a href="cookies.html" style="color:#ffb703; text-decoration:underline; font-weight:bold;">En savoir plus</a>
+      </div>
+      <button id="btn-accept-cookies" style="background:#ffb703; color:black; border:none; padding:10px 20px; border-radius:30px; font-weight:bold; cursor:pointer; white-space:nowrap; transition:transform 0.2s;">
+        J'ai compris
+      </button>
+    `,document.body.appendChild(e),document.getElementById(`btn-accept-cookies`).addEventListener(`click`,function(){localStorage.setItem(`cookie_consent_accepted`,`true`),e.style.display=`none`})}});

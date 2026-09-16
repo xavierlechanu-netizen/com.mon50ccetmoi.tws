@@ -47,10 +47,14 @@ class AssistantSinistreIA {
     let context = "Un conducteur de 50cc me signale un incident ou accident.";
     if (crashData) {
       context += ` Données boîte noire : vitesse ${crashData.speedAtImpact || '?'} km/h, force d'impact ${crashData.gForce || '?'}G.`;
+      if (crashData.location) {
+        context += ` Localisation GPS : ${crashData.location}.`;
+      }
       if (crashData.gForce >= 4) {
         context = "⚠️ ALERTE CRITIQUE : " + context + " L'impact est sévère. Priorise l'appel des secours.";
       }
     }
+    context += " N'hésite pas à me demander s'il y a d'autres véhicules impliqués pour t'aider à préparer le constat.";
 
     this.history.push({
       role: "user",
@@ -81,17 +85,35 @@ class AssistantSinistreIA {
 
       const idToken = await window.auth.currentUser.getIdToken(true);
 
-      const response = await fetch(SINISTRE_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${idToken}`
-        },
-        body: JSON.stringify({
-          history: this.history,
-          systemPrompt: SINISTRE_SYSTEM_PROMPT
-        })
-      });
+      let response;
+      let attempt = 0;
+      let maxAttempts = 2;
+      while (attempt < maxAttempts) {
+        attempt++;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+        try {
+          response = await fetch(SINISTRE_ENDPOINT, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${idToken}`
+            },
+            body: JSON.stringify({
+              history: this.history,
+              systemPrompt: SINISTRE_SYSTEM_PROMPT
+            }),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          break;
+        } catch (e) {
+          clearTimeout(timeoutId);
+          if (attempt >= maxAttempts) throw e;
+          console.warn(`[Assistant] Retry Gemini (${attempt}/${maxAttempts})...`, e);
+        }
+      }
 
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -132,9 +154,27 @@ function openAssistantSinistre(crashData = null) {
 
   // Lancer l'assistant
   showThinking();
+  playAlertSound();
   assistantInstance.start(crashData).then(response => {
     renderResponse(response);
   });
+}
+
+function playAlertSound() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.5);
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.5);
+  } catch(e) {}
 }
 
 function createModal() {
@@ -198,8 +238,9 @@ function renderResponse(response) {
   // Ajouter le message IA
   const msgDiv = document.createElement('div');
   msgDiv.className = 'sinistre-msg nexus';
-  // Le HTML vient de Gemini via notre Cloud Function authentifiée
-  msgDiv.innerHTML = `<div class="sinistre-bubble">${response.message}</div>`;
+  // Le HTML vient de Gemini via notre Cloud Function authentifiée, mais on l'assainit par précaution
+  const cleanHtml = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(response.message) : response.message;
+  msgDiv.innerHTML = `<div class="sinistre-bubble">${cleanHtml}</div>`;
   messages.appendChild(msgDiv);
   messages.scrollTop = messages.scrollHeight;
 
@@ -247,7 +288,8 @@ async function sendSinistreMessage() {
   const messages = document.getElementById('sinistre-messages');
   const userDiv = document.createElement('div');
   userDiv.className = 'sinistre-msg user';
-  userDiv.innerHTML = `<div class="sinistre-bubble">${text}</div>`;
+  userDiv.innerHTML = `<div class="sinistre-bubble"></div>`;
+  userDiv.querySelector('.sinistre-bubble').textContent = text; // Prévention XSS
   messages.appendChild(userDiv);
 
   showThinking();

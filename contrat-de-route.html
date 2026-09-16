@@ -16,7 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="dist/js/config.js"></script>
+    <script type="module" src="/dist/js/config.js"></script>
     <script>
       if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
         if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
@@ -346,6 +346,6 @@
 
     <div id="toast"></div>
 
-    <script src="js/contrat-de-route.js" defer></script>
+    <script type="module" src="/js/contrat-de-route.js" defer></script>
   </body>
 </html>

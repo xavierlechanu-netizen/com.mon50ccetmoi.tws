@@ -1,4 +1,4 @@
-﻿// --- MODE CORTÈGE (Balade Synchro) ---
+// --- MODE CORTÈGE (Balade Synchro) ---
 window.CortegeSystem = {
   sessionId: null,
   members: {}, // uid -> data (lat, lng, name, color)
@@ -115,7 +115,7 @@ window.CortegeSystem = {
           } else if (change.type === "removed") {
             delete this.members[uid];
             if (this.markers[uid]) {
-              this.markers[uid].setMap(null);
+              this.markers[uid].map = null;
               delete this.markers[uid];
             }
           }
@@ -129,16 +129,16 @@ window.CortegeSystem = {
     if (!map || uid === window.session.uid) return; // Don't draw ourselves
 
     if (!this.markers[uid]) {
-      this.markers[uid] = new google.maps.Marker({
+      const markerIcon = document.createElement("div");
+      markerIcon.style.width = "14px";
+      markerIcon.style.height = "14px";
+      markerIcon.style.backgroundColor = "#00ffcc";
+      markerIcon.style.border = "1px solid black";
+      markerIcon.style.borderRadius = "50%";
+
+      this.markers[uid] = new window.googleLibraries.AdvancedMarkerElement({
         map: map,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: "#00ffcc",
-          fillOpacity: 1,
-          scale: 7,
-          strokeColor: "black",
-          strokeWeight: 1,
-        },
+        content: markerIcon,
         title: data.name,
       });
       const info = new google.maps.InfoWindow({

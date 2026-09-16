@@ -41,11 +41,15 @@ class BlackBoxBLE {
     this.onTelemetryData = null;    // Callback Data
     this.onDiagnosticUpdate = null; // Callback UI
     
-    // Batching logic
+    // Batching logic : 3000 trames (~5 minutes à 10Hz) pour économiser Firestore
     this.telemetryBuffer = [];
-    this.MAX_BATCH_SIZE = 50;
+    this.MAX_BATCH_SIZE = 3000;
+    this.HARD_LIMIT_BUFFER = 10000; // Limite stricte pour éviter l'OOM
     this.batchTimeout = null;
-    this.BATCH_TIMEOUT_MS = 5000;
+    this.BATCH_TIMEOUT_MS = 300000;
+    
+    this.autoReconnectEnabled = false;
+    this.reconnectTimer = null;
   }
 
   buildUuid(shortHex) {
@@ -74,6 +78,7 @@ class BlackBoxBLE {
       console.log("[BLE] Connexion au serveur GATT...");
       this.server = await this.device.gatt.connect();
       this.isConnected = true;
+      this.autoReconnectEnabled = true; // Activer reconnexion auto
       if (this.onConnectionChange) this.onConnectionChange(true);
 
       await this.initializeServices();
@@ -172,8 +177,8 @@ class BlackBoxBLE {
   async handleFrameNotification(event) {
     const value = event.target.value;
     
-    // Si la trame fait au moins 16 octets (l'en-tête + début payload)
-    if (value.byteLength >= 16) {
+    // Si la trame fait au moins 32 octets (16 d'en-tête + 16 d'IV aléatoire + payload)
+    if (value.byteLength >= 32) {
         const timestamp = value.getUint32(0, true);
         const lat = value.getInt32(4, true) / 1e7;
         const lon = value.getInt32(8, true) / 1e7;
@@ -181,9 +186,10 @@ class BlackBoxBLE {
         
         console.log(`[BLE] Trame hybride reçue: TS=${timestamp}, Lat=${lat}, Lon=${lon}, Vitesse=${speed} km/h`);
         
-        // 1. Extraire uniquement la preuve chiffrée (à partir de l'octet 16)
+        // 1. Extraire l'IV aléatoire ET la preuve chiffrée (à partir de l'octet 16)
+        // Les octets 16 à 31 contiennent l'IV, le reste contient le payload AES-CBC.
         const encryptedLength = value.byteLength - 16;
-        if (encryptedLength <= 0) return; // Ignore les trames invalides
+        if (encryptedLength <= 16) return; // Ignore les trames sans payload
 
         const encryptedBytes = new Uint8Array(value.buffer, value.byteOffset + 16, encryptedLength);
         let binary = '';
@@ -232,15 +238,22 @@ class BlackBoxBLE {
               console.log(`[BLE] Batch de ${payloadsToUpload.length} trames stocké en Zero-Knowledge sur Firebase.`);
           } catch (error) {
               console.error(`[BLE] Erreur Firebase upload batch:`, error);
-              // Optionnel: On pourrait ré-insérer les trames échouées dans le buffer ici.
+              // Ré-insérer les trames échouées en début de buffer si la limite n'est pas atteinte
+              if (this.telemetryBuffer.length + payloadsToUpload.length <= this.HARD_LIMIT_BUFFER) {
+                  this.telemetryBuffer = payloadsToUpload.concat(this.telemetryBuffer);
+              } else {
+                  console.warn("[BLE] Hard limit mémoire atteinte. Perte de trames hors ligne.");
+              }
           }
       }
   }
 
   /**
-   * Déconnexion propre.
+   * Déconnexion propre (désactive auto-reconnect).
    */
   disconnect() {
+    this.autoReconnectEnabled = false;
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
     this.flushTelemetryBuffer();
     if (this.device && this.device.gatt.connected) {
       this.device.gatt.disconnect();
@@ -250,9 +263,32 @@ class BlackBoxBLE {
   handleDisconnection() {
     console.log("[BLE] Appareil déconnecté.");
     this.isConnected = false;
-    this.device = null;
     this.server = null;
     if (this.onConnectionChange) this.onConnectionChange(false);
+    
+    // Auto-reconnect
+    if (this.device && this.autoReconnectEnabled) {
+      console.log("[BLE] Tentative de reconnexion automatique dans 5s...");
+      this.reconnectTimer = setTimeout(() => this.reconnect(), 5000);
+    } else {
+      this.device = null;
+    }
+  }
+
+  async reconnect() {
+    if (!this.device) return;
+    try {
+      console.log("[BLE] Reconnexion au serveur GATT...");
+      this.server = await this.device.gatt.connect();
+      this.isConnected = true;
+      if (this.onConnectionChange) this.onConnectionChange(true);
+      await this.initializeServices();
+    } catch (e) {
+      console.error("[BLE] Échec de la reconnexion automatique :", e);
+      if (this.autoReconnectEnabled) {
+         this.reconnectTimer = setTimeout(() => this.reconnect(), 5000);
+      }
+    }
   }
 }
 

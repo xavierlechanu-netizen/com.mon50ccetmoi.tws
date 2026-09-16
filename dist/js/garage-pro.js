@@ -24,7 +24,7 @@ window.GaragePro = {
         if (doc.exists) {
           this.registeredCount = doc.data().count || 0;
         } else {
-          await statsRef.set({ count: 0 });
+          // Lecture uniquement. La création se fera via Admin SDK / Cloud Function.
           this.registeredCount = 0;
         }
       } else {

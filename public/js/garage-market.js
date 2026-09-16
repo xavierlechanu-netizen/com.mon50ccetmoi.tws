@@ -1,4 +1,4 @@
-﻿// --- GARAGE MARKET (Troc et Vente de pièces) ---
+// --- GARAGE MARKET (Troc et Vente de pièces) ---
 window.GarageMarket = {
   tradeMarkers: {},
 
@@ -42,18 +42,26 @@ window.GarageMarket = {
 
     const isWTB = data.type === "WTB"; // Want to buy
 
-    const m = new google.maps.Marker({
+    const markerColor = isWTB ? "#ffaa00" : "#00d2ff"; // Orange if searching, Blue if selling
+
+    const tradeIcon = document.createElement("div");
+    tradeIcon.innerHTML = `<i class="fa-solid fa-wrench"></i>`;
+    tradeIcon.style.color = "white";
+    tradeIcon.style.fontSize = "12px";
+    tradeIcon.style.display = "flex";
+    tradeIcon.style.alignItems = "center";
+    tradeIcon.style.justifyContent = "center";
+    tradeIcon.style.width = "20px";
+    tradeIcon.style.height = "20px";
+    tradeIcon.style.backgroundColor = markerColor;
+    tradeIcon.style.border = "2px solid #fff";
+    tradeIcon.style.borderRadius = "50%";
+
+    const m = new window.googleLibraries.AdvancedMarkerElement({
       position: { lat: data.lat, lng: data.lng },
       map: map,
-      icon: {
-        path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-        fillColor: isWTB ? "#ffaa00" : "#00d2ff", // Orange if searching, Blue if selling
-        fillOpacity: 1,
-        strokeColor: "#fff",
-        strokeWeight: 1,
-        scale: 6,
-      },
       title: data.title,
+      content: tradeIcon,
     });
 
     const typeStr = isWTB ? "RECHERCHE" : "À VENDRE";
@@ -73,7 +81,7 @@ window.GarageMarket = {
 
   removeTrade: function (tradeId) {
     if (this.tradeMarkers[tradeId]) {
-      this.tradeMarkers[tradeId].setMap(null);
+      this.tradeMarkers[tradeId].map = null;
       delete this.tradeMarkers[tradeId];
     }
   },

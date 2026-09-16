@@ -14,7 +14,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="dist/js/config.js"></script>
+    <script type="module" src="/dist/js/config.js"></script>
     <script>
       if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
         if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
@@ -878,8 +878,8 @@
       }
     </script>
 
-    <script src="dist/js/config.js"></script>
-    <script src="js/radar-danger.js" defer></script>
+    <script type="module" src="/dist/js/config.js"></script>
+    <script type="module" src="/js/radar-danger.js" defer></script>
     <!-- Google Maps API avec libraries=places,geometry pour Turn-by-Turn et Autocomplete -->
     <script>
       function loadGoogleMaps() {

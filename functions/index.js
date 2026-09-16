@@ -36,6 +36,7 @@ const METEO_FRANCE_API_KEY = defineSecret("METEO_FRANCE_API_KEY");
 const PISTE_CLIENT_ID = defineSecret("PISTE_CLIENT_ID");
 const PISTE_CLIENT_SECRET = defineSecret("PISTE_CLIENT_SECRET");
 const PISTE_API_KEY = defineSecret("PISTE_API_KEY");
+const PENNYLANE_API_KEY = defineSecret("PENNYLANE_API_KEY");
 
 // ─── Constantes API Revolut ─────────────────────────────────────────────────
 // PRODUCTION : merchant.revolut.com (anciennement sandbox-merchant.revolut.com)
@@ -66,6 +67,67 @@ async function verifyAuthToken(req) {
     } catch (e) {
         console.warn("[Auth] Token verification failed:", e.message);
         return null;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pennylane API Helper - Comptabilité et Facturation
+// ─────────────────────────────────────────────────────────────────────────────
+async function createPennylaneInvoice(orderData, userEmail, userName) {
+    const apiKey = PENNYLANE_API_KEY.value();
+    if (!apiKey) {
+        console.warn("[Pennylane] Clé API non configurée. Impossible de générer la facture.");
+        return;
+    }
+    
+    try {
+        console.log(`[Pennylane] Création facture pour l'ordre ${orderData.revolut_order_id}`);
+        // Payload API Pennylane V1
+        // L'API permet de créer le client (create_customer) à la volée.
+        const invoicePayload = {
+            create_customer: {
+                name: userName || "Client Inconnu",
+                emails: userEmail ? [userEmail] : []
+            },
+            date: new Date().toISOString().split('T')[0],
+            deadline: new Date().toISOString().split('T')[0],
+            line_items: [
+                {
+                    label: `Prestation mon50ccetmoi — ${orderData.report_type || "Standard"}`,
+                    price: orderData.amount_cents / 100, // Conversion centimes -> euros
+                    vat_rate: "20.00", // TVA standard FR 20%
+                    quantity: 1
+                }
+            ]
+        };
+
+        const response = await fetch("https://app.pennylane.com/api/v1/customer_invoices", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(invoicePayload)
+        });
+
+        if (!response.ok) {
+            const errBody = await response.text();
+            console.error("[Pennylane] Erreur API création facture :", response.status, errBody);
+        } else {
+            const invoice = await response.json();
+            console.log(`[Pennylane] ✅ Facture créée avec succès. ID : ${invoice.invoice?.id || invoice.id}`);
+            
+            // On stocke l'ID de la facture Pennylane dans Firestore pour un suivi complet
+            if (invoice.invoice && invoice.invoice.id) {
+                await db.collection("revolut_orders").doc(orderData.revolut_order_id).update({
+                    pennylane_invoice_id: invoice.invoice.id,
+                    pennylane_invoice_pdf: invoice.invoice.pdf_url || null
+                });
+            }
+        }
+    } catch (e) {
+        console.error("[Pennylane] Exception lors de la génération de la facture :", e);
     }
 }
 
@@ -294,6 +356,23 @@ exports.revolutWebhook = onRequest(
                 await batch.commit();
                 console.log(`[Revolut Webhook] ✅ Rapport débloqué pour dossier : ${caseId}`);
 
+                // 4. Génération de la facture Pennylane et des écritures comptables
+                try {
+                    let userEmail = "";
+                    let userName = "";
+                    if (orderData.user_id && orderData.user_id !== "unknown") {
+                        const userDoc = await db.collection("users").doc(orderData.user_id).get();
+                        if (userDoc.exists) {
+                            userEmail = userDoc.data().email || "";
+                            userName = userDoc.data().displayName || "";
+                        }
+                    }
+                    // Appel non-bloquant : on n'await pas pour répondre vite au webhook Revolut
+                    createPennylaneInvoice(orderData, userEmail, userName);
+                } catch (e) {
+                    console.error("[Revolut Webhook] Erreur déclenchement Pennylane :", e);
+                }
+
             } else if (eventType === "ORDER_PAYMENT_DECLINED" || event.state === "FAILED") {
                 await db.collection("revolut_orders").doc(orderId).update({
                     status:    "FAILED",
@@ -413,8 +492,38 @@ exports.deleteUserAccount = onRequest(
                 console.warn("[RGPD] Auth user not found or already deleted.");
             }
 
-            // Wipe User Data from Firestore
-            await db.collection("users").doc(user_id).delete();
+            // Wipe User Data from Firestore (Purge RGPD complète)
+            const batch = db.batch();
+            
+            batch.delete(db.collection("users").doc(user_id));
+            batch.delete(db.collection("fido_challenges").doc(user_id));
+            batch.delete(db.collection("ants_wallet").doc(user_id));
+            batch.delete(db.collection("rate_limits").doc(`gemini_${user_id}`));
+            
+            const fidoDocs = await db.collection("users").doc(user_id).collection("fido_credentials").get();
+            fidoDocs.forEach(doc => batch.delete(doc.ref));
+            
+            await batch.commit();
+
+            const queries = [
+                { coll: "revolut_orders", field: "user_id" },
+                { coll: "payment_confirmations", field: "user_id" },
+                { coll: "sos_alerts", field: "user_id" },
+                { coll: "sms_outbox", field: "user_id" },
+                { coll: "theft_alerts", field: "user_id" },
+                { coll: "telemetry_sessions", field: "uid" },
+                { coll: "blackbox_sessions", field: "uid" },
+                { coll: "hazards", field: "authorUid" }
+            ];
+
+            for (const q of queries) {
+                const snapshot = await db.collection(q.coll).where(q.field, "==", user_id).get();
+                if (!snapshot.empty) {
+                    const qBatch = db.batch();
+                    snapshot.forEach(doc => qBatch.delete(doc.ref));
+                    await qBatch.commit();
+                }
+            }
             
             console.log(`[RGPD] Account wiped completely for user ${user_id}`);
             return res.status(200).json({ success: true, message: "Account completely wiped (RGPD)" });
@@ -440,7 +549,25 @@ exports.checkPaymentStatus = onRequest(
         if (req.method === "OPTIONS") return res.status(204).send("");
 
         const { case_id, user_id } = req.query;
-        if (!case_id) return res.status(400).json({ error: "case_id requis" });
+        if (!case_id || !user_id) return res.status(400).json({ error: "case_id et user_id requis" });
+
+        // Rate limiter anti-polling abusif
+        const now = Date.now();
+        const rateLimitRef = db.collection("rate_limits").doc(`payment_poll_${user_id}`);
+        try {
+            const rateLimitDoc = await rateLimitRef.get();
+            const rateData = rateLimitDoc.exists ? rateLimitDoc.data() : null;
+            if (rateData && rateData.windowStart && (now - rateData.windowStart) < 60000) {
+                if (rateData.count >= 20) { // Max 20 requêtes par minute
+                    return res.status(429).json({ error: "Trop de requêtes. Veuillez patienter." });
+                }
+                await rateLimitRef.update({ count: admin.firestore.FieldValue.increment(1) });
+            } else {
+                await rateLimitRef.set({ windowStart: now, count: 1 });
+            }
+        } catch (rlErr) {
+            console.warn("[Rate Limit] Erreur non bloquante :", rlErr.message);
+        }
 
         try {
             const doc = await db.collection("payment_confirmations").doc(case_id).get();
@@ -767,78 +894,8 @@ exports.getVigilanceMeteo = onRequest(
             return res.status(200).json(data);
         } catch (error) {
             console.error("[Meteo] Erreur :", error.message);
-            return res.status(500).json({ error: "Erreur Météo-France" });
-        }
-    }
-);
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 4. uploadBlackboxTelemetry (Télémétrie Sécurisée - Zero Knowledge)
-// ─────────────────────────────────────────────────────────────────────────────
-exports.uploadBlackboxTelemetry = onCall(
-    { region: "europe-west1" },
-    async (request) => {
-        // 1. Vérification de l'authentification
-        if (!request.auth || !request.auth.uid) {
-            throw new HttpsError('unauthenticated', 'Vous devez être connecté pour synchroniser la télémétrie.');
-        }
-
-        const uid = request.auth.uid;
-        const { hardwareId, encryptedPayload, frameCount, timestamp, payloads } = request.data;
-
-        // 2. Validation des paramètres
-        if (!hardwareId || (!encryptedPayload && !payloads)) {
-            throw new HttpsError('invalid-argument', 'Paramètres manquants : hardwareId ou encryptedPayload/payloads.');
-        }
-
-        try {
-            // Rétrocompatibilité : transformer un payload unique en tableau
-            let framesToStore = [];
-            if (payloads && Array.isArray(payloads)) {
-                framesToStore = payloads;
-            } else if (encryptedPayload) {
-                framesToStore = [{
-                    encryptedPayload: encryptedPayload,
-                    timestamp: timestamp || 0,
-                    frameCount: frameCount || 0
-                }];
-            }
-
-            // 3. Stockage dans Google Cloud Storage (architecture Zero-Knowledge - Batching)
-            // Le cloud ne déchiffre RIEN. Les trames brutes vont dans GCS pour économiser Firestore.
-            const bucket = admin.storage().bucket();
-            const timestampMs = Date.now();
-            const gcsFileName = `telemetry/${uid}/${hardwareId}_${timestampMs}.json`;
-            const file = bucket.file(gcsFileName);
-            
-            const fileContent = JSON.stringify({
-                hardwareId: hardwareId,
-                timestamp: timestampMs,
-                payloads: framesToStore
-            });
-
-            await file.save(fileContent, {
-                contentType: 'application/json'
-            });
-
-            // 4. Stockage des métadonnées uniquement dans Firestore
-            const docRef = admin.firestore().collection('blackbox_sessions').doc();
-            
-            await docRef.set({
-                uid: uid,
-                hardwareId: hardwareId,
-                frameCount: framesToStore.length,
-                gcsPath: `gs://${bucket.name}/${gcsFileName}`,
-                serverTimestamp: admin.firestore.FieldValue.serverTimestamp(),
-                status: "LOCKED"
-            });
-
-            console.log(`[Blackbox] Batch de ${framesToStore.length} trames stocké pour UID: ${uid} (Doc: ${docRef.id})`);
-            return { success: true, docId: docRef.id };
-            
-        } catch (error) {
-            console.error("[Blackbox] Erreur lors du stockage :", error);
-            throw new HttpsError('internal', 'Erreur interne lors de la sauvegarde de la télémétrie.');
+            // Fallback response instead of 500
+            return res.status(200).json({ error: "Données Météo-France indisponibles", fallback: true });
         }
     }
 );

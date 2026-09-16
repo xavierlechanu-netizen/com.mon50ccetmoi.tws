@@ -16,7 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
-    <script src="js/config.js"></script>
+    <script type="module" src="/js/config.js"></script>
     <script>
       if (typeof CONFIG !== "undefined" && CONFIG.FIREBASE) {
         if (!firebase.apps.length) firebase.initializeApp(CONFIG.FIREBASE);
@@ -25,8 +25,8 @@
       }
     </script>
     
-    <script src="js/crypto-native.js" charset="utf-8"></script>
-    <script src="js/code-de-la-route.js" defer></script>
+    <script type="module" src="/js/crypto-native.js" charset="utf-8"></script>
+    <script type="module" src="/js/code-de-la-route.js" defer></script>
 
     <style>
       :root {

@@ -118,19 +118,19 @@ async function renderProgression() {
 
     <!-- Stats Grid -->
     <div class="stats-grid">
-      <div class="stat-card gold">
+      <div class="stat-card gold animate-slide-up delay-1">
         <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
-        <div class="stat-value">${data.bvcPoints}</div>
+        <div class="stat-value" data-val="${data.bvcPoints}">0</div>
         <div class="stat-label">BVC Points</div>
       </div>
-      <div class="stat-card cyan">
+      <div class="stat-card cyan animate-slide-up delay-2">
         <div class="stat-icon"><i class="fa-solid fa-pen-nib"></i></div>
-        <div class="stat-value">${data.contratsActifs}</div>
+        <div class="stat-value" data-val="${data.contratsActifs}">0</div>
         <div class="stat-label">Contrats signés</div>
       </div>
-      <div class="stat-card orange">
+      <div class="stat-card orange animate-slide-up delay-3">
         <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-        <div class="stat-value">${data.signalementsTotal}</div>
+        <div class="stat-value" data-val="${data.signalementsTotal}">0</div>
         <div class="stat-label">Dangers signalés</div>
       </div>
     </div>
@@ -180,12 +180,35 @@ async function renderProgression() {
       </a>
     </div>
   `;
+
+  // Lancer l'animation des compteurs (Count Up)
+  setTimeout(() => {
+    document.querySelectorAll('.stat-value[data-val]').forEach(el => {
+      const target = parseInt(el.getAttribute('data-val'), 10) || 0;
+      animateCounter(el, 0, target, 1500);
+    });
+  }, 100);
+}
+
+function animateCounter(obj, start, end, duration) {
+  let startTimestamp = null;
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    obj.innerHTML = Math.floor(progress * (end - start) + start);
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    }
+  };
+  window.requestAnimationFrame(step);
 }
 
 async function genererBilanEntraineur() {
   const btn = document.getElementById('btn-bilan');
   const content = document.getElementById('bilan-content');
   if (!btn || !content) return;
+
+  if (navigator.vibrate) navigator.vibrate(50); // Haptic feedback (Micro-interaction)
 
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Analyse en cours...';
@@ -216,6 +239,11 @@ async function genererBilanEntraineur() {
 
     const bilan = JSON.parse(raw.trim());
 
+    // Sécurité XSS : Assainissement du HTML généré par l'IA
+    const cleanPositif = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(bilan.resume_positif) : bilan.resume_positif;
+    const cleanAmelio = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(bilan.axes_amelioration) : bilan.axes_amelioration;
+    const cleanConseil = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(bilan.conseil_semaine) : bilan.conseil_semaine;
+
     content.innerHTML = `
       <div class="bilan-score-line">
         <span>Score IA cette semaine :</span>
@@ -223,15 +251,15 @@ async function genererBilanEntraineur() {
       </div>
       <div class="bilan-section green">
         <strong>✅ Points positifs</strong>
-        <div>${bilan.resume_positif}</div>
+        <div>${cleanPositif}</div>
       </div>
       <div class="bilan-section orange">
         <strong>💡 Axes d'amélioration</strong>
-        <div>${bilan.axes_amelioration}</div>
+        <div>${cleanAmelio}</div>
       </div>
       <div class="bilan-section cyan">
         <strong>🎯 Conseil de la semaine</strong>
-        <div>${bilan.conseil_semaine}</div>
+        <div>${cleanConseil}</div>
       </div>
       <p class="bilan-disclaimer"><i class="fa-solid fa-scale-balanced"></i> Bilan généré par l'IA Nexus Atlas à titre d'assistance uniquement. Discutez-en ensemble !</p>
     `;

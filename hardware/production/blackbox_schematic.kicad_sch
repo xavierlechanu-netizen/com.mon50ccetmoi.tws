@@ -1,45 +1,152 @@
-(kicad_sch (version 20230121) (generator eeschema)
-  (uuid "a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c")
-  (paper "A4")
-  (title_block
-    (title "Boîte Noire IoT V1 - 50cc")
-    (date "2026-08-08")
-    (rev "1.0")
-    (company "mon50ccetmoi")
-  )
-  (lib_symbols
-    (symbol "Device:R" (pin_numbers hide) (pin_names (offset 0) hide) (in_bom yes) (on_board yes)
-      (property "Reference" "R" (at 2.032 0 90)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Value" "R" (at 0 0 90)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Footprint" "" (at -1.778 0 90)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Datasheet" "~" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (symbol "R_0_1"
-        (rectangle (start -1.016 -2.54) (end 1.016 2.54)
-          (stroke (width 0.254) (type default))
-          (fill (type none))
-        )
-      )
-      (symbol "R_1_1"
-        (pin passive line (at 0 3.81 270) (length 1.27)
-          (name "~" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27))))
-        )
-        (pin passive line (at 0 -3.81 90) (length 1.27)
-          (name "~" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27))))
-        )
-      )
-    )
-  )
-  (text "PLAN DE CABLAGE BLACKBOX v1.0 (VOIR Wiring_Plan_v1.0.md)\n\nCOMPOSANTS A IMPORTER :\n- U1 : ESP32-C3-MINI-1 (RF_Module)\n- U2 : Quectel L76-LB (GPS)\n- U3 : MPU6050 (IMU - I2C)\n- U4 : BQ24075 (Chargeur LiPo USB)\n- U5 : TPS63070 (Buck-Boost 3.3V)\n- U6 : W25Q32JV (Flash SPI optionnelle)\n- U7 : RV-3028 (RTC I2C optionnelle)\n\nCONNECTIQUE :\n- J1 : Connecteur JST-PH 2.0 (Batterie LiPo 1S)\n- J2 : Port USB-C (Alimentation 5V VBUS)\n- TP1..TP4 : Test Points (GND, TX, RX, BOOT, EN)\n\nALIMENTATION (POWER TREE) :\nUSB 5V -> [BQ24075] -> Sortie SYS -> [TPS63070] -> 3.3V_SYS\nLiPo 3.7V -> [BQ24075]" (at 50 50 0)
-    (effects (font (size 3 3) (thickness 0.4)) (justify left))
-  )
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c")
+	(paper "A4")
+	(title_block
+		(title "Boîte Noire IoT V1 - 50cc")
+		(date "2026-08-08")
+		(rev "1.0")
+		(company "mon50ccetmoi")
+	)
+	(lib_symbols
+		(symbol "Device:R"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "R"
+				(at 2.032 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "R"
+				(at 0 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at -1.778 0 90)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "R_0_1"
+				(rectangle
+					(start -1.016 -2.54)
+					(end 1.016 2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "R_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+	)
+	(text "PLAN DE CABLAGE BLACKBOX v1.0 (VOIR Wiring_Plan_v1.0.md)\n\nCOMPOSANTS A IMPORTER :\n- U1 : ESP32-C3-MINI-1 (RF_Module)\n- U2 : Quectel L76-LB (GPS)\n- U3 : MPU6050 (IMU - I2C)\n- U4 : BQ24075 (Chargeur LiPo USB)\n- U5 : TPS63070 (Buck-Boost 3.3V)\n- U6 : W25Q32JV (Flash SPI optionnelle)\n- U7 : RV-3028 (RTC I2C optionnelle)\n- D1 : ESD5Z5.0 (Diode ESD USB 5V)\n\nCONNECTIQUE :\n- J1 : Connecteur JST-PH 2.0 (Batterie LiPo 1S)\n- J2 : Port USB-C (Alimentation 5V VBUS)\n- TP1..TP4 : Test Points (GND, TX, RX, BOOT, EN)\n\nALIMENTATION (POWER TREE) :\nUSB 5V -> [ESD5Z5.0] -> [BQ24075] -> Sortie SYS -> [TPS63070] -> 3.3V_SYS\nLiPo 3.7V -> [BQ24075]"
+		(exclude_from_sim no)
+		(at 50 50 0)
+		(effects
+			(font
+				(size 3 3)
+				(thickness 0.4)
+			)
+			(justify left)
+		)
+		(uuid "ea91df16-5738-45b6-9709-6be51325d380")
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
 )

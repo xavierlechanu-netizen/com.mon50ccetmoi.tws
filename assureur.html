@@ -21,8 +21,8 @@
     <script src="https://merchant.revolut.com/embed.js" async charset="utf-8"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" charset="utf-8"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" charset="utf-8"></script>
-    <script src="js/config.js" charset="utf-8"></script>
-    <script src="js/database.js" charset="utf-8"></script>
+    <script type="module" src="/js/config.js" charset="utf-8"></script>
+    <script type="module" src="/js/database.js" charset="utf-8"></script>
     <script>
       firebase.initializeApp(CONFIG.FIREBASE);
       initDatabase();
@@ -382,7 +382,7 @@
         .search-row .btn-primary { width: 100%; }
       }
     </style>
-    <script src="js/error-tracking.js?v=1009000"></script>
+    <script type="module" src="/js/error-tracking.js?v=1009000"></script>
   </head>
   <body>
     <div class="bg-grid"></div>
@@ -539,6 +539,6 @@
       </div>
     </div>
 
-    <script src="js/assureur.js?v=2"></script>
+    <script type="module" src="/js/assureur.js?v=2"></script>
   </body>
 </html>

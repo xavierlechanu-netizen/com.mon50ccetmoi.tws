@@ -21,45 +21,71 @@ async function calculateRouteSansAutoroute(start, end) {
   currentRouteMarkers.forEach((m) => m.setMap(null));
   currentRouteMarkers = [];
 
-  if (!directionsService || !directionsRenderer) {
+  if (!window.googleLibraries?.routes?.Route) {
     speak("Le moteur de routage n'est pas disponible pour le moment.");
     return;
   }
+  const { Route } = window.googleLibraries.routes;
 
-  if (directionsRenderer) directionsRenderer.setMap(null);
+  const originLat = typeof start.lat === "function" ? start.lat() : start.lat;
+  const originLng = typeof start.lng === "function" ? start.lng() : start.lng;
+  const destLat = typeof end.lat === "function" ? end.lat() : end.lat;
+  const destLng = typeof end.lng === "function" ? end.lng() : end.lng;
 
-  const legacyRequest = {
-    origin: start,
-    destination: end,
-    travelMode: "DRIVING",
-    avoidHighways: true,
-    avoidTolls: true,
-    provideRouteAlternatives: window.isRodageActive || window.avoidCityCenters,
+  const request = {
+    origin: { location: { latLng: { latitude: originLat, longitude: originLng } } },
+    destination: { location: { latLng: { latitude: destLat, longitude: destLng } } },
+    travelMode: "DRIVE",
+    routeModifiers: {
+      avoidHighways: true,
+      avoidTolls: true,
+    },
+    computeAlternativeRoutes: window.isRodageActive || window.avoidCityCenters,
+    fields: [
+      "routes.distanceMeters", 
+      "routes.duration", 
+      "routes.polyline.encodedPolyline", 
+      "routes.legs.distanceMeters",
+      "routes.legs.duration",
+      "routes.legs.steps",
+    ],
   };
 
-  directionsService.route(legacyRequest, (result, status) => {
-    if (status === "OK") {
+  try {
+    const { routes } = await Route.computeRoutes(request);
+    
+    if (routes && routes.length > 0) {
       let routeIndex = 0;
-      if (window.avoidCityCenters && result.routes.length > 1) {
+      if (window.avoidCityCenters && routes.length > 1) {
           // On choisit la route la plus longue en distance (qui correspond souvent à un contournement)
           let maxDist = -1;
-          for (let i = 0; i < result.routes.length; i++) {
-              if (result.routes[i].legs[0].distance.value > maxDist) {
-                  maxDist = result.routes[i].legs[0].distance.value;
+          for (let i = 0; i < routes.length; i++) {
+              if (routes[i].legs[0].distanceMeters > maxDist) {
+                  maxDist = routes[i].legs[0].distanceMeters;
                   routeIndex = i;
               }
           }
       }
 
-      if (directionsRenderer) {
-        directionsRenderer.setMap(map);
-        directionsRenderer.setDirections(result);
-        if (window.avoidCityCenters && result.routes.length > 1) {
-            directionsRenderer.setRouteIndex(routeIndex);
-        }
-      }
+      const selectedRoute = routes[routeIndex];
+      const leg = selectedRoute.legs[0];
 
-      const leg = result.routes[routeIndex].legs[0];
+      // Decode polyline and draw
+      const path = google.maps.geometry.encoding.decodePath(selectedRoute.polyline.encodedPolyline);
+      const polyline = new google.maps.Polyline({
+        path: path,
+        map: map,
+        strokeColor: "#00d2ff",
+        strokeOpacity: 0.8,
+        strokeWeight: 6,
+      });
+      currentRoutePolylines.push(polyline);
+
+      // --- AJUSTEMENT DE LA VUE DE LA CARTE ---
+      const bounds = new google.maps.LatLngBounds();
+      path.forEach((p) => bounds.extend(p));
+      map.fitBounds(bounds);
+
       const infoBar = document.getElementById("nav-info-bar");
       if (infoBar) {
         infoBar.style.setProperty("display", "flex", "important");
@@ -74,10 +100,11 @@ async function calculateRouteSansAutoroute(start, end) {
       if (typeof window.startPremiumNavigation === "function")
         window.startPremiumNavigation(leg);
 
-      if (distEl) distEl.textContent = leg.distance.text;
+      const routeDistText = leg.distanceMeters >= 1000 ? (leg.distanceMeters / 1000).toFixed(1) + " km" : leg.distanceMeters + " m";
+      if (distEl) distEl.textContent = routeDistText;
 
-      let durationSec = leg.duration.value;
-      const distanceMeters = leg.distance.value;
+      let durationSec = parseInt(leg.duration.replace('s', ''), 10) || 0;
+      const distanceMeters = leg.distanceMeters;
 
       // --- AJUSTEMENT 50cc ---
       durationSec = Math.round(durationSec * 1.2); // +20% pour scooter 50cc en ville
@@ -90,7 +117,7 @@ async function calculateRouteSansAutoroute(start, end) {
       }
 
       const destNameLegacy =
-        document.getElementById("route-search").value || "ITINÉRAIRE 50CC";
+        document.getElementById("route-search")?.value || "ITINÉRAIRE 50CC";
       const titleElLegacy = document.querySelector(".route-title");
       if (titleElLegacy)
         titleElLegacy.textContent = destNameLegacy.toUpperCase();
@@ -106,10 +133,11 @@ async function calculateRouteSansAutoroute(start, end) {
       const nextStep = leg.steps[0];
       if (nextStep) {
         const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = nextStep.instructions;
+        tempDiv.innerHTML = nextStep.navigationInstruction ? nextStep.navigationInstruction.instructions : "";
         let instructionText = tempDiv.textContent || tempDiv.innerText || "";
         if (nextStepName) nextStepName.textContent = instructionText;
-        if (nextStepDist) nextStepDist.textContent = nextStep.distance.text;
+        const nextDistText = nextStep.distanceMeters >= 1000 ? (nextStep.distanceMeters / 1000).toFixed(1) + " km" : nextStep.distanceMeters + " m";
+        if (nextStepDist) nextStepDist.textContent = nextDistText;
 
         if (navIcon) {
           const lowerInst = instructionText.toLowerCase();
@@ -133,7 +161,7 @@ async function calculateRouteSansAutoroute(start, end) {
           if (typeof speak === "function") {
             speak(
               "Guidage interne démarré. Dans " +
-                nextStep.distance.text +
+                nextDistText +
                 ", " +
                 instructionText,
             );
@@ -157,11 +185,12 @@ async function calculateRouteSansAutoroute(start, end) {
         etaEl.textContent = arrivalTime;
       }
 
-      // Détection ferry (Legacy)
+      // Détection ferry (Legacy API translation)
       window.routeFerries = leg.steps.filter(
-        (s) =>
-          s.instructions.toLowerCase().includes("ferry") ||
-          (s.maneuver && s.maneuver.toLowerCase().includes("ferry")),
+        (s) => {
+          const instr = s.navigationInstruction ? s.navigationInstruction.instructions : "";
+          return instr.toLowerCase().includes("ferry");
+        }
       );
       lastSpokenFerryIndex = -1;
 
@@ -180,7 +209,7 @@ async function calculateRouteSansAutoroute(start, end) {
       const etaText = etaEl ? etaEl.textContent : "";
       speak(
         window.getLocalizedRouteMsg(
-          leg.distance.text,
+          routeDistText,
           etaText,
           window.isRodageActive,
         ),
@@ -188,8 +217,6 @@ async function calculateRouteSansAutoroute(start, end) {
 
       // SAFE RIDE : Vérification Météo
       if (window.SafeRide) {
-        const destLat = typeof end.lat === "function" ? end.lat() : end.lat;
-        const destLng = typeof end.lng === "function" ? end.lng() : end.lng;
         window.SafeRide.checkWeatherForRoute(destLat, destLng).then(
           (weather) => {
             if (weather.isDangerous) {
@@ -226,26 +253,27 @@ async function calculateRouteSansAutoroute(start, end) {
         );
       }
 
-      if (destinationMarker) destinationMarker.setMap(null);
-      destinationMarker = new google.maps.Marker({
-        position: end,
+      if (destinationMarker) destinationMarker.map = null;
+      
+      const destIcon = document.createElement("div");
+      destIcon.innerHTML = `<i class="fa-solid fa-flag-checkered"></i>`;
+      destIcon.style.color = "white";
+      destIcon.style.fontSize = "24px";
+      destIcon.style.textShadow = "0 0 5px black";
+
+      destinationMarker = new window.googleLibraries.AdvancedMarkerElement({
+        position: { lat: destLat, lng: destLng },
         map: map,
-        icon: {
-          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-          scale: 6,
-          fillColor: "white",
-          fillOpacity: 1,
-          strokeWeight: 2,
-        },
+        content: destIcon,
       });
       currentRouteMarkers.push(destinationMarker);
-    } else if (status === "ZERO_RESULTS") {
-      speak("Aucun itinéraire trouvé vers cette destination.");
     } else {
-      console.error("Routage impossible: " + status);
-      speak("Erreur de calcul d'itinéraire.");
+      speak("Aucun itinéraire trouvé vers cette destination.");
     }
-  });
+  } catch (error) {
+    console.error("Routage impossible: ", error);
+    speak("Erreur de calcul d'itinéraire.");
+  }
 }
 
 window.cancelRoute = function () {
@@ -426,7 +454,7 @@ window.saveHazard = function (type, description = "") {
 };
 
 function loadHazards() {
-  if (typeof google === "undefined" || !google.maps || !google.maps.Marker)
+  if (typeof google === "undefined" || !google.maps || !window.googleLibraries?.AdvancedMarkerElement)
     return;
   const raw = secureGetItem("hazards");
   let hazards = raw ? JSON.parse(raw) : [];
@@ -464,17 +492,17 @@ function loadHazards() {
           : isAnimal
             ? "#e67e22"
             : "#ff4d4d";
-    const marker = new google.maps.Marker({
+    const hazardIcon = document.createElement("div");
+    hazardIcon.style.width = "18px";
+    hazardIcon.style.height = "18px";
+    hazardIcon.style.backgroundColor = hColor;
+    hazardIcon.style.border = "2px solid white";
+    hazardIcon.style.borderRadius = "50%";
+
+    const marker = new window.googleLibraries.AdvancedMarkerElement({
       position: { lat: h.lat, lng: h.lon },
       map: map,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        fillColor: hColor,
-        fillOpacity: 0.9,
-        scale: 9,
-        strokeColor: "white",
-        strokeWeight: 2,
-      },
+      content: hazardIcon,
     });
     const info = new google.maps.InfoWindow({
       content: `<b>${isAnimal ? "ðŸ¾ " : ""}${escapeHTML(h.type)}</b><br><small>${escapeHTML(h.author)}</small>`,
@@ -637,16 +665,19 @@ async function fetchFuelPricesUsingGovAPI(lat, lng, config, btn, oldHtml) {
           pricesHtml = "Prix non disponibles";
         }
 
-        const marker = new google.maps.Marker({
+        const fuelIcon = document.createElement("div");
+        fuelIcon.innerHTML = `<i class="fa-solid fa-gas-pump"></i>`;
+        fuelIcon.style.color = "#cca000";
+        fuelIcon.style.fontSize = "20px";
+        fuelIcon.style.backgroundColor = "white";
+        fuelIcon.style.padding = "4px";
+        fuelIcon.style.borderRadius = "50%";
+        fuelIcon.style.border = "2px solid #cca000";
+
+        const marker = new window.googleLibraries.AdvancedMarkerElement({
           position: { lat: coords[1], lng: coords[0] },
           map: map,
-          icon: {
-            path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-            fillColor: "#cca000",
-            fillOpacity: 1,
-            scale: 6,
-            strokeColor: "white",
-          },
+          content: fuelIcon,
         });
 
         // Compteur de signalements
@@ -728,18 +759,17 @@ async function fetchGaragesUsingPlacesAPI(lat, lng, config, btn, oldHtml) {
           ? `<div style="font-size:0.7rem; color:#00d2ff; margin-top:3px;">Label Scooter : â­ ${internalInfo.avgRating}/5 (${internalInfo.count} avis)</div>`
           : "";
 
-        const marker = new google.maps.Marker({
+        const garageIcon = document.createElement("div");
+        garageIcon.style.width = place.rating > 3.9 ? "24px" : "20px";
+        garageIcon.style.height = place.rating > 3.9 ? "24px" : "20px";
+        garageIcon.style.backgroundColor = place.rating > 3.9 ? "#f1c40f" : isPro ? "#ffd700" : config.color;
+        garageIcon.style.border = (place.rating > 3.9 ? "3px" : "1px") + " solid white";
+        garageIcon.style.borderRadius = "50%";
+
+        const marker = new window.googleLibraries.AdvancedMarkerElement({
           position: place.geometry.location,
           map: map,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 10,
-            fillColor:
-              place.rating > 3.9 ? "#f1c40f" : isPro ? "#ffd700" : config.color,
-            fillOpacity: 1,
-            strokeColor: "white",
-            strokeWeight: place.rating > 3.9 ? 3 : 1,
-          },
+          content: garageIcon,
         });
 
         // Étoiles de notation
@@ -808,19 +838,20 @@ function renderPoiMarkers(elements, config) {
   officialPoiMarkers = [];
   if (elements?.length > 0) {
     elements.forEach((item) => {
-      const marker = new google.maps.Marker({
+      const poiIcon = document.createElement("div");
+      poiIcon.style.width = "10px";
+      poiIcon.style.height = "10px";
+      poiIcon.style.backgroundColor = config.color;
+      poiIcon.style.border = "1px solid white";
+      poiIcon.style.borderRadius = "50%";
+
+      const marker = new window.googleLibraries.AdvancedMarkerElement({
         position: {
           lat: item.lat || item.center.lat,
           lng: item.lon || item.center.lon,
         },
         map: map,
-        icon: {
-          path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-          fillColor: config.color,
-          fillOpacity: 1,
-          scale: 5,
-          strokeColor: "white",
-        },
+        content: poiIcon,
       });
       const info = new google.maps.InfoWindow({
         content: `<div style="color:black"><b>${escapeHTML(item.tags?.name || config.label)}</b></div>`,
@@ -853,19 +884,18 @@ window.renderCommunityMarkers = function () {
   communityMarkers = [];
 
   window.communityMembers.forEach((member) => {
-    const m = new google.maps.Marker({
+    const memberIcon = document.createElement("div");
+    memberIcon.style.width = "12px";
+    memberIcon.style.height = "12px";
+    memberIcon.style.backgroundColor = "#00d2ff";
+    memberIcon.style.border = "2px solid white";
+    memberIcon.style.borderRadius = "50%";
+
+    const m = new window.googleLibraries.AdvancedMarkerElement({
       position: { lat: member.lat, lng: member.lng },
       map: map,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 6,
-        fillColor: "#00d2ff",
-        fillOpacity: 0.8,
-        strokeColor: "white",
-        strokeWeight: 2,
-        labelOrigin: new google.maps.Point(0, -2),
-      },
       title: member.username,
+      content: memberIcon,
     });
 
     const info = new google.maps.InfoWindow({
@@ -901,18 +931,19 @@ window.simulateLiveFleet = function () {
       lng: currentPosition.lng + offsetLng,
     };
 
-    const m = new google.maps.Marker({
+    const ghostIcon = document.createElement("div");
+    ghostIcon.style.width = "10px";
+    ghostIcon.style.height = "10px";
+    ghostIcon.style.backgroundColor = "#666";
+    ghostIcon.style.opacity = "0.5";
+    ghostIcon.style.border = "1px solid white";
+    ghostIcon.style.borderRadius = "50%";
+
+    const m = new window.googleLibraries.AdvancedMarkerElement({
       position: ghostPos,
       map: map,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 5,
-        fillColor: "#666",
-        fillOpacity: 0.5,
-        strokeColor: "white",
-        strokeWeight: 1,
-      },
       title: name,
+      content: ghostIcon,
     });
 
     const info = new google.maps.InfoWindow({

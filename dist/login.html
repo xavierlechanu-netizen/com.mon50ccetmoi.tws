@@ -35,13 +35,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" charset="utf-8"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js" charset="utf-8"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" charset="utf-8"></script>
-    <script src="js/config.js" charset="utf-8"></script>
+    <script type="module" src="/js/config.js" charset="utf-8"></script>
     <script>
       firebase.initializeApp(CONFIG.FIREBASE);
     </script>
-    <script src="js/crypto-native.js" charset="utf-8"></script>
+    <script type="module" src="/js/crypto-native.js" charset="utf-8"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="js/error-tracking.js?v=1009000"></script>
+    <script type="module" src="/js/error-tracking.js?v=1009000"></script>
 
     <style>
       body {
@@ -371,7 +371,8 @@
         .auth-card, .advantages-panel { padding: var(--space-lg); }
       }
     </style>
-    <link rel="stylesheet" crossorigin href="/assets/design-system-O8N8s65g.css">
+    <script type="module" crossorigin src="/assets/modulepreload-polyfill-Dezn_h7o.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/design-system-2q-fbcwT.css">
   </head>
   <body>
     <!-- PROMINENT DISCLOSURE BACKGROUND LOCATION (GOOGLE PLAY COMPLIANCE) -->
@@ -616,7 +617,7 @@
       </div>
     </div>
 
-    <script src="js/auth.js?v=30.0"></script>
+    <script type="module" src="/js/auth.js?v=30.0"></script>
     <script>
       function toggleForm(formType) {
         document.getElementById("login-form").classList.add("hidden");

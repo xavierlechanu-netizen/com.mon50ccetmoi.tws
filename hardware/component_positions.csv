@@ -1,0 +1,16 @@
+Ref,Value,X_mm,Y_mm,Side
+H1,Mechanical:MountingHole_3.2mm_M3,3.0000,3.0000,Top
+H2,Mechanical:MountingHole_3.2mm_M3,57.0000,3.0000,Top
+H3,Mechanical:MountingHole_3.2mm_M3,3.0000,37.0000,Top
+H4,Mechanical:MountingHole_3.2mm_M3,57.0000,37.0000,Top
+U1,Custom:U1,14.0000,13.0000,Top
+U2,Custom:U2,32.0000,12.0000,Top
+U3,Custom:U3,44.0000,22.0000,Top
+U4,Custom:U4,10.0000,28.0000,Top
+U5,Custom:U5,22.0000,28.0000,Top
+U6,Custom:U6,32.0000,28.0000,Top
+U7,Custom:U7,41.0000,31.0000,Top
+SW1,Custom:SW1,48.0000,28.0000,Top
+J1,Custom:J1,54.0000,32.0000,Top
+J2,Custom:J2,8.0000,36.0000,Top
+ANT1,Custom:ANT1,48.0000,11.0000,Top
