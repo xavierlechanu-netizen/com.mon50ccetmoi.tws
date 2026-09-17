@@ -1,0 +1,156 @@
+<div id="battery-pricing-screen" class="hidden fullscreen-overlay" style="
+        background: linear-gradient(135deg, #0f172a 0%, #000 100%);
+        color: #fff;
+        z-index: 36000;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow-y: auto;
+        padding-bottom: 50px;
+      ">
+      <button onclick="
+          document
+            .getElementById('battery-pricing-screen')
+            .classList.add('hidden')
+        " style="
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: none;
+          border: none;
+          color: #fff;
+          font-size: 2rem;
+          cursor: pointer;
+          transition: transform 0.2s ease;
+        ">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div style="margin-top: 60px; text-align: center">
+        <i class="fa-solid fa-file-invoice-dollar" style="
+            font-size: 4rem;
+            color: #00d2ff;
+            filter: drop-shadow(0 0 20px #00d2ff);
+            margin-bottom: 20px;
+          "></i>
+        <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff">
+          Certificat de Revente
+        </h1>
+        <p style="color: #cbd5e1; margin-top: 5px">
+          SÃ©lectionnez le niveau de certification pour votre acheteur
+        </p>
+      </div>
+
+      <div style="margin: 30px auto; width: 95%; max-width: 600px">
+        <!-- Option 1: Basic -->
+        <div style="
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px;
+            transition: transform 0.2s;
+          ">
+          <div>
+            <strong style="font-size: 1.3rem; color: #e2e8f0">1. Certificat Basic</strong><br>
+            <span style="color: #94a3b8; font-size: 0.9rem">Ã‰tat de santÃ© SOH basique. Sans analyse de conduite. Document
+              officiel filigranÃ©.</span>
+          </div>
+          <button onclick="window.Certificate.purchaseBatteryCert('basic')" style="
+              background: transparent;
+              color: #fff;
+              border: 1px solid #fff;
+              border-radius: 20px;
+              padding: 10px 20px;
+              font-weight: bold;
+              cursor: pointer;
+            ">
+            4.99 â‚¬
+          </button>
+        </div>
+
+        <!-- Option 2: Premium -->
+        <div style="
+            background: rgba(0, 210, 255, 0.05);
+            border: 1px solid rgba(0, 210, 255, 0.4);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);
+          ">
+          <div>
+            <strong style="font-size: 1.4rem; color: #00d2ff"><i class="fa-solid fa-medal"></i> 2. Certificat Premium</strong><br>
+            <span style="color: #94a3b8; font-size: 0.95rem">PDF complet filigranÃ©, diagnostic Ã©tendu, analyse IA du style de
+              conduite.</span>
+          </div>
+          <button onclick="window.Certificate.purchaseBatteryCert('premium')" style="
+              background: #00d2ff;
+              color: #000;
+              border: none;
+              border-radius: 20px;
+              padding: 10px 20px;
+              font-weight: bold;
+              cursor: pointer;
+              box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
+            ">
+            14.99 â‚¬
+          </button>
+        </div>
+
+        <!-- Option 3: Quantum Shield -->
+        <div style="
+            background: rgba(183, 0, 255, 0.05);
+            border: 1px solid rgba(183, 0, 255, 0.6);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(183, 0, 255, 0.2);
+            transform: scale(1.02);
+            position: relative;
+          ">
+          <div style="
+              position: absolute;
+              top: -10px;
+              right: 20px;
+              background: #b700ff;
+              color: #fff;
+              font-size: 0.7rem;
+              font-weight: 900;
+              padding: 4px 10px;
+              border-radius: 10px;
+              text-transform: uppercase;
+            ">
+            Le plus sÃ©curisÃ©
+          </div>
+          <div>
+            <strong style="font-size: 1.5rem; color: #e879f9"><i class="fa-solid fa-shield-halved"></i> 3. Certificat Quantum
+              Shield</strong><br>
+            <span style="color: #cbd5e1; font-size: 0.95rem">Premium + Signature cryptographique inaltÃ©rable (Chiffrement E2EE
+              de niveau militaire).</span>
+          </div>
+          <button onclick="window.Certificate.purchaseBatteryCert('quantum')" style="
+              background: linear-gradient(135deg, #b700ff 0%, #ff0055 100%);
+              color: #fff;
+              border: none;
+              border-radius: 20px;
+              padding: 10px 20px;
+              font-weight: bold;
+              cursor: pointer;
+              box-shadow: 0 0 15px rgba(183, 0, 255, 0.6);
+            ">
+            29.99 â‚¬
+          </button>
+        </div>
+      </div>
+    </div>

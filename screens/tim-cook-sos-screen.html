@@ -1,0 +1,43 @@
+<div id="tim-cook-sos-screen" class="hidden fullscreen-overlay" style="
+        background: rgba(255, 0, 0, 0.95);
+        color: #fff;
+        z-index: 30000;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      ">
+      <i class="fa-solid fa-triangle-exclamation fa-beat" style="font-size: 5rem; color: #fff; margin-bottom: 20px"></i>
+      <h1 style="
+          font-size: 3rem;
+          margin: 0;
+          text-transform: uppercase;
+          letter-spacing: 5px;
+          text-align: center;
+        ">
+        Choc DÃ©tectÃ©
+      </h1>
+      <p style="font-size: 1.2rem; margin: 10px 0 30px; text-align: center">
+        Appel SOS aux urgences dans :
+      </p>
+      <div id="sos-countdown" style="font-size: 6rem; font-weight: 900">10</div>
+      <button onclick="window.cancelSOS()" style="
+          margin-top: 40px;
+          padding: 20px 50px;
+          font-size: 1.5rem;
+          font-weight: bold;
+          background: #fff;
+          color: #ff0000;
+          border: none;
+          border-radius: 40px;
+          cursor: pointer;
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        ">
+        ANNULER L'ALERTE
+      </button>
+    </div>

@@ -125,7 +125,7 @@ window.acceptGlobalPrivacy = function () {
     ccpa_do_not_sell: ccpaChecked,
     pipl_crossborder: piplChecked,
     timestamp: new Date().toISOString(),
-    version: "v109.00.00",
+    version: "v110.00.00",
   };
 
   localStorage.setItem("global_privacy_consent", "true");
@@ -166,7 +166,7 @@ window.refuseGlobalPrivacy = function () {
     pipl_crossborder: false,
     refused: true,
     timestamp: new Date().toISOString(),
-    version: "v109.00.00",
+    version: "v110.00.00",
   };
 
   localStorage.setItem("global_privacy_consent", "refused");

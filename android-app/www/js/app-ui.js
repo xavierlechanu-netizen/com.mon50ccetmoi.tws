@@ -399,7 +399,7 @@ window.showPage = function (page) {
                 <div class="glassmorphism" style="padding:20px; border:1px solid var(--accent); margin-bottom:30px; text-align:left;">
                     <p style="font-size:0.9rem; font-weight:bold; text-align:center;">SIGNATURE CORPORATE</p>
                     <p style="font-size:0.75rem; color:#ddd; margin-top:10px;">Cette application est la propriété exclusive de<br><strong style="color:var(--accent);">CHEZBIGBOO</strong>.</p>
-                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">Protégé par les lois internationales sur la propriété intellectuelle. Télémétrie certifiée conforme aux standards ANTS v109.00.00.</p>
+                    <p style="font-size:0.65rem; color:#888; margin-top:15px;">Protégé par les lois internationales sur la propriété intellectuelle. Télémétrie certifiée conforme aux standards ANTS v110.00.00.</p>
                 </div>
                 
                 <button onclick="document.getElementById('screen-overlay').classList.add('hidden')" class="btn-cancel" style="background:#333; color:white;">FERMER</button>
@@ -498,7 +498,7 @@ window.showPage = function (page) {
                 <p><strong>Données GPS :</strong> Vos coordonnées sont traitées localement pour la navigation et la détection de chute.</p>
                 <p><strong>Partage :</strong> Les signalements de dangers sont partagés de manière anonyme avec la communauté.</p>
                 <p><strong>Stockage :</strong> Vos préférences sont enregistrées dans votre navigateur (LocalStorage).</p>
-                <p><strong>Version :</strong> v109.00.00-PRO Build 2026</p>
+                <p><strong>Version :</strong> v110.00.00-PRO Build 2026</p>
                 <p><strong>Signature :</strong> mon50ccetmoi Engineering US</p>
             </div>`;
   } else if (page === "pro-tips") {
@@ -965,7 +965,7 @@ window.logout = function () {
 window.updateTicker = function () {
   const t = document.getElementById("ticker-text");
   if (t)
-    t.innerHTML = `Bienvenue sur mon50ccetmoi v109.00.00 SILVER EDITION ! Prudence sur la route. 🛵💨`;
+    t.innerHTML = `Bienvenue sur mon50ccetmoi v110.00.00 SILVER EDITION ! Prudence sur la route. 🛵💨`;
 };
 updateTicker();
 setInterval(updateTicker, 60000);

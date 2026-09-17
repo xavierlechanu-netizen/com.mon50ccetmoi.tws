@@ -1,6 +1,6 @@
 # 🚀 Guide de Compilation Android (mon 50cc et moi)
 
-Le code source de votre application est **100% prêt** et configuré (Version 109.00.00). 
+Le code source de votre application est **100% prêt** et configuré (Version 110.00.00). 
 Ce guide vous explique comment générer le fichier **`.aab`** (Android App Bundle) nécessaire pour publier votre application sur le Google Play Store.
 
 ---

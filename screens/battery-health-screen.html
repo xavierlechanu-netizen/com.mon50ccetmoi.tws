@@ -1,0 +1,297 @@
+<div id="battery-health-screen" class="hidden fullscreen-overlay" style="
+        background: linear-gradient(135deg, #051410 0%, #000 100%);
+        color: #fff;
+        z-index: 35000;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow-y: auto;
+        padding-bottom: 50px;
+      ">
+      <button onclick="
+          document
+            .getElementById('battery-health-screen')
+            .classList.add('hidden')
+        " style="
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: none;
+          border: none;
+          color: #00ffcc;
+          font-size: 2rem;
+          cursor: pointer;
+          transition: transform 0.2s ease;
+        ">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div style="margin-top: 50px; text-align: center">
+        <i class="fa-solid fa-car-battery" style="
+            font-size: 4rem;
+            color: #00ffcc;
+            filter: drop-shadow(0 0 20px #00ffcc);
+            margin-bottom: 20px;
+          "></i>
+        <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff">
+          SantÃ© Batterie (SOH)
+        </h1>
+        <p style="color: #00ffcc; font-weight: bold; margin-top: 5px">
+          Ã‰tat des cellules &amp; Historique
+        </p>
+      </div>
+
+      <!-- Jauge Circulaire SOH -->
+      <div style="
+          margin: 30px auto;
+          width: 200px;
+          height: 200px;
+          border-radius: 50%;
+          background: conic-gradient(#00ffcc 0% 92%, #222 92% 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 0 30px rgba(0, 255, 204, 0.4);
+        ">
+        <div style="
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: #051410;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+          ">
+          <span id="battery-soh-value" style="
+              font-size: 3rem;
+              font-weight: 900;
+              color: #fff;
+              text-shadow: 0 0 10px #00ffcc;
+            ">92%</span>
+          <span style="
+              color: #aaa;
+              font-size: 0.9rem;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            ">SantÃ©</span>
+        </div>
+      </div>
+
+      <div style="
+          margin: 20px auto;
+          width: 90%;
+          max-width: 400px;
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        ">
+        <div style="
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);
+          ">
+          <div>
+            <div style="color: #aaa; font-size: 0.9rem; margin-bottom: 5px">
+              ge de la batterie
+            </div>
+            <div id="battery-age-value" style="color: #fff; font-size: 1.2rem; font-weight: bold">
+              2 ans et 3 mois
+            </div>
+          </div>
+          <i class="fa-solid fa-calendar-check" style="
+              color: #00ffcc;
+              font-size: 1.5rem;
+              filter: drop-shadow(0 0 5px #00ffcc);
+            "></i>
+        </div>
+
+        <div style="
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);
+          ">
+          <div>
+            <div style="color: #aaa; font-size: 0.9rem; margin-bottom: 5px">
+              Mise en circulation
+            </div>
+            <div id="battery-date-value" style="color: #fff; font-size: 1.2rem; font-weight: bold">
+              15 Janvier 2024
+            </div>
+          </div>
+          <i class="fa-solid fa-motorcycle" style="
+              color: #00ffcc;
+              font-size: 1.5rem;
+              filter: drop-shadow(0 0 5px #00ffcc);
+            "></i>
+        </div>
+
+        <div style="
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);
+          ">
+          <div>
+            <div style="color: #aaa; font-size: 0.9rem; margin-bottom: 5px">
+              Cycles de charge
+            </div>
+            <div id="battery-cycles-value" style="color: #fff; font-size: 1.2rem; font-weight: bold">
+              345 / 1000
+            </div>
+          </div>
+          <i class="fa-solid fa-bolt" style="
+              color: #00ffcc;
+              font-size: 1.5rem;
+              filter: drop-shadow(0 0 5px #00ffcc);
+            "></i>
+        </div>
+
+        <div style="
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);
+          ">
+          <div>
+            <div style="color: #aaa; font-size: 0.9rem; margin-bottom: 5px">
+              KilomÃ©trage du vÃ©hicule
+            </div>
+            <div id="battery-mileage-value" style="color: #fff; font-size: 1.2rem; font-weight: bold">
+              12 450 km
+            </div>
+          </div>
+          <i class="fa-solid fa-gauge-high" style="
+              color: #00ffcc;
+              font-size: 1.5rem;
+              filter: drop-shadow(0 0 5px #00ffcc);
+            "></i>
+        </div>
+
+        <div style="
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.05);
+          ">
+          <div>
+            <div style="color: #aaa; font-size: 0.9rem; margin-bottom: 5px">
+              Style de conduite dÃ©tectÃ©
+            </div>
+            <div id="battery-style-value" style="
+                color: #fff;
+                font-size: 1.2rem;
+                font-weight: bold;
+                color: #ffb703;
+              ">
+              Ã‰co-Responsable / Fluide
+            </div>
+          </div>
+          <i class="fa-solid fa-leaf" style="
+              color: #ffb703;
+              font-size: 1.5rem;
+              filter: drop-shadow(0 0 5px #ffb703);
+            "></i>
+        </div>
+      </div>
+
+      <div style="
+          margin: 30px auto;
+          width: 90%;
+          max-width: 400px;
+          text-align: center;
+        ">
+        <button onclick="
+            document
+              .getElementById('battery-pricing-screen')
+              .classList.remove('hidden')
+          " style="
+            background: linear-gradient(135deg, #00d2ff, #b700ff);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(183, 0, 255, 0.5);
+            width: 100%;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+          ">
+          <i class="fa-solid fa-file-signature"></i> GÃ©nÃ©rer Certificat (Vente)
+        </button>
+        <button onclick="
+            document
+              .getElementById('battery-manual-screen')
+              .classList.remove('hidden')
+          " style="
+            background: linear-gradient(135deg, #222, #444);
+            color: #fff;
+            border: 1px solid #666;
+            border-radius: 30px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+          ">
+          <i class="fa-solid fa-keyboard"></i> Saisie Manuelle (Sans BMS)
+        </button>
+        <button style="
+            background: linear-gradient(135deg, #00ffcc, #0d8a6a);
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+            width: 100%;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+          ">
+          <i class="fa-brands fa-bluetooth-b"></i> Scanner le BMS (Bluetooth)
+        </button>
+        <button style="
+            background: transparent;
+            color: #00ffcc;
+            border: 1px solid #00ffcc;
+            border-radius: 30px;
+            padding: 15px 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+          ">
+          Saisie manuelle
+        </button>
+      </div>
+    </div>

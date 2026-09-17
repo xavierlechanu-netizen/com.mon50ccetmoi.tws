@@ -567,7 +567,8 @@ function updateManeuverIcon(maneuver) {
 
 function stripHtml(html) {
   const tmp = document.createElement('div');
-  tmp.innerHTML = html;
+  // Sécurité XSS : sanitize avant parsing DOM même pour les données Google Maps (ASVS v5.0.0-1.3.1)
+  tmp.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : html;
   return tmp.textContent || tmp.innerText || '';
 }
 

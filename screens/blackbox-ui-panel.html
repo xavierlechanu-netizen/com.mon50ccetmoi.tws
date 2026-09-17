@@ -1,0 +1,82 @@
+<div id="blackbox-ui-panel" class="hidden glass-card-premium" style="
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 400px;
+      z-index: 10001;
+      padding: 20px;
+      border-radius: 20px;
+      text-align: center;
+      border: 1px solid rgba(255, 51, 51, 0.3);
+      box-shadow: 0 0 30px rgba(255, 51, 51, 0.2);
+    ">
+      <button onclick="document.getElementById('blackbox-ui-panel').classList.add('hidden');" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;">
+        <i class="fa-solid fa-times"></i>
+      </button>
+      
+      <i class="fa-solid fa-microchip" style="font-size: 3rem; color: #ff3333; margin-bottom: 15px; filter: drop-shadow(0 0 10px #ff3333);"></i>
+      <h3 style="color: #fff; margin: 0 0 5px; font-family: 'Inter', sans-serif;">BoÃ®te Noire Officielle</h3>
+      <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 20px;">Connexion BLE sÃ©curisÃ©e (AES-256)</p>
+      
+      <div style="display: flex; justify-content: space-around; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px;">
+        <div style="text-align: center;">
+          <i class="fa-solid fa-battery-half" style="color: #00ff88; font-size: 1.2rem;"></i>
+          <div id="bb-batt" style="color: #fff; font-size: 0.8rem; margin-top: 5px; font-weight: bold;">-- mV</div>
+        </div>
+        <div style="text-align: center;">
+          <i class="fa-solid fa-memory" style="color: #00f0ff; font-size: 1.2rem;"></i>
+          <div id="bb-mem" style="color: #fff; font-size: 0.8rem; margin-top: 5px; font-weight: bold;">-- %</div>
+        </div>
+        <div style="text-align: center;">
+          <i class="fa-solid fa-shield-halved" style="color: #ffaa00; font-size: 1.2rem;"></i>
+          <div id="bb-aes" style="color: #fff; font-size: 0.8rem; margin-top: 5px; font-weight: bold;">AES-256</div>
+        </div>
+      </div>
+
+      <!-- Section Abonnement Sentinel Care -->
+      <div style="margin-top: 20px; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <h4 style="color: #ffaa00; margin: 0 0 10px; font-family: 'Inter', sans-serif;"><i class="fa-solid fa-gem"></i> Sentinel Care</h4>
+        <p style="color: #ccc; font-size: 0.8rem; margin-bottom: 15px;">Remplacement gratuit du matÃ©riel en fin de vie.<br><strong style="color: #00ff88;">1Ã¨re annÃ©e incluse Ã&nbsp; l'achat du boÃ®tier !</strong></p>
+        
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button onclick="window.Wallet &amp;&amp; window.Wallet.createRevolutOrder('BLACKBOX_CARE_MONTHLY')" style="background: rgba(255, 170, 0, 0.2); color: #ffaa00; border: 1px solid #ffaa00; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+            S'abonner - 5.00â‚¬ / mois
+          </button>
+          <button onclick="window.Wallet &amp;&amp; window.Wallet.createRevolutOrder('BLACKBOX_CARE_ANNUAL')" style="background: #ffaa00; color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+            Abonnement Annuel - 50.00â‚¬ (2 mois offerts)
+          </button>
+        </div>
+      </div>
+
+      <button id="bb-connect-btn" onclick="if(window.BlackBox) window.BlackBox.connect();" style="
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #ff3333, #aa0000);
+        color: #fff;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 15px rgba(255, 51, 51, 0.4);
+      ">
+        <i class="fa-brands fa-bluetooth"></i> Connecter
+      </button>
+
+      <button id="bb-export-btn" onclick="if(window.BlackBox) window.BlackBox.exportTelemetry(0, 100);" style="
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.2);
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: none;
+      ">
+        <i class="fa-solid fa-download"></i> Synchroniser TÃ©lÃ©mÃ©trie
+      </button>
+    </div>

@@ -1,0 +1,27 @@
+<div id="meca-result-modal" class="hidden" style="
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 60000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+      <div style="width: 100%; max-width: 400px; position: relative">
+        <button onclick="
+            document.getElementById('meca-result-modal').classList.add('hidden')
+          " style="
+            position: absolute;
+            right: 10px;
+            top: -30px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+          ">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div id="meca-result"></div>
+      </div>
+    </div>

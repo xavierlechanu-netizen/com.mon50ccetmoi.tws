@@ -1,0 +1,191 @@
+<div id="vehicle-config-screen" class="hidden fullscreen-overlay" style="
+        background: linear-gradient(135deg, #050a15 0%, #000 100%);
+        color: #fff;
+        z-index: 38000;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow-y: auto;
+        padding-bottom: 50px;
+      ">
+      <button onclick="
+          document
+            .getElementById('vehicle-config-screen')
+            .classList.add('hidden')
+        " style="
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          color: #fff;
+          font-size: 1.2rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        ">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div style="margin-top: 50px; text-align: center">
+        <i class="fa-solid fa-motorcycle" style="
+            font-size: 4rem;
+            color: #00d2ff;
+            filter: drop-shadow(0 0 20px #00d2ff);
+            margin-bottom: 10px;
+          "></i>
+        <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff">
+          Garage Virtuel
+        </h1>
+        <p style="color: #00d2ff; font-weight: bold; margin-top: 5px">
+          Configurez votre monture
+        </p>
+      </div>
+
+      <!-- Holographic Vehicle Display -->
+      <div style="
+          margin: 30px auto;
+          width: 90%;
+          max-width: 400px;
+          height: 200px;
+          background: radial-gradient(
+            circle at center,
+            rgba(0, 210, 255, 0.2) 0%,
+            transparent 70%
+          );
+          border: 1px solid rgba(0, 210, 255, 0.3);
+          border-radius: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          overflow: hidden;
+          box-shadow: inset 0 0 20px rgba(0, 210, 255, 0.1);
+        ">
+        <div id="holo-vehicle-icon" style="
+            font-size: 6rem;
+            color: #00d2ff;
+            filter: drop-shadow(0 0 15px #00d2ff);
+            transition: all 0.3s ease;
+          ">
+          <i class="fa-solid fa-motorcycle"></i>
+        </div>
+        <!-- Scanline effect -->
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 210, 255, 0.5);
+            opacity: 0.5;
+            animation: scanline 3s linear infinite;
+          "></div>
+      </div>
+
+      <!-- Selection du vÃ©hicule -->
+      <div style="margin: 20px auto; width: 90%; max-width: 400px">
+        <label for="scooter-motor" style="
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            display: block;
+          ">Type de vÃ©hicule</label>
+        <select id="scooter-motor" onchange="updateHoloVehicle(this.value)" style="
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.1rem;
+            appearance: none;
+            outline: none;
+            cursor: pointer;
+          ">
+          <option value="2t">Scooter 50cc (Moteur 2T)</option>
+          <option value="4t">Scooter 50cc (Moteur 4T)</option>
+          <option value="moto">Moto 50 Ã&nbsp; boÃ®te</option>
+          <option value="vsp">Voiture Sans Permis (VSP)</option>
+        </select>
+      </div>
+
+      <!-- Carnet d'Entretien NumÃ©rique -->
+      <div style="margin: 30px auto; width: 90%; max-width: 400px;">
+        <h3 style="color: #fff; font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+          <span><i class="fa-solid fa-book" style="color: #00ff88;"></i> Carnet d'Entretien</span>
+          <button onclick="if(window.GarageClient) window.GarageClient.generatePDF()" style="background:transparent; border:1px solid #00ff88; color:#00ff88; border-radius:5px; padding:4px 8px; font-size:0.75rem; cursor:pointer;">
+            <i class="fa-solid fa-download"></i> PDF
+          </button>
+        </h3>
+        
+        <div id="maintenance-logs-container" style="display:flex; flex-direction:column; gap:10px;">
+          <div style="text-align:center; padding:20px; color:#888; border:1px dashed #333; border-radius:10px; font-size:0.9rem;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Synchronisation en cours...
+          </div>
+        </div>
+      </div>
+
+      <!-- Leads / Sponsoring Section (B2B Integration) -->
+      <div style="margin: 30px auto; width: 90%; max-width: 400px">
+        <h3 style="
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          ">
+          <i class="fa-solid fa-gift" style="color: #b700ff"></i> Offres
+          Partenaires (Leads)
+        </h3>
+
+        <!-- Offre 1 -->
+        <div style="
+            background: rgba(183, 0, 255, 0.1);
+            border: 1px solid #b700ff;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 0 15px rgba(183, 0, 255, 0.2);
+          ">
+          <div>
+            <strong style="color: #fff; font-size: 1rem"><i class="fa-solid fa-handshake" style="color: #b700ff; margin-right: 5px;"></i> Offres Partenaires</strong><br>
+            <span style="color: #aaa; font-size: 0.8rem">Des offres exclusives arrivent bientÃ´t pour les membres BVC !</span>
+          </div>
+          <span style="
+              color: #b700ff;
+              font-size: 0.8rem;
+              font-weight: bold;
+              padding: 8px 15px;
+            ">
+            BientÃ´t
+          </span>
+        </div>
+      </div>
+
+      <div style="margin: 30px auto; width: 90%; max-width: 400px">
+        <button onclick="if (window.saveVehicleProfile) window.saveVehicleProfile();" style="
+            background: linear-gradient(135deg, #00d2ff, #0055ff);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+            width: 100%;
+            margin-bottom: 20px;
+          ">
+          VALIDER LA CONFIGURATION
+        </button>
+      </div>
+    </div>

@@ -175,6 +175,7 @@ function runLitigationAI() {
       `;
     }
 
-    contentSpan.innerHTML = report;
+    // Sécurité XSS : Assainissement du HTML de rapport (OWASP ASVS v5.0.0-1.3.1)
+    contentSpan.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(report) : report;
   }, 2000);
 }

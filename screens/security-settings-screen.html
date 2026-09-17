@@ -1,0 +1,294 @@
+<div id="security-settings-screen" class="hidden fullscreen-overlay" style="
+        background: linear-gradient(135deg, #051410 0%, #000 100%);
+        color: #fff;
+        z-index: 35000;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow-y: auto;
+        padding-bottom: 50px;
+      ">
+      <button onclick="
+          document
+            .getElementById('security-settings-screen')
+            .classList.add('hidden')
+        " style="
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: none;
+          border: none;
+          color: #10a37f;
+          font-size: 2rem;
+          cursor: pointer;
+        ">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div style="margin-top: 50px; text-align: center">
+        <i class="fa-solid fa-shield-check" style="
+            font-size: 4rem;
+            color: #10a37f;
+            filter: drop-shadow(0 0 20px #10a37f);
+            margin-bottom: 20px;
+          "></i>
+        <h1 style="margin: 0; font-size: 2rem; letter-spacing: 2px; color: #fff">
+          SÃ©curitÃ© &amp; ConfidentialitÃ©
+        </h1>
+        <p style="color: #10a37f; font-weight: bold; margin-top: 5px">
+          Chiffrement AES-256, RGPD/CNIL &amp; Ange Gardien
+        </p>
+
+        <!-- BADGE 7000 LANGUES -->
+        <div style="
+            margin: 20px auto;
+            width: 90%;
+            max-width: 400px;
+            background: rgba(183, 0, 255, 0.1);
+            border: 1px solid #b700ff;
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(183, 0, 255, 0.3);
+          ">
+          <h3 style="color: #b700ff; margin: 0 0 5px 0; font-size: 1.1rem">
+            <i class="fa-solid fa-earth-americas fa-spin-pulse"></i> Nexus Atlas
+            Universal Translator
+          </h3>
+          <p style="color: #fff; font-size: 0.9rem; margin: 0; font-weight: bold">
+            7000+ dialectes &amp; langues supportÃ©s par IA.
+          </p>
+          <p style="
+              color: #aaa;
+              font-size: 0.7rem;
+              margin-top: 5px;
+              margin-bottom: 10px;
+            ">
+            GÃ©nÃ©ration vocale dynamique. Sans tÃ©lÃ©chargement.
+          </p>
+          <div id="google_translate_element" style="margin-top: 10px"></div>
+          <script type="text/javascript">
+            function googleTranslateElementInit() {
+              new google.translate.TranslateElement(
+                {
+                  pageLanguage: "fr",
+                  layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                },
+                "google_translate_element",
+              );
+            }
+          </script>
+          <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        </div>
+
+        <div style="
+            margin: 20px auto;
+            width: 90%;
+            max-width: 400px;
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px solid #00d2ff;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: left;
+          ">
+          <h3 style="color: #00d2ff; margin: 0 0 10px 0">
+            <i class="fa-solid fa-user-shield"></i> Contacts Ange Gardien
+          </h3>
+          <p style="color: #aaa; font-size: 0.8rem; margin-bottom: 15px">
+            NumÃ©ros prÃ©venus automatiquement en cas de chute grave.
+          </p>
+          <input aria-label="Contact 1 (ex: 0612345678)" type="tel" id="guardian-contact-1" placeholder="Contact 1 (ex: 0612345678)" style="
+              width: 100%;
+              padding: 10px;
+              margin-bottom: 10px;
+              border-radius: 10px;
+              border: 1px solid #444;
+              background: #111;
+              color: #fff;
+            ">
+          <input aria-label="Contact 2 (Optionnel)" type="tel" id="guardian-contact-2" placeholder="Contact 2 (Optionnel)" style="
+              width: 100%;
+              padding: 10px;
+              margin-bottom: 15px;
+              border-radius: 10px;
+              border: 1px solid #444;
+              background: #111;
+              color: #fff;
+            ">
+          <button onclick="
+              if (typeof window.saveGuardianContacts === 'function')
+                window.saveGuardianContacts();
+            " style="
+              background: #00d2ff;
+              color: #000;
+              border: none;
+              border-radius: 20px;
+              padding: 10px 20px;
+              font-weight: bold;
+              width: 100%;
+              cursor: pointer;
+            ">
+            ENREGISTRER
+          </button>
+        </div>
+
+        <p style="color: #10a37f; font-weight: bold; margin-top: 5px">
+          SÃ©curitÃ© : Firebase Auth, Chiffrement AES-256, Sessions cryptÃ©es,
+          ConformitÃ© RGPD/CNIL, WebAuthn FIDO2
+        </p>
+
+        <div style="
+            margin: 20px auto;
+            width: 90%;
+            max-width: 400px;
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid #ff0000;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+          ">
+          <h3 style="
+              color: #ff0000;
+              margin: 0 0 10px 0;
+              font-size: 1.2rem;
+              text-transform: uppercase;
+            ">
+            <i class="fa-solid fa-skull"></i> Zone Critique
+          </h3>
+          <p style="color: #ffcccc; font-size: 0.8rem; margin-bottom: 20px">
+            L'activation du Protocole 0 effacera instantanÃ©ment et
+            irrÃ©mÃ©diablement toutes les clÃ©s, itinÃ©raires et portefeuilles
+            (Kill-Switch).
+          </p>
+          <button onclick="
+              alert('Par sécurité (Zero Trust), le Protocole 0 ne peut plus être déclenché depuis le client. Veuillez contacter un administrateur pour l\'effacement RGPD backend.');
+            " style="
+              background: #ff0000;
+              color: #fff;
+              border: none;
+              border-radius: 30px;
+              padding: 15px 30px;
+              font-size: 1.1rem;
+              font-weight: 900;
+              cursor: pointer;
+              width: 100%;
+              box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+            ">
+            PROTOCOLE 0 (KILL-SWITCH)
+          </button>
+        </div>
+      </div>
+
+      <div style="
+          margin: 40px auto;
+          width: 90%;
+          max-width: 400px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(16, 163, 127, 0.3);
+          border-radius: 20px;
+          padding: 40px 20px;
+          text-align: center;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        ">
+        <h3 style="color: #aaa; margin: 0 0 20px 0; font-size: 1.2rem">
+          Authentification Forte (FIDO2)
+        </h3>
+        <p style="color: #ddd; font-size: 0.9rem; margin-bottom: 30px">
+          Liez cet appareil Ã&nbsp; votre compte pour vous connecter via Face ID ou
+          Touch ID, sans aucun mot de passe.
+        </p>
+        <button onclick="window.registerBiometric()" style="
+            background: linear-gradient(135deg, #10a37f, #0d8a6a);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(16, 163, 127, 0.5);
+            width: 100%;
+          ">
+          <i class="fa-solid fa-fingerprint"></i> Lier cet appareil (FIDO2)
+        </button>
+      </div>
+
+      <div style="
+          margin: 20px auto;
+          width: 90%;
+          max-width: 400px;
+          background: rgba(255, 0, 0, 0.05);
+          border: 1px solid rgba(255, 0, 0, 0.3);
+          border-radius: 20px;
+          padding: 20px;
+          text-align: center;
+        ">
+        <button onclick="window.logout()" style="
+            background: transparent;
+            color: #ff0055;
+            border: 1px solid #ff0055;
+            border-radius: 30px;
+            padding: 10px 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+          ">
+          <i class="fa-solid fa-right-from-bracket"></i> DÃ©connexion
+        </button>
+      </div>
+
+      <!-- RGPD Actions (Articles 17 & 20) -->
+      <div style="
+          margin: 20px auto;
+          width: 90%;
+          max-width: 400px;
+          background: rgba(0, 210, 255, 0.05);
+          border: 1px solid rgba(0, 210, 255, 0.2);
+          border-radius: 20px;
+          padding: 20px;
+          text-align: center;
+        ">
+        <h3 style="color: #00d2ff; margin: 0 0 15px 0; font-size: 1rem">
+          <i class="fa-solid fa-database"></i> Mes DonnÃ©es (RGPD)
+        </h3>
+        <button onclick="window.exportMyData()" style="
+            background: rgba(0, 210, 255, 0.15);
+            color: #00d2ff;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+          ">
+          <i class="fa-solid fa-download"></i> Exporter mes donnÃ©es (Art. 20)
+        </button>
+        <button onclick="window.revokeAndEraseData()" style="
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff4d4d;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            width: 100%;
+          ">
+          <i class="fa-solid fa-trash"></i> Effacer toutes mes donnÃ©es (Art. 17)
+        </button>
+      </div>
+
+      <!-- Liens lÃ©gaux -->
+      <div style="margin: 30px auto 20px; text-align: center; font-size: 0.8rem">
+        <a href="mentions-legales.html" target="_blank" style="color: #64748b; margin: 0 8px">Mentions lÃ©gales</a>
+        Â·
+        <a href="privacy.html" target="_blank" style="color: #64748b; margin: 0 8px">ConfidentialitÃ©</a>
+        Â·
+        <a href="terms.html" target="_blank" style="color: #64748b; margin: 0 8px">CGU</a>
+        Â·
+        <a href="cookies.html" target="_blank" style="color: #64748b; margin: 0 8px">Cookies</a>
+      </div>
+    </div>

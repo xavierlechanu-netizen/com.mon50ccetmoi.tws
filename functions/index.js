@@ -48,7 +48,7 @@ const REVOLUT_API_VERSION = "2026-04-20";
 // ─────────────────────────────────────────────────────────────────────────────
 function setCorsHeaders(res) {
     res.set("Access-Control-Allow-Origin",  "https://mon50ccetmoi.com");
-    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 }
 
@@ -134,8 +134,9 @@ async function createPennylaneInvoice(orderData, userEmail, userName) {
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. createRevolutOrder
 //    Crée un ordre de paiement Revolut et retourne le token au client.
+//    SÉCURITÉ : Authentification Firebase obligatoire (OWASP A01 / ASVS v5.0.0-4.1.1)
 //
-//    POST body : { amount_cents, currency, case_id, user_id, report_type }
+//    POST body : { case_id, report_type }
 //    Response  : { order_id, order_token, amount, currency, status }
 // ─────────────────────────────────────────────────────────────────────────────
 exports.createRevolutOrder = onRequest(
@@ -145,7 +146,15 @@ exports.createRevolutOrder = onRequest(
         if (req.method === "OPTIONS") return res.status(204).send("");
         if (req.method !== "POST")   return res.status(405).json({ error: "Method Not Allowed" });
 
-        let { amount_cents, currency, case_id, user_id, report_type } = req.body;
+        // SÉCURITÉ CRITIQUE : Vérifier le token Firebase Auth (OWASP A01)
+        const authUser = await verifyAuthToken(req);
+        if (!authUser) {
+            return res.status(401).json({ error: "Authentification requise pour créer un ordre de paiement." });
+        }
+
+        let { amount_cents, currency, case_id, report_type } = req.body;
+        // Forcer le user_id depuis le token authentifié (ne jamais faire confiance au client)
+        const user_id = authUser.uid;
 
         // Validation & Sécurité des montants
         // Tous les prix sont définis côté serveur pour empêcher la manipulation client
@@ -251,7 +260,7 @@ exports.createRevolutOrder = onRequest(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2. revolutWebhook
+// 2. revolutWebhook (Webhook Revolut)
 //    Reçoit les notifications Revolut (paiement confirmé, échoué, etc.)
 //    et met à jour Firestore + débloque le rapport.
 //
@@ -390,7 +399,7 @@ exports.revolutWebhook = onRequest(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 4. sendEmergencySOS
+// 3. sendEmergencySOS
 //    Enregistre et simule l'envoi d'une alerte SOS aux contacts d'urgence.
 // ─────────────────────────────────────────────────────────────────────────────
 exports.sendEmergencySOS = onCall(
@@ -456,7 +465,7 @@ exports.sendEmergencySOS = onCall(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 5. deleteUserAccount (Protocole 0 / RGPD)
+// 4. deleteUserAccount (Protocole 0 / RGPD Art. 17)
 //    Supprime le compte Firebase Auth et les données utilisateur Firestore.
 // ─────────────────────────────────────────────────────────────────────────────
 exports.deleteUserAccount = onRequest(
@@ -492,32 +501,69 @@ exports.deleteUserAccount = onRequest(
                 console.warn("[RGPD] Auth user not found or already deleted.");
             }
 
-            // Wipe User Data from Firestore (Purge RGPD complète)
+            // Wipe User Data from Firestore (Purge RGPD complète — TOUTES les collections)
             const batch = db.batch();
             
+            // Documents à clé directe (user_id = doc ID)
             batch.delete(db.collection("users").doc(user_id));
             batch.delete(db.collection("fido_challenges").doc(user_id));
             batch.delete(db.collection("ants_wallet").doc(user_id));
             batch.delete(db.collection("rate_limits").doc(`gemini_${user_id}`));
+            batch.delete(db.collection("rate_limits").doc(`payment_poll_${user_id}`));
+            batch.delete(db.collection("gamification_stats").doc(user_id));
+            batch.delete(db.collection("social_radar").doc(user_id));
             
+            // Sous-collection FIDO credentials
             const fidoDocs = await db.collection("users").doc(user_id).collection("fido_credentials").get();
             fidoDocs.forEach(doc => batch.delete(doc.ref));
             
             await batch.commit();
 
+            // Requêtes par champ — Purge RGPD exhaustive de TOUTES les collections
+            // (OWASP ASVS v5.0.0-14.x / RGPD Art. 17 — Droit à l'effacement)
             const queries = [
+                // Paiements et ordres
                 { coll: "revolut_orders", field: "user_id" },
                 { coll: "payment_confirmations", field: "user_id" },
+                { coll: "blackbox_sales", field: "userId" },
+                // Alertes et sécurité
                 { coll: "sos_alerts", field: "user_id" },
                 { coll: "sms_outbox", field: "user_id" },
                 { coll: "theft_alerts", field: "user_id" },
+                { coll: "emergency_alerts", field: "userId" },
+                { coll: "crash_reports", field: "userId" },
+                // Télémétrie et boîte noire
                 { coll: "telemetry_sessions", field: "uid" },
-                { coll: "blackbox_sessions", field: "uid" },
-                { coll: "hazards", field: "authorUid" }
+                { coll: "blackbox_reports", field: "userId" },
+                // Trajets et navigation
+                { coll: "balades", field: "userId" },
+                { coll: "obd_sessions", field: "userId" },
+                { coll: "roadbooks", field: "authorUid" },
+                { coll: "community_roadbooks", field: "userId" },
+                // Sessions en groupe
+                { coll: "guardian_sessions", field: "userId" },
+                { coll: "cortege_sessions", field: "leaderId" },
+                { coll: "convoys", field: "leaderUid" },
+                // Communauté
+                { coll: "hazards", field: "authorUid" },
+                { coll: "moods", field: "userId" },
+                { coll: "pit_stops", field: "authorUid" },
+                { coll: "garage_trades", field: "authorUid" },
+                // Marketplace
+                { coll: "exchange_listings", field: "userId" },
+                { coll: "exchange_messages", field: "fromUid" },
+                // Litiges et assurance
+                { coll: "litigation_proposals", field: "userId" },
+                // Garage et maintenance
+                { coll: "maintenance_logs", field: "vehicleOwnerUid" },
+                { coll: "battery_certificates", field: "userId" },
+                { coll: "garage_evaluations", field: "userId" },
+                // Présence
+                { coll: "presence", field: "userId" },
             ];
 
             for (const q of queries) {
-                const snapshot = await db.collection(q.coll).where(q.field, "==", user_id).get();
+                const snapshot = await db.collection(q.coll).where(q.field, "==", user_id).limit(500).get();
                 if (!snapshot.empty) {
                     const qBatch = db.batch();
                     snapshot.forEach(doc => qBatch.delete(doc.ref));
@@ -535,7 +581,7 @@ exports.deleteUserAccount = onRequest(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 6. checkPaymentStatus
+// 5. checkPaymentStatus
 //    Vérifié par le client pour savoir si un paiement est confirmé.
 //    Le client poll cette fonction après avoir redirigé l'utilisateur
 //    vers le checkout Revolut.
@@ -550,6 +596,16 @@ exports.checkPaymentStatus = onRequest(
 
         const { case_id, user_id } = req.query;
         if (!case_id || !user_id) return res.status(400).json({ error: "case_id et user_id requis" });
+
+        // SÉCURITÉ CRITIQUE : Vérifier le token Firebase Auth (OWASP A01)
+        const authUser = await verifyAuthToken(req);
+        if (!authUser) {
+            return res.status(401).json({ error: "Authentification requise." });
+        }
+        if (authUser.uid !== user_id) {
+            console.warn(`[Sec] IDOR attempt blocked: auth=${authUser.uid}, requested=${user_id}`);
+            return res.status(403).json({ error: "Accès refusé : token invalide pour cet utilisateur." });
+        }
 
         // Rate limiter anti-polling abusif
         const now = Date.now();
@@ -599,7 +655,7 @@ exports.checkPaymentStatus = onRequest(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 7. triggerAntiTheftAlert
+// 6. triggerAntiTheftAlert
 //    Déclenchée par l'app mobile en cas de détection de secousse/vol.
 //    Sauvegarde l'alerte sur Firestore pour un suivi et des notifications Push.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -636,7 +692,7 @@ exports.triggerAntiTheftAlert = onRequest(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 5. sendWelcomeEmail (Automated email after beta signup)
+// 7. sendWelcomeEmail (Automated email after beta signup)
 // ─────────────────────────────────────────────────────────────────────────────
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const nodemailer = require("nodemailer");
@@ -669,18 +725,18 @@ exports.sendWelcomeEmail = onDocumentCreated(
         const mailOptions = {
             from: '"mon50ccetmoi" <contact@mon50ccetmoi.com>',
             to: email,
-            subject: "🎆 Joyeux 14 Juillet & Bienvenue sur mon50ccetmoi ! 🇫🇷",
-            text: "Merci de nous avoir rejoints dans la Bêta !\n\nJoyeuse Fête Nationale !\nBonne route et soyez prudents.\n\nL'équipe mon50ccetmoi",
+            subject: "🏍️ Bienvenue sur mon50ccetmoi ! Ta sécurité, notre priorité.",
+            text: "Merci de nous avoir rejoints dans la Bêta !\n\nTon inscription a bien été enregistrée. Tu vas très bientôt recevoir ton accès pour rouler avec nous.\n\nBonne route et sois prudent !\n\nL'équipe mon50ccetmoi",
             html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px; border-radius: 10px; border-top: 5px solid #0055A4; border-bottom: 5px solid #EF4135;">
-                    <div style="text-align: center; font-size: 40px; margin-bottom: 10px;">🇫🇷 🎆 🎇 🇫🇷</div>
-                    <h2 style="color: #0055A4; text-align: center;">Joyeuse Fête Nationale !</h2>
-                    <h3 style="color: #ffb703; text-align: center;">Et bienvenue sur mon50ccetmoi ! 🏍️</h3>
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px; border-radius: 10px; border-top: 5px solid #00d2ff; border-bottom: 5px solid #ffb703;">
+                    <div style="text-align: center; font-size: 40px; margin-bottom: 10px;">🏍️ 🛵 🚗</div>
+                    <h2 style="color: #0055A4; text-align: center;">Bienvenue sur mon50ccetmoi !</h2>
+                    <h3 style="color: #ffb703; text-align: center;">Ta sécurité routière, notre priorité 🛡️</h3>
                     <p style="color: #333; font-size: 16px;">Salut !</p>
-                    <p style="color: #333; font-size: 16px;">En ce 14 juillet festif, ton inscription à la Bêta a bien été enregistrée.</p>
+                    <p style="color: #333; font-size: 16px;">Ton inscription à la Bêta a bien été enregistrée.</p>
                     <p style="color: #333; font-size: 16px;">Nous avons hâte de te faire découvrir l'application. Tu vas très bientôt recevoir ton accès pour rouler avec nous.</p>
                     <br/>
-                    <p style="color: #EF4135; font-size: 16px; font-weight: bold; text-align: center;">Profite bien des feux d'artifice, bonne route et sois prudent !</p>
+                    <p style="color: #00d2ff; font-size: 16px; font-weight: bold; text-align: center;">Bonne route et sois prudent ! 🛣️</p>
                     <hr style="border: none; border-top: 1px solid #ccc; margin: 20px 0;">
                     <p style="color: #777; font-size: 12px; text-align: center;">L'équipe mon50ccetmoi</p>
                 </div>
@@ -698,7 +754,7 @@ exports.sendWelcomeEmail = onDocumentCreated(
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 8. askNexusAtlasGemini (Relais sécurisé pour l'IA)
-//    Reçoit l'historique de conversation, interroge l'API Gemini et renvoie la réponse.
+//    Reçoit l'historique de conversation, interroge Vertex AI Gemini et renvoie la réponse.
 // ─────────────────────────────────────────────────────────────────────────────
 exports.askNexusAtlasGemini = onRequest(
     { secrets: [GEMINI_API_KEY], region: "europe-west1" },
@@ -800,7 +856,7 @@ exports.askNexusAtlasGemini = onRequest(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 5. reportToNotion
+// 9. reportToNotion
 //    Envoie un ticket/rapport vers une base de données Notion (Bug tracker / CRM).
 //
 //    POST body : { title, description, category, priority }
@@ -873,7 +929,7 @@ exports.reportToNotion = onRequest(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 3. getVigilanceMeteo
+// 10. getVigilanceMeteo
 // ─────────────────────────────────────────────────────────────────────────────
 exports.getVigilanceMeteo = onRequest(
     { secrets: [METEO_FRANCE_API_KEY], cors: true, region: "europe-west1" },

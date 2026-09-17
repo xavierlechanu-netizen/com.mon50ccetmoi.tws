@@ -1,13 +1,13 @@
 {
   "name": "mon50ccetmoi",
-  "version": "109.00.00",
+  "version": "110.00.00",
   "description": "L'application de la communauté 50cc",
   "author": "Xavier Le Chanu",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/post-build.mjs",
+    "build": "vite build",
     "preview": "vite preview",
     "test": "jest"
   },
@@ -20,7 +20,8 @@
   "dependencies": {
     "@capacitor/android": "^8.5.0",
     "@capacitor/cli": "^8.5.0",
-    "@capacitor/core": "^8.5.0"
+    "@capacitor/core": "^8.5.0",
+    "cheerio": "^1.2.0"
   },
   "jest": {
     "testEnvironment": "jsdom"

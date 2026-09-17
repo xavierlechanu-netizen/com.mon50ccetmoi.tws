@@ -1,0 +1,130 @@
+<div id="battery-manual-screen" class="hidden fullscreen-overlay" style="
+        background: rgba(0, 0, 0, 0.9);
+        color: #fff;
+        z-index: 37000;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow-y: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px);
+      ">
+      <div style="
+          background: #111;
+          border: 1px solid #444;
+          border-radius: 15px;
+          padding: 30px;
+          width: 90%;
+          max-width: 500px;
+          position: relative;
+        ">
+        <button onclick="
+            document
+              .getElementById('battery-manual-screen')
+              .classList.add('hidden')
+          " style="
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+          ">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <h2 style="margin-top: 0; color: #00ffcc">
+          <i class="fa-solid fa-keyboard"></i> Saisie Manuelle
+        </h2>
+        <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 25px">
+          Saisissez les donnÃ©es connues de votre batterie. L'IA estimera votre
+          SOH.
+        </p>
+
+        <div style="
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+          ">
+          <div>
+            <label for="man-mileage" style="color: #aaa; font-size: 0.8rem">KilomÃ©trage du vÃ©hicule (km)</label>
+            <input aria-label="Ex: 12450" type="number" id="man-mileage" placeholder="Ex: 12450" style="
+                width: 100%;
+                padding: 12px;
+                background: #000;
+                border: 1px solid #333;
+                color: #fff;
+                border-radius: 8px;
+                margin-top: 5px;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+              ">
+          </div>
+          <div>
+            <label for="man-cycles" style="color: #aaa; font-size: 0.8rem">Nombre de cycles estimÃ©</label>
+            <input aria-label="Ex: 345" type="number" id="man-cycles" placeholder="Ex: 345" style="
+                width: 100%;
+                padding: 12px;
+                background: #000;
+                border: 1px solid #333;
+                color: #fff;
+                border-radius: 8px;
+                margin-top: 5px;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+              ">
+          </div>
+          <div>
+            <label for="man-age" style="color: #aaa; font-size: 0.8rem">ge de la batterie (en mois)</label>
+            <input aria-label="Ex: 27" type="number" id="man-age" placeholder="Ex: 27" style="
+                width: 100%;
+                padding: 12px;
+                background: #000;
+                border: 1px solid #333;
+                color: #fff;
+                border-radius: 8px;
+                margin-top: 5px;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+              ">
+          </div>
+          <div>
+            <label for="man-style" style="color: #aaa; font-size: 0.8rem">Type de conduite principal</label>
+            <select id="man-style" style="
+                width: 100%;
+                padding: 12px;
+                background: #000;
+                border: 1px solid #333;
+                color: #fff;
+                border-radius: 8px;
+                margin-top: 5px;
+              ">
+              <option value="Ã‰co-Responsable / Fluide">
+                Ã‰co-Responsable / Fluide
+              </option>
+              <option value="Mixte / Urbaine">Mixte / Urbaine</option>
+              <option value="Sportive / Nerveuse">Sportive / Nerveuse</option>
+            </select>
+          </div>
+        </div>
+
+        <button onclick="
+            if (window.Certificate) window.Certificate.submitManualData();
+          " style="
+            background: #00ffcc;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 15px;
+            width: 100%;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+          ">
+          Lancer l'estimation SOH
+        </button>
+      </div>
+    </div>

@@ -4,6 +4,12 @@
 
 let currentUser = null;
 
+// Sécurité XSS : Échapper les données Firestore avant injection DOM (OWASP ASVS v5.0.0-3.2.2)
+function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
 if (typeof document !== 'undefined') {
   document.addEventListener("DOMContentLoaded", async () => {
     let sessionStr = null;
@@ -97,9 +103,9 @@ function renderLogs(logs) {
     const date = log.timestamp ? new Date(log.timestamp).toLocaleDateString('fr-FR') : 'N/A';
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${date}</td>
-      <td><strong>${log.clientName || 'Client Inconnu'}</strong><br><span style="font-size:0.75rem; color:#888;">${log.vehicleModel || 'Scooter 50cc'}</span></td>
-      <td>${log.category} - ${log.description}</td>
+      <td>${escapeHtml(date)}</td>
+      <td><strong>${escapeHtml(log.clientName || 'Client Inconnu')}</strong><br><span style="font-size:0.75rem; color:#888;">${escapeHtml(log.vehicleModel || 'Scooter 50cc')}</span></td>
+      <td>${escapeHtml(log.category)} - ${escapeHtml(log.description)}</td>
       <td>
         ${log.certified ? '<span class="badge-certified"><i class="fa-solid fa-lock"></i> Scellé</span>' : 'Brouillon'}
       </td>
@@ -220,8 +226,8 @@ function createAlertDOM(container, clientName, partName, reason, isCritical, pri
   div.className = `alert-item ${isCritical ? 'critical' : ''}`;
   div.innerHTML = `
     <div class="alert-info">
-      <div class="alert-title">${partName} <span style="color:var(--text-muted); font-weight:normal;">- ${clientName}</span></div>
-      <div class="alert-reason"><i class="fa-solid fa-triangle-exclamation"></i> ${reason}</div>
+      <div class="alert-title">${escapeHtml(partName)} <span style="color:var(--text-muted); font-weight:normal;">- ${escapeHtml(clientName)}</span></div>
+      <div class="alert-reason"><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(reason)}</div>
       <div class="alert-subtitle">CA Est. : ${price} €</div>
     </div>
     <button class="btn-push" onclick="sendPromoPush(this)">
