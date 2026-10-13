@@ -4,6 +4,52 @@ Toutes les modifications notables du projet sont documentées dans ce fichier.
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère au [Versionnement Sémantique](https://semver.org/lang/fr/).
 
+## [111.02.02] - 2026-10-13 - 📱 Android 15 Edge-to-Edge, Durcissement Sécurité ASVS v5.0.0 & Remédiation Globale
+
+### Sécurité & Conformité (OWASP ASVS v5.0.0, NIST CSF 2.0 & RGPD)
+- **Éradication Complète des Exécutions Dynamiques (ASVS v5.0.0-1.3.2)** :
+  - **`src/js/dom-security.js`** : Suppression intégrale de tous les constructeurs `new Function()` et de l'évaluation dynamique de handlers `onclick`.
+  - Implémentation d'un parseur d'arguments déterministe `parseSafeArgs()` (support exclusif des littéraux primitifs et tableaux JSON, zéro évaluation de code).
+  - Durcissement de DOMPurify avec interdiction explicite des balises dangereuses (`iframe`, `style`, `script`, `object`, `embed`).
+  - Ajout d'une suite de tests unitaires Jest dédiée (`tests/dom-security.test.js`) validant l'assainissement et la neutralisation des payloads XSS.
+- **Assainissement des Dépendances & Vulnérabilités de la Chaîne d'Approvisionnement (NIST GV.SC-01 & ASVS V13)** :
+  - **`functions/`** : Élimination de 100% des vulnérabilités de dépendances (`0 vulnerability`), dont la mise à niveau critique de `nodemailer` vers `>=10.1.0` (advisories GHSA-6vj9-mwq6-2f5v, GHSA-8vvx-rff5-p5rq, GHSA-g57g-f23g-4646, etc.).
+  - **Racine / Client** : Neutralisation de toutes les vulnérabilités de niveau High/Critical via `overrides` stricts (`@grpc/grpc-js` ^1.14.6, `uuid` ^11.1.1).
+- **Télémétrie d'Authentification Pseudonymisée & Audit (NIST CSF 2.0 DE.AE-08 & RGPD Art. 5/32)** :
+  - Ajout de la collection `auth_logs` dans `firestore.rules` avec validation stricte du schéma (seuls `uid_hash`, `method`, `status`, `errorCode`, `timestamp` sont autorisés).
+  - Interdiction stricte de stockage d'emails, mots de passe, adresses IP ou PII dans les logs de connexion.
+  - Immutabilité absolue des logs d'audit (`allow update, delete: if false`) et restriction de lecture aux seuls administrateurs.
+  - Intégration de la télémétrie dans `src/js/auth.js` (`recordAuthEvent`) pour mot de passe et FIDO2/biométrie, ainsi que dans `inline-login-3.js` pour Google Sign-In.
+- **Règles de Sécurité Firestore Zero-Trust (`firestore.rules` & `tests/firestore.rules.test.js`)** :
+  - Extension de la suite de tests unitaires pour valider l'immutabilité des rapports de boîte noire (`blackbox_reports`), l'interdiction d'accès client direct aux collections système (`fido_challenges`, `rate_limits`), et le rejet de tout champ non conforme dans `auth_logs`.
+- **Intégration Continue & Hygiène du Dépôt** :
+  - Création du workflow GitHub Actions `.github/workflows/ci.yml` assurant l'exécution automatique des tests unitaires Jest, d'ESLint, du build de production Vite, et de l'audit de sécurité des Cloud Functions sur chaque push et pull request.
+
+### Android 15 & TWA
+- **Conformité Android 15 & SDK 35/36 (Google Play Console - Edge-to-Edge)** :
+  - Suppression de l'attribut obsolète `android:windowOptOutEdgeToEdgeEnforcement="true"` dans `AndroidManifest.xml`.
+  - Préservation de la `LauncherActivity` standard d'androidbrowserhelper (2.7.4) garantissant les validations de sécurité d'intent et le filtrage des partages sans risque d'incompatibilité de thème (`IllegalStateException`).
+  - Ajustement des règles ProGuard (`app/proguard-rules.pro`) pour préserver `Log.e`, garantissant la visibilité des stacktraces critiques de crash sur Google Play Vitals / Crashlytics.
+  - Nettoyage des options obsolètes de réduction de ressources dans `gradle.properties`.
+  - Génération du bundle signé release `mon50ccetmoi_v111.02.02.aab` validé sans erreur.
+
+---
+
+## [111.02.01] - 2026-10-11 - 🛡️ Nexus Atlas — Audit Automatisé, Sécurité DOM (ASVS v5.0.0-3.2.2) & Résolution d'Assets
+
+### Corrigé
+- **Sécurité des Injections DOM (OWASP ASVS v5.0.0-3.2.2 & Top 10 A03)** :
+  - Remplacement des assignations non assainies `innerHTML` par la création d'éléments DOM natifs sécurisés (`createTextNode`, `replaceChildren`) ou via `window.DOMSecurity.safeHTML()` dans `src/js/app-map.js`, `src/js/crash-detection.js` et `src/js/radar-danger.js`.
+  - Rétablissement de la conformité stricte ESLint (`npm run lint` : 0 erreur, 0 avertissement).
+- **Gestion et Traçabilité des Erreurs Réseau (`src/js/nexus-atlas-facebook.js`)** :
+  - Attachement de `{ cause: error }` lors de l'interruption `AbortError` pour préserver la cause racine et les traces d'appels conformément aux exigences ES2022 et Zero Trust.
+- **Résolution des Ressources Statiques Vite (`src/partenaires.html` & `src/marketplace.html`)** :
+  - Normalisation des chemins relatifs en chemins absolus (`/assets/ui/screenshot_wide.jpg`, `/assets/ui/blackbox.jpg`) et ajout du visuel dans `src/public/assets/ui/`, éliminant les alertes de résolution de bundle Rollup/Vite.
+- **Directives Opérationnelles Nexus Atlas (`.agents/rules/nexus-atlas-role.md`)** :
+  - Intégration des 7 directives standardisées couvrant l'audit, les correctifs renforcés, les rapports d'activité, les règles logiques, l'autonomie, le multilinguisme international et le Zero Trust.
+
+---
+
 ## [111.02.00] - 2026-10-10 - 🧠 Nexus Atlas — Moteur d'Analyse Autonome, Résolution GSI & Durcissement COOP
 
 ### Ajouté

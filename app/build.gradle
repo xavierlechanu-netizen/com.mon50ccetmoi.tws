@@ -79,8 +79,8 @@ android {
         applicationId "com.mon50ccetmoi.twa"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode 1110002
-        versionName "111.00.02"
+        versionCode 1110202
+        versionName "111.02.02"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -230,8 +230,8 @@ repositories {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     
-    // Mise à jour 2.7.2 pour corriger les API obsolètes (WebViewFallbackActivity)
-    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.2'
+    // androidbrowserhelper 2.7.4 pour compatibilité Android 15 Edge-to-Edge
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.4'
     // Requis pour l'API EdgeToEdge (Android 15+)
     implementation 'androidx.activity:activity:1.10.1'
 }

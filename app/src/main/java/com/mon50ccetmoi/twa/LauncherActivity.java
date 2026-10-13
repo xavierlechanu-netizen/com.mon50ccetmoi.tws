@@ -16,30 +16,19 @@
 package com.mon50ccetmoi.twa;
 
 import android.net.Uri;
-import android.os.Bundle;
 
+/**
+ * Hérite de la LauncherActivity officielle d'androidbrowserhelper, qui conserve
+ * toutes ses protections (validation des URL d'intent, filtrage des partages,
+ * prompt de mise à jour Chrome) et active déjà le bord-à-bord
+ * (WindowCompat.enableEdgeToEdge) dans son onCreate().
+ * Aucun appel direct aux API de fenêtrage obsolètes n'est fait ici.
+ */
 public class LauncherActivity
         extends com.google.androidbrowserhelper.trusted.LauncherActivity {
-    
-
-    
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        // Les couleurs de la barre d'état et de navigation sont gérées par
-        // les metadata du AndroidManifest.xml (colorPrimary, navigationColor).
-        // Les API setStatusBarColor/setNavigationBarColor sont obsolètes depuis SDK 35.
-        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        super.onCreate(savedInstanceState);
-    }
 
     @Override
     protected Uri getLaunchingUrl() {
-        Uri uri = super.getLaunchingUrl();
-
-        
-
-        return uri;
+        return super.getLaunchingUrl();
     }
 }
-

@@ -62,7 +62,7 @@ window.NexusAtlasFacebook = {
         } catch (error) {
             clearTimeout(timeoutId);
             if (error.name === "AbortError") {
-                throw new Error("Délai d'attente dépassé pour la publication Facebook.");
+                throw new Error("Délai d'attente dépassé pour la publication Facebook.", { cause: error });
             }
             throw error;
         }
@@ -95,7 +95,7 @@ window.NexusAtlasFacebook = {
             console.log(`[NexusAtlas Facebook] Prévisualisation prête (source: ${data.contentSource}, format: ${data.format})`);
             return data;
         } catch (error) {
-            if (error.name === "AbortError") throw new Error("Délai dépassé pour la prévisualisation.");
+            if (error.name === "AbortError") throw new Error("Délai dépassé pour la prévisualisation.", { cause: error });
             console.error("[NexusAtlas Facebook] Échec prévisualisation :", error.message);
             throw error;
         } finally {

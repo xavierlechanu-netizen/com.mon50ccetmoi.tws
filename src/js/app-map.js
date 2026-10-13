@@ -1327,7 +1327,9 @@ window.checkMapPanForRadar = function () {
     if (!searchBtn) {
       searchBtn = document.createElement("button");
       searchBtn.id = "btn-search-this-area";
-      searchBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Rechercher ici';
+      const searchIcon = document.createElement("i");
+      searchIcon.className = "fa-solid fa-magnifying-glass";
+      searchBtn.replaceChildren(searchIcon, document.createTextNode(" Rechercher ici"));
       searchBtn.style.cssText = `
         position: absolute;
         top: 100px;

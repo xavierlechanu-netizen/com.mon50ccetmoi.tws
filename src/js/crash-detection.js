@@ -84,7 +84,7 @@ class CrashDetector {
         // Création de l'UI d'alerte en plein écran
         const overlay = document.createElement('div');
         overlay.id = "crash-sos-overlay";
-        overlay.innerHTML = `
+        const overlayContent = `
             <style>
                 #crash-sos-overlay {
                     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -111,24 +111,37 @@ class CrashDetector {
             <div class="sos-timer" id="sos-countdown">${this.COUNTDOWN_SECONDS}</div>
             <button class="sos-cancel-btn" id="sos-cancel">JE VAIS BIEN (ANNULER)</button>
         `;
+        if (window.DOMSecurity && window.DOMSecurity.safeHTML) {
+            window.DOMSecurity.safeHTML(overlay, overlayContent);
+        } else {
+            // eslint-disable-next-line no-restricted-syntax
+            overlay.innerHTML = overlayContent;
+        }
         document.body.appendChild(overlay);
 
         let secondsLeft = this.COUNTDOWN_SECONDS;
         const timerEl = document.getElementById('sos-countdown');
         
         // Bouton d'annulation (Faux positif, ex: téléphone tombé)
-        document.getElementById('sos-cancel').addEventListener('click', () => {
-            clearInterval(this.countdownTimer);
-            document.body.removeChild(overlay);
-            this.isTriggered = false;
-            this.startMonitoring(); // On reprend la surveillance
-            console.log("[CrashDetector] Alerte annulée par le pilote.");
-        });
+        const cancelBtn = document.getElementById('sos-cancel');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                clearInterval(this.countdownTimer);
+                if (overlay && overlay.parentNode) {
+                    overlay.remove();
+                }
+                this.isTriggered = false;
+                this.startMonitoring(); // On reprend la surveillance
+                console.log("[CrashDetector] Alerte annulée par le pilote.");
+            });
+        }
 
         // Compte à rebours
         this.countdownTimer = setInterval(() => {
             secondsLeft--;
-            timerEl.innerText = secondsLeft;
+            if (timerEl) {
+                timerEl.textContent = String(secondsLeft);
+            }
 
             if (secondsLeft <= 0) {
                 clearInterval(this.countdownTimer);
@@ -138,12 +151,21 @@ class CrashDetector {
     }
 
     executeLockdown(forceG) {
-        document.getElementById('crash-sos-overlay').innerHTML = `
-            <i class="fa-solid fa-lock" style="font-size: 4rem; margin-bottom: 20px;"></i>
-            <h2 style="font-size: 2rem;">BOÎTE NOIRE VERROUILLÉE</h2>
-            <p>Données cryptées en cours de transmission...</p>
-            <p>Les secours et vos contacts d'urgence ont été alertés.</p>
-        `;
+        const overlayEl = document.getElementById('crash-sos-overlay');
+        if (overlayEl) {
+            const lockdownContent = `
+                <i class="fa-solid fa-lock" style="font-size: 4rem; margin-bottom: 20px;"></i>
+                <h2 style="font-size: 2rem;">BOÎTE NOIRE VERROUILLÉE</h2>
+                <p>Données cryptées en cours de transmission...</p>
+                <p>Les secours et vos contacts d'urgence ont été alertés.</p>
+            `;
+            if (window.DOMSecurity && window.DOMSecurity.safeHTML) {
+                window.DOMSecurity.safeHTML(overlayEl, lockdownContent);
+            } else {
+                // eslint-disable-next-line no-restricted-syntax
+                overlayEl.innerHTML = lockdownContent;
+            }
+        }
 
         console.warn("[CrashDetector] VERROUILLAGE EXÉCUTÉ !");
         console.warn("1. Appel Bluetooth vers ESP32 : Commande FREEZE_BLACKBOX");

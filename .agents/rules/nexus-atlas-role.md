@@ -76,8 +76,10 @@ Avant toute modification :
 ### Sécurité (non négociable)
 - Authentification : Firebase Auth exclusivement. Pas de système maison.
 - Autorisation : Vérification Firestore Rules + vérification côté client du rôle (`isCertifiedGarage`, `role`).
+- Zero Trust : Ne jamais faire confiance par défaut ("Never Trust, Always Verify"), validation systématique côté serveur et contrôle continu de la validité des accès.
 - Stockage session : `secureSetItem()` (AES-256) en priorité, `localStorage` en fallback.
 - Jamais de secrets, clés API ou mots de passe en dur dans le code.
+
 
 ---
 
@@ -100,3 +102,31 @@ Avant toute modification :
 5. Ne jamais ignorer une erreur console — chaque erreur doit être investiguée et résolue.
 6. Ne jamais utiliser `eval()`, `Function()`, ou `document.write()`.
 7. Ne jamais stocker de données de santé (rythme cardiaque, biométrie) sur les serveurs — traitement 100% local (Edge Computing).
+
+---
+
+## ⚡ Directives d'Action et Déclencheurs Standardisés
+
+Lorsque l'utilisateur formule l'une de ces directives d'action précises, l'agent active immédiatement la procédure correspondante :
+
+1. **Audit & Optimisation** :  
+   > *« Effectue un audit complet du code pour identifier les bugs potentiels et les pistes d'optimisation. »*
+2. **Sécurité renforcée** :  
+   > *« Propose des correctifs de sécurité renforcés pour chaque vulnérabilité détectée. »*  
+   *(Applique sans compromis les standards OWASP ASVS v5.0.0 et NIST CSF 2.0).*
+3. **Rapports d'activité & Logs** :  
+   > *« Génère des rapports détaillés de l'activité du système sur simple demande. »*
+4. **Mise à jour des règles logiques** :  
+   > *« Mets à jour les règles logique de la classe spécifiée conformément aux nouvelles directives. »*
+5. **Autonomie & Évolution continue** :  
+   > *« Développe en autonomie de nouvelles fonctionnalités ou améliorations pour optimiser tes performances en fonction de tes analyses. »*
+6. **Approche Multilingue & Expansion Internationale** :  
+   > *« Adopte une approche multilingue et adapte ton fonctionnement pour intégrer et répondre aux spécificités des différents marchés étrangers. »*  
+   *(Applique le support i18n, la localisation culturelle, et le respect des cadres réglementaires régionaux tels que RGPD/UE, CCPA-CPRA/USA, PIPL/Chine).*
+7. **Architecture Zero Trust & Contrôle Continu** :  
+   > *« Applique rigoureusement les principes du zero trust : ne fais jamais confiance par défaut et vérifie continuellement l'identité des utilisateurs et la validité des accès. »*  
+   *(Validation stricte côté serveur, vérification continue des tokens Firebase Auth, conformité OWASP ASVS v5.0.0 Chapitre V8 / NIST CSF 2.0 PR.AA).*
+
+
+
+

@@ -263,7 +263,15 @@ function loadDangers(userGeohash) {
       `);
     });
     
-    if (feed) feed.innerHTML = items.length ? items.join('') : '<p class="feed-empty">Aucun danger signalé dans la zone. Bonne route ! 🟢</p>';
+    if (feed) {
+      const emptyOrItems = items.length ? items.join('') : '<p class="feed-empty">Aucun danger signalé dans la zone. Bonne route ! 🟢</p>';
+      if (window.DOMSecurity && window.DOMSecurity.safeHTML) {
+        window.DOMSecurity.safeHTML(feed, emptyOrItems);
+      } else {
+        // eslint-disable-next-line no-restricted-syntax
+        feed.innerHTML = emptyOrItems;
+      }
+    }
     const countBadge = document.getElementById('signal-count');
     if (countBadge) countBadge.textContent = mockHazards.length;
     
@@ -331,8 +339,15 @@ function loadDangers(userGeohash) {
         `);
       });
 
-      if (feed) // eslint-disable-next-line no-restricted-syntax
-feed.innerHTML = items.length ? items.join('') : '<p class="feed-empty">Aucun danger signalé dans la zone. Bonne route ! 🟢</p>';
+      if (feed) {
+        const emptyOrItems = items.length ? items.join('') : '<p class="feed-empty">Aucun danger signalé dans la zone. Bonne route ! 🟢</p>';
+        if (window.DOMSecurity && window.DOMSecurity.safeHTML) {
+          window.DOMSecurity.safeHTML(feed, emptyOrItems);
+        } else {
+          // eslint-disable-next-line no-restricted-syntax
+          feed.innerHTML = emptyOrItems;
+        }
+      }
       const countBadge = document.getElementById('signal-count');
       if (countBadge) countBadge.textContent = snapshot.size;
     }, err => console.error('[Radar Danger] Firestore error:', err));

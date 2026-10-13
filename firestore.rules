@@ -544,6 +544,20 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────────
+    // AUTH LOGS (Télémétrie d'Authentification Anonymisée & Audit)
+    // Conforme NIST CSF 2.0 DE.AE-08 & OWASP ASVS v5.0.0-16.x
+    // ─────────────────────────────────────────────────────────────
+    match /auth_logs/{logId} {
+      allow create: if request.resource.data.keys().hasOnly(['uid_hash', 'method', 'status', 'errorCode', 'timestamp'])
+        && request.resource.data.method in ['password', 'google', 'fido2']
+        && request.resource.data.status in ['success', 'failure']
+        && (request.resource.data.errorCode is string || request.resource.data.errorCode == null)
+        && request.resource.data.timestamp == request.time;
+      allow read: if isAdmin();
+      allow update, delete: if false; // Immuabilité absolue des logs d'audit
+    }
+
+    // ─────────────────────────────────────────────────────────────
     // NEXUS CONVERSATIONS (Synchronisation d'interactions & Feedback)
     // Lecture réservée aux administrateurs. Écriture pour les sessions actives.
     // ─────────────────────────────────────────────────────────────

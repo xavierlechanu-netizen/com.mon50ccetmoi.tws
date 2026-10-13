@@ -56,6 +56,10 @@ function doLogin() {
             .signInWithCredential(credential);
           const user = userCredential.user;
 
+          if (typeof window.recordAuthEvent === 'function') {
+            window.recordAuthEvent('google', 'success', user.uid);
+          }
+
           // Vérifier si le profil Firestore existe
           const doc = await firebase
             .firestore()
@@ -85,6 +89,9 @@ function doLogin() {
           window.location.href = "app.html";
         } catch (error) {
           console.error("Google Auth Error:", error);
+          if (typeof window.recordAuthEvent === 'function') {
+            window.recordAuthEvent('google', 'failure', null, error.code || error.message);
+          }
           alert("Erreur Google Auth : " + error.message);
         }
       }

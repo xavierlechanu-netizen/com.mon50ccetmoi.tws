@@ -51,6 +51,40 @@ window.escapeHTML = function (str) {
   });
 };
 
+// --- AUDIT & TÉLÉMÉTRIE D'AUTHENTIFICATION (Zero-Trust & RGPD) ---
+// Conforme NIST CSF 2.0 DE.AE-08 & OWASP ASVS v5.0.0-16.x
+async function hashUid(uid) {
+  if (!uid) return null;
+  try {
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(uid);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("").substring(0, 16);
+    }
+  } catch (e) {}
+  return "pseudo_" + String(uid).substring(0, 8);
+}
+
+export async function recordAuthEvent(method, status, uid = null, errorCode = null) {
+  try {
+    if (typeof firebase === "undefined" || !firebase.firestore) return;
+    const uidHash = uid ? await hashUid(uid) : null;
+    await firebase.firestore().collection("auth_logs").add({
+      uid_hash: uidHash,
+      method: method,
+      status: status,
+      errorCode: errorCode ? String(errorCode).substring(0, 50) : null,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) {
+    // Non-blocking telemetry
+    console.warn("[AuthAudit] Log skipped:", e?.message);
+  }
+}
+window.recordAuthEvent = recordAuthEvent;
+
 // --- AUTHENTICATION ENGINE (FIREBASE MIGRATION) ---
 
 window.login = async function (username, password) {
@@ -66,6 +100,9 @@ window.login = async function (username, password) {
       .auth()
       .signInWithEmailAndPassword(email, password);
     const user = userCredential.user;
+
+    // Télémétrie d'audit pseudonymisée
+    recordAuthEvent('password', 'success', user.uid);
 
     // Récupérer le profil complet depuis Firestore
     const doc = await firebase
@@ -88,6 +125,7 @@ window.login = async function (username, password) {
     window.location.href = session.role === "admin" ? "admin.html" : "app.html";
   } catch (error) {
     console.error("Login Error:", error);
+    recordAuthEvent('password', 'failure', null, error.code || error.message);
 
     // Support pour environnement local / présentation si les referrers Google Cloud bloquent localhost
     const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -324,6 +362,7 @@ window.loginBiometric = async function () {
     if (verifyRes.data.success && verifyRes.data.customToken) {
         // Connexion Firebase Auth
         await firebase.auth().signInWithCustomToken(verifyRes.data.customToken);
+        recordAuthEvent('fido2', 'success', storedUid);
         
         // Charger profil
         const doc = await firebase.firestore().collection("users").doc(storedUid).get();
@@ -340,6 +379,7 @@ window.loginBiometric = async function () {
     }
   } catch (e) {
     console.error("WebAuthn Login Error:", e);
+    recordAuthEvent('fido2', 'failure', window.cacheGetItem("fido2_uid") || null, e?.code || e?.message);
     alert("Échec de la connexion biométrique : " + (e.message || e));
   }
 };
