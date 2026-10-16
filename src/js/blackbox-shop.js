@@ -1,22 +1,30 @@
+/**
+ * BLACK BOX SHOP - Gestion des Ventes de Boîtiers Matériels (Revolut Checkout)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Intégration officielle Revolut Merchant API & Cloud Functions sécurisées.
+ * 
+ * Sécurité :
+ *  - Aucune écriture directe client dans blackbox_sales (OWASP ASVS v5.0.0-2.3.3)
+ *  - Paiement certifié par le Webhook Revolut (signature HMAC SHA-256)
+ *  - Zero innerHTML dynamique (ASVS v5.0.0-3.2.2)
+ *  - Tarification dynamique calculée et vérifiée côté serveur
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 
-/**
- * BLACK BOX SHOP - Gestion des Ventes de Boîtiers Matériels
- * Intégration Tarification Dynamique et Garantie à Vie.
- */
-
-window.BlackBoxShop = {
-  // Configuration des prix
+export const BlackBoxShop = {
+  // Configuration des prix (affichage)
   pricing: {
-    first10: 49.99, // Offre lancement (garantie à vie)
-    standard: 89.99, // Tarif classique
-    duo: 161.98, // Pack Duo (standard x2 remisé, sans garantie)
+    first10: 49.99, // Offre lancement : Prototype garanti à vie
+    standard: 89.99, // Tarif unitaire standard
+    duo: 161.98, // Pack Duo (2 boîtiers)
   },
 
-  // Stock et statistiques
   salesCount: 0,
   maxPrototypeLifetime: 10,
+  isProcessing: false,
 
   /**
    * Initialisation : Récupérer le nombre de ventes depuis Firestore
@@ -26,24 +34,18 @@ window.BlackBoxShop = {
       if (typeof db !== "undefined") {
         const statsRef = db.collection("stats").doc("blackbox_sales");
         const doc = await statsRef.get();
-        
         if (doc.exists) {
           this.salesCount = doc.data().count || 0;
-        } else {
-          await statsRef.set({ count: 0 });
-          this.salesCount = 0;
         }
-      } else {
-        this.salesCount = parseInt(localStorage.getItem('sim_bb_sales') || '0');
       }
       this.updateUI();
     } catch (error) {
-      console.warn("Erreur chargement stats Black Box", error);
+      console.warn("[BlackBoxShop] Avertissement chargement compteur ventes :", error);
     }
   },
 
   /**
-   * Met à jour l'interface avec le bon prix
+   * Met à jour l'interface (100% textContent sécurisé)
    */
   updateUI: function () {
     const isPromo = this.salesCount < this.maxPrototypeLifetime;
@@ -52,117 +54,182 @@ window.BlackBoxShop = {
 
     const btnUnit = document.getElementById("bb-buy-unit-btn");
     if (btnUnit) {
-        if (isPromo) {
-            // eslint-disable-next-line no-restricted-syntax
-            btnUnit.innerHTML = `<i class="fa-solid fa-cart-shopping"></i> Commander (${currentPrice.toFixed(2).replace('.', ',')} €) - Reste ${remaining} Protos`;
-        } else {
-            // eslint-disable-next-line no-restricted-syntax
-            btnUnit.innerHTML = `<i class="fa-solid fa-cart-shopping"></i> Commander ma Boîte Noire (${currentPrice.toFixed(2).replace('.', ',')} €)`;
-        }
+      btnUnit.textContent = "";
+      const icon = document.createElement("i");
+      icon.className = "fa-solid fa-cart-shopping";
+      icon.style.marginRight = "8px";
+      btnUnit.appendChild(icon);
+
+      const label = document.createTextNode(
+        isPromo
+          ? `Commander (${currentPrice.toFixed(2).replace('.', ',')} €) - Reste ${remaining} Protos`
+          : `Commander ma Boîte Noire (${currentPrice.toFixed(2).replace('.', ',')} €)`
+      );
+      btnUnit.appendChild(label);
+    }
+
+    const stockBadge = document.getElementById("bb-stock-count");
+    if (stockBadge) {
+      const estimatedStock = Math.max(0, 100 - this.salesCount);
+      stockBadge.textContent = String(estimatedStock);
     }
   },
 
   /**
-   * Achat Unitaire
+   * Commande Boîte Noire Unitaire
    */
   buyUnit: async function () {
+    if (this.isProcessing) return;
     const isPromo = this.salesCount < this.maxPrototypeLifetime;
     const price = isPromo ? this.pricing.first10 : this.pricing.standard;
-    const msg = isPromo 
-      ? `Offre de Lancement ! Vous achetez un Prototype garanti à vie.\nMontant: ${price} €\nConfirmer le paiement ?` 
-      : `Achat Boîte Noire Standard.\nMontant: ${price} €\nConfirmer le paiement ?`;
+    const msg = isPromo
+      ? `Offre de Lancement Francelog ! Vous commandez un Prototype garanti à vie.\nMontant: ${price} € TTC\nConfirmer le paiement sécurisé ?`
+      : `Commande Boîte Noire 50 cc Standard.\nMontant: ${price} € TTC\nConfirmer le paiement sécurisé ?`;
 
     if (confirm(msg)) {
-      await this.processPayment("UNIT", price, isPromo);
+      await this.processRevolutPayment("BLACKBOX_UNIT", "Boîte Noire V1");
     }
   },
 
   /**
-   * Achat Pack Duo
+   * Commande Pack Duo
    */
   buyPack: async function () {
+    if (this.isProcessing) return;
     const price = this.pricing.duo;
-    if (confirm(`Achat Pack Duo (2 Boîtiers Standard).\nMontant: ${price} €\nConfirmer le paiement ?`)) {
-      await this.processPayment("DUO", price, false); // Pas de garantie à vie pour le Duo
+    if (confirm(`Commande Pack Duo (2 Boîtiers Standard Francelog).\nMontant: ${price} € TTC\nConfirmer le paiement sécurisé ?`)) {
+      await this.processRevolutPayment("BLACKBOX_DUO", "Pack Duo Black Box");
     }
   },
 
   /**
-   * Processus d'achat
+   * Tunnel de Paiement Officiel Revolut Merchant API
    */
-  processPayment: async function (type, amount, isLifetimeGuaranteed) {
-    // 1. Simulation du SDK Paiement (Stripe / Revolut)
-    alert(`[Paiement Simulé] Transaction de ${amount} € validée avec succès !`);
+  processRevolutPayment: async function (reportType, label) {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
 
-    // 2. Enregistrement Firestore
+    const projectId = CONFIG?.FIREBASE?.projectId || "mon50ccetmoi";
+    const functionBaseUrl = `https://europe-west1-${projectId}.cloudfunctions.net`;
+    const caseId = "BB-SALE-" + Date.now();
+
     try {
-        const userId = window.session?.uid || 'guest_' + Date.now();
-        const quantity = type === "DUO" ? 2 : 1;
-        
-        if (typeof db !== "undefined") {
-            const batch = db.batch();
-            
-            // a) Historique des ventes
-            const orderRef = db.collection("blackbox_sales").doc();
-            batch.set(orderRef, {
-                userId: userId,
-                type: type,
-                amount: amount,
-                quantity: quantity,
-                lifetimeWarranty: isLifetimeGuaranteed,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+      // 1. Obtenir le token de session utilisateur si connecté
+      let authHeader = "";
+      if (typeof auth !== "undefined" && auth.currentUser) {
+        const idToken = await auth.currentUser.getIdToken(true);
+        authHeader = `Bearer ${idToken}`;
+      } else {
+        alert("Veuillez vous connecter pour commander votre boîte noire et assurer le suivi de garantie.");
+        window.location.href = "login.html";
+        this.isProcessing = false;
+        return;
+      }
 
-            // b) Incrément du compteur global (Agrégation)
-            const statsRef = db.collection("stats").doc("blackbox_sales");
-            batch.update(statsRef, {
-                count: firebase.firestore.FieldValue.increment(quantity)
-            });
+      // 2. Appel Cloud Function sécurisée createRevolutOrder
+      const response = await fetch(`${functionBaseUrl}/createRevolutOrder`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": authHeader
+        },
+        body: JSON.stringify({
+          case_id: caseId,
+          report_type: reportType
+        })
+      });
 
-            await batch.commit();
-        } else {
-            // Local fallback
-            this.salesCount += quantity;
-            localStorage.setItem('sim_bb_sales', this.salesCount);
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error || `Erreur serveur (${response.status})`);
+      }
+
+      const orderData = await response.json();
+      if (!orderData?.order_token) {
+        throw new Error("Jeton de paiement Revolut introuvable.");
+      }
+
+      // 3. Charger et lancer le SDK Revolut Checkout
+      if (typeof window.RevolutCheckout !== "function") {
+        await new Promise(r => setTimeout(r, 1500));
+        if (typeof window.RevolutCheckout !== "function") {
+          throw new Error("SDK Revolut non initialisé. Veuillez vérifier votre connexion.");
         }
+      }
 
-        // 3. Félicitations
-        if (isLifetimeGuaranteed) {
-            alert("✅ Félicitations ! Votre prototype est enregistré. Il bénéficie de la GARANTIE À VIE.");
-        } else {
-            alert("✅ Commande confirmée ! Vos boîtiers seront expédiés sous 48h.");
-        }
+      const instance = await window.RevolutCheckout(orderData.order_token, "prod");
 
-        // Mise à jour de l'UI
-        if (typeof db !== "undefined") {
-            await this.init(); // Recharger le compteur exact depuis le serveur
-        } else {
-            this.updateUI();
+      instance.payWithPopup({
+        onSuccess: () => {
+          alert("✅ Paiement Revolut validé ! Enregistrement de votre commande en cours...");
+          this.pollConfirmation(caseId);
+        },
+        onError: (err) => {
+          console.error("[Revolut Checkout] Erreur :", err);
+          alert("Erreur lors de la transaction : " + (err.message || err));
+          this.isProcessing = false;
+        },
+        onCancel: () => {
+          console.log("[Revolut Checkout] Annulé par l'utilisateur.");
+          this.isProcessing = false;
         }
+      });
 
     } catch (err) {
-        console.error("Erreur de transaction :", err);
-        alert("Erreur lors de l'enregistrement de la commande.");
+      console.error("[BlackBoxShop] Échec paiement :", err);
+      alert("Impossible d'initialiser le paiement sécurisé : " + err.message);
+      this.isProcessing = false;
     }
+  },
+
+  /**
+   * Polling de confirmation de commande
+   */
+  pollConfirmation: function (caseId, attempts = 0) {
+    if (attempts > 15) {
+      alert("Votre paiement est confirmé par Revolut et votre commande sera traitée sous peu. Consultez votre profil.");
+      this.isProcessing = false;
+      this.init();
+      return;
+    }
+
+    setTimeout(async () => {
+      try {
+        if (typeof db !== "undefined") {
+          const doc = await db.collection("blackbox_sales").doc(caseId).get();
+          if (doc.exists) {
+            alert("🎉 Félicitations ! Votre commande est officiellement enregistrée et validée. Expédition express garantie en moins de 24h !");
+            this.isProcessing = false;
+            await this.init();
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn("[BlackBoxShop] Poll avertissement :", e);
+      }
+      this.pollConfirmation(caseId, attempts + 1);
+    }, 2500);
   },
 
   /**
    * Abonnement Premium
    */
   subscribePremium: async function () {
-    if (confirm("Abonnement Premium (1er mois) - 4,99 €\nConfirmer l'abonnement ?")) {
-      alert(`[Paiement Simulé] Abonnement Premium validé avec succès !`);
-      if (window.session) {
-        window.session.isPremium = true;
-        localStorage.setItem("session", JSON.stringify(window.session));
-      }
+    if (confirm("Abonnement Boîte Noire+ (1er mois) - 4,99 €\nConfirmer l'abonnement ?")) {
+      await this.processRevolutPayment("BLACKBOX_CARE_MONTHLY", "Abonnement Boîte Noire+");
     }
   }
 };
 
-// Initialisation automatique si la page charge
+// Exposer globalement pour dom-security et l'ActionRegistry
+window.BlackBoxShop = BlackBoxShop;
+registerAction("BlackBoxShop.buyUnit", () => BlackBoxShop.buyUnit());
+registerAction("BlackBoxShop.buyPack", () => BlackBoxShop.buyPack());
+registerAction("BlackBoxShop.subscribePremium", () => BlackBoxShop.subscribePremium());
+
+// Initialisation automatique
 document.addEventListener("DOMContentLoaded", () => {
-    if (document.getElementById("blackbox-shop-section")) {
-        BlackBoxShop.init();
-    }
+  if (document.getElementById("blackbox-shop-section")) {
+    BlackBoxShop.init();
+  }
 });

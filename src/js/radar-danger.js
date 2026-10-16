@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { HapticNav, NAV_MODES } from './haptic-navigation.js';
 
 /**
  * radar-danger.js — Page dédiée au Radar de Danger Communautaire & Navigation GPS In-App
@@ -510,14 +511,21 @@ function startTurnByTurnNavigation() {
     map.setZoom(17);
   }
 
+  // Démarrer le moteur haptique & cockpit HUD
+  HapticNav.startNavigation();
+
   updateNavigationHUD();
-  speakText("Démarrage du guidage GPS. Respectez la limitation à 50 km/h.");
+  if (!HapticNav.isExclusiveHaptic) {
+    speakText("Démarrage du guidage GPS. Respectez la limitation à 50 km/h.");
+  }
 }
 
 function stopTurnByTurnNavigation() {
   isNavigating = false;
   currentRoute = null;
   if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+
+  HapticNav.stopNavigation();
 
   document.getElementById('nav-cockpit').style.display = 'none';
   document.getElementById('nav-hazard-banner').style.display = 'none';
@@ -533,7 +541,9 @@ function stopTurnByTurnNavigation() {
     map.setCenter(currentPosition);
   }
 
-  speakText("Guidage terminé.");
+  if (!HapticNav.isExclusiveHaptic) {
+    speakText("Guidage terminé.");
+  }
   showToast("Guidage arrêté.");
 }
 
@@ -542,7 +552,10 @@ function updateNavigationHUD() {
 
   const leg = currentRoute.legs[0];
   if (!leg || !leg.steps || activeStepIndex >= leg.steps.length) {
-    speakText("Vous êtes arrivé à destination.");
+    HapticNav.triggerDestinationReached();
+    if (!HapticNav.isExclusiveHaptic) {
+      speakText("Vous êtes arrivé à destination.");
+    }
     showToast("🏁 Vous êtes arrivé à destination !");
     stopTurnByTurnNavigation();
     return;
@@ -563,6 +576,7 @@ function updateNavigationHUD() {
   // Passer à l'étape suivante quand on est à moins de 25m
   if (distToNextTurn < 25 && activeStepIndex < leg.steps.length - 1) {
     activeStepIndex++;
+    HapticNav.vibratePattern([90]);
     updateNavigationHUD();
     return;
   }
@@ -575,8 +589,9 @@ function updateNavigationHUD() {
   document.getElementById('turn-street').textContent = cleanInstruction;
 
   // Consigne suivante
+  let nextClean = '';
   if (activeStepIndex + 1 < leg.steps.length) {
-    const nextClean = stripHtml(leg.steps[activeStepIndex + 1].instructions || '');
+    nextClean = stripHtml(leg.steps[activeStepIndex + 1].instructions || '');
     document.getElementById('turn-next-step').textContent = nextClean ? `Puis : ${nextClean}` : '';
   } else {
     document.getElementById('turn-next-step').textContent = 'Arrivée imminente';
@@ -585,8 +600,14 @@ function updateNavigationHUD() {
   // Icône de direction
   updateManeuverIcon(step.maneuver);
 
+  // Mettre à jour le moteur Haptique & Cockpit HUD (réveil flash à <180m + vibration directionnelle)
+  HapticNav.updateStep({
+    maneuver: step.maneuver,
+    cleanInstruction
+  }, distToNextTurn, nextClean, currentSpeed);
+
   // Annonce vocale
-  if (activeStepIndex !== lastAnnouncedStepIndex) {
+  if (activeStepIndex !== lastAnnouncedStepIndex && !HapticNav.isExclusiveHaptic) {
     lastAnnouncedStepIndex = activeStepIndex;
     speakText(`Dans ${distText}, ${cleanInstruction}`);
   }
@@ -643,7 +664,10 @@ function checkApproachingHazards(userLatLng) {
     const hazardId = closestHazard.marker.customHazard?.id;
     if (hazardId && lastAnnouncedHazardId !== hazardId && closestHazard.dist < 200) {
       lastAnnouncedHazardId = hazardId;
-      speakText(`Attention, ${label} signalé à ${closestHazard.dist} mètres.`);
+      HapticNav.triggerHazardAlert(label, closestHazard.dist);
+      if (!HapticNav.isExclusiveHaptic) {
+        speakText(`Attention, ${label} signalé à ${closestHazard.dist} mètres.`);
+      }
     }
   } else if (banner) {
     banner.style.display = 'none';
@@ -684,7 +708,7 @@ tmp.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : ht
 }
 
 function speakText(text) {
-  if (!voiceGuidanceEnabled || !window.speechSynthesis) return;
+  if (!voiceGuidanceEnabled || !window.speechSynthesis || HapticNav.isExclusiveHaptic) return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'fr-FR';
@@ -888,3 +912,52 @@ registerAction('formatAge', formatAge);
 registerAction('showToast', showToast);
 registerAction('showError', showError);
 registerAction('darkMapStyle', darkMapStyle);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INITIALISATION DES CONTRÔLES HAPTIQUES & HUD
+// ─────────────────────────────────────────────────────────────────────────────
+function initHapticNavControls() {
+  const container = document.getElementById('nav-haptic-mode-buttons');
+  if (container) {
+    const buttons = container.querySelectorAll('button[data-nav-mode]');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-nav-mode');
+        HapticNav.setMode(mode);
+        buttons.forEach(b => b.classList.toggle('active', b === btn));
+        if (mode === NAV_MODES.HUD_FLASH) {
+          showToast('⚡ Mode HUD Furtif activé (OLED + Flash XXL)');
+        } else if (mode === NAV_MODES.TACTILE_PUR) {
+          showToast('📳 Mode Tactile Pur activé (Zéro écran)');
+        } else {
+          showToast('🗺️ Mode Carte Standard activé');
+        }
+      });
+    });
+
+    buttons.forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-nav-mode') === HapticNav.currentMode);
+    });
+  }
+
+  const btnHudToggle = document.getElementById('btn-hud-mode-toggle');
+  if (btnHudToggle) {
+    btnHudToggle.addEventListener('click', () => {
+      const nextMode = HapticNav.currentMode === NAV_MODES.HUD_FLASH ? NAV_MODES.STANDARD : NAV_MODES.HUD_FLASH;
+      HapticNav.setMode(nextMode);
+      if (nextMode === NAV_MODES.HUD_FLASH) {
+        showToast('⚡ Mode Cockpit HUD activé');
+      } else {
+        showToast('🗺️ Retour carte standard');
+      }
+    });
+  }
+}
+
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHapticNavControls);
+  } else {
+    initHapticNavControls();
+  }
+}

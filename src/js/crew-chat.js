@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import Moderation from './moderation.js';
 
 ﻿/**
  * CREW CHAT (Messagerie Privée Sécurisée)
@@ -13,6 +14,14 @@ window.CrewChat = {
       return alert(
         "Vous devez être dans un Crew pour utiliser le chat privé.",
       );
+    }
+
+    // Vérification du statut de suspension
+    if (window.session.isBanned) {
+      return alert("Votre compte est banni suite à des infractions aux règles de la communauté.");
+    }
+    if (window.session.isTempBanned) {
+      return alert("Votre accès aux espaces de groupe est actuellement suspendu temporairement.");
     }
 
     let container = document.getElementById("crew-chat-container");
@@ -69,6 +78,25 @@ container.innerHTML = `
     const input = document.getElementById("crew-chat-input");
     const text = input.value.trim();
     if (!text || !window.session || !window.session.crewId) return;
+
+    // 🛡️ MODÉRATION PROACTIVE DES ESPACES DE GROUPE (Base de mots grossiers & Tolérance zéro)
+    const moderationEngine = window.Moderation || Moderation;
+    if (moderationEngine && typeof moderationEngine.checkGroupMessage === "function") {
+      const modResult = moderationEngine.checkGroupMessage(text, {
+        space: "Crew Chat",
+        uid: window.session.uid,
+        username: window.session.username
+      });
+
+      if (!modResult.safe) {
+        input.value = "";
+        alert(modResult.userMessage);
+        if (modResult.action === "PERM_BAN" || modResult.action === "TEMP_BAN") {
+          this.close();
+        }
+        return; // Bloque impérativement l'envoi du message
+      }
+    }
 
     input.value = "";
 

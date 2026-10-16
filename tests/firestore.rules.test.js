@@ -92,4 +92,60 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
     // Interdire la modification
     await assertFails(userDb.collection("auth_logs").doc("log-x").update({ status: "failure" }));
   });
+
+  it("Devrait empêcher un utilisateur de s'auto-attribuer le rôle admin ou un numéro de série (Anti-Privilege Escalation)", async () => {
+    const userDb = testEnv.authenticatedContext("pilot99").firestore();
+
+    // 1. Rejeter la création avec role: "admin"
+    await assertFails(userDb.collection("users").doc("pilot99").set({
+      username: "fakeadmin",
+      role: "admin"
+    }));
+
+    // 2. Rejeter la création avec blackbox_serial
+    await assertFails(userDb.collection("users").doc("pilot99").set({
+      username: "fakeblackbox",
+      blackbox_serial: "BB50V1-P01"
+    }));
+
+    // 3. Permettre la création d'un profil standard
+    await assertSucceeds(userDb.collection("users").doc("pilot99").set({
+      username: "realpilot",
+      role: "user"
+    }));
+
+    // 4. Rejeter la mise à jour pour s'attribuer le rôle admin
+    await assertFails(userDb.collection("users").doc("pilot99").update({
+      role: "admin"
+    }));
+
+    // 5. Rejeter la mise à jour pour s'attribuer un numéro de série
+    await assertFails(userDb.collection("users").doc("pilot99").update({
+      blackbox_serial: "BB50V1-P01"
+    }));
+
+    // 6. Autoriser la mise à jour des champs légitimes (ex: contacts d'urgence)
+    await assertSucceeds(userDb.collection("users").doc("pilot99").update({
+      emergencyContacts: ["0600000000"]
+    }));
+  });
+
+  it("Devrait isoler strictement le registre blackbox_units et interdire les écritures directes", async () => {
+    const userDb = testEnv.authenticatedContext("user123").firestore();
+
+    // Rejeter l'écriture client directe dans blackbox_units
+    await assertFails(userDb.collection("blackbox_units").doc("BB50V1-P01").set({
+      serial: "BB50V1-P01",
+      status: "IN_STOCK"
+    }));
+
+    // Rejeter la lecture du registre global par un non-admin
+    await assertFails(userDb.collection("blackbox_registry").doc("V1").get());
+
+    // Rejeter l'écriture directe dans blackbox_sales (réservé Cloud Function / Webhook Revolut)
+    await assertFails(userDb.collection("blackbox_sales").doc("fake-sale-1").set({
+      userId: "user123",
+      amount: 49.99
+    }));
+  });
 });

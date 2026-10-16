@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { NexusSemanticAnalyzer } from './nexus-semantic-analyzer.js';
 
 /**
  * Nexus Atlas 4.0 - Gemini Live Integration
@@ -16,6 +17,7 @@ class NexusAtlasGemini {
         this.history = [];
         this.sessionId = "session_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
         this.sessionIntents = new Set();
+        this.semanticAnalyzer = window.NexusSemanticAnalyzer || new NexusSemanticAnalyzer();
         
         // Contexte donné à l'IA pour qu'elle agisse comme Nexus Atlas Conversationnel
         this.systemPrompt = `
@@ -26,6 +28,8 @@ Ton objectif est d'analyser la demande et de renvoyer un objet JSON STRICT conte
 1. "reply": Ce que tu dois répondre. Tu peux maintenant faire des réponses longues, détaillées, et conversationnelles (façon ChatGPT/Gemini) si l'utilisateur pose des questions complexes sur la mécanique, le droit, ou la conduite.
 2. "action": L'action technique à déclencher sur l'application. (Choisis parmi: "NONE", "NAVIGATE", "WEATHER", "DANGER", "RADAR", "SOS", "DIAGNOSTIC", "DAY_MODE", "NIGHT_MODE", "MARKETPLACE", "GHOST_MODE", "CORTEGE", "LAWYER", "LOCK", "MENU", "CHAT", "FACEBOOK")
 3. "parameter": Un paramètre associé à l'action. Si l'utilisateur demande de publier quelque chose sur Facebook ou sur les réseaux sociaux, utilise l'action "FACEBOOK" et mets le contenu exact de la publication dans "parameter".
+4. "suggestion": Analyse sémantique de suggestions d'amélioration. Si l'utilisateur exprime une idée, un souhait, une proposition ou une critique constructive pour améliorer l'application, renseigne un objet :
+   {"detected": true, "idea": "Courte description claire de l'idée d'amélioration", "category": "navigation | mechanics | security | social | ui_ux | marketplace | general", "impact": "high | medium | low"}. Sinon, mets {"detected": false}.
 
 BASE DE CONNAISSANCES 50CC ET VSP (LÉGISLATION FRANÇAISE) :
 - Vitesse maximale autorisée : 45 km/h strictement.
@@ -38,8 +42,9 @@ RÈGLE ABSOLUE - LOI EUROPÉENNE SUR L'IA (AI ACT) :
 Si l'utilisateur te demande un conseil JURIDIQUE (assurance, accident, litige) ou MÉCANIQUE (réparation dangereuse), tu DOIS ajouter le texte suivant à la fin de ta réponse ("reply") :
 "⚠️ Je suis une intelligence artificielle d'assistance. Veillez toujours à faire valider ces informations par un professionnel (garagiste ou assureur)."
 
-RÈGLE DE CONFIDENTIALITÉ (RGPD) :
-Tu n'as jamais accès aux données biométriques ou cardiaques de l'utilisateur, celles-ci sont traitées 100% localement et chiffrées (Edge Computing). Si on t'interroge sur la santé de l'utilisateur, refuse poliment.
+RÈGLE DE CONFIDENTIALITÉ UNIVERSELLE & CONFORMITÉ INTERNATIONALE :
+Chaque compte doit respecter les législations locales tout en garantissant une protection universelle des données (RGPD, CCPA, PIPL, APPI, POPIA) et une tolérance zéro pour les contenus illicites.
+Tu n'as jamais accès aux données biométriques ou cardiaques de l'utilisateur, celles-ci sont traitées 100% localement et chiffrées (Edge Computing). Si on t'interroge sur la santé de l'utilisateur, refuse poliment. Aucune donnée personnelle n'est vendue.
 
 RÈGLE DE MODÉRATION ET DE COURTOISIE :
 Ta priorité absolue est de maintenir un écosystème courtois et sécurisé pour tous les motards. Tu dois appliquer l'échelle de sanction suivante si l'utilisateur est grossier, toxique ou agressif :
@@ -50,7 +55,11 @@ Ta priorité absolue est de maintenir un écosystème courtois et sécurisé pou
 
 Exemple 1:
 User: "Comment réparer mon carburateur ?"
-JSON: {"reply": "Pour nettoyer un carburateur, il faut d'abord fermer l'arrivée d'essence... [instructions détaillées]... ⚠️ Je suis une intelligence artificielle d'assistance. Veillez toujours à faire valider ces informations par un professionnel (garagiste ou assureur).", "action": "CHAT", "parameter": ""}
+JSON: {"reply": "Pour nettoyer un carburateur, il faut d'abord fermer l'arrivée d'essence... [instructions détaillées]... ⚠️ Je suis une intelligence artificielle d'assistance. Veillez toujours à faire valider ces informations par un professionnel (garagiste ou assureur).", "action": "CHAT", "parameter": "", "suggestion": {"detected": false}}
+
+Exemple 2:
+User: "Ce serait bien d'ajouter un bouton pour éviter les virages dangereux la nuit."
+JSON: {"reply": "C'est une excellente idée ! J'ai bien enregistré votre suggestion de routage de nuit sécurisé pour la transmettre à notre équipe produit.", "action": "CHAT", "parameter": "", "suggestion": {"detected": true, "idea": "Bouton pour contourner les virages dangereux la nuit", "category": "navigation", "impact": "high"}}
 
 Ne renvoie QUE du JSON valide. Pas de code markdown.`;
     }
@@ -140,13 +149,54 @@ Ne renvoie QUE du JSON valide. Pas de code markdown.`;
             jsonResult.isAIGenerated = true;
             jsonResult.aiRegulation = "EU AI Act 2024/1689 (Art. 50 Compliant)";
             
+            // --- ANALYSE SÉMANTIQUE DES SUGGESTIONS ET IDÉES D'AMÉLIORATION ---
+            let detectedSuggestion = null;
+            try {
+                const edgeResult = this.semanticAnalyzer ? this.semanticAnalyzer.analyze(userText) : null;
+                const geminiSuggestion = jsonResult.suggestion;
+
+                if (geminiSuggestion && geminiSuggestion.detected) {
+                    detectedSuggestion = {
+                        idea: geminiSuggestion.idea || (edgeResult ? edgeResult.idea : userText),
+                        category: geminiSuggestion.category || (edgeResult ? edgeResult.category : "general"),
+                        impact: geminiSuggestion.impact || (edgeResult ? edgeResult.impact : "medium"),
+                        confidence: 0.95,
+                        detectedBy: "gemini_semantic"
+                    };
+                } else if (edgeResult && edgeResult.isSuggestion) {
+                    detectedSuggestion = {
+                        idea: edgeResult.idea,
+                        category: edgeResult.category,
+                        impact: edgeResult.impact,
+                        confidence: edgeResult.confidence,
+                        detectedBy: "edge_semantic"
+                    };
+                }
+
+                if (detectedSuggestion) {
+                    jsonResult.detectedSuggestion = detectedSuggestion;
+                    const currentUid = (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser)
+                        ? firebase.auth().currentUser.uid
+                        : "anonymous";
+
+                    if (this.semanticAnalyzer && typeof this.semanticAnalyzer.recordSuggestion === "function") {
+                        this.semanticAnalyzer.recordSuggestion(detectedSuggestion, userText, {
+                            sessionId: this.sessionId,
+                            uid: currentUid
+                        });
+                    }
+                }
+            } catch (semErr) {
+                console.warn("[Nexus Atlas] Analyse sémantique non bloquante :", semErr.message);
+            }
+
             // Mise en cache locale de la réponse pour les futures requêtes similaires
             try {
                 sessionStorage.setItem(normalizedKey, JSON.stringify(jsonResult));
             } catch (e) {}
 
             // Synchronisation asynchrone non bloquante vers le serveur central (Firestore)
-            this.syncSessionToCentralServer(userText, jsonResult.reply || "", jsonResult.action || "NONE");
+            this.syncSessionToCentralServer(userText, jsonResult.reply || "", jsonResult.action || "NONE", detectedSuggestion);
 
             console.log("Nexus Atlas Gemini Réponse:", jsonResult);
             return jsonResult;
@@ -165,7 +215,7 @@ Ne renvoie QUE du JSON valide. Pas de code markdown.`;
      * Synchronise la conversation en arrière-plan vers le serveur central
      * pour l'analyse périodique autonome des retours et idées utilisateurs.
      */
-    async syncSessionToCentralServer(userText, replyText, action) {
+    async syncSessionToCentralServer(userText, replyText, action, detectedSuggestion = null) {
         try {
             if (typeof firebase === "undefined" || !firebase.firestore) return;
             const firestoreDb = firebase.firestore();
@@ -181,7 +231,7 @@ Ne renvoie QUE du JSON valide. Pas de code markdown.`;
             const isAndroid = /Android/i.test(navigator.userAgent);
             const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-            await sessionRef.set({
+            const updateData = {
                 sessionId: this.sessionId,
                 uid: currentUid,
                 appVersion: "111.01.00",
@@ -193,7 +243,17 @@ Ne renvoie QUE du JSON valide. Pas de code markdown.`;
                     { role: "user", text: userText, ts: Date.now() },
                     { role: "model", text: replyText, action, ts: Date.now() }
                 )
-            }, { merge: true });
+            };
+
+            if (detectedSuggestion) {
+                updateData.hasSuggestions = true;
+                updateData.suggestions = firebase.firestore.FieldValue.arrayUnion({
+                    ...detectedSuggestion,
+                    ts: Date.now()
+                });
+            }
+
+            await sessionRef.set(updateData, { merge: true });
         } catch (e) {
             // Échec silencieux pour ne jamais impacter l'utilisateur en cas de réseau instable
             console.warn("[Nexus Atlas Sync] Sync non bloquante différée :", e.message);

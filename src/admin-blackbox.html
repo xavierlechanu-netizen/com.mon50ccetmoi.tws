@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <!-- Zero-Trust DOM Security -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script type="module" src="/js/dom-security.js"></script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registre Black Box (Francelog S.A.) - Admin - mon50ccetmoi</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="/css/style.min.css?v=50018" />
+    <link rel="stylesheet" href="/css/admin-blackbox.css" />
+
+    <!-- Firebase & Configuration -->
+    <script type="module" src="/js/config.js"></script>
+    <script type="module" src="/js/crypto-native.js" charset="utf-8"></script>
+    <script type="module" src="/js/auth.js?v=50018"></script>
+    <script type="module" src="/js/error-tracking.js?v=1008000"></script>
+  </head>
+  <body class="admin-body">
+    <div class="bb-admin-container">
+      
+      <!-- En-tête -->
+      <header class="bb-header">
+        <div class="bb-title-group">
+          <h1><i class="fa-solid fa-microchip" style="color: var(--bb-gold);"></i> Registre des Black Boxes</h1>
+          <p class="bb-subtitle">
+            Traçabilité industrielle & numéros de série uniques 
+            <span class="bb-badge-francelog"><i class="fa-solid fa-industry"></i> Francelog S.A. · Linselles (59)</span>
+          </p>
+        </div>
+        <div class="bb-header-actions">
+          <button id="bb-btn-export-csv" class="bb-btn bb-btn-secondary" title="Exporter l'inventaire complet en CSV sécurisé">
+            <i class="fa-solid fa-file-csv"></i> Export CSV
+          </button>
+          <button id="bb-btn-new-batch" class="bb-btn bb-btn-primary" title="Intégration d'un boîtier unitaire ou d'un lot">
+            <i class="fa-solid fa-plus-circle"></i> Intégrer Black Box / Lot
+          </button>
+          <a href="admin.html" class="bb-btn bb-btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Retour Admin
+          </a>
+        </div>
+      </header>
+
+      <!-- Bannière Statut Industriel Francelog S.A. & Livraison -->
+      <section class="bb-francelog-banner">
+        <div class="bb-banner-item">
+          <i class="fa-solid fa-industry" style="color: var(--bb-gold);"></i>
+          <div>
+            <strong>Partenaire Industriel :</strong>
+            <span>Francelog S.A. à Linselles (59)</span>
+          </div>
+        </div>
+        <div class="bb-banner-item">
+          <i class="fa-solid fa-hourglass-half" style="color: var(--bb-cyan);"></i>
+          <div>
+            <strong>Statut Série :</strong>
+            <span>En attente validation Francelog pour production en série (Série débute à A01 · 00 exclu)</span>
+          </div>
+        </div>
+        <div class="bb-banner-item">
+          <i class="fa-solid fa-truck-fast" style="color: var(--bb-green);"></i>
+          <div>
+            <strong>Engagement Client :</strong>
+            <span>Livraison garantie en moins de 24h (&lt; 24h)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cartes KPI agrégées -->
+      <section class="bb-kpi-grid">
+        <div class="bb-kpi-card">
+          <div class="bb-kpi-info">
+            <h3>Total Unités</h3>
+            <div id="bb-kpi-total" class="bb-kpi-val">0</div>
+          </div>
+          <i class="fa-solid fa-boxes-stacked bb-kpi-icon" style="color: var(--bb-cyan);"></i>
+        </div>
+
+        <div class="bb-kpi-card">
+          <div class="bb-kpi-info">
+            <h3>Prototypes (P01-P10)</h3>
+            <div id="bb-kpi-proto" class="bb-kpi-val">0 / 10</div>
+          </div>
+          <i class="fa-solid fa-flask bb-kpi-icon" style="color: var(--bb-purple);"></i>
+        </div>
+
+        <div class="bb-kpi-card">
+          <div class="bb-kpi-info">
+            <h3>En Stock</h3>
+            <div id="bb-kpi-stock" class="bb-kpi-val">0</div>
+          </div>
+          <i class="fa-solid fa-warehouse bb-kpi-icon" style="color: var(--bb-green);"></i>
+        </div>
+
+        <div class="bb-kpi-card">
+          <div class="bb-kpi-info">
+            <h3>Vendus / Activés</h3>
+            <div id="bb-kpi-sold" class="bb-kpi-val">0</div>
+          </div>
+          <i class="fa-solid fa-cart-check bb-kpi-icon" style="color: var(--bb-gold);"></i>
+        </div>
+
+        <div class="bb-kpi-card">
+          <div class="bb-kpi-info">
+            <h3>SAV / Alertes</h3>
+            <div id="bb-kpi-rma" class="bb-kpi-val">0</div>
+          </div>
+          <i class="fa-solid fa-triangle-exclamation bb-kpi-icon" style="color: var(--bb-red);"></i>
+        </div>
+      </section>
+
+      <!-- Barre dédiée aux 10 prototypes Francelog (P01 à P10) -->
+      <section class="bb-proto-bar-container">
+        <div class="bb-proto-header">
+          <h2><i class="fa-solid fa-award"></i> Les 10 Prototypes Officiels (Garantie à Vie)</h2>
+          <span style="font-size: 0.8rem; color: #94a3b8;">Série exclusive V1 (P01 à P10 réservés · Lettre P exclusive)</span>
+        </div>
+        <div id="bb-proto-grid" class="bb-proto-grid">
+          <!-- Injecté dynamiquement de P01 à P10 -->
+        </div>
+      </section>
+
+      <!-- Carte du tableau d'inventaire -->
+      <section class="bb-table-card">
+        <div class="bb-filter-bar">
+          <div class="bb-search-box">
+            <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8;"></i>
+            <input type="text" id="bb-search-input" placeholder="Rechercher par S/N (ex: A01 ou BB50V1-A01), code Bluetooth, lot..." />
+          </div>
+          <div class="bb-filter-group">
+            <select id="bb-filter-type" class="bb-select">
+              <option value="ALL">Tous les types</option>
+              <option value="PROTOTYPE">Prototypes (P01-P10)</option>
+              <option value="SERIES">Production Série (A01+)</option>
+            </select>
+            <select id="bb-filter-status" class="bb-select">
+              <option value="ALL">Tous les statuts</option>
+              <option value="MANUFACTURING">En fabrication</option>
+              <option value="QA">Contrôle qualité</option>
+              <option value="IN_STOCK">En stock</option>
+              <option value="SOLD">Vendu</option>
+              <option value="ACTIVE">Activé</option>
+              <option value="RMA">SAV / Retour</option>
+              <option value="STOLEN">Volé / Perdu</option>
+              <option value="DECOMMISSIONED">Mis au rebut</option>
+            </select>
+            <button id="bb-btn-refresh" class="bb-btn bb-btn-secondary" title="Rafraîchir">
+              <i class="fa-solid fa-rotate"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="bb-table-wrapper">
+          <table class="bb-table">
+            <thead>
+              <tr>
+                <th>Numéro de Série</th>
+                <th>Code Bluetooth</th>
+                <th>Type</th>
+                <th>Statut</th>
+                <th>Lot / Usine</th>
+                <th>Propriétaire</th>
+                <th>Garantie</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bb-table-body">
+              <tr>
+                <td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">
+                  <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem; color: var(--bb-gold);"></i>
+                  <p style="margin-top: 10px;">Chargement du registre en cours...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Tiroir latéral : Fiche détaillée du boîtier -->
+    <div id="bb-drawer-details" class="bb-drawer">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0; font-size: 1.2rem; color: #fff; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-circle-info" style="color: var(--bb-cyan);"></i> Fiche Boîtier
+        </h2>
+        <button id="bb-btn-close-drawer" class="bb-icon-btn" title="Fermer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div style="text-align: center; padding: 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 183, 0, 0.2); border-radius: 12px; margin-bottom: 20px;">
+        <span style="font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Numéro de Série Unique</span>
+        <div id="bb-drawer-serial" style="font-size: 1.4rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--bb-gold); margin-top: 4px;">BB50V1-A01</div>
+        <div id="bb-drawer-badge" style="margin-top: 8px;"></div>
+      </div>
+
+      <!-- Code Bluetooth Unique (Passkey BLE 6 chiffres) -->
+      <div class="bb-form-group">
+        <label style="display: flex; justify-content: space-between; align-items: center;">
+          <span><i class="fa-brands fa-bluetooth-b" style="color: var(--bb-cyan);"></i> Code Bluetooth Unique (Passkey BLE)</span>
+          <button type="button" id="bb-btn-copy-ble" class="bb-icon-btn" title="Copier le code Bluetooth" style="font-size: 0.75rem; padding: 2px 6px;">
+            <i class="fa-solid fa-copy"></i> Copier
+          </button>
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="bb-drawer-ble" class="bb-form-input" placeholder="6 chiffres (ex: 503050)" maxlength="6" style="font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; letter-spacing: 2px;" />
+          <button type="button" id="bb-btn-regen-ble" class="bb-btn bb-btn-secondary" title="Générer un nouveau code aléatoire" style="padding: 6px 12px;">
+            <i class="fa-solid fa-dice"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="bb-form-group">
+        <label>Fabricant & Traçabilité</label>
+        <div id="bb-drawer-mfg" style="font-size: 0.85rem; color: #cbd5e1;">Francelog S.A. (Linselles, 59)</div>
+      </div>
+
+      <div class="bb-form-group">
+        <label>Partenariat Industriel & Livraison</label>
+        <div id="bb-drawer-partner-status" style="font-size: 0.82rem; color: var(--bb-gold);">En attente validation Francelog pour production en série</div>
+        <div style="font-size: 0.75rem; color: var(--bb-green); margin-top: 2px;">
+          <i class="fa-solid fa-truck-fast"></i> Livraison garantie en moins de 24h
+        </div>
+      </div>
+
+      <div class="bb-form-group">
+        <label>Lot de fabrication</label>
+        <div id="bb-drawer-batch" style="font-size: 0.85rem; color: #cbd5e1;">-</div>
+      </div>
+
+      <div class="bb-form-group">
+        <label>Date de fabrication</label>
+        <div id="bb-drawer-mfg-date" style="font-size: 0.85rem; color: #cbd5e1;">-</div>
+      </div>
+
+      <div class="bb-form-group">
+        <label>Adresse MAC BLE</label>
+        <input type="text" id="bb-drawer-mac" class="bb-form-input" placeholder="AA:BB:CC:DD:EE:FF" maxlength="17" />
+      </div>
+
+      <div class="bb-form-group">
+        <label>Version Firmware</label>
+        <input type="text" id="bb-drawer-firmware" class="bb-form-input" placeholder="1.0.0" />
+      </div>
+
+      <div class="bb-form-group">
+        <label>Notes internes</label>
+        <textarea id="bb-drawer-notes" class="bb-form-textarea" rows="3" placeholder="Notes de production ou de contrôle qualité..."></textarea>
+      </div>
+
+      <button id="bb-btn-save-drawer-info" class="bb-btn bb-btn-primary" style="width: 100%; justify-content: center; margin-bottom: 24px;">
+        <i class="fa-solid fa-floppy-disk"></i> Enregistrer les modifications
+      </button>
+
+      <hr style="border: 0; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 24px 0;" />
+
+      <h3 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px;">
+        <i class="fa-solid fa-timeline" style="color: var(--bb-purple);"></i> Historique Immuable
+      </h3>
+      <ul id="bb-drawer-timeline" class="bb-timeline">
+        <!-- Historique injecté -->
+      </ul>
+    </div>
+
+    <!-- Modale : Enregistrement Black Box (Unitaire ou Lot) -->
+    <div id="bb-modal-new-batch" class="bb-modal-overlay">
+      <div class="bb-modal">
+        <div class="bb-modal-header">
+          <h2><i class="fa-solid fa-industry" style="color: var(--bb-gold);"></i> Intégration Black Box (Francelog S.A.)</h2>
+          <button id="bb-btn-close-batch-modal" class="bb-icon-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Onglets : Par lot vs Unitaire -->
+        <div class="bb-tab-group">
+          <button type="button" id="bb-tab-mode-batch" class="bb-tab-btn active">
+            <i class="fa-solid fa-layer-group"></i> Générateur de Lot (A01+)
+          </button>
+          <button type="button" id="bb-tab-mode-single" class="bb-tab-btn">
+            <i class="fa-solid fa-microchip"></i> Intégration Unitaire
+          </button>
+        </div>
+
+        <form id="bb-form-batch">
+          <input type="hidden" id="bb-form-mode" value="BATCH" />
+
+          <div class="bb-form-group">
+            <label>Type de fabrication</label>
+            <select id="bb-batch-type" class="bb-form-select">
+              <option value="SERIES" selected>Production en Série (débute à A01 · 00 exclu)</option>
+              <option value="PROTOTYPE">Prototype Francelog (P01 à P10)</option>
+            </select>
+          </div>
+
+          <!-- Champ spécifique unitaire : Code d'unité personnalisé -->
+          <div id="bb-group-single-code" class="bb-form-group" style="display: none;">
+            <label>Numéro / Code d'unité <span style="color: var(--bb-cyan); font-weight: normal;">(ex: A01, A02... ou P01)</span></label>
+            <input type="text" id="bb-single-code-input" class="bb-form-input" placeholder="ex: A01" style="font-family: 'JetBrains Mono', monospace; text-transform: uppercase;" />
+            <span style="font-size: 0.72rem; color: #94a3b8;">La série commence à A01. Le numéro 00 est strictement exclu.</span>
+          </div>
+
+          <!-- Champ spécifique unitaire : Code Bluetooth personnalisé -->
+          <div id="bb-group-single-ble" class="bb-form-group" style="display: none;">
+            <label>Code Bluetooth Unique (Passkey BLE)</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="bb-single-ble-input" class="bb-form-input" placeholder="6 chiffres" maxlength="6" style="font-family: 'JetBrains Mono', monospace; letter-spacing: 2px;" />
+              <button type="button" id="bb-btn-single-gen-ble" class="bb-btn bb-btn-secondary" title="Générer un PIN aléatoire">
+                <i class="fa-solid fa-dice"></i>
+              </button>
+            </div>
+            <span style="font-size: 0.72rem; color: #94a3b8;">Code d'appairage smartphone à 6 chiffres pour le boîtier.</span>
+          </div>
+
+          <!-- Prototype slot -->
+          <div id="bb-group-proto-slot" class="bb-form-group" style="display: none;">
+            <label>Emplacement Prototype</label>
+            <select id="bb-batch-proto-slot" class="bb-form-select">
+              <!-- Rempli dynamiquement avec les slots libres 1..10 -->
+            </select>
+          </div>
+
+          <!-- Série par lot : Début et Nombre -->
+          <div id="bb-group-series-count" class="bb-form-group">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div>
+                <label>Code de départ</label>
+                <input type="text" id="bb-batch-start-code" class="bb-form-input" placeholder="A01" style="font-family: 'JetBrains Mono', monospace; text-transform: uppercase;" />
+              </div>
+              <div>
+                <label>Nombre d'unités</label>
+                <input type="number" id="bb-batch-count" class="bb-form-input" min="1" max="100" value="10" />
+              </div>
+            </div>
+            <span style="font-size: 0.72rem; color: #94a3b8;">Chaque unité recevra un code Bluetooth unique généré automatiquement. Le 00 est exclu.</span>
+          </div>
+
+          <div class="bb-form-group">
+            <label>Numéro de lot Francelog</label>
+            <input type="text" id="bb-batch-number" class="bb-form-input" placeholder="ex: LOT-LINSELLES-2026-A" required />
+          </div>
+
+          <div class="bb-form-group">
+            <label>Date de fabrication</label>
+            <input type="date" id="bb-batch-date" class="bb-form-input" />
+          </div>
+
+          <div class="bb-form-group">
+            <label>Statut initial</label>
+            <select id="bb-batch-status" class="bb-form-select">
+              <option value="MANUFACTURING">En fabrication (Linselles)</option>
+              <option value="QA">Contrôle qualité</option>
+              <option value="IN_STOCK" selected>En stock (Prêt pour expédition &lt; 24h)</option>
+            </select>
+          </div>
+
+          <div class="bb-form-group">
+            <label>Aperçu des S/N générés</label>
+            <div id="bb-batch-preview" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--bb-cyan); background: rgba(0, 0, 0, 0.4); padding: 10px; border-radius: 8px;">
+              Calcul de l'aperçu...
+            </div>
+          </div>
+
+          <div class="bb-modal-footer">
+            <button type="button" id="bb-btn-cancel-batch" class="bb-btn bb-btn-secondary">Annuler</button>
+            <button type="submit" id="bb-btn-submit-batch" class="bb-btn bb-btn-primary">
+              <i class="fa-solid fa-check"></i> Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modale : Changement de Statut -->
+    <div id="bb-modal-status" class="bb-modal-overlay">
+      <div class="bb-modal">
+        <div class="bb-modal-header">
+          <h2><i class="fa-solid fa-arrows-rotate" style="color: var(--bb-cyan);"></i> Changer le Statut</h2>
+          <button id="bb-btn-close-status-modal" class="bb-icon-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form id="bb-form-status">
+          <input type="hidden" id="bb-status-serial" />
+
+          <div class="bb-form-group">
+            <label>Boîtier concerné</label>
+            <div id="bb-status-serial-display" style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: #fff; font-weight: 700;"></div>
+          </div>
+
+          <div class="bb-form-group">
+            <label>Nouveau Statut</label>
+            <select id="bb-status-select" class="bb-form-select">
+              <!-- Rempli avec les transitions autorisées -->
+            </select>
+          </div>
+
+          <div id="bb-group-status-reason" class="bb-form-group">
+            <label>Motif de transition <span style="color: var(--bb-red);">*</span></label>
+            <textarea id="bb-status-reason" class="bb-form-textarea" rows="3" placeholder="Précisez la cause (SAV, rapport de vol, inspection qualité)..." required></textarea>
+          </div>
+
+          <div class="bb-modal-footer">
+            <button type="button" id="bb-btn-cancel-status" class="bb-btn bb-btn-secondary">Annuler</button>
+            <button type="submit" id="bb-btn-submit-status" class="bb-btn bb-btn-primary">Valider la transition</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modale : Attribution Commande Client -->
+    <div id="bb-modal-assign" class="bb-modal-overlay">
+      <div class="bb-modal">
+        <div class="bb-modal-header">
+          <h2><i class="fa-solid fa-handshake" style="color: var(--bb-green);"></i> Attribuer le Boîtier</h2>
+          <button id="bb-btn-close-assign-modal" class="bb-icon-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form id="bb-form-assign">
+          <input type="hidden" id="bb-assign-serial" />
+
+          <div class="bb-form-group">
+            <label>Boîtier à expédier (&lt; 24h)</label>
+            <div id="bb-assign-serial-display" style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: #fff; font-weight: 700;"></div>
+          </div>
+
+          <div class="bb-form-group">
+            <label>Mode d'attribution</label>
+            <select id="bb-assign-mode" class="bb-form-select">
+              <option value="ORDER">Par commande Revolut (Vente en attente)</option>
+              <option value="MANUAL">Attribution manuelle (UID Client direct)</option>
+            </select>
+          </div>
+
+          <div id="bb-group-assign-order" class="bb-form-group">
+            <label>Commande client (blackbox_sales)</label>
+            <select id="bb-assign-order-select" class="bb-form-select">
+              <option value="">Chargement des commandes en attente...</option>
+            </select>
+          </div>
+
+          <div id="bb-group-assign-manual" class="bb-form-group" style="display: none;">
+            <label>UID Utilisateur client</label>
+            <input type="text" id="bb-assign-manual-uid" class="bb-form-input" placeholder="UID Firebase du compte pilote" />
+          </div>
+
+          <div class="bb-form-group">
+            <label>Notes d'expédition / Remarques</label>
+            <input type="text" id="bb-assign-notes" class="bb-form-input" placeholder="ex: Expédition Express < 24h, Colissimo..." />
+          </div>
+
+          <div class="bb-modal-footer">
+            <button type="button" id="bb-btn-cancel-assign" class="bb-btn bb-btn-secondary">Annuler</button>
+            <button type="submit" id="bb-btn-submit-assign" class="bb-btn bb-btn-primary">
+              <i class="fa-solid fa-truck-fast"></i> Confirmer l'attribution
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Script contrôleur ES Module -->
+    <script type="module" src="/js/admin-blackbox.js"></script>
+  </body>
+</html>

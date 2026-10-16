@@ -77,6 +77,11 @@ window.NexusAtlasChat = {
                 this.addMessage("Nexus Atlas", response.reply, "ai");
             }
 
+            // Notification d'analyse sémantique autonome (Idée d'amélioration captée)
+            if (response.detectedSuggestion) {
+                this.addMessage("Nexus Atlas (Boîte à Idées)", `💡 Merci pour cette suggestion : "${response.detectedSuggestion.idea}" ! Nexus Atlas l'a automatiquement transmise au backlog d'amélioration continue.`, "ai");
+            }
+
             // Si Nexus Atlas doit déclencher une action visuelle (comme ouvrir le GPS ou lancer le mode avocat)
             if (response.action && response.action !== "NONE" && response.action !== "CHAT") {
                 console.log("[NexusAtlasChat] Exécution de l'action :", response.action);

@@ -13,6 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="/css/haptic-navigation.css" />
 
     <!-- Firebase -->
     <script type="module" src="/js/config.js"></script>
@@ -756,6 +757,26 @@ window.axeptioSettings = {
         <div class="route-warning-note">
           <i class="fa-solid fa-shield-halved"></i> <span>Itinéraire 50cc optimisé sans autoroute ni voie rapide (Art. R421-2)</span>
         </div>
+        <!-- Sélecteur de mode de guidage (Sécurité motard & Inclusivité sourds) -->
+        <div class="nav-haptic-mode-selector">
+          <div class="nav-haptic-mode-header">
+            <span class="nav-haptic-mode-title">
+              <i class="fa-solid fa-hand-holding-hand"></i> Affichage & Tactile
+            </span>
+            <span class="nav-haptic-mode-badge"><i class="fa-solid fa-ear-deaf"></i> Inclusif Sourds</span>
+          </div>
+          <div class="nav-haptic-segmented-control" id="nav-haptic-mode-buttons">
+            <button type="button" data-nav-mode="hud_flash" class="active" title="Écran OLED noir en croisière + Réveil Flash XXL & Haptique">
+              <i class="fa-solid fa-bolt"></i> HUD Furtif
+            </button>
+            <button type="button" data-nav-mode="tactile_pur" title="100% Tactile aveugle dans la poche">
+              <i class="fa-solid fa-hand"></i> Tactile Pur
+            </button>
+            <button type="button" data-nav-mode="standard" title="Affichage carte classique">
+              <i class="fa-solid fa-map"></i> Carte
+            </button>
+          </div>
+        </div>
         <div class="route-preview-actions">
           <button class="btn-start-nav" data-action="startTurnByTurnNavigation()">
             <i class="fa-solid fa-location-arrow"></i> Démarrer le guidage
@@ -780,6 +801,9 @@ window.axeptioSettings = {
           <div class="turn-next-step" id="turn-next-step"></div>
         </div>
         <div class="turn-voice-ctrl">
+          <button class="btn-icon-hud" id="btn-hud-mode-toggle" title="Basculer vers Cockpit HUD Furtif">
+            <i class="fa-solid fa-bolt"></i>
+          </button>
           <button class="btn-icon-hud" id="btn-voice-toggle" data-action="toggleVoiceGuidance()" title="Activer/Désactiver voix">
             <i class="fa-solid fa-volume-high" id="voice-icon"></i>
           </button>

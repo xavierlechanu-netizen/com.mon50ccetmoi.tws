@@ -57,6 +57,30 @@ exports.deleteUserAccount = onRequest(
             
             await batch.commit();
 
+            // Détacher les boîtiers matériels (RGPD Art. 17 : purge des PII mais conservation de la traçabilité produit)
+            try {
+                const unitsSnap = await db.collection("blackbox_units").where("ownerUid", "==", user_id).get();
+                if (!unitsSnap.empty) {
+                    const uBatch = db.batch();
+                    unitsSnap.forEach(uDoc => {
+                        uBatch.update(uDoc.ref, {
+                            ownerUid: null,
+                            saleOrderId: null,
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        });
+                        const hRef = uDoc.ref.collection("history").doc();
+                        uBatch.set(hRef, {
+                            action: "OWNER_DELETED_RGPD",
+                            reason: "Purge compte RGPD Art. 17",
+                            timestamp: admin.firestore.FieldValue.serverTimestamp()
+                        });
+                    });
+                    await uBatch.commit();
+                }
+            } catch (bbErr) {
+                console.warn("[RGPD] Erreur détachement boîtier Blackbox:", bbErr.message);
+            }
+
             const queries = [
                 { coll: "revolut_orders", field: "user_id" },
                 { coll: "payment_confirmations", field: "user_id" },

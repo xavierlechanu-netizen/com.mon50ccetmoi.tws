@@ -24,8 +24,12 @@ service cloud.firestore {
     // Profils Utilisateurs : Lecture restreinte au proprio ou admin
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin() || resource.data.isCertifiedGarage == true || (isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isCertifiedGarage == true);
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isOwner(userId) || isAdmin();
+      // OWASP ASVS v5.0.0-8.x : Interdiction stricte de s'auto-attribuer le rôle admin ou un numéro de série à la création
+      allow create: if isSignedIn() && isOwner(userId)
+        && (!('role' in request.resource.data) || request.resource.data.role == 'user')
+        && !('blackbox_serial' in request.resource.data);
+      // Mise à jour : l'admin peut tout modifier ; le propriétaire ne peut pas modifier son rôle ni son numéro de série
+      allow update: if isAdmin() || (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'blackbox_serial']));
       allow delete: if isAdmin();
 
       // FIDO2 Credentials (Écriture via Cloud Functions uniquement)
@@ -237,11 +241,32 @@ service cloud.firestore {
     // BLACK BOX SHOP (Matériel Physique)
     // ─────────────────────────────────────────────────────────────
     
-    // Historique des ventes
+    // Historique des commandes d'achat Black Box
     match /blackbox_sales/{orderId} {
-      allow create: if isSignedIn(); // Création lors de l'achat
+      allow create: if false; // Écriture exclusivement via Cloud Function (Revolut Webhook / Admin SDK)
       allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
       allow update, delete: if false; // Inaltérable
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // BLACK BOX REGISTRY (Unités physiques & Traçabilité Francelog S.A.)
+    // ─────────────────────────────────────────────────────────────
+    match /blackbox_units/{serial} {
+      // Lecture réservée aux administrateurs ou au propriétaire du boîtier
+      allow read: if isAdmin() || (isSignedIn() && resource.data.ownerUid == request.auth.uid);
+      allow write: if false; // Écriture exclusive via Cloud Functions Admin SDK
+
+      // Journal d'historique immuable de l'unité
+      match /history/{histId} {
+        allow read: if isAdmin();
+        allow write: if false;
+      }
+    }
+
+    // Compteurs et index de numérotation par révision (V1, etc.)
+    match /blackbox_registry/{revision} {
+      allow read: if isAdmin();
+      allow write: if false; // Géré exclusivement par les transactions Cloud Functions
     }
 
     // Statistiques globales (compteurs publics : stock restant, etc.)
@@ -565,6 +590,24 @@ service cloud.firestore {
       allow create, update: if true;
       allow read: if isAdmin();
       allow delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // NEXUS SUGGESTIONS (Détection sémantique d'idées & feedback)
+    // ─────────────────────────────────────────────────────────────
+    match /nexus_suggestions/{suggestionId} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // MODERATION LOGS (Journal d'audit de modération autonome - DSA Art. 17)
+    // ─────────────────────────────────────────────────────────────
+    match /mod_logs/{logId} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update, delete: if false; // Immuabilité des traces d'audit de modération
     }
 
     // ─────────────────────────────────────────────────────────────

@@ -13,6 +13,7 @@ const iot = require('./api/iot');
 const alerts = require('./api/alerts');
 const social = require('./api/social');
 const nexusInsights = require('./api/nexus-insights');
+const blackboxRegistry = require('./api/blackbox-registry');
 
 module.exports = {
     // Auth & Identity (FIDO2 & RGPD)
@@ -50,5 +51,12 @@ module.exports = {
 
     // Nexus Atlas Autonomous Intelligence (Logs & Insights)
     autoAnalyzeNexusInsights: nexusInsights.autoAnalyzeNexusInsights,
-    triggerNexusAnalysis: nexusInsights.triggerNexusAnalysis
+    triggerNexusAnalysis: nexusInsights.triggerNexusAnalysis,
+
+    // Black Box Hardware Registry (Francelog S.A. Linselles)
+    adminRegisterBlackboxUnits: blackboxRegistry.adminRegisterBlackboxUnits,
+    adminUpdateBlackboxStatus: blackboxRegistry.adminUpdateBlackboxStatus,
+    adminAssignBlackbox: blackboxRegistry.adminAssignBlackbox,
+    adminUnassignBlackbox: blackboxRegistry.adminUnassignBlackbox,
+    adminUpdateBlackboxInfo: blackboxRegistry.adminUpdateBlackboxInfo
 };

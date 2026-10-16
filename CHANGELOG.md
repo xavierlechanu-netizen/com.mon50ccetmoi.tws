@@ -4,6 +4,120 @@ Toutes les modifications notables du projet sont documentées dans ce fichier.
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère au [Versionnement Sémantique](https://semver.org/lang/fr/).
 
+## [111.05.00] - 2026-10-16 - 🛡️ Modération Autonome Nexus Atlas, Analyse Sémantique Continue, Sanctions Strictes & Responsabilité Solidaire du Parrainage
+
+### Fonctionnalités
+- **Analyse Sémantique d'Amélioration Continue (`src/js/nexus-semantic-analyzer.js`, `src/js/nexus-atlas-gemini.js`, `src/js/nexus-atlas-chat.js`)** :
+  - Détection proactive et bienveillante en temps réel des suggestions, idées et retours constructifs dans les échanges avec Nexus Atlas (IA Act Art. 50).
+  - Classification automatique multi-thématique (`navigation`, `mechanics`, `security`, `social`, `ui_ux`, `marketplace`, `general`) et calcul de score d'impact.
+  - Enregistrement immédiat dans `localStorage` (Boîte à Idées Admin) et synchronisation Firestore (`nexus_suggestions`).
+  - Badge visuel interactif notifiant discrètement l'utilisateur de la prise en compte de sa suggestion.
+- **Modération Autonome des Espaces de Groupe & Base de Données de Termes Grossiers (`src/js/moderation.js`, `src/js/crew-chat.js`, `src/js/cortege-mode.js`)** :
+  - Intégration de la base étendue `FrenchBadWords` et algorithme de normalisation leetspeak, ponctuation, accents et lettres répétées.
+  - Modération proactive et continue appliquée de façon 100% autonome par Nexus Atlas dans le Crew Chat, les Cortèges et espaces collectifs sans intervention humaine préalable.
+  - Progression stricte des sanctions : 1er ban temporaire (24h), 2e ban temporaire (48h), 3e ban temporaire (7 jours - dernier avertissement), et Bannissement Définitif automatique au-delà de 3 bans temporaires (ou immédiat en cas de propos racistes/haineux Tolérance Zéro).
+  - **Clause stricte de non-remboursement** : aucun remboursement d'abonnements, points BVC ou achats virtuels en cas de bannissement.
+- **Responsabilité Solidaire du Parrainage (Règle des 5 Avertissements)** :
+  - En parrainant un pilote, le parrain engage sa responsabilité en cas de dérive de son filleul.
+  - Sanctions graduées (blâme, retrait de Brave Coins BVC, restriction communautaire).
+  - Au **5e avertissement cumulé** (direct ou imputable aux agissements des pilotes parrainés), le parrain perd également son compte de manière définitive et sans aucun remboursement.
+- **Conformité Internationale Stricte & Sécurité de Niveau Élite** :
+  - Respect universel des réglementations locales (RGPD en Europe, CCPA/CPRA aux USA, PIPL en Chine, APPI en Asie, POPIA en Afrique).
+  - Protocoles de chiffrement ultra-avancés dépassant le RGPD : AES-GCM 256 bits, dérivation PBKDF2 à 100 000 itérations SHA-256, TRNG matériel et architecture Zero-Knowledge.
+- **Mise à jour Juridique & Contractuelle (`src/terms.html`, `src/cgv.html`, `src/moderation.html`)** :
+  - Synchronisation complète des CGU, CGV et de la Charte de Modération.
+
+### Tests & Qualité
+- 8 suites de tests unitaires Jest (`tests/nexus-semantic.test.js`, `tests/moderation-group.test.js`, etc.) — 64 tests passés avec 100% de succès.
+- Validation ESLint stricte sans erreur (`npm run lint`).
+- Compilation de production Vite validée (`npm run build`).
+
+## [111.04.00] - 2026-10-16 - 📳 Mode Cockpit OLED HUD Furtif & Guidage Haptique Réflexe (Inclusif Sourds & Sécurité Motarde)
+
+### Fonctionnalités
+- **Moteur de Guidage Tactile & Cockpit OLED (`src/js/haptic-navigation.js`, `src/css/haptic-navigation.css`)** :
+  - **Mode Cockpit HUD Furtif (Recommandé - Zéro Distraction)** :
+    * *En croisière (> 180m)* : Écran 100% noir profond OLED (`#000000`) reposant la vision nocturne du motard, éliminant tout éblouissement et économisant jusqu'à 70% de batterie. Affichage d'un cluster minimaliste de vitesse.
+    * *À l'approche (< 180m)* : Réveil dynamique instantané sans quitter la route des yeux avec "coup de coude" tactile (signaux vibratoires directionnels asymétriques), flash lumineux périphérique, pictogramme géant XXL (flèche néon jaune/vert) et distance restante en gros caractères lisibles à 1 mètre de distance.
+    * *Ronds-points* : badge circulaire géant affichant immédiatement le numéro de sortie (ex: `2`).
+    * *Retour immédiat en veille furtive* dès la manœuvre franchie (< 25m).
+  - **Mode Tactile Pur (100% aveugle / dans la veste)** :
+    * Suppression complète de l'affichage distrayant et coupure automatique de la voix de synthèse.
+    * Guidage par signatures vibratoires distinctives :
+      - *Gauche* : 2 impulsions asymétriques (court - long `[100, 80, 250]ms`).
+      - *Droite* : 3 impulsions staccato ternaires (`[80, 50, 80, 50, 80]ms`).
+      - *Tout droit* : 1 pulsation douce et continue (`[240]ms`).
+      - *Rond-point* : rotation tactile en 3 temps (`[120, 60, 120, 60, 260]ms`).
+      - *Danger / Radar* : rafale staccato urgente (`[70, 40, 70, 40, 70, 40, 250]ms`).
+      - *Arrivée* : célébration tactile (`[160, 80, 160, 80, 450]ms`).
+  - **Accessibilité & Inclusivité Sourds / Malentendants** :
+    * Suppression de la dépendance à la voix de synthèse.
+    * Flash périphérique dynamique exploitant l'acuité visuelle réflexe périphérique naturelle des conducteurs sourds sans obliger à lire l'écran au guidon.
+  - **Fallback Intelligent Apple iOS / Safari** :
+    * Détection automatique de l'absence de l'API `navigator.vibrate` sur iPhone et compensation automatique par stroboscopie périphérique lumineuse sans laisser le pilote aveugle.
+  - **Liaison Déportée Black Box (Francelog ESP32 BLE)** :
+    * Crochet logiciel prêt à diffuser les impulsions vibratoires déportées sur les poignées du guidon ou le boîtier Black Box.
+  - **Arrêt d'Urgence Tactile Géant** :
+    * Bouton pleine largeur accessible et déclenchable d'un tap rapide avec gants moto.
+- **Intégration Radar & Navigation (`src/radar-danger.html`, `src/js/radar-danger.js`)** :
+  - Sélecteur de mode segmenté directement dans la carte de prévisualisation d'itinéraire ("HUD Furtif", "Tactile Pur", "Carte").
+  - Bouton de bascule en 1 clic dans le cockpit de guidage actif (`#btn-hud-mode-toggle`).
+  - Coupure automatique de `speakText()` en mode tactile exclusif.
+  - Alertes haptiques automatiques couplées aux signalements de dangers communautaires à moins de 200m.
+
+### Tests & Sécurité (OWASP ASVS v5.0.0-3.2.2)
+- **Suite de tests unitaires dédiée (`tests/haptic-navigation.test.js`)** : 10 tests automatisés validant la résolution des manœuvres, la détection des sorties, la gestion du fallback iOS, la bascule de veille furtive/réveil, et la persistance locale (54/54 tests passants).
+- **Zéro `innerHTML` non assaini** : conformité stricte OWASP ASVS v5.0.0-3.2.2 et validation ESLint 0 erreur.
+
+## [111.03.00] - 2026-10-16 - 🏭 Registre Industriel Black Box (Francelog S.A. Linselles), Série A01 (00 Exclu), Code Bluetooth Unique & Livraison < 24h
+
+### Fonctionnalités
+- **Registre Industriel des Black Boxes (`src/admin-blackbox.html`, `src/js/admin-blackbox.js`, `src/css/admin-blackbox.css`)** :
+  - Interface dédiée d'administration permettant de gérer et suivre tous les boîtiers matériels (prototypes et unités de série).
+  - Traçabilité complète du partenariat industriel avec **Francelog S.A. à Linselles (59)**, avec bannière d'état de production (en attente de validation Francelog pour la production en série, prototypes validés).
+  - Numérotation conforme :
+    * **10 prototypes réservés** sous format `BB50V1-P01` à `BB50V1-P10` (la lettre P est strictement réservée aux prototypes).
+    * **Série commerciale débutant à `A01`** : progression `BB50V1-A01`...`BB50V1-A99`, puis `BB50V1-B01`...`BB50V1-B99` jusqu'à `Z99`.
+    * **Le numéro `00` est STRICTEMENT EXCLU de la numérotation** (`A00`, `B00`, `P00` interdits et rejetés).
+  - **Code Bluetooth Unique (`blePasskey`)** :
+    * Chaque boîtier génère et conserve un code d'appairage Bluetooth unique (passkey BLE sécurisé à 6 chiffres, compatible avec le bonding firmware ESP32 `blackbox_ble.ino`).
+    * Affichage dédié dans la table admin, recherche instantanée par code Bluetooth, tiroir latéral avec bouton de copie en 1 clic et régénération sécurisée.
+    * Inclus dans l'export CSV officiel.
+  - **Engagement Livraison Express Garantie en moins de 24h (< 24h)** sur l'ensemble de la console et de la boutique.
+  - **Double mode d'intégration géré par l'équipe** :
+    * *Intégration Unitaire* : saisie manuelle d'un numéro d'unité (ex: `A01`) avec assignation d'un code Bluetooth personnalisé ou auto-généré.
+    * *Générateur de Lot* : création par lot atomique (1 à 100) débutant au prochain numéro de série disponible ou code défini par l'administrateur.
+  - Machine à états stricte (Fabrication → Contrôle qualité → En stock → Vendu → Activé → SAV/RMA → Volé/Perdu → Rebut).
+  - Attribution et désattribution sécurisées aux commandes clients réelles.
+  - Export CSV complet sécurisé contre les injections de formules (`=`, `+`, `-`, `@`).
+  - Journal d'audit et frise chronologique immuable (`blackbox_units/{serial}/history`).
+  - Bouton d'accès direct intégré dans le bandeau de `src/admin.html`.
+
+- **Cloud Functions Administrateur (`functions/api/blackbox-registry.js`, `functions/api/blackbox-core.js`)** :
+  - `adminRegisterBlackboxUnits` : Enregistrement transactionnel de lots industriels de série (débutant à A01, 00 exclu) ou prototypes individuels avec génération de codes Bluetooth uniques.
+  - `adminUpdateBlackboxStatus` : Validation stricte des transitions autorisées avec motif obligatoire pour RMA/Vol/Rebut.
+  - `adminAssignBlackbox` / `adminUnassignBlackbox` : Liaison transactionnelle avec mise à jour du profil pilote (`users/{uid}.blackbox_serial`).
+  - `adminUpdateBlackboxInfo` : Mise à jour sécurisée des codes Bluetooth (passkeys 6 chiffres), adresses MAC BLE, firmware et notes d'atelier.
+
+### Sécurité & Conformité (OWASP ASVS v5.0.0, NIST CSF 2.0 & RGPD)
+- **Neutralisation de la Faille d'Escalade de Privilèges (`firestore.rules`)** :
+  - Verrouillage strict de `match /users/{userId}` à la création : interdiction absolue de s'auto-attribuer `role: "admin"` ou `blackbox_serial`.
+  - Verrouillage en mise à jour : les utilisateurs authentifiés ne peuvent modifier ni leur rôle ni leur numéro de série sans droits administrateurs (`affectedKeys().hasAny(['role', 'blackbox_serial'])`).
+  - Ajout des règles de sécurité zero-trust pour `blackbox_units/{serial}`, `history` et `blackbox_registry/{revision}` (`write: if false`, `read: if isAdmin()`).
+- **Sécurisation de la Boutique Matérielle (`src/js/blackbox-shop.js`, `functions/api/payments.js`)** :
+  - Remplacement intégral de la simulation de paiement par le véritable flux **Revolut Merchant API (SDK Revolut Checkout)**.
+  - Verrouillage de la collection `blackbox_sales` : interdiction d'écriture directe côté client (`allow create: if false`), persistance exclusive via le Webhook Revolut après confirmation bancaire.
+  - Implémentation de la vérification de signature webhook Revolut conforme aux spécifications officielles (`functions/api/revolut-signature.js`) : HMAC SHA-256 avec timestamp `v1.{timestamp}.{body}`, fenêtre anti-rejeu de 5 minutes et comparaison en temps constant `crypto.timingSafeEqual`.
+- **Conformité RGPD Art. 17 (`functions/api/auth.js`)** :
+  - En cas d'effacement de compte (`deleteUserAccount`), les boîtiers matériels sont détachés (`ownerUid` purgé) tout en conservant l'enregistrement matériel et son numéro de série pour la sécurité des produits sans PII.
+
+### Tests Unitaires
+- Ajout de `tests/blackbox-core.test.js` (validation des numéros de série, machine à états, garanties, tarification).
+- Ajout de `tests/revolut-signature.test.js` (validation signature HMAC, anti-rejeu, secrets tournants).
+- Extension de `tests/firestore.rules.test.js` (vérification de la protection contre l'escalade de privilèges et l'isolation des écritures).
+
+---
+
 ## [111.02.02] - 2026-10-13 - 📱 Android 15 Edge-to-Edge, Durcissement Sécurité ASVS v5.0.0 & Remédiation Globale
 
 ### Sécurité & Conformité (OWASP ASVS v5.0.0, NIST CSF 2.0 & RGPD)

@@ -237,6 +237,22 @@ modal.innerHTML = `
 
   sendSignal: async function (icon, text) {
     if (!this.sessionId || !window.session) return;
+
+    // 🛡️ MODÉRATION PROACTIVE DES SIGNAUX DE GROUPE (Tolérance Zéro & Mots Grossiers)
+    if (window.Moderation && typeof window.Moderation.checkGroupMessage === "function") {
+      const modResult = window.Moderation.checkGroupMessage(text, {
+        space: "Cortège",
+        uid: window.session.uid,
+        username: window.session.username
+      });
+
+      if (!modResult.safe) {
+        alert(modResult.userMessage);
+        document.getElementById("cortege-signals-modal").style.display = "none";
+        return;
+      }
+    }
+
     try {
       await firebase
         .firestore()

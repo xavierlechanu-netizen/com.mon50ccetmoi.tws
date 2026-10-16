@@ -2,6 +2,7 @@ const {
     onRequest, admin, db, REVOLUT_SECRET_KEY, REVOLUT_WEBHOOK_SECRET,
     REVOLUT_API_BASE, REVOLUT_API_VERSION, setCorsHeaders, verifyAuthToken, crypto
 } = require("./shared");
+const { verifyRevolutSignature } = require("./revolut-signature");
 
 async function createPennylaneInvoice(orderData, userEmail, userName) {
     const apiKey = null; // PENNYLANE_API_KEY.value(); désactivé temporairement
@@ -83,7 +84,9 @@ exports.createRevolutOrder = onRequest(
             'BATTERY_CERT_QUANTUM': 2999,
             'GARAGE_FEE': 5000,
             'BLACKBOX_CARE_MONTHLY': 500,
-            'BLACKBOX_CARE_ANNUAL': 5000
+            'BLACKBOX_CARE_ANNUAL': 5000,
+            'BLACKBOX_UNIT': 8999,
+            'BLACKBOX_DUO': 16198
         };
 
         if (!report_type || !prices[report_type]) {
@@ -91,6 +94,20 @@ exports.createRevolutOrder = onRequest(
         }
         
         amount_cents = prices[report_type];
+
+        // Tarification dynamique pour le matériel Black Box (Offre lancement : 10 prototypes garantis à vie)
+        if (report_type === 'BLACKBOX_UNIT') {
+            try {
+                const statDoc = await db.collection("stats").doc("blackbox_sales").get();
+                const count = statDoc.exists ? (statDoc.data().count || 0) : 0;
+                if (count < 10) {
+                    amount_cents = 4999; // 49,99 € pour les 10 premiers prototypes
+                }
+            } catch (e) {
+                console.warn("[Revolut] Avertissement calcul prix prototype:", e.message);
+            }
+        }
+
         currency = "EUR";
 
         if (!case_id) {
@@ -170,6 +187,7 @@ exports.revolutWebhook = onRequest(
         if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
 
         const signature = req.headers["revolut-signature"];
+        const timestampHeader = req.headers["revolut-request-timestamp"];
         const webhookSecret = REVOLUT_WEBHOOK_SECRET.value();
         if (!webhookSecret) {
             console.error("[Revolut Webhook] CRITIQUE : REVOLUT_WEBHOOK_SECRET non configuré. Requête rejetée.");
@@ -179,12 +197,11 @@ exports.revolutWebhook = onRequest(
             console.error("[Revolut Webhook] Header Revolut-Signature manquant. Requête rejetée.");
             return res.status(401).send("Signature manquante");
         }
-        const expectedSig = crypto
-            .createHmac("sha256", webhookSecret)
-            .update(JSON.stringify(req.body))
-            .digest("hex");
-        if (signature !== expectedSig) {
-            console.error("[Revolut Webhook] Signature HMAC invalide. Requête rejetée.");
+
+        const rawBody = req.rawBody || JSON.stringify(req.body);
+        const verif = verifyRevolutSignature(rawBody, timestampHeader, signature, webhookSecret);
+        if (!verif.valid) {
+            console.error("[Revolut Webhook] Signature invalide :", verif.reason);
             return res.status(401).send("Signature invalide");
         }
 
@@ -217,7 +234,38 @@ exports.revolutWebhook = onRequest(
                     completed_at: admin.firestore.FieldValue.serverTimestamp()
                 });
 
-                if (orderData.report_type === "GARAGE_FEE") {
+                if (orderData.report_type === "BLACKBOX_UNIT" || orderData.report_type === "BLACKBOX_DUO") {
+                    const isDuo = orderData.report_type === "BLACKBOX_DUO";
+                    const quantity = isDuo ? 2 : 1;
+                    const userId = orderData.user_id;
+
+                    const saleDocRef = db.collection("blackbox_sales").doc(orderId);
+                    batch.set(saleDocRef, {
+                        orderId: orderId,
+                        revolut_order_id: orderId,
+                        caseId: caseId,
+                        userId: userId,
+                        type: isDuo ? "DUO" : "UNIT",
+                        amount: orderData.amount_cents / 100,
+                        amount_cents: orderData.amount_cents,
+                        currency: orderData.currency || "EUR",
+                        quantity: quantity,
+                        lifetimeWarranty: !isDuo && (orderData.amount_cents === 4999),
+                        status: "PAID",
+                        assignedSerial: null,
+                        assignedAt: null,
+                        createdAt: admin.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    const statsRef = db.collection("stats").doc("blackbox_sales");
+                    batch.set(statsRef, {
+                        count: admin.firestore.FieldValue.increment(quantity),
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+
+                    console.log(`[Revolut Webhook] 📦 Vente Blackbox confirmée (${quantity} boîtier(s)) pour ${userId}`);
+
+                } else if (orderData.report_type === "GARAGE_FEE") {
                     const userId = orderData.user_id;
                     if (userId && userId !== "unknown") {
                         batch.set(db.collection("users").doc(userId), {
