@@ -199,3 +199,12 @@ Le système intègre un pipeline autonome de télé-métrologie, d'analyse des �
    - Archivage structuré dans Firestore (`nexus_improvement_reports`).
    - Transmission des recommandations et anomalies critiques dans la base Notion via l'API Notion (`reportToNotion`).
    - Mise à jour de l'indicateur de santé système dans `config/nexus_status`.
+
+---
+
+## 10. Intelligence Juridique Européenne & Veille Législative (EUR-Lex)
+
+- **Sources Officielles Européennes :** EUR-Lex (`eur-lex.europa.eu`) est le répertoire officiel du droit de l'Union Européenne régissant les textes applicables à `mon50ccetmoi` (DSA Art. 16/17/20, AI Act 2024/1689, RGPD 2016/679, Directive Permis AM 2006/126/CE, Règlement d'homologation 2-roues/VSP 168/2013).
+- **Accès API & Services Web :** EUR-Lex propose un accès via des services web (SOAP / SPARQL / Cellar) et une interface REST pour récupérer automatiquement les métadonnées et textes intégraux des actes législatifs européens (identifiants CELEX ou ELI).
+- **Intégrations & Relais Tiers :** Ces accès sont relayés, au besoin, par des solutions tierces (wrappers REST, plateformes de legal-tech, passerelles de veille) pour simplifier l'intégration dans l'Avocat de Poche (`pocket-lawyer.js`), l'Arbitre Bot (`arbitre-bot.js`) et la base de connaissances de Nexus Atlas (`legal-database.js`).
+

@@ -64,7 +64,7 @@ CONTEXTE MÉTÉO DU JOUR (Météo-France) :
   if (profile && profile.bvcPoints !== undefined) {
     profileSection = `
 PROFIL DE L'UTILISATEUR :
-- Score BVC (Bonne Volonté Communautaire) : ${profile.bvcPoints}
+- Points mon50cc (fidélité et sécurité) : ${profile.bvcPoints}
 - INSTRUCTION : Adapte la difficulté. Si le score est faible, pose des questions fondamentales. Si le score est élevé, pose des questions plus pointues (ex: ZFE, législation pointue).
 `;
   }

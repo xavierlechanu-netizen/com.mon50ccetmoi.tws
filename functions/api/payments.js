@@ -83,10 +83,15 @@ exports.createRevolutOrder = onRequest(
             'BATTERY_CERT_PREMIUM': 1499,
             'BATTERY_CERT_QUANTUM': 2999,
             'GARAGE_FEE': 5000,
-            'BLACKBOX_CARE_MONTHLY': 500,
+            'BLACKBOX_CARE_MONTHLY': 499,
             'BLACKBOX_CARE_ANNUAL': 5000,
             'BLACKBOX_UNIT': 8999,
-            'BLACKBOX_DUO': 16198
+            'BLACKBOX_DUO': 16198,
+            'BLACKBOX_PACK_SUB': 4999,
+            'POINTS_100': 299,
+            'POINTS_250': 599,
+            'POINTS_600': 1199,
+            'POINTS_1500': 2499
         };
 
         if (!report_type || !prices[report_type]) {
@@ -119,6 +124,25 @@ exports.createRevolutOrder = onRequest(
             return res.status(500).json({ error: "Clé secrète Revolut non configurée." });
         }
 
+        let orderDescription = `Rapport Assurance — ${report_type || "Standard"} — ${case_id}`;
+        if (report_type === 'BLACKBOX_PACK_SUB') {
+            orderDescription = `Pack Boîte Noire + Abonnement (Caution 49,99 € — 24 mois) — ${case_id}`;
+        } else if (report_type === 'BLACKBOX_UNIT') {
+            orderDescription = `Boîte Noire V1 Matériel — ${case_id}`;
+        } else if (report_type === 'BLACKBOX_DUO') {
+            orderDescription = `Pack Duo 2 Boîtes Noires — ${case_id}`;
+        } else if (report_type === 'BLACKBOX_CARE_MONTHLY') {
+            orderDescription = `Abonnement Boîte Noire+ (Mensuel) — ${case_id}`;
+        } else if (report_type === 'POINTS_100') {
+            orderDescription = `Pack Starter — 100 Points mon50cc — ${case_id}`;
+        } else if (report_type === 'POINTS_250') {
+            orderDescription = `Pack Pilote — 250 Points mon50cc (+25% bonus) — ${case_id}`;
+        } else if (report_type === 'POINTS_600') {
+            orderDescription = `Pack Pro Rider — 600 Points mon50cc (+50% bonus) — ${case_id}`;
+        } else if (report_type === 'POINTS_1500') {
+            orderDescription = `Coffre Légende — 1 500 Points mon50cc (+100% bonus) — ${case_id}`;
+        }
+
         try {
             const revolutResponse = await fetch(`${REVOLUT_API_BASE}/orders`, {
                 method:  "POST",
@@ -132,7 +156,7 @@ exports.createRevolutOrder = onRequest(
                     currency:      currency,
                     capture_mode:  "automatic",
                     merchant_order_ext_ref: case_id,
-                    description:   `Rapport Assurance — ${report_type || "Standard"} — ${case_id}`,
+                    description:   orderDescription,
                     metadata: {
                         user_id:     user_id   || "unknown",
                         case_id:     case_id,
@@ -234,28 +258,52 @@ exports.revolutWebhook = onRequest(
                     completed_at: admin.firestore.FieldValue.serverTimestamp()
                 });
 
-                if (orderData.report_type === "BLACKBOX_UNIT" || orderData.report_type === "BLACKBOX_DUO") {
+                if (orderData.report_type === "BLACKBOX_UNIT" || orderData.report_type === "BLACKBOX_DUO" || orderData.report_type === "BLACKBOX_PACK_SUB") {
                     const isDuo = orderData.report_type === "BLACKBOX_DUO";
+                    const isPackSub = orderData.report_type === "BLACKBOX_PACK_SUB";
                     const quantity = isDuo ? 2 : 1;
                     const userId = orderData.user_id;
 
-                    const saleDocRef = db.collection("blackbox_sales").doc(orderId);
-                    batch.set(saleDocRef, {
+                    const saleData = {
                         orderId: orderId,
                         revolut_order_id: orderId,
                         caseId: caseId,
                         userId: userId,
-                        type: isDuo ? "DUO" : "UNIT",
+                        type: isPackSub ? "PACK_SUBSCRIPTION" : (isDuo ? "DUO" : "UNIT"),
                         amount: orderData.amount_cents / 100,
                         amount_cents: orderData.amount_cents,
                         currency: orderData.currency || "EUR",
                         quantity: quantity,
-                        lifetimeWarranty: !isDuo && (orderData.amount_cents === 4999),
+                        lifetimeWarranty: !isDuo && !isPackSub && (orderData.amount_cents === 4999),
+                        commitmentMonths: isPackSub ? 24 : 0,
+                        securityDeposit: isPackSub ? 49.99 : 0,
+                        monthlyFee: isPackSub ? 4.99 : 0,
                         status: "PAID",
                         assignedSerial: null,
                         assignedAt: null,
                         createdAt: admin.firestore.FieldValue.serverTimestamp()
-                    });
+                    };
+
+                    // Enregistrer sous orderId ET caseId pour garantir la détection par le polling client
+                    batch.set(db.collection("blackbox_sales").doc(orderId), saleData);
+                    batch.set(db.collection("blackbox_sales").doc(caseId), saleData);
+
+                    // Si pack abonnement, activer le statut Premium et l'engagement 24 mois
+                    if (isPackSub && userId && userId !== "unknown") {
+                        batch.set(db.collection("users").doc(userId), {
+                            isPremium: true,
+                            premiumPlan: "BOITE_NOIRE_PLUS_24M",
+                            premiumSince: admin.firestore.FieldValue.serverTimestamp(),
+                            subscription: {
+                                status: "ACTIVE",
+                                type: "PACK_SUBSCRIPTION_24M",
+                                commitment_months: 24,
+                                security_deposit_cents: 4999,
+                                monthly_fee_cents: 499,
+                                start_date: admin.firestore.FieldValue.serverTimestamp()
+                            }
+                        }, { merge: true });
+                    }
 
                     const statsRef = db.collection("stats").doc("blackbox_sales");
                     batch.set(statsRef, {
@@ -263,7 +311,7 @@ exports.revolutWebhook = onRequest(
                         updatedAt: admin.firestore.FieldValue.serverTimestamp()
                     }, { merge: true });
 
-                    console.log(`[Revolut Webhook] 📦 Vente Blackbox confirmée (${quantity} boîtier(s)) pour ${userId}`);
+                    console.log(`[Revolut Webhook] 📦 Vente Blackbox confirmée (${isPackSub ? 'Pack Abonnement 24m' : (quantity + ' boîtier(s)')}) pour ${userId}`);
 
                 } else if (orderData.report_type === "GARAGE_FEE") {
                     const userId = orderData.user_id;
@@ -278,6 +326,47 @@ exports.revolutWebhook = onRequest(
                             user_id: userId,
                             certified_at: admin.firestore.FieldValue.serverTimestamp()
                         });
+                    }
+                } else if (orderData.report_type && orderData.report_type.startsWith("POINTS_")) {
+                    const userId = orderData.user_id;
+                    const pointsMap = {
+                        'POINTS_100': 100,
+                        'POINTS_250': 250,
+                        'POINTS_600': 600,
+                        'POINTS_1500': 1500
+                    };
+                    const pointsToAdd = pointsMap[orderData.report_type] || parseInt(orderData.report_type.replace('POINTS_', ''), 10) || 0;
+
+                    if (userId && userId !== "unknown" && pointsToAdd > 0) {
+                        const userRef = db.collection("users").doc(userId);
+                        batch.set(userRef, {
+                            braveCoins: admin.firestore.FieldValue.increment(pointsToAdd),
+                            bvc_points: admin.firestore.FieldValue.increment(pointsToAdd),
+                            points: admin.firestore.FieldValue.increment(pointsToAdd),
+                            lastPointsPurchase: {
+                                pack: orderData.report_type,
+                                points: pointsToAdd,
+                                amount_cents: orderData.amount_cents,
+                                order_id: orderId,
+                                purchased_at: admin.firestore.FieldValue.serverTimestamp()
+                            }
+                        }, { merge: true });
+
+                        const txRef = db.collection("points_transactions").doc(orderId);
+                        batch.set(txRef, {
+                            order_id: orderId,
+                            case_id: caseId,
+                            user_id: userId,
+                            pack: orderData.report_type,
+                            points: pointsToAdd,
+                            amount_cents: orderData.amount_cents,
+                            currency: orderData.currency || "EUR",
+                            status: "COMPLETED",
+                            type: "RECHARGE_REVOLUT",
+                            created_at: admin.firestore.FieldValue.serverTimestamp()
+                        });
+
+                        console.log(`[Revolut Webhook] 🪙 Recharge validée : +${pointsToAdd} Points mon50cc pour ${userId} (Ordre: ${orderId})`);
                     }
                 } else {
                     const litigationRef = db.collection("litigation_proposals").doc(caseId);

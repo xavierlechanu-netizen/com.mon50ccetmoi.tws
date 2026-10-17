@@ -91,10 +91,10 @@ window.BVCManager = {
 
   updateUI: function() {
     const els = document.querySelectorAll(".bvc-balance-display");
-    els.forEach(el => el.innerText = Math.floor(this.balance) + " Pts BVC");
+    els.forEach(el => el.innerText = Math.floor(this.balance) + " Pts mon50cc");
     
     const balanceEl = document.getElementById("wallet-balance");
-    if (balanceEl) balanceEl.innerText = Math.floor(this.balance) + " Pts BVC";
+    if (balanceEl) balanceEl.innerText = Math.floor(this.balance) + " Pts mon50cc";
     
     const tokenEl = document.getElementById("bvc-count");
     if (tokenEl) tokenEl.innerText = Math.floor(this.balance);

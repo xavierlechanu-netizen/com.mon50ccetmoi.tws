@@ -139,8 +139,17 @@ window.LegalDatabase = {
   eu: {
     _flag: "🇪🇺",
     _name: "Union Européenne",
-    _source: "EUR-Lex — eur-lex.europa.eu",
-    _keywords: ["europe", "européen", "europeen", "ue", "eu", "eur-lex"],
+    _source: "EUR-Lex — eur-lex.europa.eu (Web Services & API REST)",
+    _keywords: ["europe", "européen", "europeen", "ue", "eu", "eur-lex", "eurlex"],
+
+    eur_lex_api: {
+      keywords: ["eur-lex", "eurlex", "api", "webservice", "web service", "rest", "acte", "legislation ue", "directive", "eli", "celex"],
+      title: "🇪🇺 EUR-Lex — Services Web & Interface REST Officiels",
+      content:
+        "EUR-Lex propose un accès officiel via des services web et une interface REST pour récupérer les métadonnées et textes des actes législatifs européens (via identifiants CELEX et ELI). Ces flux sont également relayés par des solutions tierces pour une intégration plus simple dans les systèmes d'information et d'IA juridique.",
+      source: "EUR-Lex — eur-lex.europa.eu (Services Web & REST)",
+      url: "eur-lex.europa.eu",
+    },
 
     rgpd: {
       keywords: ["rgpd", "gdpr", "donnée", "privacy"],

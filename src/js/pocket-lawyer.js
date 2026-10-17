@@ -136,7 +136,8 @@ overlay.innerHTML = `
             </div>
             
             <button data-action="PocketLawyer.startGPSScan()" style="margin-bottom: 15px; background: transparent; border: 1px solid #cca300; color: #cca300; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-location-dot"></i> Scanner mon stationnement (GPS)</button>
-            <button data-action="PocketLawyer.reportInsurer()" style="margin-bottom: 15px; background: rgba(255,51,51,0.1); border: 1px solid #ff3333; color: #ff3333; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-bullhorn"></i> Signaler un litige assureur (+15 BVC)</button>
+            <button data-action="PocketLawyer.appealBan()" style="margin-bottom: 15px; background: rgba(231, 76, 60, 0.15); border: 1px solid #e74c3c; color: #e74c3c; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-scale-balanced"></i> Contester un Bannissement Temporaire (Vérification Humaine)</button>
+            <button data-action="PocketLawyer.reportInsurer()" style="margin-bottom: 15px; background: rgba(255,51,51,0.1); border: 1px solid #ff3333; color: #ff3333; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-bullhorn"></i> Signaler un litige assureur (+15 mon50cc)</button>
             <button data-action="window.open('https://www.legifrance.gouv.fr/', '_blank')" style="margin-bottom: 30px; background: rgba(0, 51, 153, 0.2); border: 1px solid #0055ff; color: #88bbff; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-book-section"></i> Base Légifrance (Textes Officiels)</button>
             
             <style>
@@ -222,7 +223,7 @@ overlay.innerHTML = `
     }
 
     this.addBotMessage(
-      `<strong>Signalement enregistré !</strong><br>Merci d'avoir signalé <em>${safeInsurerName}</em>. Votre retour aide toute la communauté à éviter les mauvaises expériences.<br><span style="color:#00e676;">+15 Pts BVC offerts pour votre contribution citoyenne.</span>`,
+      `<strong>Signalement enregistré !</strong><br>Merci d'avoir signalé <em>${safeInsurerName}</em>. Votre retour aide toute la communauté à éviter les mauvaises expériences.<br><span style="color:#00e676;">+15 Pts mon50cc offerts pour votre contribution citoyenne.</span>`,
     );
 
     if (
@@ -330,6 +331,17 @@ tempDiv.innerHTML = htmlContent;
 
   processChatQuery: async function (text) {
     const t = text.toLowerCase();
+
+    // ── Recours & Vérification Humaine (Bannissement Temporaire) ──
+    if (t.includes("ban") || t.includes("banni") || t.includes("sanction") || t.includes("réexamen") || t.includes("reexamen") || t.includes("recours") || t.includes("compteur")) {
+      return `⚖️ <strong>Procédure de Réexamen des Sanctions (Vérification Humaine)</strong><br><br>` +
+        `En cas de bannissement temporaire, vous avez le droit légal de contester la sanction auprès d'un modérateur humain.<br><br>` +
+        `<div style="background: rgba(0,230,118,0.1); border-left: 3px solid #00e676; padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 0.85rem;">` +
+        `<strong>Règle formelle :</strong> L'annulation du bannissement et la réinitialisation intégrale du compteur de sanctions à zéro (0) seront déclenchées dès que la vérification humaine validera le rejet de la sanction.` +
+        `</div>` +
+        `<button data-action="PocketLawyer.appealBan()" style="background: linear-gradient(90deg, #cca300, #ffaa00); color: #000; border: none; border-radius: 20px; padding: 10px 18px; font-weight: bold; cursor: pointer; width: 100%;">` +
+        `<i class="fa-solid fa-scale-balanced"></i> Déposer une demande de réexamen humain</button>`;
+    }
 
     // ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ 
     // 🌍  MOTEUR JURIDIQUE MONDIAL (LegalDatabase)
@@ -544,7 +556,7 @@ tempDiv.innerHTML = htmlContent;
       if (typeof window.BVCManager !== "undefined") {
         if (
           confirm(
-            `Générer un recours juridique coûte ${price} Pts BVC.\nVoulez-vous continuer ?`,
+            `Générer un recours juridique coûte ${price} Pts mon50cc.\nVoulez-vous continuer ?`,
           )
         ) {
           authorized = await window.BVCManager.deduct(price);
@@ -582,11 +594,102 @@ tempDiv.innerHTML = htmlContent;
       }
     } else {
       alert(
-        `Fonds insuffisants ou opération annulée ! Vous avez besoin de ${price} Pts BVC.`,
+        `Fonds insuffisants ou opération annulée ! Vous avez besoin de ${price} Pts mon50cc.`,
       );
     }
   },
+
+  /**
+   * Recours et demande de réexamen d'un bannissement temporaire pour vérification humaine
+   * L'utilisateur utilise 5 points mon50cc. Si la sanction est annulée, levée immédiate + 50 points mon50cc de compensation.
+   */
+  appealBan: async function () {
+    const uid = (window.session && window.session.uid) ? window.session.uid : (typeof firebase !== "undefined" && firebase.auth ? firebase.auth().currentUser?.uid : null);
+    if (!uid) {
+      alert("Veuillez vous connecter pour introduire un recours.");
+      return;
+    }
+
+    const mod = window.Moderation;
+    const banStatus = mod ? mod.getBanStatus(uid) : { isBanned: false, isTempBanned: false, tempBansCount: 0 };
+
+    if (!banStatus.isBanned && !banStatus.isTempBanned && banStatus.tempBansCount === 0) {
+      this.addBotMessage(
+        "⚖️ <strong>Aucune sanction active</strong> détectée sur votre compte.<br>Votre dossier est vierge ou votre sanction a déjà été purgée ou levée."
+      );
+      return;
+    }
+
+    const cost = 5;
+    const userBalance = window.BVCManager ? window.BVCManager.balance : 0;
+    if (userBalance < cost) {
+      alert(`Points mon50cc insuffisants ! Vous avez besoin de ${cost} points mon50cc pour demander une vérification humaine.`);
+      return;
+    }
+
+    const proceed = confirm(
+      `Demander une vérification humaine pour contester un bannissement utilise ${cost} points mon50cc.\n\n` +
+      `Si la sanction est ensuite annulée après réexamen :\n` +
+      `• Votre interdiction sera levée immédiatement\n` +
+      `• Votre compteur de sanctions sera réinitialisé à zéro\n` +
+      `• Vous recevrez 50 points mon50cc en guise de compensation !\n\n` +
+      `Voulez-vous continuer ?`
+    );
+    if (!proceed) return;
+
+    const reason = prompt(
+      "Contestation de sanction (Vérification Humaine)\n\nExpliquez les raisons pour lesquelles vous demandez le réexamen de votre sanction (ex: malentendu, citation, compte partagé) :"
+    );
+    if (!reason || !reason.trim()) return;
+
+    const details = prompt(
+      "Informations ou preuves complémentaires (optionnel) :"
+    ) || "";
+
+    // Déduction des 5 points mon50cc pour le recours
+    if (window.BVCManager && typeof window.BVCManager.deduct === "function") {
+      const deducted = await window.BVCManager.deduct(cost);
+      if (!deducted) {
+        alert("Erreur lors de la déduction des points mon50cc.");
+        return;
+      }
+    }
+
+    const result = mod ? await mod.requestAppeal(uid, reason.trim(), details.trim(), cost) : { success: false, error: "Module de modération indisponible" };
+
+    if (result.success) {
+      this.addBotMessage(
+        `⚖️ <strong>Demande de réexamen transmise avec succès !</strong><br><br>` +
+        `Votre dossier a été transmis à l'équipe de modération pour <strong>vérification humaine</strong> (${cost} points mon50cc utilisés).<br><br>` +
+        `<div style="background: rgba(0,230,118,0.1); border-left: 3px solid #00e676; padding: 12px; border-radius: 8px; margin-top: 8px;">` +
+        `<strong>Règle formelle appliquée :</strong><br>` +
+        `Si la sanction est ensuite annulée après réexamen :<br>` +
+        `• Votre interdiction sera <strong>levée immédiatement</strong>.<br>` +
+        `• Votre compteur de sanctions sera <strong>réinitialisé à zéro (0)</strong>.<br>` +
+        `• Vous recevrez <strong>cinquante (50) points mon50cc</strong> en guise de compensation.` +
+        `</div>`
+      );
+    } else {
+      this.addBotMessage(
+        `⚠️ <em>${result.error || "Une erreur est survenue lors de l'enregistrement de votre demande."}</em>`
+      );
+    }
+  }
 };
+
+// Auto-ouverture en cas de paramètre d'URL (ex: depuis banned.html)
+if (typeof window !== "undefined" && window.location && window.location.search) {
+  if (window.location.search.includes("appeal=true") || window.location.search.includes("openLawyer=appeal")) {
+    window.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => {
+        if (window.PocketLawyer) {
+          window.PocketLawyer.openLawyer();
+          window.PocketLawyer.appealBan();
+        }
+      }, 600);
+    });
+  }
+}
 
 // Enregistrement des actions auprès de l'Event Delegator (Phase 3 & 5)
 registerAction('PocketLawyer.toggleLawyer', () => window.PocketLawyer.toggleLawyer());
@@ -594,6 +697,7 @@ registerAction('PocketLawyer.openLawyer', () => window.PocketLawyer.openLawyer()
 registerAction('PocketLawyer.closeLawyer', () => window.PocketLawyer.closeLawyer());
 registerAction('PocketLawyer.sendMessage', () => window.PocketLawyer.sendMessage());
 registerAction('PocketLawyer.startGPSScan', () => window.PocketLawyer.startGPSScan());
+registerAction('PocketLawyer.appealBan', () => window.PocketLawyer.appealBan());
 registerAction('PocketLawyer.reportInsurer', () => window.PocketLawyer.reportInsurer());
 registerAction('PocketLawyer.generateLetter', () => window.PocketLawyer.generateLetter());
 registerAction('toggleLawyer', () => window.PocketLawyer.toggleLawyer());

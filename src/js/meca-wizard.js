@@ -303,9 +303,9 @@ container.innerHTML = `
                 <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
                 
                 <div style="text-align:center;">
-                    <h5 style="color:#10a37f; margin-bottom:10px;"><i class="fa-solid fa-lock-open"></i> Débloquer le Rapport Expert (50 Pts BVC)</h5>
+                    <h5 style="color:#10a37f; margin-bottom:10px;"><i class="fa-solid fa-lock-open"></i> Débloquer le Rapport Expert (50 Pts mon50cc)</h5>
                     <button id="btn-revolut-pay" data-action="window.MecaWizard.payWithBVC()" style="background:#000; color:#fff; border:1px solid #10a37f; padding:12px 20px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">
-                        <i class="fa-solid fa-gem"></i> Utiliser 50 Pts BVC
+                        <i class="fa-solid fa-gem"></i> Utiliser 50 Pts mon50cc
                     </button>
                     <div id="revolut-status" style="margin-top:10px; font-size:0.8rem; color:#ccc;"></div>
                 </div>
@@ -328,7 +328,7 @@ statusEl.innerHTML = '<span style="color:#dc3545;">Erreur: Programme de fidélit
 
     if (window.BVCManager.balance < price) {
       // eslint-disable-next-line no-restricted-syntax
-statusEl.innerHTML = `<span style="color:#dc3545;">Fonds insuffisants. Vous avez ${Math.floor(window.BVCManager.balance)} Pts, il en faut ${price}.</span>`;
+statusEl.innerHTML = `<span style="color:#dc3545;">Fonds insuffisants. Vous avez ${Math.floor(window.BVCManager.balance)} points mon50cc, il en faut ${price}.</span>`;
       return;
     }
 
@@ -344,7 +344,7 @@ btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion au résea
 statusEl.innerHTML = `<span style="color:#dc3545;">Erreur de transaction.</span>`;
       btn.disabled = false;
       // eslint-disable-next-line no-restricted-syntax
-btn.innerHTML = '<i class="fa-solid fa-gem"></i> Utiliser 50 Pts BVC';
+btn.innerHTML = '<i class="fa-solid fa-gem"></i> Utiliser 50 Pts mon50cc';
     }
   },
 

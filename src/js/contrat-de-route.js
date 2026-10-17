@@ -109,7 +109,7 @@ async function signerContrat(contratId) {
 
     signedContrats.add(contratId);
     renderContrats();
-    showToast(`🏆 +${contrat.bvcReward} BVC Points ! Contrat signé : "${contrat.label}"`);
+    showToast(`🏆 +${contrat.bvcReward} points mon50cc ! Contrat signé : "${contrat.label}"`);
 
     // Animer le compteur de points
     updatePointsDisplay();
@@ -142,7 +142,7 @@ grid.innerHTML = CONTRATS.map(c => {
           ${isSigned
             ? `<div class="contrat-signed-badge"><i class="fa-solid fa-circle-check"></i> Signé ce mois-ci</div>`
             : `<button class="btn-signer" data-action="signerContrat('${c.id}')">
-                <i class="fa-solid fa-pen-nib"></i> Signer (+${c.bvcReward} BVC)
+                <i class="fa-solid fa-pen-nib"></i> Signer (+${c.bvcReward} mon50cc)
                </button>`
           }
         </div>

@@ -127,7 +127,7 @@ container.innerHTML = `
       <div class="stat-card gold animate-slide-up delay-1">
         <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
         <div class="stat-value" data-val="${data.bvcPoints}">0</div>
-        <div class="stat-label">BVC Points</div>
+        <div class="stat-label">Points mon50cc</div>
       </div>
       <div class="stat-card cyan animate-slide-up delay-2">
         <div class="stat-icon"><i class="fa-solid fa-pen-nib"></i></div>

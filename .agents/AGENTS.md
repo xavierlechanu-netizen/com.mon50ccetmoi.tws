@@ -113,7 +113,7 @@ Le projet `mon50ccetmoi` vise le **Tier 3 (Repeatable)** : Politiques de sécuri
   - **GV.OC-02** : Les parties prenantes sont : utilisateurs conducteurs, assureurs B2B (portail), garages partenaires, CNIL (régulateur). Leurs attentes respectives en matière de sécurité sont documentées dans `NEXUS_ATLAS_CONTEXT.md`.
   - **GV.OC-03** : Les obligations légales sont : RGPD (UE), CCPA/CPRA (US), PIPL (Chine), AI Act (UE), Code de la Route (France). Gérées dans `conformite_globale_mon50ccetmoi.md`.
   - **GV.OC-04** : Les services critiques dont les parties prenantes dépendent : authentification Firebase, API Revolut (paiement), API Gemini (IA), télémétrie BLE, signalement hazards, SOS d'urgence.
-  - **GV.OC-05** : Les dépendances externes du projet : Firebase (Auth, Firestore, Hosting, Functions), Google Maps, Revolut API, Météo-France API, PISTE/Légifrance API.
+  - **GV.OC-05** : Les dépendances externes du projet : Firebase (Auth, Firestore, Hosting, Functions), Google Maps, Revolut API, Météo-France API, PISTE/Légifrance API, EUR-Lex Web Services & REST API (récupération de métadonnées et textes législatifs UE, direct ou via solutions tierces de relai).
 - **GV.RM — Stratégie de Gestion des Risques** :
   - **GV.RM-01** : Objectifs de risque établis : protéger l'intégrité des preuves de sinistre (Zero-Knowledge), garantir la disponibilité du SOS, prévenir la fraude aux BVC Points.
   - **GV.RM-02** : Tolérance au risque : AUCUNE tolérance sur la compromission crypto (AES-256), faible tolérance sur les interruptions de service, tolérance moyenne sur les fonctionnalités communautaires (hazards, crews).

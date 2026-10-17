@@ -80,7 +80,7 @@ function initMap() {
     styles: darkMapStyle()
   });
 
-  // --- Logique "Octobre Rose", "Halloween" & Déblocage par Points BVC ---
+  // --- Logique "Octobre Rose", "Halloween" & Déblocage par points mon50cc ---
   const currentDate = new Date();
   const isHalloween = (currentDate.getMonth() === 9 && currentDate.getDate() === 31);
   const isOctober = (currentDate.getMonth() === 9 && !isHalloween); // 9 = Octobre

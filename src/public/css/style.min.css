@@ -2927,9 +2927,9 @@ body, html {
     filter: contrast(1.05) brightness(0.85) saturate(0.9);
 }
 
-/* Thème sombre pour Leaflet (override) */
+/* Thème sombre pour Leaflet (override OpenStreetMap) */
 .leaflet-tile-pane {
-    filter: brightness(0.6) saturate(0.8) hue-rotate(190deg) contrast(1.2);
+    filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(120%);
 }
 
 /* Supprime le fond blanc Leaflet */

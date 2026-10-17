@@ -423,13 +423,13 @@ export const PAGE_ROUTES = {
                         window.Web4Economy.mineToken(5.0, 'Défi Quinzaine Complété');
                         localStorage.setItem('defi_claimed_${currentPeriodIdx}', 'true');
                         window.session.completedChallengesCount = (window.session.completedChallengesCount || 0) + 1;
-                        alert('Félicitations ! Vous avez remporté 5 BVC pour avoir complété le défi.');
+                        alert('Félicitations ! Vous avez remporté 5 points mon50cc pour avoir complété le défi.');
                         showPage('defis');
                     }
-                ">RÉCLAMER MES 5 BVC</button>
+                ">RÉCLAMER MES 5 POINTS MON50CC</button>
             `
                 : progress >= 100
-                  ? `<button class="btn-insurance" style="margin-top:10px; width:100%; background:#333; color:#aaa; cursor:not-allowed;" disabled>RÉCOMPENSE DE 5 BVC RÉCUPÉRÉE</button>`
+                  ? `<button class="btn-insurance" style="margin-top:10px; width:100%; background:#333; color:#aaa; cursor:not-allowed;" disabled>RÉCOMPENSE DE 5 POINTS MON50CC RÉCUPÉRÉE</button>`
                   : ""
             }
         </div>`;

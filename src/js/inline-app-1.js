@@ -71,9 +71,10 @@ mapEl.innerHTML = "";
           window.leafletMap = leafletMap; // Rendre accessible globalement pour le suivi GPS
 
           L.tileLayer(
-            "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             {
               maxZoom: 19,
+              attribution: "&copy; OpenStreetMap contributors",
             },
           ).addTo(leafletMap);
 

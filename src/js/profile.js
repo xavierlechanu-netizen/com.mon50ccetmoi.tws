@@ -48,9 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (doc.exists) {
                 const data = doc.data();
                 
-                // Mettre à jour le BVC
-                if (data.bvc !== undefined) {
-                    bvcEl.textContent = `${data.bvc} BVC`;
+                // Mettre à jour le solde de points mon50cc
+                const points = data.bvc !== undefined ? data.bvc : (data.braveCoins !== undefined ? data.braveCoins : (data.points || 0));
+                if (bvcEl) {
+                    bvcEl.textContent = `${points} mon50cc`;
                 }
 
                 // Mettre à jour l'état Hôte

@@ -96,4 +96,41 @@ describe('Group Spaces Moderation & Strict Ban System (DSA Art. 16/17 & CGU)', (
         expect(res.userMessage).toContain("DÉFINITIVEMENT");
         expect(res.userMessage).toContain("sans aucune possibilité de remboursement");
     });
+
+    test('Permet le recours humain et réinitialise le compteur à zéro avec 50 points de compensation si la sanction est annulée', async () => {
+        const uid = "user_appeal_test_123";
+        const context = { space: "Crew Chat", uid, username: "RiderInnocent" };
+
+        // 1. L'utilisateur subit un premier bannissement temporaire
+        Moderation.checkGroupMessage("Putain", context);
+        let status = Moderation.getBanStatus(uid);
+        expect(status.isTempBanned).toBe(true);
+        expect(status.tempBansCount).toBe(1);
+
+        // 2. L'utilisateur soumet une demande de réexamen via l'Avocat de Poche
+        const appealRes = await Moderation.requestAppeal(uid, "C'était une citation de chanson, pas une insulte", "Contexte musical");
+        expect(appealRes.success).toBe(true);
+        expect(appealRes.compensationIfAccepted).toBe(50);
+
+        status = Moderation.getBanStatus(uid);
+        expect(status.appealPending).toBe(true);
+
+        // Mock BVCManager pour vérifier les 50 points de compensation
+        let creditedPoints = 0;
+        window.BVCManager = {
+            add: jest.fn(amount => { creditedPoints += amount; })
+        };
+
+        // 3. La vérification humaine valide le rejet de la sanction
+        const liftRes = await Moderation.liftBanAndResetStrikes(uid, "admin_moderator_1");
+        expect(liftRes.success).toBe(true);
+        expect(liftRes.compensationPoints).toBe(50);
+
+        // 4. Vérification : interdiction levée, compteur réinitialisé à zéro, 50 points crédités
+        const finalStatus = Moderation.getBanStatus(uid);
+        expect(finalStatus.isBanned).toBe(false);
+        expect(finalStatus.isTempBanned).toBe(false);
+        expect(finalStatus.tempBansCount).toBe(0);
+        expect(creditedPoints).toBe(50);
+    });
 });

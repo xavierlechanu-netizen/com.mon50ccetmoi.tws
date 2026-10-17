@@ -40,7 +40,7 @@ window.Web4Economy = {
       setTimeout(
         () =>
           alert(
-            "Nouvelle Saison ! Vos points BVC (Rouler & Gagner) ont expiré et ont été remis à zéro pour l'année civile en cours.",
+            "Nouvelle Saison ! Vos points mon50cc (Rouler & Gagner) ont expiré et ont été remis à zéro pour l'année civile en cours.",
           ),
         2000,
       );

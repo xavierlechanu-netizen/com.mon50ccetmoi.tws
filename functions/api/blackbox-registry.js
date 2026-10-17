@@ -33,6 +33,47 @@ async function assertAdmin(request) {
 }
 
 /**
+ * Synchronise le compteur public de stock réel d'atelier (stats/blackbox_stock).
+ * Permet à marketplace.html d'afficher le stock réel en direct sans exposer les clés matérielles.
+ */
+async function syncPublicStockCount() {
+    try {
+        const inStockSnap = await db.collection("blackbox_units")
+            .where("status", "==", core.STATUSES.IN_STOCK)
+            .count()
+            .get();
+        const inStockCount = inStockSnap.data().count;
+
+        const protoSnap = await db.collection("blackbox_units")
+            .where("type", "==", core.UNIT_TYPES.PROTOTYPE)
+            .where("status", "==", core.STATUSES.IN_STOCK)
+            .count()
+            .get();
+        const prototypeInStockCount = protoSnap.data().count;
+
+        const now = admin.firestore.FieldValue.serverTimestamp();
+        await db.collection("stats").doc("blackbox_stock").set({
+            inStockCount,
+            prototypeInStockCount,
+            updatedAt: now
+        }, { merge: true });
+
+        // Synchroniser également stats/blackbox_sales pour rétro-compatibilité
+        await db.collection("stats").doc("blackbox_sales").set({
+            inStockCount,
+            prototypeInStockCount,
+            updatedAt: now
+        }, { merge: true });
+
+        console.log(`[BlackboxRegistry] Stock public synchronisé : ${inStockCount} boîtiers en stock (dont ${prototypeInStockCount} prototypes).`);
+        return { inStockCount, prototypeInStockCount };
+    } catch (e) {
+        console.warn("[BlackboxRegistry] Erreur synchro stock public :", e);
+        return { inStockCount: 0, prototypeInStockCount: 0 };
+    }
+}
+
+/**
  * 1. Enregistrement d'un lot de boîtiers (Prototypes Francelog P01-P10 ou Série).
  */
 exports.adminRegisterBlackboxUnits = onCall(
@@ -173,6 +214,7 @@ exports.adminRegisterBlackboxUnits = onCall(
             });
 
             console.log(`[BlackboxRegistry] Prototype enregistré : ${result.serial} par ${core.shortUid(uid)}`);
+            await syncPublicStockCount();
             return { success: true, count: 1, createdSerials: [result.serial] };
 
         } else if (type === core.UNIT_TYPES.SERIES) {
@@ -287,6 +329,7 @@ exports.adminRegisterBlackboxUnits = onCall(
             });
 
             console.log(`[BlackboxRegistry] Lot de série enregistré : ${createdSerials.length} unités (${createdSerials[0]} à ${createdSerials[createdSerials.length - 1]})`);
+            await syncPublicStockCount();
             return { success: true, count: createdSerials.length, createdSerials };
 
         } else {
@@ -371,6 +414,7 @@ exports.adminUpdateBlackboxStatus = onCall(
         });
 
         console.log(`[BlackboxRegistry] Statut mis à jour pour ${serial} : ${result.oldStatus} -> ${result.newStatus}`);
+        await syncPublicStockCount();
         return { success: true, ...result };
     }
 );
@@ -490,6 +534,7 @@ exports.adminAssignBlackbox = onCall(
         });
 
         console.log(`[BlackboxRegistry] Boîtier ${serial} attribué au client ${core.shortUid(result.ownerUid)}`);
+        await syncPublicStockCount();
         return { success: true, ...result };
     }
 );
@@ -575,6 +620,7 @@ exports.adminUnassignBlackbox = onCall(
         });
 
         console.log(`[BlackboxRegistry] Boîtier ${serial} désattribué (ancien propriétaire : ${core.shortUid(result.prevOwner)})`);
+        await syncPublicStockCount();
         return { success: true, ...result };
     }
 );
@@ -658,5 +704,16 @@ exports.adminUpdateBlackboxInfo = onCall(
 
         console.log(`[BlackboxRegistry] Informations mises à jour pour ${serial} : ${changes.join(", ")}`);
         return { success: true, serial, changes };
+    }
+);
+
+/**
+ * 6. Récupération publique du stock d'atelier disponible (IN_STOCK).
+ * OWASP ASVS v5.0.0-8.x : Fournit uniquement les compteurs agrégés, sans aucune donnée sensible.
+ */
+exports.getBlackboxStock = onCall(
+    { region: "europe-west1", timeoutSeconds: 30, memory: "256MiB" },
+    async () => {
+        return await syncPublicStockCount();
     }
 );

@@ -58,5 +58,6 @@ module.exports = {
     adminUpdateBlackboxStatus: blackboxRegistry.adminUpdateBlackboxStatus,
     adminAssignBlackbox: blackboxRegistry.adminAssignBlackbox,
     adminUnassignBlackbox: blackboxRegistry.adminUnassignBlackbox,
-    adminUpdateBlackboxInfo: blackboxRegistry.adminUpdateBlackboxInfo
+    adminUpdateBlackboxInfo: blackboxRegistry.adminUpdateBlackboxInfo,
+    getBlackboxStock: blackboxRegistry.getBlackboxStock
 };

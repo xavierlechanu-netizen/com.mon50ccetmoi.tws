@@ -62,7 +62,7 @@ window.SafeRider = {
     window.BVCManager.add(milestone.reward);
 
     // Notification UI
-    const msg = `ðŸ† Challenge Réussi : ${milestone.name} ! Vous avez gagné ${milestone.reward} Pts BVC !`;
+    const msg = `ðŸ† Challenge Réussi : ${milestone.name} ! Vous avez gagné ${milestone.reward} Pts mon50cc !`;
     if (typeof speak === "function") speak(msg);
 
     // Afficher popup

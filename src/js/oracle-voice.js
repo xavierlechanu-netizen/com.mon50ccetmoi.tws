@@ -448,7 +448,7 @@ class OracleVoice {
     // ── Marketplace & Wallet ──
     else if (commandText.match(/(solde|points|bvc|combien j'ai)/gi)) {
         const solde = window.session?.bvc_points || 0;
-        reply([`Votre compte affiche ${solde} points BVC.`, `Vous avez ${solde} crédits BVC en banque.`]);
+        reply([`Votre compte affiche ${solde} points mon50cc.`, `Vous avez ${solde} crédits mon50cc en banque.`]);
     }
     else if (commandText.match(/(cherche|trouver|acheter)/gi)) {
         const query = commandText.replace(/.*(?:cherche|trouver(?: une pièce)?|acheter)\s+/gi, "").trim();

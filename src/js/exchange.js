@@ -68,7 +68,7 @@ window.ExchangeMarket = {
   updateBvcDisplay: function (amount) {
     const el = document.getElementById("user-bvc-balance");
     if (el) {
-      el.textContent = `${amount.toLocaleString("fr-FR")} BVC`;
+      el.textContent = `${amount.toLocaleString("fr-FR")} mon50cc`;
     }
   },
 
@@ -331,11 +331,11 @@ window.ExchangeMarket = {
 
     if (priceType === "bvc") {
       if (this.userBvc < price) {
-        alert(`Solde insuffisant ! Il vous manque ${price - this.userBvc} BVC pour procéder à la réservation.`);
+        alert(`Solde insuffisant ! Il vous manque ${price - this.userBvc} points mon50cc pour procéder à la réservation.`);
         return;
       }
 
-      if (!confirm(`Confirmer la réservation de "${listing.title}" pour ${price} Pts BVC ?`)) {
+      if (!confirm(`Confirmer la réservation de "${listing.title}" pour ${price} Pts mon50cc ?`)) {
         return;
       }
 
@@ -369,9 +369,9 @@ window.ExchangeMarket = {
         });
 
         // Contacter le vendeur automatiquement
-        await this.contactSeller(listingId, listing.seller, `J'ai réservé ta pièce "${listing.title}" pour ${price} Pts BVC ! Merci de me contacter pour la remise.`);
+        await this.contactSeller(listingId, listing.seller, `J'ai réservé ta pièce "${listing.title}" pour ${price} Pts mon50cc ! Merci de me contacter pour la remise.`);
 
-        alert("✅ Réservation confirmée ! Les BVC ont été transférés et le vendeur a été notifié.");
+        alert("✅ Réservation confirmée ! Les points mon50cc ont été transférés et le vendeur a été notifié.");
       } catch (e) {
         console.error("[ExchangeMarket] Réservation échouée :", e);
         alert("Erreur lors du traitement de la réservation.");
@@ -517,7 +517,7 @@ container.innerHTML = `
       const icon = this.getCategoryIcon(listing.category);
       const catLabel = this.getCategoryLabel(listing.category);
       const isBvc = listing.priceType === "bvc";
-      const priceLabel = isBvc ? `${listing.price} Pts BVC` : `${listing.price.toFixed(2)} €`;
+      const priceLabel = isBvc ? `${listing.price} Pts mon50cc` : `${listing.price.toFixed(2)} €`;
 
       const isService = listing.condition === "service";
       const isAffordable = listing.priceType === "bvc" && this.userBvc >= listing.price;
@@ -692,7 +692,7 @@ form.innerHTML = `
             <div style="flex:1;">
               <label for="ex-price-type" style="font-size:0.8rem; color:#00f2ff; margin-bottom:4px; display:block;">Monnaie</label>
               <select id="ex-price-type" style="width:100%; background:rgba(10,15,25,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:12px; border-radius:10px; box-sizing:border-box; outline:none;">
-                <option value="bvc">Pts BVC</option>
+                <option value="bvc">Pts mon50cc</option>
                 <option value="euro">Euros (€)</option>
               </select>
             </div>

@@ -107,7 +107,7 @@ window.showCryptoWallet = function () {
   const screen = document.getElementById("crypto-wallet-screen");
   const balance = document.getElementById("crypto-balance");
   if (screen) screen.classList.remove("hidden");
-  if (balance) balance.innerText = Math.floor(window.BVCManager ? window.BVCManager.balance : 0) + " Pts BVC";
+  if (balance) balance.innerText = Math.floor(window.BVCManager ? window.BVCManager.balance : 0) + " Pts mon50cc";
 
   if (typeof speak === "function") speak("Accès à votre espace fidélité.");
 };
@@ -127,7 +127,7 @@ if (typeof window.stopNavigation === "function") {
     if (typeof speak === "function")
       setTimeout(
         () =>
-          speak("Vous avez gagné 12 points BVC pour ce trajet sécurisé."),
+          speak("Vous avez gagné 12 points mon50cc pour ce trajet sécurisé."),
         8000,
       );
   };

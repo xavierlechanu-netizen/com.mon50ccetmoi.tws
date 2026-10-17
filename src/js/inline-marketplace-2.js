@@ -12,10 +12,10 @@ function setVoiceMode(mode) {
           currentBVC -= cost;
           localStorage.setItem("bvc_points", currentBVC);
           const el = document.getElementById("user-bvc-balance");
-          if (el) el.textContent = `${currentBVC.toLocaleString("fr-FR")} BVC`;
+          if (el) el.textContent = `${currentBVC.toLocaleString("fr-FR")} mon50cc`;
           setVoiceMode(mode);
         } else {
-          alert(`Fonds insuffisants. Il vous manque ${cost - currentBVC} BVC pour débloquer cette voix.`);
+          alert(`Fonds insuffisants. Il vous manque ${cost - currentBVC} points mon50cc pour débloquer cette voix.`);
         }
       }
 // --- Action Registry (ESM) ---

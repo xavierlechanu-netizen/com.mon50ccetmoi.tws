@@ -207,6 +207,14 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Recours & Demandes de réexamen de sanctions (Vérification humaine DSA Art. 20)
+    match /mod_appeals/{appealId} {
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow read: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid);
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
     // ─────────────────────────────────────────────────────────────
     // REVOLUT — Collections de paiement
     // Écriture : Firebase Admin SDK (Cloud Functions) UNIQUEMENT
@@ -248,6 +256,19 @@ service cloud.firestore {
       allow update, delete: if false; // Inaltérable
     }
 
+    // Historique des recharges et achats de Points mon50cc
+    match /points_transactions/{txId} {
+      allow create: if false; // Écriture exclusivement via Cloud Function (Revolut Webhook / Admin SDK)
+      allow read: if isAdmin() || (isSignedIn() && resource.data.user_id == request.auth.uid);
+      allow update, delete: if false; // Inaltérable
+    }
+
+    // Confirmations de paiement Revolut (lookup sécurisé par case_id)
+    match /payment_confirmations/{caseId} {
+      allow create, update, delete: if false; // Écriture exclusive Cloud Functions (Webhook Revolut / Admin SDK)
+      allow read: if isAdmin() || (isSignedIn() && resource.data.user_id == request.auth.uid);
+    }
+
     // ─────────────────────────────────────────────────────────────
     // BLACK BOX REGISTRY (Unités physiques & Traçabilité Francelog S.A.)
     // ─────────────────────────────────────────────────────────────
@@ -269,13 +290,11 @@ service cloud.firestore {
       allow write: if false; // Géré exclusivement par les transactions Cloud Functions
     }
 
-    // Statistiques globales (compteurs publics : stock restant, etc.)
+    // Statistiques globales (compteurs publics : stock restant atelier, etc.)
     // NOTE DE SÉCURITÉ : Intentionnellement public — ne contient que des compteurs agrégés, aucune PII.
     match /stats/{statId} {
-      allow read: if isSignedIn(); // Sécurisé (Zero Trust)
-      allow create: if false; // Uniquement via Firebase Admin SDK
-      allow update: if false; // Uniquement via Firebase Admin SDK
-      allow delete: if false;
+      allow read: if true; // Données agrégées publiques sans PII (OWASP ASVS v5.0.0-8.x)
+      allow write: if false; // Uniquement via Firebase Admin SDK
     }
 
     // Garages Professionnels Certifiés

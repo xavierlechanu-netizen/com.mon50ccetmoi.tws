@@ -144,7 +144,7 @@ window.LootSystem = {
       }
 
       alert(
-        "ðŸŽ BUTIN RÉCUPÉRÉ !\n\nVous avez trouvé la caisse. +10 Points de Bonne Conduite BVC ajoutés !",
+        "ðŸŽ BUTIN RÉCUPÉRÉ !\n\nVous avez trouvé la caisse. +10 points mon50cc ajoutés !",
       );
     } catch (e) {}
   },

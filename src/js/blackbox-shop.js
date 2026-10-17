@@ -24,23 +24,60 @@ export const BlackBoxShop = {
 
   salesCount: 0,
   maxPrototypeLifetime: 10,
+  realStockCount: null,
+  prototypeStockCount: null,
   isProcessing: false,
 
   /**
-   * Initialisation : Récupérer le nombre de ventes depuis Firestore
+   * Initialisation : Récupérer le stock réel de l'atelier depuis Firestore
    */
   init: async function () {
     try {
       if (typeof db !== "undefined") {
-        const statsRef = db.collection("stats").doc("blackbox_sales");
-        const doc = await statsRef.get();
-        if (doc.exists) {
-          this.salesCount = doc.data().count || 0;
+        // 1. Lire stats/blackbox_stock (compteurs synchronisés depuis blackbox_units)
+        let stockDoc = await db.collection("stats").doc("blackbox_stock").get();
+        if (!stockDoc.exists) {
+          stockDoc = await db.collection("stats").doc("blackbox_sales").get();
+        }
+
+        if (stockDoc.exists) {
+          const sData = stockDoc.data();
+          if (typeof sData.inStockCount === "number") {
+            this.realStockCount = sData.inStockCount;
+          }
+          if (typeof sData.prototypeInStockCount === "number") {
+            this.prototypeStockCount = sData.prototypeInStockCount;
+          }
+          this.salesCount = sData.count || 0;
+        }
+
+        // 2. Si un admin est connecté, tenter le décompte exact direct sur la collection
+        if (typeof auth !== "undefined" && auth.currentUser) {
+          try {
+            const countSnap = await db.collection("blackbox_units")
+              .where("status", "==", "IN_STOCK")
+              .count()
+              .get();
+            if (countSnap && typeof countSnap.data().count === "number") {
+              this.realStockCount = countSnap.data().count;
+            }
+
+            const protoSnap = await db.collection("blackbox_units")
+              .where("type", "==", "PROTOTYPE")
+              .where("status", "==", "IN_STOCK")
+              .count()
+              .get();
+            if (protoSnap && typeof protoSnap.data().count === "number") {
+              this.prototypeStockCount = protoSnap.data().count;
+            }
+          } catch (_) {
+            // Visiteur standard : le compteur sécurisé de stats/blackbox_stock est utilisé
+          }
         }
       }
       this.updateUI();
     } catch (error) {
-      console.warn("[BlackBoxShop] Avertissement chargement compteur ventes :", error);
+      console.warn("[BlackBoxShop] Avertissement chargement stock atelier :", error);
     }
   },
 
@@ -48,9 +85,12 @@ export const BlackBoxShop = {
    * Met à jour l'interface (100% textContent sécurisé)
    */
   updateUI: function () {
-    const isPromo = this.salesCount < this.maxPrototypeLifetime;
+    // Si des prototypes sont physiquement en stock dans l'atelier, la promo lancement s'applique
+    const remainingProtos = this.prototypeStockCount !== null
+      ? this.prototypeStockCount
+      : Math.max(0, this.maxPrototypeLifetime - this.salesCount);
+    const isPromo = remainingProtos > 0;
     const currentPrice = isPromo ? this.pricing.first10 : this.pricing.standard;
-    const remaining = Math.max(0, this.maxPrototypeLifetime - this.salesCount);
 
     const btnUnit = document.getElementById("bb-buy-unit-btn");
     if (btnUnit) {
@@ -62,7 +102,7 @@ export const BlackBoxShop = {
 
       const label = document.createTextNode(
         isPromo
-          ? `Commander (${currentPrice.toFixed(2).replace('.', ',')} €) - Reste ${remaining} Protos`
+          ? `Commander (${currentPrice.toFixed(2).replace('.', ',')} €) - Reste ${remainingProtos} Protos`
           : `Commander ma Boîte Noire (${currentPrice.toFixed(2).replace('.', ',')} €)`
       );
       btnUnit.appendChild(label);
@@ -70,8 +110,10 @@ export const BlackBoxShop = {
 
     const stockBadge = document.getElementById("bb-stock-count");
     if (stockBadge) {
-      const estimatedStock = Math.max(0, 100 - this.salesCount);
-      stockBadge.textContent = String(estimatedStock);
+      const displayStock = this.realStockCount !== null
+        ? this.realStockCount
+        : Math.max(0, 100 - this.salesCount);
+      stockBadge.textContent = String(displayStock);
     }
   },
 
@@ -183,11 +225,46 @@ export const BlackBoxShop = {
   },
 
   /**
+   * Packs officiels de Points mon50cc (Grille tarifaire à rentabilité maximale)
+   */
+  pointsPacks: {
+    POINTS_100: { id: "POINTS_100", name: "Pack Starter", points: 100, price: 2.99, badge: "Starter" },
+    POINTS_250: { id: "POINTS_250", name: "Pack Pilote", points: 250, price: 5.99, badge: "+25% Bonus" },
+    POINTS_600: { id: "POINTS_600", name: "Pack Pro Rider", points: 600, price: 11.99, badge: "⭐ Populaire (+50%)", popular: true },
+    POINTS_1500: { id: "POINTS_1500", name: "Coffre Légende", points: 1500, price: 24.99, badge: "👑 Max Rentabilité (+100%)", bestValue: true }
+  },
+
+  /**
+   * Commande Pack de Points mon50cc
+   */
+  buyPointsPack: async function (packId) {
+    if (this.isProcessing) return;
+    const pack = this.pointsPacks[packId];
+    if (!pack) {
+      alert("Pack de points sélectionné non reconnu.");
+      return;
+    }
+
+    const bonusText = pack.id === 'POINTS_250' ? " (+25% de points offerts)"
+      : pack.id === 'POINTS_600' ? " (+50% de bonus inclus)"
+      : pack.id === 'POINTS_1500' ? " (+100% de bonus · Double de points)" : "";
+
+    const msg = `Recharger ${pack.points} Points mon50cc${bonusText}\n` +
+      `Formule : ${pack.name}\n` +
+      `Montant : ${pack.price.toFixed(2).replace('.', ',')} € TTC\n\n` +
+      `Procéder au paiement sécurisé via Revolut Pay / Carte Bancaire ?`;
+
+    if (confirm(msg)) {
+      await this.processRevolutPayment(pack.id, `${pack.name} (${pack.points} PTS)`);
+    }
+  },
+
+  /**
    * Polling de confirmation de commande
    */
   pollConfirmation: function (caseId, attempts = 0) {
     if (attempts > 15) {
-      alert("Votre paiement est confirmé par Revolut et votre commande sera traitée sous peu. Consultez votre profil.");
+      alert("Votre paiement est confirmé par Revolut et votre solde/commande sera mis à jour sous peu. Consultez votre profil.");
       this.isProcessing = false;
       this.init();
       return;
@@ -196,9 +273,22 @@ export const BlackBoxShop = {
     setTimeout(async () => {
       try {
         if (typeof db !== "undefined") {
-          const doc = await db.collection("blackbox_sales").doc(caseId).get();
+          let doc = await db.collection("blackbox_sales").doc(caseId).get();
+          if (!doc.exists) {
+            doc = await db.collection("payment_confirmations").doc(caseId).get();
+          }
           if (doc.exists) {
-            alert("🎉 Félicitations ! Votre commande est officiellement enregistrée et validée. Expédition express garantie en moins de 24h !");
+            const data = doc.data();
+            const isPoints = data?.report_type && data.report_type.startsWith("POINTS_");
+            if (isPoints) {
+              const pts = data?.points_credited || (this.pointsPacks[data?.report_type]?.points) || "";
+              alert(`🎉 Félicitations ! Votre recharge de ${pts ? pts + ' ' : ''}Points mon50cc a été créditée avec succès sur votre compte.`);
+              if (window.BVCManager && typeof window.BVCManager.sync === "function") {
+                await window.BVCManager.sync();
+              }
+            } else {
+              alert("🎉 Félicitations ! Votre commande est officiellement enregistrée et validée. Expédition express garantie en moins de 24h !");
+            }
             this.isProcessing = false;
             await this.init();
             return;
@@ -212,24 +302,48 @@ export const BlackBoxShop = {
   },
 
   /**
-   * Abonnement Premium
+   * Pack Boîte Noire avec Abonnement (Engagement 24 mois & Dépôt de garantie 49,99 €)
+   */
+  buyPackSubscription: async function () {
+    if (this.isProcessing) return;
+    const msg = "Pack Boîte Noire + Abonnement (Engagement 24 mois)\n\n" +
+      "• Boîtier officiel Francelog mis à disposition sous caution\n" +
+      "• Dépôt de garantie initial : 49,99 € TTC (restituable à la fin du contrat)\n" +
+      "• Abonnement mensuel : 4,99 € /mois (IA Litige, Alertes Assureur, Historique illimité)\n" +
+      "• Engagement : 24 mois\n\n" +
+      "Confirmer la commande et régler le dépôt de garantie de 49,99 € via Revolut ?";
+
+    if (confirm(msg)) {
+      await this.processRevolutPayment("BLACKBOX_PACK_SUB", "Pack Boîte Noire + Abonnement (Caution 49,99 €)");
+    }
+  },
+
+  /**
+   * Rétro-compatibilité : Abonnement Premium appelle le Pack Abonnement
    */
   subscribePremium: async function () {
-    if (confirm("Abonnement Boîte Noire+ (1er mois) - 4,99 €\nConfirmer l'abonnement ?")) {
-      await this.processRevolutPayment("BLACKBOX_CARE_MONTHLY", "Abonnement Boîte Noire+");
-    }
+    return this.buyPackSubscription();
   }
 };
 
 // Exposer globalement pour dom-security et l'ActionRegistry
 window.BlackBoxShop = BlackBoxShop;
+window.buyPointsPack = (packId) => BlackBoxShop.buyPointsPack(packId);
+
 registerAction("BlackBoxShop.buyUnit", () => BlackBoxShop.buyUnit());
 registerAction("BlackBoxShop.buyPack", () => BlackBoxShop.buyPack());
+registerAction("BlackBoxShop.buyPackSubscription", () => BlackBoxShop.buyPackSubscription());
 registerAction("BlackBoxShop.subscribePremium", () => BlackBoxShop.subscribePremium());
+registerAction("BlackBoxShop.buyPointsPack", (packId) => BlackBoxShop.buyPointsPack(packId));
+registerAction("BlackBoxShop.buyPoints100", () => BlackBoxShop.buyPointsPack("POINTS_100"));
+registerAction("BlackBoxShop.buyPoints250", () => BlackBoxShop.buyPointsPack("POINTS_250"));
+registerAction("BlackBoxShop.buyPoints600", () => BlackBoxShop.buyPointsPack("POINTS_600"));
+registerAction("BlackBoxShop.buyPoints1500", () => BlackBoxShop.buyPointsPack("POINTS_1500"));
+registerAction("buyPointsPack", (packId) => BlackBoxShop.buyPointsPack(packId));
 
 // Initialisation automatique
 document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("blackbox-shop-section")) {
+  if (document.getElementById("blackbox-shop-section") || document.getElementById("recharge-points-section")) {
     BlackBoxShop.init();
   }
 });

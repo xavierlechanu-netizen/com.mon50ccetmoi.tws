@@ -447,7 +447,7 @@ content.innerHTML = `
 
                     <p style="color:#ffaa00; font-weight: bold; margin-bottom: 30px;">
                         <i class="fa-solid fa-hand-holding-dollar"></i> 
-                        Vous recevrez une prime de 10 BVC dès que votre assureur débloquera ces données.
+                        Vous recevrez une prime de 10 points mon50cc dès que votre assureur débloquera ces données.
                     </p>
 
                     <button class="btn-litigation-start" data-action="document.getElementById('screen-overlay').classList.add('hidden')">

@@ -171,12 +171,12 @@ class ModerationEngine {
       // Tolérance Zéro absolue : Bannissement définitif immédiat
       action = "PERM_BAN";
       userMessage = `🚨 [TOLÉRANCE ZÉRO] Propos intolérables détectés dans ${space}. Votre compte est banni DÉFINITIVEMENT sans aucune possibilité de remboursement (CGU Art. 8 & 10).`;
-      this.recordAccountBan(uid, username, "Bannissement définitif - Contenu illicite à tolérance zéro", true);
+      this.recordAccountBan(uid, username, "Bannissement définitif - Contenu illicite à tolérance zéro", true, null, tempBansCount);
     } else if (tempBansCount >= 3) {
       // Règle formelle : Le ban définitif après 3 bannissements temporaires sans possibilité de remboursement
       action = "PERM_BAN";
       userMessage = `🚨 [BANNISSEMENT DÉFINITIF] Vous avez cumulé 3 bannissements temporaires dans les espaces de groupe. Conformément aux CGU, votre compte est désormais banni DÉFINITIVEMENT sans aucune possibilité de remboursement.`;
-      this.recordAccountBan(uid, username, "Bannissement définitif - Récidive après 3 bannissements temporaires", true);
+      this.recordAccountBan(uid, username, "Bannissement définitif - Récidive après 3 bannissements temporaires", true, null, tempBansCount);
     } else {
       // Incrémentation du nombre de bannissements temporaires
       tempBansCount += 1;
@@ -196,7 +196,7 @@ class ModerationEngine {
         userMessage = `⛔ [3e BANNISSEMENT TEMPORAIRE - DERNIER AVERTISSEMENT] Vous êtes banni temporairement pour 7 jours. Tout nouvel écart entraînera le BANNISSEMENT DÉFINITIF de votre compte sans possibilité de remboursement.`;
       }
 
-      this.recordAccountBan(uid, username, `Bannissement temporaire #${tempBansCount}`, false, Date.now() + banDurationMs);
+      this.recordAccountBan(uid, username, `Bannissement temporaire #${tempBansCount}`, false, Date.now() + banDurationMs, tempBansCount);
     }
 
     // Journalisation d'audit automatique dans Firestore
@@ -214,14 +214,15 @@ class ModerationEngine {
   /**
    * Enregistre la suspension ou le bannissement dans le profil local et Firestore
    */
-  recordAccountBan(uid, username, reason, isPermanent, expireAt = null) {
+  recordAccountBan(uid, username, reason, isPermanent, expireAt = null, strikes = 0) {
     try {
       const banData = {
         isBanned: isPermanent,
         isTempBanned: !isPermanent,
         banReason: reason,
         bannedAt: Date.now(),
-        expireAt: expireAt || null
+        expireAt: expireAt || null,
+        tempBansCount: strikes
       };
 
       localStorage.setItem(`user_ban_status_${uid}`, JSON.stringify(banData));
@@ -237,12 +238,203 @@ class ModerationEngine {
         const firestoreDb = firebase.firestore();
         firestoreDb.collection("users").doc(uid).set({
           isBanned: isPermanent,
+          isTempBanned: !isPermanent,
           banReason: reason,
+          banExpireAt: expireAt || null,
+          tempBansCount: strikes,
           banUpdated_at: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
       } catch (e) {
         console.warn("[Moderation] Sync bannissement Firestore différée :", e.message);
       }
+    }
+  }
+
+  /**
+   * Récupère l'état courant de bannissement et de réexamen
+   */
+  getBanStatus(uid) {
+    let localData = null;
+    let tempBansCount = 0;
+    let appealPending = false;
+    try {
+      const raw = localStorage.getItem(`user_ban_status_${uid}`);
+      if (raw) localData = JSON.parse(raw);
+      tempBansCount = parseInt(localStorage.getItem(`mod_temp_bans_${uid}`) || "0", 10);
+      appealPending = localStorage.getItem(`appeal_pending_${uid}`) === "true";
+    } catch (e) {}
+
+    let isTempBanned = localData ? !!localData.isTempBanned : false;
+    if (isTempBanned && localData.expireAt && Date.now() > localData.expireAt) {
+      isTempBanned = false;
+    }
+
+    return {
+      isBanned: localData ? !!localData.isBanned : false,
+      isTempBanned,
+      tempBansCount: localData?.tempBansCount !== undefined ? localData.tempBansCount : tempBansCount,
+      banReason: localData?.banReason || null,
+      expireAt: localData?.expireAt || null,
+      appealPending
+    };
+  }
+
+  /**
+   * Soumission d'une demande de réexamen via l'Avocat de Poche (Vérification Humaine)
+   * L'utilisateur demande une vérification humaine en utilisant ses points mon50cc.
+   * Si la sanction est ensuite annulée après réexamen :
+   * interdiction levée immédiatement, compteur réinitialisé à zéro et 50 points mon50cc en compensation.
+   */
+  async requestAppeal(uid, reason, details = "", cost = 5) {
+    if (!uid) {
+      return { success: false, error: "Utilisateur non identifié." };
+    }
+
+    const currentBan = this.getBanStatus(uid);
+    const username = (window.session && window.session.username) ? window.session.username : "Pilote";
+    const tempBansCount = currentBan.tempBansCount;
+
+    try {
+      localStorage.setItem(`appeal_pending_${uid}`, "true");
+    } catch (e) {}
+
+    if (typeof firebase !== "undefined" && firebase.firestore) {
+      try {
+        const firestoreDb = firebase.firestore();
+        await firestoreDb.collection("mod_appeals").add({
+          uid,
+          username,
+          sanctionType: currentBan.isBanned ? "PERM_BAN" : "TEMP_BAN",
+          tempBansCount,
+          costPoints: cost,
+          compensationIfAccepted: 50,
+          banReason: currentBan.banReason || "Sanction en espace de groupe",
+          appealReason: reason,
+          details,
+          status: "PENDING_HUMAN_REVIEW",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await firestoreDb.collection("users").doc(uid).set({
+          appealStatus: "PENDING_HUMAN_REVIEW",
+          appealSubmittedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        // Trace dans les journaux d'audit (mod_logs)
+        await firestoreDb.collection("mod_logs").add({
+          bot: "Pocket Lawyer Appeal Engine",
+          targetUid: uid,
+          targetUsername: username,
+          action: "APPEAL_SUBMITTED",
+          costPoints: cost,
+          reason: `Demande de réexamen soumise via l'Avocat de Poche (${cost} points mon50cc) : ${reason}`,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch (e) {
+        console.warn("[Moderation Appeal] Erreur enregistrement Firestore :", e.message);
+      }
+    }
+
+    return {
+      success: true,
+      cost,
+      compensationIfAccepted: 50,
+      message: "Votre demande de réexamen a bien été transmise à l'équipe de vérification humaine. Si la sanction est ensuite annulée après réexamen, votre interdiction sera levée immédiatement, votre compteur sera réinitialisé à zéro et vous recevrez 50 points mon50cc en compensation."
+    };
+  }
+
+  /**
+   * Annulation du bannissement et réinitialisation intégrale du compteur à zéro
+   * Déclenchée dès que la vérification humaine valide le rejet de la sanction.
+   * Le joueur voit son interdiction levée immédiatement et reçoit 50 points mon50cc en compensation.
+   */
+  async liftBanAndResetStrikes(uid, moderatorUid = "human_moderator") {
+    if (!uid) return { success: false, error: "UID manquant" };
+
+    const compensationPoints = 50;
+
+    // 1. Réinitialisation locale immédiate
+    try {
+      localStorage.removeItem(`user_ban_status_${uid}`);
+      localStorage.removeItem(`appeal_pending_${uid}`);
+      localStorage.setItem(`mod_temp_bans_${uid}`, "0");
+
+      if (window.session && window.session.uid === uid) {
+        window.session.isBanned = false;
+        window.session.isTempBanned = false;
+      }
+
+      if (typeof window !== "undefined" && window.BVCManager && typeof window.BVCManager.add === "function") {
+        window.BVCManager.add(compensationPoints);
+      }
+    } catch (e) {}
+
+    // 2. Mise à jour Firestore
+    if (typeof firebase !== "undefined" && firebase.firestore) {
+      try {
+        const firestoreDb = firebase.firestore();
+        await firestoreDb.collection("users").doc(uid).set({
+          isBanned: false,
+          isTempBanned: false,
+          tempBansCount: 0,
+          banReason: null,
+          banExpireAt: null,
+          appealStatus: "SANCTION_LIFTED_BY_HUMAN",
+          braveCoins: firebase.firestore.FieldValue.increment(compensationPoints),
+          bvc_points: firebase.firestore.FieldValue.increment(compensationPoints),
+          compensationAwarded: compensationPoints,
+          banLiftedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          banLiftedBy: moderatorUid
+        }, { merge: true });
+
+        // Trace immuable dans mod_logs
+        await firestoreDb.collection("mod_logs").add({
+          bot: "Human Moderator / Reviewer",
+          targetUid: uid,
+          action: "BAN_LIFTED_STRIKES_RESET",
+          reason: `Sanction rejetée après vérification humaine. Bannissement levé immédiatement, compteur réinitialisé à zéro et +${compensationPoints} points mon50cc attribués en compensation.`,
+          moderatorUid,
+          compensationPoints,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch (e) {
+        console.warn("[Moderation] Erreur levée de ban Firestore :", e.message);
+      }
+    }
+
+    return {
+      success: true,
+      compensationPoints,
+      message: `Interdiction levée immédiatement, compteur de sanctions réinitialisé à zéro et ${compensationPoints} points mon50cc accordés en compensation suite à la vérification humaine.`
+    };
+  }
+
+  /**
+   * Synchronisation en direct de l'état de sanction depuis Firestore.
+   * Détecte si un modérateur humain a levé la sanction et réinitialisé le compteur.
+   */
+  syncBanStatus(uid) {
+    if (!uid || typeof firebase === "undefined" || !firebase.firestore) return;
+    try {
+      firebase.firestore().collection("users").doc(uid)
+        .onSnapshot((doc) => {
+          if (doc.exists) {
+            const data = doc.data();
+            if (data.appealStatus === "SANCTION_LIFTED_BY_HUMAN" || (!data.isBanned && !data.isTempBanned && data.tempBansCount === 0)) {
+              try {
+                localStorage.removeItem(`user_ban_status_${uid}`);
+                localStorage.removeItem(`appeal_pending_${uid}`);
+                localStorage.setItem(`mod_temp_bans_${uid}`, "0");
+                if (window.session && window.session.uid === uid) {
+                  window.session.isBanned = false;
+                  window.session.isTempBanned = false;
+                }
+              } catch (e) {}
+            }
+          }
+        });
+    } catch (e) {
+      console.warn("[Moderation] Erreur écoute synchro ban :", e.message);
     }
   }
 

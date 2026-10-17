@@ -247,7 +247,7 @@ card.innerHTML = `
       station.prices[fuelType].updatedBy = "Communauté";
 
       alert(
-        `Merci ! Le prix a été mis à jour à ${price}€ et synchronisé avec la communauté.\nVous gagnez +5 Points BVC.`,
+        `Merci ! Le prix a été mis à jour à ${price}€ et synchronisé avec la communauté.\nVous gagnez +5 Points mon50cc.`,
       );
       if (typeof window.testAddPoints === "function") window.testAddPoints(5);
 

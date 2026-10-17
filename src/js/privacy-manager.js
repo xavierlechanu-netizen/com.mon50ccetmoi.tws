@@ -173,7 +173,7 @@ modal.innerHTML = `
   deleteMyData: async function () {
     if (
       !confirm(
-        "⚠ï¸ ATTENTION ⚠ï¸\nCette action est irréversible. Votre compte, vos points BVC, vos territoires et vos traces seront définitivement supprimés.\n\nÊtes-vous absolument sûr(e) de vouloir tout supprimer ?",
+        "⚠ï¸ ATTENTION ⚠ï¸\nCette action est irréversible. Votre compte, vos points mon50cc, vos territoires et vos traces seront définitivement supprimés.\n\nÊtes-vous absolument sûr(e) de vouloir tout supprimer ?",
       )
     ) {
       return;
