@@ -89,3 +89,8 @@ android-app/www/
 
 # Firebase deploy cache
 .firebase/
+
+# Sovereign Core WORM vault local runtime data
+sovereign-core/worm_vault/
+hardware/firmware/.cache/
+1.1.0

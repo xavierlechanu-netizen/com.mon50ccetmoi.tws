@@ -32,11 +32,12 @@ Le boîtier électronique (PCB) a été conçu pour être compact, peu coûteux 
 
 ## 💻 Spécifications Logicielles (Software)
 
-### 1. Firmware (C / ESP-IDF)
-Le code embarqué est optimisé pour la sécurité et la stabilité :
-- Création de trames binaires compactes (64 octets).
-- Chiffrement AES-256-CBC des trames **avant** l'écriture sur la mémoire Flash (CIS Control 3).
-- Pile BLE sécurisée avec couplage (Bonding) requis.
+### 1. Firmware (ESP32 Arduino Core & Roadmap ESP-IDF)
+Le code embarqué (`firmware_esp32/blackbox_ble.ino`) gère l'acquisition télémétrique temps réel :
+- **Sécurité cryptographique (ASVS v5.0.0-11.x)** : Clé AES-256 et code PIN BLE 6 chiffres stockés en NVS (partition sécurisée). Chiffrement AES-256-CBC des preuves avec IV aléatoire TRNG matériel (`esp_fill_random`).
+- **Mode Non-Provisionné** : Refus strict de transmission ou de chiffrement avec clé nulle si la NVS n'a pas été initialisée.
+- **Pile BLE** : Secure Connections Pairing (LE SC) avec bonding et code PIN unique par unité.
+- **Roadmap V2** : Migration ESP-IDF native, stockage hors-ligne LittleFS et signature ECDSA matérielle.
 
 ### 2. Application Mobile (PWA & Android TWA)
 - Application Web Progressive ultra-rapide (Vite + Vanilla JS).

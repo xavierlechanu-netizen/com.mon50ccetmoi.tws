@@ -1,0 +1,16 @@
+CompileFlags:
+  Add:
+    - "-std=c11"
+    - "-isystem"
+    - "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs"
+    - "-Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs"
+    - "-Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/main"
+    - "-Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/blackbox"
+    - "-Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/ble_comm"
+    - "-Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/gps"
+    - "-Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/imu"
+    - "-Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/tamper"
+    - "-Wno-unused-function"
+    - "-Wno-unused-variable"
+Diagnostics:
+  UnusedIncludes: None

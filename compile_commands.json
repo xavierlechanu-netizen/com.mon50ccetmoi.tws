@@ -1,0 +1,33 @@
+[
+  {
+    "directory": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware",
+    "command": "clang -std=c11 -isystem c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/main -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/blackbox -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/ble_comm -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/gps -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/imu -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/tamper -c main/main.c",
+    "file": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/main/main.c"
+  },
+  {
+    "directory": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware",
+    "command": "clang -std=c11 -isystem c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/main -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/blackbox -c components/blackbox/blackbox_storage.c",
+    "file": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/blackbox/blackbox_storage.c"
+  },
+  {
+    "directory": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware",
+    "command": "clang -std=c11 -isystem c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/main -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/ble_comm -c components/ble_comm/ble_comm.c",
+    "file": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/ble_comm/ble_comm.c"
+  },
+  {
+    "directory": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware",
+    "command": "clang -std=c11 -isystem c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/main -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/gps -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/blackbox -c components/gps/gps_parser.c",
+    "file": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/gps/gps_parser.c"
+  },
+  {
+    "directory": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware",
+    "command": "clang -std=c11 -isystem c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/main -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/imu -c components/imu/imu.c",
+    "file": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/imu/imu.c"
+  },
+  {
+    "directory": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware",
+    "command": "clang -std=c11 -isystem c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/idf_stubs -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/main -Ic:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/tamper -c components/tamper/tamper.c",
+    "file": "c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/tamper/tamper.c"
+  }
+]
+

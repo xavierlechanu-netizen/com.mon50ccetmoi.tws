@@ -1,10 +1,12 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { IGNCarto, escapeHtml } from './ign-carto.js';
 
-﻿/**
- * ACCIDENT REPORT & PDF GENERATOR v1.0 (InsurTech Core)
+/**
+ * ACCIDENT REPORT & PDF GENERATOR v1.1 (InsurTech Core + IGN API Carto v2.10.5)
  * Génère automatiquement un rapport post-crash avec les 30 dernières secondes
- * de télémétrie de la Boîte Noire. Prêt à être envoyé à l'assureur.
+ * de télémétrie de la Boîte Noire et la qualification cadastrale/routière IGN.
+ * Prêt à être envoyé à l'assureur.
  */
 
 window.AccidentReport = {
@@ -58,9 +60,11 @@ window.AccidentReport = {
     });
 
     const dateStr = new Date(data.timestamp).toLocaleString("fr-FR");
+    const latNum = Number(data?.location?.lat || 0);
+    const lngNum = Number(data?.location?.lng || 0);
 
     // eslint-disable-next-line no-restricted-syntax
-modal.innerHTML = `
+    modal.innerHTML = `
             <div style="width:100%; max-width:600px; background:#111; border:1px solid #ff3355; border-radius:12px; padding:20px; box-shadow: 0 0 40px rgba(255,51,85,0.2);">
                 
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:15px; margin-bottom:20px;">
@@ -71,10 +75,10 @@ modal.innerHTML = `
                 <div style="background:rgba(255,51,85,0.1); padding:15px; border-radius:8px; margin-bottom:20px;">
                     <p style="margin:0 0 10px; font-weight:bold;">Informations Générales</p>
                     <table style="width:100%; font-size:14px;">
-                        <tr><td style="color:#aaa; padding:4px 0;">Date et Heure :</td><td style="text-align:right;">${dateStr}</td></tr>
-                        <tr><td style="color:#aaa; padding:4px 0;">Localisation :</td><td style="text-align:right;">${data.location.lat.toFixed(5)}, ${data.location.lng.toFixed(5)}</td></tr>
-                        <tr><td style="color:#aaa; padding:4px 0;">Véhicule :</td><td style="text-align:right;">${data.vehicle}</td></tr>
-                        <tr><td style="color:#aaa; padding:4px 0;">Police Assurance :</td><td style="text-align:right; font-family:monospace;">${data.insurancePolicy}</td></tr>
+                        <tr><td style="color:#aaa; padding:4px 0;">Date et Heure :</td><td style="text-align:right;">${escapeHtml(dateStr)}</td></tr>
+                        <tr><td style="color:#aaa; padding:4px 0;">Localisation (WGS84) :</td><td style="text-align:right;">${latNum.toFixed(5)}, ${lngNum.toFixed(5)}</td></tr>
+                        <tr><td style="color:#aaa; padding:4px 0;">Véhicule :</td><td style="text-align:right;">${escapeHtml(data.vehicle)}</td></tr>
+                        <tr><td style="color:#aaa; padding:4px 0;">Police Assurance :</td><td style="text-align:right; font-family:monospace;">${escapeHtml(data.insurancePolicy)}</td></tr>
                     </table>
                 </div>
 
@@ -82,17 +86,26 @@ modal.innerHTML = `
                     <p style="margin:0 0 10px; font-weight:bold; color:#00d2ff;">Télémétrie au moment de l'impact (Boîte Noire)</p>
                     <div style="display:flex; justify-content:space-around; text-align:center;">
                         <div>
-                            <div style="font-size:24px; font-weight:bold; color:#fff;">${data.speedAtImpact}</div>
+                            <div style="font-size:24px; font-weight:bold; color:#fff;">${escapeHtml(data.speedAtImpact)}</div>
                             <div style="font-size:11px; color:#aaa;">KM/H</div>
                         </div>
                         <div>
-                            <div style="font-size:24px; font-weight:bold; color:#ff3355;">${data.gForce} G</div>
+                            <div style="font-size:24px; font-weight:bold; color:#ff3355;">${escapeHtml(data.gForce)} G</div>
                             <div style="font-size:11px; color:#aaa;">G-FORCE</div>
                         </div>
                         <div>
-                            <div style="font-size:24px; font-weight:bold; color:#fff;">${data.weather}</div>
+                            <div style="font-size:24px; font-weight:bold; color:#fff;">${escapeHtml(data.weather)}</div>
                             <div style="font-size:11px; color:#aaa;">MÉTÉO</div>
                         </div>
+                    </div>
+                </div>
+
+                <div id="accident-ign-cadastre-box" style="background:rgba(0,230,118,0.08); border:1px solid rgba(0,230,118,0.3); padding:15px; border-radius:8px; margin-bottom:20px; font-size:13px;">
+                    <p style="margin:0 0 8px; font-weight:bold; color:#00e676;">
+                        <i class="fa-solid fa-map-location-dot"></i> Qualification Cadastrale &amp; Routière (IGN API Carto v2.10.5)
+                    </p>
+                    <div id="accident-ign-cadastre-content" style="color:#ccc;">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Interrogation du Parcellaire Express (PCI), GpU &amp; BD TOPO IGN...
                     </div>
                 </div>
 
@@ -111,6 +124,64 @@ modal.innerHTML = `
             </div>
         `;
     document.body.appendChild(modal);
+
+    // Enrichissement asynchrone via l'API Carto de l'IGN (Cadastre PCI Express + Limites Admin + GpU + BD TOPO + Nature)
+    if (data?.location && IGNCarto?.qualifyIncidentLocation) {
+      IGNCarto.qualifyIncidentLocation(latNum, lngNum)
+        .then((ignData) => {
+          data.ignQualification = ignData;
+          const box = document.getElementById("accident-ign-cadastre-content");
+          if (!box) return;
+
+          if (!ignData || !ignData.available) {
+            box.textContent = ignData?.legalNotice || "Qualification cadastrale IGN non disponible hors-ligne.";
+            return;
+          }
+
+          const communeText = ignData.commune
+            ? `${escapeHtml(ignData.commune)} (INSEE ${escapeHtml(ignData.codeInsee || "N/A")})`
+            : `INSEE ${escapeHtml(ignData.codeInsee || "N/A")}`;
+
+          const urbanText = ignData.urbanZone
+            ? `${escapeHtml(ignData.urbanZone.typezone)} — ${escapeHtml(ignData.urbanZone.libelle)}`
+            : "Non renseigné (RNU / hors PLU)";
+
+          const roadText = ignData.roadInfo
+            ? `${escapeHtml(ignData.roadInfo.nature || "Voie")}${ignData.roadInfo.nomVoie ? " (" + escapeHtml(ignData.roadInfo.nomVoie) + ")" : ""}`
+            : "Non détecté (rayon 12m)";
+
+          const natureText =
+            Array.isArray(ignData.natureZones) && ignData.natureZones.length > 0
+              ? ignData.natureZones.map((z) => `${escapeHtml(z.typeLabel)}: ${escapeHtml(z.name)}`).join(", ")
+              : null;
+
+          // eslint-disable-next-line no-restricted-syntax
+          box.innerHTML = `
+            <table style="width:100%; font-size:13px; border-collapse:collapse;">
+              <tr><td style="color:#aaa; padding:3px 0;">Commune (IGN) :</td><td style="text-align:right; color:#fff; font-weight:bold;">${communeText}</td></tr>
+              <tr><td style="color:#aaa; padding:3px 0;">Statut Cadastral (PCI) :</td><td style="text-align:right; color:${ignData.isPublicRoadDomain ? "#00e676" : "#ffaa00"}; font-weight:bold;">${escapeHtml(ignData.domainLabel)}</td></tr>
+              ${
+                ignData.parcelle
+                  ? `<tr><td style="color:#aaa; padding:3px 0;">Réf. Parcelle :</td><td style="text-align:right; font-family:monospace; color:#fff;">IDU ${escapeHtml(ignData.parcelle.id)}${ignData.parcelle.contenance ? " (" + escapeHtml(ignData.parcelle.contenance) + " m²)" : ""}</td></tr>`
+                  : ""
+              }
+              <tr><td style="color:#aaa; padding:3px 0;">Zonage Urbanisme (GpU) :</td><td style="text-align:right; color:#fff;">${urbanText}</td></tr>
+              <tr><td style="color:#aaa; padding:3px 0;">Tronçon BD TOPO :</td><td style="text-align:right; color:#fff;">${roadText}</td></tr>
+              ${
+                natureText
+                  ? `<tr><td style="color:#aaa; padding:3px 0;">Zone Nature (MNHN) :</td><td style="text-align:right; color:#00d2ff;">${natureText}</td></tr>`
+                  : ""
+              }
+            </table>
+            <div style="margin-top:8px; padding-top:8px; border-top:1px dashed rgba(255,255,255,0.15); font-size:11px; color:#aaa;">
+              <i class="fa-solid fa-scale-balanced" style="color:#00e676;"></i> ${escapeHtml(ignData.legalNotice)}
+            </div>
+          `;
+        })
+        .catch((err) => {
+          console.warn("[AccidentReport] Erreur enrichissement IGN:", err);
+        });
+    }
   },
 
   exportPDF: function () {
@@ -126,8 +197,7 @@ modal.innerHTML = `
       navigator
         .share({
           title: "Rapport Accident - mon50ccetmoi",
-          text: "Voici les données certifiées de mon accident, générées par ma boîte noire mon50ccetmoi.",
-          // On simulerait ici un fichier blob PDF
+          text: "Voici les données certifiées de mon accident (Boîte Noire + Cadastre IGN PCI Express), générées par mon50ccetmoi.",
         })
         .catch(console.error);
     } else {

@@ -3,6 +3,7 @@ const {
     REVOLUT_API_BASE, REVOLUT_API_VERSION, setCorsHeaders, verifyAuthToken, crypto
 } = require("./shared");
 const { verifyRevolutSignature } = require("./revolut-signature");
+const { CATALOG, CATEGORIES, getCatalogItem, isValidCaseId } = require("./payments-catalog");
 
 async function createPennylaneInvoice(orderData, userEmail, userName) {
     const apiKey = null; // PENNYLANE_API_KEY.value(); désactivé temporairement
@@ -23,8 +24,8 @@ async function createPennylaneInvoice(orderData, userEmail, userName) {
             line_items: [
                 {
                     label: `Prestation mon50ccetmoi — ${orderData.report_type || "Standard"}`,
-                    price: orderData.amount_cents / 100, // Conversion centimes -> euros
-                    vat_rate: "20.00", // TVA standard FR 20%
+                    price: orderData.amount_cents / 100,
+                    vat_rate: "20.00",
                     quantity: 1
                 }
             ]
@@ -64,41 +65,54 @@ exports.createRevolutOrder = onRequest(
     async (req, res) => {
         setCorsHeaders(res);
         if (req.method === "OPTIONS") return res.status(204).send("");
-        if (req.method !== "POST")   return res.status(405).json({ error: "Method Not Allowed" });
+        if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
 
         const authUser = await verifyAuthToken(req);
         if (!authUser) {
             return res.status(401).json({ error: "Authentification requise pour créer un ordre de paiement." });
         }
 
-        let { amount_cents, currency, case_id, report_type } = req.body;
+        const { case_id: requestedCaseId, report_type } = req.body || {};
         const user_id = authUser.uid;
 
-        const prices = {
-            'SIMPLE': 4990,
-            'INTERMEDIAIRE': 8999,
-            'EXPERT': 19999,
-            'DIAGNOSTIC_IA': 499,
-            'BATTERY_CERT_BASIQUE': 499,
-            'BATTERY_CERT_PREMIUM': 1499,
-            'BATTERY_CERT_QUANTUM': 2999,
-            'GARAGE_FEE': 5000,
-            'BLACKBOX_CARE_MONTHLY': 499,
-            'BLACKBOX_CARE_ANNUAL': 5000,
-            'BLACKBOX_UNIT': 8999,
-            'BLACKBOX_DUO': 16198,
-            'BLACKBOX_PACK_SUB': 4999,
-            'POINTS_100': 299,
-            'POINTS_250': 599,
-            'POINTS_600': 1199,
-            'POINTS_1500': 2499
-        };
-
-        if (!report_type || !prices[report_type]) {
-            report_type = 'SIMPLE';
+        // Validation stricte du catalogue (fermeture faille C4)
+        const catalogItem = getCatalogItem(report_type);
+        if (!catalogItem) {
+            return res.status(400).json({ error: "Type de rapport ou produit invalide." });
         }
-        
-        amount_cents = prices[report_type];
+
+        let amount_cents = catalogItem.price_cents;
+        const currency = "EUR";
+
+        // Détermination et vérification de la propriété du dossier selon la catégorie
+        let case_id = requestedCaseId;
+
+        if (catalogItem.category === CATEGORIES.LITIGATION) {
+            if (!isValidCaseId(case_id)) {
+                return res.status(400).json({ error: "case_id invalide pour le rapport de sinistre." });
+            }
+            // Vérifier dans Firestore que le dossier appartient bien à l'utilisateur appelant
+            const litigationDoc = await db.collection("litigation_proposals").doc(case_id).get();
+            if (!litigationDoc.exists) {
+                return res.status(404).json({ error: "Dossier de litige introuvable." });
+            }
+            if (litigationDoc.data().userId !== user_id) {
+                console.warn(`[Sec] IDOR blocked in createRevolutOrder: auth=${user_id}, case_owner=${litigationDoc.data().userId}`);
+                return res.status(403).json({ error: "Accès refusé : vous n'êtes pas le propriétaire de ce dossier." });
+            }
+        } else {
+            // Pour les autres catégories (POINTS, BATTERY_CERT, GARAGE, BLACKBOX), si case_id absent ou non conforme, on le génère côté serveur
+            if (!isValidCaseId(case_id)) {
+                const randomHex = crypto.randomBytes(4).toString("hex").toUpperCase();
+                case_id = `${catalogItem.category.substring(0, 4)}-${Date.now()}-${randomHex}`;
+            }
+        }
+
+        // Vérification si le dossier est déjà payé
+        const existingConfirmation = await db.collection("payment_confirmations").doc(case_id).get();
+        if (existingConfirmation.exists) {
+            return res.status(409).json({ error: "Ce dossier a déjà été réglé avec succès." });
+        }
 
         // Tarification dynamique pour le matériel Black Box (Offre lancement : 10 prototypes garantis à vie)
         if (report_type === 'BLACKBOX_UNIT') {
@@ -106,101 +120,106 @@ exports.createRevolutOrder = onRequest(
                 const statDoc = await db.collection("stats").doc("blackbox_sales").get();
                 const count = statDoc.exists ? (statDoc.data().count || 0) : 0;
                 if (count < 10) {
-                    amount_cents = 4999; // 49,99 € pour les 10 premiers prototypes
+                    amount_cents = 4999;
                 }
             } catch (e) {
                 console.warn("[Revolut] Avertissement calcul prix prototype:", e.message);
             }
         }
 
-        currency = "EUR";
-
-        if (!case_id) {
-            return res.status(400).json({ error: "Paramètre manquant : case_id" });
-        }
-
         const secretKey = REVOLUT_SECRET_KEY.value();
         if (!secretKey) {
-            return res.status(500).json({ error: "Clé secrète Revolut non configurée." });
+            console.error("[Revolut] CRITIQUE : REVOLUT_SECRET_KEY non configuré.");
+            return res.status(500).json({ error: "Service de paiement indisponible." });
         }
 
-        let orderDescription = `Rapport Assurance — ${report_type || "Standard"} — ${case_id}`;
-        if (report_type === 'BLACKBOX_PACK_SUB') {
-            orderDescription = `Pack Boîte Noire + Abonnement (Caution 49,99 € — 24 mois) — ${case_id}`;
-        } else if (report_type === 'BLACKBOX_UNIT') {
-            orderDescription = `Boîte Noire V1 Matériel — ${case_id}`;
-        } else if (report_type === 'BLACKBOX_DUO') {
-            orderDescription = `Pack Duo 2 Boîtes Noires — ${case_id}`;
-        } else if (report_type === 'BLACKBOX_CARE_MONTHLY') {
-            orderDescription = `Abonnement Boîte Noire+ (Mensuel) — ${case_id}`;
-        } else if (report_type === 'POINTS_100') {
-            orderDescription = `Pack Starter — 100 Points mon50cc — ${case_id}`;
-        } else if (report_type === 'POINTS_250') {
-            orderDescription = `Pack Pilote — 250 Points mon50cc (+25% bonus) — ${case_id}`;
-        } else if (report_type === 'POINTS_600') {
-            orderDescription = `Pack Pro Rider — 600 Points mon50cc (+50% bonus) — ${case_id}`;
-        } else if (report_type === 'POINTS_1500') {
-            orderDescription = `Coffre Légende — 1 500 Points mon50cc (+100% bonus) — ${case_id}`;
-        }
+        const orderDescription = `${catalogItem.label} — ${case_id}`;
 
         try {
+            // Anti double-clic : vérifier si un ordre PENDING récent existe déjà pour ce dossier
+            const existingOrderSnap = await db.collection("revolut_orders")
+                .where("case_id", "==", case_id)
+                .where("user_id", "==", user_id)
+                .where("status", "==", "PENDING")
+                .limit(1)
+                .get();
+
+            if (!existingOrderSnap.empty) {
+                const existingOrder = existingOrderSnap.docs[0].data();
+                if (existingOrder.order_token && existingOrder.revolut_order_id) {
+                    return res.status(200).json({
+                        order_id: existingOrder.revolut_order_id,
+                        order_token: existingOrder.order_token,
+                        amount: existingOrder.amount_cents,
+                        currency: existingOrder.currency || "EUR",
+                        status: "PENDING",
+                        case_id: case_id
+                    });
+                }
+            }
+
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10000);
+
             const revolutResponse = await fetch(`${REVOLUT_API_BASE}/orders`, {
-                method:  "POST",
+                method: "POST",
                 headers: {
-                    "Authorization":      `Bearer ${secretKey}`,
+                    "Authorization": `Bearer ${secretKey}`,
                     "Revolut-Api-Version": REVOLUT_API_VERSION,
-                    "Content-Type":        "application/json"
+                    "Content-Type": "application/json"
                 },
+                signal: controller.signal,
                 body: JSON.stringify({
-                    amount:        amount_cents,
-                    currency:      currency,
-                    capture_mode:  "automatic",
+                    amount: amount_cents,
+                    currency: currency,
+                    capture_mode: "automatic",
                     merchant_order_ext_ref: case_id,
-                    description:   orderDescription,
+                    description: orderDescription,
                     metadata: {
-                        user_id:     user_id   || "unknown",
-                        case_id:     case_id,
-                        report_type: report_type || "STANDARD",
-                        app:         "mon50ccetmoi"
+                        user_id: user_id,
+                        case_id: case_id,
+                        report_type: report_type,
+                        app: "mon50ccetmoi"
                     }
                 })
             });
+            clearTimeout(timeout);
 
             if (!revolutResponse.ok) {
                 const errBody = await revolutResponse.text();
-                console.error("[Revolut] Erreur création ordre :", revolutResponse.status, errBody);
-                return res.status(revolutResponse.status).json({
-                    error: "Erreur Revolut Merchant API",
-                    details: errBody
-                });
+                console.error("[Revolut] Erreur création ordre API :", revolutResponse.status, errBody);
+                return res.status(502).json({ error: "Le service Revolut n'a pas pu créer la transaction." });
             }
 
             const order = await revolutResponse.json();
 
             await db.collection("revolut_orders").doc(order.id).set({
                 revolut_order_id: order.id,
-                case_id:          case_id,
-                user_id:          user_id || "unknown",
-                report_type:      report_type || "STANDARD",
-                amount_cents:     amount_cents,
-                currency:         currency,
-                status:           order.state,
-                created_at:       admin.firestore.FieldValue.serverTimestamp()
+                order_token: order.token || null,
+                case_id: case_id,
+                user_id: user_id,
+                report_type: report_type,
+                category: catalogItem.category,
+                amount_cents: amount_cents,
+                currency: currency,
+                status: order.state,
+                created_at: admin.firestore.FieldValue.serverTimestamp()
             });
 
-            console.log(`[Revolut] Ordre créé : ${order.id} — Dossier : ${case_id}`);
+            console.log(`[Revolut] Ordre créé : ${order.id} — Catégorie : ${catalogItem.category} — Dossier : ${case_id}`);
 
             return res.status(200).json({
-                order_id:    order.id,
+                order_id: order.id,
                 order_token: order.token,
-                amount:      order.order_amount,
-                currency:    order.currency,
-                status:      order.state
+                amount: order.order_amount,
+                currency: order.currency,
+                status: order.state,
+                case_id: case_id
             });
 
         } catch (err) {
-            console.error("[Revolut] Exception :", err);
-            return res.status(500).json({ error: "Erreur serveur interne", message: err.message });
+            console.error("[Revolut] Exception createRevolutOrder :", err);
+            return res.status(500).json({ error: "Erreur interne lors de l'initialisation du paiement." });
         }
     }
 );
@@ -230,195 +249,224 @@ exports.revolutWebhook = onRequest(
         }
 
         const event = req.body;
-        console.log("[Revolut Webhook] Événement reçu :", JSON.stringify(event));
-
-        const orderId  = event.order_id  || event.id;
-        const eventType = event.event    || event.type;
+        const orderId = event.order_id || event.id;
+        const eventType = event.event || event.type;
 
         if (!orderId) {
             return res.status(400).send("order_id manquant");
         }
 
+        console.log(`[Revolut Webhook] Événement reçu : type=${eventType}, orderId=${orderId}`);
+
         try {
-            const orderDoc = await db.collection("revolut_orders").doc(orderId).get();
+            let orderDataForInvoice = null;
 
-            if (!orderDoc.exists) {
-                console.warn("[Revolut Webhook] Ordre inconnu :", orderId);
-                return res.status(404).send("Ordre non trouvé");
-            }
+            // Exécution atomique et idempotente dans une transaction Firestore (ASVS v5.0.0-2.3.3 / C3)
+            const result = await db.runTransaction(async (tx) => {
+                const orderRef = db.collection("revolut_orders").doc(orderId);
+                const orderDoc = await tx.get(orderRef);
 
-            const orderData = orderDoc.data();
-            const caseId    = orderData.case_id;
+                if (!orderDoc.exists) {
+                    console.warn(`[Revolut Webhook] Ordre introuvable dans revolut_orders : ${orderId}`);
+                    return { notFound: true };
+                }
 
-            if (eventType === "ORDER_COMPLETED" || event.state === "COMPLETED") {
-                const batch = db.batch();
+                const orderData = orderDoc.data();
+                orderDataForInvoice = orderData;
 
-                batch.update(db.collection("revolut_orders").doc(orderId), {
-                    status:       "COMPLETED",
-                    completed_at: admin.firestore.FieldValue.serverTimestamp()
-                });
+                // IDEMPOTENCE STRICTE : si déjà COMPLETED, on acquitte immédiatement sans réexécuter
+                if (orderData.status === "COMPLETED") {
+                    console.log(`[Revolut Webhook] Ordre ${orderId} déjà validé (idempotence). Aucun retraitement.`);
+                    return { alreadyProcessed: true };
+                }
 
-                if (orderData.report_type === "BLACKBOX_UNIT" || orderData.report_type === "BLACKBOX_DUO" || orderData.report_type === "BLACKBOX_PACK_SUB") {
-                    const isDuo = orderData.report_type === "BLACKBOX_DUO";
-                    const isPackSub = orderData.report_type === "BLACKBOX_PACK_SUB";
-                    const quantity = isDuo ? 2 : 1;
+                if (eventType === "ORDER_COMPLETED" || event.state === "COMPLETED") {
+                    const caseId = orderData.case_id;
                     const userId = orderData.user_id;
+                    const catalogItem = getCatalogItem(orderData.report_type);
+                    const category = catalogItem?.category || orderData.category || "UNKNOWN";
 
-                    const saleData = {
-                        orderId: orderId,
-                        revolut_order_id: orderId,
-                        caseId: caseId,
-                        userId: userId,
-                        type: isPackSub ? "PACK_SUBSCRIPTION" : (isDuo ? "DUO" : "UNIT"),
-                        amount: orderData.amount_cents / 100,
-                        amount_cents: orderData.amount_cents,
-                        currency: orderData.currency || "EUR",
-                        quantity: quantity,
-                        lifetimeWarranty: !isDuo && !isPackSub && (orderData.amount_cents === 4999),
-                        commitmentMonths: isPackSub ? 24 : 0,
-                        securityDeposit: isPackSub ? 49.99 : 0,
-                        monthlyFee: isPackSub ? 4.99 : 0,
-                        status: "PAID",
-                        assignedSerial: null,
-                        assignedAt: null,
-                        createdAt: admin.firestore.FieldValue.serverTimestamp()
-                    };
+                    // 1. Mettre à jour l'ordre
+                    tx.update(orderRef, {
+                        status: "COMPLETED",
+                        completed_at: admin.firestore.FieldValue.serverTimestamp()
+                    });
 
-                    // Enregistrer sous orderId ET caseId pour garantir la détection par le polling client
-                    batch.set(db.collection("blackbox_sales").doc(orderId), saleData);
-                    batch.set(db.collection("blackbox_sales").doc(caseId), saleData);
+                    // 2. Traitement selon la catégorie stricte (fermeture faille C4)
+                    if (category === CATEGORIES.BLACKBOX_HW || category === CATEGORIES.BLACKBOX_SUB) {
+                        const isDuo = orderData.report_type === "BLACKBOX_DUO";
+                        const isPackSub = orderData.report_type === "BLACKBOX_PACK_SUB";
+                        const quantity = isDuo ? 2 : 1;
 
-                    // Si pack abonnement, activer le statut Premium et l'engagement 24 mois
-                    if (isPackSub && userId && userId !== "unknown") {
-                        batch.set(db.collection("users").doc(userId), {
-                            isPremium: true,
-                            premiumPlan: "BOITE_NOIRE_PLUS_24M",
-                            premiumSince: admin.firestore.FieldValue.serverTimestamp(),
-                            subscription: {
-                                status: "ACTIVE",
-                                type: "PACK_SUBSCRIPTION_24M",
-                                commitment_months: 24,
-                                security_deposit_cents: 4999,
-                                monthly_fee_cents: 499,
-                                start_date: admin.firestore.FieldValue.serverTimestamp()
-                            }
-                        }, { merge: true });
-                    }
-
-                    const statsRef = db.collection("stats").doc("blackbox_sales");
-                    batch.set(statsRef, {
-                        count: admin.firestore.FieldValue.increment(quantity),
-                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
-                    }, { merge: true });
-
-                    console.log(`[Revolut Webhook] 📦 Vente Blackbox confirmée (${isPackSub ? 'Pack Abonnement 24m' : (quantity + ' boîtier(s)')}) pour ${userId}`);
-
-                } else if (orderData.report_type === "GARAGE_FEE") {
-                    const userId = orderData.user_id;
-                    if (userId && userId !== "unknown") {
-                        batch.set(db.collection("users").doc(userId), {
-                            isCertifiedGarage: true,
-                            certified_at: admin.firestore.FieldValue.serverTimestamp()
-                        }, { merge: true });
-                        
-                        batch.set(db.collection("garage_partners").doc(userId), {
+                        const saleData = {
+                            orderId: orderId,
                             revolut_order_id: orderId,
-                            user_id: userId,
-                            certified_at: admin.firestore.FieldValue.serverTimestamp()
-                        });
-                    }
-                } else if (orderData.report_type && orderData.report_type.startsWith("POINTS_")) {
-                    const userId = orderData.user_id;
-                    const pointsMap = {
-                        'POINTS_100': 100,
-                        'POINTS_250': 250,
-                        'POINTS_600': 600,
-                        'POINTS_1500': 1500
-                    };
-                    const pointsToAdd = pointsMap[orderData.report_type] || parseInt(orderData.report_type.replace('POINTS_', ''), 10) || 0;
+                            caseId: caseId,
+                            userId: userId,
+                            type: isPackSub ? "PACK_SUBSCRIPTION" : (isDuo ? "DUO" : "UNIT"),
+                            amount: orderData.amount_cents / 100,
+                            amount_cents: orderData.amount_cents,
+                            currency: orderData.currency || "EUR",
+                            quantity: quantity,
+                            lifetimeWarranty: !isDuo && !isPackSub && (orderData.amount_cents === 4999),
+                            commitmentMonths: isPackSub ? 24 : 0,
+                            securityDeposit: isPackSub ? 49.99 : 0,
+                            monthlyFee: isPackSub ? 4.99 : 0,
+                            status: "PAID",
+                            assignedSerial: null,
+                            assignedAt: null,
+                            createdAt: admin.firestore.FieldValue.serverTimestamp()
+                        };
 
-                    if (userId && userId !== "unknown" && pointsToAdd > 0) {
-                        const userRef = db.collection("users").doc(userId);
-                        batch.set(userRef, {
-                            braveCoins: admin.firestore.FieldValue.increment(pointsToAdd),
-                            bvc_points: admin.firestore.FieldValue.increment(pointsToAdd),
-                            points: admin.firestore.FieldValue.increment(pointsToAdd),
-                            lastPointsPurchase: {
+                        tx.set(db.collection("blackbox_sales").doc(orderId), saleData);
+                        tx.set(db.collection("blackbox_sales").doc(caseId), saleData);
+
+                        if (isPackSub && userId && userId !== "unknown") {
+                            tx.set(db.collection("users").doc(userId), {
+                                isPremium: true,
+                                premiumPlan: "BOITE_NOIRE_PLUS_24M",
+                                premiumSince: admin.firestore.FieldValue.serverTimestamp(),
+                                subscription: {
+                                    status: "ACTIVE",
+                                    type: "PACK_SUBSCRIPTION_24M",
+                                    commitment_months: 24,
+                                    security_deposit_cents: 4999,
+                                    monthly_fee_cents: 499,
+                                    start_date: admin.firestore.FieldValue.serverTimestamp()
+                                }
+                            }, { merge: true });
+                        }
+
+                        const statsRef = db.collection("stats").doc("blackbox_sales");
+                        tx.set(statsRef, {
+                            count: admin.firestore.FieldValue.increment(quantity),
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+
+                    } else if (category === CATEGORIES.GARAGE) {
+                        if (userId && userId !== "unknown") {
+                            tx.set(db.collection("users").doc(userId), {
+                                isCertifiedGarage: true,
+                                certified_at: admin.firestore.FieldValue.serverTimestamp()
+                            }, { merge: true });
+                            
+                            tx.set(db.collection("garage_partners").doc(userId), {
+                                revolut_order_id: orderId,
+                                user_id: userId,
+                                certified_at: admin.firestore.FieldValue.serverTimestamp()
+                            });
+                        }
+
+                    } else if (category === CATEGORIES.POINTS) {
+                        const pointsToAdd = catalogItem?.points || 0;
+                        if (userId && userId !== "unknown" && pointsToAdd > 0) {
+                            const userRef = db.collection("users").doc(userId);
+                            tx.set(userRef, {
+                                braveCoins: admin.firestore.FieldValue.increment(pointsToAdd),
+                                bvc_points: admin.firestore.FieldValue.increment(pointsToAdd),
+                                points: admin.firestore.FieldValue.increment(pointsToAdd),
+                                lastPointsPurchase: {
+                                    pack: orderData.report_type,
+                                    points: pointsToAdd,
+                                    amount_cents: orderData.amount_cents,
+                                    order_id: orderId,
+                                    purchased_at: admin.firestore.FieldValue.serverTimestamp()
+                                }
+                            }, { merge: true });
+
+                            const txRef = db.collection("points_transactions").doc(orderId);
+                            tx.set(txRef, {
+                                order_id: orderId,
+                                case_id: caseId,
+                                user_id: userId,
                                 pack: orderData.report_type,
                                 points: pointsToAdd,
                                 amount_cents: orderData.amount_cents,
-                                order_id: orderId,
-                                purchased_at: admin.firestore.FieldValue.serverTimestamp()
-                            }
-                        }, { merge: true });
+                                currency: orderData.currency || "EUR",
+                                status: "COMPLETED",
+                                type: "RECHARGE_REVOLUT",
+                                created_at: admin.firestore.FieldValue.serverTimestamp()
+                            });
+                        }
 
-                        const txRef = db.collection("points_transactions").doc(orderId);
-                        batch.set(txRef, {
-                            order_id: orderId,
-                            case_id: caseId,
-                            user_id: userId,
-                            pack: orderData.report_type,
-                            points: pointsToAdd,
-                            amount_cents: orderData.amount_cents,
-                            currency: orderData.currency || "EUR",
-                            status: "COMPLETED",
-                            type: "RECHARGE_REVOLUT",
-                            created_at: admin.firestore.FieldValue.serverTimestamp()
+                    } else if (category === CATEGORIES.BATTERY_CERT) {
+                        // Émission officielle du certificat côté serveur
+                        const tier = orderData.report_type.replace("BATTERY_CERT_", "").toLowerCase();
+                        const certRef = db.collection("battery_certificates").doc(caseId);
+                        tx.set(certRef, {
+                            certId: caseId,
+                            userId: userId,
+                            tier: tier,
+                            revolut_order_id: orderId,
+                            status: "ISSUED",
+                            issuedAt: admin.firestore.FieldValue.serverTimestamp(),
+                            isShared: false
                         });
 
-                        console.log(`[Revolut Webhook] 🪙 Recharge validée : +${pointsToAdd} Points mon50cc pour ${userId} (Ordre: ${orderId})`);
+                    } else if (category === CATEGORIES.LITIGATION) {
+                        // Déblocage du rapport d'accident
+                        const litigationRef = db.collection("litigation_proposals").doc(caseId);
+                        tx.update(litigationRef, {
+                            payment_status: "PAID",
+                            payment_method: "REVOLUT",
+                            revolut_order_id: orderId,
+                            report_unlocked: true,
+                            unlocked_at: admin.firestore.FieldValue.serverTimestamp()
+                        });
                     }
-                } else {
-                    const litigationRef = db.collection("litigation_proposals").doc(caseId);
-                    batch.update(litigationRef, {
-                        payment_status:   "PAID",
-                        payment_method:   "REVOLUT",
+
+                    // 3. Enregistrement unique de confirmation de paiement
+                    tx.set(db.collection("payment_confirmations").doc(caseId), {
+                        case_id: caseId,
                         revolut_order_id: orderId,
-                        report_unlocked:  true,
-                        unlocked_at:      admin.firestore.FieldValue.serverTimestamp()
+                        user_id: userId,
+                        report_type: orderData.report_type,
+                        category: category,
+                        amount_cents: orderData.amount_cents,
+                        currency: orderData.currency,
+                        confirmed_at: admin.firestore.FieldValue.serverTimestamp(),
+                        source: "REVOLUT_WEBHOOK"
                     });
+
+                    return { success: true, processed: true };
+
+                } else if (eventType === "ORDER_PAYMENT_DECLINED" || event.state === "FAILED") {
+                    tx.update(orderRef, {
+                        status: "FAILED",
+                        failed_at: admin.firestore.FieldValue.serverTimestamp()
+                    });
+                    return { failed: true };
                 }
 
-                batch.set(db.collection("payment_confirmations").doc(caseId), {
-                    case_id:          caseId,
-                    revolut_order_id: orderId,
-                    user_id:          orderData.user_id,
-                    report_type:      orderData.report_type,
-                    amount_cents:     orderData.amount_cents,
-                    currency:         orderData.currency,
-                    confirmed_at:     admin.firestore.FieldValue.serverTimestamp(),
-                    source:           "REVOLUT_WEBHOOK"
-                });
+                return { ignored: true };
+            });
 
-                await batch.commit();
-                console.log(`[Revolut Webhook] ✅ Rapport débloqué pour dossier : ${caseId}`);
+            if (result.notFound) {
+                return res.status(404).send("Ordre non trouvé");
+            }
 
+            // Facturation Pennylane après transaction réussie
+            if (result.processed && orderDataForInvoice) {
                 try {
                     let userEmail = "";
                     let userName = "";
-                    if (orderData.user_id && orderData.user_id !== "unknown") {
-                        const userDoc = await db.collection("users").doc(orderData.user_id).get();
+                    if (orderDataForInvoice.user_id && orderDataForInvoice.user_id !== "unknown") {
+                        const userDoc = await db.collection("users").doc(orderDataForInvoice.user_id).get();
                         if (userDoc.exists) {
                             userEmail = userDoc.data().email || "";
                             userName = userDoc.data().displayName || "";
                         }
                     }
-                    createPennylaneInvoice(orderData, userEmail, userName);
+                    createPennylaneInvoice(orderDataForInvoice, userEmail, userName);
                 } catch (e) {
-                    console.error("[Revolut Webhook] Erreur déclenchement Pennylane :", e);
+                    console.error("[Revolut Webhook] Erreur Pennylane post-transaction :", e);
                 }
-
-            } else if (eventType === "ORDER_PAYMENT_DECLINED" || event.state === "FAILED") {
-                await db.collection("revolut_orders").doc(orderId).update({
-                    status:    "FAILED",
-                    failed_at: admin.firestore.FieldValue.serverTimestamp()
-                });
-                console.log(`[Revolut Webhook] ❌ Paiement refusé pour ordre : ${orderId}`);
             }
 
             return res.status(200).json({ success: true });
+
         } catch (error) {
-            console.error("[Revolut Webhook] Error processing event :", error);
+            console.error("[Revolut Webhook] Exception lors du traitement :", error);
             return res.status(500).json({ error: "Internal Server Error" });
         }
     }
@@ -430,33 +478,36 @@ exports.checkPaymentStatus = onRequest(
         setCorsHeaders(res);
         if (req.method === "OPTIONS") return res.status(204).send("");
 
-        const { case_id, user_id } = req.query;
-        if (!case_id || !user_id) return res.status(400).json({ error: "case_id et user_id requis" });
+        const { case_id } = req.query;
+        if (!case_id) return res.status(400).json({ error: "case_id requis" });
 
         const authUser = await verifyAuthToken(req);
         if (!authUser) {
             return res.status(401).json({ error: "Authentification requise." });
         }
-        if (authUser.uid !== user_id) {
-            console.warn(`[Sec] IDOR attempt blocked: auth=${authUser.uid}, requested=${user_id}`);
-            return res.status(403).json({ error: "Accès refusé : token invalide pour cet utilisateur." });
-        }
+        const user_id = authUser.uid;
 
+        // Rate limiting transactionnel
         const now = Date.now();
         const rateLimitRef = db.collection("rate_limits").doc(`payment_poll_${user_id}`);
         try {
-            const rateLimitDoc = await rateLimitRef.get();
-            const rateData = rateLimitDoc.exists ? rateLimitDoc.data() : null;
-            if (rateData && rateData.windowStart && (now - rateData.windowStart) < 60000) {
-                if (rateData.count >= 20) {
-                    return res.status(429).json({ error: "Trop de requêtes. Veuillez patienter." });
+            await db.runTransaction(async (tx) => {
+                const snap = await tx.get(rateLimitRef);
+                const rateData = snap.exists ? snap.data() : null;
+                if (rateData && rateData.windowStart && (now - rateData.windowStart) < 60000) {
+                    if (rateData.count >= 30) {
+                        throw new Error("RATE_LIMIT_EXCEEDED");
+                    }
+                    tx.update(rateLimitRef, { count: admin.firestore.FieldValue.increment(1) });
+                } else {
+                    tx.set(rateLimitRef, { windowStart: now, count: 1 });
                 }
-                await rateLimitRef.update({ count: admin.firestore.FieldValue.increment(1) });
-            } else {
-                await rateLimitRef.set({ windowStart: now, count: 1 });
-            }
+            });
         } catch (rlErr) {
-            console.warn("[Rate Limit] Erreur non bloquante :", rlErr.message);
+            if (rlErr.message === "RATE_LIMIT_EXCEEDED") {
+                return res.status(429).json({ error: "Trop de requêtes. Veuillez patienter." });
+            }
+            console.warn("[Rate Limit] Avertissement :", rlErr.message);
         }
 
         try {
@@ -469,15 +520,17 @@ exports.checkPaymentStatus = onRequest(
             const data = doc.data();
             
             if (data.user_id !== user_id) {
+                console.warn(`[Sec] IDOR checkPaymentStatus blocked: auth=${user_id}, doc_user=${data.user_id}`);
                 return res.status(403).json({ error: "Accès refusé" });
             }
 
             return res.status(200).json({
-                paid:             true,
-                status:           "COMPLETED",
+                paid: true,
+                status: "COMPLETED",
                 revolut_order_id: data.revolut_order_id,
-                report_type:      data.report_type,
-                confirmed_at:     data.confirmed_at?.toDate?.()?.toISOString() || null
+                report_type: data.report_type,
+                category: data.category || "UNKNOWN",
+                confirmed_at: data.confirmed_at?.toDate?.()?.toISOString() || null
             });
 
         } catch (err) {

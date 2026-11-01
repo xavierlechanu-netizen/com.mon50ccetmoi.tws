@@ -618,25 +618,19 @@ window.payGarageEntryFee = async function () {
     if (typeof speak === "function")
       speak("Initialisation du paiement sécurisé.");
     try {
-      const projectId = window.CONFIG?.FIREBASE?.projectId || "mon50ccetmoi";
-      const url = `https://europe-west1-${projectId}.cloudfunctions.net/createRevolutOrder`;
       const caseId = "GARAGE-" + Date.now();
 
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount_cents: amountCents,
-          currency: "EUR",
-          case_id: caseId,
-          user_id: window.session?.uid || "unknown",
-          report_type: "GARAGE_FEE",
-        }),
-      });
+      if (!window.ApiClient) {
+        throw new Error("Module API non chargé.");
+      }
 
-      if (!response.ok)
-        throw new Error("Erreur lors de la création de la commande.");
-      const orderData = await response.json();
+      const orderData = await window.ApiClient.authFetch("createRevolutOrder", {
+        method: "POST",
+        body: {
+          case_id: caseId,
+          report_type: "GARAGE_FEE",
+        },
+      });
 
       const instance = await RevolutCheckout(orderData.order_token, "prod");
 
@@ -651,11 +645,11 @@ window.payGarageEntryFee = async function () {
           const checkStatus = setInterval(async () => {
             attempts++;
             try {
-              const res = await fetch(
-                `https://europe-west1-${projectId}.cloudfunctions.net/checkPaymentStatus?case_id=${caseId}&user_id=${window.session?.uid}`,
-              );
-              const data = await res.json();
-              if (data.paid) {
+              const data = await window.ApiClient.authFetch("checkPaymentStatus", {
+                method: "GET",
+                query: { case_id: caseId, user_id: window.session?.uid || "" }
+              });
+              if (data && data.paid) {
                 clearInterval(checkStatus);
                 if (typeof speak === "function")
                   speak(
@@ -691,43 +685,9 @@ window.payGarageEntryFee = async function () {
 };
 
 window.applyPartnerExemption = async function () {
-  const ok = confirm(
-    "En choisissant cette option, vous vous engagez à offrir une remise de 10% sur vos prestations aux membres présentant l'application. En échange, votre certification et votre boost sont OFFERTS. Valider ?",
+  alert(
+    "Les demandes de partenariat Garage avec exonération font l'objet d'un audit de convention par l'équipe administrative mon50ccetmoi.\n\nVeuillez adresser votre KBIS et votre charte signée à contact@mon50ccetmoi.com pour instruction."
   );
-  if (ok) {
-    try {
-      if (window.firebase && window.session?.uid) {
-        const db = firebase.firestore();
-        const batch = db.batch();
-        const userRef = db.collection("users").doc(window.session.uid);
-        const partnerRef = db.collection("garage_partners").doc(window.session.uid);
-        
-        batch.update(userRef, {
-          isCertifiedGarage: true,
-          isGaragePartner: true,
-        });
-        batch.set(partnerRef, {
-          user_id: window.session.uid,
-          exempted: true,
-          certified_at: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-        
-        await batch.commit();
-      }
-    } catch (e) {
-      console.error("[GARAGE] Failed to persist partner status", e);
-    }
-
-    speak(
-      "Félicitations ! Vous êtes désormais Partenaire Officiel mon 50 cm3 et moi. Votre générosité envers la communauté est récompensée.",
-    );
-    if (window.session) {
-      window.session.isCertifiedGarage = true;
-      window.session.isGaragePartner = true;
-      secureSetItem("session", JSON.stringify(window.session));
-    }
-    showPage("pro-space");
-  }
 };
 
 // ─────────────────────────────────────────────────────────────────────

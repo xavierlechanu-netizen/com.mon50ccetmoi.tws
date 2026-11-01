@@ -251,4 +251,95 @@ describe('Sécurité & Normalisation des Données', () => {
     expect(core.normalizeBatchNumber('BATCH_2026')).toBeNull(); // underscore interdit
     expect(core.normalizeBatchNumber('')).toBeNull();
   });
+
+  test('Supporte la révision matérielle V2 en série tout en gardant les prototypes en V1', () => {
+    expect(core.formatSerial('V2', 'SERIES', 1)).toBe('BB50V2-A01');
+    const parsedV2 = core.parseSerial('BB50V2-A01');
+    expect(parsedV2).not.toBeNull();
+    expect(parsedV2.revision).toBe('V2');
+    expect(parsedV2.unitCode).toBe('A01');
+    expect(() => core.formatSerial('V2', 'PROTOTYPE', 1)).toThrow();
+  });
+});
+
+describe('Forensique EXP-BB50-2026-REV3 : Chaînage de Merkle SHA-256, ECDSA P-256 & Fenêtre RGPD ±30s', () => {
+  const nodeCrypto = require('crypto');
+
+  test('Vérifie une chaîne de hachage de Merkle SHA-256 intègre et détecte toute troncature ou altération', () => {
+    const seedHex = nodeCrypto.createHash('sha256').update('BB50-GENESIS:AA:BB:CC:DD:EE:FF').digest('hex');
+
+    const p1 = JSON.stringify({ seq: 1, ts: 1700000000, spd: 42.5 });
+    const h1 = core.computeMerkleStep(seedHex, p1);
+
+    const p2 = JSON.stringify({ seq: 2, ts: 1700000001, spd: 43.0 });
+    const h2 = core.computeMerkleStep(h1, p2);
+
+    const p3 = JSON.stringify({ seq: 3, ts: 1700000002, spd: 0.0 });
+    const h3 = core.computeMerkleStep(h2, p3);
+
+    const validFrames = [
+      { seqId: 1, prevHashHex: seedHex.slice(0, 32), payload: p1 },
+      { seqId: 2, prevHashHex: h1.slice(0, 32), payload: p2 },
+      { seqId: 3, prevHashHex: h2.slice(0, 32), payload: p3 },
+    ];
+
+    const res = core.verifyMerkleChain(validFrames, seedHex);
+    expect(res.valid).toBe(true);
+    expect(res.checkedCount).toBe(3);
+    expect(res.finalHashHex).toBe(h3);
+
+    // Simulation d'une suppression sélective de la trame 2 (trou dans seqId)
+    const truncatedFrames = [validFrames[0], validFrames[2]];
+    const resTruncated = core.verifyMerkleChain(truncatedFrames, seedHex);
+    expect(resTruncated.valid).toBe(false);
+    expect(resTruncated.brokenAtIndex).toBe(1);
+
+    // Simulation d'une falsification du payload de la trame 2
+    const tamperedFrames = [
+      validFrames[0],
+      { seqId: 2, prevHashHex: h1.slice(0, 32), payload: JSON.stringify({ seq: 2, ts: 1700000001, spd: 25.0 }) },
+      validFrames[2],
+    ];
+    const resTampered = core.verifyMerkleChain(tamperedFrames, seedHex);
+    expect(resTampered.valid).toBe(false);
+    expect(resTampered.brokenAtIndex).toBe(2);
+  });
+
+  test('Valide et vérifie une signature matérielle ECDSA P-256 (format SEC1 65 octets hex et PEM)', () => {
+    const { publicKey, privateKey } = nodeCrypto.generateKeyPairSync('ec', {
+      namedCurve: 'prime256v1',
+    });
+
+    // Export SPKI DER -> les 65 derniers octets correspondent au point non-compressé SEC1 (0x04 || X || Y)
+    const spkiDer = publicKey.export({ type: 'spki', format: 'der' });
+    const rawUncompressedHex = spkiDer.subarray(spkiDer.length - 65).toString('hex');
+    expect(rawUncompressedHex.startsWith('04')).toBe(true);
+    expect(rawUncompressedHex.length).toBe(130);
+    expect(core.isValidEcdsaPublicKey(rawUncompressedHex)).toBe(true);
+
+    const payload = 'BB50V2-A01:user_12345';
+    const sigDerHex = nodeCrypto.sign('sha256', Buffer.from(payload, 'utf8'), privateKey).toString('hex');
+
+    // Vérification avec la clé brute 65 octets (format NVS ESP32)
+    expect(core.verifyEcdsaP256Signature(payload, sigDerHex, rawUncompressedHex)).toBe(true);
+
+    // Vérification avec un message modifié -> doit échouer
+    expect(core.verifyEcdsaP256Signature('BB50V2-A01:user_hacker', sigDerHex, rawUncompressedHex)).toBe(false);
+  });
+
+  test('Filtre strictement la fenêtre d\'incident RGPD à ±30 secondes autour de l\'impact', () => {
+    const impactTs = 1700001000;
+    const frames = [
+      { timestamp: impactTs - 45, seqId: 1 }, // Exclu (-45s)
+      { timestamp: impactTs - 30, seqId: 2 }, // Inclus (-30s exact)
+      { timestamp: impactTs - 10, seqId: 3 }, // Inclus (-10s)
+      { timestamp: impactTs,      seqId: 4 }, // Inclus (impact)
+      { timestamp: impactTs + 15, seqId: 5 }, // Inclus (+15s)
+      { timestamp: impactTs + 30, seqId: 6 }, // Inclus (+30s exact)
+      { timestamp: impactTs + 31, seqId: 7 }, // Exclu (+31s)
+    ];
+
+    const filtered = core.filterCrashWindowFrames(frames, impactTs);
+    expect(filtered.map((f) => f.seqId)).toEqual([2, 3, 4, 5, 6]);
+  });
 });

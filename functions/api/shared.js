@@ -48,11 +48,17 @@ async function verifyAuthToken(req) {
     }
 }
 
+function maskUid(uid) {
+    if (!uid || typeof uid !== "string") return "anonymous";
+    if (uid.length <= 8) return uid;
+    return `${uid.substring(0, 8)}...`;
+}
+
 module.exports = {
     onRequest, onCall, HttpsError, onDocumentCreated, defineSecret,
     admin, db, googleAuth, crypto, Client,
     REVOLUT_SECRET_KEY, REVOLUT_WEBHOOK_SECRET, GEMINI_API_KEY, NOTION_API_KEY, NOTION_DATABASE_ID,
     METEO_FRANCE_API_KEY, PISTE_CLIENT_ID, PISTE_CLIENT_SECRET, PISTE_API_KEY, SMTP_PASSWORD,
     REVOLUT_API_BASE, REVOLUT_API_VERSION, FB_PAGE_ACCESS_TOKEN, FB_PAGE_ID,
-    setCorsHeaders, verifyAuthToken
+    setCorsHeaders, verifyAuthToken, maskUid
 };

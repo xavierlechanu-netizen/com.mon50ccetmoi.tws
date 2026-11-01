@@ -5,17 +5,19 @@
  * Utilisé pour :
  *  - les contrôles de saisie avant soumission (UI réactive)
  *  - l'affichage des libellés et badges de statut
- *  - la prévisualisation des numéros de série (A01..Z99, 00 exclu)
+ *  - la prévisualisation des numéros de série (A01..Z99, 00 exclu, V1 & V2)
  *  - la génération / validation des codes Bluetooth uniques (PIN 6 chiffres)
  *  - la détection des transitions de statut valides dans la console admin
+ *  - la validation des clés publiques ECDSA P-256 et le filtrage de la fenêtre d'incident RGPD (±30s)
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
 export const SERIAL_PREFIX = "BB50";
-export const HW_REVISIONS = ["V1"];
+export const HW_REVISIONS = ["V1", "V2"];
 export const PROTOTYPE_REVISION = "V1";
 export const MAX_PROTOTYPES = 10;
 export const SERIES_BATCH_MAX = 100;
+export const CRASH_WINDOW_SECONDS = 30;
 
 export const SERIES_LETTERS = "ABCDEFGHIJKLMNOQRSTUVWXYZ"; // 25 lettres (P réservé aux 10 prototypes)
 export const UNITS_PER_LETTER = 99; // 01 à 99 (00 strictement exclu)
@@ -269,6 +271,25 @@ export function normalizeBatchNumber(input) {
     if (typeof input !== "string") return null;
     const v = input.trim().toUpperCase();
     return /^[A-Z0-9][A-Z0-9-]{1,31}$/.test(v) ? v : null;
+}
+
+export function isValidEcdsaPublicKey(pubKeyInput) {
+    if (typeof pubKeyInput !== "string") return false;
+    const clean = pubKeyInput.trim();
+    if (/^04[0-9a-fA-F]{128}$/.test(clean)) return true;
+    return clean.startsWith("-----BEGIN PUBLIC KEY-----") && clean.endsWith("-----END PUBLIC KEY-----");
+}
+
+export function filterCrashWindowFrames(frames, impactTimestampSec, windowSeconds = CRASH_WINDOW_SECONDS) {
+    if (!Array.isArray(frames)) return [];
+    if (typeof impactTimestampSec !== "number" || !Number.isFinite(impactTimestampSec) || impactTimestampSec <= 0) {
+        throw new Error("Horodatage d'impact invalide pour le filtrage de la fenêtre probante.");
+    }
+    const halfWin = typeof windowSeconds === "number" && windowSeconds > 0 && windowSeconds <= 60 ? windowSeconds : CRASH_WINDOW_SECONDS;
+    const minTs = impactTimestampSec - halfWin;
+    const maxTs = impactTimestampSec + halfWin;
+
+    return frames.filter((f) => f && typeof f.timestamp === "number" && f.timestamp >= minTs && f.timestamp <= maxTs);
 }
 
 export function escapeCSVCell(str) {

@@ -5,14 +5,12 @@ Ce document contient l'architecture, les règles de sécurité et le contexte vi
 
 ---
 
-## 🏗️ 1. Architecture du Code (Règle des 3 Dossiers)
-Le projet contient **3 répertoires principaux** qui partagent le même code source frontend.  
-Si tu dois modifier un fichier HTML, CSS ou JS, tu **DOIS** le modifier dans ces 3 répertoires pour garder la synchronisation, ou utiliser un script de synchronisation si disponible :
-1. `public/` (Dossier source Web principal)
-2. `dist/` (Dossier build Web / PWA)
-3. `android-app/www/` (Dossier source de l'application mobile Cordova/Capacitor)
-
-*Exemple : Toute modification sur `app.html` doit être faite dans `public/app.html`, `dist/app.html`, et `android-app/www/app.html`.*
+## 🏗️ 1. Architecture du Code (Source Unique `src/`)
+Le projet utilise **Vite** comme bundler standard.
+1. Le code source Frontend réside **exclusivement dans `src/`**.
+2. Le dossier `dist/` est le résultat de la compilation (`npm run build`). Il ne doit **JAMAIS** être édité directement.
+3. Capacitor (`capacitor.config.json`) et Firebase Hosting (`firebase.json`) pointent tous les deux vers `dist/`.
+4. Ne modifie les fichiers HTML/JS/CSS que dans `src/`, puis lance `npm run build`.
 
 ## 🔒 2. Sécurité & Base de Données (Firebase)
 Le projet utilise **Firebase (Firestore & Auth)**. La sécurité est critique (OWASP).
@@ -33,7 +31,7 @@ L'application est soumise à des règles internationales strictes en matière de
 ## 🛠️ 4. Stack Technique
 *   **Frontend :** HTML5, CSS3, Vanilla JavaScript (Pas de framework lourd comme React/Vue pour le cœur de l'app).
 *   **Backend / BaaS :** Firebase (SDK compat V8/V9 pour Auth et Firestore).
-*   **Cartographie :** Google Maps API (`v=beta` pour les features 3D/WebGL).
+*   **Cartographie & Géodonnées Souveraines :** Google Maps API (`v=beta` pour les features 3D/WebGL) + **IGN API Carto v2.10.5 / Géoplateforme** (`src/js/ign-carto.js` : Cadastre PCI Express, Limites Administratives, Codes Postaux BAN, Urbanisme GpU, RPG, WFS-Géoportail BD TOPO V3, Nature MNHN en WGS84 `EPSG:4326`).
 *   **Mobile :** L'architecture est pensée pour être packagée en application native Android (d'où le dossier `android-app/www`).
 
 ## 🐛 5. Gestion des Logs & Bugs (Automatisée par Nexus Atlas)

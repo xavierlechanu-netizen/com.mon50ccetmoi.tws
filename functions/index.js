@@ -14,8 +14,13 @@ const alerts = require('./api/alerts');
 const social = require('./api/social');
 const nexusInsights = require('./api/nexus-insights');
 const blackboxRegistry = require('./api/blackbox-registry');
+const pointsLedger = require('./api/points-ledger');
 
 module.exports = {
+    // Points & Grand Livre Monétaire (OWASP ASVS v5.0.0-2.3.3)
+    transactPoints: pointsLedger.transactPoints,
+    getPointsHistory: pointsLedger.getPointsHistory,
+
     // Auth & Identity (FIDO2 & RGPD)
     deleteUserAccount: auth.deleteUserAccount,
     fidoGenerateRegistration: auth.fidoGenerateRegistration,

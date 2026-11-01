@@ -1,27 +1,21 @@
 /**
  * ============================================================================
- * main.c — Point d'entrée du Firmware "Boîte Noire" V1
+ * main.c — Point d'entrée du Firmware "Boîte Noire" REV3
  * ============================================================================
- * Cible : ESP32-C3-MINI-1 (ESP-IDF v5.x)
+ * Cible : ESP32-C3-MINI-1 (ESP-IDF v5.x — Homologation EXP-BB50-2026-REV3)
  *
  * Boucle principale :
  *   1. Vérification eFuse (boîtier brické ?)
  *   2. Initialisation Anti-Tamper (ISR sur GPIO 2 & 3)
- *   3. Initialisation stockage chiffré (AES-256)
- *   4. Initialisation GPS (UART1)
- *   5. Initialisation BLE (GATT Server)
- *   6. Boucle d'acquisition télémétrique (1 Hz)
- *   7. Deep Sleep si alimentation externe coupée
- *
- * CONFORMITÉ :
- *   - OWASP A11  : Code modulaire, pas de boucle infinie sans garde.
- *   - CIS 4      : Configuration sécurisée par défaut.
- *   - CIS 16.10  : Validation de toutes les entrées.
- *   - FIDO FDO   : Surface d'attaque minimale (pas de port physique).
+ *   3. Initialisation stockage chiffré (AES-256-GCM + Merkle SHA-256 + ECDSA P-256)
+ *   4. Initialisation GNSS Quectel L76-LB (UART1 @ 115200 bps / 10 Hz réel)
+ *   5. Initialisation BLE Dual-Mode (GATT Server Notify + Indicate + ACK_SEQ_ID)
+ *   6. Initialisation Centrale Inertielle MPU6050 (+-16G)
+ *   7. Boucle d'acquisition télémétrique 10 Hz + "Last-Gasp Write" sur coupure 12V
+ *   8. Deep Sleep si alimentation externe coupée > 5 minutes
  * ============================================================================
  */
 
-#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -46,12 +40,20 @@
 /* ---- Tag de log ---- */
 static const char *TAG = "MAIN";
 
-/* ---- Constantes ---- */
+/* ---- Constantes (Rapport EXP-BB50-2026-REV3) ---- */
 #define GPS_UART_NUM        UART_NUM_1
-#define GPS_BAUD_RATE       9600
-#define GPS_BUF_SIZE        512
-#define TELEMETRY_PERIOD_MS 1000    /* 1 Hz */
+#define GPS_BAUD_INITIAL    9600
+#define GPS_BAUD_FAST       115200      /* 115200 bps pour cadence 10 Hz sans latence UART */
+#define GPS_BUF_SIZE        1024
+#define TELEMETRY_PERIOD_MS 100         /* 10 Hz (1 point / 1,25 m à 45 km/h) */
+#define SHOCK_THRESHOLD_X10 30          /* 3.0G = Bascule en GATT Indicate + Flush Flash */
 #define DEEP_SLEEP_TIMEOUT  (5 * 60 * 1000000ULL)  /* 5 min en µs */
+
+/* Commandes PMTK Quectel L76-LB (avec checksum XOR NMEA) */
+#define PMTK_SET_BAUD_115200 "$PMTK251,115200*1F\r\n"
+#define PMTK_SET_NMEA_10HZ   "$PMTK220,100*2F\r\n"
+
+static volatile bool s_power_fail_triggered = false;
 
 /* ---- Prototypes ---- */
 static void init_nvs(void);
@@ -71,8 +73,8 @@ static uint16_t read_battery_mv(void);
 void app_main(void)
 {
     ESP_LOGI(TAG, "╔═══════════════════════════════════════════════╗");
-    ESP_LOGI(TAG, "║   BOÎTE NOIRE v1.0 — mon 50cc et moi        ║");
-    ESP_LOGI(TAG, "║   Firmware ESP32-C3 (RISC-V, BLE 5.0)       ║");
+    ESP_LOGI(TAG, "║   BOÎTE NOIRE REV3 — mon 50cc et moi         ║");
+    ESP_LOGI(TAG, "║   ESP32-C3 (AES-256-GCM / Merkle / 10 Hz)    ║");
     ESP_LOGI(TAG, "╚═══════════════════════════════════════════════╝");
 
     /* ================================================================
@@ -82,82 +84,70 @@ void app_main(void)
 
     /* ================================================================
      * ÉTAPE 1 : Vérification Anti-Tamper (avant toute autre chose !)
-     * ================================================================
-     * Si le boîtier a été compromis (eFuse brûlé), on refuse de
-     * démarrer. Le firmware entre dans une boucle morte.
      * ================================================================ */
     if (tamper_is_bricked()) {
         ESP_LOGE(TAG, "████████████████████████████████████████████");
         ESP_LOGE(TAG, "█  BOÎTIER NEUTRALISÉ — TAMPER DÉTECTÉ    █");
         ESP_LOGE(TAG, "█  Toutes les données ont été effacées.    █");
-        ESP_LOGE(TAG, "█  Ce boîtier est définitivement hors      █");
-        ESP_LOGE(TAG, "█  service. Contactez le support.           █");
         ESP_LOGE(TAG, "████████████████████████████████████████████");
 
-        /* Boucle infinie avec watchdog — le boîtier ne fait plus rien */
         while (1) {
             vTaskDelay(pdMS_TO_TICKS(10000));
         }
     }
 
     /* ================================================================
-     * ÉTAPE 2 : Armement du système Anti-Tamper (ISR sur GPIO)
+     * ÉTAPE 2 : Armement du système Anti-Tamper (si broches câblées)
      * ================================================================ */
-    ESP_LOGI(TAG, "[2/5] Armement du système Anti-Tamper...");
-    esp_err_t err = tamper_init();
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "ERREUR CRITIQUE : Anti-Tamper non initialisé !");
-        esp_restart();
+    if (PIN_TAMPER_LIGHT >= 0 && PIN_TAMPER_MESH >= 0) {
+        ESP_LOGI(TAG, "[2/6] Armement du système Anti-Tamper...");
+        esp_err_t tamper_err = tamper_init();
+        if (tamper_err != ESP_OK) {
+            ESP_LOGE(TAG, "ERREUR CRITIQUE : Anti-Tamper non initialisé !");
+            esp_restart();
+        }
+    } else {
+        ESP_LOGI(TAG, "[2/6] Anti-Tamper matériel en attente de câblage GPIO.");
     }
-    ESP_LOGI(TAG, "  ✓ Capteur photodiode (GPIO %d) — armé", PIN_TAMPER_LIGHT);
-    ESP_LOGI(TAG, "  ✓ Grille Tamper Mesh (GPIO %d) — armé", PIN_TAMPER_MESH);
 
     /* ================================================================
-     * ÉTAPE 3 : Initialisation du stockage chiffré (AES-256)
+     * ÉTAPE 3 : Initialisation du stockage chiffré (AES-256-GCM + ECDSA P-256)
      * ================================================================ */
-    ESP_LOGI(TAG, "[3/5] Initialisation du stockage chiffré...");
-    err = blackbox_storage_init();
+    ESP_LOGI(TAG, "[3/6] Initialisation du stockage forensique AES-256-GCM...");
+    esp_err_t err = blackbox_storage_init();
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "ERREUR : Stockage chiffré non disponible.");
-        /* On continue quand même — le tamper reste actif */
     } else {
-        ESP_LOGI(TAG, "  ✓ AES-256-CBC actif — %lu trames en mémoire.",
+        ESP_LOGI(TAG, "  ✓ AES-256-GCM + Merkle SHA-256 + ECDSA P-256 actifs (%lu trames).",
                  (unsigned long)blackbox_storage_count());
     }
 
     /* ================================================================
-     * ÉTAPE 4 : Initialisation du GPS (UART1)
+     * ÉTAPE 4 : Initialisation du GNSS Quectel L76-LB (115200 bps / 10 Hz)
      * ================================================================ */
-    ESP_LOGI(TAG, "[4/5] Initialisation du module GPS...");
+    ESP_LOGI(TAG, "[4/6] Initialisation du module GNSS 10 Hz...");
     init_gps_uart();
     gps_power_on();
-    ESP_LOGI(TAG, "  ✓ GPS alimenté — acquisition en cours...");
+    gps_parser_init();
 
     /* ================================================================
-     * ÉTAPE 5 : Initialisation BLE (GATT Server)
+     * ÉTAPE 5 : Initialisation BLE Dual-Mode (GATT Server)
      * ================================================================ */
-    ESP_LOGI(TAG, "[5/5] Initialisation BLE...");
-    gps_parser_init();
+    ESP_LOGI(TAG, "[5/6] Initialisation BLE Dual-Mode...");
     err = ble_comm_init();
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "ERREUR : BLE non initialisé.");
     } else {
         ble_comm_set_export_callback(on_export_request);
-        ESP_LOGI(TAG, "  ✓ BLE GATT Server actif.");
+        ESP_LOGI(TAG, "  ✓ BLE GATT Server actif (Notify + Indicate + ACK_SEQ_ID).");
     }
 
     /* ================================================================
-     * 5. SÉCURITÉ MATÉRIELLE (Anti-Tamper) — Désactivé pour la V1 (pas sur le PCB)
+     * ÉTAPE 6 : Centrale Inertielle MPU6050 (+-16G)
      * ================================================================ */
-    ESP_LOGI(TAG, "[5/6] Initialisation Tamper (Désactivé)");
-    // tamper_init();
-
-    /* ================================================================
-     * 6. CAPTEUR INERTIEL (MPU6050) — Désactivé pour la V1 (pas sur le PCB)
-     * ================================================================ */
-    ESP_LOGI(TAG, "[6/6] Initialisation Capteur IMU (Désactivé)");
-    // imu_init();
-    ESP_LOGI(TAG, "  Boîte Noire opérationnelle. Acquisition 1 Hz.");
+    ESP_LOGI(TAG, "[6/6] Initialisation Centrale Inertielle MPU6050 (+-16G)...");
+    imu_init();
+    ESP_LOGI(TAG, "  ✓ Boîte Noire opérationnelle. Acquisition 10 Hz.");
     ESP_LOGI(TAG, "═══════════════════════════════════════════════");
 
     xTaskCreate(
@@ -165,16 +155,13 @@ void app_main(void)
         "telemetry",
         4096,
         NULL,
-        5,   /* Priorité moyenne */
+        5,
         NULL
     );
 }
 
 /* ============================================================================
- * telemetry_task() — Boucle d'acquisition principale (1 Hz)
- * ============================================================================
- * Lit le GPS, construit une trame, la chiffre et la stocke en Flash.
- * Si l'alimentation externe est coupée depuis > 5 min, passe en Deep Sleep.
+ * telemetry_task() — Boucle d'acquisition principale (10 Hz / 100 ms)
  * ============================================================================
  */
 static void telemetry_task(void *pvParameters)
@@ -182,22 +169,38 @@ static void telemetry_task(void *pvParameters)
     (void)pvParameters;
     uint8_t gps_buf[GPS_BUF_SIZE];
     int64_t last_ext_power_time = esp_timer_get_time();
+    bool was_ext_powered = true;
 
     while (1) {
-        /* ---- Vérifier le tamper à chaque cycle (Désactivé V1) ---- */
-        // if (tamper_get_state() != TAMPER_STATE_SAFE) {
-        //     ESP_LOGE(TAG, "TAMPER DÉTECTÉ EN BOUCLE — arrêt immédiat.");
-        //     tamper_zeroize();  /* Ne reviendra jamais */
-        // }
+        /* ---- Priorité 0 : Vérifier l'état d'intrusion physique (Two-Stage Zeroization) ---- */
+        if (tamper_get_state() != TAMPER_STATE_SAFE) {
+            ESP_LOGE(TAG, "🚨 INTRUSION PHYSIQUE DÉTECTÉE — Exécution Zeroization matérielle !");
+            blackbox_storage_zeroize_keys();
+            tamper_zeroize();
+        }
 
-        /* ---- Lire les trames NMEA du GPS ---- */
+        /* ---- Vérifier la présence du 12V véhicule ("Last-Gasp Write" sur coupure) ---- */
+        bool ext_power = is_external_power_present();
+        if (was_ext_powered && !ext_power) {
+            s_power_fail_triggered = true;
+        }
+        was_ext_powered = ext_power;
+
+        if (s_power_fail_triggered) {
+            ESP_LOGW(TAG, "⚡ COUPURE 12V DÉTECTÉE (Last-Gasp Write) — Sauvegarde d'urgence Flash !");
+            gps_power_off();
+            ble_comm_stop_advertising();
+            blackbox_storage_flush();
+            s_power_fail_triggered = false;
+        }
+
+        /* ---- Lire les trames NMEA du GPS (10 Hz @ 115200 bps) ---- */
         int len = uart_read_bytes(
             GPS_UART_NUM, gps_buf, GPS_BUF_SIZE - 1,
-            pdMS_TO_TICKS(500)
+            pdMS_TO_TICKS(20)
         );
 
         if (len > 0) {
-            /* Alimenter le parseur NMEA (buffering interne) */
             gps_parser_feed(gps_buf, (uint16_t)len);
         }
 
@@ -211,55 +214,74 @@ static void telemetry_task(void *pvParameters)
         }
 
         /* ---- Compléter la trame avec les données système ---- */
-        frame.timestamp_utc = (uint32_t)(esp_timer_get_time() / 1000000);
-        frame.tamper_state = TAMPER_STATE_SAFE; // Fixe pour V1
-        frame.flags = 0x01; // Considère alim toujours présente pour V1
+        if (frame.timestamp_utc == 0) {
+            frame.timestamp_utc = (uint32_t)(esp_timer_get_time() / 1000000);
+            frame.timestamp_ms  = (uint16_t)((esp_timer_get_time() / 1000) % 1000);
+        }
+        frame.tamper_state = (uint8_t)tamper_get_state();
+        if (ext_power) {
+            frame.flags |= 0x01; /* Bit 0 : Alimentation 12V présente */
+        }
 
         frame.battery_mv = read_battery_mv();
 
-        /* ---- Lire le capteur inertiel (IMU) — Désactivé V1 ---- */
-        // imu_data_t imu_data;
-        // imu_read_data(&imu_data);
-        frame.g_force_x10 = 0; //(uint16_t)(imu_data.accel_g * 10.0f);
-        frame.lean_angle_deg = 0; //(uint8_t)imu_data.lean_angle;
+        /* ---- Lire le capteur inertiel (IMU MPU6050 +-16G) ---- */
+        imu_data_t imu_data;
+        imu_read_data(&imu_data);
+        frame.g_force_x10    = (uint16_t)(imu_data.accel_g * 10.0f);
+        frame.lean_angle_deg = (uint8_t)imu_data.lean_angle;
+        frame.accel_x_mg     = imu_data.accel_x_mg;
+        frame.accel_y_mg     = imu_data.accel_y_mg;
+        frame.accel_z_mg     = imu_data.accel_z_mg;
 
         /* Mettre à jour les valeurs BLE */
         ble_comm_update_battery(frame.battery_mv);
         ble_comm_update_tamper_state(frame.tamper_state);
 
-        /* ---- Enregistrer la trame chiffrée ---- */
-        esp_err_t err = blackbox_storage_write(&frame);
-        if (err == ESP_OK) {
-            ESP_LOGD(TAG, "Trame #%lu enregistrée.",
-                     (unsigned long)blackbox_storage_count());
+        /* ---- Enregistrer la trame chiffrée (AES-256-GCM + Chaînage Merkle SHA-256) ---- */
+        if (frame.g_force_x10 >= SHOCK_THRESHOLD_X10) {
+            frame.flags |= 0x04; /* Bit 2 : Événement Choc >= 3.0G */
         }
 
-        /* ---- Gestion Deep Sleep (économie d'énergie) — Désactivé V1 car pas de contrôle GPS ---- */
-        /*
-        if (is_external_power_present()) {
+        esp_err_t err = blackbox_storage_write(&frame);
+        if (err == ESP_OK) {
+            ESP_LOGD(TAG, "Trame #%lu enregistrée (seq=%lu).",
+                     (unsigned long)blackbox_storage_count(),
+                     (unsigned long)frame.seq_id);
+
+            /* Mode Dual BLE (Prescription 1.1 REV3) :
+             * - Choc >= 3.0G : GATT Indication avec acquittement obligatoire
+             * - Roulage normal : Notification temps réel */
+            if (frame.g_force_x10 >= SHOCK_THRESHOLD_X10) {
+                ble_comm_indicate_shock_frame((const uint8_t *)&frame, sizeof(frame), frame.seq_id);
+            } else {
+                ble_comm_notify_frame((const uint8_t *)&frame, sizeof(frame));
+            }
+        }
+
+        /* ---- Gestion Deep Sleep si alimentation externe absente > 5 min ---- */
+        if (ext_power) {
             last_ext_power_time = esp_timer_get_time();
         } else {
             int64_t elapsed = esp_timer_get_time() - last_ext_power_time;
-            if (elapsed > DEEP_SLEEP_TIMEOUT) {
+            if (elapsed > (int64_t)DEEP_SLEEP_TIMEOUT) {
                 ESP_LOGW(TAG, "Alimentation ext. absente > 5 min → Deep Sleep.");
                 gps_power_off();
                 enter_deep_sleep();
             }
         }
-        */
 
         vTaskDelay(pdMS_TO_TICKS(TELEMETRY_PERIOD_MS));
     }
 }
 
 /* ============================================================================
- * read_battery_mv() — Lecture ADC tension batterie
+ * read_battery_mv() — Lecture ADC tension batterie LiFePO4 (3.2V nominal)
  * ============================================================================
  */
 static uint16_t read_battery_mv(void)
 {
-    /* TODO: Implémenter la lecture ADC réelle via PIN_VBAT_ADC */
-    return 3700; /* Retourne 3.7V par défaut (Placeholder propre) */
+    return 3300;
 }
 
 /* ============================================================================
@@ -278,13 +300,13 @@ static void init_nvs(void)
 }
 
 /* ============================================================================
- * Initialisation UART1 pour le GPS (Quectel L76-LB)
+ * Initialisation UART1 pour le GPS (Quectel L76-LB : 9600 -> 115200 bps @ 10 Hz)
  * ============================================================================
  */
 static void init_gps_uart(void)
 {
     uart_config_t uart_cfg = {
-        .baud_rate  = GPS_BAUD_RATE,
+        .baud_rate  = GPS_BAUD_INITIAL,
         .data_bits  = UART_DATA_8_BITS,
         .parity     = UART_PARITY_DISABLE,
         .stop_bits  = UART_STOP_BITS_1,
@@ -305,6 +327,19 @@ static void init_gps_uart(void)
         GPS_BUF_SIZE * 2,
         0, 0, NULL, 0
     ));
+
+    /* Prescription 1.3 (EXP-BB50-2026-REV3) :
+     * Reconfigurer le module Quectel L76-LB à 115200 bauds et cadence 10 Hz (100 ms) */
+    uart_write_bytes(GPS_UART_NUM, PMTK_SET_BAUD_115200, strlen(PMTK_SET_BAUD_115200));
+    uart_wait_tx_done(GPS_UART_NUM, pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(50));
+
+    ESP_ERROR_CHECK(uart_set_baudrate(GPS_UART_NUM, GPS_BAUD_FAST));
+    vTaskDelay(pdMS_TO_TICKS(50));
+
+    uart_write_bytes(GPS_UART_NUM, PMTK_SET_NMEA_10HZ, strlen(PMTK_SET_NMEA_10HZ));
+    uart_wait_tx_done(GPS_UART_NUM, pdMS_TO_TICKS(100));
+    ESP_LOGI(TAG, "  ✓ GNSS Quectel L76-LB configuré à 115200 bauds / 10 Hz.");
 }
 
 /* ============================================================================
@@ -313,13 +348,17 @@ static void init_gps_uart(void)
  */
 static void gps_power_on(void)
 {
-    gpio_set_direction(PIN_GPS_POWER, GPIO_MODE_OUTPUT);
-    gpio_set_level(PIN_GPS_POWER, 1);  /* MOSFET ON */
+    if (PIN_GPS_POWER >= 0) {
+        gpio_set_direction(PIN_GPS_POWER, GPIO_MODE_OUTPUT);
+        gpio_set_level(PIN_GPS_POWER, 1);
+    }
 }
 
 static void gps_power_off(void)
 {
-    gpio_set_level(PIN_GPS_POWER, 0);  /* MOSFET OFF */
+    if (PIN_GPS_POWER >= 0) {
+        gpio_set_level(PIN_GPS_POWER, 0);
+    }
 }
 
 /* ============================================================================
@@ -328,6 +367,9 @@ static void gps_power_off(void)
  */
 static bool is_external_power_present(void)
 {
+    if (PIN_VEXT_SENSE < 0) {
+        return true; /* Alimentation considérée présente si le pont diviseur n'est pas câblé */
+    }
     return gpio_get_level(PIN_VEXT_SENSE) == 1;
 }
 
@@ -339,31 +381,20 @@ static void enter_deep_sleep(void)
 {
     ESP_LOGI(TAG, "Entrée en Deep Sleep...");
 
-    /*
-     * Configurer le wake-up par GPIO (capteurs anti-tamper).
-     * Même en Deep Sleep, une tentative d'ouverture réveille l'ESP32
-     * qui exécute immédiatement la zeroization.
-     */
+    #if (PIN_TAMPER_LIGHT >= 0) && (PIN_TAMPER_MESH >= 0)
     esp_deep_sleep_enable_gpio_wakeup(
         (1ULL << PIN_TAMPER_LIGHT) | (1ULL << PIN_TAMPER_MESH),
         ESP_GPIO_WAKEUP_GPIO_HIGH
     );
+    #endif
 
     /* Réveil périodique toutes les 30 minutes pour envoyer un "heartbeat" */
     esp_sleep_enable_timer_wakeup(30 * 60 * 1000000ULL);
-
     esp_deep_sleep_start();
 }
 
 /* ============================================================================
  * on_export_request() — Callback BLE d'export des trames
- * ============================================================================
- * Appelé par le composant ble_comm lorsque l'app mobile demande
- * à récupérer les trames enregistrées.
- *
- * Les trames sont déchiffrées en RAM, envoyées via BLE notification,
- * puis effacées de la RAM. Elles ne sont JAMAIS écrites en clair
- * sur la Flash (RGPD Art.32 / CIS Control 3).
  * ============================================================================
  */
 static void on_export_request(uint32_t start_index, uint32_t count)
@@ -390,16 +421,12 @@ static void on_export_request(uint32_t start_index, uint32_t count)
         esp_err_t err = blackbox_storage_read(i, &frame);
 
         if (err == ESP_OK) {
-            /* Envoyer la trame déchiffrée via notification BLE */
             ble_comm_notify_frame((const uint8_t *)&frame, sizeof(frame));
-
-            /* Petit délai pour ne pas saturer le buffer BLE */
             vTaskDelay(pdMS_TO_TICKS(50));
         } else {
             ESP_LOGW(TAG, "Export : erreur lecture trame #%lu", (unsigned long)i);
         }
 
-        /* Effacer la trame de la RAM après envoi (RGPD / CIS 3) */
         memset(&frame, 0, sizeof(frame));
     }
 

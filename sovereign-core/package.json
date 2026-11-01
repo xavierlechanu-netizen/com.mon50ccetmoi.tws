@@ -1,0 +1,19 @@
+{
+  "name": "@mon50ccetmoi/sovereign-core",
+  "version": "1.0.0",
+  "description": "Architecture logicielle souveraine 100% autonome (Zéro Google / Zéro Firebase) — mon50ccetmoi.com",
+  "author": "Xavier Le Chanu",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "dependencies": {
+    "pg": "^8.13.0"
+  }
+}
+

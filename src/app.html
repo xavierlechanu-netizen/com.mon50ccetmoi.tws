@@ -1,45 +1,49 @@
-<!DOCTYPE html><html lang="fr-FR" dir="ltr"><head>
-    <!-- Phase 3 : Zero-Trust DOM Security -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
-    <script type="module" src="/js/dom-security.js"></script>
+<!DOCTYPE html>
+<html lang="fr-FR" dir="ltr">
 
-    <meta charset="UTF-8">
-    <meta name="google-site-verification" content="lVQWTEJtveSbj_Vl3jvAlN1KKGH7-PJQf744AsBAjNQ">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="mon 50cc et moi">
+<head>
+  <!-- Phase 3 : Zero-Trust DOM Security -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+  <script type="module" src="/js/dom-security.js"></script>
 
-    <!-- WATCHDOG ANTI-CRASH -->
-    <script type="module" src="/js/infallible.js" charset="utf-8"></script>
-    <!-- Phase 3 : Scripts centralisés -->
-    <script type="module" src="/js/store.js" charset="utf-8"></script>
-    <script type="module" src="/js/event-manager.js" charset="utf-8"></script>
-    <script type="module" src="/js/app-init.js" charset="utf-8"></script>
-    <script type="module" src="/js/screen-manager.js" charset="utf-8"></script>
-    <script type="module" src="/js/dock.js" charset="utf-8"></script>
-    <!-- Premium CSS -->
-    <link rel="stylesheet" href="/css/premium.css">
-    <link rel="stylesheet" href="/css/app-screens.css">
+  <meta charset="UTF-8">
+  <meta name="google-site-verification" content="lVQWTEJtveSbj_Vl3jvAlN1KKGH7-PJQf744AsBAjNQ">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="mon 50cc et moi">
 
-    <!-- Android Retrocompatibility & PWA -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#000000">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
+  <!-- WATCHDOG ANTI-CRASH -->
+  <script type="module" src="/js/infallible.js" charset="utf-8"></script>
+  <!-- Phase 3 : Scripts centralisés -->
+  <script type="module" src="/js/store.js" charset="utf-8"></script>
+  <script type="module" src="/js/event-manager.js" charset="utf-8"></script>
+  <script type="module" src="/js/app-init.js" charset="utf-8"></script>
+  <script type="module" src="/js/screen-manager.js" charset="utf-8"></script>
+  <script type="module" src="/js/dock.js" charset="utf-8"></script>
+  <!-- Premium CSS -->
+  <link rel="stylesheet" href="/css/premium.css">
+  <link rel="stylesheet" href="/css/app-screens.css">
 
-    <!-- SEO & Social Sharing (Open Graph) -->
-    <meta name="description" content="La première communauté de scooters 50cc. Navigation sans autoroute, alertes radars et détection de chute.">
-    <meta property="og:title" content="mon 50cc et moi | GPS &amp; Sécurité Scooter">
-    <meta property="og:description" content="L'application indispensable pour rouler en 50cc en toute sécurité.">
-    <meta property="og:image" content="https://mon50ccetmoi.com/assets/ui/screenshot_wide.jpg">
-    <meta property="og:url" content="https://mon50ccetmoi.com/">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <link rel="canonical" href="https://mon50ccetmoi.com/app">
+  <!-- Android Retrocompatibility & PWA -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192x192.png">
 
-    <!-- Structured Data (JSON-LD) for Google Rich Results -->
-    <script type="application/ld+json">
+  <!-- SEO & Social Sharing (Open Graph) -->
+  <meta name="description"
+    content="La première communauté de scooters 50cc. Navigation sans autoroute, alertes radars et détection de chute.">
+  <meta property="og:title" content="mon 50cc et moi | GPS &amp; Sécurité Scooter">
+  <meta property="og:description" content="L'application indispensable pour rouler en 50cc en toute sécurité.">
+  <meta property="og:image" content="https://mon50ccetmoi.com/assets/ui/screenshot_wide.jpg">
+  <meta property="og:url" content="https://mon50ccetmoi.com/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://mon50ccetmoi.com/app">
+
+  <!-- Structured Data (JSON-LD) for Google Rich Results -->
+  <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
@@ -77,103 +81,112 @@
       }
     </script>
 
-    <!-- Firebase SDK (v9 Compat) -->
-    <!-- Firebase Analytics -->
-    <link rel="manifest" href="manifest.json">
-    <title>mon 50cc et moi | v110.00.00</title>
-    <!-- Config chargé via config.js -->
-    <script type="module" src="/js/config.js"></script>
-    <script type="module" src="/js/bvc-manager.js?v=1"></script>
-    <script type="module" src="/js/error-tracking.js?v=1008000"></script>
-    <script type="module" src="/js/nexus-atlas-gemini.js?v=1000"></script>
-    <script type="module" src="/js/oracle-voice.js?v=60019"></script>
-    <!-- Chargeur Dynamique Google Maps avec Gestion d'Erreur -->
-    <script type="module" src="/js/inline-app-1.js"></script>
+  <!-- Firebase SDK (v9 Compat) -->
+  <!-- Firebase Analytics -->
+  <link rel="manifest" href="manifest.json">
+  <title>mon 50cc et moi | v110.00.00</title>
+  <!-- Config chargé via config.js -->
+  <script type="module" src="/js/config.js"></script>
+  <script type="module" src="/js/bvc-manager.js?v=1"></script>
+  <script type="module" src="/js/error-tracking.js?v=1008000"></script>
+  <script type="module" src="/js/nexus-atlas-gemini.js?v=1000"></script>
+  <script type="module" src="/js/oracle-voice.js?v=60019"></script>
+  <!-- Chargeur Dynamique Google Maps avec Gestion d'Erreur -->
+  <script type="module" src="/js/inline-app-1.js"></script>
 
 
-    <!-- UI/UX Dependencies -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&amp;family=JetBrains+Mono:wght@800&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer">
-    <!-- Leaflet CSS & JS (Cartes Hors Ligne) -->
-    <link id="leaflet-css" rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" charset="utf-8"></script>
-    <link rel="stylesheet" href="/css/style.min.css?v=1008000">
-    <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
+  <!-- UI/UX Dependencies -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&amp;family=JetBrains+Mono:wght@800&amp;display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    referrerpolicy="no-referrer">
+  <!-- Leaflet CSS & JS (Cartes Hors Ligne) -->
+  <link id="leaflet-css" rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" charset="utf-8"></script>
+  <link rel="stylesheet" href="/css/style.min.css?v=1008000">
+  <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png">
 
-    <!-- Revolut Merchant SDK : chargé à  la demande via app-init.js -->
-    <script type="module" defer="" src="/js/vehicle-config.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/beyond-maps.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/self-evolution.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/gamification.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/radar-social.js" charset="utf-8"></script>
+  <!-- Revolut Merchant SDK : chargé à  la demande via app-init.js -->
+  <script type="module" defer="" src="/js/vehicle-config.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/beyond-maps.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/self-evolution.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/gamification.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/radar-social.js" charset="utf-8"></script>
 
-    <!-- GAMIFICATION HUD -->
-    <!-- AXEPTIO CMP -->
-<script>
-window.axeptioSettings = {
-  clientId: "6abf7d654bd86ad927014c33",
-  cookiesVersion: "73984ab7-6f43-4eef-9577-94f735eedc51",
-  googleConsentMode: {
-    default: {
-      analytics_storage: "denied",
-      ad_storage: "denied",
-      ad_user_data: "denied",
-      ad_personalization: "denied",
-      wait_for_update: 500
-    }
-  }
-};
-(function(d, s) {
-  var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
-  e.async = true; e.src = "//static.axept.io/sdk.js";
-  t.parentNode.insertBefore(e, t);
-})(document, "script");
-</script>
-</head><body style="margin: 0; padding: 0; background: #000; overflow: hidden"><div id="gamification-hud" class="gami-hud-cyber">
-        <div>
-            <i id="gami-icon" class="fa-solid fa-motorcycle gami-icon" style="color: #a0a0a0;"></i>
-        </div>
-        <div style="display: flex; flex-direction: column;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; gap: 12px;">
-                <span id="gami-rank-name" class="gami-rank-label">Novice</span>
-                <span id="gami-xp-text" class="gami-xp-label">0 XP</span>
-            </div>
-            <div class="gami-progress-track">
-                <div id="gami-progress-bar" class="gami-progress-fill" style="width: 0%;"></div>
-            </div>
-        </div>
+  <!-- GAMIFICATION HUD -->
+  <!-- AXEPTIO CMP -->
+  <script>
+    window.axeptioSettings = {
+      clientId: "6abf7d654bd86ad927014c33",
+      cookiesVersion: "73984ab7-6f43-4eef-9577-94f735eedc51",
+      googleConsentMode: {
+        default: {
+          analytics_storage: "denied",
+          ad_storage: "denied",
+          ad_user_data: "denied",
+          ad_personalization: "denied",
+          wait_for_update: 500
+        }
+      }
+    };
+    (function (d, s) {
+      var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
+      e.async = true; e.src = "//static.axept.io/sdk.js";
+      t.parentNode.insertBefore(e, t);
+    })(document, "script");
+  </script>
+</head>
+
+<body style="margin: 0; padding: 0; background: #000; overflow: hidden">
+  <div id="gamification-hud" class="gami-hud-cyber">
+    <div>
+      <i id="gami-icon" class="fa-solid fa-motorcycle gami-icon" style="color: #a0a0a0;"></i>
     </div>
-
-    <!-- SOCIAL RADAR & ROADBOOKS BUTTONS -->
-    <div style="position: fixed; top: 110px; right: 15px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;">
-        <button id="btn-ghost-mode" data-action="window.RadarSocial.toggleGhostMode()" style="background: rgba(0,0,0,0.8); color: white; border: 1px solid #00f0ff; padding: 10px; border-radius: 5px; font-family: monospace; cursor: pointer;">
-            <i class="fa-solid fa-ghost"></i> Ghost Mode
-        </button>
-        <button id="btn-roadbook-record" data-action="window.Roadbooks.toggleRecording()" style="background: rgba(0,0,0,0.8); color: white; border: 1px solid #00ff00; padding: 10px; border-radius: 5px; font-family: monospace; cursor: pointer;">
-            <i class="fa-solid fa-route"></i> Rec Roadbook
-        </button>
+    <div style="display: flex; flex-direction: column;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 5px; gap: 12px;">
+        <span id="gami-rank-name" class="gami-rank-label">Novice</span>
+        <span id="gami-xp-text" class="gami-xp-label">0 XP</span>
+      </div>
+      <div class="gami-progress-track">
+        <div id="gami-progress-bar" class="gami-progress-fill" style="width: 0%;"></div>
+      </div>
     </div>
+  </div>
 
-    <!-- FUN MODE / SENSATION BUTTON -->
+  <!-- SOCIAL RADAR & ROADBOOKS BUTTONS -->
+  <div
+    style="position: fixed; top: 110px; right: 15px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;">
+    <button id="btn-ghost-mode" data-action="window.RadarSocial.toggleGhostMode()"
+      style="background: rgba(0,0,0,0.8); color: white; border: 1px solid #00f0ff; padding: 10px; border-radius: 5px; font-family: monospace; cursor: pointer;">
+      <i class="fa-solid fa-ghost"></i> Ghost Mode
+    </button>
+    <button id="btn-roadbook-record" data-action="window.Roadbooks.toggleRecording()"
+      style="background: rgba(0,0,0,0.8); color: white; border: 1px solid #00ff00; padding: 10px; border-radius: 5px; font-family: monospace; cursor: pointer;">
+      <i class="fa-solid fa-route"></i> Rec Roadbook
+    </button>
+  </div>
 
-    <!-- MODULES ADDITIONNELS (defer = chargés après le DOM) -->
-    <script type="module" defer="" src="/js/crews-territory.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/loot-drops.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/cortege-mode.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/safe-ride.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/garage-market.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/crew-chat.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/sos-community.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/roadbooks.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/pit-stops.js" charset="utf-8"></script>
-    <script type="module" defer="" src="/js/privacy-manager.js" charset="utf-8"></script>
-    <!-- Session init : désormais dans app-init.js -->
-  
-  
-    <!-- APEX SENTINEL: Holographic Quantum Background -->
-    <canvas id="quantum-bg" style="
+  <!-- FUN MODE / SENSATION BUTTON -->
+
+  <!-- MODULES ADDITIONNELS (defer = chargés après le DOM) -->
+  <script type="module" defer="" src="/js/crews-territory.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/loot-drops.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/cortege-mode.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/safe-ride.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/garage-market.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/crew-chat.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/sos-community.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/roadbooks.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/pit-stops.js" charset="utf-8"></script>
+  <script type="module" defer="" src="/js/privacy-manager.js" charset="utf-8"></script>
+  <!-- Session init : désormais dans app-init.js -->
+
+
+  <!-- APEX SENTINEL: Holographic Quantum Background -->
+  <canvas id="quantum-bg" style="
         position: fixed;
         top: 0;
         left: 0;
@@ -184,8 +197,8 @@ window.axeptioSettings = {
         opacity: 0.6;
       "></canvas>
 
-    <!-- AR VIDEO BACKGROUND & HUD -->
-    <video id="ar-video-bg" class="hidden" autoplay="" playsinline="" style="
+  <!-- AR VIDEO BACKGROUND & HUD -->
+  <video id="ar-video-bg" class="hidden" autoplay="" playsinline="" style="
         position: fixed;
         top: 0;
         left: 0;
@@ -194,7 +207,7 @@ window.axeptioSettings = {
         object-fit: cover;
         z-index: 2;
       "></video>
-    <div id="ar-hud-arrow" class="hidden" style="
+  <div id="ar-hud-arrow" class="hidden" style="
         position: fixed;
         top: 50%;
         left: 50%;
@@ -208,10 +221,10 @@ window.axeptioSettings = {
         pointer-events: none;
         filter: drop-shadow(0 0 20px #00d2ff);
       ">
-      <i class="fa-solid fa-location-arrow" style="font-size: 5rem; color: #00d2ff"></i>
-    </div>
+    <i class="fa-solid fa-location-arrow" style="font-size: 5rem; color: #00d2ff"></i>
+  </div>
 
-    <div id="map" style="
+  <div id="map" style="
         position: relative;
         width: 100vw;
         height: 100vh;
@@ -219,8 +232,8 @@ window.axeptioSettings = {
         transition: opacity 0.5s;
       "></div>
 
-    <!-- Nexus Atlas Weather Assistant -->
-    <div id="weather-assistant-card" class="glass-card-premium" style="
+  <!-- Nexus Atlas Weather Assistant -->
+  <div id="weather-assistant-card" class="glass-card-premium" style="
         position: fixed;
         top: 80px;
         left: 50%;
@@ -236,30 +249,31 @@ window.axeptioSettings = {
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         cursor: pointer;
       " data-action="if(window.WeatherAssistant) window.WeatherAssistant.hide()">
-      <div id="weather-icon" style="font-size: 2rem; color: #ffd700;">
-        <i class="fa-solid fa-sun"></i>
+    <div id="weather-icon" style="font-size: 2rem; color: #ffd700;">
+      <i class="fa-solid fa-sun"></i>
+    </div>
+    <div>
+      <div
+        style="font-size: 0.75rem; color: #00f2ff; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+        Assistant Trajet Nexus Atlas
       </div>
-      <div>
-        <div style="font-size: 0.75rem; color: #00f2ff; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
-          Assistant Trajet Nexus Atlas
-        </div>
-        <div id="weather-text" style="color: #fff; font-size: 0.95rem; margin-top: 2px;">
-          Analyse météo en cours...
-        </div>
+      <div id="weather-text" style="color: #fff; font-size: 0.95rem; margin-top: 2px;">
+        Analyse météo en cours...
       </div>
     </div>
+  </div>
 
-    <!-- Lien Espace Assureur (Accès Rapide) -->
-    <a href="assureur.html" target="_blank" class="insurer-quick-link" aria-label="Accéder à&nbsp; l'espace assureur B2B">
-      <i class="fa-solid fa-user-tie" aria-hidden="true"></i> Espace Assureur
-    </a>
+  <!-- Lien Espace Assureur (Accès Rapide) -->
+  <a href="assureur.html" target="_blank" class="insurer-quick-link" aria-label="Accéder à&nbsp; l'espace assureur B2B">
+    <i class="fa-solid fa-user-tie" aria-hidden="true"></i> Espace Assureur
+  </a>
 
-    <!-- Styles insurer-quick-link : désormais dans css/app-screens.css -->
+  <!-- Styles insurer-quick-link : désormais dans css/app-screens.css -->
 
-    <div id="guardian-halo" class="guardian-halo hidden"></div>
+  <div id="guardian-halo" class="guardian-halo hidden"></div>
 
-    <!-- APPLE SMART DOCK — Boutons générés dynamiquement par js/dock.js -->
-    <nav aria-label="Menu principal" id="apple-smart-dock" style="
+  <!-- APPLE SMART DOCK — Boutons générés dynamiquement par js/dock.js -->
+  <nav aria-label="Menu principal" id="apple-smart-dock" style="
         position: fixed;
         bottom: 70px;
         left: 50%;
@@ -279,16 +293,16 @@ window.axeptioSettings = {
         overflow-x: auto;
         align-items: center;
       ">
-      <!-- Boutons icon + feature injectés par dock.js -->
+    <!-- Boutons icon + feature injectés par dock.js -->
 
 
-    </nav>
+  </nav>
 
-    <!-- NEXUS ATLAS CHAT MODAL (Nouveau) -->
-    <!-- LAZY LOADED: nexus-atlas-chat-modal -->
+  <!-- NEXUS ATLAS CHAT MODAL (Nouveau) -->
+  <!-- LAZY LOADED: nexus-atlas-chat-modal -->
 
-    <!-- BANNIÈRE VIGILANCE ROUGE (Cachée par défaut) -->
-    <div id="vigilance-rouge-banner" style="
+  <!-- BANNIÈRE VIGILANCE ROUGE (Cachée par défaut) -->
+  <div id="vigilance-rouge-banner" style="
         display: none;
         background: #ff0000;
         color: #fff;
@@ -302,45 +316,55 @@ window.axeptioSettings = {
         z-index: 100000;
         box-shadow: 0 5px 15px rgba(255, 0, 0, 0.5);
       ">
-      <div id="vigilance-rouge-text" style="font-size: 1rem; white-space: nowrap; animation: scroll-left 12s linear infinite;"></div>
-    </div>
-    <style>
-      @keyframes scroll-left {
-        0%   { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
+    <div id="vigilance-rouge-text"
+      style="font-size: 1rem; white-space: nowrap; animation: scroll-left 12s linear infinite;"></div>
+  </div>
+  <style>
+    @keyframes scroll-left {
+      0% {
+        transform: translateX(100%);
       }
-    </style>
-    
-    <!-- Style for Hover Effects and Dock Layout -->
-    <style>
-      #apple-smart-dock {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-      }
-      #apple-smart-dock::-webkit-scrollbar {
-        display: none;
-      }
-      #apple-smart-dock button {
-        flex-shrink: 0;
-      }
-      #apple-smart-dock button:hover {
-        transform: scale(1.3) translateY(-10px);
-      }
-      #apple-smart-dock button:active {
-        transform: scale(0.9);
-      }
-    </style>
 
-    <!-- NIS2 SECURITY SETTINGS SCREEN -->
-    <!-- LAZY LOADED: security-settings-screen -->
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+  </style>
 
-    <!-- OBD-II HUD OVERLAY -->
-    <!-- LAZY LOADED: obd-hud-screen -->
+  <!-- Style for Hover Effects and Dock Layout -->
+  <style>
+    #apple-smart-dock {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
 
-    <script type="module" src="/js/inline-app-2.js"></script>
+    #apple-smart-dock::-webkit-scrollbar {
+      display: none;
+    }
 
-    <!-- OBD-II CONNECTION STATUS -->
-    <div id="obd-status-indicator" class="hidden" style="
+    #apple-smart-dock button {
+      flex-shrink: 0;
+    }
+
+    #apple-smart-dock button:hover {
+      transform: scale(1.3) translateY(-10px);
+    }
+
+    #apple-smart-dock button:active {
+      transform: scale(0.9);
+    }
+  </style>
+
+  <!-- NIS2 SECURITY SETTINGS SCREEN -->
+  <!-- LAZY LOADED: security-settings-screen -->
+
+  <!-- OBD-II HUD OVERLAY -->
+  <!-- LAZY LOADED: obd-hud-screen -->
+
+  <script type="module" src="/js/inline-app-2.js"></script>
+
+  <!-- OBD-II CONNECTION STATUS -->
+  <div id="obd-status-indicator" class="hidden" style="
         position: fixed;
         top: 130px;
         left: 50%;
@@ -357,137 +381,149 @@ window.axeptioSettings = {
         cursor: pointer;
         backdrop-filter: blur(5px);
       " data-action="if (window.obdManager) window.obdManager.disconnect();">
-      <i class="fa-solid fa-circle-notch fa-spin"></i> Connexion OBD...
-    </div>
+    <i class="fa-solid fa-circle-notch fa-spin"></i> Connexion OBD...
+  </div>
 
-    <!-- TIM COOK SCREENS -->
-    <!-- LAZY LOADED: tim-cook-sos-screen -->
+  <!-- TIM COOK SCREENS -->
+  <!-- LAZY LOADED: tim-cook-sos-screen -->
 
-    <!-- LAZY LOADED: tim-cook-eco-screen -->
+  <!-- LAZY LOADED: tim-cook-eco-screen -->
 
-    <script type="module" src="/js/tim-cook.js" charset="utf-8"></script>
+  <script type="module" src="/js/tim-cook.js" charset="utf-8"></script>
 
-    <!-- INSURER PORTAL SCREEN (B2B) -->
-    <!-- LAZY LOADED: insurer-portal-screen -->
+  <!-- INSURER PORTAL SCREEN (B2B) -->
+  <!-- LAZY LOADED: insurer-portal-screen -->
 
-    <!-- LOYALTY PROGRAM SCREEN -->
-    <!-- LAZY LOADED: crypto-wallet-screen -->
+  <!-- LOYALTY PROGRAM SCREEN -->
+  <!-- LAZY LOADED: crypto-wallet-screen -->
 
-    <!-- LEADERBOARD MODAL -->
-    <!-- LAZY LOADED: leaderboard-modal -->
+  <!-- LEADERBOARD MODAL -->
+  <!-- LAZY LOADED: leaderboard-modal -->
 
-    <style>
-      /* Leaderboard Styles */
-      .lb-podium-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-end;
-        position: relative;
-        width: 30%;
-      }
-      .lb-podium-rank {
-        width: 100%;
-        text-align: center;
-        padding: 10px 0;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-        color: #000;
-        font-weight: 900;
-        font-size: 1.5rem;
-        display: flex;
-        flex-direction: column;
-      }
-      .lb-podium-name {
-        color: #fff;
-        font-size: 0.8rem;
-        font-weight: bold;
-        margin-bottom: 5px;
-        text-align: center;
-        word-break: break-all;
-      }
-      .lb-podium-score {
-        color: #00d2ff;
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.9rem;
-        font-weight: bold;
-        margin-bottom: 10px;
-        text-align: center;
-      }
-      .lb-podium-badge {
-        position: absolute;
-        top: -35px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 2rem;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-      }
+  <style>
+    /* Leaderboard Styles */
+    .lb-podium-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      position: relative;
+      width: 30%;
+    }
 
-      .lb-rank-1 {
-        height: 120px;
-        background: linear-gradient(180deg, #ffd700 0%, #b8860b 100%);
-        box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
-      }
-      .lb-rank-2 {
-        height: 90px;
-        background: linear-gradient(180deg, #c0c0c0 0%, #808080 100%);
-      }
-      .lb-rank-3 {
-        height: 70px;
-        background: linear-gradient(180deg, #cd7f32 0%, #8b4513 100%);
-      }
+    .lb-podium-rank {
+      width: 100%;
+      text-align: center;
+      padding: 10px 0;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      color: #000;
+      font-weight: 900;
+      font-size: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
 
-      .lb-list-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        transition: transform 0.2s;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-      }
-      .lb-list-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: scale(1.02);
-      }
-      .lb-list-item.is-me {
-        background: rgba(0, 210, 255, 0.15);
-        border: 1px solid #00d2ff;
-        box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
-      }
+    .lb-podium-name {
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-align: center;
+      word-break: break-all;
+    }
 
-      .lb-list-rank {
-        font-size: 1.2rem;
-        font-weight: 900;
-        color: #555;
-        width: 30px;
-        text-align: center;
-      }
-      .lb-list-info {
-        flex-grow: 1;
-        padding-left: 15px;
-      }
-      .lb-list-name {
-        color: #fff;
-        font-weight: bold;
-        font-size: 1rem;
-      }
-      .lb-list-badge {
-        color: #ffd700;
-        font-size: 0.8rem;
-        margin-left: 5px;
-      }
-      .lb-list-score {
-        color: #00d2ff;
-        font-family: "JetBrains Mono", monospace;
-        font-size: 1.1rem;
-        font-weight: 900;
-      }
-    </style>
+    .lb-podium-score {
+      color: #00d2ff;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+    }
 
-    <!-- COMMUNITY GAS RADAR HUD -->
-    <div id="community-gas-hud" class="hidden" style="
+    .lb-podium-badge {
+      position: absolute;
+      top: -35px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .lb-rank-1 {
+      height: 120px;
+      background: linear-gradient(180deg, #ffd700 0%, #b8860b 100%);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+    }
+
+    .lb-rank-2 {
+      height: 90px;
+      background: linear-gradient(180deg, #c0c0c0 0%, #808080 100%);
+    }
+
+    .lb-rank-3 {
+      height: 70px;
+      background: linear-gradient(180deg, #cd7f32 0%, #8b4513 100%);
+    }
+
+    .lb-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      transition: transform 0.2s;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .lb-list-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.02);
+    }
+
+    .lb-list-item.is-me {
+      background: rgba(0, 210, 255, 0.15);
+      border: 1px solid #00d2ff;
+      box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+    }
+
+    .lb-list-rank {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #555;
+      width: 30px;
+      text-align: center;
+    }
+
+    .lb-list-info {
+      flex-grow: 1;
+      padding-left: 15px;
+    }
+
+    .lb-list-name {
+      color: #fff;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .lb-list-badge {
+      color: #ffd700;
+      font-size: 0.8rem;
+      margin-left: 5px;
+    }
+
+    .lb-list-score {
+      color: #00d2ff;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 1.1rem;
+      font-weight: 900;
+    }
+  </style>
+
+  <!-- COMMUNITY GAS RADAR HUD -->
+  <div id="community-gas-hud" class="hidden" style="
         position: fixed;
         top: 80px;
         left: 20px;
@@ -500,125 +536,141 @@ window.axeptioSettings = {
         padding: 15px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       ">
-      <div style="
+    <div style="
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 15px;
         ">
-        <h3 style="color: #fff; margin: 0; font-size: 1rem">
-          <i class="fa-solid fa-satellite-dish" style="color: #00d2ff; margin-right: 5px"></i>
-          Radar Carburant
-        </h3>
-        <button data-action="document.getElementById('community-gas-hud').classList.add('hidden')" style="background: none; border: none; color: #aaa; cursor: pointer">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div style="
+      <h3 style="color: #fff; margin: 0; font-size: 1rem">
+        <i class="fa-solid fa-satellite-dish" style="color: #00d2ff; margin-right: 5px"></i>
+        Radar Carburant
+      </h3>
+      <button data-action="document.getElementById('community-gas-hud').classList.add('hidden')"
+        style="background: none; border: none; color: #aaa; cursor: pointer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div style="
           font-size: 0.75rem;
           color: #10a37f;
           margin-bottom: 10px;
           font-weight: bold;
         ">
-        <i class="fa-solid fa-building-columns"></i> Source: Data Gouv.fr &amp;
-        Communauté
-      </div>
+      <i class="fa-solid fa-building-columns"></i> Source: Data Gouv.fr &amp;
+      Communauté
+    </div>
 
-      <div id="gas-stations-list" style="
+    <div id="gas-stations-list" style="
           display: flex;
           flex-direction: column;
           gap: 10px;
           max-height: 400px;
           overflow-y: auto;
         ">
-        <!-- Injecté via JS -->
-      </div>
+      <!-- Injecté via JS -->
     </div>
-    <style>
-      .gas-station-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        padding: 10px;
-      }
-      .gas-station-card.gas-safe {
-        border-color: rgba(16, 163, 127, 0.5);
-        box-shadow: 0 0 10px rgba(16, 163, 127, 0.2);
-      }
-      .gas-station-card.gas-danger {
-        border-color: rgba(255, 0, 85, 0.5);
-        box-shadow: 0 0 10px rgba(255, 0, 85, 0.2);
-      }
-      .gas-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-      }
-      .gas-header h4 {
-        margin: 0;
-        color: #fff;
-        font-size: 0.9rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 70%;
-      }
-      .gas-distance {
-        color: #aaa;
-        font-size: 0.8rem;
-      }
-      .gas-body {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-      }
-      .gas-price-block {
-        display: flex;
-        flex-direction: column;
-      }
-      .gas-type {
-        color: #aaa;
-        font-size: 0.7rem;
-        font-weight: bold;
-      }
-      .gas-price {
-        color: #fff;
-        font-size: 1.4rem;
-        font-weight: 900;
-        font-family: "JetBrains Mono", monospace;
-      }
-      .gas-status {
-        font-size: 0.75rem;
-        font-weight: bold;
-      }
-      .gas-safe .gas-status {
-        color: #10a37f;
-      }
-      .gas-danger .gas-status {
-        color: #ff0055;
-      }
-      .gas-footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding-top: 8px;
-        text-align: center;
-      }
-      .btn-update-price {
-        background: transparent;
-        border: none;
-        color: #00d2ff;
-        font-size: 0.75rem;
-        cursor: pointer;
-        transition: color 0.2s;
-      }
-      .btn-update-price:hover {
-        color: #fff;
-      }
-    </style>
+  </div>
+  <style>
+    .gas-station-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 10px;
+    }
 
-    <!-- ORACLE LISTENING OVERLAY -->
-    <div id="oracle-listening-overlay" class="hidden" style="
+    .gas-station-card.gas-safe {
+      border-color: rgba(16, 163, 127, 0.5);
+      box-shadow: 0 0 10px rgba(16, 163, 127, 0.2);
+    }
+
+    .gas-station-card.gas-danger {
+      border-color: rgba(255, 0, 85, 0.5);
+      box-shadow: 0 0 10px rgba(255, 0, 85, 0.2);
+    }
+
+    .gas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .gas-header h4 {
+      margin: 0;
+      color: #fff;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70%;
+    }
+
+    .gas-distance {
+      color: #aaa;
+      font-size: 0.8rem;
+    }
+
+    .gas-body {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .gas-price-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gas-type {
+      color: #aaa;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+
+    .gas-price {
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: 900;
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .gas-status {
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    .gas-safe .gas-status {
+      color: #10a37f;
+    }
+
+    .gas-danger .gas-status {
+      color: #ff0055;
+    }
+
+    .gas-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 8px;
+      text-align: center;
+    }
+
+    .btn-update-price {
+      background: transparent;
+      border: none;
+      color: #00d2ff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .btn-update-price:hover {
+      color: #fff;
+    }
+  </style>
+
+  <!-- ORACLE LISTENING OVERLAY -->
+  <div id="oracle-listening-overlay" class="hidden" style="
         position: fixed;
         bottom: 140px;
         left: 50%;
@@ -636,98 +688,103 @@ window.axeptioSettings = {
         pointer-events: none;
         transition: opacity 0.3s ease;
       ">
-      <i class="fa-solid fa-microphone" style="
+    <i class="fa-solid fa-microphone" style="
           color: #00d2ff;
           font-size: 1.5rem;
           animation: pulseNeon 1.5s infinite alternate;
         "></i>
-      <span style="
+    <span style="
           color: #fff;
           font-weight: bold;
           font-family: &quot;Inter&quot;, sans-serif;
           letter-spacing: 1px;
         ">Oracle vous écoute...</span>
-      <!-- Ondes sonores animées -->
-      <div style="display: flex; gap: 3px; height: 20px; align-items: center">
-        <div style="
+    <!-- Ondes sonores animées -->
+    <div style="display: flex; gap: 3px; height: 20px; align-items: center">
+      <div style="
             width: 3px;
             background: #00d2ff;
             height: 40%;
             animation: soundWave 1s infinite ease-in-out;
           "></div>
-        <div style="
+      <div style="
             width: 3px;
             background: #00d2ff;
             height: 100%;
             animation: soundWave 1.2s infinite ease-in-out 0.2s;
           "></div>
-        <div style="
+      <div style="
             width: 3px;
             background: #00d2ff;
             height: 60%;
             animation: soundWave 0.9s infinite ease-in-out 0.4s;
           "></div>
-        <div style="
+      <div style="
             width: 3px;
             background: #00d2ff;
             height: 80%;
             animation: soundWave 1.1s infinite ease-in-out 0.1s;
           "></div>
-      </div>
     </div>
-    <style>
-      @keyframes soundWave {
-        0%,
-        100% {
-          transform: scaleY(0.5);
-          opacity: 0.5;
-        }
-        50% {
-          transform: scaleY(1.5);
-          opacity: 1;
-        }
+  </div>
+  <style>
+    @keyframes soundWave {
+
+      0%,
+      100% {
+        transform: scaleY(0.5);
+        opacity: 0.5;
       }
-    </style>
 
-    <!-- AI PREDICTIVE DASHBOARD SCREEN -->
-    <!-- LAZY LOADED: ai-diagnostic-modal -->
+      50% {
+        transform: scaleY(1.5);
+        opacity: 1;
+      }
+    }
+  </style>
 
-    <!-- CORE APP (chargé en premier, sans defer) -->
-    <script type="module" src="/js/auth.js" charset="utf-8"></script>
-    <script type="module" src="/js/database.js" charset="utf-8"></script>
-    <script type="module" src="/js/app-core.js" charset="utf-8"></script>
-    <script type="module" src="/js/app-map.js" charset="utf-8"></script>
-    <script type="module" src="/js/app-features.js" charset="utf-8"></script>
-    <script type="module" src="/js/app-ui.js" charset="utf-8"></script>
-    <script type="module" src="/js/app-wallet.js" charset="utf-8"></script>
+  <!-- AI PREDICTIVE DASHBOARD SCREEN -->
+  <!-- LAZY LOADED: ai-diagnostic-modal -->
 
-    <script type="module" src="/js/silicon-valley.js" charset="utf-8"></script>
-    <script type="module" src="/js/nexus-atlas-voice.js" charset="utf-8"></script>
-    <script type="module" src="/js/community-gas.js" charset="utf-8"></script>
-    <script type="module" src="/js/leaderboard.js" charset="utf-8"></script>
-    <script type="module" src="/js/v3-smartcity.js" charset="utf-8"></script>
-    <script type="module" src="/js/carbon-trading.js" charset="utf-8"></script>
-    <script type="module" src="/js/rgpd-cnil.js" charset="utf-8"></script>
-    <script type="module" src="/js/litigation-ai.js" charset="utf-8"></script>
-    <script type="module" src="/js/insurance-portal.js" charset="utf-8"></script>
-    <script type="module" src="/js/anti-theft.js" charset="utf-8"></script>
-    <script type="module" src="/js/meca-wizard.js" charset="utf-8"></script>
-    <script type="module" src="/js/obd-bluetooth.js" charset="utf-8"></script>
-    <script type="module" src="/js/ar-navigation.js" charset="utf-8"></script>
-    <script type="module" src="/js/weather-assistant.js" charset="utf-8"></script>
-    <script type="module" src="/js/social-radar.js" charset="utf-8"></script>
-    <script type="module" src="/js/referral.js" charset="utf-8"></script>
-    <!-- Nouveaux modules InsurTech & Sécurité -->
-    <script type="module" src="/js/driving-score.js" charset="utf-8"></script>
-    <script type="module" src="/js/danger-zones.js" charset="utf-8"></script>
-    <script type="module" src="/js/accident-report.js" charset="utf-8"></script>
-    <script type="module" src="/js/weather-alert.js" charset="utf-8"></script>
+  <!-- CORE APP (chargé en premier, sans defer) -->
+  <script type="module" src="/js/auth.js" charset="utf-8"></script>
+  <script type="module" src="/js/database.js" charset="utf-8"></script>
+  <script type="module" src="/js/app-core.js" charset="utf-8"></script>
+  <script type="module" src="/js/app-map.js" charset="utf-8"></script>
+  <script type="module" src="/js/app-features.js" charset="utf-8"></script>
+  <script type="module" src="/js/app-ui.js" charset="utf-8"></script>
+  <script type="module" src="/js/app-wallet.js" charset="utf-8"></script>
 
-    <!-- MECA-WIZARD MODAL -->
-    <!-- LAZY LOADED: meca-result-modal -->
+  <script type="module" src="/js/silicon-valley.js" charset="utf-8"></script>
+  <script type="module" src="/js/nexus-atlas-voice.js" charset="utf-8"></script>
+  <script type="module" src="/js/community-gas.js" charset="utf-8"></script>
+  <script type="module" src="/js/leaderboard.js" charset="utf-8"></script>
+  <script type="module" src="/js/v3-smartcity.js" charset="utf-8"></script>
+  <script type="module" src="/js/carbon-trading.js" charset="utf-8"></script>
+  <script type="module" src="/js/api-client.js" charset="utf-8"></script>
+  <script type="module" src="/js/ign-carto.js" charset="utf-8"></script>
+  <script type="module" src="/js/certificate.js" charset="utf-8"></script>
+  <script type="module" src="/js/rgpd-cnil.js" charset="utf-8"></script>
+  <script type="module" src="/js/litigation-ai.js" charset="utf-8"></script>
+  <script type="module" src="/js/insurance-portal.js" charset="utf-8"></script>
+  <script type="module" src="/js/anti-theft.js" charset="utf-8"></script>
+  <script type="module" src="/js/meca-wizard.js" charset="utf-8"></script>
+  <script type="module" src="/js/obd-bluetooth.js" charset="utf-8"></script>
+  <script type="module" src="/js/ar-navigation.js" charset="utf-8"></script>
+  <script type="module" src="/js/weather-assistant.js" charset="utf-8"></script>
+  <script type="module" src="/js/social-radar.js" charset="utf-8"></script>
+  <script type="module" src="/js/referral.js" charset="utf-8"></script>
+  <!-- Nouveaux modules InsurTech & Sécurité -->
+  <script type="module" src="/js/driving-score.js" charset="utf-8"></script>
+  <script type="module" src="/js/danger-zones.js" charset="utf-8"></script>
+  <script type="module" src="/js/accident-report.js" charset="utf-8"></script>
+  <script type="module" src="/js/weather-alert.js" charset="utf-8"></script>
 
-    <!-- ANTI-THEFT GLITCH OVERLAY -->
-    <div id="glitch-overlay" style="
+  <!-- MECA-WIZARD MODAL -->
+  <!-- LAZY LOADED: meca-result-modal -->
+
+  <!-- ANTI-THEFT GLITCH OVERLAY -->
+  <div id="glitch-overlay" style="
         display: none;
         position: fixed;
         top: 0;
@@ -739,18 +796,18 @@ window.axeptioSettings = {
         pointer-events: none;
       "></div>
 
-    <!-- CORE MODULES -->
-    <script type="module" src="/js/web4-mining.js" charset="utf-8"></script>
-    <script type="module" src="/js/insurer-portal.js" charset="utf-8"></script>
-    <script type="module" src="/js/zero-trust.js" charset="utf-8"></script>
-    <script type="module" src="/js/esg-telemetry.js" charset="utf-8"></script>
+  <!-- CORE MODULES -->
+  <script type="module" src="/js/web4-mining.js" charset="utf-8"></script>
+  <script type="module" src="/js/insurer-portal.js" charset="utf-8"></script>
+  <script type="module" src="/js/zero-trust.js" charset="utf-8"></script>
+  <script type="module" src="/js/esg-telemetry.js" charset="utf-8"></script>
 
-    <script type="module" src="/js/inline-app-3.js"></script>
+  <script type="module" src="/js/inline-app-3.js"></script>
 
-    <script type="module" src="/js/inline-app-4.js"></script>
+  <script type="module" src="/js/inline-app-4.js"></script>
 
-    <!-- Search Tool (Top) -->
-    <div id="search-container" style="
+  <!-- Search Tool (Top) -->
+  <div id="search-container" style="
         position: fixed;
         left: 50%;
         transform: translateX(-50%);
@@ -761,8 +818,8 @@ window.axeptioSettings = {
         flex-direction: column;
         gap: 10px;
       ">
-      <!-- Départ Manuel (Optionnel/Fallback) -->
-      <div id="manual-start-box" class="glassmorphism hidden" style="
+    <!-- Départ Manuel (Optionnel/Fallback) -->
+    <div id="manual-start-box" class="glassmorphism hidden" style="
           display: flex;
           align-items: center;
           background: rgba(0, 0, 0, 0.8);
@@ -770,15 +827,16 @@ window.axeptioSettings = {
           padding: 5px 15px;
           border: 1px solid #ffb703;
         ">
-        <button data-action="window.getLocationGPS()" title="Utiliser ma position GPS" style="
+      <button data-action="window.getLocationGPS()" title="Utiliser ma position GPS" style="
             background: none;
             border: none;
             color: #ffb703;
             cursor: pointer;
           ">
-          <i class="fa-solid fa-location-crosshairs"></i>
-        </button>
-        <input aria-label="Point de départ (par défaut: GPS)" type="text" id="route-start" placeholder="Point de départ (par défaut: GPS)" style="
+        <i class="fa-solid fa-location-crosshairs"></i>
+      </button>
+      <input aria-label="Point de départ (par défaut: GPS)" type="text" id="route-start"
+        placeholder="Point de départ (par défaut: GPS)" style="
             flex: 1;
             background: transparent;
             border: none;
@@ -787,10 +845,10 @@ window.axeptioSettings = {
             outline: none;
             margin: 0 10px;
           ">
-      </div>
+    </div>
 
-      <!-- Destination -->
-      <div class="search-bar glassmorphism" style="
+    <!-- Destination -->
+    <div class="search-bar glassmorphism" style="
           display: flex;
           align-items: center;
           background: rgba(0, 0, 0, 0.8);
@@ -798,15 +856,15 @@ window.axeptioSettings = {
           padding: 5px 15px;
           border: 1px solid rgba(255, 255, 255, 0.2);
         ">
-        <button data-action="toggleManualStart()" title="Départ manuel/GPS" style="
+      <button data-action="toggleManualStart()" title="Départ manuel/GPS" style="
             background: none;
             border: none;
             color: #00d2ff;
             cursor: pointer;
           ">
-          <i class="fa-solid fa-map-pin"></i>
-        </button>
-        <input aria-label="Où allez-vous ?" type="text" id="route-search" placeholder="Où allez-vous ?" style="
+        <i class="fa-solid fa-map-pin"></i>
+      </button>
+      <input aria-label="Où allez-vous ?" type="text" id="route-search" placeholder="Où allez-vous ?" style="
             flex: 1;
             background: transparent;
             border: none;
@@ -815,7 +873,7 @@ window.axeptioSettings = {
             outline: none;
             margin: 0 10px;
           ">
-        <button data-action="searchDestination()" style="
+      <button data-action="searchDestination()" style="
             background: #00d2ff;
             border: none;
             border-radius: 50%;
@@ -823,9 +881,9 @@ window.axeptioSettings = {
             height: 35px;
             cursor: pointer;
           ">
-          <i class="fa-solid fa-location-arrow" style="color: black"></i>
-        </button>
-        <button id="btn-cancel-route" class="hidden" data-action="cancelRoute()" style="
+        <i class="fa-solid fa-location-arrow" style="color: black"></i>
+      </button>
+      <button id="btn-cancel-route" class="hidden" data-action="cancelRoute()" style="
             background: #ff4d4d;
             border: none;
             border-radius: 50%;
@@ -834,13 +892,13 @@ window.axeptioSettings = {
             cursor: pointer;
             margin-left: 5px;
           ">
-          <i class="fa-solid fa-xmark" style="color: white"></i>
-        </button>
-      </div>
+        <i class="fa-solid fa-xmark" style="color: white"></i>
+      </button>
     </div>
+  </div>
 
-    <!-- Navigation Prompt (Floating) -->
-    <div id="nav-instruction" class="glassmorphism hidden" style="
+  <!-- Navigation Prompt (Floating) -->
+  <div id="nav-instruction" class="glassmorphism hidden" style="
         position: fixed;
         top: 80px;
         left: 50%;
@@ -853,19 +911,19 @@ window.axeptioSettings = {
         border-radius: 20px;
         border: 2px solid #00ff00;
       ">
-      <div class="nav-icon" style="font-size: 1.5rem; color: #00ff00; margin-right: 15px">
-        <i class="fa-solid fa-arrow-turn-up"></i>
-      </div>
-      <div class="nav-text" style="color: white">
-        <div id="next-step-name" style="font-weight: bold; font-size: 1.1rem">
-          Calibrage GPS...
-        </div>
-        <div id="next-step-dist" style="color: #aaa">--- m</div>
-      </div>
+    <div class="nav-icon" style="font-size: 1.5rem; color: #00ff00; margin-right: 15px">
+      <i class="fa-solid fa-arrow-turn-up"></i>
     </div>
+    <div class="nav-text" style="color: white">
+      <div id="next-step-name" style="font-weight: bold; font-size: 1.1rem">
+        Calibrage GPS...
+      </div>
+      <div id="next-step-dist" style="color: #aaa">--- m</div>
+    </div>
+  </div>
 
-    <!-- Bottom Navigation Info Bar -->
-    <div id="nav-info-bar" class="glassmorphism" style="
+  <!-- Bottom Navigation Info Bar -->
+  <div id="nav-info-bar" class="glassmorphism" style="
         position: fixed;
         bottom: 100px;
         left: 50%;
@@ -881,25 +939,25 @@ window.axeptioSettings = {
         border-radius: 20px;
         border: 1px solid rgba(255, 255, 255, 0.2);
       ">
-      <div class="info-group" style="text-align: center; color: white">
-        <div style="font-size: 0.8rem; color: #aaa">ETA</div>
-        <div id="nav-eta" style="font-weight: bold; font-size: 1.2rem; color: #00d2ff">
-          --:--
-        </div>
+    <div class="info-group" style="text-align: center; color: white">
+      <div style="font-size: 0.8rem; color: #aaa">ETA</div>
+      <div id="nav-eta" style="font-weight: bold; font-size: 1.2rem; color: #00d2ff">
+        --:--
       </div>
-      <div class="info-group" style="text-align: center; color: white">
-        <div style="font-size: 0.8rem; color: #aaa">Dist</div>
-        <div id="nav-dist" style="font-weight: bold; font-size: 1.2rem">
-          -- km
-        </div>
+    </div>
+    <div class="info-group" style="text-align: center; color: white">
+      <div style="font-size: 0.8rem; color: #aaa">Dist</div>
+      <div id="nav-dist" style="font-weight: bold; font-size: 1.2rem">
+        -- km
       </div>
-      <div class="info-group" style="text-align: center; color: white">
-        <div style="font-size: 0.8rem; color: #aaa">Temps</div>
-        <div id="nav-time" style="font-weight: bold; font-size: 1.2rem">
-          -- min
-        </div>
+    </div>
+    <div class="info-group" style="text-align: center; color: white">
+      <div style="font-size: 0.8rem; color: #aaa">Temps</div>
+      <div id="nav-time" style="font-weight: bold; font-size: 1.2rem">
+        -- min
       </div>
-      <button id="btn-go-native" data-action="window.launchNativeGPS()" style="
+    </div>
+    <button id="btn-go-native" data-action="window.launchNativeGPS()" style="
           background: #00d2ff;
           color: #000;
           border: none;
@@ -910,12 +968,12 @@ window.axeptioSettings = {
           cursor: pointer;
           box-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
         ">
-        <i class="fa-brands fa-google"></i> Maps
-      </button>
-    </div>
+      <i class="fa-brands fa-google"></i> Maps
+    </button>
+  </div>
 
-    <!-- Premium Control Row -->
-    <div id="control-row" style="
+  <!-- Premium Control Row -->
+  <div id="control-row" style="
         position: fixed;
         bottom: 240px;
         right: 20px;
@@ -925,8 +983,8 @@ window.axeptioSettings = {
         align-items: flex-end;
         gap: 15px;
       ">
-      <!-- BOUTON LITE MODE -->
-      <button id="btn-lite-toggle" data-action="if (window.toggleLiteMode) window.toggleLiteMode();" style="
+    <!-- BOUTON LITE MODE -->
+    <button id="btn-lite-toggle" data-action="if (window.toggleLiteMode) window.toggleLiteMode();" style="
           background: #555;
           border: none;
           border-radius: 50%;
@@ -938,11 +996,11 @@ window.axeptioSettings = {
           transition: background 0.3s;
           box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         ">
-        <i class="fa-solid fa-bolt"></i>
-      </button>
-      <!-- BOUTON SIGNALEMENT MANUEL -->
-      <div style="position: relative">
-        <button id="btn-hazard-quick" data-action="if (window.toggleHazardMenu) window.toggleHazardMenu();" style="
+      <i class="fa-solid fa-bolt"></i>
+    </button>
+    <!-- BOUTON SIGNALEMENT MANUEL -->
+    <div style="position: relative">
+      <button id="btn-hazard-quick" data-action="if (window.toggleHazardMenu) window.toggleHazardMenu();" style="
             background: #f1c40f;
             border: none;
             border-radius: 50%;
@@ -954,9 +1012,9 @@ window.axeptioSettings = {
             font-size: 1.2rem;
             transition: transform 0.3s;
           ">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-        </button>
-        <div id="hazard-options" class="hidden" style="
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </button>
+      <div id="hazard-options" class="hidden" style="
             position: absolute;
             bottom: 80px;
             right: 0;
@@ -969,7 +1027,7 @@ window.axeptioSettings = {
             gap: 10px;
             width: 160px;
           ">
-          <button data-action="if (window.saveHazard) window.saveHazard('Police');" style="
+        <button data-action="if (window.saveHazard) window.saveHazard('Police');" style="
               background: #00d2ff;
               color: black;
               border: none;
@@ -982,9 +1040,9 @@ window.axeptioSettings = {
               gap: 10px;
               text-align: left;
             ">
-            <i class="fa-solid fa-building-shield"></i> Police
-          </button>
-          <button data-action="if (window.saveHazard) window.saveHazard('Route Dégradée');" style="
+          <i class="fa-solid fa-building-shield"></i> Police
+        </button>
+        <button data-action="if (window.saveHazard) window.saveHazard('Route Dégradée');" style="
               background: #f1c40f;
               color: black;
               border: none;
@@ -997,9 +1055,9 @@ window.axeptioSettings = {
               gap: 10px;
               text-align: left;
             ">
-            <i class="fa-solid fa-road-circle-exclamation"></i> Route
-          </button>
-          <button data-action="if (window.saveHazard) window.saveHazard('animal');" style="
+          <i class="fa-solid fa-road-circle-exclamation"></i> Route
+        </button>
+        <button data-action="if (window.saveHazard) window.saveHazard('animal');" style="
               background: #e67e22;
               color: white;
               border: none;
@@ -1012,9 +1070,9 @@ window.axeptioSettings = {
               gap: 10px;
               text-align: left;
             ">
-            <i class="fa-solid fa-paw"></i> Animal
-          </button>
-          <button data-action="if (window.saveHazard) window.saveHazard('danger_immediat');" style="
+          <i class="fa-solid fa-paw"></i> Animal
+        </button>
+        <button data-action="if (window.saveHazard) window.saveHazard('danger_immediat');" style="
               background: #ff4d4d;
               color: white;
               border: none;
@@ -1027,12 +1085,12 @@ window.axeptioSettings = {
               gap: 10px;
               text-align: left;
             ">
-            <i class="fa-solid fa-car-burst"></i> Grave
-          </button>
-        </div>
+          <i class="fa-solid fa-car-burst"></i> Grave
+        </button>
       </div>
+    </div>
 
-      <button id="btn-stop-nav" class="hidden" data-action="cancelRoute()" style="
+    <button id="btn-stop-nav" class="hidden" data-action="cancelRoute()" style="
           background: #ff4d4d;
           border: none;
           border-radius: 50%;
@@ -1042,9 +1100,9 @@ window.axeptioSettings = {
           cursor: pointer;
           box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
         ">
-        <i class="fa-solid fa-stop"></i>
-      </button>
-      <button id="btn-reroute" class="hidden" data-action="searchDestination()" style="
+      <i class="fa-solid fa-stop"></i>
+    </button>
+    <button id="btn-reroute" class="hidden" data-action="searchDestination()" style="
           background: #b700ff;
           border: none;
           border-radius: 50%;
@@ -1054,12 +1112,12 @@ window.axeptioSettings = {
           cursor: pointer;
           box-shadow: 0 0 15px rgba(183, 0, 255, 0.5);
         ">
-        <i class="fa-solid fa-route"></i>
-      </button>
-    </div>
+      <i class="fa-solid fa-route"></i>
+    </button>
+  </div>
 
-    <!-- MODERN CYBERPUNK SPEEDOMETER -->
-    <div id="speed-hud-modern" style="
+  <!-- MODERN CYBERPUNK SPEEDOMETER -->
+  <div id="speed-hud-modern" style="
         position: fixed;
         top: 20px;
         left: 20px;
@@ -1078,26 +1136,26 @@ window.axeptioSettings = {
         pointer-events: none;
         transition: all 0.3s ease;
       ">
-      <div style="
+    <div style="
           font-size: 0.8rem;
           color: #00d2ff;
           letter-spacing: 2px;
           margin-bottom: 5px;
           text-transform: uppercase;
         ">
-        Télémétrie
-      </div>
-      <div style="display: flex; align-items: baseline; gap: 5px">
-        <span id="speed" style="
+      Télémétrie
+    </div>
+    <div style="display: flex; align-items: baseline; gap: 5px">
+      <span id="speed" style="
             font-size: 4rem;
             font-weight: 900;
             line-height: 1;
             text-shadow: 0 0 15px #00d2ff;
             color: #fff;
           ">0</span>
-        <span style="font-size: 1.2rem; color: #aaa">km/h</span>
-      </div>
-      <div style="
+      <span style="font-size: 1.2rem; color: #aaa">km/h</span>
+    </div>
+    <div style="
           width: 100%;
           height: 4px;
           background: rgba(255, 255, 255, 0.1);
@@ -1105,27 +1163,27 @@ window.axeptioSettings = {
           margin-top: 10px;
           overflow: hidden;
         ">
-        <div id="speed-bar" style="
+      <div id="speed-bar" style="
             width: 0%;
             height: 100%;
             background: linear-gradient(90deg, #00d2ff, #b700ff);
             box-shadow: 0 0 10px #00d2ff;
             transition: width 0.3s ease;
           "></div>
-      </div>
     </div>
+  </div>
 
-    <!-- BATTERY HEALTH SCREEN -->
-    <!-- LAZY LOADED: battery-health-screen -->
+  <!-- BATTERY HEALTH SCREEN -->
+  <!-- LAZY LOADED: battery-health-screen -->
 
-    <!-- BATTERY MANUAL ENTRY SCREEN -->
-    <!-- LAZY LOADED: battery-manual-screen -->
+  <!-- BATTERY MANUAL ENTRY SCREEN -->
+  <!-- LAZY LOADED: battery-manual-screen -->
 
-    <!-- BATTERY PRICING SCREEN -->
-    <!-- LAZY LOADED: battery-pricing-screen -->
+  <!-- BATTERY PRICING SCREEN -->
+  <!-- LAZY LOADED: battery-pricing-screen -->
 
-    <!-- INTERCEPTOR HUD ELEMENTS -->
-    <div id="weather-hud" style="
+  <!-- INTERCEPTOR HUD ELEMENTS -->
+  <div id="weather-hud" style="
         position: fixed;
         top: 110px;
         left: 50%;
@@ -1146,17 +1204,17 @@ window.axeptioSettings = {
         align-items: center;
         pointer-events: none;
       ">
-      <div>
-        <i class="fa-solid fa-cloud" style="color: #aaa"></i>
-        <span id="weather-temp">--°C</span>
-      </div>
-      <div>
-        <i class="fa-solid fa-wind" style="color: #00d2ff"></i>
-        <span id="weather-wind">-- km/h</span>
-      </div>
+    <div>
+      <i class="fa-solid fa-cloud" style="color: #aaa"></i>
+      <span id="weather-temp">--°C</span>
     </div>
+    <div>
+      <i class="fa-solid fa-wind" style="color: #00d2ff"></i>
+      <span id="weather-wind">-- km/h</span>
+    </div>
+  </div>
 
-    <div id="hud" style="
+  <div id="hud" style="
         position: fixed;
         top: 20px;
         right: 20px;
@@ -1167,7 +1225,7 @@ window.axeptioSettings = {
         pointer-events: none;
         transition: all 0.3s ease;
       ">
-      <div id="radar-hud" style="
+    <div id="radar-hud" style="
           background: rgba(20, 0, 0, 0.8);
           border: 1px solid #ff4d4d;
           padding: 12px 20px;
@@ -1183,13 +1241,13 @@ window.axeptioSettings = {
           gap: 10px;
           margin-bottom: 80px;
         ">
-        <i class="fa-solid fa-satellite-dish fa-beat" style="color: #ff4d4d"></i>
-        <span id="radar-users">SCANNING...</span>
-      </div>
+      <i class="fa-solid fa-satellite-dish fa-beat" style="color: #ff4d4d"></i>
+      <span id="radar-users">SCANNING...</span>
     </div>
+  </div>
 
-    <!-- GLITCH ALERT OVERLAY -->
-    <div id="glitch-overlay" style="
+  <!-- GLITCH ALERT OVERLAY -->
+  <div id="glitch-overlay" style="
         position: fixed;
         top: 0;
         left: 0;
@@ -1208,39 +1266,42 @@ window.axeptioSettings = {
         display: none;
       "></div>
 
-    <!-- VEHICLE CONFIG SCREEN (GARAGE VIRTUEL B2C) -->
-    <!-- LAZY LOADED: vehicle-config-screen -->
+  <!-- VEHICLE CONFIG SCREEN (GARAGE VIRTUEL B2C) -->
+  <!-- LAZY LOADED: vehicle-config-screen -->
 
-    <script type="module" src="/js/inline-app-5.js"></script>
-    <style>
-      @keyframes scanline {
-        0% {
-          top: -10px;
-        }
-        100% {
-          top: 100%;
-        }
+  <script type="module" src="/js/inline-app-5.js"></script>
+  <style>
+    @keyframes scanline {
+      0% {
+        top: -10px;
       }
-    </style>
 
-    <script type="module" src="/js/garage.js" charset="utf-8"></script>
-    <script type="module" src="/js/safe-rider.js" charset="utf-8"></script>
-    <script type="module" src="/js/convoy.js" charset="utf-8"></script>
-    <script type="module" src="/js/exchange.js" charset="utf-8"></script>
-    <script type="module" src="/js/legal-database.js" charset="utf-8"></script>
-    <script type="module" src="/js/pocket-lawyer.js" charset="utf-8"></script>
-    <script type="module" src="/js/badwords.js" charset="utf-8"></script>
-    <script type="module" src="/js/nexus-atlas-chat.js" charset="utf-8"></script>
+      100% {
+        top: 100%;
+      }
+    }
+  </style>
 
-    <!-- Nexus Atlas Security: Masquage OBD-II pour les US (Conformité matérielle) -->
-    <script type="module" src="/js/inline-app-6.js"></script>
+  <script type="module" src="/js/garage.js" charset="utf-8"></script>
+  <script type="module" src="/js/safe-rider.js" charset="utf-8"></script>
+  <script type="module" src="/js/convoy.js" charset="utf-8"></script>
+  <script type="module" src="/js/exchange.js" charset="utf-8"></script>
+  <script type="module" src="/js/legal-database.js" charset="utf-8"></script>
+  <script type="module" src="/js/pocket-lawyer.js" charset="utf-8"></script>
+  <script type="module" src="/js/badwords.js" charset="utf-8"></script>
+  <script type="module" src="/js/nexus-atlas-chat.js" charset="utf-8"></script>
 
-    <!-- UI Panel Boîte Noire -->
-    <!-- LAZY LOADED: blackbox-ui-panel -->
+  <!-- Nexus Atlas Security: Masquage OBD-II pour les US (Conformité matérielle) -->
+  <script type="module" src="/js/inline-app-6.js"></script>
 
-    <script type="module" src="/js/blackbox-ble.js" charset="utf-8"></script>
-    <script type="module" src="/js/inline-app-7.js"></script>
-  
+  <!-- UI Panel Boîte Noire -->
+  <!-- LAZY LOADED: blackbox-ui-panel -->
 
-<div id="screen-container" class="hidden"></div>
-</body></html>
+  <script type="module" src="/js/blackbox-ble.js" charset="utf-8"></script>
+  <script type="module" src="/js/inline-app-7.js"></script>
+
+
+  <div id="screen-container" class="hidden"></div>
+</body>
+
+</html>

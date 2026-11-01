@@ -1,11 +1,12 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { IGNCarto, escapeHtml } from './ign-carto.js';
 
 /**
- * LITIGATION AI v1.0 — PORTAIL ASSURANCE INTELLIGENT
- * Analyse automatique des données Blackbox pour les dossiers de litige.
- * Génère un code dossier unique, sélectionne le type de rapport adapté,
- * et envoie une proposition structurée à l'assureur via Firestore.
+ * LITIGATION AI v1.1 — PORTAIL ASSURANCE INTELLIGENT + IGN API CARTO v2.10.5
+ * Analyse automatique des données Blackbox et qualification cadastrale/routière IGN
+ * (Parcellaire Express PCI, Limites Administratives, GpU, BD TOPO, Nature MNHN)
+ * pour les dossiers de litige.
  */
 
 window.LitigationAI = {
@@ -70,8 +71,11 @@ window.LitigationAI = {
       if (lean > maxLean) maxLean = lean;
     }
 
-    // — Coordonnées GPS de l'incident (dernier point connu)
-    const lastGps = buffer.length > 0 ? buffer[buffer.length - 1] : null;
+    // — Coordonnées GPS de l'incident (dernier point connu ou position courante carte)
+    const lastGps =
+      buffer.length > 0
+        ? buffer[buffer.length - 1]
+        : window.appMap?.currentPos || null;
 
     // — Score de sévérité (0–100)
     let severity = 0;
@@ -87,21 +91,21 @@ window.LitigationAI = {
     if (maxG >= thresholds.EXPERT_G || severity >= 70) {
       reportType = "EXPERT_COMPLET";
       reportLabel = "Expertise Complète";
-      reportIcon = "🛡ï¸";
+      reportIcon = "🛡️";
       reportDescription =
-        "Télémétrie + G-Force + GPS + Replay 3D certifié + Signature SHA-256";
+        "Télémétrie + G-Force + GPS + Cadastre IGN PCI + Replay 3D certifié + Signature SHA-256";
     } else if (maxG >= thresholds.IMPACT_G || severity >= 35) {
       reportType = "IMPACT";
       reportLabel = "Rapport Impact";
       reportIcon = "⚡";
       reportDescription =
-        "Détection de choc + Accélérométrie haute fréquence + GPS";
+        "Détection de choc + Accélérométrie haute fréquence + GPS + Qualification Cadastrale IGN";
     } else {
       reportType = "STANDARD";
       reportLabel = "Rapport Standard";
       reportIcon = "📊";
       reportDescription =
-        "Télémétrie générale + Vitesse + Coordonnées GPS";
+        "Télémétrie générale + Vitesse + Coordonnées GPS + Commune IGN";
     }
 
     return {
@@ -114,6 +118,7 @@ window.LitigationAI = {
       maxSpeed: maxSpeed.toFixed(1),
       maxLean: maxLean.toFixed(1),
       gpsIncident: lastGps ? { lat: lastGps.lat, lng: lastGps.lng } : null,
+      ignCadastre: null,
       structuralScore: blackbox?.shockScore ?? 100,
       dataPoints: buffer.length,
       hfDataPoints: hfBuffer.length,
@@ -132,7 +137,7 @@ window.LitigationAI = {
     return {
       // Identifiants
       caseCode: caseCode,
-      userId: window.session?.uid || "INCONNU",
+      userId: window.auth?.currentUser?.uid || window.session?.uid || "INCONNU",
       username: window.session?.username || "INCONNU",
       vehicleId: window.Wallet?.getSafetyPassport()?.blackbox_id || "N/A",
 
@@ -160,7 +165,7 @@ window.LitigationAI = {
               : "STANDARD",
       },
 
-      // Données techniques clés
+      // Données techniques clés + Qualification IGN API Carto v2.10.5
       telemetry: {
         maxG_force: parseFloat(analysis.maxG),
         maxSpeed_kmh: parseFloat(analysis.maxSpeed),
@@ -169,6 +174,7 @@ window.LitigationAI = {
         dataPoints: analysis.dataPoints,
         hfDataPoints: analysis.hfDataPoints,
         gpsIncident: analysis.gpsIncident,
+        ignCadastre: analysis.ignCadastre || null,
       },
 
       // Statut
@@ -216,17 +222,29 @@ window.LitigationAI = {
 
   /**
    * Point d'entrée principal.
-   * Génère le code, analyse la blackbox, construit et envoie la proposition,
-   * puis affiche le résultat dans l'interface.
+   * Génère le code, analyse la blackbox, interroge l'API Carto IGN (Cadastre PCI Express),
+   * construit la proposition et affiche le résultat dans l'interface.
    */
   async runWizard() {
     // Étape 1 — Génération du code
     const caseCode = this.generateCaseCode();
     this.renderWizardStep("analyzing", caseCode, null);
 
-    // Étape 2 — Analyse IA (simuler délai traitement)
-    await new Promise((r) => setTimeout(r, 1800));
+    // Étape 2 — Analyse IA + Qualification Cadastrale IGN en parallèle
     const analysis = this.analyzeBlackboxData();
+    const delayPromise = new Promise((r) => setTimeout(r, 1800));
+    const ignPromise =
+      analysis.gpsIncident && IGNCarto?.qualifyIncidentLocation
+        ? IGNCarto.qualifyIncidentLocation(
+            analysis.gpsIncident.lat,
+            analysis.gpsIncident.lng,
+          ).catch(() => null)
+        : Promise.resolve(null);
+
+    const [, ignResult] = await Promise.all([delayPromise, ignPromise]);
+    if (ignResult) {
+      analysis.ignCadastre = ignResult;
+    }
 
     // Étape 3 — Construction de la proposition
     const proposal = this.buildInsuranceProposal(caseCode, analysis);
@@ -255,18 +273,18 @@ window.LitigationAI = {
 
   renderWizardIntro(container) {
     // eslint-disable-next-line no-restricted-syntax
-container.innerHTML = `
+    container.innerHTML = `
             <div class="litigation-portal">
                 <div class="litigation-header">
                     <i class="fa-solid fa-shield-halved litigation-icon-pulse"></i>
                     <h3>Portail Litige Assurance</h3>
-                    <p class="litigation-sub">L'IA va analyser votre Blackbox et préparer une proposition pour votre assureur.</p>
+                    <p class="litigation-sub">L'IA va analyser votre Blackbox, qualifier le lieu via l'API Carto IGN (Cadastre PCI Express) et préparer une proposition pour votre assureur.</p>
                 </div>
 
                 <div class="litigation-checklist">
                     <div class="check-item"><i class="fa-solid fa-circle-check"></i> Blackbox chiffrée AES-256</div>
                     <div class="check-item"><i class="fa-solid fa-circle-check"></i> Télémétrie haute fréquence (10Hz)</div>
-                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Coordonnées GPS certifiées</div>
+                    <div class="check-item"><i class="fa-solid fa-circle-check"></i> Coordonnées GPS &amp; Cadastre IGN PCI Express</div>
                     <div class="check-item"><i class="fa-solid fa-circle-check"></i> Signature SHA-256 d'intégrité</div>
                 </div>
 
@@ -289,13 +307,13 @@ container.innerHTML = `
 
     if (step === "analyzing") {
       // eslint-disable-next-line no-restricted-syntax
-content.innerHTML = `
+      content.innerHTML = `
                 <div class="litigation-portal litigation-analyzing">
                     <div class="ai-spinner">
                         <i class="fa-solid fa-brain fa-spin-pulse"></i>
                     </div>
                     <h3>Analyse IA en cours…</h3>
-                    <p class="case-code-display">Code dossier généré : <strong>${caseCode}</strong></p>
+                    <p class="case-code-display">Code dossier généré : <strong>${escapeHtml(caseCode)}</strong></p>
                     <div class="ai-progress-bar">
                         <div class="ai-progress-fill"></div>
                     </div>
@@ -307,7 +325,7 @@ content.innerHTML = `
         const fill = content.querySelector(".ai-progress-fill");
         const txt = content.querySelector(".ai-status-text");
         if (fill) fill.style.width = "45%";
-        if (txt) txt.textContent = "Calcul des G-Forces…";
+        if (txt) txt.textContent = "Calcul des G-Forces & Interrogation Cadastre IGN…";
       }, 500);
       setTimeout(() => {
         const fill = content.querySelector(".ai-progress-fill");
@@ -335,8 +353,18 @@ content.innerHTML = `
           ? "MODÉRÉE"
           : "FAIBLE";
 
+    const ign = analysis.ignCadastre;
+    const ignHtml =
+      ign && ign.available
+        ? `
+          <div class="tele-item"><i class="fa-solid fa-city"></i> Commune IGN : <strong>${escapeHtml(ign.commune || "N/A")} (${escapeHtml(ign.codeInsee || "N/A")})</strong></div>
+          <div class="tele-item"><i class="fa-solid fa-road"></i> Domaine (PCI) : <strong>${escapeHtml(ign.domainLabel)}</strong></div>
+          ${ign.urbanZone ? `<div class="tele-item"><i class="fa-solid fa-building"></i> Zonage GpU : <strong>${escapeHtml(ign.urbanZone.typezone)}</strong></div>` : ""}
+        `
+        : "";
+
     // eslint-disable-next-line no-restricted-syntax
-content.innerHTML = `
+    content.innerHTML = `
             <div class="litigation-portal">
                 <div class="litigation-result-header">
                     <i class="fa-solid fa-brain" style="color:#7c4dff; font-size:2rem;"></i>
@@ -346,8 +374,8 @@ content.innerHTML = `
                 <div class="case-code-badge">
                     <i class="fa-solid fa-hashtag"></i>
                     <span>Code dossier :</span>
-                    <strong id="case-code-value">${caseCode}</strong>
-                    <button class="btn-copy-code" data-action="LitigationAI.copyCode('${caseCode}')" title="Copier">
+                    <strong id="case-code-value">${escapeHtml(caseCode)}</strong>
+                    <button class="btn-copy-code" data-action="LitigationAI.copyCode('${escapeHtml(caseCode)}')" title="Copier">
                         <i class="fa-solid fa-copy"></i>
                     </button>
                 </div>
@@ -356,8 +384,8 @@ content.innerHTML = `
                     <div class="report-icon">${analysis.reportIcon}</div>
                     <div class="report-info">
                         <strong>Rapport recommandé :</strong>
-                        <span class="report-label">${analysis.reportLabel}</span>
-                        <p class="report-desc">${analysis.reportDescription}</p>
+                        <span class="report-label">${escapeHtml(analysis.reportLabel)}</span>
+                        <p class="report-desc">${escapeHtml(analysis.reportDescription)}</p>
                     </div>
                 </div>
 
@@ -370,11 +398,12 @@ content.innerHTML = `
                 </div>
 
                 <div class="telemetry-summary">
-                    <div class="tele-item"><i class="fa-solid fa-bolt"></i> G-Force max : <strong>${analysis.maxG} G</strong></div>
-                    <div class="tele-item"><i class="fa-solid fa-gauge-high"></i> Vitesse max : <strong>${analysis.maxSpeed} km/h</strong></div>
-                    <div class="tele-item"><i class="fa-solid fa-rotate"></i> Inclinaison max : <strong>${analysis.maxLean}°</strong></div>
-                    <div class="tele-item"><i class="fa-solid fa-shield-halved"></i> Intégrité chassis : <strong>${analysis.structuralScore}%</strong></div>
-                    ${analysis.gpsIncident ? `<div class="tele-item"><i class="fa-solid fa-location-dot"></i> GPS : <strong>${analysis.gpsIncident.lat?.toFixed(5)}, ${analysis.gpsIncident.lng?.toFixed(5)}</strong></div>` : ""}
+                    <div class="tele-item"><i class="fa-solid fa-bolt"></i> G-Force max : <strong>${escapeHtml(analysis.maxG)} G</strong></div>
+                    <div class="tele-item"><i class="fa-solid fa-gauge-high"></i> Vitesse max : <strong>${escapeHtml(analysis.maxSpeed)} km/h</strong></div>
+                    <div class="tele-item"><i class="fa-solid fa-rotate"></i> Inclinaison max : <strong>${escapeHtml(analysis.maxLean)}°</strong></div>
+                    <div class="tele-item"><i class="fa-solid fa-shield-halved"></i> Intégrité chassis : <strong>${escapeHtml(analysis.structuralScore)}%</strong></div>
+                    ${analysis.gpsIncident ? `<div class="tele-item"><i class="fa-solid fa-location-dot"></i> GPS : <strong>${Number(analysis.gpsIncident.lat).toFixed(5)}, ${Number(analysis.gpsIncident.lng).toFixed(5)}</strong></div>` : ""}
+                    ${ignHtml}
                 </div>
 
                 <p class="litigation-disclaimer">
@@ -385,14 +414,14 @@ content.innerHTML = `
                 <!-- AVERTISSEMENT AI ACT (Obligatoire) -->
                 <p class="litigation-ai-act-disclaimer" style="color: #ffaa00; font-weight: bold; margin-bottom: 15px; border: 1px solid #ffaa00; padding: 10px; border-radius: 8px;">
                     <i class="fa-solid fa-scale-balanced"></i>
-                    ⚠ï¸ GÉNÉRÉ PAR L'IA : Ce rapport est une proposition d'assistance. Une supervision et validation humaine par l'utilisateur sont obligatoires avant le traitement juridique.
+                    ⚠️ GÉNÉRÉ PAR L'IA : Ce rapport est une proposition d'assistance. Une supervision et validation humaine par l'utilisateur sont obligatoires avant le traitement juridique.
                 </p>
 
                 <div class="litigation-actions">
                     ${
                       proposal.type === "EXPERT_COMPLET"
                         ? `
-                    <button class="btn-litigation-start" data-action="if(window.CertifiedCamera) window.CertifiedCamera.open('${caseCode}'); else alert('Module de caméra non disponible');" style="background:#ffb703; color:#000; margin-bottom:10px;">
+                    <button class="btn-litigation-start" data-action="if(window.CertifiedCamera) window.CertifiedCamera.open('${escapeHtml(caseCode)}'); else alert('Module de caméra non disponible');" style="background:#ffb703; color:#000; margin-bottom:10px;">
                         <i class="fa-solid fa-camera"></i>
                         Ajouter Preuve Photo (Horodatée)
                     </button>
@@ -423,7 +452,7 @@ content.innerHTML = `
       new Date().getFullYear();
 
     // eslint-disable-next-line no-restricted-syntax
-content.innerHTML = `
+    content.innerHTML = `
             <div class="litigation-portal litigation-sending">
                 <i class="fa-solid fa-lock fa-bounce" style="font-size:3rem; color:#7c4dff;"></i>
                 <h3>Verrouillage des données...</h3>
@@ -434,7 +463,7 @@ content.innerHTML = `
     // Simulate a small delay for cryptography feeling
     setTimeout(() => {
       // eslint-disable-next-line no-restricted-syntax
-content.innerHTML = `
+      content.innerHTML = `
                 <div class="litigation-portal litigation-success" style="padding: 20px;">
                     <i class="fa-solid fa-vault" style="font-size:4rem; color:#00e676; margin-bottom: 20px;"></i>
                     <h3 style="color:#00e676; margin-bottom: 10px;">Coffre-Fort Sécurisé !</h3>
@@ -442,7 +471,7 @@ content.innerHTML = `
                     
                     <div style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 15px; border: 2px dashed #00e676; display: inline-block; margin-bottom: 20px;">
                         <span style="display: block; font-size: 1rem; color: #888; margin-bottom: 10px;">CODE LITIGE À TRANSMETTRE À VOTRE ASSUREUR :</span>
-                        <strong style="font-size: 2.5rem; letter-spacing: 5px; color: #fff;">${disputeCode}</strong>
+                        <strong style="font-size: 2.5rem; letter-spacing: 5px; color: #fff;">${escapeHtml(disputeCode)}</strong>
                     </div>
 
                     <p style="color:#ffaa00; font-weight: bold; margin-bottom: 30px;">
@@ -468,10 +497,10 @@ content.innerHTML = `
       const btn = document.querySelector(".btn-copy-code");
       if (btn) {
         // eslint-disable-next-line no-restricted-syntax
-btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
         setTimeout(() => {
           // eslint-disable-next-line no-restricted-syntax
-btn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+          btn.innerHTML = '<i class="fa-solid fa-copy"></i>';
         }, 1500);
       }
     });

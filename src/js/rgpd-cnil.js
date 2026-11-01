@@ -211,42 +211,62 @@ window.revokeAndEraseData = async function () {
       }
     }
 
-    // 1. Déclencher le Protocol Zero (Suppression Backend via Cloud Function)
-    if (uid) {
-      try {
-        const cloudFuncUrl =
-          "https://europe-west1-mon50cc-backend.cloudfunctions.net/deleteUserAccount";
-        await fetch(cloudFuncUrl, {
+    let serverDeletionSuccess = false;
+
+    // 1. Déclencher le Protocol Zero (Suppression Backend via Cloud Function sécurisée)
+    try {
+      if (window.ApiClient) {
+        await window.ApiClient.authFetch("deleteUserAccount", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_id: uid }),
+          body: { user_id: uid || window.session?.uid },
+          timeoutMs: 30000
         });
-      } catch (e) {
-        console.warn("Cloud deletion feedback:", e);
+        serverDeletionSuccess = true;
+      } else {
+        throw new Error("Module API non chargé.");
       }
+    } catch (e) {
+      console.error("[RGPD] Erreur suppression serveur :", e);
+      alert(
+        "Échec de la suppression sécurisée sur nos serveurs (" +
+          (e.message || "Erreur réseau") +
+          "). Par sécurité, vos données locales ne sont pas effacées. Veuillez réessayer ou contacter le support dpo@mon50ccetmoi.com."
+      );
+      return;
     }
 
-    // 2. Effacer toutes les données locales
-    localStorage.clear();
-    sessionStorage.clear();
+    if (serverDeletionSuccess) {
+      // 2. Déconnexion Firebase Auth
+      try {
+        if (window.auth && typeof window.auth.signOut === "function") {
+          await window.auth.signOut();
+        }
+      } catch (authErr) {
+        console.warn("[RGPD] Déconnexion locale:", authErr);
+      }
 
-    // 3. Effacer le cache Service Worker
-    if ("caches" in window) {
-      caches.keys().then((names) => {
-        names.forEach((name) => caches.delete(name));
-      });
+      // 3. Effacer toutes les données locales
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // 4. Effacer le cache Service Worker
+      if ("caches" in window) {
+        caches.keys().then((names) => {
+          names.forEach((name) => caches.delete(name));
+        });
+      }
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then((regs) => {
+          regs.forEach((reg) => reg.unregister());
+        });
+      }
+
+      alert(
+        "Conformité RGPD Art. 17 validée : toutes vos données (Serveur et Locales) ont été détruites définitivement.",
+      );
+      window.location.href = "login.html";
     }
-
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistrations().then((regs) => {
-        regs.forEach((reg) => reg.unregister());
-      });
-    }
-
-    alert(
-      "Toutes vos données (Locales et Serveur) ont été détruites de manière irréversible. L'application va se réinitialiser.",
-    );
-    window.location.href = "login.html";
   }
 };
 

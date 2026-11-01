@@ -46,7 +46,9 @@
 #include "esp_system.h"
 #include "esp_timer.h"
 #include "esp_mac.h"
+#include "esp_random.h"
 #include "nvs_flash.h"
+#include "nvs.h"
 
 /* ---- NimBLE ---- */
 #include "nimble/nimble_port.h"
@@ -84,6 +86,8 @@ static ble_export_request_cb_t s_export_cb = NULL;
 static uint16_t s_battery_mv = 3700;
 static uint8_t  s_tamper_state_val = 0;
 static uint32_t s_frame_count = 0;
+static uint32_t s_last_acked_seq = 0;
+static uint32_t s_pending_shock_seq = 0;
 static char     s_device_name[16] = "BB50-0000";
 
 /* ---- Prototypes internes ---- */
@@ -124,16 +128,25 @@ static const struct ble_gatt_svc_def s_gatt_services[] = {
                             | BLE_GATT_CHR_F_READ_ENC,
             },
             {
-                /* Frame Data (notification) */
+                /* Frame Data (notification temps réel + indication GATT sur choc > 3.0G) */
                 .uuid       = CHR_UUID(BLE_UUID_CHR_FRAME_DATA),
                 .access_cb  = ble_gatt_telemetry_access,
                 .val_handle = &s_frame_notify_handle,
                 .flags      = BLE_GATT_CHR_F_NOTIFY
+                            | BLE_GATT_CHR_F_INDICATE
                             | BLE_GATT_CHR_F_READ_ENC,
             },
             {
                 /* Export Command (écriture authentifiée) */
                 .uuid       = CHR_UUID(BLE_UUID_CHR_EXPORT_CMD),
+                .access_cb  = ble_gatt_telemetry_access,
+                .flags      = BLE_GATT_CHR_F_WRITE
+                            | BLE_GATT_CHR_F_WRITE_ENC
+                            | BLE_GATT_CHR_F_WRITE_AUTHEN,
+            },
+            {
+                /* Acquittement applicatif de séquence ACK_SEQ_ID (écriture authentifiée) */
+                .uuid       = CHR_UUID(BLE_UUID_CHR_ACK_SEQ),
                 .access_cb  = ble_gatt_telemetry_access,
                 .flags      = BLE_GATT_CHR_F_WRITE
                             | BLE_GATT_CHR_F_WRITE_ENC
@@ -376,6 +389,45 @@ esp_err_t ble_comm_notify_frame(const uint8_t *data, uint16_t len)
 }
 
 /* ============================================================================
+ * ble_comm_indicate_shock_frame() — Envoi garanti par GATT Indication (choc >3.0G)
+ * ============================================================================
+ */
+esp_err_t ble_comm_indicate_shock_frame(const uint8_t *data, uint16_t len, uint32_t seq_id)
+{
+    if (s_ble_state != BLE_STATE_CONNECTED || data == NULL) {
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    if (len > 244) {
+        len = 244;
+    }
+
+    s_pending_shock_seq = seq_id;
+
+    struct os_mbuf *om = ble_hs_mbuf_from_flat(data, len);
+    if (om == NULL) {
+        return ESP_ERR_NO_MEM;
+    }
+
+    /* ble_gatts_indicate_custom exige un ACK ATT de la couche BLE du smartphone */
+    int rc = ble_gatts_indicate_custom(s_conn_handle, s_frame_notify_handle, om);
+    if (rc != 0) {
+        ESP_LOGW(TAG, "Échec GATT Indicate pour trame de choc #%lu (rc=%d)",
+                 (unsigned long)seq_id, rc);
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(TAG, "⚡ GATT Indicate envoyé pour trame de choc #%lu (attente ACK_SEQ_ID)...",
+             (unsigned long)seq_id);
+    return ESP_OK;
+}
+
+uint32_t ble_comm_get_last_acked_seq(void)
+{
+    return s_last_acked_seq;
+}
+
+/* ============================================================================
  * ble_comm_set_export_callback()
  * ============================================================================
  */
@@ -454,14 +506,24 @@ static int ble_gap_event_handler(struct ble_gap_event *event, void *arg)
 
         case BLE_GAP_EVENT_PASSKEY_ACTION:
             if (event->passkey.params.action == BLE_SM_IOACT_DISP) {
-                /* Générer un passkey déterministe basé sur le MAC
-                 * (pour l'afficher dans les logs/app mobile) */
                 struct ble_sm_io pkey = {0};
                 pkey.action = BLE_SM_IOACT_DISP;
-                pkey.passkey = 123456;  /* TODO : Générer dynamiquement */
+
+                /* Charger le passkey 6 chiffres provisionné en NVS (ou générer via TRNG) */
+                uint32_t stored_pin = 0;
+                nvs_handle_t nvs;
+                if (nvs_open("storage", NVS_READONLY, &nvs) == ESP_OK) {
+                    nvs_get_u32(nvs, "ble_pin", &stored_pin);
+                    nvs_close(nvs);
+                }
+                if (stored_pin >= 100000 && stored_pin <= 999999) {
+                    pkey.passkey = stored_pin;
+                } else {
+                    pkey.passkey = 100000 + (esp_random() % 900000);
+                }
+
                 ble_sm_inject_io(event->passkey.conn_handle, &pkey);
-                ESP_LOGI(TAG, "🔑 Passkey affiché : %06lu",
-                         (unsigned long)pkey.passkey);
+                ESP_LOGI(TAG, "🔑 Passkey BLE Secure Connections actif.");
             }
             break;
 
@@ -520,6 +582,17 @@ static int ble_gatt_telemetry_access(
                 if (s_export_cb != NULL) {
                     s_export_cb(start_idx, count);
                 }
+            } else if (uuid16 == BLE_UUID_CHR_ACK_SEQ) {
+                /* Acquittement applicatif de séquence : [ack_seq_id (4B Little Endian)] */
+                uint16_t om_len = OS_MBUF_PKTLEN(ctxt->om);
+                if (om_len != 4) {
+                    return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+                }
+                uint32_t ack_seq = 0;
+                os_mbuf_copydata(ctxt->om, 0, 4, &ack_seq);
+                s_last_acked_seq = ack_seq;
+                ESP_LOGI(TAG, "✓ ACK_SEQ_ID applicatif reçu du smartphone : #%lu",
+                         (unsigned long)ack_seq);
             }
             break;
 

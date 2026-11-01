@@ -64,7 +64,7 @@ static void IRAM_ATTR tamper_isr_handler(void *arg)
         return;
     }
 
-    uint32_t gpio_num = (uint32_t)arg;
+    uint32_t gpio_num = (uint32_t)(uintptr_t)arg;
 
     /*
      * Double lecture anti-glitch (~2µs d'écart).
@@ -94,8 +94,14 @@ static void IRAM_ATTR tamper_isr_handler(void *arg)
 
     s_zeroize_triggered = true;
 
-    /* ---- ZEROIZATION IMMÉDIATE ---- */
-    tamper_zeroize();
+    /* ---- ÉTAPE 1 ISR-SAFE (< 1 µs en IRAM) : Destruction immédiate clé RAM ----
+     * Conformité FIPS 140-3 / ESP-IDF ISR Rules :
+     * Aucun appel Flash SPI / Mutex FreeRTOS dans l'ISR pour éviter un Guru Meditation Panic.
+     * La destruction Flash NVS, blackbox_data et eFuse est exécutée hors ISR par tamper_zeroize().
+     */
+    for (size_t k = 0; k < sizeof(s_aes_key); k++) {
+        s_aes_key[k] = 0x00;
+    }
 }
 
 /* ============================================================================
@@ -113,6 +119,7 @@ esp_err_t tamper_init(void)
 
     ESP_LOGI(TAG, "Initialisation des capteurs Anti-Tamper...");
 
+    #if (PIN_TAMPER_LIGHT >= 0)
     /* ---- Configuration GPIO 2 : Photodiode (lumière = HIGH) ---- */
     gpio_config_t light_conf = {
         .pin_bit_mask  = (1ULL << PIN_TAMPER_LIGHT),
@@ -122,7 +129,9 @@ esp_err_t tamper_init(void)
         .intr_type     = GPIO_INTR_POSEDGE,       /* Front montant = lumière */
     };
     ESP_ERROR_CHECK(gpio_config(&light_conf));
+    #endif
 
+    #if (PIN_TAMPER_MESH >= 0)
     /* ---- Configuration GPIO 3 : Tamper Mesh (coupure = LOW) ---- */
     gpio_config_t mesh_conf = {
         .pin_bit_mask  = (1ULL << PIN_TAMPER_MESH),
@@ -132,22 +141,27 @@ esp_err_t tamper_init(void)
         .intr_type     = GPIO_INTR_NEGEDGE,       /* Front descendant = coupure */
     };
     ESP_ERROR_CHECK(gpio_config(&mesh_conf));
+    #endif
 
     /* ---- Installation du service d'interruptions GPIO ---- */
     ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_IRAM));
 
     /* ---- Enregistrement des handlers ISR ---- */
+    #if (PIN_TAMPER_LIGHT >= 0)
     ESP_ERROR_CHECK(gpio_isr_handler_add(
         PIN_TAMPER_LIGHT,
         tamper_isr_handler,
-        (void *)PIN_TAMPER_LIGHT
+        (void *)(uintptr_t)PIN_TAMPER_LIGHT
     ));
+    #endif
 
+    #if (PIN_TAMPER_MESH >= 0)
     ESP_ERROR_CHECK(gpio_isr_handler_add(
         PIN_TAMPER_MESH,
         tamper_isr_handler,
-        (void *)PIN_TAMPER_MESH
+        (void *)(uintptr_t)PIN_TAMPER_MESH
     ));
+    #endif
 
     /* ---- Configuration du Deep Sleep Wake-up sur ces GPIOs ---- */
     /* L'ESP32-C3 supporte le wake-up par GPIO en Deep Sleep */

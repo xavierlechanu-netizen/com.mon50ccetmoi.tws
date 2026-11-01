@@ -128,26 +128,26 @@ import { registerAction } from './actionRegistry.js';
       );
     }
 
-    // Remote Notification simulation / Firebase Cloud Function call
-    const projectId = window.CONFIG?.FIREBASE?.projectId || "mon50ccetmoi";
-    const functionUrl = `https://europe-west1-${projectId}.cloudfunctions.net/triggerAntiTheftAlert`;
-
-    fetch(functionUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        user_id: window.session?.uid || "GUEST",
-        force: force,
-        location: window.currentPosition
-          ? `${window.currentPosition.lat},${window.currentPosition.lng}`
-          : "Unknown",
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {})
-      .catch((err) => {
-        console.error("SENTRY_CLOUD_ALERT: Failed to notify server", err);
-      });
+    // Remote Notification via Firebase Cloud Function sécurisée
+    if (window.ApiClient) {
+      window.ApiClient.authFetch("triggerAntiTheftAlert", {
+        method: "POST",
+        body: {
+          force: force,
+          location: window.currentPosition
+            ? `${window.currentPosition.lat},${window.currentPosition.lng}`
+            : "Unknown",
+        },
+      })
+        .then(() => {
+          console.log("[ANTI-THEFT] Alerte transmise au serveur avec succès.");
+        })
+        .catch((err) => {
+          console.error("SENTRY_CLOUD_ALERT: Failed to notify server", err);
+        });
+    } else {
+      console.warn("SENTRY_CLOUD_ALERT: ApiClient non disponible");
+    }
   },
 
   reportTheft: async function () {

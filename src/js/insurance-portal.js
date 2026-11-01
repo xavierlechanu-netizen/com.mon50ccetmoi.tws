@@ -154,30 +154,20 @@ container.innerHTML = `
 
   // ─ Appel Firebase Function : création de l'ordre Revolut ────────────
   async createOrderViaFunction(caseId) {
-    const url = `${this.functionBaseUrl}/createRevolutOrder`;
     const reportType =
       window.LitigationAI?.lastAnalysis?.reportType || "STANDARD";
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount_cents: CONFIG?.REVOLUT?.AMOUNT_CENTS || 4999,
-        currency: CONFIG?.REVOLUT?.CURRENCY || "EUR",
-        case_id: caseId,
-        user_id: window.session?.uid || "unknown",
-        report_type: reportType,
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response
-        .json()
-        .catch(() => ({ error: response.statusText }));
-      throw new Error(err.error || `Erreur serveur (${response.status})`);
+    if (!window.ApiClient) {
+      throw new Error("Module API non chargé.");
     }
 
-    return await response.json();
+    return await window.ApiClient.authFetch("createRevolutOrder", {
+      method: "POST",
+      body: {
+        case_id: caseId,
+        report_type: reportType,
+      },
+    });
   },
 
   // ─ Lance RevolutCheckout avec le token reçu ───────────────────
@@ -247,15 +237,18 @@ container.innerHTML = "";
           return;
         }
       } else {
-        // Fallback : vérifier via la Cloud Function
-        const url = `${this.functionBaseUrl}/checkPaymentStatus?case_id=${caseId}&user_id=${window.session?.uid || ""}`;
-        const resp = await fetch(url);
-        const data = await resp.json();
-        if (data.paid) {
-          this.unlockCase(caseId, "revolut_webhook");
-          this.renderRevolutSuccess(caseId);
-          speak("Rapport débloqué avec succès.");
-          return;
+        // Fallback : vérifier via la Cloud Function sécurisée
+        if (window.ApiClient) {
+          const data = await window.ApiClient.authFetch("checkPaymentStatus", {
+            method: "GET",
+            query: { case_id: caseId, user_id: window.session?.uid || "" }
+          });
+          if (data && data.paid) {
+            this.unlockCase(caseId, "revolut_webhook");
+            this.renderRevolutSuccess(caseId);
+            speak("Rapport débloqué avec succès.");
+            return;
+          }
         }
       }
     } catch (e) {

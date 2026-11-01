@@ -89,45 +89,24 @@ window.GaragePro = {
       return;
     }
 
-    // 1. Simulation Paiement
-    if (!confirm(`Confirmez-vous le paiement de ${amount} € HT (Paiement Revolut) ?`)) return;
-    
-    // 2. Création Auth + Profil Firestore
+    // Création du compte utilisateur puis redirection vers le flux de paiement officiel Revolut
     try {
-      if (typeof db !== "undefined" && typeof firebase !== "undefined") {
-        // Auth Firebase
+      if (typeof firebase !== "undefined" && firebase.auth) {
         const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pwd);
         const uid = userCredential.user.uid;
-
-        const batch = db.batch();
-        
-        // Création document Garage dans 'users'
-        const userRef = db.collection("users").doc(uid);
-        batch.set(userRef, {
-          email: email,
-          role: "user", 
-          isCertifiedGarage: true, // CLÉ pour l'accès au cahier d'entretien
-          registeredAt: firebase.firestore.FieldValue.serverTimestamp(),
-          entryFeePaid: amount
-        });
-
-        // Incrément du compteur
-        const statsRef = db.collection("stats").doc("garage_registrations");
-        batch.update(statsRef, {
-          count: firebase.firestore.FieldValue.increment(1)
-        });
-
-        await batch.commit();
-        this.registeredCount++;
-
+        if (typeof window.session !== "undefined") {
+          window.session = { uid, email, role: "user" };
+        }
+        document.getElementById('garage-reg-modal')?.remove();
+        alert("Compte garage initialisé. Redirection vers la finalisation du règlement Revolut sécurisé...");
+        if (typeof window.buyGaragePass === "function") {
+          window.buyGaragePass();
+        } else {
+          alert("Veuillez finaliser l'adhésion depuis l'espace garage via le paiement sécurisé.");
+        }
       } else {
-        this.registeredCount++;
-        localStorage.setItem('sim_garage_count', this.registeredCount);
+        alert("Service d'authentification temporairement indisponible.");
       }
-
-      alert("✅ Transaction validée !\n\nBienvenue dans le réseau Garage Pro. Vous pouvez maintenant vous connecter avec vos identifiants pour accéder au Cahier d'Entretien Digital.");
-      document.getElementById('garage-reg-modal').remove();
-
     } catch (e) {
       console.error("Erreur inscription garage", e);
       alert("Erreur lors de l'inscription : " + e.message);

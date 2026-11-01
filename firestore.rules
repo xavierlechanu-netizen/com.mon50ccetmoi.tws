@@ -21,15 +21,31 @@ service cloud.firestore {
 
     // --- RÈGLES PAR COLLECTION ---
 
-    // Profils Utilisateurs : Lecture restreinte au proprio ou admin
+    // Profils Utilisateurs : Lecture strictement restreinte au propriétaire ou à l'administrateur (OWASP A01 / RGPD Art. 5)
     match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin() || resource.data.isCertifiedGarage == true || (isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isCertifiedGarage == true);
-      // OWASP ASVS v5.0.0-8.x : Interdiction stricte de s'auto-attribuer le rôle admin ou un numéro de série à la création
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // OWASP ASVS v5.0.0-8.x : Interdiction stricte de s'auto-attribuer le rôle admin, points, premium, garage certifié ou bypass de ban
       allow create: if isSignedIn() && isOwner(userId)
         && (!('role' in request.resource.data) || request.resource.data.role == 'user')
-        && !('blackbox_serial' in request.resource.data);
-      // Mise à jour : l'admin peut tout modifier ; le propriétaire ne peut pas modifier son rôle ni son numéro de série
-      allow update: if isAdmin() || (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'blackbox_serial']));
+        && !request.resource.data.keys().hasAny([
+          'blackbox_serial', 'braveCoins', 'bvc_points', 'bvcPoints', 'points',
+          'isPremium', 'premiumPlan', 'premiumSince', 'subscription',
+          'isCertifiedGarage', 'isGaragePartner', 'certified_at',
+          'isBanned', 'isTempBanned', 'banReason', 'banExpireAt', 'tempBansCount', 'appealStatus'
+        ]);
+
+      // Mise à jour : l'admin peut tout modifier ; le propriétaire ne peut JAMAIS modifier ses privilèges, points, statuts d'abonnement ou de sanction
+      allow update: if isAdmin() || (
+        isOwner(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'role', 'blackbox_serial', 'braveCoins', 'bvc_points', 'bvcPoints', 'points',
+          'isPremium', 'premiumPlan', 'premiumSince', 'subscription',
+          'isCertifiedGarage', 'isGaragePartner', 'certified_at',
+          'isBanned', 'isTempBanned', 'banReason', 'banExpireAt', 'tempBansCount', 'appealStatus',
+          'lastPointsPurchase', 'compensationAwarded', 'banLiftedAt', 'banLiftedBy'
+        ])
+      );
       allow delete: if isAdmin();
 
       // FIDO2 Credentials (Écriture via Cloud Functions uniquement)
@@ -37,27 +53,30 @@ service cloud.firestore {
         allow read: if isOwner(userId) || isAdmin();
         allow write: if false; 
       }
+
+      // Quotas journaliers anti-triche (Écriture via Cloud Functions uniquement)
+      match /daily_quotas/{dateKey} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if false;
+      }
     }
 
-    // Certificats de Batterie : Lecture restreinte, création par le propriétaire
+    // Certificats de Batterie : Lecture restreinte, émission exclusive Cloud Function (Admin SDK)
     match /battery_certificates/{certId} {
       allow read: if isSignedIn() && (isOwner(resource.data.userId) || resource.data.isShared == true);
-      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
-      allow update, delete: if false; // Les certificats sont inaltérables
+      allow write: if false; // Émission inaltérable réservée au webhook Revolut
     }
 
-    // Blackbox : Stockage ultra-privé. Lecture réservée au proprio ou expert vérifié
+    // Blackbox : Stockage ultra-privé. Création certifiée par le backend, lecture réservée au propriétaire ou expert vérifié
     match /blackbox_reports/{reportId} {
-      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
-      allow read: if isOwner(resource.data.userId) || isAdmin() || (resource.data.isUnlocked == true);
-      allow update: if false; // Un rapport Blackbox est IMMUABLE (non modifiable) une fois créé
+      allow create, update, delete: if false; // Création inaltérable certifiée réservée au serveur (Admin SDK)
+      allow read: if isSignedIn() && (isOwner(resource.data.userId) || isAdmin() || (resource.data.isUnlocked == true));
     }
 
-    // Blackbox Télémétrie : Zero-Knowledge Storage. Création exclusive par le propriétaire via Cloud Function, immuable.
+    // Blackbox Télémétrie : Zero-Knowledge Storage. Ingestion exclusive via Cloud Function uploadBlackboxTelemetry
     match /blackbox_telemetry/{userId}/frames/{frameId} {
-      allow create: if isSignedIn() && isOwner(userId);
+      allow create, update, delete: if false; // IMMUABILITE ABSOLUE - Traité uniquement par Admin SDK
       allow read: if isSignedIn() && (isOwner(userId) || isAdmin());
-      allow update, delete: if false; // IMMUABILITE ABSOLUE
     }
 
     // Coffre-fort ANTS : Sanctuaire absolu (validation de schéma renforcée)
@@ -87,10 +106,19 @@ service cloud.firestore {
       allow delete: if false; // On ne supprime pas un profil de gamification
     }
 
-    // Guardian Angel Sessions : Partage à durée limitée, ou propriétaire
+    // Registre / Grand Livre des Points mon50cc (BVC Points / BraveCoins)
+    // OWASP ASVS v5.0.0-2.3.3 : Grand livre immuable et auditable
+    match /points_ledger/{ledgerId} {
+      allow read: if isSignedIn() && (isOwner(resource.data.userId) || isAdmin());
+      allow write: if false; // Strictement réservé aux Cloud Functions Admin SDK
+    }
+
+    // Guardian Angel Sessions : Partage à durée limitée, ou propriétaire vérifié
     match /guardian_sessions/{sessionId} {
-      allow read: if isOwner(resource.data.userId) || (resource.data.isShared == true && resource.data.expiresAt > request.time);
-      allow create, update: if isSignedIn() && isOwner(request.resource.data.userId);
+      allow read: if isSignedIn() && (isOwner(resource.data.userId) || (resource.data.isShared == true && resource.data.expiresAt > request.time));
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+      allow update: if isSignedIn() && isOwner(resource.data.userId) && isOwner(request.resource.data.userId);
+      allow delete: if isSignedIn() && isOwner(resource.data.userId);
     }
 
     // Radar Social (Partage de position GPS temps réel)
@@ -261,12 +289,6 @@ service cloud.firestore {
       allow create: if false; // Écriture exclusivement via Cloud Function (Revolut Webhook / Admin SDK)
       allow read: if isAdmin() || (isSignedIn() && resource.data.user_id == request.auth.uid);
       allow update, delete: if false; // Inaltérable
-    }
-
-    // Confirmations de paiement Revolut (lookup sécurisé par case_id)
-    match /payment_confirmations/{caseId} {
-      allow create, update, delete: if false; // Écriture exclusive Cloud Functions (Webhook Revolut / Admin SDK)
-      allow read: if isAdmin() || (isSignedIn() && resource.data.user_id == request.auth.uid);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -577,17 +599,6 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────────
-    // CRASH REPORTS & LOGS DE TÉLÉMÉTRIE (Zero-Trust)
-    // Création autorisée pour le signalement d'erreurs en production.
-    // Lecture et audit réservés aux administrateurs. Inaltérable.
-    // ─────────────────────────────────────────────────────────────
-    match /crash_reports/{reportId} {
-      allow create: if true;
-      allow read: if isAdmin();
-      allow update, delete: if false;
-    }
-
-    // ─────────────────────────────────────────────────────────────
     // AUTH LOGS (Télémétrie d'Authentification Anonymisée & Audit)
     // Conforme NIST CSF 2.0 DE.AE-08 & OWASP ASVS v5.0.0-16.x
     // ─────────────────────────────────────────────────────────────
@@ -603,30 +614,19 @@ service cloud.firestore {
 
     // ─────────────────────────────────────────────────────────────
     // NEXUS CONVERSATIONS (Synchronisation d'interactions & Feedback)
-    // Lecture réservée aux administrateurs. Écriture pour les sessions actives.
+    // Lecture réservée aux administrateurs. Écriture réservée aux utilisateurs connectés.
     // ─────────────────────────────────────────────────────────────
     match /nexus_conversations/{sessionId} {
-      allow create, update: if true;
-      allow read: if isAdmin();
-      allow delete: if isAdmin();
+      allow create, update: if isSignedIn();
+      allow read, delete: if isAdmin();
     }
 
     // ─────────────────────────────────────────────────────────────
     // NEXUS SUGGESTIONS (Détection sémantique d'idées & feedback)
     // ─────────────────────────────────────────────────────────────
     match /nexus_suggestions/{suggestionId} {
-      allow create: if true;
-      allow read: if isAdmin();
-      allow update, delete: if isAdmin();
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // MODERATION LOGS (Journal d'audit de modération autonome - DSA Art. 17)
-    // ─────────────────────────────────────────────────────────────
-    match /mod_logs/{logId} {
-      allow create: if true;
-      allow read: if isAdmin();
-      allow update, delete: if false; // Immuabilité des traces d'audit de modération
+      allow create: if isSignedIn();
+      allow read, update, delete: if isAdmin();
     }
 
     // ─────────────────────────────────────────────────────────────

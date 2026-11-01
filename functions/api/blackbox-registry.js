@@ -151,6 +151,9 @@ exports.adminRegisterBlackboxUnits = onCall(
                 const blePasskey = (data.blePasskey && core.isValidBluetoothPasskey(data.blePasskey))
                     ? data.blePasskey.trim()
                     : core.generateBluetoothPasskey();
+                const ecdsaPublicKey = (data.ecdsaPublicKey && core.isValidEcdsaPublicKey(data.ecdsaPublicKey))
+                    ? data.ecdsaPublicKey.trim()
+                    : null;
                 const padStr = chosenUnit < 10 ? "0" + chosenUnit : String(chosenUnit);
                 const unitCode = `P${padStr}`;
 
@@ -169,7 +172,8 @@ exports.adminRegisterBlackboxUnits = onCall(
                     status: initialStatus,
                     blePasskey,
                     bleMac: null,
-                    firmwareVersion: "1.0.0",
+                    ecdsaPublicKey,
+                    firmwareVersion: "2.0.0",
                     saleOrderId: null,
                     ownerUid: null,
                     soldAt: null,
@@ -270,6 +274,9 @@ exports.adminRegisterBlackboxUnits = onCall(
                     const blePasskey = (count === 1 && data.blePasskey && core.isValidBluetoothPasskey(data.blePasskey))
                         ? data.blePasskey.trim()
                         : core.generateBluetoothPasskey();
+                    const ecdsaPublicKey = (count === 1 && data.ecdsaPublicKey && core.isValidEcdsaPublicKey(data.ecdsaPublicKey))
+                        ? data.ecdsaPublicKey.trim()
+                        : null;
 
                     const unitDocData = {
                         serial,
@@ -286,7 +293,8 @@ exports.adminRegisterBlackboxUnits = onCall(
                         status: initialStatus,
                         blePasskey,
                         bleMac: null,
-                        firmwareVersion: "1.0.0",
+                        ecdsaPublicKey,
+                        firmwareVersion: "2.0.0",
                         saleOrderId: null,
                         ownerUid: null,
                         soldAt: null,
@@ -632,7 +640,7 @@ exports.adminUpdateBlackboxInfo = onCall(
     { region: "europe-west1", timeoutSeconds: 30, memory: "256MiB" },
     async (request) => {
         const { uid } = await assertAdmin(request);
-        const { serial, blePasskey, bleMac, firmwareVersion, batchNumber, notes } = request.data || {};
+        const { serial, blePasskey, bleMac, ecdsaPublicKey, firmwareVersion, batchNumber, notes } = request.data || {};
 
         if (!core.isValidSerial(serial)) {
             throw new HttpsError("invalid-argument", "Numéro de série invalide.");
@@ -647,6 +655,19 @@ exports.adminUpdateBlackboxInfo = onCall(
             }
             updates.blePasskey = blePasskey.trim();
             changes.push("code Bluetooth mis à jour");
+        }
+
+        if (ecdsaPublicKey !== undefined) {
+            if (ecdsaPublicKey === null || ecdsaPublicKey === "") {
+                updates.ecdsaPublicKey = null;
+                changes.push("clé publique ECDSA P-256 effacée");
+            } else {
+                if (!core.isValidEcdsaPublicKey(ecdsaPublicKey)) {
+                    throw new HttpsError("invalid-argument", "Clé publique ECDSA P-256 invalide (attendu : 65 octets SEC1 hex '04...' ou PEM).");
+                }
+                updates.ecdsaPublicKey = ecdsaPublicKey.trim();
+                changes.push("clé publique ECDSA P-256 provisionnée");
+            }
         }
 
         if (bleMac !== undefined) {

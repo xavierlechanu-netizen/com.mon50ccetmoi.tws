@@ -68,8 +68,23 @@ exports.askNexusAtlasGemini = onRequest(
         if (req.method !== "POST") return res.status(405).json({ error: "Method Not Allowed" });
 
         const { history, systemPrompt } = req.body;
-        if (!history || !systemPrompt) {
-            return res.status(400).json({ error: "history and systemPrompt are required" });
+        if (!Array.isArray(history) || history.length === 0) {
+            return res.status(400).json({ error: "L'historique des échanges est requis et doit être un tableau." });
+        }
+
+        // Borne de sécurité : max 20 tours et max 4000 caractères par message
+        if (history.length > 20) {
+            return res.status(400).json({ error: "Historique trop volumineux (max 20 messages)." });
+        }
+        for (const item of history) {
+            const parts = item?.parts;
+            if (Array.isArray(parts)) {
+                for (const p of parts) {
+                    if (typeof p?.text === "string" && p.text.length > 4000) {
+                        return res.status(400).json({ error: "Message individuel trop volumineux (max 4000 caractères)." });
+                    }
+                }
+            }
         }
 
         const authUser = await verifyAuthToken(req);
@@ -96,6 +111,15 @@ exports.askNexusAtlasGemini = onRequest(
             console.warn("[Rate Limit] Erreur non bloquante :", rlErr.message);
         }
 
+        // Garde-fou serveur immuable (AI Act UE 2024/1689 Art. 50 & RGPD)
+        const SERVER_GUARDRAIL = `Tu es Nexus Atlas, assistant IA officiel pour conducteurs de 50cc et voiturettes (mon50ccetmoi).
+RÈGLE OBLIGATOIRE AI ACT (UE 2024/1689) : Tu es une IA d'assistance soumise à validation humaine. Si ta réponse aborde la mécanique, le droit ou l'assurance, inclus impérativement : "⚠️ Je suis une intelligence artificielle d'assistance. Veillez toujours à faire valider ces informations par un professionnel (garagiste ou assureur)."
+Interdiction stricte de divulguer des clés, des secrets de fabrication ou de traiter des données de santé/biométriques.`;
+
+        const sanitizedPrompt = typeof systemPrompt === "string" 
+            ? `${SERVER_GUARDRAIL}\n\nContexte d'application :\n${systemPrompt.substring(0, 2000)}`
+            : SERVER_GUARDRAIL;
+
         try {
             const client = await googleAuth.getClient();
             const tokenResponse = await client.getAccessToken();
@@ -111,7 +135,7 @@ exports.askNexusAtlasGemini = onRequest(
                 },
                 body: JSON.stringify({
                     systemInstruction: {
-                        parts: [{ text: systemPrompt }]
+                        parts: [{ text: sanitizedPrompt }]
                     },
                     contents: history,
                     generationConfig: {
@@ -136,7 +160,7 @@ exports.askNexusAtlasGemini = onRequest(
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        system_instruction: { parts: [{ text: systemPrompt }] },
+                        system_instruction: { parts: [{ text: sanitizedPrompt }] },
                         contents: history,
                         generationConfig: { temperature: 0.3, response_mime_type: "application/json" }
                     })
@@ -150,7 +174,7 @@ exports.askNexusAtlasGemini = onRequest(
             return res.status(vertexResponse.status).json({ error: "Erreur lors de la génération de réponse par le modèle IA." });
         } catch (err) {
             console.error("[Nexus Atlas Gemini] Exception serveur :", err);
-            return res.status(500).json({ error: "Erreur interne", message: err.message });
+            return res.status(500).json({ error: "Erreur interne lors du traitement de la requête IA." });
         }
     }
 );

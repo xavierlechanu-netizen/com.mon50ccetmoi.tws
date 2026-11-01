@@ -1,0 +1,62 @@
+# ============================================================================
+# sovereign-core/docker-compose.yml
+# Déploiement Souverain Clé en Main pour Serveur OVHcloud (Debian 12 / Ubuntu 24.04)
+# Zéro dépendance Google Cloud / Firebase
+# ============================================================================
+
+services:
+  postgres-postgis:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: mon50cc-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mon50ccetmoi
+      POSTGRES_USER: ${DB_USER:-mon50cc_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Variable DB_PASSWORD requise}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-mon50cc_admin} -d mon50ccetmoi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-cache:
+    image: redis:7.4-alpine
+    container_name: mon50cc-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  sovereign-api:
+    image: node:22-alpine
+    container_name: mon50cc-api
+    restart: unless-stopped
+    working_dir: /app/sovereign-core
+    volumes:
+      - ../:/app:ro
+      - worm_vault_data:/app/sovereign-core/worm_vault
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      SOVEREIGN_CORS_ORIGIN: https://mon50ccetmoi.com
+      DATABASE_URL: postgres://${DB_USER:-mon50cc_admin}:${DB_PASSWORD}@postgres-postgis:5432/mon50ccetmoi
+      REDIS_URL: redis://redis-cache:6379
+    command: ["node", "server/index.js"]
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      postgres-postgis:
+        condition: service_healthy
+
+volumes:
+  pg_data:
+  redis_data:
+  worm_vault_data:
+

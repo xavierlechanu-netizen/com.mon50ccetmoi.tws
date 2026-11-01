@@ -58,10 +58,11 @@ typedef struct {
     float    pdop;                /**< Position DOP (de $GPGSA) */
     float    vdop;                /**< Vertical DOP (de $GPGSA) */
 
-    /* ---- Date & Heure (UTC) ---- */
+    /* ---- Date & Heure (UTC + Millisecondes 10 Hz) ---- */
     uint8_t  hour;
     uint8_t  minute;
     uint8_t  second;
+    uint16_t millisecond;         /**< Millisecondes UTC (0..999) pour échantillonnage 10 Hz */
     uint8_t  day;
     uint8_t  month;
     uint16_t year;                /**< Année complète (ex: 2026) */

@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 #include "esp_log.h"
 
 #include "gps_parser.h"
@@ -140,6 +141,24 @@ void gps_parser_to_frame(const gps_data_t *gps, void *frame_ptr)
     frame->heading_deg   = (uint16_t)gps->course_deg;
     frame->satellites    = gps->satellites_used;
     frame->hdop_x10      = (uint8_t)(gps->hdop * 10.0f);
+    frame->timestamp_ms  = gps->millisecond;
+
+    /* Calcul horodatage UTC atomique depuis NMEA ($GPRMC) */
+    if (gps->valid && gps->year >= 2024 && gps->month >= 1 && gps->month <= 12 && gps->day >= 1 && gps->day <= 31) {
+        struct tm t = {0};
+        t.tm_year = gps->year - 1900;
+        t.tm_mon  = gps->month - 1;
+        t.tm_mday = gps->day;
+        t.tm_hour = gps->hour;
+        t.tm_min  = gps->minute;
+        t.tm_sec  = gps->second;
+        t.tm_isdst = 0;
+        time_t epoch = mktime(&t);
+        if (epoch > 0) {
+            frame->timestamp_utc = (uint32_t)epoch;
+            frame->flags |= 0x02; /* Bit 1: Horloge synchronisée UTC GNSS atomique */
+        }
+    }
 }
 
 /* ============================================================================
@@ -233,7 +252,7 @@ static void _parse_gga(const char *sentence)
         return;  /* Trame incomplète */
     }
 
-    /* Heure UTC (champ 1 : hhmmss.ss) */
+    /* Heure UTC (champ 1 : hhmmss.ss — précision 10 Hz) */
     if (fields[1] && strlen(fields[1]) >= 6) {
         char hh[3] = { fields[1][0], fields[1][1], '\0' };
         char mm[3] = { fields[1][2], fields[1][3], '\0' };
@@ -241,6 +260,12 @@ static void _parse_gga(const char *sentence)
         s_gps_data.hour   = (uint8_t)_safe_atoi(hh);
         s_gps_data.minute = (uint8_t)_safe_atoi(mm);
         s_gps_data.second = (uint8_t)_safe_atoi(ss);
+
+        const char *dot = strchr(fields[1], '.');
+        if (dot != NULL && *(dot + 1) != '\0') {
+            float frac = _safe_atof(dot);
+            s_gps_data.millisecond = (uint16_t)(frac * 1000.0f) % 1000;
+        }
     }
 
     /* Latitude (champs 2-3) */
@@ -303,6 +328,22 @@ static void _parse_rmc(const char *sentence)
 
     if (field < 10) {
         return;
+    }
+
+    /* Heure UTC + millisecondes 10 Hz (champ 1 : hhmmss.ss) */
+    if (fields[1] && strlen(fields[1]) >= 6) {
+        char hh[3] = { fields[1][0], fields[1][1], '\0' };
+        char mm[3] = { fields[1][2], fields[1][3], '\0' };
+        char ss[3] = { fields[1][4], fields[1][5], '\0' };
+        s_gps_data.hour   = (uint8_t)_safe_atoi(hh);
+        s_gps_data.minute = (uint8_t)_safe_atoi(mm);
+        s_gps_data.second = (uint8_t)_safe_atoi(ss);
+
+        const char *dot = strchr(fields[1], '.');
+        if (dot != NULL && *(dot + 1) != '\0') {
+            float frac = _safe_atof(dot);
+            s_gps_data.millisecond = (uint16_t)(frac * 1000.0f) % 1000;
+        }
     }
 
     /* Statut (champ 2 : A = Active, V = Void) */

@@ -4,6 +4,116 @@ Toutes les modifications notables du projet sont documentées dans ce fichier.
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère au [Versionnement Sémantique](https://semver.org/lang/fr/).
 
+## [112.04.00] - 2026-11-01 - 🗺️ Intégration Souveraine IGN API Carto v2.10.5 (Géoplateforme Sans Clé API) & Plan d'Homologation Black Box REV3
+
+### Géodonnées Souveraines & Qualification Juridique de Sinistre ([src/js/ign-carto.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/src/js/ign-carto.js))
+- **Client Complet OpenAPI 3.1 pour l'API Carto IGN v2.10.5 (100 % gratuit et sans clé API — `apicarto.ign.fr`)** :
+  - **Module Cadastre (`PCI Express` par défaut / `BD Parcellaire`)** : `getCommune`, `getParcelle`, `getFeuille`, `getDivision`, `getLocalisant` en WGS84 (`EPSG:4326`).
+  - **Module Limites Administratives** : `getAdminCommune`, `getAdminDepartement`, `getAdminRegion`.
+  - **Module Codes Postaux (BAN v4.1.2)** : `getCommunesByPostalCode`.
+  - **Module Urbanisme (GpU)** : `queryGpU`, `getGpuZoneUrba`, `getGpuMunicipality` avec limitation de sommets GeoJSON (`MAX_GEOMETRY_POINTS_GPU = 250`).
+  - **Module RPG (V1 & V2, millésimes 2010–2024)** : `getRPG`.
+  - **Module WFS-Géoportail (`data.geopf.fr`)** : `searchWfsGeoportail` (ex: détection de tronçon routier `BDTOPO_V3:troncon_de_route` et vérification des voies interdites aux 50cc/VSP selon l'Art. R421-2 du Code de la route).
+  - **Module Nature (MNHN)** : `queryNature`, `checkProtectedNatureZone` (Natura 2000, Parcs Nationaux/Régionaux, Réserves de Chasse et Faune Sauvage — collision gibier & Art. L362-1 Code de l'environnement).
+  - **Traitements géométriques côté client** : calcul géodésique de surface en $\text{m}^2$ (`computePolygonAreaSqm`), boîte englobante (`computeGeoJSONBBox`) et distance Haversine (`distanceMetersWGS84`).
+- **Enrichissement des Rapports de Sinistre & Portail Litige ([src/js/accident-report.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/src/js/accident-report.js), [src/js/litigation-ai.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/src/js/litigation-ai.js))** :
+  - Croisement automatique via `IGNCarto.qualifyIncidentLocation(lat, lng)` pour qualifier juridiquement le lieu de l'impact : **Domaine Public Routier non cadastré** (application de plein droit du Code de la route & Loi Badinter) vs **Parcelle Cadastrée** (section, numéro, IDU, contenance $\text{m}^2$, zonage PLU GpU).
+- **Sécurité & CSP ([firebase.json](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/firebase.json), [.agents/AGENTS.md](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/.agents/AGENTS.md))** :
+  - Autorisation explicite de `https://apicarto.ign.fr` et `https://data.geopf.fr` dans la directive `connect-src` de la `Content-Security-Policy`.
+  - Validation stricte par allowlist/plages des coordonnées WGS84 et échappement HTML systématique (`escapeHtml`, OWASP ASVS v5.0.0-1.2.1 & v5.0.0-2.2.1).
+
+### Homologation Systèmes Critiques Black Box REV3 (`EXP-BB50-2026-REV3` — ISO 26262, ISO 7637-2, ISO/IEC 27037, eIDAS)
+- **Cryptographie Forensique & Chaînage de Merkle ([blackbox_storage.c](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/blackbox/blackbox_storage.c), [blackbox_storage.h](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/blackbox/blackbox_storage.h), [blackbox_ble.ino](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/firmware_esp32/blackbox_ble.ino))** :
+  - Migration du chiffrement malléable `AES-256-CBC` vers le chiffrement authentifié **`AES-256-GCM`** (NIST SP 800-38D : Nonce 96 bits via TRNG matériel + `seq_id` en AAD + Tag d'intégrité `GMAC` de 128 bits = 96 octets par trame).
+  - Implémentation du **Chaînage de Hachage de Merkle (`SHA-256`)** : $\text{Hash}_N = \text{SHA-256}(\text{Hash}_{N-1} \parallel \text{Trame}_N)$ avec numéro de séquence monotone `seq_id` rendant toute suppression sélective de trame mathématiquement détectable.
+  - Signature asymétrique matérielle **`ECDSA P-256` (`secp256r1`)** du rapport de choc pour garantir la non-répudiation (Art. 1366 du Code civil / eIDAS).
+- **Cadence GNSS 10 Hz Réel & Sauvegarde "Last-Gasp Write" ([main.c](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/main/main.c), [gps_parser.c](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/gps/gps_parser.c), [blackbox_ble.ino](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/firmware_esp32/blackbox_ble.ino))** :
+  - Reconfiguration dynamique de l'UART GNSS Quectel L76-LB à **115 200 bauds** (`$PMTK251,115200*1F`) et **10 Hz réel** (`$PMTK220,100*2F`) avec extraction des fractions de seconde NMEA (`timestamp_ms` 0..999 ms).
+  - Interruption matérielle de détection de chute de tension 12V (*Last-Gasp Write*) coupant les périphériques énergivores et figeant la fenêtre de choc en Flash SPI NOR grâce au supercondensateur `0,22 F`.
+- **Protocole BLE Dual-Mode (`Notify` / `Indicate` + `ACK_SEQ_ID`) & Bridge Natif Capacitor ([ble_comm.c](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/ble_comm/ble_comm.c), [src/js/blackbox-ble.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/src/js/blackbox-ble.js))** :
+  - Flux continu ($< 3,0\text{G}$) transmis en *GATT Notification* et événements de choc ($\ge 3,0\text{G}$) transmis en *GATT Indication* avec acquittement applicatif explicite `ACK_SEQ_ID` sur la caractéristique `0x0104`.
+  - Support natif du plugin Capacitor `@capacitor-community/bluetooth-le` (iOS `CoreBluetooth` *State Restoration* & Android *Foreground Service* écran verrouillé) avec fallback Web Bluetooth API.
+- **Vérification Forensique Serveur, Fenêtre RGPD $\pm 30\,\text{s}$ & Nomenclature Industrielle Rev 2.0 ([functions/api/blackbox-core.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/functions/api/blackbox-core.js), [functions/api/iot.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/functions/api/iot.js), [tools/provision_blackbox.py](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/tools/provision_blackbox.py), [hardware/production/BOM.csv](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/production/BOM.csv))** :
+  - Vérification serveur des chaînes de Merkle `SHA-256` (`verifyMerkleChain`), des signatures matérielles `ECDSA P-256` (`verifyEcdsaP256Signature`) et filtrage strict de la fenêtre d'incident à **$\pm 30\text{ secondes}$** autour de l'impact (`filterCrashWindowFrames`, conformité RGPD Art. 5).
+  - Mise à jour de la nomenclature industrielle Rev 2.0 (TVS 600W `SMBJ33CA` ISO 7637-2, Buck 60V `LMR16006`, batterie ininflammable $\text{LiFePO}_4$, supercondensateur `0,22 F` et enrobage polyuréthane Shore 65A IP67/IP69K).
+
+## [112.03.00] - 2026-10-30 - 🛠️ Durcissement Firmware Black Box & Grand Livre Monétaire Serveur (Phase 1)
+
+### Embarqué & Firmware IoT (ESP32-C3 / RISC-V)
+- **Survie de la Flash SPI NOR ([blackbox_storage.c](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/blackbox/blackbox_storage.c), [blackbox_storage.h](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/blackbox/blackbox_storage.h))** :
+  - **Correction du bug critique d'usure Flash (H-9)** : suppression de l'écriture systématique à 1 Hz de l'en-tête de partition sur le secteur 0.
+  - Réservation exclusive du secteur 0 (4 Ko) pour l'en-tête afin d'éviter toute corruption croisée avec la première trame.
+  - Sauvegarde de l'en-tête synchronisée toutes les 50 trames (`HEADER_SYNC_PERIOD`) et mise à disposition de `blackbox_storage_flush()` (durée de vie Flash décuplée de 27 heures à plusieurs années).
+  - Effacement automatique des secteurs 4 Ko lors du franchissement de frontières en ring-buffer.
+- **Accéléromètre & Détection de Chocs ([blackbox_ble.ino](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/firmware_esp32/blackbox_ble.ino))** :
+  - Configuration explicite du registre `0x1C` (ACCEL_CONFIG) du capteur MPU6050 à la pleine échelle $\pm$16G (`0x18`) avec facteur d'échelle `2048.0 LSB/g` (au lieu de saturer à $\pm$2G).
+- **Intégrité Temporelle & Valeur Probante ([gps_parser.c](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/components/gps/gps_parser.c), [main.c](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/hardware/firmware/main/main.c), [blackbox_ble.ino](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/firmware_esp32/blackbox_ble.ino))** :
+  - Calcul d'un horodatage atomique GNSS UTC réel (Epoch Unix) à partir des trames NMEA `$GPRMC` au lieu du simple uptime `millis()`, avec positionnement du drapeau d'intégrité temporelle (`0x02`).
+- **Suppression du PIN Usine Statique & MTU BLE ([blackbox_ble.ino](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/firmware_esp32/blackbox_ble.ino))** :
+  - Remplacement du PIN statique `503050` par une génération dynamique pseudo-aléatoire via TRNG matériel (`esp_random()`).
+  - Activation de l'ATT MTU étendu à 256 octets (`BLEDevice::setMTU(256)`) pour garantir la transmission sans troncature des paquets chiffrés.
+
+### Grand Livre des Points & Sécurité Applicative (OWASP ASVS v5.0.0-2.3.3)
+- **Grand Livre Immuable Serveur ([functions/api/points-ledger.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/functions/api/points-ledger.js), [functions/index.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/functions/index.js))** :
+  - Création de la Cloud Function `transactPoints` basée sur `db.runTransaction` avec enregistrement append-only dans `points_ledger`.
+  - Allowlist stricte des motifs autorisés (gains et débits), plafonds par transaction et quotas journaliers anti-triche.
+  - Export de la fonction `getPointsHistory` permettant de consulter les 50 dernières écritures personnelles.
+- **Règles Firestore ([firestore.rules](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/firestore.rules))** :
+  - Sanctuarisation de la collection `points_ledger` en écriture exclusive Admin SDK (`allow write: if false;`).
+- **Adaptation Frontend ([src/js/bvc-manager.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/src/js/bvc-manager.js), [src/js/exchange.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/src/js/exchange.js))** :
+  - Migration de `BVCManager.add` et `BVCManager.deduct` pour déléguer l'écriture à la fonction serveur avec rollback optimiste en cas de rejet.
+  - Refonte de la réservation de pièces dans `exchange.js` pour passer par `BVCManager.deduct` au lieu de muter directement le document Firestore.
+- **Couverture de Tests ([tests/points-ledger.test.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/tests/points-ledger.test.js))** :
+  - Suite de 7 nouveaux tests unitaires validant l'authentification, les plafonds unitaire et journalier, les motifs autorisés et le rejet de solde insuffisant (12 test suites, 86 tests passés).
+
+## [112.02.00] - 2026-10-30 - 🚨 Remédiation de Sécurité Critique — Phase 0 (Le Garrot)
+
+### Sécurité & Règles Firestore (OWASP Top 10 2021 / ASVS v5.0.0)
+- **Verrouillage Strict de `users/{userId}` ([firestore.rules](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/firestore.rules))** :
+  - Interdiction formelle côté client de modifier ou s'auto-attribuer des points (`braveCoins`, `bvc_points`, `bvcPoints`, `points`), le statut `isPremium`, `subscription`, `isCertifiedGarage` ou les statuts de sanctions/bans (`isBanned`, `isTempBanned`, `tempBansCount`, `appealStatus`).
+  - Suppression de la règle permissive permettant aux garages certifiés de lire l'ensemble des profils `users` (fermeture de la fuite PII globale / RGPD Art. 5).
+- **Élimination des Règles Permissives Dupliquées** :
+  - Suppression des blocs résiduels `allow create: if true` sur `crash_reports` et `mod_logs` (prévention du spam DoS et de la falsification du registre d'audit de modération DSA Art. 17).
+  - Conditionnement de `nexus_conversations` et `nexus_suggestions` à l'authentification (`isSignedIn()`).
+- **Sanctuarisation des Preuves Black Box & Télémétrie** :
+  - `blackbox_reports` et `blackbox_telemetry` passent en écriture exclusive serveur (`allow create, update, delete: if false;`), éliminant la possibilité de forger de faux rapports de sinistre côté client.
+  - Vérification de l'identité du propriétaire sur les mises à jour de `guardian_sessions`.
+
+### Neutralisation des Backdoors & Contournements Frontend
+- **Suppression du Bypass Garage ([src/js/app-features.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/src/js/app-features.js), [src/js/garage-pro.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/src/js/garage-pro.js))** :
+  - Désactivation de `applyPartnerExemption` (qui offrait la certification garage gratuite sans contrôle serveur).
+  - Remplacement de la simulation de paiement de `registerGarage` par l'appel officiel au checkout Revolut `window.buyGaragePass()`.
+- **Suppression des Fonctions de Test Globales ([src/js/app-ui.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/src/js/app-ui.js))** :
+  - Élimination de `window.testFallDetection`.
+
+### Backend & Cloud Functions
+- **Durcissement du Proxy Gemini ([functions/api/services.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/functions/api/services.js))** :
+  - Validation stricte de la structure et de la taille de l'historique (max 20 messages, 4000 caractères/message).
+  - Encapsulation obligatoire du prompt dans un garde-fou serveur immuable (AI Act UE 2024/1689 Art. 50).
+  - Masquage des erreurs d'implémentation système vers le client.
+- **Verrouillage de l'Enrôlement FDO ([functions/api/iot.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/functions/api/iot.js))** :
+  - Suspension sécurisée (503) de l'enrôlement automatique `iotFdoRendezvous` jusqu'à l'implémentation de la validation cryptographique de signature ECDSA en Phase 1.
+- **Dépendances & Vulnérabilités** :
+  - Correction des dépendances vulnérables (`body-parser`, `nodemailer`, `qs`, `undici`, `re2js`, `vite`). 0 vulnérabilité High/Critical restante.
+
+## [112.01.00] - 2026-10-21 - 🔒 Durcissement Sécurité d'Élite & Idempotence Transactionnelle Revolut (Correctifs Audit)
+
+### Sécurité & Authentification (OWASP ASVS v5.0.0 / CIS v8.1)
+- **Passerelle API Centralisée (`src/js/api-client.js`, `tests/api-client.test.js`)** :
+  - Création du module client unifié injectant systématiquement l'en-tête `Authorization: Bearer <idToken>` Firebase Auth.
+  - Sécurisation de tous les modules de paiement et d'urgence (`certificate.js`, `insurance-portal.js`, `app-features.js`, `anti-theft.js`, `blackbox-shop.js`).
+- **Suppression de Compte RGPD Art. 17 Sécurisée (`src/js/rgpd-cnil.js`)** :
+  - Correction de l'endpoint vers le backend de production `mon50ccetmoi`.
+  - Conditionnement strict de l'effacement local à la réussite effective de la purge serveur (`deleteUserAccount`).
+- **Idempotence & Transactions Revolut (`functions/api/payments.js`, `functions/api/payments-catalog.js`)** :
+  - Rejet des requêtes de webhook déjà traitées (`status === COMPLETED`) pour éliminer tout risque de double crédit de points ou de vente.
+  - Isolation catégorielle stricte (`LITIGATION`, `POINTS`, `GARAGE`, `BATTERY_CERT`, `BLACKBOX`) empêchant le déblocage illicite de rapports premium.
+  - Vérification de la propriété du dossier (`userId === auth.uid`) sur les litiges et génération automatique de `case_id` sécurisé.
+  - Verrouillage dans `firestore.rules` de la création des certificats batterie, désormais émis exclusivement côté serveur.
+- **Firmware ESP32 & NVS Provisioning (`firmware_esp32/blackbox_ble.ino`, `tools/provision_blackbox.py`)** :
+  - Blocage immédiat de la télémétrie en cas de clé AES non chargée (interdiction stricte du chiffrement à clé nulle).
+  - PIN Bluetooth sécurisé dynamique généré par TRNG et chargé depuis la partition NVS.
+
 ## [111.05.00] - 2026-10-16 - 🛡️ Modération Autonome Nexus Atlas, Analyse Sémantique Continue, Sanctions Strictes & Responsabilité Solidaire du Parrainage
 
 ### Fonctionnalités

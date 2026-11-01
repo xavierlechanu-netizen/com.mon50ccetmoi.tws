@@ -156,37 +156,31 @@ export const BlackBoxShop = {
     const caseId = "BB-SALE-" + Date.now();
 
     try {
-      // 1. Obtenir le token de session utilisateur si connecté
-      let authHeader = "";
-      if (typeof auth !== "undefined" && auth.currentUser) {
-        const idToken = await auth.currentUser.getIdToken(true);
-        authHeader = `Bearer ${idToken}`;
-      } else {
-        alert("Veuillez vous connecter pour commander votre boîte noire et assurer le suivi de garantie.");
-        window.location.href = "login.html";
-        this.isProcessing = false;
-        return;
+      // 1. Appel Cloud Function sécurisée createRevolutOrder via ApiClient
+      const ApiClient = window.ApiClient;
+      if (!ApiClient) {
+        throw new Error("Module API non chargé.");
       }
 
-      // 2. Appel Cloud Function sécurisée createRevolutOrder
-      const response = await fetch(`${functionBaseUrl}/createRevolutOrder`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": authHeader
-        },
-        body: JSON.stringify({
-          case_id: caseId,
-          report_type: reportType
-        })
-      });
-
-      if (!response.ok) {
-        const errJson = await response.json().catch(() => ({}));
-        throw new Error(errJson.error || `Erreur serveur (${response.status})`);
+      let orderData;
+      try {
+        orderData = await ApiClient.authFetch("createRevolutOrder", {
+          method: "POST",
+          body: {
+            case_id: caseId,
+            report_type: reportType
+          }
+        });
+      } catch (authErr) {
+        if (authErr.name === "AuthRequiredError") {
+          alert("Veuillez vous connecter pour commander votre boîte noire et assurer le suivi de garantie.");
+          window.location.href = "login.html";
+          this.isProcessing = false;
+          return;
+        }
+        throw authErr;
       }
 
-      const orderData = await response.json();
       if (!orderData?.order_token) {
         throw new Error("Jeton de paiement Revolut introuvable.");
       }

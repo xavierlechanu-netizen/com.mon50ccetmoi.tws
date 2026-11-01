@@ -1,22 +1,25 @@
 /**
- * BLACK BOX — LOGIQUE MÉTIER PURE (sans dépendance Firebase)
+ * BLACK BOX — LOGIQUE MÉTIER PURE & CRYPTOGRAPHIE PROBANTE (sans dépendance Firebase)
  * ─────────────────────────────────────────────────────────────────────────────
  * Source de vérité serveur pour :
  *  - le format des numéros de série :
  *      * Prototypes : BB50V1-P01 à BB50V1-P10 (lettre P réservée aux 10 prototypes)
- *      * Série commerciale : débute à A01 (BB50V1-A01...A99, B01...B99)
+ *      * Série commerciale : débute à A01 (BB50V1-A01...A99, B01...B99, BB50V2-A01...)
  *      * Le 00 est STRICTEMENT EXCLU de la numérotation (A00, B00, P00 interdits)
  *  - le code Bluetooth unique (PIN 6 chiffres / passkey BLE sécurisé)
  *  - la machine à états du cycle de vie d'un boîtier (fabrication, QA, stock, vente)
  *  - la validation positive (allowlist) des champs saisis par l'admin
  *  - la tarification de la boutique (calculée serveur, jamais client)
  *  - la garantie de livraison (< 24h) et le partenariat Francelog S.A. (Linselles)
+ *  - la chaîne de confiance cryptographique (Réf. EXP-BB50-2026-REV3) :
+ *      * Chaînage de hachage de Merkle SHA-256 anti-troncature (ISO/IEC 27037)
+ *      * Vérification de signature asymétrique matérielle ECDSA P-256 (eIDAS / Art. 1366 C. Civ.)
+ *      * Filtrage de la fenêtre d'incident RGPD (±30 secondes autour de l'impact)
  *
  * ⚠️ Miroir client : src/js/blackbox-core.js
  *    La parité des deux fichiers est vérifiée par tests/blackbox-core.test.js.
  *
- * Conformité : OWASP ASVS v5.0.0-2.2.1 (validation allowlist), v5.0.0-2.3.3
- * (les transitions sont appliquées en transaction par blackbox-registry.js).
+ * Conformité : OWASP ASVS v5.0.0-2.2.1 (validation allowlist), v5.0.0-2.3.3, v5.0.0-11.x.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -26,7 +29,7 @@ const crypto = require("crypto");
 
 // ─── Numérotation ────────────────────────────────────────────────────────────
 const SERIAL_PREFIX = "BB50";
-const HW_REVISIONS = ["V1"]; // Allowlist : ajouter "V2" lors de la prochaine révision PCB
+const HW_REVISIONS = ["V1", "V2"]; // V1 (Prototypes & Série initiale) + V2 (PCB Automotive ISO 7637-2 / LiFePO4)
 const PROTOTYPE_REVISION = "V1"; // La lettre P est réservée aux 10 prototypes V1
 const MAX_PROTOTYPES = 10;
 const SERIES_BATCH_MAX = 100; // Plafond par appel (anti-DoS / limite transaction Firestore)
@@ -34,11 +37,11 @@ const SERIES_BATCH_MAX = 100; // Plafond par appel (anti-DoS / limite transactio
 // Lettres autorisées pour la production en série (P est exclu car réservé aux 10 prototypes)
 const SERIES_LETTERS = "ABCDEFGHIJKLMNOQRSTUVWXYZ"; // 25 lettres
 const UNITS_PER_LETTER = 99; // 01 à 99 (le 00 est exclu)
-const SERIES_MAX = SERIES_LETTERS.length * UNITS_PER_LETTER; // 2475 unités pour série V1 à 1 lettre
+const SERIES_MAX = SERIES_LETTERS.length * UNITS_PER_LETTER; // 2475 unités pour série à 1 lettre
 
 // Regex de validation :
 // - Prototypes : BB50V1-P01 à BB50V1-P10
-// - Série commerciale : BB50V1-A01 à BB50V1-Z99 (ou AA01..ZZ99), 00 strictement exclu !
+// - Série commerciale : BB50V1-A01 à BB50V2-Z99 (ou AA01..ZZ99), 00 strictement exclu !
 const SERIAL_REGEX = /^BB50(V[1-9])-(?:P(0[1-9]|10)|([A-Z]{1,2}(?:0[1-9]|[1-9][0-9])))$/;
 const SHORT_CODE_REGEX = /^(?:P(0[1-9]|10)|([A-Z]{1,2}(?:0[1-9]|[1-9][0-9])))$/;
 
@@ -50,6 +53,10 @@ const DEFAULT_MANUFACTURING_SITE = "Linselles (59)";
 const PARTNER_SERIES_STATUS = "En attente validation Francelog pour production en série";
 const PARTNER_PROTOTYPE_STATUS = "Validé (10 prototypes V1)";
 const DELIVERY_GUARANTEE = "Moins de 24h garantie";
+
+// ─── Paramètres Forensiques & RGPD (EXP-BB50-2026-REV3) ──────────────────────
+const CRASH_WINDOW_SECONDS = 30; // RGPD Art. 5 : ±30 secondes autour de l'impact
+const P256_SPKI_PREFIX_HEX = "3059301306072a8648ce3d020106082a8648ce3d030107034200";
 
 // ─── Cycle de vie ────────────────────────────────────────────────────────────
 const STATUSES = Object.freeze({
@@ -170,7 +177,7 @@ function seriesCodeToUnitNumber(code) {
 
 /**
  * Construit un numéro de série canonique. Lève une erreur si les paramètres sont hors bornes.
- * @param {string} revision  ex. "V1"
+ * @param {string} revision  ex. "V1" ou "V2"
  * @param {"PROTOTYPE"|"SERIES"} type
  * @param {number|string} unitNumber  1..10 (prototype) ou entier >= 1 / code "A01" (série)
  */
@@ -212,7 +219,7 @@ function parseSerial(input) {
     const clean = input.trim().toUpperCase();
     if (clean.length > 20 || clean.length < 3) return null;
 
-    // 1. Format canonique complet : BB50V1-P01 ou BB50V1-A01
+    // 1. Format canonique complet : BB50V1-P01 ou BB50V1-A01 / BB50V2-A01
     const m = SERIAL_REGEX.exec(clean);
     if (m) {
         const revision = m[1];
@@ -398,6 +405,188 @@ function computeShopOrder(product, prototypeOffersTaken) {
     return { product, quantity: 1, amountCents: SHOP_PRICES_CENTS.UNIT, unitType: UNIT_TYPES.SERIES, prototypeOffer: false, lifetimeWarranty: false };
 }
 
+// ─── Forensique : Chaînage de Merkle SHA-256 & ECDSA P-256 (EXP-BB50-2026-REV3) ──
+
+/**
+ * Calcule un maillon de la chaîne de hachage de Merkle :
+ * Hash_N = SHA-256(Hash_{N-1} || Frame_N)
+ * @param {string|Buffer} prevHashHex Empreinte précédente (64 caractères hex = 32 octets)
+ * @param {string|Buffer} framePayload Contenu de la trame (JSON string, Buffer ou base64)
+ * @returns {string} Empreinte SHA-256 résultante en hexadécimal (64 caractères)
+ */
+function computeMerkleStep(prevHashHex, framePayload) {
+    let prevBuf;
+    if (Buffer.isBuffer(prevHashHex)) {
+        prevBuf = prevHashHex;
+    } else if (typeof prevHashHex === "string" && /^[0-9a-fA-F]{64}$/.test(prevHashHex.trim())) {
+        prevBuf = Buffer.from(prevHashHex.trim(), "hex");
+    } else {
+        throw new Error("prevHashHex invalide (doit être un hash SHA-256 de 32 octets / 64 hex).");
+    }
+
+    let payloadBuf;
+    if (Buffer.isBuffer(framePayload)) {
+        payloadBuf = framePayload;
+    } else if (typeof framePayload === "string") {
+        payloadBuf = Buffer.from(framePayload, "utf8");
+    } else {
+        throw new Error("framePayload invalide.");
+    }
+
+    return crypto.createHash("sha256").update(prevBuf).update(payloadBuf).digest("hex");
+}
+
+/**
+ * Vérifie l'intégrité d'une séquence de trames liées par chaîne de Merkle et seqId monotone.
+ * Détecte toute suppression, insertion ou réordonnancement sélectif de trames (ISO/IEC 27037).
+ * @param {Array<{seqId:number, prevHashHex?:string, payload:string|Buffer}>} frames
+ * @param {string} initialSeedHex Hash initial attendu pour la première trame (64 caractères hex)
+ * @returns {{valid:boolean, checkedCount:number, finalHashHex:string|null, brokenAtIndex:number|null, reason:string|null}}
+ */
+function verifyMerkleChain(frames, initialSeedHex) {
+    if (!Array.isArray(frames) || frames.length === 0) {
+        return { valid: false, checkedCount: 0, finalHashHex: null, brokenAtIndex: 0, reason: "Séquence de trames vide." };
+    }
+    if (typeof initialSeedHex !== "string" || !/^[0-9a-fA-F]{64}$/.test(initialSeedHex.trim())) {
+        return { valid: false, checkedCount: 0, finalHashHex: null, brokenAtIndex: 0, reason: "Graine initiale SHA-256 invalide." };
+    }
+
+    let runningHashHex = initialSeedHex.trim().toLowerCase();
+
+    for (let i = 0; i < frames.length; i++) {
+        const frame = frames[i];
+        if (!frame || typeof frame !== "object") {
+            return { valid: false, checkedCount: i, finalHashHex: null, brokenAtIndex: i, reason: "Trame malformée." };
+        }
+
+        // Vérification de la monotonie stricte de seqId
+        if (i > 0 && Number.isInteger(frame.seqId) && Number.isInteger(frames[i - 1].seqId)) {
+            if (frame.seqId !== frames[i - 1].seqId + 1) {
+                return {
+                    valid: false,
+                    checkedCount: i,
+                    finalHashHex: null,
+                    brokenAtIndex: i,
+                    reason: `Rupture de séquence détectée à l'index ${i} (attendu seqId=${frames[i - 1].seqId + 1}, reçu=${frame.seqId}).`
+                };
+            }
+        }
+
+        // Vérification du pointeur prevHashHex (supporte 64 chars complets ou 32 chars tronqués 128 bits)
+        if (typeof frame.prevHashHex === "string" && frame.prevHashHex.length > 0) {
+            const cleanPrev = frame.prevHashHex.trim().toLowerCase();
+            const expectedPrefix = runningHashHex.slice(0, cleanPrev.length);
+            if (cleanPrev !== expectedPrefix) {
+                return {
+                    valid: false,
+                    checkedCount: i,
+                    finalHashHex: null,
+                    brokenAtIndex: i,
+                    reason: `Rupture de chaîne de Merkle à l'index ${i} (prevHash=${cleanPrev} != attendu=${expectedPrefix}).`
+                };
+            }
+        }
+
+        const rawPayload = frame.payload !== undefined ? frame.payload : (frame.encryptedPayload || "");
+        runningHashHex = computeMerkleStep(runningHashHex, rawPayload);
+    }
+
+    return {
+        valid: true,
+        checkedCount: frames.length,
+        finalHashHex: runningHashHex,
+        brokenAtIndex: null,
+        reason: null
+    };
+}
+
+/**
+ * Valide le format d'une clé publique ECDSA P-256 (secp256r1) :
+ * - Format non-compressé SEC1 hex : 65 octets ("04" + 128 caractères hex)
+ * - Format PEM : "-----BEGIN PUBLIC KEY-----..."
+ * @param {string} pubKeyInput
+ * @returns {boolean}
+ */
+function isValidEcdsaPublicKey(pubKeyInput) {
+    if (typeof pubKeyInput !== "string") return false;
+    const clean = pubKeyInput.trim();
+    if (/^04[0-9a-fA-F]{128}$/.test(clean)) return true;
+    if (clean.startsWith("-----BEGIN PUBLIC KEY-----") && clean.endsWith("-----END PUBLIC KEY-----")) {
+        try {
+            const keyObj = crypto.createPublicKey(clean);
+            return keyObj.asymmetricKeyType === "ec";
+        } catch (_) {
+            return false;
+        }
+    }
+    return false;
+}
+
+/**
+ * Vérifie une signature asymétrique matérielle ECDSA P-256 (secp256r1 / SHA-256).
+ * Compatible avec les signatures DER générées par mbedtls sur ESP32-C3.
+ * @param {string|Buffer} payload Data signée (ex: hardware_id ou racine de Merkle)
+ * @param {string|Buffer} signatureDerHexOrB64 Signature au format DER (hex ou base64)
+ * @param {string} publicKeyHexOrPem Clé publique ECDSA P-256 (65B SEC1 hex "04..." ou PEM)
+ * @returns {boolean}
+ */
+function verifyEcdsaP256Signature(payload, signatureDerHexOrB64, publicKeyHexOrPem) {
+    if (!payload || !signatureDerHexOrB64 || !isValidEcdsaPublicKey(publicKeyHexOrPem)) {
+        return false;
+    }
+
+    try {
+        let keyObject;
+        const cleanPub = publicKeyHexOrPem.trim();
+        if (/^04[0-9a-fA-F]{128}$/.test(cleanPub)) {
+            const spkiDer = Buffer.from(P256_SPKI_PREFIX_HEX + cleanPub, "hex");
+            keyObject = crypto.createPublicKey({ key: spkiDer, format: "der", type: "spki" });
+        } else {
+            keyObject = crypto.createPublicKey(cleanPub);
+        }
+
+        let sigBuf;
+        if (Buffer.isBuffer(signatureDerHexOrB64)) {
+            sigBuf = signatureDerHexOrB64;
+        } else if (typeof signatureDerHexOrB64 === "string") {
+            const cleanSig = signatureDerHexOrB64.trim();
+            if (/^[0-9a-fA-F]+$/.test(cleanSig) && cleanSig.length % 2 === 0) {
+                sigBuf = Buffer.from(cleanSig, "hex");
+            } else {
+                sigBuf = Buffer.from(cleanSig, "base64");
+            }
+        } else {
+            return false;
+        }
+
+        const dataBuf = Buffer.isBuffer(payload) ? payload : Buffer.from(String(payload), "utf8");
+        return crypto.verify("sha256", dataBuf, keyObject, sigBuf);
+    } catch (_) {
+        return false;
+    }
+}
+
+/**
+ * Filtre les trames télémétriques pour ne conserver que la fenêtre légale d'incident
+ * [impactTimestampSec - windowSeconds, impactTimestampSec + windowSeconds] (par défaut ±30s).
+ * Conformité RGPD Art. 5 (minimisation des données) & protection contre l'auto-incrimination.
+ * @param {Array<{timestamp:number}>} frames
+ * @param {number} impactTimestampSec Horodatage UTC de l'impact en secondes
+ * @param {number} [windowSeconds=30] Demi-fenêtre temporelle en secondes
+ * @returns {Array} Trames comprises dans la fenêtre [t0 - 30s, t0 + 30s]
+ */
+function filterCrashWindowFrames(frames, impactTimestampSec, windowSeconds = CRASH_WINDOW_SECONDS) {
+    if (!Array.isArray(frames)) return [];
+    if (typeof impactTimestampSec !== "number" || !Number.isFinite(impactTimestampSec) || impactTimestampSec <= 0) {
+        throw new Error("Horodatage d'impact invalide pour le filtrage de la fenêtre probante.");
+    }
+    const halfWin = typeof windowSeconds === "number" && windowSeconds > 0 && windowSeconds <= 60 ? windowSeconds : CRASH_WINDOW_SECONDS;
+    const minTs = impactTimestampSec - halfWin;
+    const maxTs = impactTimestampSec + halfWin;
+
+    return frames.filter((f) => f && typeof f.timestamp === "number" && f.timestamp >= minTs && f.timestamp <= maxTs);
+}
+
 /** UID tronqué pour les journaux (RGPD : jamais d'UID complet ni de PII dans les logs). */
 function shortUid(uid) {
     return typeof uid === "string" && uid.length > 0 ? uid.substring(0, 6) + "…" : "anon";
@@ -409,6 +598,7 @@ module.exports = {
     SERIAL_REGEX, SHORT_CODE_REGEX,
     UNIT_TYPES, DEFAULT_MANUFACTURER, DEFAULT_MANUFACTURING_SITE,
     PARTNER_SERIES_STATUS, PARTNER_PROTOTYPE_STATUS, DELIVERY_GUARANTEE,
+    CRASH_WINDOW_SECONDS,
     STATUSES, STATUS_LABELS, TRANSITIONS, ASSIGNMENT_ONLY_TRANSITIONS, REASON_REQUIRED_STATUSES, INITIAL_STATUSES,
     WARRANTY_TYPES, SHOP_PRODUCTS, SHOP_PRICES_CENTS, PROTOTYPE_RESERVATION_MINUTES,
     unitNumberToSeriesCode, seriesCodeToUnitNumber,
@@ -416,5 +606,7 @@ module.exports = {
     generateBluetoothPasskey, isValidBluetoothPasskey,
     isKnownStatus, canTransition, manualTransitions, isAssignmentOnlyTransition, requiresReason,
     normalizeMac, isValidFirmwareVersion, normalizeBatchNumber, parseIsoDate, sanitizeText,
-    computeWarranty, computeShopOrder, shortUid,
+    computeWarranty, computeShopOrder,
+    computeMerkleStep, verifyMerkleChain, isValidEcdsaPublicKey, verifyEcdsaP256Signature, filterCrashWindowFrames,
+    shortUid,
 };

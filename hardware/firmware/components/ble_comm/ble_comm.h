@@ -41,8 +41,10 @@ extern "C" {
 /* ---- UUIDs des caractéristiques ---- */
 /* Télémétrie */
 #define BLE_UUID_CHR_FRAME_COUNT   0x0101  /**< Nombre de trames (read) */
-#define BLE_UUID_CHR_FRAME_DATA    0x0102  /**< Données trame (notify) */
+#define BLE_UUID_CHR_FRAME_DATA    0x0102  /**< Données trame (notify + indicate sur choc >3G) */
 #define BLE_UUID_CHR_EXPORT_CMD    0x0103  /**< Commande d'export (write) */
+#define BLE_UUID_CHR_ACK_SEQ       0x0104  /**< Acquittement applicatif ACK_SEQ_ID (write) */
+#define BLE_UUID_CHR_ECDSA_SIG     0x0105  /**< Signature ECDSA P-256 + Clé publique (read/notify) */
 
 /* Diagnostic */
 #define BLE_UUID_CHR_BATTERY       0x0201  /**< Tension batterie mV (read) */
@@ -110,6 +112,22 @@ ble_conn_state_t ble_comm_get_state(void);
  * @return ESP_OK ou ESP_ERR_INVALID_STATE si pas de connexion.
  */
 esp_err_t ble_comm_notify_frame(const uint8_t *data, uint16_t len);
+
+/**
+ * @brief Envoie une trame de choc critique (>3.0G) via GATT Indication (avec ACK couche BLE)
+ *        et enregistre le numéro de séquence en attente d'acquittement applicatif (ACK_SEQ_ID).
+ *
+ * @param data   Pointeur vers les données de la trame.
+ * @param len    Longueur en octets.
+ * @param seq_id Numéro de séquence monotone de la trame de choc.
+ * @return ESP_OK si l'indication a été transmise et acquittée.
+ */
+esp_err_t ble_comm_indicate_shock_frame(const uint8_t *data, uint16_t len, uint32_t seq_id);
+
+/**
+ * @brief Retourne le dernier numéro de séquence acquitté par l'application mobile (ACK_SEQ_ID).
+ */
+uint32_t ble_comm_get_last_acked_seq(void);
 
 /**
  * @brief Enregistre le callback d'export de trames.

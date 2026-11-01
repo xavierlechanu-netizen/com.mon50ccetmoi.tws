@@ -246,29 +246,19 @@ loader.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" style="font-size
       window.crypto.getRandomValues(array);
       const certId = "BATT-" + array[0].toString(36).toUpperCase();
 
-      const projectId = window.CONFIG?.FIREBASE?.projectId || "mon50ccetmoi";
-      const url = `https://europe-west1-${projectId}.cloudfunctions.net/createRevolutOrder`;
-
-      // Création de l'ordre via Firebase Function
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount_cents: amountCents,
-          currency: "EUR",
-          case_id: certId,
-          user_id: window.session?.uid || "unknown",
-          report_type: "BATTERY_CERT_" + tier.toUpperCase(),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          "Erreur serveur lors de la création de l'ordre Revolut.",
-        );
+      // Utilisation d'ApiClient.authFetch (sécurisé avec idToken)
+      const ApiClient = window.ApiClient;
+      if (!ApiClient) {
+        throw new Error("Module API non chargé.");
       }
 
-      const orderData = await response.json();
+      const orderData = await ApiClient.authFetch("createRevolutOrder", {
+        method: "POST",
+        body: {
+          case_id: certId,
+          report_type: "BATTERY_CERT_" + tier.toUpperCase(),
+        },
+      });
 
       if (!orderData?.order_token) {
         throw new Error("Token Revolut non reçu.");

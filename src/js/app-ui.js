@@ -401,14 +401,6 @@ t.innerHTML = `Bienvenue sur mon50ccetmoi v110.00.00 SILVER EDITION ! Prudence s
 updateTicker();
 setInterval(updateTicker, 60000);
 
-window.testFallDetection = function () {
-  alert("Simulation d'un impact dans 3 secondes... Préparez-vous !");
-  setTimeout(() => {
-    triggerFallAlert();
-  }, 3000);
-  toggleMenu();
-};
-
 window.addMaintLog = function () {
   const action = prompt("Quel entretien avez-vous fait ? (ex: Vidange)");
   if (!action) return;

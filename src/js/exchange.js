@@ -343,29 +343,18 @@ window.ExchangeMarket = {
         const user = firebase.auth().currentUser;
         if (!user || !window.db) throw new Error("Utilisateur non connecté");
         
-        const userRef = window.db.collection("users").doc(user.uid);
         const listingRef = window.db.collection("exchange_listings").doc(listingId);
 
-        await window.db.runTransaction(async (transaction) => {
-          const userDoc = await transaction.get(userRef);
-          const listingDoc = await transaction.get(listingRef);
+        // Déduction sécurisée via Cloud Function transactPoints (OWASP ASVS v5.0.0-2.3.3)
+        const deducted = await window.BVCManager.deduct(price, "EXCHANGE_PURCHASE", { listingId });
+        if (!deducted) {
+          throw new Error("Solde insuffisant ou transaction rejetée par le serveur.");
+        }
 
-          if (!userDoc.exists) throw new Error("Utilisateur introuvable");
-          if (!listingDoc.exists) throw new Error("Annonce introuvable");
-
-          const currentBvc = userDoc.data().bvc_points || 0;
-          if (currentBvc < price) throw new Error("Solde insuffisant");
-
-          if (listingDoc.data().status === "reserved" || listingDoc.data().status === "sold") {
-            throw new Error("Cette annonce a déjà été réservée par quelqu'un d'autre.");
-          }
-
-          transaction.update(userRef, { bvc_points: currentBvc - price });
-          transaction.update(listingRef, {
-            status: "reserved",
-            buyer: window.session.username,
-            reservedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          });
+        await listingRef.update({
+          status: "reserved",
+          buyer: window.session.username,
+          reservedAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
 
         // Contacter le vendeur automatiquement

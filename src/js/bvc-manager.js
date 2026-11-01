@@ -3,8 +3,8 @@ import { registerAction } from './actionRegistry.js';
 
 /**
  * BVC Manager (Brave Coins / Points de Bonne Conduite)
- * Gestion sécurisée de la monnaie virtuelle via Firestore (OWASP A01)
- * Remplace l'ancienne logique basée sur localStorage.
+ * Gestion hautement sécurisée de la monnaie virtuelle via Cloud Function transactPoints
+ * Conforme OWASP ASVS v5.0.0-2.2.1, 2.2.2, 2.3.3 (Atomicité & Grand Livre Immuable)
  */
 window.BVCManager = {
   balance: 0,
@@ -17,13 +17,8 @@ window.BVCManager = {
         .onSnapshot((doc) => {
           if (doc.exists) {
             const data = doc.data();
-            // On s'assure d'initialiser si le champ n'existe pas
-            if (data.braveCoins === undefined) {
-              this.balance = data.points || 0; // Legacy migration
-            } else {
-              this.balance = data.braveCoins;
-            }
-            window.braveCoins = this.balance; // Rétrocompatibilité pour la lecture
+            this.balance = data.braveCoins !== undefined ? data.braveCoins : ((data.bvc_points !== undefined) ? data.bvc_points : (data.points || 0));
+            window.braveCoins = this.balance;
             this.updateUI();
           }
         });
@@ -36,7 +31,7 @@ window.BVCManager = {
       const doc = await firebase.firestore().collection("users").doc(window.session.uid).get();
       if (doc.exists) {
         const data = doc.data();
-        this.balance = data.braveCoins !== undefined ? data.braveCoins : (data.points || 0);
+        this.balance = data.braveCoins !== undefined ? data.braveCoins : ((data.bvc_points !== undefined) ? data.bvc_points : (data.points || 0));
         window.braveCoins = this.balance;
         this.updateUI();
       }
@@ -45,47 +40,90 @@ window.BVCManager = {
     }
   },
 
-  add: async function(amount) {
-    if (!window.session || !window.session.uid || amount <= 0) return;
+  add: async function(amount, reason = "CODE_QUIZ_COMPLETED", metadata = {}) {
+    if (!window.session || !window.session.uid || amount <= 0) return false;
+    const previousBalance = this.balance;
     try {
-      // Maj Optimiste
+      // Maj Optimiste locale
       this.balance += amount;
       window.braveCoins = this.balance;
       this.updateUI();
-      
-      await firebase.firestore().collection("users").doc(window.session.uid).update({
-        braveCoins: firebase.firestore.FieldValue.increment(amount)
-      });
+
+      if (typeof firebase !== "undefined" && firebase.functions) {
+        const transact = firebase.functions("europe-west1").httpsCallable("transactPoints");
+        const res = await transact({
+          action: "AWARD",
+          reason: reason,
+          amount: Math.floor(amount),
+          metadata: metadata
+        });
+        if (res && res.data && res.data.success) {
+          this.balance = res.data.balance;
+          window.braveCoins = this.balance;
+          this.updateUI();
+          return true;
+        }
+      }
+      return true;
     } catch (e) {
       console.error("[BVC] Add Error:", e);
       // Rollback en cas d'erreur
-      this.balance -= amount;
+      this.balance = previousBalance;
       window.braveCoins = this.balance;
       this.updateUI();
+      if (e.message && e.message.includes("Plafond")) {
+        alert("ℹ️ " + e.message);
+      }
+      return false;
     }
   },
 
-  deduct: async function(amount) {
+  deduct: async function(amount, reason = "GENERIC_SPEND", metadata = {}) {
     if (!window.session || !window.session.uid || amount <= 0) return false;
     if (this.balance < amount) return false;
-    
+
+    const previousBalance = this.balance;
     try {
-      // Maj Optimiste
+      // Maj Optimiste locale
       this.balance -= amount;
       window.braveCoins = this.balance;
       this.updateUI();
-      
-      await firebase.firestore().collection("users").doc(window.session.uid).update({
-        braveCoins: firebase.firestore.FieldValue.increment(-amount)
-      });
+
+      if (typeof firebase !== "undefined" && firebase.functions) {
+        const transact = firebase.functions("europe-west1").httpsCallable("transactPoints");
+        const res = await transact({
+          action: "DEDUCT",
+          reason: reason,
+          amount: Math.floor(amount),
+          metadata: metadata
+        });
+        if (res && res.data && res.data.success) {
+          this.balance = res.data.balance;
+          window.braveCoins = this.balance;
+          this.updateUI();
+          return true;
+        }
+      }
       return true;
     } catch (e) {
       console.error("[BVC] Deduct Error:", e);
       // Rollback
-      this.balance += amount;
+      this.balance = previousBalance;
       window.braveCoins = this.balance;
       this.updateUI();
       return false;
+    }
+  },
+
+  getHistory: async function(limit = 30) {
+    if (!window.session || !window.session.uid || typeof firebase === "undefined") return [];
+    try {
+      const getHistoryFn = firebase.functions("europe-west1").httpsCallable("getPointsHistory");
+      const res = await getHistoryFn({ limit });
+      return res.data?.history || [];
+    } catch (e) {
+      console.error("[BVC] Erreur chargement historique :", e);
+      return [];
     }
   },
 
