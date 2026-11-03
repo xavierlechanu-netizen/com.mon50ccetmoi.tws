@@ -19,26 +19,27 @@ import './i18n.js';
 import './pwa-install.js';
 // escapeHTML est maintenant défini dans auth.js (global)
 
-// --- BOOT ---
+// --- BOOT (Shared Global State across ES Modules) ---
 
-let map;
-let geocoder;
-let trafficLayer;
+window.map = null;
+window.geocoder = null;
+window.trafficLayer = null;
 
-let userMarker = null;
-let accuracyCircle = null;
-let currentPosition = null;
+window.userMarker = null;
+window.accuracyCircle = null;
+window.currentPosition = null;
 window.routeFerries = [];
-let lastSpokenFerryIndex = -1;
-let hazardMarkers = [];
-let officialPoiMarkers = [];
-let wakeLock = null;
+window.lastSpokenFerryIndex = -1;
+window.hazardMarkers = [];
+window.officialPoiMarkers = [];
+window.wakeLock = null;
 window.isRiding = false;
-let lastSpokenHazard = null;
-let nightModeActive = false;
-let isParkingMode = false;
-let parkingStartPos = null;
-let perfStartTime = null;
+window.lastSpokenHazard = null;
+window.nightModeActive = false;
+window.isParkingMode = false;
+window.parkingStartPos = null;
+window.perfStartTime = null;
+window.isPerfTracking = false;
 
 window.isRodageActive = false;
 window.isGarageVisible = false;
@@ -68,16 +69,26 @@ window.getVehicleIcon = function (brand, model) {
 };
 
 // --- SECURITY SYSTEMS STATE ---
-let lastMovementTime = Date.now();
-let isGuardianPromptActive = false;
-let guardianCheckInterval = null;
-let gForceThreshold = 4.5; // G force for impact detection
-let currentLeanAngle = 0;
-let maxLeanAngle = 0;
+window.lastMovementTime = Date.now();
+window.isGuardianPromptActive = false;
+window.guardianCheckInterval = null;
+window.gForceThreshold = 4.5; // G force for impact detection
+window.currentLeanAngle = 0;
 window.maxLeanAngle = 0;
-let isTelemetryActive = false;
+window.isTelemetryActive = false;
 
 // --- INITIALIZATION ---
+
+function updateUILabels() {
+  if (typeof window.updateI18N === "function") {
+    window.updateI18N();
+  }
+  const displayUser = document.getElementById("display-username");
+  if (displayUser && window.session && window.session.username) {
+    displayUser.textContent = window.session.username;
+  }
+}
+window.updateUILabels = updateUILabels;
 
 function checkTrialExpiration() {
   if (!window.session) return;
@@ -344,7 +355,7 @@ window.startApp = function () {
 
   if (window.BVCManager) window.BVCManager.init();
 
-  runCinematicStartup();
+  if (typeof runCinematicStartup === "function") runCinematicStartup();
 
   checkTrialExpiration();
   updateUILabels();
@@ -353,8 +364,8 @@ window.startApp = function () {
       `${(window.session.totalDistance || 0).toFixed(1)} KM`;
   }
 
-  loadHazards();
-  renderRoadbooks();
+  if (typeof loadHazards === "function") loadHazards();
+  if (typeof renderRoadbooks === "function") renderRoadbooks();
   // window.OracleVoice.start(); désactivé au démarrage pour prévenir l'erreur "Requested device not found" (Zero-Trust)
   // L'utilisateur devra l'activer manuellement
   

@@ -270,6 +270,9 @@ resultDiv.innerHTML = '<span style="color:#ff3333;">Erreur lors de la connexion 
           return;
         }
 
+        const tbody = document.getElementById("agents-list");
+        if (!tbody) return;
+        const tr = document.createElement("tr");
         const escapeHTML = (str) => String(str).replace(/[&<>'"]/g, t => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[t]));
         const safeName = escapeHTML(name);
         const safeEmail = escapeHTML(email);

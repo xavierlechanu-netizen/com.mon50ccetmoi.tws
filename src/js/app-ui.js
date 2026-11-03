@@ -398,8 +398,8 @@ window.updateTicker = function () {
     // eslint-disable-next-line no-restricted-syntax
 t.innerHTML = `Bienvenue sur mon50ccetmoi v110.00.00 SILVER EDITION ! Prudence sur la route. 🛵💨`;
 };
-updateTicker();
-setInterval(updateTicker, 60000);
+window.updateTicker();
+setInterval(window.updateTicker, 60000);
 
 window.addMaintLog = function () {
   const action = prompt("Quel entretien avez-vous fait ? (ex: Vidange)");
@@ -417,7 +417,7 @@ window.joinGroup = function () {
   setTimeout(() => {
     speak(`Vous avez rejoint le groupe ! Vos amis apparaissent sur la carte.`);
     closeScreen();
-    simulateCommunityLive();
+    if (typeof simulateLiveFleet === "function") simulateLiveFleet();
   }, 2000);
 };
 

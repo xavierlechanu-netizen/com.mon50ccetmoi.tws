@@ -1293,8 +1293,11 @@ window.generateTacticalExploration = function () {
     const destLatLngStr = `${destLat},${destLng}`;
 
     setTimeout(() => {
-      document.getElementById("route-search").value = "Zone d'Exploration D-7";
-      startRouteCalculation("current", destLatLngStr);
+      const searchEl = document.getElementById("route-search");
+      if (searchEl) searchEl.value = "Zone d'Exploration D-7";
+      if (typeof calculateRouteSansAutoroute === "function") {
+        calculateRouteSansAutoroute({ lat, lng }, { lat: destLat, lng: destLng });
+      }
     }, 1500);
   });
 };

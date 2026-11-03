@@ -1,10 +1,19 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 
-﻿/* --- INFALLIBLE ARCHITECTURE: WATCHDOG & DEAD RECKONING --- */
+/* --- INFALLIBLE ARCHITECTURE: WATCHDOG & DEAD RECKONING --- */
 
 // 1. WATCHDOG (Auto-Healing)
 window.onerror = function (message, source, lineno, colno, error) {
+  const msgStr = String(message || "");
+  // Ignorer le bruit cross-origin ("Script error.") et le double chargement tiers Axeptio
+  if (
+    (msgStr === "Script error." && !source && !lineno) ||
+    /Axeptio SDK is already loaded/i.test(msgStr)
+  ) {
+    return true;
+  }
+
   console.warn(
     "[WATCHDOG] Erreur fatale interceptée : ",
     message,
@@ -15,6 +24,18 @@ window.onerror = function (message, source, lineno, colno, error) {
     " | Col:",
     colno,
   );
+
+  if (window.CrashReporter && typeof window.CrashReporter.logError === "function") {
+    window.CrashReporter.logError({
+      type: "TypeError/ReferenceError",
+      message: msgStr,
+      source: source,
+      line: lineno,
+      col: colno,
+      stack: error ? error.stack : "N/A",
+    });
+  }
+
   // Au lieu de crasher, on tente un "Soft Reset" du module concerné
   const body = document.body;
   if (body && body.style.display === "none") {
@@ -22,7 +43,7 @@ window.onerror = function (message, source, lineno, colno, error) {
   }
 
   // Si l'erreur vient du chargement Maps, on force le mode dégradé
-  if (message.includes("google") || message.includes("maps")) {
+  if (msgStr.includes("google") || msgStr.includes("maps")) {
     console.warn("[WATCHDOG] Bascule en mode Hors-Ligne forcé.");
     if (typeof window.initOfflineMap === "function") {
       window.initOfflineMap();
