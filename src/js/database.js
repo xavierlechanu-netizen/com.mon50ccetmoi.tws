@@ -86,13 +86,18 @@ window.publishHazardCloud = async function (hazard) {
   try {
     // On n'utilise plus cloudEncrypt pour les données publiques communautaires
     // car le E2EE partagé n'a aucun sens. Sécurisé via Firestore Rules.
-    await db.collection("hazards").add({
+    const uid = window.session && window.session.uid;
+    const ref = await db.collection("hazards").add({
       ...hazard,
       geohash: hazard.geohash,
-
+      ...(uid ? { authorUid: uid } : {}),
       author: hazard.author, // Gardé en clair pour la modération par l'Oracle
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
+    // 25 points, accordés par le serveur après vérification que ce danger existe bien
+    if (uid && window.BVCManager) {
+      window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId: ref.id });
+    }
     return true;
   } catch (e) {
     console.error("Cloud publish fail:", e);

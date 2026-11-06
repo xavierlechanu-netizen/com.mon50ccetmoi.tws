@@ -14,95 +14,9 @@ const {
     onCall, HttpsError, admin, db, maskUid
 } = require("./shared");
 
-// Plafonds et autorisations par motif (Positive Allowlist)
-const REASON_RULES = {
-    // ---- GAIN DE POINTS (AWARD) ----
-    CODE_QUIZ_COMPLETED: {
-        action: "AWARD",
-        maxPerCall: 50,
-        dailyCap: 200,
-        description: "Quiz du Code de la Route complété"
-    },
-    RADAR_HAZARD_REPORTED: {
-        action: "AWARD",
-        maxPerCall: 25,
-        dailyCap: 100,
-        description: "Signalement de zone de danger validé"
-    },
-    ROUTER_CONTRAT_SIGNED: {
-        action: "AWARD",
-        maxPerCall: 50,
-        dailyCap: 50,
-        description: "Contrat de bonne conduite signé"
-    },
-    MAINTENANCE_LOGGED: {
-        action: "AWARD",
-        maxPerCall: 25,
-        dailyCap: 50,
-        description: "Entretien véhicule enregistré"
-    },
-    REFERRAL_BONUS: {
-        action: "AWARD",
-        maxPerCall: 100,
-        dailyCap: 300,
-        description: "Parrainage d'un nouveau pilote"
-    },
-    SAFE_RIDER_MILESTONE: {
-        action: "AWARD",
-        maxPerCall: 50,
-        dailyCap: 150,
-        description: "Palier de conduite prudente atteint"
-    },
-    CARBON_OFFSET: {
-        action: "AWARD",
-        maxPerCall: 30,
-        dailyCap: 90,
-        description: "Économie carbone validée"
-    },
-    ADMIN_GRANT: {
-        action: "AWARD",
-        maxPerCall: 1000,
-        dailyCap: 5000,
-        requiresAdmin: true,
-        description: "Attribution manuelle administrateur"
-    },
+// Barème, preuves et plafonds : voir points-rules.js (testé dans tests/points-ledger.test.js)
+const { RuleError, planTransaction, checkHazardProof, checkDailyCaps } = require("./points-rules");
 
-    // ---- DÉDUCTION DE POINTS (DEDUCT) ----
-    MECA_WIZARD_DIAGNOSTIC: {
-        action: "DEDUCT",
-        maxPerCall: 200,
-        description: "Diagnostic mécano virtuel"
-    },
-    POCKET_LAWYER_QUERY: {
-        action: "DEDUCT",
-        maxPerCall: 100,
-        description: "Consultation juridique Pocket Lawyer"
-    },
-    MARKETPLACE_PURCHASE: {
-        action: "DEDUCT",
-        maxPerCall: 5000,
-        description: "Achat sur la marketplace d'équipements"
-    },
-    EXCHANGE_PURCHASE: {
-        action: "DEDUCT",
-        maxPerCall: 5000,
-        description: "Échange de points contre récompense"
-    },
-    WEB4_MINING_STAKE: {
-        action: "DEDUCT",
-        maxPerCall: 1000,
-        description: "Stake Web4 de points"
-    },
-    GENERIC_SPEND: {
-        action: "DEDUCT",
-        maxPerCall: 1000,
-        description: "Utilisation de points"
-    }
-};
-
-/**
- * Callable Function : Exécution transactionnelle d'un mouvement de points
- */
 exports.transactPoints = onCall(
     { region: "europe-west1" },
     async (request) => {
@@ -111,50 +25,33 @@ exports.transactPoints = onCall(
         }
 
         const uid = request.auth.uid;
-        const { action, reason, amount, metadata, idempotencyKey } = request.data || {};
+        const data = request.data || {};
+        const isAdmin = !!(request.auth.token && (request.auth.token.admin === true || request.auth.token.role === "admin"));
 
-        // 1. Validation de l'action
-        if (action !== "AWARD" && action !== "DEDUCT") {
-            throw new HttpsError("invalid-argument", "Action invalide : doit être 'AWARD' ou 'DEDUCT'.");
-        }
-
-        // 2. Validation du montant (entier strictement positif)
-        const parsedAmount = Math.floor(Number(amount));
-        if (isNaN(parsedAmount) || parsedAmount <= 0) {
-            throw new HttpsError("invalid-argument", "Le montant doit être un entier strictement positif.");
-        }
-
-        // 3. Validation du motif (Allowlist)
-        const rule = REASON_RULES[reason];
-        if (!rule) {
-            console.warn(`[PointsLedger] Motif non reconnu pour ${maskUid(uid)} : ${reason}`);
-            throw new HttpsError("invalid-argument", `Motif de transaction non autorisé : '${reason}'.`);
-        }
-
-        if (rule.action !== action) {
-            throw new HttpsError("invalid-argument", `L'action '${action}' ne correspond pas au motif '${reason}'.`);
-        }
-
-        if (parsedAmount > rule.maxPerCall) {
-            throw new HttpsError("out-of-range", `Le montant ${parsedAmount} dépasse le plafond unitaire (${rule.maxPerCall}) pour '${reason}'.`);
-        }
-
-        if (rule.requiresAdmin) {
-            const isAdmin = request.auth.token && (request.auth.token.admin === true || request.auth.token.role === "admin");
-            if (!isAdmin) {
-                throw new HttpsError("permission-denied", "Privilèges administrateur requis pour cette transaction.");
+        // 1. Validation et barème décidés par le serveur (points-rules.js)
+        let plan;
+        try {
+            plan = planTransaction(data, { isAdmin });
+        } catch (e) {
+            if (e instanceof RuleError) {
+                console.warn(`[PointsLedger] Demande refusée pour ${maskUid(uid)} (${data.reason}) : ${e.message}`);
+                throw new HttpsError(e.code, e.message);
             }
+            throw e;
         }
+        const { action, reason, metadata } = data;
+        const { rule, amount: parsedAmount } = plan;
+        // Une clé imposée par le serveur (danger, palier, gain unique) prime sur celle de l'application
+        const idempotencyKey = plan.forcedIdempotencyKey || (typeof data.idempotencyKey === "string" ? data.idempotencyKey : null);
 
-        // 4. Clé d'idempotence (Anti-rejeu)
         const userRef = db.collection("users").doc(uid);
         const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
         const quotaRef = userRef.collection("daily_quotas").doc(todayStr);
 
         try {
             const result = await db.runTransaction(async (t) => {
-                // Vérifier l'idempotence si une clé est fournie
-                if (idempotencyKey && typeof idempotencyKey === "string") {
+                // 2. Anti-rejeu : une même preuve ne rapporte qu'une fois
+                if (idempotencyKey) {
                     const existingLedgerSnap = await t.get(
                         db.collection("points_ledger")
                             .where("userId", "==", uid)
@@ -168,31 +65,29 @@ exports.transactPoints = onCall(
                             idempotent: true,
                             balance: existingDoc.balanceAfter,
                             transactionId: existingLedgerSnap.docs[0].id,
-                            delta: existingDoc.delta
+                            delta: 0
                         };
                     }
                 }
 
-                // Pour les gains, vérifier le plafond journalier anti-triche
-                if (action === "AWARD" && rule.dailyCap) {
-                    const quotaDoc = await t.get(quotaRef);
-                    const quotaData = quotaDoc.exists ? quotaDoc.data() : {};
-                    const currentDailyGain = quotaData[reason] || 0;
-
-                    if (currentDailyGain + parsedAmount > rule.dailyCap) {
-                        throw new HttpsError(
-                            "resource-exhausted",
-                            `Plafond journalier de ${rule.dailyCap} Pts atteint pour '${rule.description}'.`
-                        );
-                    }
+                // 3. Preuve : le danger signalé doit exister et appartenir à l'utilisateur
+                if (plan.needsHazardCheck) {
+                    const hazardSnap = await t.get(db.collection("hazards").doc(metadata.hazardId));
+                    const proof = checkHazardProof(hazardSnap.exists ? hazardSnap.data() : null, uid);
+                    if (!proof.ok) throw new HttpsError("failed-precondition", proof.reason);
                 }
 
-                // Lire le compte utilisateur
+                // 4. Plafonds journaliers (par motif + global des gains non vérifiables)
+                if (action === "AWARD") {
+                    const quotaDoc = await t.get(quotaRef);
+                    const caps = checkDailyCaps(plan, reason, quotaDoc.exists ? quotaDoc.data() : {});
+                    if (!caps.ok) throw new HttpsError("resource-exhausted", caps.reason);
+                }
+
                 const userDoc = await t.get(userRef);
                 if (!userDoc.exists) {
                     throw new HttpsError("not-found", "Profil utilisateur introuvable.");
                 }
-
                 const userData = userDoc.data();
                 if (userData.isBanned) {
                     throw new HttpsError("permission-denied", "Compte suspendu. Transactions bloquées.");
@@ -202,9 +97,8 @@ exports.transactPoints = onCall(
                     ? userData.braveCoins
                     : ((userData.bvc_points !== undefined) ? userData.bvc_points : (userData.points || 0));
 
-                let newBalance = 0;
-                let delta = 0;
-
+                let newBalance;
+                let delta;
                 if (action === "DEDUCT") {
                     if (currentBalance < parsedAmount) {
                         throw new HttpsError(
@@ -219,22 +113,22 @@ exports.transactPoints = onCall(
                     delta = parsedAmount;
                 }
 
-                // Maj du compte utilisateur
                 t.update(userRef, {
                     braveCoins: newBalance,
                     bvc_points: newBalance, // Mirror de rétrocompatibilité
                     updated_at: admin.firestore.FieldValue.serverTimestamp()
                 });
 
-                // Maj du compteur de quota journalier
-                if (action === "AWARD" && rule.dailyCap) {
+                if (action === "AWARD") {
+                    const inc = admin.firestore.FieldValue.increment(parsedAmount);
                     t.set(quotaRef, {
-                        [reason]: admin.firestore.FieldValue.increment(parsedAmount),
+                        [reason]: inc,
+                        ...(plan.unverified ? { __unverified: inc } : {}),
                         updated_at: admin.firestore.FieldValue.serverTimestamp()
                     }, { merge: true });
                 }
 
-                // Écriture du Grand Livre (Append-Only)
+                // Grand livre (append-only)
                 const ledgerRef = db.collection("points_ledger").doc();
                 t.set(ledgerRef, {
                     userId: uid,
@@ -245,22 +139,17 @@ exports.transactPoints = onCall(
                     amount: parsedAmount,
                     balanceBefore: currentBalance,
                     balanceAfter: newBalance,
+                    verified: action === "AWARD" ? !plan.unverified : null,
                     metadata: metadata || null,
-                    idempotencyKey: idempotencyKey || null,
+                    idempotencyKey: idempotencyKey,
                     created_at: admin.firestore.FieldValue.serverTimestamp()
                 });
 
-                return {
-                    success: true,
-                    balance: newBalance,
-                    transactionId: ledgerRef.id,
-                    delta: delta
-                };
+                return { success: true, balance: newBalance, transactionId: ledgerRef.id, delta: delta };
             });
 
             console.log(`[PointsLedger] ${action} ${parsedAmount} Pts pour ${maskUid(uid)} (${reason}) -> Solde: ${result.balance}`);
             return result;
-
         } catch (e) {
             if (e instanceof HttpsError) throw e;
             console.error(`[PointsLedger] Erreur transaction pour ${maskUid(uid)} :`, e);

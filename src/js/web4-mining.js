@@ -48,8 +48,9 @@ window.Web4Economy = {
     localStorage.setItem("mon50_bvc_year", currentYear.toString());
   },
 
-  mineToken: function (amount, reason) {
-    if (window.BVCManager) window.BVCManager.add(amount);
+  // serverReason : motif du barème serveur (ex. "CHALLENGE_COMPLETED"). Sans motif, affichage local seulement.
+  mineToken: function (amount, reason, serverReason) {
+    if (window.BVCManager && serverReason) window.BVCManager.add(amount, serverReason);
     this.showMiningHUD(amount);
   },
 

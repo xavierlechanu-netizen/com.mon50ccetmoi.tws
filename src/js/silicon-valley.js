@@ -123,7 +123,7 @@ if (typeof window.stopNavigation === "function") {
   window.stopNavigation = function () {
     originalStop();
     // Reward 12 Points BVC per ride
-    if(window.BVCManager) window.BVCManager.add(12);
+    if(window.BVCManager) window.BVCManager.add(12, "RIDE_COMPLETED");
     if (typeof speak === "function")
       setTimeout(
         () =>

@@ -125,7 +125,7 @@ window.ReferralManager = {
         });
 
         // Paiement Filleul
-        if (window.BVCManager) window.BVCManager.add(refereeReward);
+        // Récompense du filleul : attribuée par le serveur (motif REFERRAL_BONUS, réservé au serveur).
 
         if (typeof speak === "function") {
           speak(voiceMessage);

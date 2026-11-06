@@ -115,22 +115,20 @@ describe('Group Spaces Moderation & Strict Ban System (DSA Art. 16/17 & CGU)', (
         status = Moderation.getBanStatus(uid);
         expect(status.appealPending).toBe(true);
 
-        // Mock BVCManager pour vérifier les 50 points de compensation
-        let creditedPoints = 0;
-        window.BVCManager = {
-            add: jest.fn(amount => { creditedPoints += amount; })
-        };
+        // Le compte de l'administrateur connecté ne doit RIEN recevoir : les 50 points vont
+        // à l'utilisateur sanctionné, via la mise à jour de son profil (braveCoins + 50).
+        window.BVCManager = { add: jest.fn() };
 
         // 3. La vérification humaine valide le rejet de la sanction
         const liftRes = await Moderation.liftBanAndResetStrikes(uid, "admin_moderator_1");
         expect(liftRes.success).toBe(true);
         expect(liftRes.compensationPoints).toBe(50);
 
-        // 4. Vérification : interdiction levée, compteur réinitialisé à zéro, 50 points crédités
+        // 4. Vérification : interdiction levée, compteur réinitialisé à zéro, pas de double crédit
         const finalStatus = Moderation.getBanStatus(uid);
         expect(finalStatus.isBanned).toBe(false);
         expect(finalStatus.isTempBanned).toBe(false);
         expect(finalStatus.tempBansCount).toBe(0);
-        expect(creditedPoints).toBe(50);
+        expect(window.BVCManager.add).not.toHaveBeenCalled();
     });
 });

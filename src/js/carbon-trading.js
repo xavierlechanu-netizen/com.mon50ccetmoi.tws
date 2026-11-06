@@ -109,7 +109,8 @@ window.sellCEE = function () {
       document.getElementById("carbon-stock-price").innerText,
     );
     // Simulation d'injection dans le Wallet
-    if(window.BVCManager) window.BVCManager.add(price * 1.5); // conversion fictive
+    // Conversion en points désactivée : les certificats sont générés sur l'appareil, donc falsifiables.
+    // À réactiver uniquement via un calcul serveur (motif CARBON_OFFSET, réservé au serveur).
 
     document.getElementById("cee-inventory").innerText = "0 CEE Disponibles";
 

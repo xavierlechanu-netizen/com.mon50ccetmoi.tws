@@ -40,7 +40,12 @@ window.BVCManager = {
     }
   },
 
-  add: async function(amount, reason = "CODE_QUIZ_COMPLETED", metadata = {}) {
+  // Le serveur fixe le montant et vérifie la preuve : `amount` sert seulement à l'affichage immédiat.
+  add: async function(amount, reason, metadata = {}) {
+    if (!reason) {
+      console.warn("[BVC] Gain de points ignoré : motif manquant.");
+      return false;
+    }
     if (!window.session || !window.session.uid || amount <= 0) return false;
     const previousBalance = this.balance;
     try {

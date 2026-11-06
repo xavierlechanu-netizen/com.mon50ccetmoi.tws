@@ -59,7 +59,7 @@ window.SafeRider = {
   awardMilestone: function (milestone) {
     if (typeof window.BVCManager === "undefined") return;
 
-    window.BVCManager.add(milestone.reward);
+    window.BVCManager.add(milestone.reward, "SAFE_RIDER_MILESTONE", { milestoneKm: milestone.km });
 
     // Notification UI
     const msg = `ðŸ† Challenge Réussi : ${milestone.name} ! Vous avez gagné ${milestone.reward} Pts mon50cc !`;

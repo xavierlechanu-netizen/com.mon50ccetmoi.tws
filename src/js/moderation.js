@@ -364,9 +364,8 @@ class ModerationEngine {
         window.session.isTempBanned = false;
       }
 
-      if (typeof window !== "undefined" && window.BVCManager && typeof window.BVCManager.add === "function") {
-        window.BVCManager.add(compensationPoints);
-      }
+      // La compensation est créditée par le serveur (motif MODERATION_COMPENSATION) :
+      // l'ancien appel créditait le compte de l'administrateur connecté, pas celui de l'utilisateur.
     } catch (e) {}
 
     // 2. Mise à jour Firestore

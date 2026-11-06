@@ -420,7 +420,7 @@ export const PAGE_ROUTES = {
                 ? `
                 <button class="btn-insurance" style="margin-top:10px; width:100%; background:linear-gradient(90deg, #b700ff, #ff0055); color:white; font-weight:bold; box-shadow:0 0 15px rgba(183,0,255,0.5);" onclick="
                     if(window.Web4Economy) {
-                        window.Web4Economy.mineToken(5.0, 'Défi Quinzaine Complété');
+                        window.Web4Economy.mineToken(5.0, 'Défi Quinzaine Complété', 'CHALLENGE_COMPLETED');
                         localStorage.setItem('defi_claimed_${currentPeriodIdx}', 'true');
                         window.session.completedChallengesCount = (window.session.completedChallengesCount || 0) + 1;
                         alert('Félicitations ! Vous avez remporté 5 points mon50cc pour avoir complété le défi.');

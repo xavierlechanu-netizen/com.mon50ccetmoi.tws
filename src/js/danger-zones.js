@@ -210,6 +210,7 @@ window.DangerZones = {
       timestamp: Date.now(),
       status: "active",
       reporter: (window.session && window.session.username) || "Membre",
+      authorUid: (window.session && window.session.uid) || undefined,
       confirmations: 1,
       createdAt: firebase.firestore.FieldValue ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
     };
@@ -227,7 +228,12 @@ window.DangerZones = {
   syncToCloud: async function (report) {
     if (!window.db) return;
     try {
-      await window.db.collection("hazards").add(report);
+      if (report.authorUid === undefined) delete report.authorUid;
+      const ref = await window.db.collection("hazards").add(report);
+      // 25 points, accordés par le serveur après vérification que ce danger existe bien
+      if (window.BVCManager && report.authorUid) {
+        window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId: ref.id });
+      }
     } catch (e) {
       console.error("[DangerZones] Erreur d'envoi du danger:", e);
     }
