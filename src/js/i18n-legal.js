@@ -44,7 +44,7 @@ import { registerAction } from './actionRegistry.js';
       "<span class='highlight'>Droit d'opposition (Article 21 RGPD) :</span> Vous opposer à l'utilisation de vos données à certaines fins.",
     privacy_h4: "4. Sécurité",
     privacy_p4:
-      "L'application utilise un chiffrement AES-256 (via CryptoJS) pour le stockage local des rapports sensibles et des sessions utilisateur. L'authentification est assurée par Firebase Authentication (Google) avec support optionnel de la biométrie FIDO2/WebAuthn. Nous mettons en Å“uvre toutes les mesures techniques et organisationnelles nécessaires pour garantir la sécurité et la confidentialité de vos données conformément à l'<strong>Article 32 du RGPD</strong>.",
+      "L'application utilise un chiffrement AES-256-GCM (API Web Crypto du navigateur, clé non extractible) pour le stockage local des rapports sensibles et des sessions utilisateur. L'authentification est assurée par Firebase Authentication (Google) avec support optionnel de la biométrie FIDO2/WebAuthn. Nous mettons en Å“uvre toutes les mesures techniques et organisationnelles nécessaires pour garantir la sécurité et la confidentialité de vos données conformément à l'<strong>Article 32 du RGPD</strong>.",
     privacy_h5: "5. Responsable de Traitement et Contact",
     privacy_p5_1:
       "Le Responsable de Traitement des données de cette application est Xavier Le Chanu.",
@@ -146,7 +146,7 @@ import { registerAction } from './actionRegistry.js';
       "<span class='highlight'>Right to Object (Article 21 GDPR):</span> Object to the use of your data for certain purposes.",
     privacy_h4: "4. Security",
     privacy_p4:
-      "The application uses AES-256 encryption (via CryptoJS) for local storage of sensitive reports and user sessions. Authentication is provided by Firebase Authentication (Google) with optional support for FIDO2/WebAuthn biometrics. We implement all necessary technical and organizational measures to ensure the security and confidentiality of your data in accordance with <strong>Article 32 of the GDPR</strong>.",
+      "The application uses AES-256-GCM encryption (browser Web Crypto API, non-extractable key) for local storage of sensitive reports and user sessions. Authentication is provided by Firebase Authentication (Google) with optional support for FIDO2/WebAuthn biometrics. We implement all necessary technical and organizational measures to ensure the security and confidentiality of your data in accordance with <strong>Article 32 of the GDPR</strong>.",
     privacy_h5: "5. Data Controller and Contact",
     privacy_p5_1:
       "The Data Controller for this application is Xavier Le Chanu.",
@@ -246,7 +246,7 @@ import { registerAction } from './actionRegistry.js';
       "<span class='highlight'>Derecho de Oposición (Art. 21 RGPD):</span> Oponerse al uso de sus datos para ciertos fines.",
     privacy_h4: "4. Seguridad",
     privacy_p4:
-      "La aplicación utiliza cifrado AES-256 (vía CryptoJS) para el almacenamiento local de informes sensibles. La autenticación está a cargo de Firebase (Google) con soporte opcional de biometría FIDO2/WebAuthn. Implementamos todas las medidas necesarias para garantizar la seguridad de sus datos (Art. 32 del RGPD).",
+      "La aplicación utiliza cifrado AES-256-GCM (API Web Crypto del navegador) para el almacenamiento local de informes sensibles. La autenticación está a cargo de Firebase (Google) con soporte opcional de biometría FIDO2/WebAuthn. Implementamos todas las medidas necesarias para garantizar la seguridad de sus datos (Art. 32 del RGPD).",
     privacy_h5: "5. Responsable del Tratamiento y Contacto",
     privacy_p5_1:
       "El Responsable del Tratamiento de datos de esta aplicación es Xavier Le Chanu.",
@@ -333,7 +333,7 @@ import { registerAction } from './actionRegistry.js';
       "<span class='highlight'>Diritto di Opposizione (Art. 21):</span> Opporti all'uso dei tuoi dati.",
     privacy_h4: "4. Sicurezza",
     privacy_p4:
-      "Usiamo la crittografia AES-256 (tramite CryptoJS) per l'archiviazione locale e Firebase Authentication. Implementiamo le misure necessarie (Art. 32 GDPR).",
+      "Usiamo la crittografia AES-256-GCM (API Web Crypto del browser) per l'archiviazione locale e Firebase Authentication. Implementiamo le misure necessarie (Art. 32 GDPR).",
     privacy_h5: "5. Titolare del Trattamento e Contatti",
     privacy_p5_1: "Il Titolare del Trattamento è Xavier Le Chanu.",
     privacy_p5_2:

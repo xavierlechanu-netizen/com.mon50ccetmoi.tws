@@ -4,7 +4,7 @@ const js = require("@eslint/js");
 module.exports = [
     js.configs.recommended,
     {
-        ignores: ["src/public/js/app-bundle.min.js", "src/public/vendor/**", "dist/**", "**/*.min.js", "src/js/crypto-js.min.js"]
+        ignores: ["src/public/js/app-bundle.min.js", "src/public/vendor/**", "dist/**", "**/*.min.js"]
     },
     {
         languageOptions: {

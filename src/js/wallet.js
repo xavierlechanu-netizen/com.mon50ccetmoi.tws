@@ -1,5 +1,9 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { encryptJSON, decryptJSON, isVaultCiphertext } from './secure-vault.js';
+
+const WALLET_STORAGE_KEY = "ants_wallet_secure";
+const VAULT_KEY_NAME = "wallet";
 
 /**
  * ANTS DIGITAL WALLET v2.0 - SECURE QUANTUM EDITION
@@ -11,52 +15,58 @@ window.Wallet = {
   docs: {},
   isUnlocked: false,
 
-  // Simple device-specific key derivation (can be improved with user PIN)
-  getSecretKey: function () {
-    const deviceId =
-      localStorage.getItem("ants_device_id") ||
-      Math.random().toString(36).substring(2);
-    if (!localStorage.getItem("ants_device_id"))
-      localStorage.setItem("ants_device_id", deviceId);
-    return "QUANTUM_" + deviceId + "_" + (window.session?.uid || "UNKNOWN");
+  // Identifiant d'appareil affichable (non secret, sans lien avec la clé de chiffrement)
+  getDeviceLabel: function () {
+    let label = localStorage.getItem("ants_device_label");
+    if (!label) {
+      label = Array.from(crypto.getRandomValues(new Uint8Array(4)), (b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+      localStorage.setItem("ants_device_label", label);
+    }
+    return label;
   },
 
   init: function () {
-    this.loadAndDecrypt();
+    this.ready = this.loadAndDecrypt();
+    return this.ready;
   },
 
-  loadAndDecrypt: function () {
-    const encrypted = localStorage.getItem("ants_wallet_secure");
-    if (encrypted) {
+  // Coffre chiffré AES-GCM, clé non extractible propre à l'appareil (secure-vault.js)
+  loadAndDecrypt: async function () {
+    const stored = localStorage.getItem(WALLET_STORAGE_KEY);
+    if (stored && isVaultCiphertext(stored)) {
       try {
-        const bytes = CryptoJS.AES.decrypt(encrypted, this.getSecretKey());
-        const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-        this.docs = JSON.parse(decryptedData);
+        this.docs = (await decryptJSON(VAULT_KEY_NAME, stored)) || {};
       } catch (e) {
-        console.error("Erreur de déchiffrement du coffre-fort:", e);
+        console.error("Coffre-fort illisible (clé absente ou données modifiées) :", e.message);
         this.docs = {};
       }
-    } else {
-      // Migration legacy if exists
-      const legacy = localStorage.getItem("ants_wallet");
-      if (legacy) {
-        this.docs = JSON.parse(legacy);
-        this.saveEncrypted();
+      return this.docs;
+    }
+
+    // Ancien format (CryptoJS, jamais chargé en production) : mis de côté, jamais supprimé.
+    if (stored) {
+      localStorage.setItem(WALLET_STORAGE_KEY + "_legacy_backup", stored);
+      localStorage.removeItem(WALLET_STORAGE_KEY);
+    }
+    const legacyPlain = localStorage.getItem("ants_wallet");
+    if (legacyPlain) {
+      try {
+        this.docs = JSON.parse(legacyPlain) || {};
+        await this.saveEncrypted();
         localStorage.removeItem("ants_wallet");
+      } catch (e) {
+        console.error("Migration du coffre-fort impossible :", e.message);
       }
     }
+    return this.docs;
   },
 
-  saveEncrypted: function () {
-    const data = JSON.stringify(this.docs);
-    const encrypted = CryptoJS.AES.encrypt(
-      data,
-      this.getSecretKey(),
-    ).toString();
-    localStorage.setItem("ants_wallet_secure", encrypted);
+  saveEncrypted: async function () {
+    const encrypted = await encryptJSON(VAULT_KEY_NAME, this.docs);
+    localStorage.setItem(WALLET_STORAGE_KEY, encrypted);
   },
 
-  saveDoc: function (type, data) {
+  saveDoc: async function (type, data) {
     if (!window.session) {
       alert("🔒 Connexion requise pour créer un Wallet.");
       return;
@@ -67,7 +77,13 @@ window.Wallet = {
       date: new Date().toISOString(),
       status: "CERTIFIÉ SENTINEL",
     };
-    this.saveEncrypted();
+    try {
+      await this.saveEncrypted();
+    } catch (e) {
+      console.error("Enregistrement du coffre-fort impossible :", e.message);
+      alert("Impossible d'enregistrer le document de façon sécurisée sur cet appareil.");
+      return;
+    }
     if (typeof speak === "function")
       speak(
         "Document chiffré et enregistré dans votre coffre-fort numérique.",
@@ -102,8 +118,8 @@ window.Wallet = {
         .length,
       engine_health: "OPTIMAL (Scan Sentinel AI)",
       blackbox_id:
-        "ACTIVE_DEVICE_" + this.getSecretKey().substring(8, 16).toUpperCase(),
-      security_level: "QUANTUM_ENCRYPTED_V2",
+        "ACTIVE_DEVICE_" + this.getDeviceLabel(),
+      security_level: "AES-256-GCM (WebCrypto, clé non extractible)",
       structural_integrity: window.Blackbox?.getStructuralScore() || "100%",
     };
   },
@@ -111,7 +127,7 @@ window.Wallet = {
   lockdown: function () {
     console.warn("WALLET_LOCKDOWN: Wiping sensitive memory.");
     this.docs = {};
-    this.secretKey = null;
+    this.isUnlocked = false;
     sessionStorage.clear();
     localStorage.removeItem("wallet_data");
   },

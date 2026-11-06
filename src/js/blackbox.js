@@ -106,32 +106,33 @@ window.Blackbox = {
         return null;
     }
 
-    const snapshot = this.getSnapshot();
-    const reportId = "blackbox_" + window.session.uid + "_" + Date.now();
+    // Envoi par la fonction serveur uploadBlackboxTelemetry (seul chemin autorisé par les règles
+    // Firestore) : connexion obligatoire, transport chiffré (TLS), fenêtre RGPD ±30 s autour du choc
+    // appliquée par le serveur. L'ancien chiffrement « BB_SENTINEL_ + uid » était devinable : supprimé.
+    const nowSec = Date.now() / 1000;
+    const frames = this.hfBuffer.map((f) => {
+      const ax = Number(f.ax) || 0;
+      const ay = Number(f.ay) || 0;
+      const az = Number(f.az) || 0;
+      return { timestamp: f.ts / 1000, ax, ay, az, gForce: Math.sqrt(ax * ax + ay * ay + az * az) / 9.81, source: "phone" };
+    }).concat(this.buffer.map((p) => ({ ...p, timestamp: p.ts / 1000, source: "phone-gps" })));
+
+    if (frames.length === 0) return null;
+    if (typeof firebase === "undefined" || !firebase.functions) return null;
 
     try {
-      // End-to-End Encryption (E2EE) for Litigation Proof
-      const dataStr = JSON.stringify(snapshot);
-      const secret = "BB_SENTINEL_" + window.session.uid;
-      const encryptedData = CryptoJS.AES.encrypt(dataStr, secret).toString();
-
-      await db
-        .collection("blackbox_reports")
-        .doc(reportId)
-        .set({
-          userId: window.session.uid,
-          username: window.session.username,
-          reason: reason,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          payload: encryptedData,
-          isEncrypted: true,
-          v2: true,
-          signature: CryptoJS.SHA256(dataStr).toString(),
-        });
-
-      return reportId;
+      const upload = firebase.functions("europe-west1").httpsCallable("uploadBlackboxTelemetry");
+      const impactTs = this.lastImpactTime ? this.lastImpactTime / 1000 : nowSec;
+      const res = await upload({
+        hardwareId: "PHONE",
+        isCrashReport: true,
+        impactTimestamp: impactTs,
+        payloads: frames.slice(-5000),
+      });
+      return (res && res.data && res.data.sessionId) || null;
     } catch (e) {
       console.error("Blackbox Cloud Sync Fail:", e);
+      return null;
     }
   },
 
@@ -144,11 +145,11 @@ content.innerHTML = `<h3><i class="fa-solid fa-box-archive"></i> Blackbox Sentin
             <div class="glassmorphism" style="padding:20px; border-left:4px solid #ff4d4d;">
                 <h4 style="color:#ff4d4d;">SCELLÉ NUMÉRIQUE QUANTUM</h4>
                 <p style="font-size:0.85rem; margin-top:15px; line-height:1.4;">
-                    Vos données de télémétrie haute fréquence sont <strong>chiffrées de bout en bout</strong>.
+                    Vos données de télémétrie restent sur votre téléphone. Elles ne sont envoyées qu'en cas d'urgence, de façon chiffrée, et seul le serveur peut les lire.
                 </p>
                 <div style="background:rgba(0,0,0,0.2); padding:15px; border-radius:10px; margin-top:15px; font-size:0.75rem;">
-                    <i class="fa-solid fa-lock"></i> Chiffrement : <strong>AES-256</strong><br>
-                    <i class="fa-solid fa-shield-check"></i> Intégrité : <strong>SHA-256 Verified</strong><br>
+                    <i class="fa-solid fa-lock"></i> Transport : <strong>TLS (HTTPS)</strong>, accès réservé au serveur<br>
+                    <i class="fa-solid fa-shield-check"></i> Conservation : <strong>±30 s autour du choc</strong><br>
                     <i class="fa-solid fa-bolt"></i> Fréquence : <strong>10Hz Motion Logging</strong>
                 </div>
                 <p style="font-size:0.7rem; color:#888; margin-top:20px;">
