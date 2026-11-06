@@ -3,61 +3,23 @@ const {
     REVOLUT_API_BASE, REVOLUT_API_VERSION, setCorsHeaders, verifyAuthToken, crypto
 } = require("./shared");
 const { verifyRevolutSignature } = require("./revolut-signature");
-const { CATALOG, CATEGORIES, getCatalogItem, isValidCaseId } = require("./payments-catalog");
+const { CATALOG, CATEGORIES, computeAmounts, getCatalogItem, isValidCaseId } = require("./payments-catalog");
 
-async function createPennylaneInvoice(orderData, userEmail, userName) {
-    const apiKey = null; // PENNYLANE_API_KEY.value(); désactivé temporairement
-    if (!apiKey) {
-        console.warn("[Pennylane] Clé API non configurée. Impossible de générer la facture.");
-        return;
-    }
-    
-    try {
-        console.log(`[Pennylane] Création facture pour l'ordre ${orderData.revolut_order_id}`);
-        const invoicePayload = {
-            create_customer: {
-                name: userName || "Client Inconnu",
-                emails: userEmail ? [userEmail] : []
-            },
-            date: new Date().toISOString().split('T')[0],
-            deadline: new Date().toISOString().split('T')[0],
-            line_items: [
-                {
-                    label: `Prestation mon50ccetmoi — ${orderData.report_type || "Standard"}`,
-                    price: orderData.amount_cents / 100,
-                    vat_rate: "20.00",
-                    quantity: 1
-                }
-            ]
+const { buildInvoice } = require("./invoicing");
+
+/** Acheteur à facturer : l'entreprise vérifiée par SIREN, sinon le particulier. */
+async function loadInvoiceBuyer(order) {
+    const profile = await db.collection("insurer_profiles").doc(order.user_id).get();
+    if (order.category === CATEGORIES.LITIGATION && profile.exists && profile.data().verified === true) {
+        const p = profile.data();
+        return {
+            type: "ENTREPRISE", name: p.name, siren: p.siren, vatNumber: p.vatNumber,
+            address: p.address, postalCode: p.postalCode, city: p.city, email: p.billingEmail || "",
         };
-
-        const response = await fetch("https://app.pennylane.com/api/v1/customer_invoices", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify(invoicePayload)
-        });
-
-        if (!response.ok) {
-            const errBody = await response.text();
-            console.error("[Pennylane] Erreur API création facture :", response.status, errBody);
-        } else {
-            const invoice = await response.json();
-            console.log(`[Pennylane] ✅ Facture créée avec succès. ID : ${invoice.invoice?.id || invoice.id}`);
-            
-            if (invoice.invoice && invoice.invoice.id) {
-                await db.collection("revolut_orders").doc(orderData.revolut_order_id).update({
-                    pennylane_invoice_id: invoice.invoice.id,
-                    pennylane_invoice_pdf: invoice.invoice.pdf_url || null
-                });
-            }
-        }
-    } catch (e) {
-        console.error("[Pennylane] Exception lors de la génération de la facture :", e);
     }
+    const user = await db.collection("users").doc(order.user_id).get();
+    const u = user.exists ? user.data() : {};
+    return { type: "PARTICULIER", name: u.displayName || u.username || "Client", email: u.email || "" };
 }
 
 const { evidenceHash } = require("./evidence-seal");
@@ -93,7 +55,8 @@ exports.createRevolutOrder = onRequest(
             return res.status(400).json({ error: "Type de rapport ou produit invalide." });
         }
 
-        let amount_cents = catalogItem.price_cents;
+        // Montant réellement encaissé : TTC (rapports assureurs affichés HT → HT + TVA 20 %)
+        let amount_cents = computeAmounts(catalogItem).ttc_cents;
         const currency = "EUR";
 
         // Détermination et vérification de la propriété du dossier selon la catégorie
@@ -108,6 +71,17 @@ exports.createRevolutOrder = onRequest(
             const litigationDoc = await db.collection("litigation_proposals").doc(case_id).get();
             if (!litigationDoc.exists) {
                 return res.status(404).json({ error: "Dossier de litige introuvable." });
+            }
+            // Tout acheteur autre que le pilote doit être un professionnel vérifié par son SIREN
+            // (assureur, courtier, expert, avocat) : c'est aussi lui qui figurera sur la facture.
+            if (litigationDoc.data().userId !== user_id) {
+                const profile = await db.collection("insurer_profiles").doc(user_id).get();
+                if (!profile.exists || profile.data().verified !== true) {
+                    return res.status(403).json({
+                        error: "Achat réservé aux professionnels de l'assurance : renseignez d'abord le SIREN de votre entreprise.",
+                        code: "INSURER_PROFILE_REQUIRED"
+                    });
+                }
             }
         } else {
             // Pour les autres catégories (POINTS, BATTERY_CERT, GARAGE, BLACKBOX), si case_id absent ou non conforme, on le génère côté serveur
@@ -215,7 +189,11 @@ exports.createRevolutOrder = onRequest(
                 user_id: user_id,
                 report_type: report_type,
                 category: catalogItem.category,
-                amount_cents: amount_cents,
+                amount_cents: amount_cents, // TTC encaissé
+                ...(() => {
+                    const a = computeAmounts({ price_cents: amount_cents }); // décomposition du TTC encaissé
+                    return { amount_ht_cents: a.ht_cents, vat_cents: a.vat_cents, vat_rate: a.vat_rate };
+                })(),
                 currency: currency,
                 status: order.state,
                 created_at: admin.firestore.FieldValue.serverTimestamp()
@@ -492,21 +470,18 @@ exports.revolutWebhook = onRequest(
                 return res.status(404).send("Ordre non trouvé");
             }
 
-            // Facturation Pennylane après transaction réussie
+            // Facture à émettre dans Kolecto (une par commande, jamais en double)
             if (result.processed && orderDataForInvoice) {
                 try {
-                    let userEmail = "";
-                    let userName = "";
-                    if (orderDataForInvoice.user_id && orderDataForInvoice.user_id !== "unknown") {
-                        const userDoc = await db.collection("users").doc(orderDataForInvoice.user_id).get();
-                        if (userDoc.exists) {
-                            userEmail = userDoc.data().email || "";
-                            userName = userDoc.data().displayName || "";
-                        }
-                    }
-                    createPennylaneInvoice(orderDataForInvoice, userEmail, userName);
+                    const buyer = await loadInvoiceBuyer(orderDataForInvoice);
+                    const invoice = buildInvoice(orderDataForInvoice, getCatalogItem(orderDataForInvoice.report_type), buyer);
+                    await db.collection("invoices_to_issue").doc(orderId).set({
+                        ...invoice,
+                        paid_at: admin.firestore.FieldValue.serverTimestamp(),
+                        created_at: admin.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
                 } catch (e) {
-                    console.error("[Revolut Webhook] Erreur Pennylane post-transaction :", e);
+                    console.error("[Revolut Webhook] Préparation de la facture impossible :", e.message);
                 }
             }
 

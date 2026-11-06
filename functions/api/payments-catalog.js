@@ -21,17 +21,20 @@ const CATALOG = {
     'SIMPLE': {
         price_cents: 4999,
         category: CATEGORIES.LITIGATION,
-        label: "Rapport Assurance Standard"
+        label: "Rapport Assurance Standard",
+        vat_mode: "HT" // prix B2B affiché HORS TAXE : la TVA s'ajoute au paiement
     },
     'INTERMEDIAIRE': {
         price_cents: 8999,
         category: CATEGORIES.LITIGATION,
-        label: "Rapport Assurance Approfondi"
+        label: "Rapport Assurance Approfondi",
+        vat_mode: "HT" // prix B2B affiché HORS TAXE : la TVA s'ajoute au paiement
     },
     'EXPERT': {
         price_cents: 19999,
         category: CATEGORIES.LITIGATION,
-        label: "Rapport d'Expertise Complète & Reconstitution IA"
+        label: "Rapport d'Expertise Complète & Reconstitution IA",
+        vat_mode: "HT" // prix B2B affiché HORS TAXE : la TVA s'ajoute au paiement
     },
 
     // Diagnostics IA ponctuels
@@ -139,9 +142,29 @@ function isValidCaseId(caseId) {
     return /^[A-Za-z0-9_-]{4,64}$/.test(caseId);
 }
 
+const VAT_RATE = 0.20;
+
+/**
+ * Montants HT / TVA / TTC d'un article (en centimes).
+ * - vat_mode "HT" (rapports assureurs, B2B) : price_cents est HT, l'acheteur paie HT + 20 %.
+ * - par défaut (B2C) : price_cents est le prix TTC payé, la TVA y est incluse.
+ */
+function computeAmounts(item) {
+    if (item.vat_mode === "HT") {
+        const ht = item.price_cents;
+        const vat = Math.round(ht * VAT_RATE);
+        return { ht_cents: ht, vat_cents: vat, ttc_cents: ht + vat, vat_rate: VAT_RATE * 100 };
+    }
+    const ttc = item.price_cents;
+    const ht = Math.round(ttc / (1 + VAT_RATE));
+    return { ht_cents: ht, vat_cents: ttc - ht, ttc_cents: ttc, vat_rate: VAT_RATE * 100 };
+}
+
 module.exports = {
     CATEGORIES,
     CATALOG,
+    VAT_RATE,
+    computeAmounts,
     getCatalogItem,
     isValidCaseId
 };

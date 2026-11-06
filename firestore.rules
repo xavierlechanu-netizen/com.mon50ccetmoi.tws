@@ -116,6 +116,18 @@ service cloud.firestore {
     }
 
     // Gamification Stats (XP, Badges, Rangs)
+    // Professionnels acheteurs de rapports, vérifiés par SIREN côté serveur (registerInsurerProfile)
+    match /insurer_profiles/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if false;
+    }
+
+    // Factures à émettre dans Kolecto (préparées par le serveur après paiement)
+    match /invoices_to_issue/{orderId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     // Classement public des pilotes : pseudo + points gagnés, tenu uniquement par le serveur
     match /leaderboard/{userId} {
       allow read: if isSignedIn();

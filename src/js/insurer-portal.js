@@ -117,11 +117,50 @@ window.InsurerPortal = {
       alert("Module de paiement non chargé. Rechargez la page.");
       return;
     }
-    if (!confirm(`Confirmez-vous l'achat du rapport ${type} pour ${price} € HT ?\n\nPaiement sécurisé par Revolut. Le rapport sera accessible dès la confirmation du paiement.`)) {
+    // L'acheteur doit être une entreprise vérifiée (son SIREN figure sur la facture)
+    const company = await this.ensureCompanyProfile();
+    if (!company) return;
+
+    const ht = Math.round(price * 100);
+    const ttc = ht + Math.round(ht * 0.2);
+    const fmt = (c) => (c / 100).toFixed(2).replace(".", ",");
+    if (!confirm(`Confirmez-vous l'achat du rapport ${type} ?\n\n${fmt(ht)} € HT + TVA 20 % = ${fmt(ttc)} € TTC\nFacturé à : ${company.name} (SIREN ${company.siren})\n\nPaiement sécurisé par Revolut. Le rapport sera accessible dès la confirmation du paiement.`)) {
       return;
     }
     const overlay = document.getElementById("screen-overlay");
     if (overlay) overlay.classList.remove("hidden");
-    await window.InsurancePortal.payInstant(this.currentCode, reportType, price);
+    await window.InsurancePortal.payInstant(this.currentCode, reportType, ttc / 100);
+  },
+
+  /**
+   * Vérifie (une seule fois) l'entreprise de l'acheteur à partir de son SIREN, via le serveur
+   * qui consulte l'annuaire public des entreprises. Renvoie { name, siren } ou null.
+   */
+  ensureCompanyProfile: async function () {
+    if (typeof firebase === "undefined" || !firebase.functions) {
+      alert("Service indisponible. Rechargez la page.");
+      return null;
+    }
+    const fns = firebase.functions("europe-west1");
+    try {
+      const existing = await fns.httpsCallable("getInsurerProfile")();
+      if (existing.data && existing.data.registered) return existing.data;
+    } catch (e) {
+      alert("Connectez-vous à votre compte pour acheter un rapport.");
+      return null;
+    }
+    const siren = prompt("Achat réservé aux professionnels de l'assurance (assureurs, courtiers, experts, avocats).\n\nNuméro SIREN de votre entreprise (9 chiffres) :");
+    if (!siren) return null;
+    const billingEmail = prompt("Adresse email où recevoir les factures :");
+    if (!billingEmail) return null;
+    try {
+      const res = await fns.httpsCallable("registerInsurerProfile")({ siren: siren.trim(), billingEmail: billingEmail.trim() });
+      const c = res.data;
+      alert(`Entreprise vérifiée : ${c.name}\n${c.address}\nActivité : ${c.nafLabel}\nN° TVA : ${c.vatNumber}`);
+      return c;
+    } catch (e) {
+      alert(e.message || "Vérification de l'entreprise impossible.");
+      return null;
+    }
   },
 };

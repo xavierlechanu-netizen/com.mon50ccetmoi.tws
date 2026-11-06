@@ -175,6 +175,21 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
     await assertFails(db.collection("crews").add({ name: "x", leaderUid: "victim" }));
   });
 
+  it("Assureurs et factures : seul le serveur écrit, chacun ne lit que le sien", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().collection("insurer_profiles").doc("insurer9").set({ name: "AXA FRANCE IARD", verified: true });
+      await ctx.firestore().collection("invoices_to_issue").doc("ord_1").set({ status: "A_EMETTRE" });
+    });
+    const insurer = testEnv.authenticatedContext("insurer9").firestore();
+    const other = testEnv.authenticatedContext("curious7").firestore();
+    await assertSucceeds(insurer.collection("insurer_profiles").doc("insurer9").get());
+    await assertFails(other.collection("insurer_profiles").doc("insurer9").get());
+    // Impossible de se déclarer assureur vérifié soi-même
+    await assertFails(other.collection("insurer_profiles").doc("curious7").set({ name: "Faux", verified: true }));
+    await assertFails(insurer.collection("invoices_to_issue").doc("ord_1").get());
+    await assertFails(insurer.collection("invoices_to_issue").doc("ord_2").set({ status: "A_EMETTRE" }));
+  });
+
   it("Classement public : lisible par les pilotes, jamais modifiable par eux", async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().collection("leaderboard").doc("pilot1").set({ username: "Pilote1", points: 120 });

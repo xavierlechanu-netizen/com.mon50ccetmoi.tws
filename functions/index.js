@@ -15,6 +15,7 @@ const social = require('./api/social');
 const nexusInsights = require('./api/nexus-insights');
 const blackboxRegistry = require('./api/blackbox-registry');
 const pointsLedger = require('./api/points-ledger');
+const insurers = require('./api/insurers');
 
 module.exports = {
     // Points & Grand Livre Monétaire (OWASP ASVS v5.0.0-2.3.3)
@@ -28,10 +29,12 @@ module.exports = {
     fidoGenerateAuthentication: auth.fidoGenerateAuthentication,
     fidoVerifyAuthentication: auth.fidoVerifyAuthentication,
 
-    // Payments (Revolut & Pennylane)
+    // Payments (Revolut) + factures à émettre dans Kolecto
     createRevolutOrder: payments.createRevolutOrder,
     revolutWebhook: payments.revolutWebhook,
     checkPaymentStatus: payments.checkPaymentStatus,
+    registerInsurerProfile: insurers.registerInsurerProfile,
+    getInsurerProfile: insurers.getInsurerProfile,
 
     // Services (Gemini, Notion, Meteo, Legifrance)
     sendWelcomeEmail: services.sendWelcomeEmail,
