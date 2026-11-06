@@ -280,7 +280,7 @@ class ModerationEngine {
   }
 
   /**
-   * Soumission d'une demande de réexamen via l'Avocat de Poche (Vérification Humaine)
+   * Soumission d'une demande de réexamen via Nexus Atlas Juridique (Vérification Humaine)
    * L'utilisateur demande une vérification humaine en utilisant ses points mon50cc.
    * Si la sanction est ensuite annulée après réexamen :
    * interdiction levée immédiatement, compteur réinitialisé à zéro et 50 points mon50cc en compensation.
@@ -322,12 +322,12 @@ class ModerationEngine {
 
         // Trace dans les journaux d'audit (mod_logs)
         await firestoreDb.collection("mod_logs").add({
-          bot: "Pocket Lawyer Appeal Engine",
+          bot: "Nexus Atlas Juridique",
           targetUid: uid,
           targetUsername: username,
           action: "APPEAL_SUBMITTED",
           costPoints: cost,
-          reason: `Demande de réexamen soumise via l'Avocat de Poche (${cost} points mon50cc) : ${reason}`,
+          reason: `Demande de réexamen soumise via Nexus Atlas Juridique (${cost} points mon50cc) : ${reason}`,
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
       } catch (e) {

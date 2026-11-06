@@ -16,7 +16,7 @@ import { registerAction } from './actionRegistry.js';
     { id: 'sos', icon: 'fa-truck-medical', color: '#ff0055', label: 'SOS', action: () => { if(window.ScreenManager) window.ScreenManager.open('tim-cook-sos-screen'); else if (typeof window.triggerFallAlert === 'function') window.triggerFallAlert(true); } },
     { id: 'academy', icon: 'fa-graduation-cap', color: '#00d2ff', label: 'Académie du Code', action: () => { window.location.href = 'code-de-la-route.html'; } },
     { id: 'contrat', icon: 'fa-file-signature', color: '#00e676', label: 'Contrat de Route', action: () => { window.location.href = 'contrat-de-route.html'; } },
-    { id: 'lawyer', icon: 'fa-scale-balanced', color: '#cca300', label: 'Avocat de Poche', action: () => { if(window.PocketLawyer && typeof window.PocketLawyer.toggleLawyer === 'function') window.PocketLawyer.toggleLawyer(); else if (typeof window.toggleLawyer === 'function') window.toggleLawyer(); } },
+    { id: 'lawyer', icon: 'fa-scale-balanced', color: '#cca300', label: 'Nexus Atlas Juridique', action: () => { if(window.PocketLawyer && typeof window.PocketLawyer.toggleLawyer === 'function') window.PocketLawyer.toggleLawyer(); else if (typeof window.toggleLawyer === 'function') window.toggleLawyer(); } },
     { id: 'ar', icon: 'fa-vr-cardboard', color: '#00ffcc', label: 'Vision AR', action: () => { if(window.arNavigationManager) window.arNavigationManager.toggleAR(); } },
     { id: 'garage', icon: 'fa-motorcycle', color: '#00d2ff', label: 'Garage Virtuel', action: () => { if(window.VirtualGarage) window.VirtualGarage.openUI(); } },
     { id: 'convoy', icon: 'fa-people-group', color: '#00e676', label: 'Mode Convoi', action: () => { if(window.ConvoyManager) window.ConvoyManager.openUI(); } },

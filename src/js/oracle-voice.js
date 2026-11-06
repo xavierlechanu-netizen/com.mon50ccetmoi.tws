@@ -442,7 +442,7 @@ class OracleVoice {
         }
     }
     else if (commandText.match(/(avocat|litige)/gi)) {
-        reply("J'invoque l'avocat de poche. Préparez-vous à exposer votre défense.");
+        reply("J'ouvre Nexus Atlas Juridique. Expliquez-moi votre situation.");
         if (window.PocketLawyer && window.PocketLawyer.toggleLawyer) window.PocketLawyer.toggleLawyer();
     }
     // ── Marketplace & Wallet ──

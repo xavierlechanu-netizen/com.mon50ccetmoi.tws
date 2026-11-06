@@ -6,7 +6,7 @@ import { registerAction } from './actionRegistry.js';
 window.Web4Economy = {
   balance: 0.0,
   prices: {
-    legal_report: 5.0, // Prix fixe pour l'avocat de poche
+    legal_report: 5.0, // Prix fixe pour Nexus Atlas Juridique
     insurance_report: 10.0, // Prix fixe pour le rapport d'assurance IA
   },
 
@@ -69,7 +69,7 @@ window.Web4Economy = {
       balanceEl.innerText = bal.toFixed(2) + " BVC";
     }
 
-    // Restriction : Bloquer l'Avocat de Poche si solde insuffisant
+    // Restriction : Bloquer Nexus Atlas Juridique si solde insuffisant
     const lawyerBtn = document.getElementById("dock-btn-lawyer");
     if (lawyerBtn) {
       const lawyerPrice = this.prices.legal_report || 5;
@@ -84,7 +84,7 @@ lawyerBtn.innerHTML = '<i class="fa-solid fa-lock" style="filter: drop-shadow(0 
         lawyerBtn.style.filter = "none";
         // eslint-disable-next-line no-restricted-syntax
 lawyerBtn.innerHTML = '<i class="fa-solid fa-scale-balanced" style="filter: drop-shadow(0 0 5px #cca300);"></i>';
-        lawyerBtn.title = "Avocat de Poche";
+        lawyerBtn.title = "Nexus Atlas Juridique";
       }
     }
   },

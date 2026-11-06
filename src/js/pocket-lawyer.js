@@ -2,7 +2,7 @@ import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 
 /**
- * ⚖️ POCKET LAWYER - MODULE DE DÉFENSE JURIDIQUE
+ * ⚖️ NEXUS ATLAS JURIDIQUE - MODULE D'INFORMATION JURIDIQUE
  * Analyse du stationnement (Code de la Route FR : R417-10 et R417-11)
  */
 
@@ -110,11 +110,11 @@ window.PocketLawyer = {
 overlay.innerHTML = `
             <button data-action="PocketLawyer.closeLawyer()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-solid fa-scale-balanced fa-beat-fade" style="font-size: 3rem; color: #cca300; filter: drop-shadow(0 0 10px #cca300); margin-bottom: 5px;"></i>
-            <h1 style="font-size: 1.5rem; margin: 0; text-transform: uppercase; color: #cca300;">Avocat de Poche</h1>
+            <h1 style="font-size: 1.5rem; margin: 0; text-transform: uppercase; color: #cca300;">Nexus Atlas Juridique</h1>
             <div style="background: rgba(0,210,255,0.1); border: 1px solid #00d2ff; color: #00d2ff; font-size: 0.7rem; padding: 3px 10px; border-radius: 10px; margin-top: 5px; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; display: inline-block;"><i class="fa-solid fa-microchip"></i> Propulsé par Nexus Atlas</div>
             <div style="color: #ffaa00; font-size: 0.75rem; margin-bottom: 15px; text-align: center; width: 90%; max-width: 450px; border: 1px solid rgba(255,170,0,0.4); padding: 8px; border-radius: 8px; background: rgba(255,170,0,0.05); line-height: 1.3;">
                 <strong><i class="fa-solid fa-scale-balanced"></i> Conformité Légale (AI Act & CCPA)</strong><br>
-                Aide indicative générée par IA. Ne remplace pas un conseil juridique et est <strong>soumis à contrôle humain</strong>.<br>
+                <strong>Nexus Atlas n'est pas un avocat.</strong> Informations générales générées par IA, <strong>soumises à contrôle humain</strong>. Pour une situation précise (amende contestée, accident, procédure), consultez un avocat.<br>
                 <em style="color:#aaa;">Do Not Sell My Personal Information : Vos données (dont la télémétrie locale) ne sont jamais vendues.</em>
             </div>
             
