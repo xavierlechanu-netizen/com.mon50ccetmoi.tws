@@ -55,7 +55,7 @@ window.BVCManager = {
       this.updateUI();
 
       if (typeof firebase !== "undefined" && firebase.functions) {
-        const transact = firebase.functions("europe-west1").httpsCallable("transactPoints");
+        const transact = firebase.app().functions("europe-west1").httpsCallable("transactPoints");
         const res = await transact({
           action: "AWARD",
           reason: reason,
@@ -95,7 +95,7 @@ window.BVCManager = {
       this.updateUI();
 
       if (typeof firebase !== "undefined" && firebase.functions) {
-        const transact = firebase.functions("europe-west1").httpsCallable("transactPoints");
+        const transact = firebase.app().functions("europe-west1").httpsCallable("transactPoints");
         const res = await transact({
           action: "DEDUCT",
           reason: reason,
@@ -123,7 +123,7 @@ window.BVCManager = {
   getHistory: async function(limit = 30) {
     if (!window.session || !window.session.uid || typeof firebase === "undefined") return [];
     try {
-      const getHistoryFn = firebase.functions("europe-west1").httpsCallable("getPointsHistory");
+      const getHistoryFn = firebase.app().functions("europe-west1").httpsCallable("getPointsHistory");
       const res = await getHistoryFn({ limit });
       return res.data?.history || [];
     } catch (e) {

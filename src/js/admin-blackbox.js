@@ -679,7 +679,7 @@ async function handleSaveDrawerInfo() {
   }
 
   try {
-    const updateFn = firebase.functions("europe-west1").httpsCallable("adminUpdateBlackboxInfo");
+    const updateFn = firebase.app().functions("europe-west1").httpsCallable("adminUpdateBlackboxInfo");
     await updateFn({
       serial,
       blePasskey: blePasskey || undefined,
@@ -812,7 +812,7 @@ async function handleBatchSubmit(e) {
   if (btnSubmit) btnSubmit.disabled = true;
 
   try {
-    const registerFn = firebase.functions("europe-west1").httpsCallable("adminRegisterBlackboxUnits");
+    const registerFn = firebase.app().functions("europe-west1").httpsCallable("adminRegisterBlackboxUnits");
     const payload = {
       type,
       revision: "V1",
@@ -902,7 +902,7 @@ async function handleStatusSubmit(e) {
   if (!serial || !newStatus) return;
 
   try {
-    const updateFn = firebase.functions("europe-west1").httpsCallable("adminUpdateBlackboxStatus");
+    const updateFn = firebase.app().functions("europe-west1").httpsCallable("adminUpdateBlackboxStatus");
     await updateFn({ serial, newStatus, reason });
     alert("✅ Statut mis à jour.");
     closeStatusModal();
@@ -971,7 +971,7 @@ async function handleAssignSubmit(e) {
   }
 
   try {
-    const assignFn = firebase.functions("europe-west1").httpsCallable("adminAssignBlackbox");
+    const assignFn = firebase.app().functions("europe-west1").httpsCallable("adminAssignBlackbox");
     await assignFn(payload);
     alert(`✅ Boîtier ${serial} attribué au client avec succès. Livraison sous 24h garantie.`);
     closeAssignModal();
@@ -994,7 +994,7 @@ async function handleUnassign(serial) {
   }
 
   try {
-    const unassignFn = firebase.functions("europe-west1").httpsCallable("adminUnassignBlackbox");
+    const unassignFn = firebase.app().functions("europe-west1").httpsCallable("adminUnassignBlackbox");
     await unassignFn({ serial, reason: reason.trim() });
     alert(`✅ Boîtier ${serial} désattribué et remis en stock.`);
     await loadRegistryData();

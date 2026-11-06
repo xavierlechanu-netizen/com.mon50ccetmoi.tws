@@ -461,7 +461,7 @@ class BlackBoxBLE {
 
     if (typeof firebase !== 'undefined' && firebase.functions) {
       try {
-        const uploadTelemetry = firebase.functions("europe-west1").httpsCallable('uploadBlackboxTelemetry');
+        const uploadTelemetry = firebase.app().functions("europe-west1").httpsCallable('uploadBlackboxTelemetry');
         await uploadTelemetry({
           hardwareId: this.device ? this.device.name : 'UNKNOWN_HW',
           isCrashReport: Boolean(isCrashReport),

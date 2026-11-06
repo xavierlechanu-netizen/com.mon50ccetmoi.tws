@@ -5,6 +5,9 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
+// Indispensable : sans ce module, firebase.functions n'existe pas et TOUS les appels serveur
+// (points, achat de rapports, envoi de la boîte noire, profil assureur) étaient ignorés en silence.
+import 'firebase/compat/functions';
 import localforage from 'localforage';
 
 export const CONFIG = {

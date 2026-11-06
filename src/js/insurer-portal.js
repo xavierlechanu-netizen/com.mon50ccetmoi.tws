@@ -141,7 +141,7 @@ window.InsurerPortal = {
       alert("Service indisponible. Rechargez la page.");
       return null;
     }
-    const fns = firebase.functions("europe-west1");
+    const fns = firebase.app().functions("europe-west1");
     try {
       const existing = await fns.httpsCallable("getInsurerProfile")();
       if (existing.data && existing.data.registered) return existing.data;

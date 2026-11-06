@@ -121,7 +121,7 @@ window.Blackbox = {
     if (typeof firebase === "undefined" || !firebase.functions) return null;
 
     try {
-      const upload = firebase.functions("europe-west1").httpsCallable("uploadBlackboxTelemetry");
+      const upload = firebase.app().functions("europe-west1").httpsCallable("uploadBlackboxTelemetry");
       const impactTs = this.lastImpactTime ? this.lastImpactTime / 1000 : nowSec;
       const res = await upload({
         hardwareId: "PHONE",

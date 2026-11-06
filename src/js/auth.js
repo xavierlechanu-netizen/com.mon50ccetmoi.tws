@@ -227,8 +227,8 @@ window.registerBiometric = async function () {
       throw new Error("Vous devez être connecté pour activer la biométrie.");
     const session = JSON.parse(sessionStr);
 
-    const fidoGenerateReg = firebase.functions("europe-west1").httpsCallable("fidoGenerateRegistration");
-    const fidoVerifyReg = firebase.functions("europe-west1").httpsCallable("fidoVerifyRegistration");
+    const fidoGenerateReg = firebase.app().functions("europe-west1").httpsCallable("fidoGenerateRegistration");
+    const fidoVerifyReg = firebase.app().functions("europe-west1").httpsCallable("fidoVerifyRegistration");
 
     // 1. Demander le challenge au serveur
     const optionsRes = await fidoGenerateReg({ rpId: window.location.hostname });
@@ -308,8 +308,8 @@ window.loginBiometric = async function () {
     }
 
     // --- PASSWORDLESS COMPLET ---
-    const fidoGenerateAuth = firebase.functions("europe-west1").httpsCallable("fidoGenerateAuthentication");
-    const fidoVerifyAuth = firebase.functions("europe-west1").httpsCallable("fidoVerifyAuthentication");
+    const fidoGenerateAuth = firebase.app().functions("europe-west1").httpsCallable("fidoGenerateAuthentication");
+    const fidoVerifyAuth = firebase.app().functions("europe-west1").httpsCallable("fidoVerifyAuthentication");
 
     // 1. Demander le challenge d'authentification pour cet UID
     const optionsRes = await fidoGenerateAuth({ uid: storedUid, rpId: window.location.hostname });

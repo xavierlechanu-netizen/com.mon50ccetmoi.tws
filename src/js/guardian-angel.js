@@ -299,7 +299,7 @@ prompt.innerHTML = `
 
       // Appeler le serveur via Cloud Function (Passerelle SMS)
       try {
-        const sendEmergencySOS = firebase.functions("europe-west1").httpsCallable("sendEmergencySOS");
+        const sendEmergencySOS = firebase.app().functions("europe-west1").httpsCallable("sendEmergencySOS");
         
         // On récupère les contacts de l'utilisateur
         const userDoc = await db.collection("users").doc(window.session.uid).get();

@@ -343,9 +343,17 @@ tempDiv.innerHTML = htmlContent;
         `<i class="fa-solid fa-scale-balanced"></i> Déposer une demande de réexamen humain</button>`;
     }
 
-    // ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ 
+    // ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═
     // 🌍  MOTEUR JURIDIQUE MONDIAL (LegalDatabase)
-    // ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ 
+    // ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═
+    // Base de textes de loi (≈ 48 Ko) chargée à la première question seulement, pas au démarrage
+    if (!window.LegalDatabase) {
+      try {
+        await import("./legal-database.js");
+      } catch (e) {
+        console.warn("[Nexus Atlas Juridique] Base juridique indisponible :", e.message);
+      }
+    }
     if (
       window.LegalDatabase &&
       typeof window.LegalDatabase.search === "function"
