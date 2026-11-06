@@ -54,12 +54,17 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
 
   it("Devrait garantir l'immutabilité absolue des rapports de Blackbox (ASVS v5.0.0-2.3.3)", async () => {
     const userDb = testEnv.authenticatedContext("pilot1").firestore();
-    // Création par le propriétaire
-    await assertSucceeds(userDb.collection("blackbox_reports").doc("report-1").set({
-      userId: "pilot1",
-      timestamp: Date.now(),
-      speed: 45
-    }));
+    // La création est réservée au serveur (Admin SDK) : même le propriétaire ne peut pas créer
+    await assertFails(userDb.collection("blackbox_reports").doc("report-0").set({ userId: "pilot1", speed: 45 }));
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().collection("blackbox_reports").doc("report-1").set({
+        userId: "pilot1",
+        timestamp: Date.now(),
+        speed: 45
+      });
+    });
+    // Le propriétaire peut lire son rapport
+    await assertSucceeds(userDb.collection("blackbox_reports").doc("report-1").get());
     // Toute tentative de mise à jour doit échouer
     await assertFails(userDb.collection("blackbox_reports").doc("report-1").update({
       speed: 30
@@ -147,5 +152,26 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
       userId: "user123",
       amount: 49.99
     }));
+  });
+
+  it("Devrait empêcher l usurpation d identité à la création (audit 2026-11, E2)", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().collection("users").doc("pilot1").set({ username: "Pilote1", role: "user" });
+    });
+    const db = testEnv.authenticatedContext("pilot1").firestore();
+
+    // Création légitime : identifiants et pseudo du vrai auteur, ou champs absents
+    await assertSucceeds(db.collection("hazards").add({ type: "trou", uid: "pilot1", author: "Pilote1" }));
+    await assertSucceeds(db.collection("hazards").add({ type: "trou", reporter: "Membre" }));
+    await assertSucceeds(db.collection("community_roadbooks").add({ title: "Balade", userId: "pilot1" }));
+    await assertSucceeds(db.collection("crash_reports").add({ message: "bug" }));
+
+    // Usurpation : identifiant ou pseudo d un autre utilisateur
+    await assertFails(db.collection("hazards").add({ type: "trou", authorUid: "victim" }));
+    await assertFails(db.collection("hazards").add({ type: "trou", author: "Victime" }));
+    await assertFails(db.collection("hazards").add({ type: "trou", reporter: "Victime" }));
+    await assertFails(db.collection("community_roadbooks").add({ title: "x", userId: "victim" }));
+    await assertFails(db.collection("garage_evaluations").doc("g1").set({ userId: "victim", count: 1 }));
+    await assertFails(db.collection("crews").add({ name: "x", leaderUid: "victim" }));
   });
 });

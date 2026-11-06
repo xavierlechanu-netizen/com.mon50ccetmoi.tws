@@ -69,6 +69,46 @@ function createSovereignApp(options = {}) {
         telemetrySessions: []
     };
 
+    // Boîtiers pré-enregistrés (tests / amorçage) : [{ serial, ecdsaPublicKey, ownerUid, revision }]
+    for (const unit of options.blackboxUnits || []) {
+        state.blackboxUnits.set(unit.serial, { status: "ACTIVE", revision: "V1", ...unit });
+    }
+
+    // Limitation des tentatives d'authentification (anti force brute, OWASP ASVS v5.0.0-6.3)
+    const authLimit = {
+        maxAttempts: options.authMaxAttempts || 10,
+        windowMs: options.authWindowMs || 15 * 60 * 1000,
+        hits: new Map()
+    };
+
+    function clientIp(req) {
+        if (options.trustProxy || process.env.SOVEREIGN_TRUST_PROXY === "1") {
+            const fwd = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
+            if (fwd) return fwd;
+        }
+        return (req.socket && req.socket.remoteAddress) || "unknown";
+    }
+
+    /** Enregistre une tentative et renvoie true si la limite est dépassée. */
+    function isRateLimited(key) {
+        const now = Date.now();
+        const recent = (authLimit.hits.get(key) || []).filter((t) => now - t < authLimit.windowMs);
+        recent.push(now);
+        authLimit.hits.set(key, recent);
+        if (authLimit.hits.size > 50000) {
+            for (const [k, v] of authLimit.hits) {
+                if (!v.some((t) => now - t < authLimit.windowMs)) authLimit.hits.delete(k);
+            }
+        }
+        return recent.length > authLimit.maxAttempts;
+    }
+
+    function rejectTooManyAttempts(res) {
+        res.statusCode = 429;
+        res.setHeader("Retry-After", String(Math.ceil(authLimit.windowMs / 1000)));
+        res.end(JSON.stringify({ error: "Trop de tentatives. Réessayez plus tard." }));
+    }
+
     function extractBearerUser(req) {
         const authHeader = req.headers.authorization || "";
         if (!authHeader.startsWith("Bearer ")) return null;
@@ -116,6 +156,10 @@ function createSovereignApp(options = {}) {
         // 2. INSCRIPTION UTILISATEUR SOUVERAINE (scrypt + JWT ES256)
         if (req.method === "POST" && pathname === "/api/v1/auth/register") {
             const { email, username, password } = body;
+            if (isRateLimited(`register:${clientIp(req)}`)) {
+                rejectTooManyAttempts(res);
+                return;
+            }
             if (!email || !username || !password || String(password).length < 8) {
                 res.statusCode = 400;
                 res.end(JSON.stringify({ error: "Email, pseudonyme et mot de passe (>= 8 car.) requis." }));
@@ -161,6 +205,13 @@ function createSovereignApp(options = {}) {
         if (req.method === "POST" && pathname === "/api/v1/auth/login") {
             const { email, password } = body;
             const cleanEmail = String(email || "").trim().toLowerCase();
+            // Deux compteurs : par IP (balayage de comptes) et par email (attaque ciblée)
+            const limitedByIp = isRateLimited(`login-ip:${clientIp(req)}`);
+            const limitedByEmail = isRateLimited(`login-email:${cleanEmail}`);
+            if (limitedByIp || limitedByEmail) {
+                rejectTooManyAttempts(res);
+                return;
+            }
             const user = state.usersByEmail.get(cleanEmail);
 
             if (!user || !verifyPassword(String(password || ""), user.passwordHash)) {
@@ -195,15 +246,23 @@ function createSovereignApp(options = {}) {
                 return;
             }
 
+            // La clé publique envoyée par le client (ecdsaPublicKey) est volontairement ignorée :
+            // seule la clé enregistrée au provisionnement du boîtier fait foi.
             const {
                 hardwareId,
                 payloads,
                 isCrashReport,
                 impactTimestamp,
                 merkleSeedHex,
-                ecdsaSignature,
-                ecdsaPublicKey
+                ecdsaSignature
             } = body;
+
+            const unit = typeof hardwareId === "string" ? state.blackboxUnits.get(hardwareId) : undefined;
+            if (!unit || unit.ownerUid !== authUser.uid || unit.status !== "ACTIVE") {
+                res.statusCode = 403;
+                res.end(JSON.stringify({ error: "Boîtier inconnu, inactif ou non rattaché à ce compte." }));
+                return;
+            }
 
             if (!Array.isArray(payloads) || payloads.length === 0 || payloads.length > 5000) {
                 res.statusCode = 400;
@@ -226,17 +285,24 @@ function createSovereignApp(options = {}) {
             }
 
             let ecdsaVerified = false;
-            if (ecdsaSignature && ecdsaPublicKey && merkleVerification && merkleVerification.finalHashHex) {
-                ecdsaVerified = blackboxCore.verifyEcdsaP256Signature(
-                    Buffer.from(merkleVerification.finalHashHex, "hex"),
-                    ecdsaSignature,
-                    ecdsaPublicKey
-                );
+            if (ecdsaSignature) {
+                ecdsaVerified = Boolean(merkleVerification && merkleVerification.finalHashHex) &&
+                    blackboxCore.verifyEcdsaP256Signature(
+                        Buffer.from(merkleVerification.finalHashHex, "hex"),
+                        ecdsaSignature,
+                        unit.ecdsaPublicKey
+                    );
+                // Une signature présente mais fausse = tentative de falsification : rien n'est scellé.
+                if (!ecdsaVerified) {
+                    res.statusCode = 422;
+                    res.end(JSON.stringify({ error: "Signature ECDSA du boîtier invalide." }));
+                    return;
+                }
             }
 
             const evidenceReceipt = wormVault.sealTelemetryEvidence(authUser.uid, {
                 uid: authUser.uid,
-                hardwareId: String(hardwareId || "BB-V1-00001"),
+                hardwareId: unit.serial,
                 isCrashReport: Boolean(isCrashReport),
                 merkleVerified: merkleVerification ? merkleVerification.valid : null,
                 merkleRootHex: merkleVerification ? merkleVerification.finalHashHex : null,
@@ -261,6 +327,40 @@ function createSovereignApp(options = {}) {
                 success: true,
                 ...sessionRecord
             }));
+            return;
+        }
+
+        // 4b. PROVISIONNEMENT D'UN BOÎTIER (admin) : la clé publique est figée à cette étape
+        if (req.method === "POST" && pathname === "/api/v1/admin/blackbox/units") {
+            const authUser = extractBearerUser(req);
+            if (!authUser || authUser.role !== "admin") {
+                res.statusCode = 403;
+                res.end(JSON.stringify({ error: "Réservé aux administrateurs." }));
+                return;
+            }
+            const { serial, ecdsaPublicKey, ownerUid, revision } = body;
+            if (typeof serial !== "string" || !blackboxCore.isValidSerial(serial) ||
+                !blackboxCore.isValidEcdsaPublicKey(ecdsaPublicKey)) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: "Numéro de série ou clé publique ECDSA P-256 invalide." }));
+                return;
+            }
+            if (state.blackboxUnits.has(serial)) {
+                res.statusCode = 409;
+                res.end(JSON.stringify({ error: "Boîtier déjà enregistré (la clé ne peut pas être remplacée)." }));
+                return;
+            }
+            const unit = {
+                serial,
+                revision: typeof revision === "string" ? revision : "V1",
+                ecdsaPublicKey: ecdsaPublicKey.trim(),
+                ownerUid: typeof ownerUid === "string" ? ownerUid : null,
+                status: typeof ownerUid === "string" ? "ACTIVE" : "IN_STOCK",
+                createdAt: new Date().toISOString()
+            };
+            state.blackboxUnits.set(serial, unit);
+            res.statusCode = 201;
+            res.end(JSON.stringify({ serial: unit.serial, status: unit.status, ownerUid: unit.ownerUid }));
             return;
         }
 

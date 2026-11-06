@@ -25,16 +25,30 @@ const SCRYPT_PARAMS = {
 
 const TOKEN_TTL_SECONDS = 3600; // 1 heure (conformité OWASP ASVS v5.0.0-6.x)
 
-// Génération d'une paire de clés ECDSA P-256 pour signer les JWT (ES256)
-// En production OVHcloud, ces clés sont injectées via variables d'environnement.
-const defaultKeyPair = crypto.generateKeyPairSync("ec", {
-    namedCurve: "prime256v1",
-    publicKeyEncoding: { type: "spki", format: "pem" },
-    privateKeyEncoding: { type: "pkcs8", format: "pem" }
-});
+// Clés ECDSA P-256 de signature des JWT (ES256), injectées par variables d'environnement.
+// Les "\n" littéraux sont acceptés pour pouvoir passer une clé PEM sur une seule ligne.
+// Sans clés : paire éphémère en dev/test, refus de démarrer en production
+// (sinon tous les jetons deviennent invalides à chaque redémarrage).
+function loadJwtKeys(env = process.env) {
+    const priv = env.SOVEREIGN_JWT_PRIVATE_KEY;
+    const pub = env.SOVEREIGN_JWT_PUBLIC_KEY;
+    if (priv && pub) {
+        return { privateKey: priv.replace(/\\n/g, "\n"), publicKey: pub.replace(/\\n/g, "\n") };
+    }
+    if (env.NODE_ENV === "production") {
+        throw new Error(
+            "SOVEREIGN_JWT_PRIVATE_KEY et SOVEREIGN_JWT_PUBLIC_KEY sont obligatoires en production " +
+            "(générer avec : node sovereign-core/scripts/generate-jwt-keys.js)."
+        );
+    }
+    return crypto.generateKeyPairSync("ec", {
+        namedCurve: "prime256v1",
+        publicKeyEncoding: { type: "spki", format: "pem" },
+        privateKeyEncoding: { type: "pkcs8", format: "pem" }
+    });
+}
 
-const JWT_PRIVATE_KEY = process.env.SOVEREIGN_JWT_PRIVATE_KEY || defaultKeyPair.privateKey;
-const JWT_PUBLIC_KEY = process.env.SOVEREIGN_JWT_PUBLIC_KEY || defaultKeyPair.publicKey;
+const { privateKey: JWT_PRIVATE_KEY, publicKey: JWT_PUBLIC_KEY } = loadJwtKeys();
 const JWT_ISSUER = "urn:mon50ccetmoi:sovereign-auth";
 const JWT_AUDIENCE = "https://mon50ccetmoi.com";
 
@@ -184,6 +198,7 @@ module.exports = {
     verifyPassword,
     signSovereignJwt,
     verifySovereignJwt,
+    loadJwtKeys,
     JWT_PUBLIC_KEY,
     JWT_ISSUER,
     JWT_AUDIENCE

@@ -137,13 +137,25 @@ describe("Architecture Souveraine Autonome (sovereign-core — Zéro Google / Z�
             .sign("sha256", Buffer.from(merkleVerif.finalHashHex, "hex"), privateKey)
             .toString("hex");
 
+        // Provisionnement du boîtier par un admin : la clé publique est figée côté serveur
+        const adminJwt = signSovereignJwt({ uid: "admin-01", role: "admin", username: "Admin" });
+        const provision = await invokeRequest(
+            app,
+            "POST",
+            "/api/v1/admin/blackbox/units",
+            { serial: "BB50V1-P01", ecdsaPublicKey: pubUncompressedHex, ownerUid: reg.body.uid },
+            { Authorization: `Bearer ${adminJwt}` }
+        );
+        expect(provision.status).toBe(201);
+        expect(provision.body.status).toBe("ACTIVE");
+
         // Upload télémétrie sur le serveur souverain
         const upload = await invokeRequest(
             app,
             "POST",
             "/api/v1/telemetry/upload",
             {
-                hardwareId: "BB-V1-00001",
+                hardwareId: "BB50V1-P01",
                 payloads: chainedFrames,
                 isCrashReport: true,
                 impactTimestamp: 1730000101,

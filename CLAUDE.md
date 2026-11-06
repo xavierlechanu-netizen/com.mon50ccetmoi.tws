@@ -45,7 +45,7 @@ npx firebase deploy --only hosting  # Déploie dist/ sur mon50ccetmoi.web.app
 | Répertoire / Fichier | Rôle et Responsabilité |
 | :--- | :--- |
 | `sovereign-core/` | **Nouvelle architecture 100 % autonome (Zéro Google/Firebase)** destinée à OVHcloud (`GRA`/`RBX`). |
-| `├── server/index.js` | Serveur HTTP REST + WebSockets (`ws`) temps réel, auth, hazards PostGIS, rapports boîte noire, santé `/health`. |
+| `├── server/index.js` | Serveur HTTP REST (`node:http`) : auth, upload télémétrie boîte noire, webhook Revolut, RGPD, santé `/api/v1/health`. ⚠️ **Prototype** : données en mémoire (`Map`), PostgreSQL pas encore branché, pas de WebSockets ni de routes hazards (voir `docs/AUDIT_2026-11.md`, Phase 3). |
 | `├── server/crypto-auth.js` | Hachage mot de passe `scrypt` (N=16384, sel 32o, timing-safe) et jetons JWT asymétriques `ES256` (ECDSA P-256). |
 | `├── server/storage-worm.js` | Stockage forensique immuable WORM (`chmod 0o444`, empreinte `SHA-256`, compatible S3 Object Lock Compliance). |
 | `├── db/schema.sql` | Schéma PostgreSQL 16 + PostGIS (`GEOGRAPHY(POINT, 4326)`, index `GIST`) + triggers PL/pgSQL d'immuabilité forensique. |
@@ -53,7 +53,7 @@ npx firebase deploy --only hosting  # Déploie dist/ sur mon50ccetmoi.web.app
 | `└── CAHIER_DES_CHARGES_OVHCLOUD.md` | Spécifications complètes pour l'équipe avant-vente / Programme Startup OVHcloud. |
 | `hardware/firmware/` | **Firmware C ESP-IDF v5.x pour microcontrôleur ESP32-C3 (Boîte Noire REV3)**. |
 | `├── main/main.c` | Tâche temps réel 10 Hz (`telemetry_task`), acquisition IMU/GPS/ADC, zeroization en 2 étapes, transmission BLE. |
-| `├── components/blackbox/` | Stockage circulaire NVS/Flash, chiffrement `AES-256-CBC` (IV aléatoire TRNG), signature `ECDSA P-256`, chaîne de Merkle `SHA-256`. |
+| `├── components/blackbox/` | Stockage circulaire NVS/Flash, chiffrement `AES-256-GCM` (nonce 12 o aléatoire TRNG), signature `ECDSA P-256`, chaîne de Merkle `SHA-256`. |
 | `├── components/tamper/` | Détection d'effraction physique par interruption `IRAM_ATTR` (< 1 µs) avec effacement RAM immédiat puis purge NVS hors ISR. |
 | `└── idf_stubs/` | En-têtes de compatibilité ESP-IDF/FreeRTOS pour l'analyse statique `clangd` (0 erreur / 0 warning). |
 | `src/` | **Frontend Web & PWA Multi-Pages (Vite)** compilé vers `dist/`. |
@@ -93,6 +93,8 @@ L'ensemble des règles de sécurité détaillées dans `.agents/AGENTS.md` et `N
 ---
 
 ## 5. Prochaines Étapes pour Claude Code (Roadmap Migration OVHcloud)
+
+> Audit complet et plan détaillé (priorités sécurité avant la migration) : `docs/AUDIT_2026-11.md`.
 
 1. **Phase A — Branchement progressif du Frontend sur `SovereignClient`** :
    * Connecter `src/js/auth.js`, `src/js/database.js` et `src/js/blackbox-ble.js` au SDK `sovereign-core/client/sovereign-sdk.js` (avec bascule par variable de configuration `CONFIG.BACKEND_MODE = "SOVEREIGN" | "FIREBASE"`).

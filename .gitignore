@@ -94,3 +94,8 @@ android-app/www/
 sovereign-core/worm_vault/
 hardware/firmware/.cache/
 1.1.0
+
+# Secrets locaux (cles JWT, mots de passe DB)
+.env
+.env.*
+!.env.example

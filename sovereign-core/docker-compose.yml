@@ -48,6 +48,10 @@ services:
       SOVEREIGN_CORS_ORIGIN: https://mon50ccetmoi.com
       DATABASE_URL: postgres://${DB_USER:-mon50cc_admin}:${DB_PASSWORD}@postgres-postgis:5432/mon50ccetmoi
       REDIS_URL: redis://redis-cache:6379
+      SOVEREIGN_JWT_PRIVATE_KEY: ${SOVEREIGN_JWT_PRIVATE_KEY:?Cle JWT requise (node scripts/generate-jwt-keys.js)}
+      SOVEREIGN_JWT_PUBLIC_KEY: ${SOVEREIGN_JWT_PUBLIC_KEY:?Cle JWT requise}
+      SOVEREIGN_TRUST_PROXY: ${SOVEREIGN_TRUST_PROXY:-0}
+      REVOLUT_WEBHOOK_SECRET: ${REVOLUT_WEBHOOK_SECRET:-}
     command: ["node", "server/index.js"]
     ports:
       - "127.0.0.1:8080:8080"
