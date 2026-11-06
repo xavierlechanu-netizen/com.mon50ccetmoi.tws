@@ -127,19 +127,19 @@ content.innerHTML = `<h3><i class="fa-solid fa-wrench"></i> Mécano Ãƒ  la De
       en: {
         title: "Black Box Insurance",
         subtitle: "Multi-Level Digital Expertise",
-        desc: "Certified incident report. 3 levels of expertise available for insurance:<br>• <strong>Basic (49.99€)</strong>: Speed & Position.<br>• <strong>Intermediate (89.99€)</strong>: Telemetry + Eco-Data.<br>• <strong>Expert (149.99€)</strong>: 3D Reconstruction + G-Force + Lean Angle.",
+        desc: "Certified incident report. 3 levels of expertise available for insurance:<br>• <strong>Basic (49.99€)</strong>: Speed & Position.<br>• <strong>Intermediate (89.99€)</strong>: Telemetry + Eco-Data.<br>• <strong>Expert (199.99€)</strong>: 3D Reconstruction + G-Force + Lean Angle.",
         available: "Data available",
         pts: "GPS points recorded.",
         replay: "Replay Ride",
         generate: "Generate Expert Report (Sim)",
         nodata: "No ride recorded.",
         footer:
-          "Service billed to insurance: 49.99€ to 149.99€ depending on level.",
+          "Service billed to insurance: 49.99€ to 199.99€ depending on level.",
       },
       es: {
         title: "Black Box Seguro",
         subtitle: "Informe Pericial Digital",
-        desc: "En caso de accidente, tu Black Box registra automáticamente la velocidad, trayectoria GPS y ángulo de inclinación.<br><br>Este informe certificado es <strong style='color:#2ecc71;'>gratuito para ti</strong>. Si tu compañía de seguros solicita un informe oficial certificado, se les factura <strong style='color:#f1c40f;'>49,90 € por expediente</strong>.",
+        desc: "En caso de accidente, tu Black Box registra automáticamente la velocidad, trayectoria GPS y ángulo de inclinación.<br><br>Este informe certificado es <strong style='color:#2ecc71;'>gratuito para ti</strong>. Si tu compañía de seguros solicita un informe oficial certificado, se les factura <strong style='color:#f1c40f;'>49,99 € por expediente</strong>.",
         available: "Datos disponibles",
         pts: "puntos GPS registrados en el último viaje.",
         replay: "Repetir Viaje",
@@ -147,12 +147,12 @@ content.innerHTML = `<h3><i class="fa-solid fa-wrench"></i> Mécano Ãƒ  la De
         nodata:
           "Ningún viaje registrado. Inicia la navegación para activar la Black Box.",
         footer:
-          "Informe gratuito para el piloto — 49,90 €/expediente facturados a la compañía de seguros.",
+          "Informe gratuito para el piloto — 49,99 €/expediente facturados a la compañía de seguros.",
       },
       it: {
         title: "Black Box Assicurazione",
         subtitle: "Rapporto Peritale Digitale",
-        desc: "In caso de incidente, la tua Black Box registra automaticamente velocità, traiettoria GPS e angolo di piega.<br><br>Questo rapport certifié est <strong style='color:#2ecc71;'>gratuito per te</strong>. Se la tua compagnia assicurativa richiede un rapporto certificato ufficiale, il servizio costa loro <strong style='color:#f1c40f;'>49,90 € per pratica</strong>.",
+        desc: "In caso de incidente, la tua Black Box registra automaticamente velocità, traiettoria GPS e angolo di piega.<br><br>Questo rapport certifié est <strong style='color:#2ecc71;'>gratuito per te</strong>. Se la tua compagnia assicurativa richiede un rapporto certificato ufficiale, il servizio costa loro <strong style='color:#f1c40f;'>49,99 € per pratica</strong>.",
         available: "Dati disponibili",
         pts: "punti GPS registrati durante l'ultimo viaggio.",
         replay: "Rivedi Viaggio",
@@ -160,12 +160,12 @@ content.innerHTML = `<h3><i class="fa-solid fa-wrench"></i> Mécano Ãƒ  la De
         nodata:
           "Nessun viaggio registrato. Avvia la navigazione per attivare la Black Box.",
         footer:
-          "Rapporto gratuito per il piloto — 49,90 €/pratica addebitati alla compagnia assicurativa.",
+          "Rapporto gratuito per il piloto — 49,99 €/pratica addebitati alla compagnia assicurativa.",
       },
       de: {
         title: "Black Box Versicherung",
         subtitle: "Digitales Gutachten",
-        desc: "Im Falle eines Unfalls zeichnet Ihre Black Box automatisch Geschwindigkeit, GPS-Route und Neigungswinkel auf.<br><br>Dieser zertifizierte Bericht ist <strong style='color:#2ecc71;'>für Sie kostenlos</strong>. Wenn Ihre Versicherung einen offiziellen zertifizierten Bericht anfordert, werden ihr <strong style='color:#f1c40f;'>49,90 € pro Fall</strong> in Rechnung gestellt.",
+        desc: "Im Falle eines Unfalls zeichnet Ihre Black Box automatisch Geschwindigkeit, GPS-Route und Neigungswinkel auf.<br><br>Dieser zertifizierte Bericht ist <strong style='color:#2ecc71;'>für Sie kostenlos</strong>. Wenn Ihre Versicherung einen offiziellen zertifizierten Bericht anfordert, werden ihr <strong style='color:#f1c40f;'>49,99 € pro Fall</strong> in Rechnung gestellt.",
         available: "Verfügbare Daten",
         pts: "GPS-Punkte während der letzten Fahrt aufgezeichnet.",
         replay: "Fahrt wiederholen",
@@ -173,7 +173,7 @@ content.innerHTML = `<h3><i class="fa-solid fa-wrench"></i> Mécano Ãƒ  la De
         nodata:
           "Keine Fahrt aufgezeichnet. Starten Sie die Navigation, um die Black Box zu aktivieren.",
         footer:
-          "Kostenloser Bericht für den Fahrer — 49,90 €/Fall wird der Versicherung in Rechnung gestellt.",
+          "Kostenloser Bericht für den Fahrer — 49,99 €/Fall wird der Versicherung in Rechnung gestellt.",
       },
     };
     const lang = navigator.language.split("-")[0].toLowerCase();
@@ -238,7 +238,7 @@ window.BlackBoxInsurance = {
     const date = new Date().toLocaleDateString();
     const report = [
       "=== RAPPORT mon50ccetmoi EXPERT ULTRA (Certifié) ===",
-      "Niveau : EXPERT (Facturé 149.99€)",
+      "Niveau : EXPERT (Facturé 199.99€)",
       "ID Dossier : DEMO-ULTRA-99",
       "--------------------------------------------------",
       "Vitesse Max : 48 km/h",
@@ -350,7 +350,7 @@ window.BlackBoxInsurance = {
 
     const reportText = [
       t.rTitle,
-      "NIVEAU D'EXPERTISE : EXPERT (149.99€)",
+      "NIVEAU D'EXPERTISE : EXPERT (199.99€)",
       "---------------------------------------",
       `${t.rDate} ${date}`,
       `${t.rPts} ${totalPts}`,

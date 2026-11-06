@@ -7,7 +7,7 @@ Ce fichier est lu automatiquement par **Claude Code** au démarrage de chaque se
 ## 1. Vue d'Ensemble du Projet & Modèle Économique
 
 **`mon50ccetmoi.com`** est une plateforme française InsureTech & IoT dédiée à la sécurité routière des conducteurs de cyclomoteurs (50cc) et de Voitures Sans Permis (VSP).
-* **Modèle 100 % par abonnement payant (post-essai gratuit)** : Abonnement B2C (4,99 €/mois ou 49,99 €/an), vente/location du boîtier télémétrique matériel **« Boîte Noire Aragon REV3 » (ESP32-C3)**, portail **B2B Assureurs** (déblocage de preuves de sinistre immuables WORM à 29 € HT/dossier) et réseau **Garages Partenaires** (29,90 €/mois).
+* **Modèle 100 % par abonnement payant (post-essai gratuit)** : Abonnement B2C (4,99 €/mois ou 49,99 €/an), vente/location du boîtier télémétrique matériel **« Boîte Noire Aragon REV3 » (ESP32-C3)**, portail **B2B Assureurs** (rapport de sinistre en 3 paliers : Standard 49,99 €, Approfondi 89,99 €, Expertise complète + reconstitution IA 199,99 € HT — source : `functions/api/payments-catalog.js`) et réseau **Garages Partenaires** (29,90 €/mois).
 * **Cap stratégique prioritaire (Souveraineté OVHcloud)** : Sortir intégralement des services américains (Google Cloud / Firebase) au profit de notre pile autonome propriétaire située dans `sovereign-core/` (Node.js 22 LTS + PostgreSQL 16/PostGIS + Stockage S3 Object Lock WORM + OVHcloud AI Endpoints Mistral).
 
 ---

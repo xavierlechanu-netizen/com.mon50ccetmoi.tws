@@ -19,7 +19,7 @@ const CATEGORIES = {
 const CATALOG = {
     // Rapports d'expertise & Sinistres (Litiges)
     'SIMPLE': {
-        price_cents: 4990,
+        price_cents: 4999,
         category: CATEGORIES.LITIGATION,
         label: "Rapport Assurance Standard"
     },

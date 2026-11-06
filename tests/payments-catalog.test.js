@@ -18,12 +18,18 @@ describe("Payments Catalog — Durcissement & Anti-Bypass", () => {
         });
     });
 
+    test("Prix des 3 paliers de rapport assureur (doivent correspondre aux prix affichés)", () => {
+        expect(getCatalogItem("SIMPLE").price_cents).toBe(4999);         // Standard 49,99 € HT
+        expect(getCatalogItem("INTERMEDIAIRE").price_cents).toBe(8999);  // Approfondi 89,99 € HT
+        expect(getCatalogItem("EXPERT").price_cents).toBe(19999);        // Expertise complète 199,99 € HT
+    });
+
     test("Doit isoler strictement la catégorie LITIGATION des autres catégories", () => {
         const litigationTypes = ['SIMPLE', 'INTERMEDIAIRE', 'EXPERT'];
         litigationTypes.forEach(type => {
             const item = getCatalogItem(type);
             expect(item.category).toBe(CATEGORIES.LITIGATION);
-            expect(item.price_cents).toBeGreaterThanOrEqual(4990);
+            expect(item.price_cents).toBeGreaterThanOrEqual(4999);
         });
 
         // Les diagnostics IA ponctuels (4,99 €) NE DOIVENT PAS être classés LITIGATION
