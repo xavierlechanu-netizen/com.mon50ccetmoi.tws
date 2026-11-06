@@ -103,8 +103,70 @@ container.innerHTML = `
                 <button data-action="window.BlackBoxReplay.replay()" class="btn-replay-report">
                     <i class="fa-solid fa-play"></i> Rejouer le Trajet en 3D
                 </button>
+                <button data-action="InsurancePortal.showSealedReport('${caseId}')" class="btn-download-report">
+                    <i class="fa-solid fa-stamp"></i> Voir le rapport scellé (assureur)
+                </button>
             </div>
         `;
+  },
+
+  /**
+   * Rapport tel qu'il a été scellé par le serveur au moment du paiement (lisible seulement
+   * par le pilote, l'admin et l'assureur qui a payé). Construit avec textContent : aucune
+   * donnée du dossier n'est interprétée comme du HTML.
+   */
+  async showSealedReport(caseId) {
+    const content = document.getElementById("screen-content");
+    if (!content || typeof db === "undefined") return;
+    let data;
+    try {
+      const doc = await db.collection("litigation_proposals").doc(caseId).get();
+      if (!doc.exists) throw new Error("Dossier introuvable");
+      data = doc.data();
+    } catch (e) {
+      alert("Rapport non accessible : il n'est lisible qu'après paiement confirmé.");
+      return;
+    }
+    const t = data.telemetry || {};
+    const ai = data.ai || {};
+    const sealedAt = data.sealed_at && data.sealed_at.toDate ? data.sealed_at.toDate().toLocaleString("fr-FR") : "—";
+    const rows = [
+      ["Dossier", data.caseCode || caseId],
+      ["Date de l'incident", data.dateLabel || "—"],
+      ["Niveau acheté", data.paid_tier || "—"],
+      ["Force maximale", t.maxG_force != null ? `${t.maxG_force} G` : "—"],
+      ["Position GPS", data.gpsIncident ? `${data.gpsIncident.lat}, ${data.gpsIncident.lng}` : (t.gpsIncident ? `${t.gpsIncident.lat}, ${t.gpsIncident.lng}` : "—")],
+      ["Gravité estimée (IA)", ai.severityScore != null ? `${ai.severityScore} / 100` : "—"],
+      ["Analyse IA", ai.reportDescription || "—"],
+      ["Scellé par le serveur le", sealedAt],
+      ["Empreinte SHA-256", data.evidence_sha256 || "—"],
+      ["Horodatage qualifié (eIDAS)", data.qualified_timestamp ? "Oui" : "Non encore disponible"],
+    ];
+    while (content.firstChild) content.removeChild(content.firstChild);
+    const box = document.createElement("div");
+    box.style.cssText = "padding:16px; color:#fff;";
+    const h = document.createElement("h3");
+    h.textContent = "Rapport de sinistre scellé";
+    box.appendChild(h);
+    const table = document.createElement("table");
+    table.style.cssText = "width:100%; border-collapse:collapse; font-size:0.85rem;";
+    for (const [label, value] of rows) {
+      const tr = document.createElement("tr");
+      const th = document.createElement("th");
+      th.textContent = label;
+      th.style.cssText = "text-align:left; padding:6px; color:#aaa; vertical-align:top; width:40%;";
+      const td = document.createElement("td");
+      td.textContent = String(value);
+      td.style.cssText = "padding:6px; word-break:break-all;";
+      tr.append(th, td);
+      table.appendChild(tr);
+    }
+    box.appendChild(table);
+    const note = document.createElement("p");
+    note.style.cssText = "font-size:0.75rem; color:#888; margin-top:12px;";
+    note.textContent = "L'empreinte SHA-256 permet de vérifier que les données n'ont pas été modifiées depuis le paiement.";
+    box.appendChild(note);
+    content.appendChild(box);
   },
 
   getStatusLabel(status) {
@@ -124,7 +186,9 @@ container.innerHTML = `
   // 3. RevolutCheckout(token).payWithPopup()
   // 4. Webhook Revolut ←’ Firebase ←’ déblocage rapport
   // ──────────────────────────────────────────────────
-  async payInstant(caseId) {
+  // reportType : code du catalogue (SIMPLE, INTERMEDIAIRE, EXPERT) choisi par l'assureur
+  async payInstant(caseId, reportType, displayPrice) {
+    this._displayPrice = typeof displayPrice === "number" ? displayPrice : null;
     const pubKey = this.revolutPublicKey;
     if (!pubKey) {
       alert("⚠ï¸ Clé publique Revolut manquante dans config.js");
@@ -138,7 +202,7 @@ container.innerHTML = `
     try {
       // Étape 2 : Créer l'ordre côté serveur via Firebase Function
       speak("Initialisation du paiement sécurisé Revolut.");
-      const orderData = await this.createOrderViaFunction(caseId);
+      const orderData = await this.createOrderViaFunction(caseId, reportType);
 
       if (!orderData?.order_token) {
         throw new Error("Token de paiement Revolut non reçu.");
@@ -153,9 +217,14 @@ container.innerHTML = `
   },
 
   // ─ Appel Firebase Function : création de l'ordre Revolut ────────────
-  async createOrderViaFunction(caseId) {
-    const reportType =
-      window.LitigationAI?.lastAnalysis?.reportType || "STANDARD";
+  async createOrderViaFunction(caseId, requestedType) {
+    // L'ancien code envoyait « STANDARD », absent du catalogue : le paiement échouait toujours.
+    const valid = ["SIMPLE", "INTERMEDIAIRE", "EXPERT"];
+    const reportType = valid.includes(requestedType)
+      ? requestedType
+      : window.LitigationAI?.toCatalogType
+        ? window.LitigationAI.toCatalogType(window.LitigationAI?.lastAnalysis?.reportType)
+        : "SIMPLE";
 
     if (!window.ApiClient) {
       throw new Error("Module API non chargé.");
@@ -226,10 +295,26 @@ container.innerHTML = "";
     try {
       // Vérifier dans Firestore si le webhook a confirmé le paiement
       if (typeof db !== "undefined") {
+        // Le dossier n'est lisible que par le pilote, l'admin et l'assureur qui a payé :
+        // s'il est lisible et débloqué, le paiement a été confirmé par le serveur.
+        let unlocked = false;
+        try {
+          const caseDoc = await db.collection("litigation_proposals").doc(caseId).get();
+          unlocked = caseDoc.exists && caseDoc.data().report_unlocked === true;
+        } catch (e) {
+          unlocked = false; // pas encore payé : lecture refusée par les règles
+        }
+        if (unlocked) {
+          this.unlockCase(caseId, "revolut_webhook");
+          this.renderRevolutSuccess(caseId);
+          speak("Rapport débloqué avec succès.");
+          return;
+        }
         const doc = await db
           .collection("payment_confirmations")
           .doc(caseId)
-          .get();
+          .get()
+          .catch(() => ({ exists: false }));
         if (doc.exists) {
           this.unlockCase(caseId, "revolut_webhook");
           this.renderRevolutSuccess(caseId);
@@ -285,7 +370,7 @@ content.innerHTML = `
   renderRevolutLoadingModal(caseId) {
     const content = document.getElementById("screen-content");
     if (!content) return;
-    const price = (CONFIG?.REVOLUT?.AMOUNT_CENTS || 4999) / 100;
+    const price = this._displayPrice || (CONFIG?.REVOLUT?.AMOUNT_CENTS || 4999) / 100;
     // eslint-disable-next-line no-restricted-syntax
 content.innerHTML = `
             <div class="litigation-portal">
@@ -367,50 +452,18 @@ content.innerHTML = `
   },
 
   // OPTION 2 : Portefeuille
+  // Ancien « portefeuille » : son solde était stocké dans le navigateur, donc modifiable par
+  // n'importe qui. Désactivé : seul un paiement Revolut confirmé par le serveur débloque un rapport.
   payWithWallet(caseId) {
-    if (this.balance >= 49.99) {
-      this.balance -= 49.99;
-      this.unlockCase(caseId, "wallet_debit");
-      this.showPortal(caseId); // Refresh
-      speak("Débit effectué sur votre compte pro. Rapport accessible.");
-    } else {
-      alert("Solde insuffisant sur votre portefeuille virtuel.");
-      speak("Solde insuffisant.");
-    }
+    alert("Le paiement par portefeuille n'est pas disponible. Utilisez le paiement sécurisé Revolut.");
+    this.showPortal(caseId);
   },
 
-  // OPTION 3 : Preuve de virement
+  // Ancienne « preuve de virement » : n'importe quel PDF débloquait le rapport au bout de 5 s,
+  // sans aucune vérification. Désactivé tant qu'une vérification par un administrateur n'existe pas.
   uploadProof(caseId) {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "application/pdf";
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        this.cases[caseId] = {
-          status: "pending_verification",
-          unlocked: false,
-        };
-        this.showPortal(caseId);
-        speak(
-          "Preuve de virement reçue. Notre système vérifie le document.",
-        );
-
-        // Simulation de validation automatique après 5s
-        setTimeout(() => {
-          this.unlockCase(caseId, "proof_validated");
-          if (
-            document
-              .getElementById("screen-overlay")
-              .classList.contains("hidden") === false
-          ) {
-            this.showPortal(caseId);
-          }
-          speak("Justificatif validé. Le rapport est maintenant débloqué.");
-        }, 5000);
-      }
-    };
-    input.click();
+    alert("Le paiement par virement n'est pas encore disponible. Utilisez le paiement sécurisé Revolut.");
+    this.showPortal(caseId);
   },
 
   renderTransactionHistory() {

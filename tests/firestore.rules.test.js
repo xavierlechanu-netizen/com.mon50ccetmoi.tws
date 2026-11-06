@@ -174,4 +174,33 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
     await assertFails(db.collection("garage_evaluations").doc("g1").set({ userId: "victim", count: 1 }));
     await assertFails(db.collection("crews").add({ name: "x", leaderUid: "victim" }));
   });
+
+  it("Rapports de sinistre : données complètes réservées au payeur (audit 2026-11)", async () => {
+    const code = "LITIGE-ABCD-EFGH-JKLM-NPQR";
+    const pilot = testEnv.authenticatedContext("pilot1").firestore();
+    const insurer = testEnv.authenticatedContext("insurer9").firestore();
+    const curious = testEnv.authenticatedContext("curious7").firestore();
+
+    // Le pilote crée son dossier et son aperçu, mais ne peut pas se déclarer payé
+    await assertSucceeds(pilot.collection("litigation_proposals").doc(code).set({ caseCode: code, userId: "pilot1", telemetry: { maxG_force: 4.8 } }));
+    await assertFails(pilot.collection("litigation_proposals").doc("LITIGE-FAKE").set({ caseCode: "LITIGE-FAKE", userId: "pilot1", report_unlocked: true, unlocked_for: ["pilot1"] }));
+    await assertSucceeds(pilot.collection("litigation_previews").doc(code).set({ caseCode: code, userId: "pilot1", expiresAt: Date.now() + 1000, recommendedReport: "EXPERT", severityLabel: "Choc important" }));
+    // L'aperçu ne peut pas contenir de données de conduite
+    await assertFails(pilot.collection("litigation_previews").doc("LITIGE-X").set({ caseCode: "LITIGE-X", userId: "pilot1", telemetry: { maxG_force: 4.8 } }));
+
+    // Avant paiement : l'assureur voit l'aperçu, pas les données
+    await assertSucceeds(insurer.collection("litigation_previews").doc(code).get());
+    await assertFails(insurer.collection("litigation_proposals").doc(code).get());
+    await assertSucceeds(pilot.collection("litigation_proposals").doc(code).get());
+
+    // Paiement confirmé par le serveur (webhook Revolut) : seul le payeur obtient l'accès
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().collection("litigation_proposals").doc(code).update({ report_unlocked: true, unlocked_for: ["insurer9"] });
+    });
+    await assertSucceeds(insurer.collection("litigation_proposals").doc(code).get());
+    await assertFails(curious.collection("litigation_proposals").doc(code).get());
+
+    // Personne ne peut se débloquer soi-même
+    await assertFails(curious.collection("litigation_proposals").doc(code).update({ unlocked_for: ["insurer9", "curious7"] }));
+  });
 });

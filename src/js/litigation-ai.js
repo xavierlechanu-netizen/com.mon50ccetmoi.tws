@@ -18,11 +18,18 @@ window.LitigationAI = {
    * Génère un code de dossier unique au format LITIGE-XXXXXX
    * basé sur timestamp + uid utilisateur pour unicité garantie.
    */
+  /** Niveau de rapport de l'IA → code du catalogue de prix (functions/api/payments-catalog.js). */
+  toCatalogType(aiType) {
+    return { EXPERT_COMPLET: "EXPERT", IMPACT: "INTERMEDIAIRE", STANDARD: "SIMPLE" }[aiType] || "SIMPLE";
+  },
+
   generateCaseCode() {
-    const uid = window.session?.uid || "unknown";
-    const ts = Date.now().toString(36).toUpperCase();
-    const rnd = Math.random().toString(36).substring(2, 5).toUpperCase();
-    return `LITIGE-${ts}-${rnd}`;
+    // 16 caractères tirés au hasard par le générateur cryptographique du navigateur
+    // (≈ 80 bits) : impossible à deviner, contrairement à l'ancien « heure + 3 caractères ».
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sans 0/O ni 1/I, faciles à confondre
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    const code = Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
+    return `LITIGE-${code.slice(0, 4)}-${code.slice(4, 8)}-${code.slice(8, 12)}-${code.slice(12)}`;
   },
 
   // ─────────────────────────────────────────────
@@ -208,6 +215,19 @@ window.LitigationAI = {
           ...proposal,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         });
+
+      // Aperçu sans données de conduite : c'est tout ce que l'assureur voit avant de payer
+      const severity = Number(proposal.ai?.severityScore) || 0;
+      await db.collection("litigation_previews").doc(proposal.caseCode).set({
+        caseCode: proposal.caseCode,
+        userId: proposal.userId,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        expiresAt: Date.now() + 72 * 3600 * 1000,
+        recommendedReport: window.LitigationAI.toCatalogType(proposal.ai?.recommendedReport),
+        reportLabel: proposal.ai?.reportLabel || "Rapport Standard",
+        severityLabel: severity >= 70 ? "Choc important" : severity >= 40 ? "Choc modéré" : "Choc léger",
+        dateLabel: proposal.dateLabel || "",
+      });
 
       return { success: true };
     } catch (err) {

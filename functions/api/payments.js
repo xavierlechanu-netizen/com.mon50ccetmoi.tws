@@ -60,6 +60,8 @@ async function createPennylaneInvoice(orderData, userEmail, userName) {
     }
 }
 
+const { evidenceHash } = require("./evidence-seal");
+
 exports.createRevolutOrder = onRequest(
     { secrets: [REVOLUT_SECRET_KEY], region: "europe-west1" },
     async (req, res) => {
@@ -91,14 +93,11 @@ exports.createRevolutOrder = onRequest(
             if (!isValidCaseId(case_id)) {
                 return res.status(400).json({ error: "case_id invalide pour le rapport de sinistre." });
             }
-            // Vérifier dans Firestore que le dossier appartient bien à l'utilisateur appelant
+            // Le numéro de dossier (impossible à deviner) est transmis par le pilote à son assureur :
+            // le posséder vaut accord du pilote. Celui qui paie obtient l'accès aux données complètes.
             const litigationDoc = await db.collection("litigation_proposals").doc(case_id).get();
             if (!litigationDoc.exists) {
                 return res.status(404).json({ error: "Dossier de litige introuvable." });
-            }
-            if (litigationDoc.data().userId !== user_id) {
-                console.warn(`[Sec] IDOR blocked in createRevolutOrder: auth=${user_id}, case_owner=${litigationDoc.data().userId}`);
-                return res.status(403).json({ error: "Accès refusé : vous n'êtes pas le propriétaire de ce dossier." });
             }
         } else {
             // Pour les autres catégories (POINTS, BATTERY_CERT, GARAGE, BLACKBOX), si case_id absent ou non conforme, on le génère côté serveur
@@ -286,6 +285,12 @@ exports.revolutWebhook = onRequest(
                     const catalogItem = getCatalogItem(orderData.report_type);
                     const category = catalogItem?.category || orderData.category || "UNKNOWN";
 
+                    // Lecture du dossier de sinistre avant toute écriture (règle des transactions Firestore)
+                    let litigationSnap = null;
+                    if (category === CATEGORIES.LITIGATION) {
+                        litigationSnap = await tx.get(db.collection("litigation_proposals").doc(caseId));
+                    }
+
                     // 1. Mettre à jour l'ordre
                     tx.update(orderRef, {
                         status: "COMPLETED",
@@ -406,13 +411,25 @@ exports.revolutWebhook = onRequest(
                     } else if (category === CATEGORIES.LITIGATION) {
                         // Déblocage du rapport d'accident
                         const litigationRef = db.collection("litigation_proposals").doc(caseId);
-                        tx.update(litigationRef, {
-                            payment_status: "PAID",
-                            payment_method: "REVOLUT",
-                            revolut_order_id: orderId,
-                            report_unlocked: true,
-                            unlocked_at: admin.firestore.FieldValue.serverTimestamp()
-                        });
+                        if (litigationSnap && litigationSnap.exists) {
+                            tx.update(litigationRef, {
+                                payment_status: "PAID",
+                                payment_method: "REVOLUT",
+                                revolut_order_id: orderId,
+                                report_unlocked: true,
+                                unlocked_at: admin.firestore.FieldValue.serverTimestamp(),
+                                // Seul le payeur (avec le pilote et l'admin) peut lire les données complètes
+                                unlocked_for: admin.firestore.FieldValue.arrayUnion(userId),
+                                paid_tier: orderData.report_type,
+                                // Sceau : empreinte SHA-256 des données de preuve au moment du paiement
+                                evidence_sha256: evidenceHash(litigationSnap.data()),
+                                sealed_at: admin.firestore.FieldValue.serverTimestamp(),
+                                sealed_by: "mon50ccetmoi-server",
+                                qualified_timestamp: null // horodatage qualifié eIDAS : à brancher
+                            });
+                        } else {
+                            console.error(`[Revolut Webhook] Dossier de sinistre ${caseId} introuvable pour l'ordre ${orderId}`);
+                        }
                     }
 
                     // 3. Enregistrement unique de confirmation de paiement

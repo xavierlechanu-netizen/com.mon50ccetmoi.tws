@@ -284,14 +284,29 @@ service cloud.firestore {
 
     // Propositions de litige IA (Assureurs et Utilisateurs)
     match /litigation_proposals/{caseId} {
-      // Le propriétaire ou l'admin peut tout lire (liste + get)
-      // L'assureur peut lire un document spécifique (get) s'il connaît le caseId (Zero-Trust)
-      allow get: if isSignedIn();
+      // Données complètes du dossier (audit 2026-11) : le pilote, l'admin, ou l'assureur qui a PAYÉ
+      // (ajouté dans unlocked_for par le serveur après confirmation Revolut). Connaître le numéro ne suffit plus.
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin()
+                    || request.auth.uid in resource.data.get('unlocked_for', []));
       allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
       
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // Le pilote crée son dossier, mais ne peut jamais se déclarer payé, débloqué ou scellé
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid
+        && !request.resource.data.keys().hasAny(['report_unlocked', 'unlocked_for', 'unlocked_at', 'payment_status',
+             'payment_method', 'revolut_order_id', 'paid_tier', 'evidence_sha256', 'sealed_at', 'sealed_by', 'qualified_timestamp']);
       // Autoriser l'admin à mettre à jour uniquement le statut (Zero Trust)
       allow update: if isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'resolvedBy', 'resolvedAt']);
+    }
+
+    // Aperçu d'un dossier de sinistre : ce que l'assureur voit AVANT de payer (aucune donnée de conduite)
+    match /litigation_previews/{caseId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid
+        && request.resource.data.caseCode == caseId
+        && request.resource.data.keys().hasOnly(['caseCode', 'userId', 'createdAt', 'expiresAt',
+             'recommendedReport', 'reportLabel', 'severityLabel', 'dateLabel']);
+      allow update, delete: if isAdmin();
     }
 
     // ─────────────────────────────────────────────────────────────

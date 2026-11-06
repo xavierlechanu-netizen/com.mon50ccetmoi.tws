@@ -77,38 +77,23 @@ window.InsurerPortal = {
     }
 
     try {
-      if (typeof db !== "undefined") {
-        const docRef = db.collection("litigation_proposals").doc(input);
-        const doc = await docRef.get();
-
-        if (!doc.exists) {
-          alert("Dossier introuvable ou expiré.");
-          return;
-        }
-
-        const data = doc.data();
-        if (data.status === "RESOLVED") {
-            alert("Ce dossier a déjà été traité et clôturé.");
-            return;
-        }
-      } else {
-          // Simulation si DB n'est pas dispo
-          const parts = input.split("-");
-          if (parts.length >= 2) {
-            const tsStr = parts[1].toLowerCase();
-            const timestamp = parseInt(tsStr, 36);
-            if (!isNaN(timestamp)) {
-              const now = Date.now();
-              const diffHours = (now - timestamp) / (1000 * 60 * 60);
-              if (diffHours > 72) {
-                alert(
-                  "Code Expiré. Le code litige est valable uniquement 72h. Le pilote doit générer un nouveau code depuis son application.",
-                );
-                return;
-              }
-            }
-          }
+      if (typeof db === "undefined") {
+        alert("Base sécurisée indisponible. Réessayez dans un instant.");
+        return;
       }
+      // Avant paiement, l'assureur ne voit que l'aperçu (aucune donnée de conduite) :
+      // les données complètes ne lui deviennent lisibles qu'après paiement confirmé par le serveur.
+      const doc = await db.collection("litigation_previews").doc(input).get();
+      if (!doc.exists) {
+        alert("Dossier introuvable. Vérifiez le code transmis par le pilote.");
+        return;
+      }
+      const preview = doc.data();
+      if (typeof preview.expiresAt === "number" && Date.now() > preview.expiresAt) {
+        alert("Code expiré : il est valable 72 h. Le pilote doit générer un nouveau code depuis son application.");
+        return;
+      }
+      this.currentPreview = preview;
 
       document.getElementById("insurer-dashboard-box").classList.add("hidden");
       document.getElementById("insurer-pricing-box").classList.remove("hidden");
@@ -119,54 +104,24 @@ window.InsurerPortal = {
     }
   },
 
-  buyReport: async function (type, price, rewardBvc) {
-    if (
-      confirm(
-        `[SÉCURITÉ ZERO-TRUST]\nConfirmez-vous l'achat du rapport [${type}] pour ${price}€ HT ?\n\n⚠ï¸  CONDITIONS B2B : Les données chiffrées sont définitives.\nLe paiement sera instantanément prélevé via le Smart Contract.`,
-      )
-    ) {
-      // 1. Mise à jour statut dans Firestore
-      try {
-          if (typeof db !== "undefined" && this.currentCode) {
-              await db.collection("litigation_proposals").doc(this.currentCode).update({
-                  status: "RESOLVED",
-                  resolvedBy: this.currentInsurer || "ASSUREUR_ANONYME",
-                  resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
-              });
-              
-              // On peut attribuer la récompense au pilote si on récupère son ID du doc.
-              // Ici, pour le MVP, on simule l'appel Web4 comme avant si sur la même session
-          }
-      } catch (e) {
-          console.error("Erreur de mise à jour Firestore :", e);
-      }
-
-      // Premium WOW Effect for success
-      const pricingBox = document.getElementById("insurer-pricing-box");
-      // eslint-disable-next-line no-restricted-syntax
-pricingBox.innerHTML = `
-                <div style="text-align:center; padding: 40px;">
-                    <i class="fa-solid fa-circle-check" style="font-size: 5rem; color: #00ffcc; text-shadow: 0 0 30px #00ffcc; margin-bottom:20px; animation: pulse 1s infinite;"></i>
-                    <h2 style="color:#fff; font-size:2rem; font-weight:900;">TRANSACTION VALIDÉE</h2>
-                    <p style="color:#00d2ff; font-family:'JetBrains Mono', monospace;">Clé de déchiffrement générée pour le dossier ${this.currentCode}</p>
-                    <div style="margin-top:30px; background:rgba(0,255,204,0.1); border:1px solid #00ffcc; border-radius:12px; padding:15px; color:#fff;">
-                        <i class="fa-solid fa-envelope"></i> Le rapport a été envoyé de manière sécurisée à votre adresse pro.
-                    </div>
-                </div>
-            `;
-
-      setTimeout(() => {
-        // Déclenchement du Smart Contract Web4 : Rétribution du pilote
-        if (window.Web4Economy && rewardBvc > 0) {
-          // Note : en prod, ça doit être le backend qui mint pour le pilote
-          // Ici, c'est une simulation.
-          window.Web4Economy.mineToken(
-            rewardBvc,
-            `Smart Contract: L'assureur a acheté le rapport (${type})`,
-          );
-        }
-        setTimeout(() => this.close(), 3000);
-      }, 2000);
+  // Paiement réel par Revolut. Le rapport n'est débloqué que lorsque le serveur reçoit la
+  // confirmation de Revolut (webhook) : aucun écran « transaction validée » sans paiement.
+  buyReport: async function (type, price) {
+    const codes = { Standard: "SIMPLE", "Intermédiaire": "INTERMEDIAIRE", Expert: "EXPERT" };
+    const reportType = codes[type];
+    if (!reportType || !this.currentCode) {
+      alert("Saisissez d'abord un code de dossier valide.");
+      return;
     }
+    if (!window.InsurancePortal || typeof window.InsurancePortal.payInstant !== "function") {
+      alert("Module de paiement non chargé. Rechargez la page.");
+      return;
+    }
+    if (!confirm(`Confirmez-vous l'achat du rapport ${type} pour ${price} € HT ?\n\nPaiement sécurisé par Revolut. Le rapport sera accessible dès la confirmation du paiement.`)) {
+      return;
+    }
+    const overlay = document.getElementById("screen-overlay");
+    if (overlay) overlay.classList.remove("hidden");
+    await window.InsurancePortal.payInstant(this.currentCode, reportType, price);
   },
 };
