@@ -150,6 +150,139 @@ function createPgStore({ connectionString, pool } = {}) {
             return { ...rec, sessionId: rows[0].session_id };
         },
 
+        // ─── Dangers signalés ───────────────────────────────────────────────
+
+        async createHazard({ uid, type, lat, lng, description = "" }) {
+            const { rows } = await db.query(
+                `INSERT INTO hazards (user_uid, type, lat, lng, description)
+                 VALUES ($1, $2, $3, $4, $5) RETURNING hazard_id, created_at`,
+                [uid, type, lat, lng, description]
+            );
+            return { hazardId: rows[0].hazard_id, type, lat, lng, description, createdAt: rows[0].created_at.toISOString() };
+        },
+
+        async countHazardsSince(uid, sinceMs) {
+            const { rows } = await db.query(
+                "SELECT count(*)::int AS n FROM hazards WHERE user_uid = $1 AND created_at > to_timestamp($2 / 1000.0)",
+                [uid, sinceMs]
+            );
+            return rows[0].n;
+        },
+
+        /** Dangers actifs dans un rayon (mètres) : pré-filtre par rectangle, puis distance exacte (haversine). */
+        async findHazardsNear({ lat, lng, radiusM, limit = 200 }) {
+            const dLat = radiusM / 111320;
+            const dLng = radiusM / (111320 * Math.max(Math.cos((lat * Math.PI) / 180), 0.01));
+            const { rows } = await db.query(
+                `SELECT * FROM (
+                    SELECT hazard_id, type, lat, lng, description, votes, created_at,
+                           2 * 6371000 * asin(sqrt(
+                               power(sin(radians(lat - $1) / 2), 2) +
+                               cos(radians($1)) * cos(radians(lat)) * power(sin(radians(lng - $2) / 2), 2)
+                           )) AS distance_m
+                      FROM hazards
+                     WHERE active AND lat BETWEEN $1 - $4 AND $1 + $4 AND lng BETWEEN $2 - $5 AND $2 + $5
+                 ) h WHERE distance_m <= $3 ORDER BY distance_m LIMIT $6`,
+                [lat, lng, radiusM, dLat, dLng, limit]
+            );
+            return rows.map((r) => ({
+                hazardId: r.hazard_id, type: r.type, lat: r.lat, lng: r.lng, description: r.description,
+                votes: r.votes, createdAt: r.created_at.toISOString(), distanceM: Math.round(r.distance_m),
+            }));
+        },
+
+        // ─── Points (grand livre immuable) ──────────────────────────────────
+
+        /**
+         * Applique une transaction de points de façon atomique (verrou sur le compte).
+         * @param {object} t { uid, action, reason, description, amount, unverified, idempotencyKey, metadata,
+         *                     hazardId?, checkCaps(quotaData) → {ok, reason} }
+         */
+        async applyPointsTransaction(t) {
+            if (!UUID_RE.test(String(t.uid))) throw new StoreError("USER_NOT_FOUND", "Profil utilisateur introuvable.");
+            const client = await db.connect();
+            try {
+                await client.query("BEGIN");
+                const u = await client.query(
+                    "SELECT brave_coins, is_banned FROM users WHERE uid = $1 AND deleted_at IS NULL FOR UPDATE", [t.uid]
+                );
+                if (!u.rows[0]) throw new StoreError("USER_NOT_FOUND", "Profil utilisateur introuvable.");
+                if (u.rows[0].is_banned) throw new StoreError("BANNED", "Compte suspendu. Transactions bloquées.");
+
+                if (t.idempotencyKey) {
+                    const prev = await client.query(
+                        "SELECT balance_after FROM points_ledger WHERE user_uid = $1 AND idempotency_key = $2", [t.uid, t.idempotencyKey]
+                    );
+                    if (prev.rows[0]) {
+                        await client.query("ROLLBACK");
+                        return { idempotent: true, balance: prev.rows[0].balance_after, delta: 0 };
+                    }
+                }
+
+                if (t.hazardId) {
+                    const ok = UUID_RE.test(String(t.hazardId)) && (await client.query(
+                        `SELECT 1 FROM hazards WHERE hazard_id = $1 AND user_uid = $2 AND created_at > NOW() - INTERVAL '48 hours'`,
+                        [t.hazardId, t.uid]
+                    )).rowCount === 1;
+                    if (!ok) throw new StoreError("PROOF_FAILED", "Signalement introuvable, trop ancien ou créé par un autre compte.");
+                }
+
+                if (t.action === "AWARD") {
+                    const q = await client.query(
+                        "SELECT reason, amount FROM points_daily_quota WHERE user_uid = $1 AND day = CURRENT_DATE", [t.uid]
+                    );
+                    const quota = Object.fromEntries(q.rows.map((r) => [r.reason, r.amount]));
+                    const caps = t.checkCaps(quota);
+                    if (!caps.ok) throw new StoreError("CAP_REACHED", caps.reason);
+                }
+
+                const before = u.rows[0].brave_coins;
+                if (t.action === "DEDUCT" && before < t.amount) {
+                    throw new StoreError("INSUFFICIENT_FUNDS", `Solde insuffisant : vous avez ${before} Pts mon50cc, il en faut ${t.amount}.`);
+                }
+                const delta = t.action === "DEDUCT" ? -t.amount : t.amount;
+                const after = before + delta;
+
+                await client.query("UPDATE users SET brave_coins = $2, updated_at = NOW() WHERE uid = $1", [t.uid, after]);
+                await client.query(
+                    `INSERT INTO points_ledger (user_uid, action, reason, description, delta, amount, balance_before,
+                                                balance_after, idempotency_key, metadata)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+                    [t.uid, t.action, t.reason, t.description, delta, t.amount, before, after,
+                        t.idempotencyKey || null, t.metadata ? JSON.stringify(t.metadata) : null]
+                );
+                if (t.action === "AWARD") {
+                    const reasons = t.unverified ? [t.reason, "__unverified"] : [t.reason];
+                    for (const r of reasons) {
+                        await client.query(
+                            `INSERT INTO points_daily_quota (user_uid, day, reason, amount) VALUES ($1, CURRENT_DATE, $2, $3)
+                             ON CONFLICT (user_uid, day, reason) DO UPDATE SET amount = points_daily_quota.amount + EXCLUDED.amount`,
+                            [t.uid, r, t.amount]
+                        );
+                    }
+                }
+                await client.query("COMMIT");
+                return { idempotent: false, balance: after, delta };
+            } catch (e) {
+                await client.query("ROLLBACK").catch(() => {});
+                throw e;
+            } finally {
+                client.release();
+            }
+        },
+
+        /** Classement : points GAGNÉS (jamais achetés ni dépensés), comptes anonymisés exclus. */
+        async topPilots(limit = 10) {
+            const { rows } = await db.query(
+                `SELECT u.username, SUM(l.delta)::int AS points
+                   FROM points_ledger l JOIN users u ON u.uid = l.user_uid
+                  WHERE l.action = 'AWARD' AND u.deleted_at IS NULL
+                  GROUP BY u.uid, u.username ORDER BY points DESC LIMIT $1`,
+                [limit]
+            );
+            return rows.map((r) => ({ username: r.username, points: r.points }));
+        },
+
         async close() {
             if (!pool) await db.end();
         },

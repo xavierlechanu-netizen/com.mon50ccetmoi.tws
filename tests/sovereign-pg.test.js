@@ -26,7 +26,7 @@ function schemaWithoutPostgis() {
   return fs.readFileSync(path.join(__dirname, "../sovereign-core/db/schema.sql"), "utf8")
     .replace(/CREATE EXTENSION IF NOT EXISTS "postgis";/, "")
     .replace(/GEOGRAPHY\(POINT, 4326\)/g, "TEXT")
-    .replace(/CREATE INDEX IF NOT EXISTS idx_hazards_geo[^;]*;/, "");
+    .replace(/-- \[POSTGIS-DEBUT\][\s\S]*?-- \[POSTGIS-FIN\]/, "");
 }
 
 function startPostgres() {
@@ -134,6 +134,55 @@ describe("Serveur souverain sur PostgreSQL", () => {
       .rejects.toThrow(/IMMUABLE|immuable|INTÉGRITÉ/i);
     await expect(pool.query("DELETE FROM telemetry_sessions WHERE session_id = $1", [up.body.sessionId]))
       .rejects.toThrow(/INTÉGRITÉ/i);
+  });
+
+  test("dangers : signalement, recherche autour d'un point (triée par distance), données invalides refusées", async () => {
+    const a = await call(app, "POST", "/api/v1/auth/register", { email: "danger@example.com", username: "DangerPG", password: "MotDePasse2026!" });
+    const auth = { Authorization: `Bearer ${a.body.token}` };
+    const post = (h) => call(app, "POST", "/api/v1/hazards", h, auth);
+    expect((await post({ type: "pothole", lat: 48.8566, lng: 2.3522, description: "Nid de poule" })).status).toBe(201);
+    expect((await post({ type: "police", lat: 48.8656, lng: 2.3522 })).status).toBe(201); // ≈ 1 km au nord
+    expect((await post({ type: "accident", lat: 45.764, lng: 4.8357 })).status).toBe(201); // Lyon
+    expect((await post({ type: "ovni", lat: 48.85, lng: 2.35 })).status).toBe(400);
+    expect((await post({ type: "pothole", lat: 123, lng: 2.35 })).status).toBe(400);
+
+    const near = await call(app, "GET", "/api/v1/hazards?lat=48.8566&lng=2.3522&radiusKm=5", null, auth);
+    expect(near.status).toBe(200);
+    expect(near.body.hazards.map((h) => h.type)).toEqual(["pothole", "police"]); // Lyon exclu, plus proche d'abord
+    expect(near.body.hazards[1].distanceM).toBeGreaterThan(900);
+    expect(near.body.hazards[1].distanceM).toBeLessThan(1100);
+    expect((await call(app, "GET", "/api/v1/hazards?lat=48.85&lng=2.35")).status).toBe(401);
+  });
+
+  test("points : preuve exigée, gain unique par danger, plafonds, solde, classement, grand livre immuable", async () => {
+    const a = await call(app, "POST", "/api/v1/auth/register", { email: "points@example.com", username: "PointsPG", password: "MotDePasse2026!" });
+    const b = await call(app, "POST", "/api/v1/auth/register", { email: "triche@example.com", username: "TrichePG", password: "MotDePasse2026!" });
+    const authA = { Authorization: `Bearer ${a.body.token}` };
+    const authB = { Authorization: `Bearer ${b.body.token}` };
+    const tx = (auth, data) => call(app, "POST", "/api/v1/points/transact", data, auth);
+
+    const hz = await call(app, "POST", "/api/v1/hazards", { type: "roadwork", lat: 43.6, lng: 1.44 }, authA);
+    const award = { action: "AWARD", reason: "RADAR_HAZARD_REPORTED", amount: 9999, metadata: { hazardId: hz.body.hazardId } };
+    const r1 = await tx(authA, award);
+    expect(r1.status).toBe(200);
+    expect(r1.body.delta).toBe(25); // le serveur fixe le montant
+    expect((await tx(authA, award)).body.delta).toBe(0); // même danger : pas de second gain
+    expect((await tx(authB, award)).status).toBe(422); // le danger d'un autre ne rapporte rien
+
+    for (let i = 0; i < 3; i++) expect((await tx(authA, { action: "AWARD", reason: "RIDE_COMPLETED" })).status).toBe(200);
+    expect((await tx(authA, { action: "AWARD", reason: "RIDE_COMPLETED" })).status).toBe(429); // 3 trajets / jour
+    expect((await tx(authA, { action: "AWARD", reason: "ADMIN_GRANT", amount: 500 })).status).toBe(403);
+
+    const spend = await tx(authA, { action: "DEDUCT", reason: "POCKET_LAWYER_QUERY", amount: 5 });
+    expect(spend.body.balance).toBe(25 + 36 - 5);
+    expect((await tx(authA, { action: "DEDUCT", reason: "POCKET_LAWYER_QUERY", amount: 100 })).status).toBe(402);
+
+    const top = await call(app, "GET", "/api/v1/leaderboard", null, authA);
+    expect(top.body.top[0]).toEqual({ username: "PointsPG", points: 61 }); // points gagnés, dépenses non déduites
+
+    await expect(pool.query("UPDATE points_ledger SET delta = 1000")).rejects.toThrow(/INTÉGRITÉ/i);
+    const { rows } = await pool.query("SELECT brave_coins FROM users WHERE uid = $1", [a.body.uid]);
+    expect(rows[0].brave_coins).toBe(56);
   });
 
   test("RGPD : le compte est anonymisé, les preuves restent, l'ancien jeton ne sert plus", async () => {

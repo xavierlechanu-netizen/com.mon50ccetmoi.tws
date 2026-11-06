@@ -4,7 +4,9 @@
 class StoreError extends Error {
     constructor(code, message) {
         super(message);
-        this.code = code; // EMAIL_TAKEN | USERNAME_TAKEN | UNIT_EXISTS | OWNER_NOT_FOUND
+        // EMAIL_TAKEN | USERNAME_TAKEN | UNIT_EXISTS | OWNER_NOT_FOUND | USER_NOT_FOUND | BANNED
+        // | PROOF_FAILED | CAP_REACHED | INSUFFICIENT_FUNDS
+        this.code = code;
     }
 }
 

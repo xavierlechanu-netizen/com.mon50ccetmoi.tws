@@ -6,6 +6,7 @@
  */
 "use strict";
 
+const crypto = require("crypto");
 const { StoreError } = require("./store-errors");
 
 function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
@@ -14,6 +15,9 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const usernames = new Set();
     const units = new Map();
     const sessions = [];
+    const hazards = [];
+    const ledger = [];
+    const quotas = new Map(); // `${uid}|${jour}` → { motif: points, __unverified: points }
 
     // Utilisateurs pré-enregistrés (tests) : [{ uid, email?, username?, role? }]
     for (const u of users) {
@@ -92,6 +96,80 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             const session = { ...rec };
             sessions.push(session);
             return { ...session };
+        },
+
+        // ─── Dangers ─────────────────────────────────────────────────────────
+        async createHazard({ uid, type, lat, lng, description = "" }) {
+            const h = { hazardId: crypto.randomUUID(), uid, type, lat, lng, description, votes: 0, active: true,
+                createdAt: new Date().toISOString() };
+            hazards.push(h);
+            return { hazardId: h.hazardId, type, lat, lng, description, createdAt: h.createdAt };
+        },
+        async countHazardsSince(uid, sinceMs) {
+            return hazards.filter((h) => h.uid === uid && Date.parse(h.createdAt) > sinceMs).length;
+        },
+        async findHazardsNear({ lat, lng, radiusM, limit = 200 }) {
+            const R = 6371000;
+            const rad = (d) => (d * Math.PI) / 180;
+            return hazards
+                .filter((h) => h.active)
+                .map((h) => {
+                    const a = Math.sin(rad(h.lat - lat) / 2) ** 2 +
+                        Math.cos(rad(lat)) * Math.cos(rad(h.lat)) * Math.sin(rad(h.lng - lng) / 2) ** 2;
+                    return { ...h, distanceM: Math.round(2 * R * Math.asin(Math.sqrt(a))) };
+                })
+                .filter((h) => h.distanceM <= radiusM)
+                .sort((a, b) => a.distanceM - b.distanceM)
+                .slice(0, limit)
+                .map(({ hazardId, type, lat: la, lng: ln, description, votes, createdAt, distanceM }) =>
+                    ({ hazardId, type, lat: la, lng: ln, description, votes, createdAt, distanceM }));
+        },
+
+        // ─── Points ──────────────────────────────────────────────────────────
+        async applyPointsTransaction(t) {
+            const user = usersById.get(t.uid);
+            if (!user || user.deletedAt) throw new StoreError("USER_NOT_FOUND", "Profil utilisateur introuvable.");
+            if (user.isBanned) throw new StoreError("BANNED", "Compte suspendu. Transactions bloquées.");
+            if (t.idempotencyKey) {
+                const prev = ledger.find((l) => l.uid === t.uid && l.idempotencyKey === t.idempotencyKey);
+                if (prev) return { idempotent: true, balance: prev.balanceAfter, delta: 0 };
+            }
+            if (t.hazardId) {
+                const h = hazards.find((x) => x.hazardId === t.hazardId);
+                if (!h || h.uid !== t.uid || Date.now() - Date.parse(h.createdAt) > 48 * 3600 * 1000) {
+                    throw new StoreError("PROOF_FAILED", "Signalement introuvable, trop ancien ou créé par un autre compte.");
+                }
+            }
+            const day = new Date().toISOString().slice(0, 10);
+            const quota = quotas.get(`${t.uid}|${day}`) || {};
+            if (t.action === "AWARD") {
+                const caps = t.checkCaps(quota);
+                if (!caps.ok) throw new StoreError("CAP_REACHED", caps.reason);
+            }
+            const before = user.braveCoins || 0;
+            if (t.action === "DEDUCT" && before < t.amount) {
+                throw new StoreError("INSUFFICIENT_FUNDS", `Solde insuffisant : vous avez ${before} Pts mon50cc, il en faut ${t.amount}.`);
+            }
+            const delta = t.action === "DEDUCT" ? -t.amount : t.amount;
+            user.braveCoins = before + delta;
+            ledger.push({ uid: t.uid, action: t.action, reason: t.reason, delta, balanceAfter: user.braveCoins,
+                idempotencyKey: t.idempotencyKey || null });
+            if (t.action === "AWARD") {
+                quota[t.reason] = (quota[t.reason] || 0) + t.amount;
+                if (t.unverified) quota.__unverified = (quota.__unverified || 0) + t.amount;
+                quotas.set(`${t.uid}|${day}`, quota);
+            }
+            return { idempotent: false, balance: user.braveCoins, delta };
+        },
+        async topPilots(limit = 10) {
+            const sums = new Map();
+            for (const l of ledger) if (l.action === "AWARD") sums.set(l.uid, (sums.get(l.uid) || 0) + l.delta);
+            return [...sums.entries()]
+                .map(([uid, points]) => ({ user: usersById.get(uid), points }))
+                .filter((x) => x.user && !x.user.deletedAt)
+                .sort((a, b) => b.points - a.points)
+                .slice(0, limit)
+                .map((x) => ({ username: x.user.username, points: x.points }));
         },
 
         async close() {},

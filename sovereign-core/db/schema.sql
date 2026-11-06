@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS hazards (
     hazard_id   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_uid    UUID NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
     type        VARCHAR(24) NOT NULL CHECK (type IN ('pothole', 'accident', 'police', 'roadwork', 'obstacle', 'weather', 'other')),
-    location    GEOGRAPHY(POINT, 4326) NOT NULL,
+    location    GEOGRAPHY(POINT, 4326), -- rempli automatiquement depuis lat/lng (trigger PostGIS ci-dessous)
     lat         DOUBLE PRECISION NOT NULL CHECK (lat BETWEEN -90 AND 90),
     lng         DOUBLE PRECISION NOT NULL CHECK (lng BETWEEN -180 AND 180),
     description VARCHAR(500) NOT NULL DEFAULT '',
@@ -171,7 +171,34 @@ CREATE TABLE IF NOT EXISTS hazards (
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE hazards ALTER COLUMN location DROP NOT NULL;
+-- Recherche « autour de moi » en SQL standard (lat/lng) : fonctionne avec ou sans PostGIS
+CREATE INDEX IF NOT EXISTS idx_hazards_latlng ON hazards (lat, lng) WHERE active;
+CREATE INDEX IF NOT EXISTS idx_hazards_user_day ON hazards (user_uid, created_at DESC);
+
+-- [POSTGIS-DEBUT] (retiré par les tests sur PostgreSQL portable, qui n'a pas PostGIS)
 CREATE INDEX IF NOT EXISTS idx_hazards_geo ON hazards USING GIST (location);
+CREATE OR REPLACE FUNCTION hazards_fill_location()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.location := ST_SetSRID(ST_MakePoint(NEW.lng, NEW.lat), 4326)::geography;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+DROP TRIGGER IF EXISTS trg_hazards_location ON hazards;
+CREATE TRIGGER trg_hazards_location
+BEFORE INSERT OR UPDATE OF lat, lng ON hazards
+FOR EACH ROW EXECUTE FUNCTION hazards_fill_location();
+-- [POSTGIS-FIN]
+
+-- Plafonds quotidiens de gains de points (même barème que functions/api/points-rules.js)
+CREATE TABLE IF NOT EXISTS points_daily_quota (
+    user_uid UUID NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
+    day      DATE NOT NULL,
+    reason   VARCHAR(64) NOT NULL, -- '__unverified' = total des gains non vérifiables
+    amount   INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_uid, day, reason)
+);
 
 -- ============================================================================
 -- 8. PAIEMENTS REVOLUT & COMMANDES (Idempotence stricte)

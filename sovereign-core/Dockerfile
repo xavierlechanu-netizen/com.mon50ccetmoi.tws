@@ -12,7 +12,7 @@ RUN npm install --omit=dev --no-audit --no-fund && npm cache clean --force
 # Code du serveur + modules partagés de vérification (boîte noire, signature Revolut)
 COPY sovereign-core/server ./server
 COPY sovereign-core/db ./db
-COPY functions/api/blackbox-core.js functions/api/revolut-signature.js /app/functions/api/
+COPY functions/api/blackbox-core.js functions/api/revolut-signature.js functions/api/points-rules.js /app/functions/api/
 
 # Coffre WORM des preuves : appartient à l'utilisateur non privilégié
 RUN mkdir -p /app/sovereign-core/worm_vault && chown -R node:node /app/sovereign-core/worm_vault

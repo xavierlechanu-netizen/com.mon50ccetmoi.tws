@@ -28,6 +28,12 @@ const { SovereignWormStorage } = require("./storage-worm");
 const { createMemoryStore } = require("./store-memory");
 const { createPgStore } = require("./store-pg");
 const { StoreError } = require("./store-errors");
+const pointsRules = require("../../functions/api/points-rules");
+
+const HAZARD_TYPES = ["pothole", "accident", "police", "roadwork", "obstacle", "weather", "other"];
+const HAZARDS_PER_DAY = 30;
+const isLat = (v) => typeof v === "number" && Number.isFinite(v) && v >= -90 && v <= 90;
+const isLng = (v) => typeof v === "number" && Number.isFinite(v) && v >= -180 && v <= 180;
 const blackboxCore = require("../../functions/api/blackbox-core");
 const { verifyRevolutSignature } = require("../../functions/api/revolut-signature");
 
@@ -388,6 +394,108 @@ function createSovereignApp(options = {}) {
             }
             res.statusCode = 201;
             res.end(JSON.stringify({ serial: unit.serial, status: unit.status, ownerUid: unit.ownerUid }));
+            return;
+        }
+
+        // 4c. DANGERS : signaler (pilote connecté) et lister autour d'un point
+        if (pathname === "/api/v1/hazards" && (req.method === "POST" || req.method === "GET")) {
+            const authUser = extractBearerUser(req);
+            if (!authUser) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Authentification requise." }));
+                return;
+            }
+            if (req.method === "POST") {
+                const { type, lat, lng, description } = body;
+                if (!HAZARD_TYPES.includes(type) || !isLat(lat) || !isLng(lng) ||
+                    (description !== undefined && (typeof description !== "string" || description.length > 500))) {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({ error: "Type de danger, position ou description invalide." }));
+                    return;
+                }
+                if (!(await store.findUserById(authUser.uid))) {
+                    res.statusCode = 401;
+                    res.end(JSON.stringify({ error: "Compte introuvable ou supprimé." }));
+                    return;
+                }
+                if ((await store.countHazardsSince(authUser.uid, Date.now() - 24 * 3600 * 1000)) >= HAZARDS_PER_DAY) {
+                    res.statusCode = 429;
+                    res.end(JSON.stringify({ error: `Limite de ${HAZARDS_PER_DAY} signalements par jour atteinte.` }));
+                    return;
+                }
+                const hazard = await store.createHazard({ uid: authUser.uid, type, lat, lng, description: description || "" });
+                res.statusCode = 201;
+                res.end(JSON.stringify(hazard));
+                return;
+            }
+            const lat = Number(url.searchParams.get("lat"));
+            const lng = Number(url.searchParams.get("lng"));
+            const radiusKm = Math.min(Math.max(Number(url.searchParams.get("radiusKm")) || 10, 0.1), 50);
+            if (!isLat(lat) || !isLng(lng)) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: "Position invalide (lat, lng)." }));
+                return;
+            }
+            const hazards = await store.findHazardsNear({ lat, lng, radiusM: radiusKm * 1000 });
+            res.statusCode = 200;
+            res.end(JSON.stringify({ radiusKm, count: hazards.length, hazards }));
+            return;
+        }
+
+        // 4d. POINTS : même barème, mêmes preuves et mêmes plafonds que le serveur Firebase (points-rules.js)
+        if (req.method === "POST" && pathname === "/api/v1/points/transact") {
+            const authUser = extractBearerUser(req);
+            if (!authUser) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Authentification requise." }));
+                return;
+            }
+            let plan;
+            try {
+                plan = pointsRules.planTransaction(body, { isAdmin: authUser.role === "admin" });
+            } catch (e) {
+                if (e instanceof pointsRules.RuleError) {
+                    res.statusCode = { "permission-denied": 403, "out-of-range": 400 }[e.code] || 400;
+                    res.end(JSON.stringify({ error: e.message }));
+                    return;
+                }
+                throw e;
+            }
+            try {
+                const result = await store.applyPointsTransaction({
+                    uid: authUser.uid,
+                    action: body.action,
+                    reason: body.reason,
+                    description: plan.rule.description,
+                    amount: plan.amount,
+                    unverified: plan.unverified,
+                    idempotencyKey: plan.forcedIdempotencyKey || (typeof body.idempotencyKey === "string" ? body.idempotencyKey.slice(0, 128) : null),
+                    metadata: body.metadata && typeof body.metadata === "object" ? body.metadata : null,
+                    hazardId: plan.needsHazardCheck ? body.metadata.hazardId : null,
+                    checkCaps: (quota) => pointsRules.checkDailyCaps(plan, body.reason, quota),
+                });
+                res.statusCode = 200;
+                res.end(JSON.stringify({ success: true, ...result }));
+            } catch (e) {
+                if (e instanceof StoreError) {
+                    res.statusCode = { USER_NOT_FOUND: 404, BANNED: 403, PROOF_FAILED: 422, CAP_REACHED: 429, INSUFFICIENT_FUNDS: 402 }[e.code] || 400;
+                    res.end(JSON.stringify({ error: e.message }));
+                    return;
+                }
+                throw e;
+            }
+            return;
+        }
+
+        // 4e. CLASSEMENT : pseudo + points gagnés
+        if (req.method === "GET" && pathname === "/api/v1/leaderboard") {
+            if (!extractBearerUser(req)) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Authentification requise." }));
+                return;
+            }
+            res.statusCode = 200;
+            res.end(JSON.stringify({ top: await store.topPilots(10) }));
             return;
         }
 
