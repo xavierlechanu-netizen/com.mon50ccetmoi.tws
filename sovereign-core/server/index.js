@@ -25,6 +25,9 @@ const {
     verifySovereignJwt
 } = require("./crypto-auth");
 const { SovereignWormStorage } = require("./storage-worm");
+const { createMemoryStore } = require("./store-memory");
+const { createPgStore } = require("./store-pg");
+const { StoreError } = require("./store-errors");
 const blackboxCore = require("../../functions/api/blackbox-core");
 const { verifyRevolutSignature } = require("../../functions/api/revolut-signature");
 
@@ -55,24 +58,25 @@ function applySecurityHeaders(res) {
 }
 
 /**
- * Crée une instance isolée du noyau souverain (avec mémoire transactionnelle ou adaptateur SQL PostgreSQL).
+ * Choix du stockage : PostgreSQL si DATABASE_URL est défini (obligatoire en production),
+ * sinon mémoire (développement et tests).
+ */
+function resolveStore(options, env = process.env) {
+    if (options.store) return options.store;
+    if (env.DATABASE_URL) return createPgStore({ connectionString: env.DATABASE_URL });
+    if (env.NODE_ENV === "production") {
+        throw new Error("DATABASE_URL est obligatoire en production (les données en mémoire seraient perdues au redémarrage).");
+    }
+    // Boîtiers pré-enregistrés (tests / amorçage) : [{ serial, ecdsaPublicKey, ownerUid, revision }]
+    return createMemoryStore({ blackboxUnits: options.blackboxUnits || [], users: options.users || [] });
+}
+
+/**
+ * Crée une instance isolée du noyau souverain.
  */
 function createSovereignApp(options = {}) {
     const wormVault = new SovereignWormStorage(options.wormDir);
-
-    // Magasin transactionnel embarqué (remplacé en prod par le pool PostgreSQL `pg` sur schema.sql)
-    const state = {
-        usersById: new Map(),
-        usersByEmail: new Map(),
-        pointsLedger: [],
-        blackboxUnits: new Map(),
-        telemetrySessions: []
-    };
-
-    // Boîtiers pré-enregistrés (tests / amorçage) : [{ serial, ecdsaPublicKey, ownerUid, revision }]
-    for (const unit of options.blackboxUnits || []) {
-        state.blackboxUnits.set(unit.serial, { status: "ACTIVE", revision: "V1", ...unit });
-    }
+    const store = resolveStore(options);
 
     // Limitation des tentatives d'authentification (anti force brute, OWASP ASVS v5.0.0-6.3)
     const authLimit = {
@@ -166,24 +170,30 @@ function createSovereignApp(options = {}) {
                 return;
             }
             const cleanEmail = String(email).trim().toLowerCase();
-            if (state.usersByEmail.has(cleanEmail)) {
-                res.statusCode = 409;
-                res.end(JSON.stringify({ error: "Cet email est déjà enregistré." }));
+            const cleanUsername = String(username).trim();
+            if (cleanEmail.length > 255 || cleanUsername.length < 2 || cleanUsername.length > 64) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: "Email (255 car. max) ou pseudonyme (2 à 64 car.) invalide." }));
                 return;
             }
 
-            const uid = crypto.randomUUID();
-            const userRecord = {
-                uid,
-                email: cleanEmail,
-                username: String(username).trim(),
-                passwordHash: hashPassword(String(password)),
-                role: "user",
-                braveCoins: 0,
-                createdAt: new Date().toISOString()
-            };
-            state.usersById.set(uid, userRecord);
-            state.usersByEmail.set(cleanEmail, userRecord);
+            let userRecord;
+            try {
+                userRecord = await store.createUser({
+                    uid: crypto.randomUUID(),
+                    email: cleanEmail,
+                    username: cleanUsername,
+                    passwordHash: hashPassword(String(password)),
+                    role: "user"
+                });
+            } catch (e) {
+                if (e instanceof StoreError) {
+                    res.statusCode = 409;
+                    res.end(JSON.stringify({ error: e.message }));
+                    return;
+                }
+                throw e;
+            }
 
             const token = signSovereignJwt({
                 uid: userRecord.uid,
@@ -212,7 +222,7 @@ function createSovereignApp(options = {}) {
                 rejectTooManyAttempts(res);
                 return;
             }
-            const user = state.usersByEmail.get(cleanEmail);
+            const user = await store.findUserByEmail(cleanEmail);
 
             if (!user || !verifyPassword(String(password || ""), user.passwordHash)) {
                 res.statusCode = 401;
@@ -257,7 +267,14 @@ function createSovereignApp(options = {}) {
                 ecdsaSignature
             } = body;
 
-            const unit = typeof hardwareId === "string" ? state.blackboxUnits.get(hardwareId) : undefined;
+            // Un jeton encore valide d'un compte anonymisé (RGPD) ne doit plus rien déposer
+            if (!(await store.findUserById(authUser.uid))) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Compte introuvable ou supprimé." }));
+                return;
+            }
+
+            const unit = typeof hardwareId === "string" ? await store.getBlackboxUnit(hardwareId) : null;
             if (!unit || unit.ownerUid !== authUser.uid || unit.status !== "ACTIVE") {
                 res.statusCode = 403;
                 res.end(JSON.stringify({ error: "Boîtier inconnu, inactif ou non rattaché à ce compte." }));
@@ -277,6 +294,11 @@ function createSovereignApp(options = {}) {
                     impactTimestamp,
                     blackboxCore.CRASH_WINDOW_SECONDS
                 );
+                if (finalFrames.length === 0) {
+                    res.statusCode = 422;
+                    res.end(JSON.stringify({ error: "Aucune trame dans la fenêtre de ±30 s autour du choc." }));
+                    return;
+                }
             }
 
             let merkleVerification = null;
@@ -310,17 +332,20 @@ function createSovereignApp(options = {}) {
                 frames: finalFrames
             });
 
-            const sessionRecord = {
+            const sessionRecord = await store.insertTelemetrySession({
                 sessionId: crypto.randomUUID(),
                 uid: authUser.uid,
+                hardwareId: unit.serial,
+                isCrashReport: Boolean(isCrashReport),
+                impactTimestamp: typeof impactTimestamp === "number" ? Math.round(impactTimestamp) : null,
                 frameCount: finalFrames.length,
                 merkleVerified: merkleVerification ? merkleVerification.valid : null,
+                merkleRootHex: merkleVerification ? merkleVerification.finalHashHex : null,
                 ecdsaVerified,
                 wormStoragePath: evidenceReceipt.storagePath,
                 wormSha256Hex: evidenceReceipt.sha256Hex,
                 sealedAt: evidenceReceipt.sealedAt
-            };
-            state.telemetrySessions.push(sessionRecord);
+            });
 
             res.statusCode = 201;
             res.end(JSON.stringify({
@@ -345,20 +370,22 @@ function createSovereignApp(options = {}) {
                 res.end(JSON.stringify({ error: "Numéro de série ou clé publique ECDSA P-256 invalide." }));
                 return;
             }
-            if (state.blackboxUnits.has(serial)) {
-                res.statusCode = 409;
-                res.end(JSON.stringify({ error: "Boîtier déjà enregistré (la clé ne peut pas être remplacée)." }));
-                return;
+            let unit;
+            try {
+                unit = await store.createBlackboxUnit({
+                    serial,
+                    revision: typeof revision === "string" ? revision : "V1",
+                    ecdsaPublicKey: ecdsaPublicKey.trim(),
+                    ownerUid: typeof ownerUid === "string" ? ownerUid : null
+                });
+            } catch (e) {
+                if (e instanceof StoreError) {
+                    res.statusCode = e.code === "UNIT_EXISTS" ? 409 : 400;
+                    res.end(JSON.stringify({ error: e.message }));
+                    return;
+                }
+                throw e;
             }
-            const unit = {
-                serial,
-                revision: typeof revision === "string" ? revision : "V1",
-                ecdsaPublicKey: ecdsaPublicKey.trim(),
-                ownerUid: typeof ownerUid === "string" ? ownerUid : null,
-                status: typeof ownerUid === "string" ? "ACTIVE" : "IN_STOCK",
-                createdAt: new Date().toISOString()
-            };
-            state.blackboxUnits.set(serial, unit);
             res.statusCode = 201;
             res.end(JSON.stringify({ serial: unit.serial, status: unit.status, ownerUid: unit.ownerUid }));
             return;
@@ -389,13 +416,12 @@ function createSovereignApp(options = {}) {
                 res.end(JSON.stringify({ error: "Authentification requise." }));
                 return;
             }
-            const user = state.usersById.get(authUser.uid);
-            if (user) {
-                state.usersByEmail.delete(user.email);
-                state.usersById.delete(authUser.uid);
-            }
+            await store.anonymizeUser(authUser.uid);
             res.statusCode = 200;
-            res.end(JSON.stringify({ success: true, message: "Compte et données personnelles purgés (RGPD Art. 17)." }));
+            res.end(JSON.stringify({
+                success: true,
+                message: "Données personnelles effacées (RGPD art. 17). Les preuves d'accident sont conservées de façon anonyme (art. 17.3.e)."
+            }));
             return;
         }
 
@@ -429,15 +455,18 @@ function createSovereignApp(options = {}) {
         });
     });
 
-    return { server, state, wormVault, handleRequest };
+    return { server, store, wormVault, handleRequest };
 }
 
 if (require.main === module) {
     const port = Number(process.env.PORT) || 8080;
-    const { server } = createSovereignApp();
+    const { server, store } = createSovereignApp();
     server.listen(port, () => {
-        console.log(`[SovereignCore] Serveur autonome actif sur le port ${port} (Zéro Google / Zéro Firebase)`);
+        console.log(`[SovereignCore] Serveur actif sur le port ${port} — stockage : ${store.kind === "postgres" ? "PostgreSQL" : "MÉMOIRE (développement uniquement)"}`);
     });
+    const shutdown = () => server.close(() => store.close().finally(() => process.exit(0)));
+    process.on("SIGTERM", shutdown);
+    process.on("SIGINT", shutdown);
 }
 
 module.exports = { createSovereignApp, SOVEREIGN_CSP };

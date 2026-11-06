@@ -35,12 +35,13 @@ services:
       - "127.0.0.1:6379:6379"
 
   sovereign-api:
-    image: node:22-alpine
+    # Image construite avec ses dépendances (pg) : voir sovereign-core/Dockerfile
+    build:
+      context: ..
+      dockerfile: sovereign-core/Dockerfile
     container_name: mon50cc-api
     restart: unless-stopped
-    working_dir: /app/sovereign-core
     volumes:
-      - ../:/app:ro
       - worm_vault_data:/app/sovereign-core/worm_vault
     environment:
       NODE_ENV: production
@@ -52,7 +53,6 @@ services:
       SOVEREIGN_JWT_PUBLIC_KEY: ${SOVEREIGN_JWT_PUBLIC_KEY:?Cle JWT requise}
       SOVEREIGN_TRUST_PROXY: ${SOVEREIGN_TRUST_PROXY:-0}
       REVOLUT_WEBHOOK_SECRET: ${REVOLUT_WEBHOOK_SECRET:-}
-    command: ["node", "server/index.js"]
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:

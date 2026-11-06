@@ -1,0 +1,159 @@
+/**
+ * store-pg.js — Stockage PostgreSQL (production : OVHcloud Managed PostgreSQL, schéma db/schema.sql).
+ *
+ * Même contrat que store-memory.js. Requêtes paramétrées uniquement ($1, $2…) : aucune
+ * concaténation de données utilisateur dans le SQL.
+ */
+"use strict";
+
+const { Pool } = require("pg");
+const { StoreError } = require("./store-errors");
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function mapUser(r) {
+    if (!r) return null;
+    return {
+        uid: r.uid,
+        email: r.email,
+        username: r.username,
+        passwordHash: r.password_hash,
+        role: r.role,
+        braveCoins: r.brave_coins,
+        createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at,
+    };
+}
+
+function mapUnit(r) {
+    if (!r) return null;
+    return {
+        serial: r.serial,
+        revision: r.revision,
+        status: r.status,
+        ecdsaPublicKey: r.ecdsa_public_key,
+        ownerUid: r.owner_uid,
+        createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at,
+    };
+}
+
+function createPgStore({ connectionString, pool } = {}) {
+    const db = pool || new Pool({ connectionString, max: 10, idleTimeoutMillis: 30000 });
+
+    return {
+        kind: "postgres",
+        pool: db,
+
+        async createUser({ uid, email, username, passwordHash, role = "user" }) {
+            try {
+                const { rows } = await db.query(
+                    `INSERT INTO users (uid, email, username, password_hash, role)
+                     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+                    [uid, email, username, passwordHash, role]
+                );
+                return mapUser(rows[0]);
+            } catch (e) {
+                if (e.code === "23505") {
+                    const onEmail = /email/i.test(`${e.constraint || ""} ${e.detail || ""}`);
+                    throw onEmail
+                        ? new StoreError("EMAIL_TAKEN", "Cet email est déjà enregistré.")
+                        : new StoreError("USERNAME_TAKEN", "Ce pseudonyme est déjà pris.");
+                }
+                throw e;
+            }
+        },
+
+        async findUserByEmail(email) {
+            const { rows } = await db.query(
+                "SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL", [email]
+            );
+            return mapUser(rows[0]);
+        },
+
+        async findUserById(uid) {
+            if (!UUID_RE.test(String(uid))) return null;
+            const { rows } = await db.query(
+                "SELECT * FROM users WHERE uid = $1 AND deleted_at IS NULL", [uid]
+            );
+            return mapUser(rows[0]);
+        },
+
+        /**
+         * RGPD art. 17 : l'identité est effacée (email, pseudo, mot de passe, clés biométriques).
+         * Les preuves (télémétrie, grand livre) sont conservées sous l'identifiant devenu anonyme
+         * (art. 17.3.e : constatation et défense de droits en justice). Une suppression physique
+         * serait d'ailleurs refusée par les triggers d'immuabilité.
+         */
+        async anonymizeUser(uid) {
+            if (!UUID_RE.test(String(uid))) return false;
+            const client = await db.connect();
+            try {
+                await client.query("BEGIN");
+                const { rowCount } = await client.query(
+                    `UPDATE users SET email = $2, username = $3, password_hash = '!', brave_coins = 0,
+                            is_premium = FALSE, premium_plan = NULL, ban_reason = NULL,
+                            deleted_at = NOW(), updated_at = NOW()
+                      WHERE uid = $1 AND deleted_at IS NULL`,
+                    [uid, `${uid}@supprime.invalid`, `supprime-${uid}`]
+                );
+                if (rowCount === 0) {
+                    await client.query("ROLLBACK");
+                    return false;
+                }
+                await client.query("DELETE FROM fido_credentials WHERE user_uid = $1", [uid]);
+                await client.query("DELETE FROM fido_challenges WHERE user_uid = $1", [uid]);
+                await client.query("COMMIT");
+                return true;
+            } catch (e) {
+                await client.query("ROLLBACK").catch(() => {});
+                throw e;
+            } finally {
+                client.release();
+            }
+        },
+
+        async getBlackboxUnit(serial) {
+            const { rows } = await db.query("SELECT * FROM blackbox_units WHERE serial = $1", [serial]);
+            return mapUnit(rows[0]);
+        },
+
+        async createBlackboxUnit({ serial, revision = "V1", ecdsaPublicKey, ownerUid = null }) {
+            try {
+                const { rows } = await db.query(
+                    `INSERT INTO blackbox_units (serial, revision, status, ecdsa_public_key, owner_uid, activated_at)
+                     VALUES ($1, $2, $3, $4, $5, CASE WHEN $5::uuid IS NULL THEN NULL ELSE NOW() END)
+                     RETURNING *`,
+                    [serial, revision, ownerUid ? "ACTIVE" : "IN_STOCK", ecdsaPublicKey, ownerUid]
+                );
+                await db.query(
+                    "INSERT INTO blackbox_unit_history (serial, action, details) VALUES ($1, $2, $3)",
+                    [serial, "REGISTERED", JSON.stringify({ ownerUid })]
+                );
+                return mapUnit(rows[0]);
+            } catch (e) {
+                if (e.code === "23505") throw new StoreError("UNIT_EXISTS", "Boîtier déjà enregistré (la clé ne peut pas être remplacée).");
+                if (e.code === "23503" || e.code === "22P02") throw new StoreError("OWNER_NOT_FOUND", "Propriétaire du boîtier introuvable.");
+                throw e;
+            }
+        },
+
+        async insertTelemetrySession(rec) {
+            const { rows } = await db.query(
+                `INSERT INTO telemetry_sessions
+                   (session_id, user_uid, hardware_id, is_crash_report, impact_timestamp, merkle_verified,
+                    merkle_root_hex, ecdsa_verified, frame_count, worm_storage_path, worm_sha256_hex)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                 RETURNING session_id, created_at`,
+                [rec.sessionId, rec.uid, rec.hardwareId, rec.isCrashReport, rec.impactTimestamp,
+                    rec.merkleVerified, rec.merkleRootHex, rec.ecdsaVerified, rec.frameCount,
+                    rec.wormStoragePath, rec.wormSha256Hex]
+            );
+            return { ...rec, sessionId: rows[0].session_id };
+        },
+
+        async close() {
+            if (!pool) await db.end();
+        },
+    };
+}
+
+module.exports = { createPgStore };

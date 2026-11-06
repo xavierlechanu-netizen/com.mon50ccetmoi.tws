@@ -71,6 +71,7 @@ describe("Phase 1 — sécurité du serveur souverain", () => {
         createSovereignApp({
             wormDir,
             blackboxUnits: [{ serial: "BB50V1-P02", ecdsaPublicKey: device.pubHex, ownerUid }],
+            users: [{ uid: ownerUid }, { uid: "someone-else" }],
             ...opts
         });
 

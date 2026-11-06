@@ -39,9 +39,17 @@ CREATE TABLE IF NOT EXISTS users (
     is_banned           BOOLEAN NOT NULL DEFAULT FALSE,
     ban_reason          TEXT,
     blackbox_serial     VARCHAR(32),
+    deleted_at          TIMESTAMPTZ, -- RGPD : compte anonymisé (voir anonymizeUser dans store-pg.js)
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Bases déjà créées avant l'ajout de la colonne
+ALTER TABLE users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;
+
+-- RGPD : un compte n'est jamais supprimé physiquement (les tables de preuves immuables qui le
+-- référencent bloqueraient la suppression en cascade). Il est ANONYMISÉ : email, pseudo, mot de
+-- passe et clés biométriques effacés ; preuves conservées (art. 17.3.e, défense de droits en justice).
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
@@ -99,7 +107,7 @@ CREATE TABLE IF NOT EXISTS blackbox_units (
     revision         VARCHAR(8) NOT NULL DEFAULT 'V1',
     status           VARCHAR(24) NOT NULL DEFAULT 'IN_STOCK'
                      CHECK (status IN ('IN_STOCK', 'RESERVED', 'SOLD', 'SHIPPED', 'ACTIVE', 'RMA', 'DECOMMISSIONED')),
-    ecdsa_public_key VARCHAR(130) NOT NULL, -- Point non compressé secp256r1 (04 + 64 octets hex)
+    ecdsa_public_key TEXT NOT NULL, -- secp256r1 : point non compressé (04 + 64 octets hex) ou PEM
     owner_uid        UUID REFERENCES users(uid) ON DELETE SET NULL,
     sale_order_id    VARCHAR(128),
     activated_at     TIMESTAMPTZ,
@@ -115,6 +123,8 @@ CREATE TABLE IF NOT EXISTS blackbox_unit_history (
     details    JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE blackbox_units ALTER COLUMN ecdsa_public_key TYPE TEXT;
 
 DROP TRIGGER IF EXISTS trg_immutable_bb_history ON blackbox_unit_history;
 CREATE TRIGGER trg_immutable_bb_history

@@ -45,7 +45,9 @@ npx firebase deploy --only hosting  # Déploie dist/ sur mon50ccetmoi.web.app
 | Répertoire / Fichier | Rôle et Responsabilité |
 | :--- | :--- |
 | `sovereign-core/` | **Nouvelle architecture 100 % autonome (Zéro Google/Firebase)** destinée à OVHcloud (`GRA`/`RBX`). |
-| `├── server/index.js` | Serveur HTTP REST (`node:http`) : auth, upload télémétrie boîte noire, webhook Revolut, RGPD, santé `/api/v1/health`. ⚠️ **Prototype** : données en mémoire (`Map`), PostgreSQL pas encore branché, pas de WebSockets ni de routes hazards (voir `docs/AUDIT_2026-11.md`, Phase 3). |
+| `├── server/index.js` | Serveur HTTP REST (`node:http`) : auth, upload télémétrie boîte noire, provisionnement des boîtiers, webhook Revolut, RGPD (anonymisation), santé `/api/v1/health`. Stockage **PostgreSQL** si `DATABASE_URL` (obligatoire en production), mémoire sinon. Pas encore de WebSockets ni de routes hazards. |
+| `├── server/store-pg.js` · `store-memory.js` | Couche d'accès aux données (même contrat). Testée sur un vrai PostgreSQL portable : `tests/sovereign-pg.test.js` (schéma de production sans PostGIS). |
+| `├── Dockerfile` | Image du serveur (Node 22, `npm install` de `pg`, utilisateur non privilégié). |
 | `├── server/crypto-auth.js` | Hachage mot de passe `scrypt` (N=16384, sel 32o, timing-safe) et jetons JWT asymétriques `ES256` (ECDSA P-256). |
 | `├── server/storage-worm.js` | Stockage forensique immuable WORM (`chmod 0o444`, empreinte `SHA-256`, compatible S3 Object Lock Compliance). |
 | `├── db/schema.sql` | Schéma PostgreSQL 16 + PostGIS (`GEOGRAPHY(POINT, 4326)`, index `GIST`) + triggers PL/pgSQL d'immuabilité forensique. |
