@@ -244,15 +244,23 @@ exports.reportToNotion = onRequest(
     }
 );
 
+const VIGILANCE_CACHE_MS = 10 * 60 * 1000;
+const vigilanceCache = { data: null, at: 0 };
+
 exports.getVigilanceMeteo = onRequest(
     { secrets: [METEO_FRANCE_API_KEY], cors: true, region: "europe-west1" },
     async (req, res) => {
         setCorsHeaders(res);
         if (req.method === "OPTIONS") return res.status(204).send("");
+        if (req.method !== "GET") return res.status(405).json({ error: "Method Not Allowed" });
 
-        const authUser = await verifyAuthToken(req);
-        if (!authUser) {
-            return res.status(401).json({ error: "Authentification requise." });
+        // Information publique de sécurité (données ouvertes Météo-France) : accessible sans compte,
+        // y compris aux visiteurs. Mémoire tampon de 10 min : Météo-France est interrogé au plus
+        // une fois par période et par instance, quel que soit le nombre de visiteurs.
+        const now = Date.now();
+        if (vigilanceCache.data && now - vigilanceCache.at < VIGILANCE_CACHE_MS) {
+            res.set("Cache-Control", "public, max-age=300");
+            return res.status(200).json(vigilanceCache.data);
         }
 
         try {
@@ -265,9 +273,14 @@ exports.getVigilanceMeteo = onRequest(
             });
             if (!response.ok) throw new Error("Erreur HTTP " + response.status);
             const data = await response.json();
+            vigilanceCache.data = data;
+            vigilanceCache.at = now;
+            res.set("Cache-Control", "public, max-age=300");
             return res.status(200).json(data);
         } catch (error) {
             console.error("[Meteo] Erreur :", error.message);
+            // Météo-France indisponible : on sert la dernière carte connue plutôt que rien
+            if (vigilanceCache.data) return res.status(200).json({ ...vigilanceCache.data, stale: true });
             return res.status(200).json({ error: "Données Météo-France indisponibles", fallback: true });
         }
     }

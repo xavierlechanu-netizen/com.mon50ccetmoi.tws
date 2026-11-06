@@ -152,7 +152,7 @@ badge.innerHTML = `
     this.sessionPenalties.push({ type, description, penalty, time: now });
     this.saveAndUpdate();
 
-    console.warn(`ðŸ† DrivingScore : ${penalty} pts ←’ ${description}`);
+    console.warn(`🏆 DrivingScore : ${penalty} pts → ${description}`);
 
     // Vibration d'avertissement
     if (navigator.vibrate) navigator.vibrate([200, 100, 200]);

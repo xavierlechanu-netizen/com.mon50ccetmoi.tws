@@ -79,7 +79,7 @@ window.WeatherAlert = {
     const condition = this.CONDITIONS[conditionKey];
     if (!condition || !condition.danger) return;
 
-    console.warn(`🌍¦ï¸ ALERTE MÉTÉO : ${condition.label}`);
+    console.warn(`🌍¦️ ALERTE MÉTÉO : ${condition.label}`);
 
     // Notification Vocale
     if (typeof speak === "function") {
@@ -119,7 +119,7 @@ window.WeatherAlert = {
 
     // eslint-disable-next-line no-restricted-syntax
 toast.innerHTML = `
-            <span style="font-size:24px;">â˜ï¸</span>
+            <span style="font-size:24px;">☁️</span>
             <div>
                 <div style="font-weight:bold; color:#00d2ff;">Alerte Météo : ${condition.label}</div>
                 <div style="font-size:12px; color:#aaa;">Prudence recommandée</div>

@@ -184,7 +184,7 @@ overlay.innerHTML = `
                             <p style="margin: 5px 0; display:flex; justify-content:space-between;"><span>Kilométrage total :</span> <strong>${bState.mileage}</strong></p>
                             <p style="margin: 5px 0; display:flex; justify-content:space-between;"><span>Cycles de charge :</span> <strong>${bState.cycles}</strong></p>
                             <p style="margin: 5px 0; display:flex; justify-content:space-between;"><span>Mise en circulation :</span> <strong>${bState.date}</strong></p>
-                            <p style="margin: 5px 0; display:flex; justify-content:space-between;"><span>Ã‚ge batterie :</span> <strong>${bState.age}</strong></p>
+                            <p style="margin: 5px 0; display:flex; justify-content:space-between;"><span>Âge batterie :</span> <strong>${bState.age}</strong></p>
                         </div>
                     </div>
 

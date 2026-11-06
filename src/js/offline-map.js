@@ -454,7 +454,7 @@ container.innerHTML = zones
   function clearAllTiles() {
     if (
       !confirm(
-        "⚠ï¸ Effacer TOUTES les tuiles hors ligne ?\nVos zones enregistrées seront supprimées.",
+        "⚠️ Effacer TOUTES les tuiles hors ligne ?\nVos zones enregistrées seront supprimées.",
       )
     )
       return;
@@ -464,7 +464,7 @@ container.innerHTML = zones
       channel.port1.onmessage = () => {
         localStorage.removeItem("offline_zones");
         refreshZoneList();
-        showNetworkToast("🗑ï¸ Cache tuiles effacé", "offline");
+        showNetworkToast("🗑️ Cache tuiles effacé", "offline");
       };
       navigator.serviceWorker.controller.postMessage(
         { type: "CLEAR_TILES_CACHE" },
@@ -491,7 +491,7 @@ container.innerHTML = zones
   function downloadCurrentZone() {
     const pos = window.currentPosition;
     if (!pos) {
-      showNetworkToast("ðŸ“ Attendez le signal GPS...", "offline");
+      showNetworkToast("📍 Attendez le signal GPS...", "offline");
       return;
     }
     const radiusSel = document.getElementById("offline-radius-select");

@@ -230,7 +230,7 @@ window.LegalDatabase = {
       keywords: ["data", "donnée", "pdp", "pribadi", "privée"],
       title: "🇮🇩 Protection des Données — UU No.27/2022 (UU PDP)",
       content:
-        "En vigueur depuis le <strong>17 octobre 2024</strong>. Portée extraterritoriale.<br><strong>Sanctions admin. (Art.57) :</strong> Jusqu'à <strong>2% du CA annuel</strong>.<br><strong>Sanctions pénales :</strong> 4-6 ans de prison + Rp 4-6 milliards.<br><strong>Korporasi :</strong> Amende Ã—10 + gel/dissolution.",
+        "En vigueur depuis le <strong>17 octobre 2024</strong>. Portée extraterritoriale.<br><strong>Sanctions admin. (Art.57) :</strong> Jusqu'à <strong>2% du CA annuel</strong>.<br><strong>Sanctions pénales :</strong> 4-6 ans de prison + Rp 4-6 milliards.<br><strong>Korporasi :</strong> Amende ×10 + gel/dissolution.",
       source: "JDIH — Komdigi (ex-Kominfo)",
       url: "jdih.kemenkumham.go.id",
     },
@@ -384,15 +384,15 @@ window.LegalDatabase = {
       title: "🇯🇵 Casque Moto — Road Traffic Act Art.71-4",
       content:
         "Le port du casque homologué <strong>PSC/SG</strong> est obligatoire pour tous les conducteurs et passagers de 2-roues. Les casques doivent porter le marquage <strong>PSCマーク</strong>.<br>Norme : <strong>JIS T 8133</strong>.",
-      source: "Japanese Law Translation — Road Traffic Act (é“路交通法)",
+      source: "Japanese Law Translation — Road Traffic Act (道路交通法)",
       url: "japaneselawtranslation.go.jp",
     },
     permis: {
       keywords: ["permis", "licence", "conduire"],
-      title: "🇯🇵 Permis Moto (å…許) — Road Traffic Act",
+      title: "🇯🇵 Permis Moto (免許) — Road Traffic Act",
       content:
-        "Catégories :<br>• <strong>原付</strong> (Gentsuki) : ≤ 50cc (16+)<br>• <strong>å°型</strong> : ≤ 125cc<br>• <strong>普通</strong> : ≤ 400cc<br>• <strong>大型</strong> : Illimité (18+)<br>Examen pratique obligatoire en circuit fermé.",
-      source: "Japanese Law Translation — é“路交通法",
+        "Catégories :<br>• <strong>原付</strong> (Gentsuki) : ≤ 50cc (16+)<br>• <strong>小型</strong> : ≤ 125cc<br>• <strong>普通</strong> : ≤ 400cc<br>• <strong>大型</strong> : Illimité (18+)<br>Examen pratique obligatoire en circuit fermé.",
+      source: "Japanese Law Translation — 道路交通法",
       url: "japaneselawtranslation.go.jp",
     },
     appi: {
@@ -419,7 +419,7 @@ window.LegalDatabase = {
       title: "🇨🇳 Casque Moto — Campagne « Un casque, une ceinture »",
       content:
         "Depuis la campagne nationale de 2020, le port du casque est obligatoire pour les conducteurs et passagers de 2-roues dans toute la Chine. Norme obligatoire : <strong>GB 811-2022</strong> (mise à jour de la norme nationale).",
-      source: "NPC — Road Traffic Safety Law (é“路交通安全法)",
+      source: "NPC — Road Traffic Safety Law (道路交通安全法)",
       url: "npc.gov.cn",
     },
     pipl: {
@@ -427,7 +427,7 @@ window.LegalDatabase = {
       title: "🇨🇳 PIPL — Personal Information Protection Law (2021)",
       content:
         "En vigueur depuis le <strong>1er novembre 2021</strong>. Portée extraterritoriale. Consentement séparé requis pour les données sensibles. <strong>Amende :</strong> jusqu'à <strong>50M RMB ou 5% du CA annuel</strong>. Transferts transfrontaliers soumis à évaluation de sécurité obligatoire (CAC).",
-      source: "NPC — 个人信æ¯ä¿护法",
+      source: "NPC — 个人信息保护法",
       url: "npc.gov.cn",
     },
     dsl: {
@@ -435,7 +435,7 @@ window.LegalDatabase = {
       title: "🇨🇳 DSL — Data Security Law (2021)",
       content:
         "La Loi sur la Sécurité des Données (DSL) classe les données par niveau d'importance (national, important, général). Les données « importantes » et « nationales » exigent des évaluations de risque et des stockages localisés.",
-      source: "NPC — 数æ®安全法",
+      source: "NPC — 数据安全法",
       url: "npc.gov.cn",
     },
   },
@@ -461,7 +461,7 @@ window.LegalDatabase = {
       keywords: ["permis", "licence", "conduire"],
       title: "🇮🇳 Permis Moto — Motor Vehicles Act §3",
       content:
-        "Deux catégories :<br>• <strong>MCWG</strong> (Motor Cycle With Gear) : Moto avec vitesses<br>• <strong>MCWOG</strong> : Scooter sans vitesses<br>Ã‚ge minimum : <strong>18 ans</strong> (16 ans pour les ≤50cc dans certains États).",
+        "Deux catégories :<br>• <strong>MCWG</strong> (Motor Cycle With Gear) : Moto avec vitesses<br>• <strong>MCWOG</strong> : Scooter sans vitesses<br>Âge minimum : <strong>18 ans</strong> (16 ans pour les ≤50cc dans certains États).",
       source: "India Code — Motor Vehicles Act 1988",
       url: "indiacode.nic.in",
     },
@@ -496,7 +496,7 @@ window.LegalDatabase = {
       keywords: ["permis", "cnh", "conduire", "licence"],
       title: "🇧🇷 Permis Moto (CNH) — CTB Art.140",
       content:
-        "Catégorie <strong>A</strong> obligatoire pour les 2-roues. Ã‚ge minimum : <strong>18 ans</strong>. Formation obligatoire incluant cours théoriques (45h) et pratiques (20h). Système de points : <strong>40 pts/an = suspension</strong>.",
+        "Catégorie <strong>A</strong> obligatoire pour les 2-roues. Âge minimum : <strong>18 ans</strong>. Formation obligatoire incluant cours théoriques (45h) et pratiques (20h). Système de points : <strong>40 pts/an = suspension</strong>.",
       source: "Planalto — Lei 9.503/1997 (CTB)",
       url: "planalto.gov.br",
     },
@@ -627,7 +627,7 @@ window.LegalDatabase = {
   },
 
   // ═══════════════════════════════════════════════════════════════
-  // 🇹🇭 THAÃLANDE — Source : Royal Thai Police
+  // 🇹🇭 THAÏLANDE — Source : Royal Thai Police
   // ═══════════════════════════════════════════════════════════════
   thailand: {
     _flag: "🇹🇭",
@@ -674,7 +674,7 @@ window.LegalDatabase = {
       keywords: ["privacy", "donnée", "data"],
       title: "🇦🇺 Privacy Act 1988 — Protection des Données",
       content:
-        "Supervisée par l'<strong>OAIC</strong> (Office of the Australian Information Commissioner). Les 13 <strong>Australian Privacy Principles (APPs)</strong> régissent la collecte, l'utilisation et la sécurité des données.<br><strong>Amende :</strong> jusqu'à <strong>A$50M</strong>, 3Ã— le bénéfice obtenu, ou 30% du CA (le plus élevé).",
+        "Supervisée par l'<strong>OAIC</strong> (Office of the Australian Information Commissioner). Les 13 <strong>Australian Privacy Principles (APPs)</strong> régissent la collecte, l'utilisation et la sécurité des données.<br><strong>Amende :</strong> jusqu'à <strong>A$50M</strong>, 3× le bénéfice obtenu, ou 30% du CA (le plus élevé).",
       source: "legislation.gov.au — Privacy Act 1988",
       url: "legislation.gov.au",
     },
@@ -709,7 +709,7 @@ window.LegalDatabase = {
 };
 
 /**
- * ðŸ” Moteur de recherche dans la base juridique mondiale
+ * 🔍 Moteur de recherche dans la base juridique mondiale
  * Utilisé par PocketLawyer.processChatQuery()
  */
 window.LegalDatabase.search = function (query) {

@@ -26,7 +26,7 @@ function runCinematicStartup() {
 
   // Needle Sweep 0 -> 80 -> 0
   setTimeout(() => {
-    if (needle) needle.style.transform = "rotate(40deg)"; // 120 -> 40 pour Ãƒªtre proportionnel
+    if (needle) needle.style.transform = "rotate(40deg)"; // 120 -> 40 pour être proportionnel
     if (gaugeFill) gaugeFill.style.strokeDashoffset = "220";
 
     let speed = 0;
@@ -169,7 +169,7 @@ res.innerHTML = `<div style="background:rgba(255,183,3,0.1); padding:15px; borde
   }, 2000);
 };
 
-// --- DÃƒ‰TECTEUR DE CHUTE ---
+// --- DÉTECTEUR DE CHUTE ---
 window.addEventListener("devicemotion", (e) => {
   const acc = e.accelerationIncludingGravity;
   if (!acc) return;
@@ -359,7 +359,7 @@ window.closeMood = function () {
 
 window.requestAccountDeletion = function () {
   const confirm1 = confirm(
-    "⚠ï¸ ATTENTION : Voulez-vous vraiment supprimer définitivement votre compte et TOUTES vos données (garage, points, historique) ?",
+    "⚠️ ATTENTION : Voulez-vous vraiment supprimer définitivement votre compte et TOUTES vos données (garage, points, historique) ?",
   );
   if (confirm1) {
     const confirm2 = prompt(

@@ -1,49 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 
-const MOJIBAKE_MAP = [
-  // Multi-byte or specific sequences
-  ['Ã‰', 'É'],
-  ['Ãˆ', 'È'],
-  ['ÃŠ', 'Ê'],
-  ['Ã‹', 'Ë'],
-  ['Ã€', 'À'],
-  ['Ã‚', 'Â'],
-  ['Ã”', 'Ô'],
-  ['Ã‡', 'Ç'],
-  ['Ã©', 'é'],
-  ['Ã¨', 'è'],
-  ['Ãª', 'ê'],
-  ['Ã«', 'ë'],
-  ['Ã®', 'î'],
-  ['Ã¯', 'ï'],
-  ['Ã´', 'ô'],
-  ['Ã¹', 'ù'],
-  ['Ã»', 'û'],
-  ['Ã§', 'ç'],
-  ['Ãœ', 'Ü'],
-  ['Ã¶', 'ö'],
-  ['Ã¤', 'ä'],
-  ['Ã&nbsp;', 'à&nbsp;'],
-  ['Ã\u00a0', 'à '],
-  ['Ã ', 'à '],
-  ['â‚¬', '€'],
-  ['â€™', '’'],
-  ['â€“', '–'],
-  ['â€”', '—'],
-  ['Â°C', '°C'],
-  ['Â·', '·'],
-  ['Â«', '«'],
-  ['Â»', '»'],
-  ['Â', '']
-];
+// Réparation SÛRE du texte abîmé (UTF-8 lu comme Windows-1252) : voir scripts/fix-mojibake.js.
+// L'ancienne liste supprimait aveuglément toute lettre « Â » (ex. « Âge » devenait « ge ») et
+// cassait les textes abîmés deux fois. Désormais, une séquence n'est remplacée que si elle se
+// décode en UTF-8 valide : les vrais accents ne sont jamais modifiés.
+const { repair } = require("./fix-mojibake");
 
 function sanitizeString(content) {
-  let result = content;
-  for (const [bad, good] of MOJIBAKE_MAP) {
-    result = result.split(bad).join(good);
-  }
-  return result;
+  return repair(content).text;
 }
 
 function processDirectory(dirPath) {
@@ -105,5 +70,8 @@ for (const f of srcFiles) {
     }
   }
 }
+
+console.log('Sanitizing src/js/...');
+processDirectory(path.join(__dirname, '..', 'src', 'js'));
 
 console.log('Sanitization complete.');

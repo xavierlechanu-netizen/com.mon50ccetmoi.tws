@@ -10,7 +10,7 @@ window.CommunityRoadbooks = {
       return;
     }
     const name = prompt(
-      "Donnez un nom Ãƒ  votre itinéraire (ex: Boucle des Alpilles) :",
+      "Donnez un nom à votre itinéraire (ex: Boucle des Alpilles) :",
     );
     if (!name) return;
     const desc = prompt("Description courte (optionnel) :") || "";

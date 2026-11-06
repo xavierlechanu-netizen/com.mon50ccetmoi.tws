@@ -2,7 +2,7 @@ import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 
 /**
- * 🗺ï¸ MODE CONVOI
+ * 🗺️ MODE CONVOI
  * Système de balades en groupe avec partage de position en temps réel via Firebase Firestore.
  * Sécurité : request.auth.uid vérifié côté Firestore Rules.
  */

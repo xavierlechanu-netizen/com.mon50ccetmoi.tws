@@ -68,7 +68,9 @@ window.Leaderboard = {
   fetchLeaderboard: async function () {
     if (typeof firebase === "undefined") return;
     try {
-      let query = firebase.firestore().collection("users");
+      // Classement public tenu par le serveur (pseudo + points gagnés) : les profils
+      // « users » sont privés et ne doivent jamais être lus par les autres pilotes.
+      let query = firebase.firestore().collection("leaderboard");
 
       // Si on a un département valide, on filtre. Sinon, classement global
       if (
@@ -79,7 +81,7 @@ window.Leaderboard = {
         query = query.where("department", "==", window.session.department);
       }
 
-      const snap = await query.orderBy("bvcPoints", "desc").limit(10).get();
+      const snap = await query.orderBy("points", "desc").limit(10).get();
 
       this.topPilots = [];
       snap.forEach((doc) => {
@@ -87,7 +89,7 @@ window.Leaderboard = {
         this.topPilots.push({
           uid: doc.id,
           username: data.username || "Pilote Anonyme",
-          points: data.bvcPoints || 0,
+          points: data.points || 0,
         });
       });
 

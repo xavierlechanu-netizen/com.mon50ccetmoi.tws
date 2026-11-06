@@ -2,7 +2,7 @@ import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 
 /**
- * ðŸï¸ GARAGE VIRTUEL
+ * 🏍️ GARAGE VIRTUEL
  * Suivi d'entretien et état des pièces en fonction du kilométrage.
  */
 

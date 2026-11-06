@@ -233,7 +233,7 @@ overlay.innerHTML = `
       const self = this;
       setTimeout(function () {
         self.addBotMessage(
-          "⚠ï¸ <strong>Note de l'Avocat :</strong> Nous avons reçu de nombreux signalements concernant cet assureur. Sachez qu'il est désormais classé \"Partenaire non recommandé\" sur notre plateforme B2B et soumis à des frais de vérification renforcée (10 000 €).",
+          "⚠️ <strong>Note de l'Avocat :</strong> Nous avons reçu de nombreux signalements concernant cet assureur. Sachez qu'il est désormais classé \"Partenaire non recommandé\" sur notre plateforme B2B et soumis à des frais de vérification renforcée (10 000 €).",
         );
       }, 3000);
     }
@@ -242,7 +242,7 @@ overlay.innerHTML = `
   devClearReports: async function () {
     if (
       confirm(
-        "⚠ï¸ DANGER ADMIN : Êtes-vous sûr de vouloir supprimer TOUS les signalements assureurs de la base de données de production ?",
+        "⚠️ DANGER ADMIN : Êtes-vous sûr de vouloir supprimer TOUS les signalements assureurs de la base de données de production ?",
       )
     ) {
       try {

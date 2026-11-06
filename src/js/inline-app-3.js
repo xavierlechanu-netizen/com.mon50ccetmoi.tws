@@ -6,7 +6,7 @@ import { registerAction } from './actionRegistry.js';
         if (window.QuantumCrypto) window.QuantumCrypto.init();
         if (window.ZeroTrust) window.ZeroTrust.init();
 
-        // Firebase Analytics â€” Track user engagement
+        // Firebase Analytics — Track user engagement
         try {
           if (typeof firebase !== "undefined" && firebase.analytics) {
             window.mon50Analytics = firebase.analytics();
@@ -18,7 +18,7 @@ import { registerAction } from './actionRegistry.js';
                 version: "110.00.00",
               });
             }
-            console.log("mon50cc : Firebase Analytics initialisÃ©.");
+            console.log("mon50cc : Firebase Analytics initialisé.");
           }
         } catch (e) {
           console.warn("Analytics init skipped:", e.message);

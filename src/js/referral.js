@@ -41,7 +41,7 @@ window.ReferralManager = {
     // Si l'utilisateur a un pseudo défini, on l'utilise, sinon on prend l'UID
     const myRefCode = window.session.username || window.session.uid;
     const shareUrl = `https://mon50ccetmoi.app/?ref=${encodeURIComponent(myRefCode)}`;
-    const shareText = `Rejoins mon Crew sur l'app ultime pour pilotes de 50cc ! Utilise mon code ${myRefCode} et on gagne des cryptos BVC ! ðŸï¸🚀`;
+    const shareText = `Rejoins mon Crew sur l'app ultime pour pilotes de 50cc ! Utilise mon code ${myRefCode} et on gagne des cryptos BVC ! 🏍️🚀`;
 
     if (navigator.share) {
       try {

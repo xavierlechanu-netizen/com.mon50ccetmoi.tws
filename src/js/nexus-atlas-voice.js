@@ -296,7 +296,7 @@ window.NexusAtlasEngine = {
     switch (result.action) {
       case "EMERGENCY_CALL":
         if (typeof window.triggerSOS === "function") window.triggerSOS();
-        else alert("⚠ï¸ URGENCE : Appeler le 112");
+        else alert("⚠️ URGENCE : Appeler le 112");
         break;
       case "COMPARE_GAS_PRICES":
         if (typeof window.CommunityGas === "object") {

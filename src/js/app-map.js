@@ -629,7 +629,7 @@ listContainer.innerHTML = "";
       content: hazardIcon,
     });
     const info = new google.maps.InfoWindow({
-      content: `<b>${isAnimal ? "ðŸ¾ " : ""}${escapeHTML(h.type)}</b><br><small>${escapeHTML(h.author)}</small>`,
+      content: `<b>${isAnimal ? "🐾 " : ""}${escapeHTML(h.type)}</b><br><small>${escapeHTML(h.author)}</small>`,
     });
     marker.addListener("click", () => info.open(map, marker));
     hazardMarkers.push(marker);
@@ -896,7 +896,7 @@ btn.innerHTML = oldHtml;
             ? `<div style="background:#f1c40f; color:black; padding:2px 5px; font-size:0.6rem; font-weight:bold; border-radius:4px; margin-top:5px; display:inline-block;"><i class="fa-solid fa-certificate"></i> QUALITÉ CERTIFIÉE (>3.9)</div>`
             : "";
         const communityRating = internalInfo
-          ? `<div style="font-size:0.7rem; color:#00d2ff; margin-top:3px;">Label Scooter : â­ ${internalInfo.avgRating}/5 (${internalInfo.count} avis)</div>`
+          ? `<div style="font-size:0.7rem; color:#00d2ff; margin-top:3px;">Label Scooter : ⭐ ${internalInfo.avgRating}/5 (${internalInfo.count} avis)</div>`
           : "";
 
         const garageIcon = document.createElement("div");
@@ -924,11 +924,11 @@ btn.innerHTML = oldHtml;
           ? ""
           : `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:5px;">
                     <small>Évaluer ce garage :</small><br>
-                    <span style="font-size:1.2rem; cursor:pointer;" data-action="evaluateGarage('${place.place_id}', '${safePlaceName}', 1)">â­</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" data-action="evaluateGarage('${place.place_id}', '${safePlaceName}', 2)">â­</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" data-action="evaluateGarage('${place.place_id}', '${safePlaceName}', 3)">â­</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" data-action="evaluateGarage('${place.place_id}', '${safePlaceName}', 4)">â­</span>
-                    <span style="font-size:1.2rem; cursor:pointer;" data-action="evaluateGarage('${place.place_id}', '${safePlaceName}', 5)">â­</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" data-action="evaluateGarage('${place.place_id}', '${safePlaceName}', 1)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" data-action="evaluateGarage('${place.place_id}', '${safePlaceName}', 2)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" data-action="evaluateGarage('${place.place_id}', '${safePlaceName}', 3)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" data-action="evaluateGarage('${place.place_id}', '${safePlaceName}', 4)">⭐</span>
+                    <span style="font-size:1.2rem; cursor:pointer;" data-action="evaluateGarage('${place.place_id}', '${safePlaceName}', 5)">⭐</span>
                 </div>`;
 
         const info = new google.maps.InfoWindow({

@@ -196,7 +196,7 @@ container.innerHTML = `
     this._displayPrice = typeof displayPrice === "number" ? displayPrice : null;
     const pubKey = this.revolutPublicKey;
     if (!pubKey) {
-      alert("⚠ï¸ Clé publique Revolut manquante dans config.js");
+      alert("⚠️ Clé publique Revolut manquante dans config.js");
       return;
     }
 

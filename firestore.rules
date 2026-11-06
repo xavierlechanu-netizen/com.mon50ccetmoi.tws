@@ -116,6 +116,12 @@ service cloud.firestore {
     }
 
     // Gamification Stats (XP, Badges, Rangs)
+    // Classement public des pilotes : pseudo + points gagnés, tenu uniquement par le serveur
+    match /leaderboard/{userId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
     match /gamification_stats/{userId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && isOwner(userId);

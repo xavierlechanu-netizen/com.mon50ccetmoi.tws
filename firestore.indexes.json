@@ -1,6 +1,14 @@
 {
   "indexes": [
     {
+      "collectionGroup": "leaderboard",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "department", "order": "ASCENDING" },
+        { "fieldPath": "points", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "loot_drops",
       "queryScope": "COLLECTION",
       "fields": [

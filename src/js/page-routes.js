@@ -21,7 +21,7 @@ export const PAGE_ROUTES = {
                 </div>
             </div>
             <button data-action="generateRideCard()" class="btn-insurance" style="width:100%; margin-top:20px; background:linear-gradient(45deg, #ffb703, #ff4d4d); color:black;">
-                <i class="fa-solid fa-share-nodes"></i> GÃ‰NÃ‰RER MA CARTE RIDE (VIRAL)
+                <i class="fa-solid fa-share-nodes"></i> GÉNÉRER MA CARTE RIDE (VIRAL)
             </button>`;
   },
 
@@ -110,7 +110,7 @@ export const PAGE_ROUTES = {
             <div id="dynamic-garage-list"></div>
 
             <div class="card" style="border: 1px solid var(--neon-blue); background: rgba(0, 210, 255, 0.05);">
-                <h4 style="color:var(--neon-blue); margin-bottom:10px;"><i class="fa-solid fa-chart-line"></i> TÃ‰LÃ‰MÃ‰TRIE DE RIDE</h4>
+                <h4 style="color:var(--neon-blue); margin-bottom:10px;"><i class="fa-solid fa-chart-line"></i> TÉLÉMÉTRIE DE RIDE</h4>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; text-align:center;">
                     <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;">
                         <small>ANGLE MAX</small><br>
@@ -121,7 +121,7 @@ export const PAGE_ROUTES = {
                         <strong style="font-size:1.2rem; color:var(--danger);">${window.session?.vMax || 0} km/h</strong>
                     </div>
                 </div>
-                <button data-action="resetTelemetry()" style="width:100%; height:25px; margin-top:10px; background:transparent; border:1px solid #444; color:#666; font-size:0.6rem; border-radius:15px;">RÃ‰INITIALISER LES STATS</button>
+                <button data-action="resetTelemetry()" style="width:100%; height:25px; margin-top:10px; background:transparent; border:1px solid #444; color:#666; font-size:0.6rem; border-radius:15px;">RÉINITIALISER LES STATS</button>
             </div>
 
             <h4 style="margin-top:20px; font-size:0.9rem; color:#aaa; display:flex; justify-content:space-between;">
@@ -329,7 +329,7 @@ export const PAGE_ROUTES = {
             </div>
             
             <button data-action="Certificate.generate()" class="btn-insurance" style="width:100%; margin-top:25px; background:linear-gradient(45deg, #2ecc71, #3498db); color:white;">
-                <i class="fa-solid fa-file-shield"></i> GÃ‰NÃ‰RER MON CERTIFICAT OFFICIEL
+                <i class="fa-solid fa-file-shield"></i> GÉNÉRER MON CERTIFICAT OFFICIEL
             </button>
             
             <p style="font-size:0.65rem; color:#666; text-align:center; margin-top:20px;">Note : Ce coffre-fort facilite les contrôles mais ne remplace pas les documents originaux selon la législation en vigueur.</p>`;

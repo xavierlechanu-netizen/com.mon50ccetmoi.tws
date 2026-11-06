@@ -346,7 +346,7 @@ line.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> `;
       query.includes("voler")
     ) {
       response =
-        "🛡ï¸ CONSEIL VOLS : Activez le [Mode Parking] dans le menu. Si Sentinel détecte un mouvement brutal du scooter, il déclenchera l'alarme et la Blackbox enregistrera l'incident.";
+        "🛡️ CONSEIL VOLS : Activez le [Mode Parking] dans le menu. Si Sentinel détecte un mouvement brutal du scooter, il déclenchera l'alarme et la Blackbox enregistrera l'incident.";
       voiceResponse = "Activez le mode parking pour surveiller votre scooter.";
     } else if (
       query.includes("sentinel") ||
@@ -363,7 +363,7 @@ line.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> `;
       query.includes("position")
     ) {
       response =
-        "ðŸ“ LOCALISATION : Le GPS sert uniquement à la navigation et à l'ange gardien. Aucune donnée n'est envoyée sans consentement. Les permissions sont gérées localement.";
+        "📍 LOCALISATION : Le GPS sert uniquement à la navigation et à l'ange gardien. Aucune donnée n'est envoyée sans consentement. Les permissions sont gérées localement.";
       voiceResponse =
         "La géolocalisation sert à votre sécurité et à la navigation.";
     } else if (query.includes("bonjour") || query.includes("salut")) {

@@ -12,7 +12,7 @@ function escapeHTML(str) {
 }
 
 ﻿/**
- * ðŸ† SAFE RIDER CHALLENGES
+ * 🏆 SAFE RIDER CHALLENGES
  * Gamification et récompenses BVC basées sur le kilométrage
  */
 
@@ -62,7 +62,7 @@ window.SafeRider = {
     window.BVCManager.add(milestone.reward, "SAFE_RIDER_MILESTONE", { milestoneKm: milestone.km });
 
     // Notification UI
-    const msg = `ðŸ† Challenge Réussi : ${milestone.name} ! Vous avez gagné ${milestone.reward} Pts mon50cc !`;
+    const msg = `🏆 Challenge Réussi : ${milestone.name} ! Vous avez gagné ${milestone.reward} Pts mon50cc !`;
     if (typeof speak === "function") speak(msg);
 
     // Afficher popup

@@ -635,7 +635,7 @@ modal.innerHTML = `
         `;
     // eslint-disable-next-line no-restricted-syntax
 banner.innerHTML = `
-            <strong>⚠ï¸ Localisation requise</strong><br>
+            <strong>⚠️ Localisation requise</strong><br>
             L'application ne peut pas fonctionner sans accès à votre position.
             <br><button data-action="checkLegalConsent()" style="margin-top:8px; padding:8px 24px; background:#ffb703; color:#000; border:none; border-radius:20px; font-weight:bold; cursor:pointer;">Réessayer</button>
         `;
@@ -804,7 +804,7 @@ async function startGeolocation() {
       "mon50cc GPS : Consentement de localisation non accordé. GPS bloqué.",
     );
     alert(
-      "⚠ï¸ Accès GPS bloqué : Le consentement de géolocalisation est requis. Vous allez être redirigé vers l'accueil.",
+      "⚠️ Accès GPS bloqué : Le consentement de géolocalisation est requis. Vous allez être redirigé vers l'accueil.",
     );
     window.location.href = "index.html";
     return;
@@ -1568,23 +1568,23 @@ window.OracleEngine = {
     zh: {
       standard: {
         start: "系统就绪。连接已建立。",
-        speed: "警告：速度过快。请立å³å‡速。",
-        threat_detected: "分æž：å‘现å¨èƒ。建议谨慎。",
-        level_up: "æ­喜车手。您的ç»验值已æå‡。",
-        start_guardian: "守护天使已开å¯。正在监控。",
-        stop_guardian: "守护天使已关闭。监控结æŸ。",
-        danger_overtake: "警告：检测到å±险超车。",
+        speed: "警告：速度过快。请立即减速。",
+        threat_detected: "分析：发现威胁。建议谨慎。",
+        level_up: "恭喜车手。您的经验值已提升。",
+        start_guardian: "守护天使已开启。正在监控。",
+        stop_guardian: "守护天使已关闭。监控结束。",
+        danger_overtake: "警告：检测到危险超车。",
       },
     },
     ja: {
       standard: {
-        start: "システム準備完了。接続ãŒ確立ã•れã¾ã—ãŸ。",
-        speed: "警告：速度超éŽã§ã™。直ã¡ã«減速ã—ã¦ãã ã•ã„。",
-        threat_detected: "分æž：脅å¨を検知。注æ„ã—ã¦ãã ã•ã„。",
-        level_up: "ãŠã‚ã§ã¨ã†ã”ã–ã„ã¾ã™。レベルãŒ上ãŒりã¾ã—ãŸ。",
-        start_guardian: "守護天使ãŒ起動ã—ã¾ã—ãŸ。監視中。",
-        stop_guardian: "守護天使ãŒ解除ã•れã¾ã—ãŸ。監視終了。",
-        danger_overtake: "警告：å±険ãª追ã„越ã—を検知ã—ã¾ã—ãŸ。",
+        start: "システム準備完了。接続が確立されました。",
+        speed: "警告：速度超過です。直ちに減速してください。",
+        threat_detected: "分析：脅威を検知。注意してください。",
+        level_up: "おめでとうございます。レベルが上がりました。",
+        start_guardian: "守護天使が起動しました。監視中。",
+        stop_guardian: "守護天使が解除されました。監視終了。",
+        danger_overtake: "警告：危険な追い越しを検知しました。",
       },
     },
     es: {
@@ -1593,19 +1593,19 @@ window.OracleEngine = {
         speed: "¡Eh, chiquillo! Vas mu' rápido, frena un poco.",
         threat_detected: "Cuidao, que hay un jaleo ahí delante.",
         level_up: "¡Qué arte tienes! Has subido de nivel.",
-        start_guardian: "El Ãngel de la Guarda está contigo, mi arma.",
-        stop_guardian: "El Ãngel se va a echar una siestecita, ten cuidao.",
+        start_guardian: "El Ángel de la Guarda está contigo, mi arma.",
+        stop_guardian: "El Ángel se va a echar una siestecita, ten cuidao.",
         danger_overtake:
           "¡Chiquillo! Ese adelantamiento ha sío mu' peligroso.",
       },
       standard: {
         start: "Sistemas listos. Conexión establecida.",
         speed: "Alerta: Exceso de velocidad. Reduzca inmediatamente.",
-        threat_detected: "ANÃLISIS: Amenaza identificada. Tenga precaución.",
+        threat_detected: "ANÁLISIS: Amenaza identificada. Tenga precaución.",
         level_up: "Felicidades Piloto. Su experiencia ha aumentado.",
-        start_guardian: "Ãngel de la Guarda activado. Vigilancia en curso.",
-        stop_guardian: "Ãngel de la Guarda desactivado. Fin de la vigilancia.",
-        danger_overtake: "ATENCIÃ“N: ADELANTAMIENTO PELIGROSO DETECTADO.",
+        start_guardian: "Ángel de la Guarda activado. Vigilancia en curso.",
+        stop_guardian: "Ángel de la Guarda desactivado. Fin de la vigilancia.",
+        danger_overtake: "ATENCIÓN: ADELANTAMIENTO PELIGROSO DETECTADO.",
       },
     },
     en: {
@@ -1639,16 +1639,16 @@ window.OracleEngine = {
         speed: "Warnung: Zu hohe Geschwindigkeit. Bitte sofort abbremsen.",
         threat_detected: "ANALYSE: Gefahr erkannt. Vorsicht geboten.",
         level_up: "Glückwunsch Pilot. Deine Erfahrung ist gestiegen.",
-        start_guardian: "Schutzengel aktiviert. Ãœberwachung läuft.",
-        stop_guardian: "Schutzengel deaktiviert. Ende der Ãœberwachung.",
-        danger_overtake: "WARNUNG: GEFÃ„HRLICHES ÃœBERHOLMANÃ–VER ERKANNT.",
+        start_guardian: "Schutzengel aktiviert. Überwachung läuft.",
+        stop_guardian: "Schutzengel deaktiviert. Ende der Überwachung.",
+        danger_overtake: "WARNUNG: GEFÄHRLICHES ÜBERHOLMANÖVER ERKANNT.",
       },
     },
     pt: {
       standard: {
         start: "Sistema pronto. Conexão estabelecida.",
         speed: "Alerta: Velocidade excessiva. Reduza imediatamente.",
-        threat_detected: "ANÃLISE: Ameaça identificada. Cuidado aconselhado.",
+        threat_detected: "ANÁLISE: Ameaça identificada. Cuidado aconselhado.",
         level_up: "Parabéns Piloto. A sua experiência aumentou.",
         start_guardian: "Anjo da Guarda ativado. Monitorização em curso.",
         stop_guardian: "Anjo da Guarda desativado. Fim da monitorização.",
@@ -1670,13 +1670,13 @@ window.OracleEngine = {
     },
     pl: {
       standard: {
-        start: "System gotowy. PoÅ‚Ä…czenie nawiÄ…zane.",
-        speed: "Alert: Nadmierna prÄ™dkoÅ›Ä‡. ProszÄ™ natychmiast zwolniÄ‡.",
+        start: "System gotowy. Połączenie nawiązane.",
+        speed: "Alert: Nadmierna prędkość. Proszę natychmiast zwolnić.",
         threat_detected:
-          "ANALIZA: Zidentyfikowano zagrożenie. Zalecana ostrożnoÅ›Ä‡.",
-        level_up: "Gratulacje Pilocie. Twoje doÅ›wiadczenie wzrosÅ‚o.",
-        start_guardian: "AnioÅ‚ Stróż aktywowany. Monitorowanie w toku.",
-        stop_guardian: "AnioÅ‚ Stróż dezaktywowany. Koniec monitorowania.",
+          "ANALIZA: Zidentyfikowano zagrożenie. Zalecana ostrożność.",
+        level_up: "Gratulacje Pilocie. Twoje doświadczenie wzrosło.",
+        start_guardian: "Anioł Stróż aktywowany. Monitorowanie w toku.",
+        stop_guardian: "Anioł Stróż dezaktywowany. Koniec monitorowania.",
         danger_overtake: "OSTRZEŻENIE: WYKRYTO NIEBEZPIECZNE WYPRZEDZANIE.",
       },
     },
@@ -1686,9 +1686,9 @@ window.OracleEngine = {
         speed: "Varning: För hög hastighet. Sänk farten omedelbart.",
         threat_detected: "ANALYS: Hot identifierat. Var försiktig.",
         level_up: "Grattis Pilot. Din erfarenhet har ökat.",
-        start_guardian: "Skyddsängel aktiverad. Ã–vervakning pågår.",
+        start_guardian: "Skyddsängel aktiverad. Övervakning pågår.",
         stop_guardian: "Skyddsängel inaktiverad. Slut på övervakning.",
-        danger_overtake: "VARNING: FARLIG OMKÃ–RNING UPPTÃ„CKT.",
+        danger_overtake: "VARNING: FARLIG OMKÖRNING UPPTÄCKT.",
       },
     },
     da: {
@@ -1723,37 +1723,37 @@ window.OracleEngine = {
         level_up: "Gratulerer Pilot. Din erfaring har økt.",
         start_guardian: "Skytsengel aktivert. Overvåking pågår.",
         stop_guardian: "Skytsengel deaktivert. Slut på overvåking.",
-        danger_overtake: "ADVARSEL: FARLIG FORBIKJÃ˜RING OPPDAGET.",
+        danger_overtake: "ADVARSEL: FARLIG FORBIKJØRING OPPDAGET.",
       },
     },
     el: {
       standard: {
         start:
-          "ΣÏÏƒÏ„ημα έÏ„οιμο. Î— ÏƒÏνδεÏƒη ολοκληÏÏŽθηκε.",
+          "Σύστημα έτοιμο. Η σύνδεση ολοκληρώθηκε.",
         speed:
-          "Î•ιδοÏ€οίηÏƒη: ΥÏ€εÏβολική Ï„αÏ‡ÏÏ„ηÏ„α. Î•Ï€ιβÏαδÏνεÏ„ε αμέÏƒÏ‰Ï‚.",
+          "Ειδοποίηση: Υπερβολική ταχύτητα. Επιβραδύνετε αμέσως.",
         threat_detected:
-          "Î‘ÎÎ‘Î›ΥΣÎ—: Î•νÏ„οÏ€ίÏƒÏ„ηκε αÏ€ειλή. ΣÏ…νιÏƒÏ„άÏ„αι Ï€ÏοÏƒοÏ‡ή.",
+          "ΑΝΑΛΥΣΗ: Εντοπίστηκε απειλή. Συνιστάται προσοχή.",
         level_up:
-          "ΣÏ…γÏ‡αÏηÏ„ήÏια ΠιλÏŒÏ„ε. Î— εμÏ€ειÏία ÏƒαÏ‚ αÏ…ξήθηκε.",
+          "Συγχαρητήρια Πιλότε. Η εμπειρία σας αυξήθηκε.",
         start_guardian:
-          "ΦÏλακαÏ‚ Î†γγελοÏ‚ ενεÏγοÏ€οιήθηκε. ΠαÏακολοÏθηÏƒη Ïƒε εξέλιξη.",
+          "Φύλακας Άγγελος ενεργοποιήθηκε. Παρακολούθηση σε εξέλιξη.",
         stop_guardian:
-          "ΦÏλακαÏ‚ Î†γγελοÏ‚ αÏ€ενεÏγοÏ€οιήθηκε. ΤέλοÏ‚ Ï€αÏακολοÏθηÏƒηÏ‚.",
+          "Φύλακας Άγγελος απενεργοποιήθηκε. Τέλος παρακολούθησης.",
         danger_overtake:
-          "ΠΡÎŸΣÎŸΧÎ—: Î•ÎΤÎŸΠÎ™ΣΤÎ—ÎšÎ• Î•ΠÎ™ÎšÎ™ÎÎ”ΥÎÎ— ΠΡÎŸΣΠÎ•ΡÎ‘ΣÎ—.",
+          "ΠΡΟΣΟΧΗ: ΕΝΤΟΠΙΣΤΗΚΕ ΕΠΙΚΙΝΔΥΝΗ ΠΡΟΣΠΕΡΑΣΗ.",
       },
     },
     cs: {
       standard: {
-        start: "Systém pÅ™ipraven. PÅ™ipojení navázáno.",
-        speed: "UpozornÄ›ní: NadmÄ›rná rychlost. OkamžitÄ› zpomalte.",
+        start: "Systém připraven. Připojení navázáno.",
+        speed: "Upozornění: Nadměrná rychlost. Okamžitě zpomalte.",
         threat_detected:
-          "ANALÃZA: Identifikována hrozba. DoporuÄuje se opatrnost.",
+          "ANALÝZA: Identifikována hrozba. Doporučuje se opatrnost.",
         level_up: "Gratulujeme Pilote. Vaše zkušenosti se zvýšily.",
-        start_guardian: "AndÄ›l strážný aktivován. Sledování probíhá.",
-        stop_guardian: "AndÄ›l strážný deaktivován. Konec sledování.",
-        danger_overtake: "VAROVÃNÃ: ZJIŠTÄšNO NEBEZPEÄŒNÉ PÅ˜EDBÃHÃNÃ.",
+        start_guardian: "Anděl strážný aktivován. Sledování probíhá.",
+        stop_guardian: "Anděl strážný deaktivován. Konec sledování.",
+        danger_overtake: "VAROVÁNÍ: ZJIŠTĚNO NEBEZPEČNÉ PŘEDBÍHÁNÍ.",
       },
     },
     hu: {
@@ -1761,24 +1761,24 @@ window.OracleEngine = {
         start: "Rendszer kész. Kapcsolat létrejött.",
         speed: "Riasztás: Túl nagy sebesség. Azonnal lassítson.",
         threat_detected:
-          "ELEMZÉS: Fenyegetés azonosítva. Ã“vatosság ajánlott.",
-        level_up: "Gratulálunk Pilóta. Tapasztalata nÅ‘tt.",
-        start_guardian: "Årangyal aktiválva. Megfigyelés folyamatban.",
-        stop_guardian: "Årangyal deaktiválva. Megfigyelés vége.",
-        danger_overtake: "FIGYELEM: VESZÉLYES ELÅZÉS ÉSZLELVE.",
+          "ELEMZÉS: Fenyegetés azonosítva. Óvatosság ajánlott.",
+        level_up: "Gratulálunk Pilóta. Tapasztalata nőtt.",
+        start_guardian: "Őrangyal aktiválva. Megfigyelés folyamatban.",
+        stop_guardian: "Őrangyal deaktiválva. Megfigyelés vége.",
+        danger_overtake: "FIGYELEM: VESZÉLYES ELŐZÉS ÉSZLELVE.",
       },
     },
     ro: {
       standard: {
-        start: "Sistem gata. Conexiune stabilitÄƒ.",
-        speed: "AlertÄƒ: VitezÄƒ excesivÄƒ. ÃŽncetiniÈ›i imediat.",
+        start: "Sistem gata. Conexiune stabilită.",
+        speed: "Alertă: Viteză excesivă. Încetiniți imediat.",
         threat_detected:
-          "ANALIZÄ‚: AmeninÈ›are identificatÄƒ. Se recomandÄƒ prudenÈ›Äƒ.",
-        level_up: "FelicitÄƒri Pilotule. ExperienÈ›a ta a crescut.",
-        start_guardian: "ÃŽnger PÄƒzitor activat. Monitorizare în curs.",
+          "ANALIZĂ: Amenințare identificată. Se recomandă prudență.",
+        level_up: "Felicitări Pilotule. Experiența ta a crescut.",
+        start_guardian: "Înger Păzitor activat. Monitorizare în curs.",
         stop_guardian:
-          "ÃŽnger PÄƒzitor dezactivat. SfârÈ™itul monitorizÄƒrii.",
-        danger_overtake: "ATENÈšIE: DEPÄ‚È˜IRE PERICULOASÄ‚ DETECTATÄ‚.",
+          "Înger Păzitor dezactivat. Sfârșitul monitorizării.",
+        danger_overtake: "ATENȚIE: DEPĂȘIRE PERICULOASĂ DETECTATĂ.",
       },
     },
   },

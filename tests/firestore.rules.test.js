@@ -175,6 +175,19 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
     await assertFails(db.collection("crews").add({ name: "x", leaderUid: "victim" }));
   });
 
+  it("Classement public : lisible par les pilotes, jamais modifiable par eux", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().collection("leaderboard").doc("pilot1").set({ username: "Pilote1", points: 120 });
+      await ctx.firestore().collection("users").doc("pilot1").set({ username: "Pilote1", email: "prive@example.com" });
+    });
+    const other = testEnv.authenticatedContext("pilot2").firestore();
+    await assertSucceeds(other.collection("leaderboard").orderBy("points", "desc").limit(10).get());
+    await assertFails(other.collection("users").doc("pilot1").get()); // le profil privé reste privé
+    const cheater = testEnv.authenticatedContext("pilot1").firestore();
+    await assertFails(cheater.collection("leaderboard").doc("pilot1").set({ username: "Pilote1", points: 999999 }));
+    await assertFails(testEnv.unauthenticatedContext().firestore().collection("leaderboard").get());
+  });
+
   it("Rapports de sinistre : données complètes réservées au payeur (audit 2026-11)", async () => {
     const code = "LITIGE-ABCD-EFGH-JKLM-NPQR";
     const pilot = testEnv.authenticatedContext("pilot1").firestore();

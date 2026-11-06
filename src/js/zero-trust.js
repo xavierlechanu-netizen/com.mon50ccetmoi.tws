@@ -2,7 +2,7 @@ import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 
 /**
- * ðŸ‘ï¸ APEX SENTINEL - ZERO-TRUST ARCHITECTURE
+ * 👁️ APEX SENTINEL - ZERO-TRUST ARCHITECTURE
  * Biométrie comportementale & Continuous Authentication
  * Bloque l'application si l'utilisateur change soudainement de comportement (ex: vol à l'arraché).
  */

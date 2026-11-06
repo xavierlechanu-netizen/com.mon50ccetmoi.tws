@@ -120,6 +120,14 @@ exports.transactPoints = onCall(
                 });
 
                 if (action === "AWARD") {
+                    // Classement public : seulement le pseudo et les points GAGNÉS (pas achetés, pas dépensés)
+                    t.set(db.collection("leaderboard").doc(uid), {
+                        username: userData.username || "Pilote",
+                        department: userData.department || null,
+                        points: admin.firestore.FieldValue.increment(parsedAmount),
+                        updated_at: admin.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+
                     const inc = admin.firestore.FieldValue.increment(parsedAmount);
                     t.set(quotaRef, {
                         [reason]: inc,

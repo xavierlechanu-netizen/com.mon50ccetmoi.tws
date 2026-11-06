@@ -1112,7 +1112,7 @@ const REGION_MESSAGES = {
   normandie:
     "Bienvenue en Normandie. Restez vigilant face au vent et aux averses.",
   "île-de-france":
-    "Bienvenue en ÃŽle-de-France. Densité de trafic élevée, gardez vos distances.",
+    "Bienvenue en Île-de-France. Densité de trafic élevée, gardez vos distances.",
   "provence-alpes-côte d'azur":
     "Bienvenue dans le Sud. La route est dégagée. Pensez à vous hydrater.",
   "auvergne-rhône-alpes":
@@ -1362,7 +1362,7 @@ setTimeout(() => {
 }, 5000); // Lancement 5 secondes après le chargement de l'app
 
 // ============================================================
-// --- 7. BOÃŽTE NOIRE (TÉLÉMÉTRIE D'ASSURANCE) ---
+// --- 7. BOÎTE NOIRE (TÉLÉMÉTRIE D'ASSURANCE) ---
 // ============================================================
 window.BlackBox = [];
 setInterval(() => {

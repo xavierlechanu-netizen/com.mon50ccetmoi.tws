@@ -1,12 +1,12 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 
-// F11 : MÃƒ‰CANO Ãƒ€ LA DEMANDE (Garages Partenaires Certifiés)
-// Modèle : Frais d'entrée unique 49,90â‚¬ pour le garage
+// F11 : MÉCANO À LA DEMANDE (Garages Partenaires Certifiés)
+// Modèle : Frais d'entrée unique 49,90€ pour le garage
 // L'accès pilote est entièrement GRATUIT
 // ============================================================
 window.MecanoDemande = {
-  // Garages certifiés (frais d'entrée unique 49,90â‚¬ pour Ãƒªtre référencé)
+  // Garages certifiés (frais d'entrée unique 49,90€ pour être référencé)
   // En production, ces données viendront de Firebase
   _getCertifiedGarages() {
     return JSON.parse(localStorage.getItem("certified_garages") || "[]");
@@ -37,10 +37,10 @@ window.MecanoDemande = {
       return `<div style="text-align:center; padding:30px; color:#444;">
                 <i class="fa-solid fa-wrench" style="font-size:2rem; margin-bottom:10px; display:block;"></i>
                 <p style="font-size:0.85rem;">Aucun garage partenaire dans votre secteur pour le moment.</p>
-                <p style="font-size:0.7rem; color:#333; margin-top:10px;">Vous Ãƒªtes garagiste ? Rejoignez notre réseau.</p>
+                <p style="font-size:0.7rem; color:#333; margin-top:10px;">Vous êtes garagiste ? Rejoignez notre réseau.</p>
                 <a href="mailto:contact@mon50ccetmoi.com?subject=Rejoindre le réseau partenaire" 
                    style="display:inline-block; margin-top:10px; padding:8px 15px; background:var(--accent); color:#000; border-radius:10px; font-size:0.75rem; text-decoration:none; font-weight:bold;">
-                   âÅ“‰ï¸ Nous contacter
+                   ✉️ Nous contacter
                 </a>
             </div>`;
     }
@@ -56,9 +56,9 @@ window.MecanoDemande = {
                     </div>
                     <div style="text-align:right;">
                         <div style="font-size:0.65rem; font-weight:bold; color:${g.status === "dispo" ? "#2ecc71" : g.status === "busy" ? "#f1c40f" : "#ff4d4d"};">
-                            ${g.status === "dispo" ? "âÅ“… Dispo" : g.status === "busy" ? "â³ Sur RDV" : "ðŸš« Complet"}
+                            ${g.status === "dispo" ? "✅ Dispo" : g.status === "busy" ? "⏳ Sur RDV" : "🚫 Complet"}
                         </div>
-                        <div style="font-size:0.6rem; color:#555; margin-top:2px;">âËœ… CERTIFIÃƒ‰</div>
+                        <div style="font-size:0.6rem; color:#555; margin-top:2px;">★ CERTIFIÉ</div>
                     </div>
                 </div>
                 <div style="display:flex; gap:8px; margin-top:10px;">
@@ -92,8 +92,8 @@ window.showPage = function (page) {
     setTimeout(() => content.classList.add("page-enter-active"), 50);
     if (typeof content !== "undefined")
       // eslint-disable-next-line no-restricted-syntax
-content.innerHTML = `<h3><i class="fa-solid fa-wrench"></i> Mécano Ãƒ  la Demande</h3>
-            <p style="font-size:0.75rem; color:#aaa; margin-bottom:5px;">Garages certifiés partenaires â€" accès gratuit pour les pilotes.</p>
+content.innerHTML = `<h3><i class="fa-solid fa-wrench"></i> Mécano à la Demande</h3>
+            <p style="font-size:0.75rem; color:#aaa; margin-bottom:5px;">Garages certifiés partenaires — accès gratuit pour les pilotes.</p>
             <div style="font-size:0.6rem; color:#555; background:rgba(255,183,3,0.05); border:1px solid #333; border-radius:8px; padding:8px; margin-bottom:15px;">
                 <i class="fa-solid fa-certificate" style="color:#f1c40f;"></i> Tous les garages affichés ont rejoint le réseau <strong>mon50ccetmoi</strong>.
             </div>
@@ -115,7 +115,7 @@ content.innerHTML = `<h3><i class="fa-solid fa-wrench"></i> Mécano Ãƒ  la De
       fr: {
         title: "Black Box Assurance",
         subtitle: "Sécurité & Conformité Européenne (RGPD)",
-        desc: "Votre Black Box enregistre vos données localement. <br><br>🛡ï¸ <strong>Protection du Pilote :</strong><br>• Stockage local 100% privé.<br>• <strong>Transmission UNIQUEMENT en cas de litige</strong> (accident, vol, contestation).<br>• L'assurance n'a accès à rien sans votre code expertise.",
+        desc: "Votre Black Box enregistre vos données localement. <br><br>🛡️ <strong>Protection du Pilote :</strong><br>• Stockage local 100% privé.<br>• <strong>Transmission UNIQUEMENT en cas de litige</strong> (accident, vol, contestation).<br>• L'assurance n'a accès à rien sans votre code expertise.",
         available: "Données disponibles",
         pts: "points GPS enregistrés.",
         replay: "Rejouer le Trajet",
@@ -295,10 +295,10 @@ window.BlackBoxInsurance = {
         rTitle: "=== INFORME BLACK BOX mon50ccetmoi ===",
         rDate: "Fecha:",
         rPts: "Puntos registrados:",
-        rMaxSpd: "Velocidad mÃƒ¡xima:",
+        rMaxSpd: "Velocidad máxima:",
         rStart: "Salida GPS:",
         rEnd: "Llegada GPS:",
-        rGen: "Este informe es generado por la aplicaciÃƒ³n mon50ccetmoi.",
+        rGen: "Este informe es generado por la aplicación mon50ccetmoi.",
         rContact:
           "Para peritajes de seguros, contacto: contact@mon50ccetmoi.fr",
         rEndTxt: "=== FIN DEL INFORME ===",
@@ -307,7 +307,7 @@ window.BlackBoxInsurance = {
         rTitle: "=== RAPPORTO BLACK BOX mon50ccetmoi ===",
         rDate: "Data:",
         rPts: "Punti registrati:",
-        rMaxSpd: "VelocitÃƒ  massima:",
+        rMaxSpd: "Velocità massima:",
         rStart: "Partenza GPS:",
         rEnd: "Arrivo GPS:",
         rGen: "Questo rapporto è generato dall'applicazione mon50ccetmoi.",
@@ -319,12 +319,12 @@ window.BlackBoxInsurance = {
         rTitle: "=== BLACK BOX BERICHT mon50ccetmoi ===",
         rDate: "Datum:",
         rPts: "Aufgezeichnete Punkte:",
-        rMaxSpd: "HÃƒ¶chstgeschwindigkeit:",
+        rMaxSpd: "Höchstgeschwindigkeit:",
         rStart: "GPS Start:",
         rEnd: "GPS Ziel:",
         rGen: "Dieser Bericht wurde von der App mon50ccetmoi erstellt.",
         rContact:
-          "FÃƒ¼r Versicherungsfragen kontaktieren Sie: contact@mon50ccetmoi.fr",
+          "Für Versicherungsfragen kontaktieren Sie: contact@mon50ccetmoi.fr",
         rEndTxt: "=== ENDE DES BERICHTS ===",
       },
     };
@@ -535,7 +535,7 @@ window.saveProfileInfo = function () {
   }
   if (newScooter) localStorage.setItem("user_scooter_model", newScooter);
   if (newEmail) localStorage.setItem("user_email", newEmail);
-  alert("Profil mis ï¿½ jour avec succï¿½s !");
+  alert("Profil mis � jour avec succ�s !");
   if (typeof closeScreen === "function") closeScreen();
 };
 

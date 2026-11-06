@@ -341,7 +341,7 @@ modal.innerHTML = `
               toast.style.cssText =
                 "position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,210,255,0.9);color:#000;padding:15px 25px;border-radius:25px;z-index:99999;font-weight:bold;font-family:'Outfit', sans-serif;box-shadow:0 0 20px rgba(0,210,255,0.5);font-size:1.1rem;opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:10px;";
               // eslint-disable-next-line no-restricted-syntax
-toast.innerHTML = `<span style="font-size:1.5rem;">🦸â€ ♂ï¸ </span> <span><b>${escapeHTML(helper.name)}</b> arrive pour vous aider !</span>`;
+toast.innerHTML = `<span style="font-size:1.5rem;">🦸‍♂️ </span> <span><b>${escapeHTML(helper.name)}</b> arrive pour vous aider !</span>`;
               document.body.appendChild(toast);
 
               setTimeout(() => {
