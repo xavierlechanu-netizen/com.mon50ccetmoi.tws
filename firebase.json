@@ -112,6 +112,9 @@
       ".github/**",
       ".gradle/**",
       ".firebase/**"
+    ],
+    "predeploy": [
+      "npm run build"
     ]
   },
   "emulators": {
