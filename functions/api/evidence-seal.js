@@ -15,7 +15,8 @@ const crypto = require("crypto");
 /** Champs ajoutés par le paiement ou la gestion du dossier : exclus de l'empreinte. */
 const NON_EVIDENCE_FIELDS = new Set([
     "payment_status", "payment_method", "revolut_order_id", "report_unlocked", "unlocked_at",
-    "unlocked_for", "paid_tier", "evidence_sha256", "sealed_at", "sealed_by", "qualified_timestamp",
+    "unlocked_for", "paid_tier", "paid_tiers", "integrity_alert", "evidence_sha256", "sealed_at", "sealed_by",
+    "qualified_timestamp",
     "status", "resolvedBy", "resolvedAt",
 ]);
 

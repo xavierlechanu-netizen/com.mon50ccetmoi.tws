@@ -133,7 +133,7 @@ container.innerHTML = `
     const rows = [
       ["Dossier", data.caseCode || caseId],
       ["Date de l'incident", data.dateLabel || "—"],
-      ["Niveau acheté", data.paid_tier || "—"],
+      ["Niveau acheté", (data.paid_tiers && window.session?.uid && data.paid_tiers[window.session.uid]) || data.paid_tier || "—"],
       ["Force maximale", t.maxG_force != null ? `${t.maxG_force} G` : "—"],
       ["Position GPS", data.gpsIncident ? `${data.gpsIncident.lat}, ${data.gpsIncident.lng}` : (t.gpsIncident ? `${t.gpsIncident.lat}, ${t.gpsIncident.lng}` : "—")],
       ["Gravité estimée (IA)", ai.severityScore != null ? `${ai.severityScore} / 100` : "—"],
@@ -141,6 +141,7 @@ container.innerHTML = `
       ["Scellé par le serveur le", sealedAt],
       ["Empreinte SHA-256", data.evidence_sha256 || "—"],
       ["Horodatage qualifié (eIDAS)", data.qualified_timestamp ? "Oui" : "Non encore disponible"],
+      ["Intégrité", data.integrity_alert ? "ALERTE : données modifiées après le premier paiement" : "Conforme au sceau"],
     ];
     while (content.firstChild) content.removeChild(content.firstChild);
     const box = document.createElement("div");

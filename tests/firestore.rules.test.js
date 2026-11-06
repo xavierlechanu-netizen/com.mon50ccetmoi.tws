@@ -202,5 +202,15 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
 
     // Personne ne peut se débloquer soi-même
     await assertFails(curious.collection("litigation_proposals").doc(code).update({ unlocked_for: ["insurer9", "curious7"] }));
+
+    // Accident à deux véhicules : le second assureur achète à son tour, chacun garde son accès
+    const insurer2 = testEnv.authenticatedContext("insurer2").firestore();
+    await assertFails(insurer2.collection("litigation_proposals").doc(code).get());
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().collection("litigation_proposals").doc(code).update({ unlocked_for: ["insurer9", "insurer2"] });
+    });
+    await assertSucceeds(insurer2.collection("litigation_proposals").doc(code).get());
+    await assertSucceeds(insurer.collection("litigation_proposals").doc(code).get());
+    await assertFails(curious.collection("litigation_proposals").doc(code).get());
   });
 });

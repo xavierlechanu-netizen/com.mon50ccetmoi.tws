@@ -62,6 +62,15 @@ async function createPennylaneInvoice(orderData, userEmail, userName) {
 
 const { evidenceHash } = require("./evidence-seal");
 
+/**
+ * Identifiant du document de confirmation de paiement.
+ * Rapport de sinistre : un par dossier ET par acheteur (plusieurs assureurs peuvent l'acheter).
+ * Autres produits : un par dossier, comme avant.
+ */
+function confirmationId(category, caseId, userId) {
+    return category === CATEGORIES.LITIGATION ? `${caseId}__${userId}` : caseId;
+}
+
 exports.createRevolutOrder = onRequest(
     { secrets: [REVOLUT_SECRET_KEY], region: "europe-west1" },
     async (req, res) => {
@@ -107,10 +116,16 @@ exports.createRevolutOrder = onRequest(
             }
         }
 
-        // Vérification si le dossier est déjà payé
-        const existingConfirmation = await db.collection("payment_confirmations").doc(case_id).get();
+        // Vérification si le dossier est déjà payé (par CET acheteur pour un rapport de sinistre :
+        // dans un accident à deux véhicules, chaque assureur peut acheter le rapport)
+        const existingConfirmation = await db.collection("payment_confirmations")
+            .doc(confirmationId(catalogItem.category, case_id, user_id)).get();
         if (existingConfirmation.exists) {
-            return res.status(409).json({ error: "Ce dossier a déjà été réglé avec succès." });
+            return res.status(409).json({
+                error: catalogItem.category === CATEGORIES.LITIGATION
+                    ? "Vous avez déjà acheté ce rapport."
+                    : "Ce dossier a déjà été réglé avec succès."
+            });
         }
 
         // Tarification dynamique pour le matériel Black Box (Offre lancement : 10 prototypes garantis à vie)
@@ -412,28 +427,40 @@ exports.revolutWebhook = onRequest(
                         // Déblocage du rapport d'accident
                         const litigationRef = db.collection("litigation_proposals").doc(caseId);
                         if (litigationSnap && litigationSnap.exists) {
-                            tx.update(litigationRef, {
+                            const caseData = litigationSnap.data();
+                            const currentHash = evidenceHash(caseData);
+                            const update = {
                                 payment_status: "PAID",
                                 payment_method: "REVOLUT",
                                 revolut_order_id: orderId,
                                 report_unlocked: true,
                                 unlocked_at: admin.firestore.FieldValue.serverTimestamp(),
-                                // Seul le payeur (avec le pilote et l'admin) peut lire les données complètes
+                                // Seuls les payeurs (avec le pilote et l'admin) peuvent lire les données complètes
                                 unlocked_for: admin.firestore.FieldValue.arrayUnion(userId),
-                                paid_tier: orderData.report_type,
-                                // Sceau : empreinte SHA-256 des données de preuve au moment du paiement
-                                evidence_sha256: evidenceHash(litigationSnap.data()),
-                                sealed_at: admin.firestore.FieldValue.serverTimestamp(),
-                                sealed_by: "mon50ccetmoi-server",
-                                qualified_timestamp: null // horodatage qualifié eIDAS : à brancher
-                            });
+                                // Niveau acheté par chaque assureur (plusieurs achats possibles)
+                                [`paid_tiers.${userId}`]: orderData.report_type,
+                            };
+                            if (!caseData.evidence_sha256) {
+                                // Premier paiement : le sceau est posé une fois pour toutes
+                                Object.assign(update, {
+                                    evidence_sha256: currentHash,
+                                    sealed_at: admin.firestore.FieldValue.serverTimestamp(),
+                                    sealed_by: "mon50ccetmoi-server",
+                                    qualified_timestamp: null // horodatage qualifié eIDAS : à brancher
+                                });
+                            } else if (caseData.evidence_sha256 !== currentHash) {
+                                // Les données ont changé depuis le premier paiement : alerte d'intégrité
+                                update.integrity_alert = true;
+                                console.error(`[Revolut Webhook] ALERTE INTÉGRITÉ : le dossier ${caseId} ne correspond plus à son sceau.`);
+                            }
+                            tx.update(litigationRef, update);
                         } else {
                             console.error(`[Revolut Webhook] Dossier de sinistre ${caseId} introuvable pour l'ordre ${orderId}`);
                         }
                     }
 
-                    // 3. Enregistrement unique de confirmation de paiement
-                    tx.set(db.collection("payment_confirmations").doc(caseId), {
+                    // 3. Enregistrement unique de confirmation de paiement (une par acheteur pour un sinistre)
+                    tx.set(db.collection("payment_confirmations").doc(confirmationId(category, caseId, userId)), {
                         case_id: caseId,
                         revolut_order_id: orderId,
                         user_id: userId,
@@ -528,7 +555,12 @@ exports.checkPaymentStatus = onRequest(
         }
 
         try {
-            const doc = await db.collection("payment_confirmations").doc(case_id).get();
+            // Rapport de sinistre : confirmation propre à l'acheteur ; autres produits : une par dossier
+            let doc = await db.collection("payment_confirmations")
+                .doc(confirmationId(CATEGORIES.LITIGATION, case_id, user_id)).get();
+            if (!doc.exists) {
+                doc = await db.collection("payment_confirmations").doc(case_id).get();
+            }
 
             if (!doc.exists) {
                 return res.status(200).json({ paid: false, status: "PENDING" });

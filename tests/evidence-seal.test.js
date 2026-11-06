@@ -27,7 +27,8 @@ describe("Sceau d'intégrité des rapports", () => {
   });
 
   test("les champs de paiement et de déblocage ne changent pas l'empreinte", () => {
-    const paid = { ...caseData, report_unlocked: true, unlocked_for: ["insurer9"], payment_status: "PAID", paid_tier: "EXPERT", evidence_sha256: "x", status: "RESOLVED" };
+    const paid = { ...caseData, report_unlocked: true, unlocked_for: ["insurer9", "insurer2"], payment_status: "PAID",
+      paid_tier: "EXPERT", paid_tiers: { insurer9: "EXPERT", insurer2: "SIMPLE" }, integrity_alert: false, evidence_sha256: "x", status: "RESOLVED" };
     expect(evidenceHash(paid)).toBe(evidenceHash(caseData));
     expect(Object.keys(evidencePayload(paid)).sort()).toEqual(Object.keys(caseData).sort());
   });
