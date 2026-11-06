@@ -106,6 +106,7 @@ L'ensemble des règles de sécurité détaillées dans `.agents/AGENTS.md` et `N
    * Connecter `src/js/auth.js`, `src/js/database.js` et `src/js/blackbox-ble.js` au SDK `sovereign-core/client/sovereign-sdk.js` (avec bascule par variable de configuration `CONFIG.BACKEND_MODE = "SOVEREIGN" | "FIREBASE"`).
 2. **Phase B — Intégration OVHcloud AI Endpoints (Mistral AI)** :
    * Ajouter la route `/api/v1/ai/copilot` dans `sovereign-core/server/index.js` connectée à l'API Mistral d'OVHcloud pour remplacer `nexus-atlas-gemini.js`.
-3. **Phase C — Déploiement sur l'infrastructure OVHcloud (`GRA` / `RBX`)** :
+3. **Phase International — Cartes hors de France** : l'IGN ne couvre que la France. Héberger chez OVHcloud tuiles OpenStreetMap (OpenMapTiles), itinéraires Valhalla (autoroutes interdites) et géocodage Photon pour l'Europe ; `map-engine.js` choisit IGN en France, nos serveurs ailleurs.
+4. **Phase C — Déploiement sur l'infrastructure OVHcloud (`GRA` / `RBX`)** :
    * Provisionner l'instance Public Cloud + Managed PostgreSQL 16 (PostGIS) + S3 Object Lock WORM dès validation des crédits du Programme Startup OVHcloud.
 
