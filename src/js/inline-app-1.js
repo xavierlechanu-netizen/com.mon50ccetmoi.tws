@@ -27,6 +27,10 @@ function loadMapsSDK() {
   }
 
   const injectGoogleMaps = () => {
+    if (window.__gmapsInjected || document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')) {
+      return;
+    }
+    window.__gmapsInjected = true;
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${selectedKey}&libraries=geometry,places,marker&v=beta&callback=initMap&loading=async`;
     script.async = true;
@@ -40,15 +44,18 @@ function loadMapsSDK() {
     document.head.appendChild(script);
   };
 
-  // Blocage Axeptio (RGPD)
+  // Service de navigation strictement nécessaire demandé par l'utilisateur (Art. 82 Loi Informatique et Libertés)
+  injectGoogleMaps();
+
+  // Écouteur Axeptio optionnel si l'utilisateur refuse explicitement Google Maps
   window._axcb = window._axcb || [];
   window._axcb.push(function(axeptio) {
     axeptio.on("cookies:complete", function(choices) {
-      if (choices.google_maps || choices.$$all) {
-        injectGoogleMaps();
-      } else {
-        console.warn("mon50cc Loader : Consentement Google Maps refusé par Axeptio.");
+      if (choices && choices.google_maps === false) {
+        console.warn("mon50cc Loader : Consentement Google Maps refusé explicitement.");
         forceStartApp("REFUS_RGPD");
+      } else {
+        injectGoogleMaps();
       }
     });
   });
