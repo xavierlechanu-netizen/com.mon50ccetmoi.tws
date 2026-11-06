@@ -61,6 +61,7 @@ async function createPennylaneInvoice(orderData, userEmail, userName) {
 }
 
 const { evidenceHash } = require("./evidence-seal");
+const { timestampEvidence } = require("./timestamping");
 
 /**
  * Identifiant du document de confirmation de paiement.
@@ -274,6 +275,7 @@ exports.revolutWebhook = onRequest(
 
         try {
             let orderDataForInvoice = null;
+            let newlySealed = null; // { caseId, hash } : rapport scellé par ce paiement, à horodater
 
             // Exécution atomique et idempotente dans une transaction Firestore (ASVS v5.0.0-2.3.3 / C3)
             const result = await db.runTransaction(async (tx) => {
@@ -448,6 +450,7 @@ exports.revolutWebhook = onRequest(
                                     sealed_by: "mon50ccetmoi-server",
                                     qualified_timestamp: null // horodatage qualifié eIDAS : à brancher
                                 });
+                                newlySealed = { caseId, hash: currentHash };
                             } else if (caseData.evidence_sha256 !== currentHash) {
                                 // Les données ont changé depuis le premier paiement : alerte d'intégrité
                                 update.integrity_alert = true;
@@ -504,6 +507,18 @@ exports.revolutWebhook = onRequest(
                     createPennylaneInvoice(orderDataForInvoice, userEmail, userName);
                 } catch (e) {
                     console.error("[Revolut Webhook] Erreur Pennylane post-transaction :", e);
+                }
+            }
+
+            // Horodatage gratuit (non qualifié) de l'empreinte, hors transaction : un service
+            // d'horodatage lent ou indisponible ne doit jamais bloquer ni annuler le paiement.
+            if (result.processed && newlySealed) {
+                try {
+                    const stamps = await timestampEvidence(newlySealed.hash);
+                    await db.collection("litigation_proposals").doc(newlySealed.caseId).update({ free_timestamps: stamps });
+                    console.log(`[Revolut Webhook] Rapport ${newlySealed.caseId} horodaté (FreeTSA : ${stamps.rfc3161.genTime || "échec"}, OpenTimestamps : ${stamps.opentimestamps.status || "échec"})`);
+                } catch (e) {
+                    console.error("[Revolut Webhook] Horodatage impossible :", e.message);
                 }
             }
 

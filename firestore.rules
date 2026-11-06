@@ -294,7 +294,7 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid
         && !request.resource.data.keys().hasAny(['report_unlocked', 'unlocked_for', 'unlocked_at', 'payment_status',
              'payment_method', 'revolut_order_id', 'paid_tier', 'paid_tiers', 'integrity_alert', 'evidence_sha256',
-             'sealed_at', 'sealed_by', 'qualified_timestamp']);
+             'sealed_at', 'sealed_by', 'qualified_timestamp', 'free_timestamps']);
       // Autoriser l'admin à mettre à jour uniquement le statut (Zero Trust)
       allow update: if isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'resolvedBy', 'resolvedAt']);
     }

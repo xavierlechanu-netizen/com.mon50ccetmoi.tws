@@ -16,7 +16,7 @@ const crypto = require("crypto");
 const NON_EVIDENCE_FIELDS = new Set([
     "payment_status", "payment_method", "revolut_order_id", "report_unlocked", "unlocked_at",
     "unlocked_for", "paid_tier", "paid_tiers", "integrity_alert", "evidence_sha256", "sealed_at", "sealed_by",
-    "qualified_timestamp",
+    "qualified_timestamp", "free_timestamps",
     "status", "resolvedBy", "resolvedAt",
 ]);
 

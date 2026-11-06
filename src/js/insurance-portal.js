@@ -140,7 +140,11 @@ container.innerHTML = `
       ["Analyse IA", ai.reportDescription || "—"],
       ["Scellé par le serveur le", sealedAt],
       ["Empreinte SHA-256", data.evidence_sha256 || "—"],
-      ["Horodatage qualifié (eIDAS)", data.qualified_timestamp ? "Oui" : "Non encore disponible"],
+      ["Horodatage", data.qualified_timestamp
+        ? "Qualifié eIDAS"
+        : data.free_timestamps
+          ? `Non qualifié — FreeTSA : ${data.free_timestamps.rfc3161?.genTime ? new Date(data.free_timestamps.rfc3161.genTime).toLocaleString("fr-FR") : "échec"} · OpenTimestamps (Bitcoin) : ${data.free_timestamps.opentimestamps?.status ? "ancrage en cours" : "échec"}`
+          : "En cours"],
       ["Intégrité", data.integrity_alert ? "ALERTE : données modifiées après le premier paiement" : "Conforme au sceau"],
     ];
     while (content.firstChild) content.removeChild(content.firstChild);
