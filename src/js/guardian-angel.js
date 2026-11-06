@@ -306,7 +306,7 @@ prompt.innerHTML = `
         const emergencyContacts = userDoc.exists ? userDoc.data().emergencyContacts || [] : [];
 
         await sendEmergencySOS({
-            location: `https://maps.google.com/?q=${sosData.pos.lat},${sosData.pos.lng}`,
+            location: `https://www.openstreetmap.org/?mlat=${sosData.pos.lat}&mlon=${sosData.pos.lng}#map=17/${sosData.pos.lat}/${sosData.pos.lng}`,
             contacts: emergencyContacts,
             message: `URGENCE MON50CC: Crash détecté (${reason}). Pilote: ${window.session.username}.`,
             blackboxReportId: bbReportId
@@ -319,7 +319,7 @@ prompt.innerHTML = `
     } else {
         // Mode hors-ligne : On garde le fallback SMS si réseau 2G uniquement disponible
         const smsBody = encodeURIComponent(
-          `URGENCE MON50CC ! ${reason} Position GPS: https://maps.google.com/?q=${sosData.pos.lat},${sosData.pos.lng}`
+          `URGENCE MON50CC ! ${reason} Position GPS: https://www.openstreetmap.org/?mlat=${sosData.pos.lat}&mlon=${sosData.pos.lng}#map=17/${sosData.pos.lat}/${sosData.pos.lng}`
         );
         window.location.href = `sms:?body=${smsBody}`;
     }

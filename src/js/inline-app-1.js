@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { installSovereignMaps } from './gmaps-compat.js';
 
 window.mapsSDKLoaded = false;
 
@@ -12,53 +13,15 @@ window.initMap = function () {
 };
 
 function loadMapsSDK() {
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  const selectedKey =
-    typeof CONFIG !== "undefined" && CONFIG.MAPS
-      ? isAndroid
-        ? CONFIG.MAPS.ANDROID
-        : CONFIG.MAPS.PC
-      : "";
-
-  if (!selectedKey) {
-    console.error("mon50cc Loader : Clé API Maps manquante !");
-    forceStartApp("ERREUR_CONFIG_API");
-    return;
+  // Carte souveraine : Leaflet + Plan IGN, itinéraires et adresses IGN (aucun appel à Google,
+  // donc aucun consentement cookie nécessaire pour afficher la carte).
+  try {
+    installSovereignMaps();
+    window.initMap();
+  } catch (e) {
+    console.error("mon50cc Loader : carte indisponible", e);
+    forceStartApp("ERREUR_CARTE");
   }
-
-  const injectGoogleMaps = () => {
-    if (window.__gmapsInjected || document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')) {
-      return;
-    }
-    window.__gmapsInjected = true;
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${selectedKey}&libraries=geometry,places,marker&v=beta&callback=initMap&loading=async`;
-    script.async = true;
-    script.defer = true;
-    script.onerror = function () {
-      console.error(
-        "mon50cc Loader : Échec critique du chargement Maps SDK.",
-      );
-      forceStartApp("ÉCHEC_RÉSEAU_SDK");
-    };
-    document.head.appendChild(script);
-  };
-
-  // Service de navigation strictement nécessaire demandé par l'utilisateur (Art. 82 Loi Informatique et Libertés)
-  injectGoogleMaps();
-
-  // Écouteur Axeptio optionnel si l'utilisateur refuse explicitement Google Maps
-  window._axcb = window._axcb || [];
-  window._axcb.push(function(axeptio) {
-    axeptio.on("cookies:complete", function(choices) {
-      if (choices && choices.google_maps === false) {
-        console.warn("mon50cc Loader : Consentement Google Maps refusé explicitement.");
-        forceStartApp("REFUS_RGPD");
-      } else {
-        injectGoogleMaps();
-      }
-    });
-  });
 }
 
 function initFallbackMap() {
@@ -78,10 +41,10 @@ function initFallbackMap() {
     window.leafletMap = leafletMap; // Rendre accessible globalement pour le suivi GPS
 
     L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
       {
         maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors",
+        attribution: "&copy; IGN",
       },
     ).addTo(leafletMap);
 
@@ -171,7 +134,7 @@ window.addEventListener("load", () => {
 
   Promise.race([mapsReady, timeout]).then((winner) => {
     if (winner === 'timeout' && !window.mapsSDKLoaded) {
-      console.warn("mon50cc : Google Maps trop long, fallback sur Leaflet");
+      console.warn("mon50cc : carte trop longue à charger, carte de secours");
       forceStartApp("TIMEOUT_SDK");
     }
   });

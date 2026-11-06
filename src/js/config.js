@@ -8,12 +8,8 @@ import 'firebase/compat/firestore';
 import localforage from 'localforage';
 
 export const CONFIG = {
-  // Google Maps API Keys
-  MAPS: {
-    PC: "AIzaSyCN_fevTiG8AvWPuDS2Kc_WpwlYfDy4k4M",
-    ANDROID: "AIzaSyCN_fevTiG8AvWPuDS2Kc_WpwlYfDy4k4M",
-    MAP_ID: "", // Laisser vide si non configuré sur Google Cloud
-  },
+  // Carte : Leaflet + IGN Géoplateforme (voir gmaps-compat.js), aucune clé Google nécessaire.
+  MAPS: {},
 
   // Auth Configuration
   AUTH: {

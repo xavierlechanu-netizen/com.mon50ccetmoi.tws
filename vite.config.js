@@ -17,10 +17,10 @@ htmlFiles.forEach(file => {
 // 'unsafe-inline' reste nécessaire pour les scripts tant que les onclick= et scripts inline
 // (Axeptio, Google Sign-In) n'ont pas été migrés vers data-action (Phase 5).
 // frame-ancestors est ignoré en <meta> : il reste dans firebase.json.
-export const CSP_DIRECTIVES = {
+const CSP_DIRECTIVES = {
   'default-src': ["'self'"],
   'script-src': ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net', 'https://*.gstatic.com',
-    'https://apis.google.com', 'https://maps.googleapis.com', 'https://unpkg.com', 'https://cdnjs.cloudflare.com',
+    'https://apis.google.com', 'https://unpkg.com', 'https://cdnjs.cloudflare.com',
     'https://translate.googleapis.com', 'https://accounts.google.com', 'https://merchant.revolut.com',
     'https://cdn.revolut.com', 'https://connect.facebook.net', 'https://static.axept.io'],
   'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://cdnjs.cloudflare.com',
@@ -32,11 +32,11 @@ export const CSP_DIRECTIVES = {
     'wss://*.firebaseio.com', 'https://*.cloudfunctions.net', 'https://*.a.run.app', 'https://*.mon50ccetmoi.com',
     'https://merchant.revolut.com', 'https://cdn.revolut.com', 'https://api.piste.gouv.fr', 'https://oauth.piste.gouv.fr',
     'https://apicarto.ign.fr', 'https://data.geopf.fr', 'https://*.project-osrm.org', 'https://nominatim.openstreetmap.org',
-    'https://*.overpass-api.de', 'https://api.open-meteo.com', 'https://data.economie.gouv.fr',
+    'https://overpass-api.de', 'https://*.overpass-api.de', 'https://api.open-meteo.com', 'https://data.economie.gouv.fr',
     'https://recherche-entreprises.api.gouv.fr', 'https://*.axept.io', 'https://cdnjs.cloudflare.com',
     'https://unpkg.com', 'https://cdn.jsdelivr.net'],
-  'frame-src': ["'self'", 'https://merchant.revolut.com', 'https://cdn.revolut.com', 'https://translate.google.com',
-    'https://accounts.google.com', 'https://www.google.com', 'https://maps.google.com', 'https://www.youtube.com'],
+  'frame-src': ["'self'", 'https://mon50ccetmoi.firebaseapp.com', 'https://merchant.revolut.com', 'https://cdn.revolut.com', 'https://translate.google.com',
+    'https://accounts.google.com', 'https://www.google.com', 'https://www.youtube.com'],
   'worker-src': ["'self'", 'blob:'],
   'manifest-src': ["'self'"],
   'object-src': ["'none'"],
@@ -44,7 +44,7 @@ export const CSP_DIRECTIVES = {
   'form-action': ["'self'"],
 };
 
-export const CSP_META_CONTENT = Object.entries(CSP_DIRECTIVES)
+const CSP_META_CONTENT = Object.entries(CSP_DIRECTIVES)
   .map(([k, v]) => `${k} ${v.join(' ')}`)
   .join('; ');
 

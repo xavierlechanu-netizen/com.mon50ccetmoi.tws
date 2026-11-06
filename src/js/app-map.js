@@ -36,7 +36,7 @@ async function calculateRouteSansAutoroute(start, end) {
 
   let routeResult = null;
 
-  // 1. TIER 1 : Google Maps DirectionsService (Standard, toujours actif sur clé JS)
+  // 1. Itinéraire IGN sans autoroute (DirectionsService souverain, voir gmaps-compat.js)
   if (typeof google !== "undefined" && google.maps && google.maps.DirectionsService) {
     try {
       const directionsService = new google.maps.DirectionsService();
@@ -101,127 +101,11 @@ async function calculateRouteSansAutoroute(start, end) {
         };
       }
     } catch (dirErr) {
-      console.warn("[app-map] DirectionsService indisponible ou échoué, essai Routes API / OSRM:", dirErr.message);
+      console.warn("[app-map] DirectionsService indisponible ou échoué, aucun itinéraire:", dirErr.message);
     }
   }
 
-  // 2. TIER 2 : Google Maps Routes API moderne (si importé et activé)
-  if (!routeResult && window.googleLibraries?.routes?.Route) {
-    try {
-      const { Route } = window.googleLibraries.routes;
-      const request = {
-        origin: { location: { latLng: { latitude: originLat, longitude: originLng } } },
-        destination: { location: { latLng: { latitude: destLat, longitude: destLng } } },
-        travelMode: isBikeOrTrottinette ? "BICYCLE" : "DRIVE",
-        routeModifiers: { avoidHighways: true, avoidTolls: true },
-        computeAlternativeRoutes: !!(window.isRodageActive || window.avoidCityCenters),
-        fields: [
-          "routes.distanceMeters",
-          "routes.duration",
-          "routes.polyline.encodedPolyline",
-          "routes.legs.distanceMeters",
-          "routes.legs.duration",
-          "routes.legs.steps"
-        ],
-      };
-      const { routes } = await Route.computeRoutes(request);
-      if (routes && routes.length > 0) {
-        let routeIndex = 0;
-        if (window.avoidCityCenters && routes.length > 1) {
-          let maxDist = -1;
-          for (let i = 0; i < routes.length; i++) {
-            if (routes[i].legs[0].distanceMeters > maxDist) {
-              maxDist = routes[i].legs[0].distanceMeters;
-              routeIndex = i;
-            }
-          }
-        }
-        const selectedRoute = routes[routeIndex];
-        const rawLeg = selectedRoute.legs[0];
-        const path = google.maps.geometry.encoding.decodePath(selectedRoute.polyline.encodedPolyline);
-        const durSec = parseInt(rawLeg.duration.replace("s", ""), 10) || 0;
-        const distMet = rawLeg.distanceMeters || 0;
-        const distKmText = distMet >= 1000 ? (distMet / 1000).toFixed(1) + " km" : distMet + " m";
-        const durMinText = Math.round(durSec / 60) + " min";
-
-        routeResult = {
-          path: path,
-          distanceMeters: distMet,
-          durationSec: durSec,
-          leg: {
-            distance: { text: distKmText, value: distMet },
-            duration: { text: durMinText, value: durSec },
-            distanceMeters: distMet,
-            durationSec: durSec,
-            steps: (rawLeg.steps || []).map(s => {
-              const instr = s.navigationInstruction?.instructions || s.instructions || "";
-              const stepDist = s.distanceMeters || 0;
-              const stepDistText = stepDist >= 1000 ? (stepDist / 1000).toFixed(1) + " km" : stepDist + " m";
-              return {
-                instructions: instr,
-                navigationInstruction: { instructions: instr },
-                distance: { text: stepDistText, value: stepDist },
-                distanceMeters: stepDist,
-                duration: { text: "", value: 0 }
-              };
-            })
-          }
-        };
-      }
-    } catch (routeErr) {
-      console.warn("[app-map] Routes API computeRoutes échoué:", routeErr.message);
-    }
-  }
-
-  // 3. TIER 3 : Fallback OSRM (100% autonome, profil bicycle pour vélo/trottinette ou driving sans péage)
-  if (!routeResult) {
-    try {
-      const osrmProfile = isBikeOrTrottinette ? "bicycle" : "driving";
-      console.info(`[app-map] Activation du fallback OSRM (Profil : ${osrmProfile})...`);
-      const osrmUrl = `https://router.project-osrm.org/route/v1/${osrmProfile}/${originLng},${originLat};${destLng},${destLat}?overview=full&geometries=geojson&steps=true`;
-      const osrmResp = await fetch(osrmUrl);
-      if (osrmResp.ok) {
-        const osrmData = await osrmResp.json();
-        if (osrmData.code === "Ok" && osrmData.routes?.length > 0) {
-          const selectedRoute = osrmData.routes[0];
-          const rawLeg = selectedRoute.legs[0];
-          const coordinates = selectedRoute.geometry.coordinates;
-          const path = coordinates.map(c => new google.maps.LatLng(c[1], c[0]));
-          const distMet = Math.round(rawLeg.distance);
-          const durSec = Math.round(rawLeg.duration);
-          const distKmText = distMet >= 1000 ? (distMet / 1000).toFixed(1) + " km" : distMet + " m";
-          const durMinText = Math.round(durSec / 60) + " min";
-
-          routeResult = {
-            path: path,
-            distanceMeters: distMet,
-            durationSec: durSec,
-            leg: {
-              distance: { text: distKmText, value: distMet },
-              duration: { text: durMinText, value: durSec },
-              distanceMeters: distMet,
-              durationSec: durSec,
-              steps: (rawLeg.steps || []).map(s => {
-                const modifier = s.maneuver?.modifier ? ` (${s.maneuver.modifier})` : "";
-                const instr = s.maneuver?.type ? `${s.name || 'Continuer'} ${modifier}` : (s.name || "Continuer tout droit");
-                const stepDist = Math.round(s.distance || 0);
-                const stepDistText = stepDist >= 1000 ? (stepDist / 1000).toFixed(1) + " km" : stepDist + " m";
-                return {
-                  instructions: instr,
-                  navigationInstruction: { instructions: instr },
-                  distance: { text: stepDistText, value: stepDist },
-                  distanceMeters: stepDist,
-                  duration: { text: Math.round((s.duration || 0) / 60) + " min", value: Math.round(s.duration || 0) }
-                };
-              })
-            }
-          };
-        }
-      }
-    } catch (osrmErr) {
-      console.error("[app-map] Erreur Fallback OSRM:", osrmErr);
-    }
-  }
+  // Pas de repli OSRM : le serveur public ne sait pas exclure les autoroutes, interdites aux 50 cc.
 
   if (!routeResult) {
     speak("Impossible de calculer l'itinéraire pour le moment. Vérifiez votre connexion.");
@@ -565,11 +449,16 @@ window.launchNativeGPS = function () {
     typeof window.currentRouteDestination.lng === "function"
       ? window.currentRouteDestination.lng()
       : window.currentRouteDestination.lng;
-  const isWazeInstalled = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  // Ouvre l'application GPS choisie par l'utilisateur (Waze, Plans, OsmAnd…), jamais Google imposé.
+  // Attention : l'itinéraire sans autoroute est celui calculé dans l'application ; une appli externe peut en proposer un autre.
+  const ua = navigator.userAgent;
+  let url;
+  if (/Android/i.test(ua)) url = `geo:${lat},${lng}?q=${lat},${lng}`;
+  else if (/iPhone|iPad|iPod/i.test(ua)) url = `maps://?daddr=${lat},${lng}&dirflg=d`;
+  else url = `https://www.openstreetmap.org/directions?to=${lat}%2C${lng}#map=15/${lat}/${lng}`;
+  if (url.startsWith("http")) { window.open(url, "_blank", "noopener"); return; }
+  window.location.href = url;
 
-  // Default to Google Maps which supports avoidHighways via dirflg=h (partially)
-  const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving&dirflg=h`;
-  window.open(url, "_blank");
 };
 
 // --- 4. SERVICES COMMUNAUTAIRES (SIGNALEMENTS) ---
@@ -647,7 +536,7 @@ async function loadHazards() {
   // Filtrage par rayon de proximité (25 km autour du centre de la vue)
   const radiusInM = 25000;
   const bounds = geofire.geohashQueryBounds(
-    [center.lat(), center.lng()],
+    [center.lat, center.lng],
     radiusInM
   );
 
@@ -678,7 +567,7 @@ async function loadHazards() {
         const hLng = hazard.pos?.lng || hazard.lon || hazard.lng;
 
         if (hLat && hLng) {
-          const distanceInKm = geofire.distanceBetween([hLat, hLng], [center.lat(), center.lng()]);
+          const distanceInKm = geofire.distanceBetween([hLat, hLng], [center.lat, center.lng]);
           if (distanceInKm <= (radiusInM / 1000)) {
             // Éviter les doublons potentiels liés au tuilage Firestore
             if (!hazards.some(existing => existing.date === hazard.date && existing.author === hazard.author)) {
@@ -989,7 +878,8 @@ btn.innerHTML = oldHtml;
       officialPoiMarkers = [];
 
       // FILTRAGE : Uniquement ceux avec note >= 3.3
-      const filtered = results.filter((r) => (r.rating || 0) >= 3.3);
+      // OpenStreetMap ne fournit pas de note : on garde les lieux non notés
+      const filtered = results.filter((r) => r.rating == null || r.rating >= 3.3);
 
       filtered.forEach(async (place) => {
         // DONNEES COMMUNAUTAIRES
@@ -1044,7 +934,7 @@ btn.innerHTML = oldHtml;
         const info = new google.maps.InfoWindow({
           content: `<div style="color:black; min-width:180px;">
                         <b style="font-size:1rem;">${escapeHTML(place.name)}</b><br>
-                        â­ Google: ${place.rating || "N/A"}/5 (${place.user_ratings_total || 0})<br>
+${place.vicinity ? escapeHTML(place.vicinity) + "<br>" : ""}<span style="font-size:0.75rem; color:#666;">Source : OpenStreetMap</span><br>
                         ${qualityBadge}
                         ${communityRating}
                         ${proBadge}
@@ -1055,9 +945,11 @@ btn.innerHTML = oldHtml;
         marker.addListener("click", () => info.open(map, marker));
         officialPoiMarkers.push(marker);
       });
-      alert(`${filtered.length} garages certifiés (Note > 3.3) trouvés.`);
-    } else {
+      alert(`${filtered.length} garage(s) trouvé(s) autour de vous.`);
+    } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
       alert("Aucun garage trouvé dans cette zone.");
+    } else {
+      alert("Recherche de garages momentanément indisponible. Réessayez dans un instant.");
     }
   });
 }
@@ -1317,7 +1209,7 @@ window.checkMapPanForRadar = function () {
   if (!window.map || !window.currentActiveRadarType || !window.lastRadarSearchCenter) return;
   
   const center = window.map.getCenter();
-  const currentPos = { lat: center.lat(), lng: center.lng() };
+  const currentPos = { lat: center.lat, lng: center.lng };
   
   const dist = getHaversineDist(window.lastRadarSearchCenter, currentPos);
   
@@ -1357,7 +1249,7 @@ window.checkMapPanForRadar = function () {
       searchBtn.onclick = () => {
         searchBtn.style.display = "none"; // Cacher immédiatement après clic
         const newCenter = window.map.getCenter();
-        window.scanRadar(window.currentActiveRadarType, { lat: newCenter.lat(), lng: newCenter.lng() });
+        window.scanRadar(window.currentActiveRadarType, { lat: newCenter.lat, lng: newCenter.lng });
       };
       
       const mapContainer = document.getElementById("map");

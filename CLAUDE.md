@@ -61,7 +61,10 @@ npx firebase deploy --only hosting  # Déploie dist/ sur mon50ccetmoi.web.app
 | `├── b2b-assureur.html` | Portail B2B pour compagnies d'assurance (consultation et vérification cryptographique des rapports de sinistres). |
 | `├── admin-blackbox.html` | Console d'administration de la flotte de boîtiers Boîte Noire et audit de la chaîne de Merkle. |
 | `├── js/app-core.js` | Initialisation de l'application, état global partagé (`window.map`, `window.currentPosition`, etc.), géolocalisation. |
-| `├── js/app-map.js` | Contrôleur cartographique (Google Maps + fallback OpenStreetMap Leaflet hors-ligne + OSRM sans autoroute). |
+| `├── js/app-map.js` | Contrôleur cartographique : itinéraires, dangers, garages, radars (via l'API `google.maps` souveraine ci-dessous). |
+| `├── js/gmaps-compat.js` | **Carte souveraine, zéro Google** : installe `window.google.maps` (Map, Marker, InfoWindow, Polyline, Geocoder, DirectionsService, Autocomplete…) sur Leaflet + fond Plan IGN. `window.map` est une carte Leaflet. |
+| `├── js/map-engine.js` | Services sans clé : itinéraire IGN `bdtopo-pgr` **autoroutes interdites** et durées plafonnées à 45 km/h, géocodage/autocomplétion IGN, garages OpenStreetMap (Overpass, 2 serveurs). |
+| `├── public/vendor/leaflet/` | Leaflet 1.9.4 auto-hébergé (plus de CDN unpkg). |
 | `├── js/app-features.js` | Fonctionnalités métier (Guardian Angel, roadbooks, météo vigilance, carnet d'entretien, points). |
 | `├── js/app-ui.js` | Interface utilisateur, démarrage cinématique (`runCinematicStartup`), mode parking, alerte chute SOS. |
 | `├── js/i18n.js` | Système multilingue (`window.t`, `window.updateI18N`, `window.updateUILabels`). |
@@ -86,7 +89,10 @@ L'ensemble des règles de sécurité détaillées dans `.agents/AGENTS.md` et `N
 3. **Sécurité Embarquée ESP32-C3 (`hardware/firmware/`)** :
    * **Interdiction d'opérations Flash/NVS dans une ISR** : Toute routine d'interruption (`IRAM_ATTR` dans `tamper.c`) ne doit manipuler que de la RAM volatile (`memset` sur pointeurs volatiles + drapeau `s_tamper_tripped`). L'effacement NVS (`blackbox_storage_zeroize_keys()`) est exécuté au réveil de `telemetry_task` dans `main.c`.
    * Aucune clé AES ou ECDSA en dur dans le code source : provisionnement exclusivement en NVS chiffré par appareil.
-4. **Encodage UTF-8 et Cache Service Worker** :
+4. **Cartographie (zéro Google)** :
+   * Ne jamais réintroduire le SDK Google Maps ni de clé Google : passer par `gmaps-compat.js` / `map-engine.js`, ou directement Leaflet.
+   * Les itinéraires doivent toujours interdire les autoroutes (50 cc / VSP, Code de la route R421-2). Aucun repli vers un service qui ne sait pas les exclure (ex. serveur OSRM public).
+5. **Encodage UTF-8 et Cache Service Worker** :
    * Toujours conserver l'encodage **UTF-8 sans BOM** (le script `node scripts/sanitize-encoding.js` est exécuté automatiquement en `prebuild`).
    * À chaque modification des bundles critiques du frontend, incrémenter `CACHE_NAME` dans `src/public/sw.js` avant `npm run build`.
 

@@ -66,7 +66,7 @@ function encodeGeohash(lat, lng, precision = 5) {
 // --- Initialisation carte et services de navigation ---
 function initMap() {
   if (typeof google === 'undefined') {
-    showError("Google Maps non disponible. Vérifiez votre connexion.");
+    showError("Carte non disponible. Vérifiez votre connexion.");
     return;
   }
 
