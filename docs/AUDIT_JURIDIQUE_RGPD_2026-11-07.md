@@ -40,7 +40,8 @@ Elle contient aussi des affirmations inexactes :
 
 | Point | Constat | Décision à prendre |
 | :--- | :--- | :--- |
-| « 1 an d'abonnement Sentinel Care offert » avec le boîtier | Le catalogue ne prévoit rien de tel (boîtier 89,99 €, ou pack avec caution 49,99 € + abonnement) | Tenir la promesse (code) ou la retirer (texte) |
+| « 1 an d'abonnement Sentinel Care offert » avec le boîtier | **Réglé le 7/11** : le paiement d'un boîtier accorde 12 mois de Boîte Noire+ (et les abonnements payés, jusque-là non activés, le sont) | — |
+| Pack « boîtier + abonnement » | Le paiement enregistre un **engagement de 24 mois** et une caution de 49,99 €, absents des CGV | Annoncer clairement l'engagement, la caution et sa restitution avant l'achat |
 | Produits absents | Boîtier, pack duo (161,98 €), diagnostic IA (4,99 €), certificats batterie (4,99/14,99/29,99 €), droit d'entrée garage (50 €) | Les ajouter avec leurs prix TTC |
 | Rapports assureurs (B2B, 49,99 à 199,99 € HT) | Absents | CGV professionnelles séparées |
 | Vendeur | Ni adresse, ni SIRET dans les CGV | Reprendre les mentions légales |
