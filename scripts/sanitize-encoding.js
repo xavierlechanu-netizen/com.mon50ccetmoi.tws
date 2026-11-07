@@ -31,31 +31,13 @@ function processDirectory(dirPath) {
 
 // 1. Sanitize src/public/screens
 const srcPublicScreens = path.join(__dirname, '..', 'src', 'public', 'screens');
-const rootScreens = path.join(__dirname, '..', 'screens');
 const srcHtml = path.join(__dirname, '..', 'src');
 
 console.log('Sanitizing screens in src/public/screens...');
 processDirectory(srcPublicScreens);
 
-// 2. Synchronize src/public/screens to root screens/
-if (fs.existsSync(srcPublicScreens)) {
-  if (!fs.existsSync(rootScreens)) {
-    fs.mkdirSync(rootScreens, { recursive: true });
-  }
-  const files = fs.readdirSync(srcPublicScreens);
-  for (const f of files) {
-    const srcFile = path.join(srcPublicScreens, f);
-    const dstFile = path.join(rootScreens, f);
-    if (fs.statSync(srcFile).isFile()) {
-      fs.copyFileSync(srcFile, dstFile);
-    }
-  }
-  console.log(`Synchronized ${files.length} screen files from src/public/screens to screens/`);
-}
-
-// 3. Also check screens/ and src/ for any remaining mojibake
-console.log('Sanitizing screens in screens/...');
-processDirectory(rootScreens);
+// 2. (Retiré le 7/11/2026) La copie vers un dossier screens/ à la racine ne servait plus :
+//    le site est publié depuis dist/, qui reprend src/public/screens.
 
 console.log('Sanitizing src/ *.html files...');
 const srcFiles = fs.readdirSync(srcHtml);

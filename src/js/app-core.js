@@ -1197,8 +1197,9 @@ function updatePosition(position) {
       if (map.getTilt() !== targetTilt) map.setTilt(targetTilt);
     }
 
-    // vMax Tracking (NEW v25)
-    if (!window.session.vMax || speedKmh > window.session.vMax) {
+    // vMax Tracking (NEW v25) — seulement avec un profil chargé. Sans ce test, un visiteur
+    // non connecté provoquait une erreur qui interrompait la suite (météo, dangers proches).
+    if (window.session && (!window.session.vMax || speedKmh > window.session.vMax)) {
       window.session.vMax = speedKmh;
       secureSetItem("session", JSON.stringify(window.session));
     }

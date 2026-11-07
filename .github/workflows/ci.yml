@@ -36,6 +36,15 @@ jobs:
       - name: Build Web Application
         run: npm run build
 
+      - name: Budget de poids au démarrage
+        run: npm run check:size
+
+      - name: Installer le navigateur de test (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Tests dans un vrai navigateur (pages, carte, barre d'outils)
+        run: npm run test:e2e
+
       - name: Install & Audit Cloud Functions
         run: |
           npm ci --prefix functions

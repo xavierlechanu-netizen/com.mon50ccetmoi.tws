@@ -102,3 +102,7 @@ hardware/firmware/.cache/
 
 # Outil Android téléchargeable (31 Mo), gardé en local seulement
 tools/bundletool.jar
+
+# Résultats des tests navigateur (Playwright)
+test-results/
+playwright-report/

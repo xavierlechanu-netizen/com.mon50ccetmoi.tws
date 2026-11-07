@@ -13,7 +13,8 @@ window.Leaderboard = {
   },
 
   ensureDepartment: async function () {
-    if (window.session.department) return; // Déjà calculé
+    // Visiteur non connecté : classement général (avant : erreur au clic sur le trophée)
+    if (!window.session || window.session.department) return; // Déjà calculé
 
     if (window.currentPosition && typeof google !== "undefined") {
       try {
@@ -74,7 +75,7 @@ window.Leaderboard = {
 
       // Si on a un département valide, on filtre. Sinon, classement global
       if (
-        window.session.department &&
+        window.session?.department &&
         window.session.department !== "Global" &&
         window.session.department !== "Inconnu"
       ) {
@@ -154,7 +155,7 @@ modal.innerHTML = `
             <div style="background:#111; border:1px solid #ffd700; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
                 <h2 style="color:#ffd700; margin-bottom:5px; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-trophy"></i> King of the Street</h2>
                 <p style="color:#aaa; font-size:0.9rem; margin-top:0; margin-bottom:20px; text-transform:uppercase;">
-                    Ligue : ${window.session.department && window.session.department !== "Global" ? "Dép. " + window.session.department : "Mondiale"}
+                    Ligue : ${window.session?.department && window.session.department !== "Global" ? "Dép. " + window.session.department : "Mondiale"}
                 </p>
                 <div style="text-align:left; max-height:300px; overflow-y:auto; margin-bottom:20px; background:#000; border-radius:10px; padding:10px;">
                     ${htmlList || "<p style='color:#aaa;text-align:center;'>Aucun classement disponible.</p>"}

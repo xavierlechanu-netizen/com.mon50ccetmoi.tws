@@ -40,6 +40,14 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+      # La publication est bloquée si une page ne se charge plus, si un bouton de la barre
+      # plante ou si le poids au démarrage dépasse le budget (étape 2 du plan de dette technique)
+      - name: Budget de poids au démarrage
+        run: npm run check:size
+      - name: Installer le navigateur de test (Chromium)
+        run: npx playwright install --with-deps chromium
+      - name: Tests dans un vrai navigateur
+        run: npm run test:e2e
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:

@@ -47,7 +47,7 @@ Conséquence déjà visible : le bouton « Télécharger le rapport » du portai
 - **Sécurité** : la clé de signature Play Store (`new-upload-keystore.jks`) et son mot de passe sont dans le dossier du projet. Les déplacer hors du projet, avec une sauvegarde chiffrée hors du PC : sa perte empêcherait toute mise à jour de l'app.
 - Garde-fou : un test échoue si un fichier de `src/js/` n'est chargé par aucune page.
 
-### Étape 2 — Filet de sécurité de l'interface (1 jour)
+### Étape 2 — Filet de sécurité de l'interface (1 jour) — FAIT le 7/11/2026 (fonctions pures de app-core : reporté à l’étape 5)
 
 - Tests de fumée dans un vrai navigateur (Playwright) : chaque page se charge sans erreur, les écrans principaux s'ouvrent, aucun bouton de la barre n'est mort. Lancés par la CI avant chaque publication.
 - Budget de poids : la CI échoue si le code chargé au démarrage grossit de plus de 5 %.
