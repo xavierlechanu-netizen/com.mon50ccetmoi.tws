@@ -61,7 +61,7 @@ service cloud.firestore {
         && usernameReservedBy(request.resource.data.username, request.auth.uid)
         && !request.resource.data.keys().hasAny([
           'blackbox_serial', 'braveCoins', 'bvc_points', 'bvcPoints', 'points',
-          'isPremium', 'premiumPlan', 'premiumSince', 'subscription',
+          'isPremium', 'premiumPlan', 'premiumSince', 'subscription', 'blackboxCare',
           'isCertifiedGarage', 'isGaragePartner', 'certified_at',
           'isBanned', 'isTempBanned', 'banReason', 'banExpireAt', 'tempBansCount', 'appealStatus'
         ]);
@@ -73,7 +73,7 @@ service cloud.firestore {
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
           'username', 'uid',
           'role', 'blackbox_serial', 'braveCoins', 'bvc_points', 'bvcPoints', 'points',
-          'isPremium', 'premiumPlan', 'premiumSince', 'subscription',
+          'isPremium', 'premiumPlan', 'premiumSince', 'subscription', 'blackboxCare',
           'isCertifiedGarage', 'isGaragePartner', 'certified_at',
           'isBanned', 'isTempBanned', 'banReason', 'banExpireAt', 'tempBansCount', 'appealStatus',
           'lastPointsPurchase', 'compensationAwarded', 'banLiftedAt', 'banLiftedBy'

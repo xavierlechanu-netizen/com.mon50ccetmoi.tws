@@ -4,6 +4,7 @@ const {
 } = require("./shared");
 const { verifyRevolutSignature } = require("./revolut-signature");
 const { CATALOG, CATEGORIES, computeAmounts, getCatalogItem, isValidCaseId } = require("./payments-catalog");
+const { planBlackboxPurchase } = require("./blackbox-subscription");
 
 const { buildInvoice } = require("./invoicing");
 
@@ -285,6 +286,15 @@ exports.revolutWebhook = onRequest(
                     if (category === CATEGORIES.LITIGATION) {
                         litigationSnap = await tx.get(db.collection("litigation_proposals").doc(caseId));
                     }
+                    // Abonnement Boîte Noire+ en cours (pour le prolonger plutôt que l'écraser)
+                    const isBlackboxPurchase = category === CATEGORIES.BLACKBOX_HW || category === CATEGORIES.BLACKBOX_SUB;
+                    const hasUser = userId && userId !== "unknown";
+                    let currentCareEndsAt = null;
+                    if (isBlackboxPurchase && hasUser) {
+                        const userSnap = await tx.get(db.collection("users").doc(userId));
+                        const endsAt = userSnap.exists ? userSnap.data()?.blackboxCare?.ends_at : null;
+                        currentCareEndsAt = endsAt?.toMillis ? endsAt.toMillis() : null;
+                    }
 
                     // 1. Mettre à jour l'ordre
                     tx.update(orderRef, {
@@ -293,17 +303,19 @@ exports.revolutWebhook = onRequest(
                     });
 
                     // 2. Traitement selon la catégorie stricte (fermeture faille C4)
-                    if (category === CATEGORIES.BLACKBOX_HW || category === CATEGORIES.BLACKBOX_SUB) {
+                    if (isBlackboxPurchase) {
                         const isDuo = orderData.report_type === "BLACKBOX_DUO";
                         const isPackSub = orderData.report_type === "BLACKBOX_PACK_SUB";
-                        const quantity = isDuo ? 2 : 1;
+                        // Boîtiers réellement vendus (0 pour un simple abonnement) et abonnement accordé
+                        const plan = planBlackboxPurchase(orderData.report_type, currentCareEndsAt, Date.now());
+                        const quantity = plan ? plan.hardwareUnits : (isDuo ? 2 : 1);
 
                         const saleData = {
                             orderId: orderId,
                             revolut_order_id: orderId,
                             caseId: caseId,
                             userId: userId,
-                            type: isPackSub ? "PACK_SUBSCRIPTION" : (isDuo ? "DUO" : "UNIT"),
+                            type: plan ? plan.saleType : (isPackSub ? "PACK_SUBSCRIPTION" : (isDuo ? "DUO" : "UNIT")),
                             amount: orderData.amount_cents / 100,
                             amount_cents: orderData.amount_cents,
                             currency: orderData.currency || "EUR",
@@ -318,8 +330,28 @@ exports.revolutWebhook = onRequest(
                             createdAt: admin.firestore.FieldValue.serverTimestamp()
                         };
 
+                        if (plan) {
+                            saleData.careMonthsGranted = plan.subscription.monthsGranted;
+                            saleData.careEndsAt = admin.firestore.Timestamp.fromMillis(plan.subscription.endsAtMs);
+                        }
+
                         tx.set(db.collection("blackbox_sales").doc(orderId), saleData);
                         tx.set(db.collection("blackbox_sales").doc(caseId), saleData);
+
+                        // Abonnement Boîte Noire+ : 1 an offert par boîtier (promesse des CGV),
+                        // 1 ou 12 mois pour un abonnement payé, prolongé s'il court encore.
+                        if (plan && hasUser) {
+                            tx.set(db.collection("users").doc(userId), {
+                                blackboxCare: {
+                                    status: "ACTIVE",
+                                    plan: plan.subscription.plan,
+                                    starts_at: admin.firestore.Timestamp.fromMillis(plan.subscription.startsAtMs),
+                                    ends_at: admin.firestore.Timestamp.fromMillis(plan.subscription.endsAtMs),
+                                    last_order_id: orderId,
+                                    updated_at: admin.firestore.FieldValue.serverTimestamp()
+                                }
+                            }, { merge: true });
+                        }
 
                         if (isPackSub && userId && userId !== "unknown") {
                             tx.set(db.collection("users").doc(userId), {

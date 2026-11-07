@@ -234,6 +234,8 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
     await assertFails(steal.commit());
     // Les autres champs du profil restent modifiables
     await assertSucceeds(mallory.collection("users").doc("mallory").update({ brand: "MBK" }));
+    // Impossible de s'offrir l'abonnement Boîte Noire+ (accordé seulement par le paiement)
+    await assertFails(mallory.collection("users").doc("mallory").update({ blackboxCare: { status: "ACTIVE" } }));
   });
 
   it("Crews : un membre rejoint ou quitte, mais ne modifie rien d'autre", async () => {
