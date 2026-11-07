@@ -58,4 +58,47 @@ function isSubscriptionActive(endsAtMs, nowMs) {
     return Number.isFinite(endsAtMs) && endsAtMs > nowMs;
 }
 
-module.exports = { PURCHASES, DAY_MS, addMonths, planBlackboxPurchase, isSubscriptionActive };
+/**
+ * Régularisation des achats payés avant la correction du 7/11/2026.
+ * @param {Array<{orderId, userId, reportType, paidAtMs}>} orders  paiements réussis
+ * @param {Set<string>} alreadyGranted  commandes déjà traitées par la nouvelle version
+ * @param {Object<string, number|null>} currentEndsByUser  fin d'abonnement actuelle par membre
+ * @returns {{ users: Object, orders: Array, boxesWronglyCounted: number }}
+ */
+function planRegularization(orders, alreadyGranted, currentEndsByUser = {}) {
+    const users = {};
+    const planned = [];
+    let boxesWronglyCounted = 0;
+    const todo = orders
+        .filter((o) => PURCHASES[o.reportType] && o.userId && o.userId !== "unknown" && !alreadyGranted.has(o.orderId))
+        .sort((a, b) => a.paidAtMs - b.paidAtMs);
+
+    for (const o of todo) {
+        const current = users[o.userId]?.endsAtMs ?? currentEndsByUser[o.userId] ?? null;
+        // L'abonnement court depuis la date d'achat (pas depuis aujourd'hui)
+        const plan = planBlackboxPurchase(o.reportType, current, o.paidAtMs);
+        users[o.userId] = {
+            plan: plan.subscription.plan,
+            startsAtMs: users[o.userId]?.startsAtMs ?? plan.subscription.startsAtMs,
+            endsAtMs: plan.subscription.endsAtMs,
+            lastOrderId: o.orderId,
+        };
+        // Avant la correction, chaque achat comptait au moins 1 boîtier vendu
+        const countedBefore = o.reportType === "BLACKBOX_DUO" ? 2 : 1;
+        const wronglyCounted = countedBefore - plan.hardwareUnits;
+        boxesWronglyCounted += wronglyCounted;
+        planned.push({
+            orderId: o.orderId,
+            userId: o.userId,
+            reportType: o.reportType,
+            saleType: plan.saleType,
+            hardwareUnits: plan.hardwareUnits,
+            monthsGranted: plan.subscription.monthsGranted,
+            endsAtMs: plan.subscription.endsAtMs,
+            wronglyCounted,
+        });
+    }
+    return { users, orders: planned, boxesWronglyCounted };
+}
+
+module.exports = { PURCHASES, DAY_MS, addMonths, planBlackboxPurchase, isSubscriptionActive, planRegularization };

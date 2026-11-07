@@ -50,6 +50,20 @@ Elle contient aussi des affirmations inexactes :
 | Médiateur de la consommation | Absent | Obligatoire : adhérer à un médiateur et le citer |
 | Points mon50cc | Renonciation au droit de rétractation : correcte **si** une case à cocher la recueille au moment de l'achat | Vérifier l'écran d'achat |
 
+### 3 bis. Réglé le 7/11 (deuxième passe)
+
+- CGV : offres Boîte Noire complètes et exactes (prix, 12 mois offerts, pack sous dépôt de garantie avec engagement de 24 mois, abonnement sans reconduction automatique), autres achats, droit de rétractation, garanties légales, réclamations, identité du vendeur.
+- Affirmations inexactes retirées des CGV : « chiffrement de bout en bout » (FIDO2), « certificats Blockchain ».
+- Prix des rapports assureurs affichés **HT** (`assureur.html`) ; « 189,99 € » corrigé en 199,99 € HT (`b2b-assureur.html`).
+- Script `functions/scripts/regularize-blackbox-care.js` : accorde aux clients ayant payé avant la correction ce qui leur est dû (aperçu par défaut, `--appliquer` pour écrire).
+
+### 3 ter. Restant (business)
+
+1. **Le pack « boîtier + abonnement » n'encaisse que le dépôt de garantie** : aucun prélèvement de 4,99 €/mois n'existe dans le code. Mettre en place l'abonnement récurrent Revolut (ou changer l'offre).
+2. **Médiateur de la consommation** : à choisir et à citer dans les CGV (obligatoire).
+3. **Case de renonciation au droit de rétractation** pour les contenus numériques : à afficher au moment du paiement.
+4. **Portail assureur (`b2b-assureur.html`)** : statistiques inventées (« 314 sinistres évités », « -40 % de sinistralité ») et « facturation B2B mensuelle » non mise en place.
+
 ## 4. CGU (`terms.html`) et clauses risquées (CGU et CGV)
 
 Clauses probablement **abusives** ou contraires à la loi, à faire revoir :
