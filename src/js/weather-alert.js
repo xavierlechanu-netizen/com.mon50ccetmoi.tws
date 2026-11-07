@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { describeWeather, weatherIsStale } from './weather-advice.js';
 
 ﻿/**
  * INTELLIGENT WEATHER ALERT v1.0
@@ -13,7 +14,7 @@ window.WeatherAlert = {
   lastCheckTime: 0,
   currentCondition: "CLEAR",
 
-  // Mock conditions for demo purposes
+  // Messages d'alerte (déclenchés par la vraie météo)
   CONDITIONS: {
     CLEAR: { label: "Dégagé", danger: false, msg: "" },
     RAIN: {
@@ -54,24 +55,22 @@ window.WeatherAlert = {
   },
 
   checkWeather: async function (position) {
-    if (!position) return;
+    if (!position && !window.currentPosition) return;
 
     const now = Date.now();
     // Évite de spammer les alertes (1 alerte max toutes les 15 min)
     if (now - this.lastCheckTime < 900000 && this.lastCheckTime !== 0) return;
 
-    // Dans un cas réel, appel vers OpenWeatherMap API ou Météo France
-    // Ici, nous simulons la météo aléatoirement pour la démo
-    const simulatedWeather = this.simulateWeatherAPI();
+    // Météo réelle (Open-Meteo, récupérée par fetchWeather). Avant (corrigé le 7/11/2026) :
+    // pluie, vent ou verglas tirés au hasard « pour la démo ». Sans météo récente : aucune alerte.
+    const condition = this.conditionFromWeather(window.currentWeather);
+    if (!condition) return;
 
-    if (
-      simulatedWeather !== "CLEAR" &&
-      simulatedWeather !== this.currentCondition
-    ) {
-      this.triggerAlert(simulatedWeather);
+    if (condition !== "CLEAR" && condition !== this.currentCondition) {
+      this.triggerAlert(condition);
     }
 
-    this.currentCondition = simulatedWeather;
+    this.currentCondition = condition;
     this.lastCheckTime = now;
   },
 
@@ -132,12 +131,13 @@ toast.innerHTML = `
     }, 6000);
   },
 
-  simulateWeatherAPI: function () {
-    // Renvoie 80% du temps CLEAR, et 20% du temps une alerte
-    const rand = Math.random();
-    if (rand > 0.95) return "ICE";
-    if (rand > 0.85) return "WIND";
-    if (rand > 0.8) return "RAIN";
+  /** Condition d'alerte à partir de la vraie météo, ou null si elle est absente ou trop ancienne. */
+  conditionFromWeather: function (weather) {
+    if (weatherIsStale(weather)) return null;
+    const type = describeWeather(weather, new Date().getHours()).type;
+    if (type === "ice" || type === "cold") return weather.temp <= 2 || type === "ice" ? "ICE" : "CLEAR";
+    if (type === "rain" || type === "storm") return "RAIN";
+    if (type === "wind") return "WIND";
     return "CLEAR";
   },
 

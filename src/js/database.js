@@ -215,7 +215,10 @@ window.publishMoodCloud = async function (mood) {
   }
 };
 
-// --- SYSTÈME ANTI-FRAUDE SIGNALEMENT DGCCRF ---
+// --- SIGNALEMENT DES STATIONS (prix non conformes) ---
+// Corrigé le 7/11/2026 : rien n'est transmis automatiquement à la DGCCRF. Après 10 signalements,
+// un dossier « à vérifier » est préparé pour l'administrateur, qui peut le déposer lui-même
+// sur SignalConso (signal.conso.gouv.fr). Avant, l'app annonçait une plainte « transmise ».
 
 window.reportStationAbuse = async function (
   stationId,
@@ -297,10 +300,10 @@ async function triggerDGCCRFReport(id, info, photos) {
     dossierId: `FRAUD-FR-${id}-${Date.now()}`,
     target: info,
     source: "mon50ccetmoi-bot-v20",
-    platform: "SignalConso-API-Bridge",
+    platform: "à déposer manuellement sur SignalConso",
     evidenceCount: photos.length,
     hasPhotos: true,
-    status: "TRANSMIS_DGCCRF",
+    status: "A_VERIFIER",
     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     metadata: {
       appVersion: CONFIG.VERSION,
@@ -321,11 +324,11 @@ async function triggerDGCCRFReport(id, info, photos) {
 
   // Notification admin
   await db.collection("admin_alerts").add({
-    type: "FRAUDE_PRIX_BOT_SUCCESS",
+    type: "STATION_A_VERIFIER",
     station: info,
     dossierLink: complaintDossier.dossierId,
     hasVisualProof: true,
-    message: "Bot : Dossier de plainte (avec photos) transmis à la DGCCRF.",
+    message: "10 signalements avec photos : dossier à vérifier, puis à déposer sur SignalConso si fondé.",
     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
   });
 
@@ -336,7 +339,7 @@ async function triggerDGCCRFReport(id, info, photos) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: `🚨 **ALERTE FRAUDE BOT** 🚨\nLa station **${info}** a reçu 10 signalements. Un dossier de plainte automatique a été transmis à la DGCCRF.`,
+          content: `🚨 **ALERTE FRAUDE BOT** 🚨\nLa station **${info}** a reçu 10 signalements. Un dossier est prêt à être vérifié (rien n'a été transmis).`,
         }),
       });
     } catch (e) {}

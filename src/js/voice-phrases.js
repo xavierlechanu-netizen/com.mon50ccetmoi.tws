@@ -220,6 +220,8 @@ export const PHRASES = {
   "Trajet terminé. Conduite trop agressive, aucun certificat carbone délivré.": { en: "Trip finished. Riding too aggressive, no carbon certificate issued.", es: "Trayecto terminado. Conducción demasiado agresiva, no se emite certificado de carbono." },
   "Accès à la salle de marché du carbone. Des mégacorporations attendent d'acheter vos certificats.": { en: "Entering the carbon trading room. Megacorporations are waiting to buy your certificates.", es: "Entrando en la sala de mercado del carbono. Megacorporaciones esperan para comprar sus certificados." },
   "Transaction validée. Certificats vendus aux industries polluantes. Fonds transférés sur votre portefeuille.": { en: "Transaction confirmed. Certificates sold to polluting industries. Funds transferred to your wallet.", es: "Transacción validada. Certificados vendidos a industrias contaminantes. Fondos transferidos a su cartera." },
+  "Le marché des certificats carbone n'est pas encore ouvert.": { en: "The carbon certificate market is not open yet.", es: "El mercado de certificados de carbono aún no está abierto." },
+  "La revente de certificats n'est pas encore disponible. Vos certificats sont conservés.": { en: "Selling certificates is not available yet. Your certificates are kept.", es: "La venta de certificados aún no está disponible. Sus certificados se conservan." },
   "Vous ne possédez aucun certificat à vendre.": { en: "You have no certificates to sell.", es: "No tiene ningún certificado para vender." },
   "Publication Facebook réussie.": { en: "Facebook post published.", es: "Publicación en Facebook realizada." },
 

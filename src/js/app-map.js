@@ -1049,51 +1049,8 @@ window.renderCommunityMarkers = function () {
 };
 
 window.simulateLiveFleet = function () {
-  if (!currentPosition || !map) return;
-  const ghostNames = [
-    "Rider_Z",
-    "Nitro50",
-    "BoostPowa",
-    "StuntMan",
-    "RoadRunner",
-  ];
-  const ghostBrands = [
-    "Yamaha Bw's",
-    "MBK Booster",
-    "Piaggio Zip",
-    "Peugeot Speedfight",
-    "Derbi Senda",
-  ];
-
-  ghostNames.forEach((name, i) => {
-    const offsetLat = (Math.random() - 0.5) * 0.01;
-    const offsetLng = (Math.random() - 0.5) * 0.01;
-    const ghostPos = {
-      lat: currentPosition.lat + offsetLat,
-      lng: currentPosition.lng + offsetLng,
-    };
-
-    const ghostIcon = document.createElement("div");
-    ghostIcon.style.width = "10px";
-    ghostIcon.style.height = "10px";
-    ghostIcon.style.backgroundColor = "#666";
-    ghostIcon.style.opacity = "0.5";
-    ghostIcon.style.border = "1px solid white";
-    ghostIcon.style.borderRadius = "50%";
-
-    const m = new window.googleLibraries.AdvancedMarkerElement({
-      position: ghostPos,
-      map: map,
-      title: name,
-      content: ghostIcon,
-    });
-
-    const info = new google.maps.InfoWindow({
-      content: `<div style="color:black"><b>${name} [IA]</b><br><small>${ghostBrands[i]}</small></div>`,
-    });
-    m.addListener("click", () => info.open(map, m));
-    communityMarkers.push(m);
-  });
+  // Retiré le 7/11/2026 : affichait 5 pilotes fictifs (noms et scooters inventés) autour de vous.
+  // Les vrais membres en ligne sont affichés par renderCommunityMarkers (présence).
 };
 
 // --- 7. TERRITORY WARS (CREWS) ---

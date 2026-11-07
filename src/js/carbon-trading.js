@@ -73,26 +73,18 @@ window.closeCEE = function () {
 
 // 3. CARBON TRADING FLOOR
 window.openTradingFloor = function () {
+  // Avant (corrigé le 7/11/2026) : faux cours de bourse tiré au hasard toutes les 2 s.
   const floorScreen = document.getElementById("carbon-trading-floor");
   const stockPrice = document.getElementById("carbon-stock-price");
   const inventory = document.getElementById("cee-inventory");
   if (!floorScreen) return;
-
-  inventory.innerText = window.ceeCertificates + " CEE Disponibles";
+  if (inventory) inventory.innerText = window.ceeCertificates + " CEE Disponibles";
+  if (stockPrice) {
+    stockPrice.innerText = "Marché non ouvert";
+    stockPrice.style.color = "#aaaaaa";
+  }
   floorScreen.classList.remove("hidden");
-
-  if (typeof speak === "function")
-    speak(
-      "Accès à la salle de marché du carbone. Des mégacorporations attendent d'acheter vos certificats.",
-    );
-
-  // Simulation du cours de la bourse
-  window.tradingInterval = setInterval(() => {
-    const price = (14.5 + (Math.random() * 5 - 2.5)).toFixed(2);
-    stockPrice.innerText = price + " €";
-    if (price > 16) stockPrice.style.color = "#00ff00";
-    else stockPrice.style.color = "#ff0055";
-  }, 2000);
+  if (typeof speak === "function") speak("Le marché des certificats carbone n'est pas encore ouvert.");
 };
 
 window.closeTradingFloor = function () {
@@ -101,35 +93,11 @@ window.closeTradingFloor = function () {
 };
 
 window.sellCEE = function () {
-  if (window.ceeCertificates > 0) {
-    window.ceeCertificates = 0;
-    localStorage.setItem("ceeCertificates", btoa("0"));
-
-    const price = parseFloat(
-      document.getElementById("carbon-stock-price").innerText,
-    );
-    // Simulation d'injection dans le Wallet
-    // Conversion en points désactivée : les certificats sont générés sur l'appareil, donc falsifiables.
-    // À réactiver uniquement via un calcul serveur (motif CARBON_OFFSET, réservé au serveur).
-
-    document.getElementById("cee-inventory").innerText = "0 CEE Disponibles";
-
-    if (typeof speak === "function")
-      speak(
-        "Transaction validée. Certificats vendus aux industries polluantes. Fonds transférés sur votre portefeuille.",
-      );
-
-    const button = document.getElementById("sell-cee-btn");
-    button.innerText = "VENDU";
-    button.style.background = "#00ff00";
-    setTimeout(() => {
-      button.innerText = "VENDRE AUX POLLUEURS";
-      button.style.background = "linear-gradient(90deg, #ff0055, #b700ff)";
-    }, 3000);
-  } else {
-    if (typeof speak === "function")
-      speak("Vous ne possédez aucun certificat à vendre.");
-  }
+  // Avant (corrigé le 7/11/2026) : « vendre » effaçait vos certificats et annonçait des fonds
+  // transférés, alors que rien n'était versé. Les certificats sont conservés.
+  if (typeof speak === "function") speak("La revente de certificats n'est pas encore disponible. Vos certificats sont conservés.");
+  const button = document.getElementById("sell-cee-btn");
+  if (button) button.innerText = "BIENTÔT DISPONIBLE";
 };
 
 // Start telemetry

@@ -1248,16 +1248,11 @@ window.triggerCommunitySonar = function () {
   document.body.appendChild(sonar);
 
   setTimeout(() => {
-    // Aléatoirement, trouver un allié (1 chance sur 4)
-    if (Math.random() > 0.75) {
+    // Uniquement les membres réellement en ligne (présence des 15 dernières minutes).
+    // Avant (corrigé le 7/11/2026) : un allié imaginaire apparaissait une fois sur quatre.
+    if (Array.isArray(window.communityMembers) && window.communityMembers.length > 0) {
       speak("Pilote allié détecté dans le secteur.");
-      const ally = document.createElement("div");
-      ally.className = "ally-marker";
-      // Position aléatoire sur l'écran
-      ally.style.top = 20 + Math.random() * 60 + "%";
-      ally.style.left = 20 + Math.random() * 60 + "%";
-      document.body.appendChild(ally);
-      setTimeout(() => ally.remove(), 6000);
+      if (typeof window.renderCommunityMarkers === "function") window.renderCommunityMarkers();
     }
     sonar.remove();
   }, 4000);

@@ -202,7 +202,7 @@ content.innerHTML = `<h3><i class="fa-solid fa-box-archive"></i> ${t.title}</h3>
                 </button>
                 <div style="background:rgba(255,255,255,0.05); border:1px dashed #555; border-radius:12px; padding:15px; text-align:center; margin-top:10px;">
                     <span style="font-size:0.6rem; color:#888; text-transform:uppercase; letter-spacing:1px;">Code Expertise Assurance</span>
-                    <div style="font-family:monospace; font-size:1.2rem; color:var(--neon-blue); margin:5px 0;">BB-#{Math.floor(Math.random()*900000 + 100000)}</div>
+                    <div style="font-size:0.8rem; color:var(--neon-blue); margin:5px 0;">Créé à l'ouverture d'un litige</div>
                     <p style="font-size:0.65rem; color:#666;">Donnez ce code à votre assureur pour qu'il puisse accéder à vos données certifiées sur le portail pro.</p>
                 </div>
                 <button data-action="window.DisputeAutomation.initiateDispute()" class="btn-insurance" style="width:100%; margin-top:10px; background:linear-gradient(135deg,#34495e,#2c3e50); color:white; border:1px solid #555;">
@@ -226,38 +226,6 @@ content.innerHTML = `<h3><i class="fa-solid fa-box-archive"></i> ${t.title}</h3>
 // BLACK BOX INSURANCE : Rapport PDF (simulation)
 // ============================================================
 window.BlackBoxInsurance = {
-  generateExpertDemo() {
-    // Mock data if empty
-    const mockFrames = [
-      { lat: 48.8566, lng: 2.3522, spd: 45 },
-      { lat: 48.85, lng: 2.34, spd: 48 },
-    ];
-    sessionStorage.setItem("blackbox_last_ride", JSON.stringify(mockFrames));
-
-    // Custom Expert template
-    const date = new Date().toLocaleDateString();
-    const report = [
-      "=== RAPPORT mon50ccetmoi EXPERT ULTRA (Certifié) ===",
-      "Niveau : EXPERT (Facturé 199.99€)",
-      "ID Dossier : DEMO-ULTRA-99",
-      "--------------------------------------------------",
-      "Vitesse Max : 48 km/h",
-      "Force G Max : 1.25 G (Freinage d'urgence détecté)",
-      "Angle Inclinaison : 32.5 deg",
-      "Météo : 19°C, Sec",
-      "Intégrité : Signature Numérique Valide",
-      "--------------------------------------------------",
-      "Ce rapport contient des données sensorielles haute précision.",
-      "Usage exclusif pour expertise judiciaire ou assurance.",
-    ].join("\n");
-
-    const blob = new Blob([report], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "Rapport_EXPERT_ULTRA_DEMO.txt";
-    a.click();
-  },
   generateReport() {
     const frames = JSON.parse(
       sessionStorage.getItem("blackbox_last_ride") || "[]",
@@ -359,9 +327,12 @@ window.BlackBoxInsurance = {
       `${t.rEnd} ${endPos.lat.toFixed(5)}, ${endPos.lng.toFixed(5)}`,
       "",
       "--- ANALYSE SENSORIELLE (EXPERT) ---",
-      `Force G Max : ${(1.2 + Math.random() * 0.5).toFixed(2)} G`,
-      `Angle Inclinaison Max : ${(15 + Math.random() * 25).toFixed(1)} deg`,
-      "Alerte Grip : Aucune anomalie detectee",
+      // Mesures réelles seulement (avant : valeurs inventées au hasard)
+      "Force G Max : non mesurée (boîte noire non connectée)",
+      window.maxLeanAngle > 0
+        ? `Angle Inclinaison Max : ${Number(window.maxLeanAngle).toFixed(1)} deg (capteurs du téléphone)`
+        : "Angle Inclinaison Max : non mesuré",
+      
       "",
       "--- ECO-TELEMETRIE (INTERMEDIAIRE) ---",
       `Distance estimee : ${distKm} km`,

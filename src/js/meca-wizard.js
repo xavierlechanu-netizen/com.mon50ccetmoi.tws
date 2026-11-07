@@ -79,8 +79,27 @@ resultDiv.innerHTML = `
 
       this.drawOscilloscope();
 
+      // Mesures réelles pendant l'enregistrement : énergie par fréquence et niveau maximal
+      const bins = new Uint8Array(this.analyser.frequencyBinCount);
+      const energy = new Array(bins.length).fill(0);
+      let peak = 0;
+      const sampler = setInterval(() => {
+        this.analyser.getByteFrequencyData(bins);
+        bins.forEach((v, i) => {
+          energy[i] += v;
+          if (v > peak) peak = v;
+        });
+      }, 100);
+
       // Arrêt de l'analyse après 6 secondes
       setTimeout(() => {
+        clearInterval(sampler);
+        let best = 1; // on ignore la composante continue (case 0)
+        for (let i = 2; i < energy.length; i++) if (energy[i] > energy[best]) best = i;
+        this.lastMeasure = {
+          dominantHz: Math.round((best * this.audioCtx.sampleRate) / this.analyser.fftSize),
+          levelPct: Math.round((peak / 255) * 100),
+        };
         this.stopAnalysis(stream);
         this.showDiagnosticReport(resultDiv);
       }, 6000);
@@ -280,124 +299,44 @@ resultDiv.innerHTML = `
     if (this.microphone) this.microphone.disconnect();
   },
 
+  // Résultat honnête de l'analyse acoustique (corrigé le 7/11/2026).
+  // Avant : le « diagnostic basique » annonçait toujours une anomalie, et le « rapport expert »
+  // (payé 50 points) tirait une panne au hasard parmi 4, sans lien avec le son enregistré.
+  // L'application ne sait pas encore identifier une panne au son : elle affiche ce qu'elle a
+  // réellement mesuré et ne fait plus rien payer.
   showDiagnosticReport: function (container) {
-    // Bypass complet pour les utilisateurs "Premium / Sans Pub"
-    if (window.session && window.session.isPremium) {
-      speak(
-        "Analyse terminée. Compte Premium détecté. Rapport expert offert.",
-      );
-      this.showExpertReport();
-      return;
-    }
-
+    const m = this.lastMeasure;
+    const measured = m && m.levelPct > 0;
     speak("Analyse terminée. Rapport basique disponible.");
 
-    // eslint-disable-next-line no-restricted-syntax
-container.innerHTML = `
-            <div class="glassmorphism" style="padding:20px; border-left:4px solid var(--accent);">
-                <h4 style="color:var(--accent);"><i class="fa-solid fa-stethoscope"></i> DIAGNOSTIC BASIQUE</h4>
-                <p style="font-size:0.9rem; margin-top:10px; color:#fff;"><strong>Résultat :</strong> Anomalie harmonique détectée (Basses fréquences anormales).</p>
-                <p style="font-size:0.8rem; color:#aaa; margin-top:10px;">Le rapport basique indique la présence d'une anomalie. Pour isoler la panne exacte (carburateur, pot percé, piston), débloquez le rapport expert IA.</p>
-                <p style="color:#777; font-size:0.75rem; margin-top:10px;">Avertissement (AI Act) : Aide indicative générée par IA. <strong>Soumis à contrôle humain.</strong></p>
-                
-                <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
-                
-                <div style="text-align:center;">
-                    <h5 style="color:#10a37f; margin-bottom:10px;"><i class="fa-solid fa-lock-open"></i> Débloquer le Rapport Expert (50 Pts mon50cc)</h5>
-                    <button id="btn-revolut-pay" data-action="window.MecaWizard.payWithBVC()" style="background:#000; color:#fff; border:1px solid #10a37f; padding:12px 20px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%;">
-                        <i class="fa-solid fa-gem"></i> Utiliser 50 Pts mon50cc
-                    </button>
-                    <div id="revolut-status" style="margin-top:10px; font-size:0.8rem; color:#ccc;"></div>
-                </div>
-            </div>
-        `;
+    const wrap = document.createElement("div");
+    wrap.className = "glassmorphism";
+    wrap.style.cssText = "padding:20px; border-left:4px solid var(--accent);";
+    const title = document.createElement("h4");
+    title.style.color = "var(--accent)";
+    title.textContent = "ANALYSE DU SON DU MOTEUR";
+    const result = document.createElement("p");
+    result.style.cssText = "font-size:0.9rem; margin-top:10px; color:#fff;";
+    result.textContent = measured
+      ? `Son enregistré : fréquence dominante ${m.dominantHz} Hz, niveau maximal ${m.levelPct} % de la capacité du micro.`
+      : "Aucun son exploitable n'a été capté. Rapprochez le téléphone du moteur et recommencez.";
+    const limit = document.createElement("p");
+    limit.style.cssText = "font-size:0.8rem; color:#aaa; margin-top:10px;";
+    limit.textContent =
+      "Le diagnostic automatique des pannes à partir du son n'est pas encore disponible : " +
+      "ces mesures ne permettent pas d'identifier une panne. En cas de bruit inhabituel, faites écouter votre moteur à un garage.";
+    wrap.append(title, result, limit);
+    container.replaceChildren(wrap);
   },
 
-  payWithBVC: async function () {
-    const btn = document.getElementById("btn-revolut-pay");
-    const statusEl = document.getElementById("revolut-status");
-    if (!btn) return;
-
-    if (typeof window.BVCManager === "undefined") {
-      // eslint-disable-next-line no-restricted-syntax
-statusEl.innerHTML = '<span style="color:#dc3545;">Erreur: Programme de fidélité indisponible.</span>';
-      return;
-    }
-
-    const price = 50;
-
-    if (window.BVCManager.balance < price) {
-      // eslint-disable-next-line no-restricted-syntax
-statusEl.innerHTML = `<span style="color:#dc3545;">Fonds insuffisants. Vous avez ${Math.floor(window.BVCManager.balance)} points mon50cc, il en faut ${price}.</span>`;
-      return;
-    }
-
-    btn.disabled = true;
-    // eslint-disable-next-line no-restricted-syntax
-btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion au réseau IA...';
-
-    const success = await window.BVCManager.deduct(price);
-    if (success) {
-      this.showExpertReport();
-    } else {
-      // eslint-disable-next-line no-restricted-syntax
-statusEl.innerHTML = `<span style="color:#dc3545;">Erreur de transaction.</span>`;
-      btn.disabled = false;
-      // eslint-disable-next-line no-restricted-syntax
-btn.innerHTML = '<i class="fa-solid fa-gem"></i> Utiliser 50 Pts mon50cc';
-    }
+  // Anciens points d'entrée du « rapport expert » payant : redirigés vers le résultat honnête.
+  payWithBVC: function () {
+    const container = document.getElementById("meca-result");
+    if (container) this.showDiagnosticReport(container);
   },
 
   showExpertReport: function () {
     const container = document.getElementById("meca-result");
-    if (!container) return;
-
-    speak(
-      "Paiement validé. Rapport expert déverrouillé. Voici mon diagnostic.",
-    );
-
-    const diagnostics = [
-      {
-        analyse:
-          "Fuite détectée sur la ligne d'échappement (Fréquence résonnante à 120Hz).",
-        reco: "Vérifier le joint d'échappement au niveau du cylindre. Risque de perte de puissance et de surconsommation.",
-      },
-      {
-        analyse: "Bruit métallique aigu (Fréquence anormale à 450Hz).",
-        reco: "Usure suspectée des galets du variateur ou de la courroie. Inspection visuelle requise.",
-      },
-      {
-        analyse:
-          "Claquement irrégulier au ralenti (Déséquilibre harmonique).",
-        reco: "Le carburateur semble encrassé ou mal réglé. Procéder à un nettoyage complet.",
-      },
-      {
-        analyse: "Frottement sourd en fond sonore.",
-        reco: "Les plaquettes de frein avant semblent frotter excessivement. Vérifiez l'étrier.",
-      },
-    ];
-
-    const diag = diagnostics[Math.floor(Math.random() * diagnostics.length)];
-
-    // eslint-disable-next-line no-restricted-syntax
-container.innerHTML = `
-            <div class="glassmorphism" style="padding:20px; border-left:4px solid #10a37f; background: rgba(16, 163, 127, 0.1);">
-                <h4 style="color:#10a37f;"><i class="fa-solid fa-check-circle"></i> RAPPORT D'EXPERTISE (DÉVERROUILLÉ)</h4>
-                <div style="margin-top:15px; font-size:0.9rem; color:#fff;">
-                    <p><i class="fa-solid fa-microchip" style="color:#10a37f;"></i> <strong>Analyse IA :</strong> ${diag.analyse}</p>
-                    <p style="margin-top:10px;"><i class="fa-solid fa-wrench" style="color:#10a37f;"></i> <strong>Recommandation :</strong> ${diag.reco}</p>
-                </div>
-                <!-- AVERTISSEMENT AI ACT (Obligatoire) -->
-                <p style="color:#ffaa00; font-size:0.75rem; margin-top:15px; border:1px solid #ffaa00; padding:10px; border-radius:8px;">
-                    <i class="fa-solid fa-scale-balanced"></i> Avertissement (AI Act) : Rapport expert généré par Intelligence Artificielle. Ce résultat est fourni à titre indicatif et est <strong>soumis à supervision humaine</strong> (expertise d'un mécanicien certifié). Aucune décision automatisée n'est prise.
-                </p>
-                <button data-action="if(window.CertifiedCamera) window.CertifiedCamera.open(); else alert('Module de caméra non disponible');" style="margin-top:20px; width:100%; background:#ffb703; color:#000; padding:10px 15px; border-radius:5px; border:none; font-weight:bold; cursor:pointer; margin-bottom:10px;">
-                    <i class="fa-solid fa-camera"></i> Ajouter Preuve Photo au rapport
-                </button>
-                <button data-action="document.getElementById('meca-result-modal').classList.add('hidden');" style="width:100%; background:transparent; border:1px solid #10a37f; color:#10a37f; padding:8px 15px; border-radius:5px; cursor:pointer;">
-                    Fermer le rapport
-                </button>
-            </div>
-        `;
+    if (container) this.showDiagnosticReport(container);
   },
 };

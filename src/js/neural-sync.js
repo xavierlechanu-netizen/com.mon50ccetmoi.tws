@@ -43,13 +43,9 @@ window.NeuralSync = {
   },
 
   startV2VScanner: function () {
-    // Simulation de détection d'autres riders (V2V)
-    setInterval(() => {
-      if (window.isRiding && Math.random() > 0.98) {
-        this.triggerV2VWave();
-      }
-    }, 10000);
-  },
+  // Retiré le 7/11/2026 : annonçait au hasard « Pilote Xavier Le Chanu détecté » pendant la
+  // conduite, sans aucune détection réelle.
+},
 
   triggerV2VWave: function () {
     speak("Pilote Xavier Le Chanu détecté. Salut motard transmis.");

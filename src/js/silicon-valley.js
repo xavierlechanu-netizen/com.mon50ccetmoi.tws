@@ -136,43 +136,10 @@ if (typeof window.stopNavigation === "function") {
 // 3. BIOMETRIC SYNC (Apple Watch Simulation)
 window.currentBPM = 75;
 window.initBiometrics = function () {
+  // Aucun capteur cardiaque : plus de rythme inventé ni d'alerte « rythme cardiaque élevé »
+  // déclenchée par un tirage au hasard (corrigé le 7/11/2026).
   const bpmDisplay = document.getElementById("biometric-bpm");
-  if (!bpmDisplay) return;
-
-  setInterval(() => {
-    // Random fluctuation
-    const fluctuation = Math.floor(Math.random() * 5) - 2;
-    window.currentBPM += fluctuation;
-
-    // Boundaries
-    if (window.currentBPM < 60) window.currentBPM = 60;
-    if (window.currentBPM > 140) window.currentBPM = 140;
-
-    bpmDisplay.innerText = window.currentBPM + " BPM";
-
-    // Heartbeat animation speed
-    const heartIcon = document.getElementById("biometric-heart");
-    if (heartIcon) {
-      const speed = 60 / window.currentBPM;
-      heartIcon.style.animationDuration = speed + "s";
-    }
-
-    // Stress Detection (Zen Mode Trigger)
-    if (window.currentBPM > 115) {
-      bpmDisplay.style.color = "#ff0055";
-      bpmDisplay.style.textShadow = "0 0 10px #ff0055";
-
-      // Randomly trigger voice if super stressed
-      if (Math.random() > 0.95 && typeof speak === "function") {
-        speak(
-          "Rythme cardiaque élevé détecté. Respirez calmement pour votre sécurité.",
-        );
-      }
-    } else {
-      bpmDisplay.style.color = "#00ffcc";
-      bpmDisplay.style.textShadow = "0 0 10px #00ffcc";
-    }
-  }, 2000);
+  if (bpmDisplay) bpmDisplay.textContent = "-- BPM";
 };
 
 document.addEventListener("DOMContentLoaded", () => {

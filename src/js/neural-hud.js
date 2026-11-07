@@ -215,27 +215,14 @@ overlay.innerHTML = `<i class="fa-solid fa-angles-up" style="font-size:4rem; mar
     // Feed into hijacked console for Telemetry capture
   },
 
-  updateBiometrics: function (speed, stress) {
-    const bpmEl = document.getElementById("bio-bpm");
-    const focusEl = document.getElementById("bio-focus");
-    if (!bpmEl || !focusEl) return;
-
-    const baseBpm = 70 + speed / 2;
-    const currentBpm = Math.round(baseBpm + stress * 20 + Math.random() * 5);
-    bpmEl.textContent = currentBpm;
-    focusEl.textContent = Math.round(Math.max(10, 100 - stress * 50)) + "%";
-
-    const coreInner = document.querySelector(".core-inner");
-    if (coreInner) coreInner.style.animationDuration = 60 / currentBpm + "s";
-
-    // Update Quantum Bar based on focus
-    const segments = document.querySelectorAll(".sync-segment");
-    const activeCount = Math.floor((100 - stress * 50) / 20);
-    segments.forEach((s, i) => {
-      if (i < activeCount) s.classList.add("active");
-      else s.classList.remove("active");
-    });
-  },
+  updateBiometrics: function () {
+  // Aucun capteur cardiaque : on n'affiche plus de valeur inventée (avant : BPM calculé
+  // à partir de la vitesse plus un nombre au hasard, présenté comme une donnée de santé).
+  const bpmEl = document.getElementById("bio-bpm");
+  const focusEl = document.getElementById("bio-focus");
+  if (bpmEl) bpmEl.textContent = "--";
+  if (focusEl) focusEl.textContent = "--";
+},
 
   initQuantumWave: function () {
     const canvas = document.getElementById("quantum-wave-canvas");
@@ -492,25 +479,8 @@ overlay.innerHTML = `<i class="fa-solid fa-angles-up" style="font-size:4rem; mar
   },
 
   updateInterceptorGrid: function () {
-    if (!window.map || !window.currentPosition) return;
-    if (Math.random() > 0.95) {
-      const lat = window.currentPosition.lat + (Math.random() - 0.5) * 0.005;
-      const lng = window.currentPosition.lng + (Math.random() - 0.5) * 0.005;
-      const interceptorIcon = document.createElement("div");
-      interceptorIcon.style.width = "8px";
-      interceptorIcon.style.height = "8px";
-      interceptorIcon.style.backgroundColor = "#00d2ff";
-      interceptorIcon.style.opacity = "0.6";
-      interceptorIcon.style.borderRadius = "50%";
-
-      const marker = new window.googleLibraries.AdvancedMarkerElement({
-        position: { lat, lng },
-        map: window.map,
-        content: interceptorIcon,
-      });
-      setTimeout(() => marker.map = null, 5000);
-    }
-  },
+  // Retiré le 7/11/2026 : plaçait des points au hasard sur la carte, sans aucune donnée réelle.
+},
 };
 
 window.toggleHolographicMode = function () {

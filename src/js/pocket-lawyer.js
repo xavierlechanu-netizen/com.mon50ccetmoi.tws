@@ -135,7 +135,7 @@ overlay.innerHTML = `
                 <button data-action="PocketLawyer.sendMessage()" style="background: #cca300; color: #000; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
             
-            <button data-action="PocketLawyer.startGPSScan()" style="margin-bottom: 15px; background: transparent; border: 1px solid #cca300; color: #cca300; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-location-dot"></i> Scanner mon stationnement (GPS)</button>
+            <button data-action="PocketLawyer.startGPSScan()" style="margin-bottom: 15px; background: transparent; border: 1px solid #cca300; color: #cca300; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-location-dot"></i> Vérifier mon stationnement</button>
             <button data-action="PocketLawyer.appealBan()" style="margin-bottom: 15px; background: rgba(231, 76, 60, 0.15); border: 1px solid #e74c3c; color: #e74c3c; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-scale-balanced"></i> Contester un Bannissement Temporaire (Vérification Humaine)</button>
             <button data-action="PocketLawyer.reportInsurer()" style="margin-bottom: 15px; background: rgba(255,51,51,0.1); border: 1px solid #ff3333; color: #ff3333; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-bullhorn"></i> Signaler un litige assureur (+15 mon50cc)</button>
             <button data-action="window.open('https://www.legifrance.gouv.fr/', '_blank')" style="margin-bottom: 30px; background: rgba(0, 51, 153, 0.2); border: 1px solid #0055ff; color: #88bbff; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-book-section"></i> Base Légifrance (Textes Officiels)</button>
@@ -502,12 +502,21 @@ tempDiv.innerHTML = htmlContent;
       '<div style="text-align: center;"><div style="width: 30px; height: 30px; border: 3px solid #333; border-top-color: #cca300; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div><p style="margin-top: 10px; font-size: 0.9rem;">Vérification GPS en cours...</p></div>',
     );
 
-    setTimeout(() => {
-      if (chatBox.lastChild) chatBox.removeChild(chatBox.lastChild); // Remove loading message
+    // Avant (corrigé le 7/11/2026) : un « scan GPS » tirait au hasard un verdict de stationnement
+    // (« Vous êtes parfaitement en règle » ou « Interdit »), sans rien analyser. On demande
+    // maintenant à la personne où elle est garée, puis on affiche la règle correspondante.
+    if (chatBox.lastChild) chatBox.removeChild(chatBox.lastChild); // retire l'animation de chargement
+    const choices = this.scenarios
+      .map((sc, i) => `<button class="lawyer-btn" style="display:block; width:100%; margin:6px 0; background:#222; color:#fff; border:1px solid ${sc.color}; padding:8px 12px; border-radius:10px;" data-action="PocketLawyer.showScenario(${i})">${sc.type}</button>`)
+      .join("");
+    this.addBotMessage(`<p style="margin:0 0 8px 0;">Où êtes-vous garé ?</p>${choices}`);
+  },
 
-      const scenario =
-        this.scenarios[Math.floor(Math.random() * this.scenarios.length)];
-      this.currentScenarioTemplate = scenario.letterTemplate;
+  showScenario: function (index) {
+    const scenario = this.scenarios[Number(index)];
+    if (!scenario) return;
+    this.currentScenarioTemplate = scenario.letterTemplate;
+    {
 
       const html = `
                 <div class="lawyer-card" style="border: 1px solid ${scenario.color}; padding: 15px;">
@@ -531,7 +540,7 @@ tempDiv.innerHTML = htmlContent;
                 </div>
             `;
       this.addBotMessage(html);
-    }, 2000);
+    }
   },
 
   closeLawyer: function () {

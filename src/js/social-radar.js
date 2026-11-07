@@ -178,16 +178,8 @@ if (typeof window.SocialRadarManager === "undefined") {
     }
 
     spawnFallbackGhosts() {
-      if (this.ghostMarkers.length > 0) return;
-      if (!window.currentPosition || typeof map === "undefined" || !map) return;
-
-      const lat = window.currentPosition.lat;
-      const lng = window.currentPosition.lng;
-
-      this.spawnGhost(lat + 0.008, lng + 0.006, "Ghost_Booster73", "MBK Booster");
-      this.spawnGhost(lat - 0.005, lng + 0.009, "Netizen_Max", "Derbi Senda");
-      this.spawnGhost(lat + 0.004, lng - 0.007, "VSP_Rider92", "Aixam Coupe");
-    }
+  // Retiré le 7/11/2026 : ajoutait des pilotes fictifs quand aucun vrai pilote n'était en ligne.
+}
 
     spawnGhost(lat, lng, name, vehicle) {
       if (typeof L === "undefined" || typeof map === "undefined" || !map) return;
@@ -214,14 +206,8 @@ if (typeof window.SocialRadarManager === "undefined") {
     }
 
     updateGhostPositions() {
-      this.ghostMarkers.forEach((m) => {
-        const pos = m.getLatLng();
-        m.setLatLng([
-          pos.lat + (Math.random() - 0.5) * 0.001,
-          pos.lng + (Math.random() - 0.5) * 0.001,
-        ]);
-      });
-    }
+  // Retiré le 7/11/2026 : déplaçait les pilotes fictifs. Plus rien à animer.
+}
 
     clearAllMarkers() {
       if (typeof map !== "undefined" && map) {
