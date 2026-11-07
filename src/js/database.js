@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { coarsePosition, recentCutoff, MAX_SHARED_POSITIONS } from './location-privacy.js';
 
 /**
  * DATABASE MANAGER - mon50ccetmoi
@@ -111,10 +112,13 @@ window.publishHazardCloud = async function (hazard) {
 
 window.publishUserLocation = async function (lat, lng, status = "Riding") {
   if (!db || !window.session) return;
+  // Position arrondie à ~100 m : elle est visible par les autres membres (location-privacy.js)
+  const shared = coarsePosition(lat, lng);
+  if (!shared) return;
   try {
     const payload = {
-      lat,
-      lng,
+      lat: shared.lat,
+      lng: shared.lng,
       status,
       brand: window.session.brand || "Scooter",
     };
@@ -136,7 +140,11 @@ function syncCommunityPositions() {
   if (typeof firebase !== "undefined" && firebase.auth()) {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        db.collection("presence").onSnapshot(
+        // Membres actifs récemment, en nombre limité (avant : toute la collection, en continu)
+        db.collection("presence")
+          .where("lastUpdate", ">=", recentCutoff())
+          .limit(MAX_SHARED_POSITIONS)
+          .onSnapshot(
           (snapshot) => {
             const members = [];
             snapshot.forEach((doc) => {

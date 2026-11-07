@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { coarsePosition, recentCutoff } from './location-privacy.js';
 
 /**
  * 📡 SOCIAL RADAR (GHOST RIDER & COMMUNITY RADAR)
@@ -84,13 +85,18 @@ if (typeof window.SocialRadarManager === "undefined") {
       const username = (window.session && window.session.username) || "Pilote";
       const vehicle = localStorage.getItem("user_vehicle_type") || "50cc";
 
+      // Position arrondie à ~100 m (location-privacy.js)
+      const shared = coarsePosition(window.currentPosition.lat, window.currentPosition.lng);
+      if (!shared) return;
+
       window.db.collection("social_radar").doc(user.uid).set({
         uid: user.uid,
         username: username,
         vehicle: vehicle,
-        lat: window.currentPosition.lat,
-        lng: window.currentPosition.lng,
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+        lat: shared.lat,
+        lng: shared.lng,
+        // Même champ que radar-social.js (avant : « lastSeen » ici, « last_seen » là-bas)
+        last_seen: firebase.firestore.FieldValue.serverTimestamp(),
         active: true
       }, { merge: true }).catch((err) => {
         console.warn("[SocialRadar] Erreur d'envoi position:", err);
@@ -115,6 +121,7 @@ if (typeof window.SocialRadarManager === "undefined") {
 
       this.firestoreUnsubscribe = window.db
         .collection("social_radar")
+        .where("last_seen", ">=", recentCutoff())
         .limit(30)
         .onSnapshot((snapshot) => {
           let count = 0;

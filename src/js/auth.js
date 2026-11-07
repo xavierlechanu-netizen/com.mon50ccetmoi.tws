@@ -85,6 +85,78 @@ export async function recordAuthEvent(method, status, uid = null, errorCode = nu
 }
 window.recordAuthEvent = recordAuthEvent;
 
+// --- PSEUDOS UNIQUES (audit 2026-11-07) ---
+// Les règles Firestore identifient l'auteur par son pseudo : il doit être unique et figé.
+// Le profil et la réservation du pseudo (/usernames/{pseudo en minuscules}) sont écrits
+// dans le même lot ; si le pseudo est déjà pris, tout le lot est refusé.
+export const USERNAME_RE = /^[A-Za-z0-9_.-]{3,30}$/;
+
+export async function createProfileWithUsername(user, username, extra = {}) {
+  const fs = firebase.firestore();
+  const profile = {
+    ...extra,
+    uid: user.uid,
+    username,
+    role: "user",
+    registrationDate: Date.now(),
+  };
+  const batch = fs.batch();
+  batch.set(fs.collection("usernames").doc(username.toLowerCase()), {
+    uid: user.uid,
+    username,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+  batch.set(fs.collection("users").doc(user.uid), profile);
+  await batch.commit();
+  return profile;
+}
+
+/** Pseudo valide dérivé d'un nom affiché (Google) : sans accents, espaces ni symboles. */
+export function usernameFromDisplayName(name) {
+  const base = String(name || "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^A-Za-z0-9_.-]+/g, "")
+    .slice(0, 24);
+  return base.length >= 3 ? base : `pilote${base}`;
+}
+
+/** Crée le profil avec le premier pseudo libre : base, puis base-1234 (4 essais). */
+export async function createProfileWithAvailableUsername(user, baseName, extra = {}) {
+  const base = usernameFromDisplayName(baseName);
+  let lastError;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const suffix = attempt === 0 ? "" : `-${crypto.getRandomValues(new Uint16Array(1))[0] % 10000}`;
+    try {
+      return await createProfileWithUsername(user, `${base}${suffix}`, extra);
+    } catch (e) {
+      lastError = e;
+      if (e?.code !== "permission-denied") throw e; // pseudo pris = refus des règles
+    }
+  }
+  throw lastError;
+}
+
+/** Comptes créés avant la réservation des pseudos : réserve le sien (sans effet s'il l'est déjà). */
+export async function reserveOwnUsername(user, profile) {
+  try {
+    if (!profile?.username || !USERNAME_RE.test(profile.username)) return;
+    const ref = firebase.firestore().collection("usernames").doc(profile.username.toLowerCase());
+    const snap = await ref.get();
+    if (!snap.exists) {
+      await ref.set({
+        uid: user.uid,
+        username: profile.username,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  } catch (e) {
+    console.warn("[Auth] Réservation du pseudo ignorée :", e?.code || e?.message);
+  }
+}
+window.createProfileWithAvailableUsername = createProfileWithAvailableUsername;
+window.reserveOwnUsername = reserveOwnUsername;
+
 // --- AUTHENTICATION ENGINE (FIREBASE MIGRATION) ---
 
 window.login = async function (username, password) {
@@ -110,7 +182,23 @@ window.login = async function (username, password) {
       .collection("users")
       .doc(user.uid)
       .get();
-    const userData = doc.exists ? doc.data() : { username, role: "user" };
+    let userData;
+    if (doc.exists) {
+      userData = doc.data();
+      reserveOwnUsername(user, userData); // en arrière-plan, protège le pseudo des anciens comptes
+    } else {
+      // Comptes inscrits entre le 1er et le 7 novembre 2026 : le profil avait été refusé
+      // (champ « points » interdit). On le crée maintenant avec le pseudo du compte.
+      const accountName = (user.email || "").split("@")[0] || username;
+      try {
+        userData = USERNAME_RE.test(accountName)
+          ? await createProfileWithUsername(user, accountName)
+          : await createProfileWithAvailableUsername(user, accountName);
+      } catch (e) {
+        console.error("[Auth] Création du profil manquant impossible :", e?.code || e?.message);
+        userData = { username: accountName, role: "user" };
+      }
+    }
 
     // Mettre à jour la session locale
     const session = { ...userData, uid: user.uid, lastSeen: Date.now() };
@@ -146,34 +234,35 @@ window.register = async function (username, password, brand, model) {
 
   if (!brand || !model) return alert("Veuillez renseigner votre véhicule.");
 
+  username = String(username).trim();
+  if (!USERNAME_RE.test(username)) {
+    return alert("Pseudo invalide : 3 à 30 caractères, lettres sans accent, chiffres, « . », « _ » ou « - ».");
+  }
+
   const email = `${username.toLowerCase()}@mon50cc.internal`;
 
+  let user = null;
   try {
     const userCredential = await firebase
       .auth()
       .createUserWithEmailAndPassword(email, password);
-    const user = userCredential.user;
+    user = userCredential.user;
 
-    // Conformité RGPD Art. 5.1.b / ASVS v5.0.0-14.x : Pas de capture IP côté client via tiers
-    const userIp = "managed_by_server";
-
-    const profile = {
-      uid: user.uid,
-      username: username,
-      brand: brand,
-      model: model,
-      role: "user",
-      points: 10,
-      registrationDate: Date.now(),
-      lastIp: userIp,
-      deviceFingerprint: btoa(
-        navigator.userAgent + screen.width + screen.height,
-      ),
-      abuseLevel: 0,
-    };
-
-    // Sauvegarde Firestore (Le vrai backend)
-    await firebase.firestore().collection("users").doc(user.uid).set(profile);
+    // Profil + réservation du pseudo dans le même lot. Les points ne sont plus écrits ici :
+    // seules les fonctions serveur peuvent en attribuer (avant, ce champ faisait refuser
+    // tout le profil depuis le 1er novembre 2026).
+    let profile;
+    try {
+      profile = await createProfileWithUsername(user, username, { brand, model });
+    } catch (e) {
+      // Pseudo déjà réservé (ex. par un compte Google) : on supprime le compte tout juste créé
+      // pour que la personne puisse réessayer avec un autre pseudo.
+      await user.delete().catch(() => {});
+      if (e?.code === "permission-denied") {
+        return alert("Ce pseudo est déjà utilisé. Choisissez-en un autre.");
+      }
+      throw e;
+    }
 
     // Session locale
     cacheSetItem("session", JSON.stringify(profile));

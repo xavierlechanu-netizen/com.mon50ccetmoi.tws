@@ -36,6 +36,16 @@ service cloud.firestore {
       return isSignedIn() && ownsIdFields(request.resource.data);
     }
 
+    // Pseudos (audit 2026-11-07) : de nombreuses règles identifient l'auteur par son pseudo
+    // (getUsername). Un pseudo doit donc être unique et ne plus changer après l'inscription.
+    function validUsername(name) {
+      return name is string && name.matches('^[A-Za-z0-9_.-]{3,30}$');
+    }
+
+    function usernameReservedBy(name, uid) {
+      return getAfter(/databases/$(database)/documents/usernames/$(name.lower())).data.uid == uid;
+    }
+
     // --- RÈGLES PAR COLLECTION ---
 
     // Profils Utilisateurs : Lecture strictement restreinte au propriétaire ou à l'administrateur (OWASP A01 / RGPD Art. 5)
@@ -43,8 +53,12 @@ service cloud.firestore {
       allow read: if isOwner(userId) || isAdmin();
       
       // OWASP ASVS v5.0.0-8.x : Interdiction stricte de s'auto-attribuer le rôle admin, points, premium, garage certifié ou bypass de ban
+      // Le pseudo doit être réservé dans /usernames par le même utilisateur (même lot d'écriture)
       allow create: if isSignedIn() && isOwner(userId)
         && (!('role' in request.resource.data) || request.resource.data.role == 'user')
+        && (!('uid' in request.resource.data) || request.resource.data.uid == userId)
+        && validUsername(request.resource.data.username)
+        && usernameReservedBy(request.resource.data.username, request.auth.uid)
         && !request.resource.data.keys().hasAny([
           'blackbox_serial', 'braveCoins', 'bvc_points', 'bvcPoints', 'points',
           'isPremium', 'premiumPlan', 'premiumSince', 'subscription',
@@ -52,10 +66,12 @@ service cloud.firestore {
           'isBanned', 'isTempBanned', 'banReason', 'banExpireAt', 'tempBansCount', 'appealStatus'
         ]);
 
-      // Mise à jour : l'admin peut tout modifier ; le propriétaire ne peut JAMAIS modifier ses privilèges, points, statuts d'abonnement ou de sanction
+      // Mise à jour : l'admin peut tout modifier ; le propriétaire ne peut JAMAIS modifier ses privilèges, points, statuts d'abonnement ou de sanction,
+      // ni son pseudo ou son uid (sinon il hériterait des droits d'un autre membre portant ce pseudo)
       allow update: if isAdmin() || (
         isOwner(userId)
         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'username', 'uid',
           'role', 'blackbox_serial', 'braveCoins', 'bvc_points', 'bvcPoints', 'points',
           'isPremium', 'premiumPlan', 'premiumSince', 'subscription',
           'isCertifiedGarage', 'isGaragePartner', 'certified_at',
@@ -76,6 +92,21 @@ service cloud.firestore {
         allow read: if isOwner(userId) || isAdmin();
         allow write: if false;
       }
+    }
+
+    // Réservation des pseudos (identifiant = pseudo en minuscules). Une réservation n'est valable
+    // que pour le pseudo inscrit dans le profil de son auteur : impossible d'en réserver d'autres.
+    // Les comptes existants peuvent ainsi réserver leur propre pseudo (rattrapage à la connexion).
+    match /usernames/{name} {
+      allow get: if isSignedIn();
+      allow list: if false;
+      allow create: if isSignedIn()
+        && request.resource.data.keys().hasOnly(['uid', 'username', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && validUsername(request.resource.data.username)
+        && name == request.resource.data.username.lower()
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.username.lower() == name;
+      allow update, delete: if false; // libération d'un pseudo : admin (Admin SDK) uniquement
     }
 
     // Certificats de Batterie : Lecture restreinte, émission exclusive Cloud Function (Admin SDK)
@@ -398,7 +429,13 @@ service cloud.firestore {
     match /crews/{crewId} {
       allow read: if isSignedIn(); // Sécurisé : empêche le scraping anonyme (OWASP A01)
       allow create: if signedInOwnCreate();
-      allow update: if isSignedIn() && (isOwner(resource.data.leaderUid) || (request.resource.data.leaderUid == resource.data.leaderUid && request.auth.uid in request.resource.data.members) || isAdmin());
+      // Le chef modifie tout ; un autre membre peut seulement rejoindre ou quitter (s'ajouter ou se retirer
+      // de members), sans toucher au nom, aux points ni aux autres membres.
+      allow update: if isSignedIn() && (isOwner(resource.data.leaderUid) || isAdmin() || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
+        && (request.resource.data.members.toSet() == resource.data.members.toSet().union([request.auth.uid].toSet())
+            || request.resource.data.members.toSet() == resource.data.members.toSet().difference([request.auth.uid].toSet()))
+      ));
       allow delete: if isAdmin();
     }
 
@@ -511,7 +548,10 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────
     match /exchange_listings/{listingId} {
       allow read: if isSignedIn(); // Sécurisé : empêche le scraping anonyme de la marketplace (OWASP A01)
+      // Vendeur = auteur réel (avant : on pouvait publier une annonce au nom d'un autre membre)
       allow create: if isSignedIn()
+        && request.resource.data.sellerUid == request.auth.uid
+        && request.resource.data.seller == getUsername()
         && request.resource.data.title is string
         && request.resource.data.title.size() >= 3
         && request.resource.data.title.size() <= 100
@@ -677,7 +717,10 @@ service cloud.firestore {
     // Lecture réservée aux administrateurs. Écriture réservée aux utilisateurs connectés.
     // ─────────────────────────────────────────────────────────────
     match /nexus_conversations/{sessionId} {
-      allow create, update: if isSignedIn();
+      // Chacun n'écrit que dans ses propres conversations (avant : n'importe qui pouvait modifier celles des autres)
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid;
       allow read, delete: if isAdmin();
     }
 

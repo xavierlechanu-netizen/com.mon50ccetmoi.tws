@@ -20,42 +20,37 @@ export function registerAction(name, fn) {
     }
 }
 
+function walkPath(root, parts) {
+    let fn = root;
+    let ctx = root;
+    for (const part of parts) {
+        if (fn == null) return null;
+        ctx = fn;
+        fn = fn[part];
+    }
+    return typeof fn === 'function' ? { fn, ctx } : null;
+}
+
+/**
+ * Trouve la fonction désignée par un chemin ("Auth.login", "window.doLogin") sans la lier :
+ * { fn, ctx, fromWindow } ou null. Le registre Actions est prioritaire, window en repli.
+ */
+export function resolveActionTarget(path) {
+    if (!path || typeof path !== 'string') return null;
+    const parts = path.trim().split('.');
+    const fromActions = walkPath(Actions, parts);
+    if (fromActions) return { ...fromActions, fromWindow: false };
+    if (typeof window !== 'undefined') {
+        const fromWindow = walkPath(window, parts);
+        if (fromWindow) return { ...fromWindow, fromWindow: true };
+    }
+    return null;
+}
+
 // Support pour les appels namespace (ex: "Auth.login" ou fonction globale "window.doLogin")
 export function getAction(path) {
-    if (!path || typeof path !== 'string') return undefined;
-    const parts = path.trim().split('.');
-    
-    // 1. Chercher dans Actions
-    let fn = Actions;
-    let ctx = Actions;
-    for (const part of parts) {
-        if (fn != null) {
-            ctx = fn;
-            fn = fn[part];
-        } else {
-            fn = undefined;
-            break;
-        }
-    }
-    if (typeof fn === 'function') return fn.bind(ctx);
-
-    // 2. Fallback transparent sur window (OWASP & standard JS compatibility)
-    if (typeof window !== 'undefined') {
-        let winFn = window;
-        let winCtx = window;
-        for (const part of parts) {
-            if (winFn != null) {
-                winCtx = winFn;
-                winFn = winFn[part];
-            } else {
-                winFn = undefined;
-                break;
-            }
-        }
-        if (typeof winFn === 'function') return winFn.bind(winCtx);
-    }
-
-    return undefined;
+    const target = resolveActionTarget(path);
+    return target ? target.fn.bind(target.ctx) : undefined;
 }
 
 if (typeof window !== 'undefined') {

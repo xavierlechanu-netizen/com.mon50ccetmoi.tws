@@ -4,7 +4,55 @@
  * Zéro eval(), zéro new Function(). Parsing déterministe et sécurisé.
  */
 
-import { getAction } from './actionRegistry.js';
+import { resolveActionTarget } from './actionRegistry.js';
+
+// Fonctions du navigateur autorisées dans un data-action (sans effet dangereux)
+const SAFE_NATIVE_ACTIONS = new Set(['print', 'history.back', 'history.forward', 'location.reload']);
+
+// Objets du navigateur jamais appelables depuis un data-action, même s'ils sont réimplémentés
+// en JavaScript (polyfills, extensions) et échappent donc à isNativeFunction.
+const BLOCKED_ROOTS = new Set([
+    'window', 'self', 'globalThis', 'top', 'parent', 'opener', 'frames', 'document', 'location',
+    'history', 'navigator', 'localStorage', 'sessionStorage', 'indexedDB', 'caches', 'cookieStore',
+    'fetch', 'XMLHttpRequest', 'open', 'eval', 'Function', 'setTimeout', 'setInterval', 'postMessage',
+]);
+
+export function isBlockedActionPath(functionPath) {
+    const path = functionPath.replace(/^window\./, '');
+    if (SAFE_NATIVE_ACTIONS.has(path)) return false;
+    return BLOCKED_ROOTS.has(path.split('.')[0]);
+}
+
+// Sites officiels qu'un bouton peut ouvrir dans un nouvel onglet
+const TRUSTED_EXTERNAL_HOSTS = new Set([
+    'www.legifrance.gouv.fr', 'legifrance.gouv.fr', 'www.service-public.fr',
+    'www.securite-routiere.gouv.fr', 'www.cnil.fr',
+]);
+
+export function isNativeFunction(fn) {
+    try {
+        return typeof fn === 'function' && /\{\s*\[native code\]\s*\}\s*$/.test(Function.prototype.toString.call(fn));
+    } catch (e) {
+        return true; // dans le doute, on bloque
+    }
+}
+
+export function isSameOriginUrl(url) {
+    try {
+        return new URL(url, window.location.href).origin === window.location.origin;
+    } catch (e) {
+        return false;
+    }
+}
+
+export function isTrustedExternalUrl(url) {
+    try {
+        const parsed = new URL(url);
+        return parsed.protocol === 'https:' && TRUSTED_EXTERNAL_HOSTS.has(parsed.hostname);
+    } catch (e) {
+        return false;
+    }
+}
 
 // Parseur d'arguments sécurisé (uniquement primitives et JSON, AUCUN eval/new Function)
 export function parseSafeArgs(argsStr) {
@@ -54,17 +102,54 @@ function executeSingleAction(actionStr, element, event) {
     const trimmed = actionStr.trim();
     if (!trimmed) return;
 
-    // 1. Navigation / Redirection (allowlist relatives et same-origin)
+    // 1. Navigation / Redirection : uniquement vers le site lui-même (audit 2026-11-07 : avant,
+    // un texte piégé pouvait rediriger vers n'importe quel site, ex. une page de phishing)
     const navMatch = trimmed.match(/^(?:window\.)?location(?:\.href)?\s*=\s*['"]([^'"]+)['"]\s*;?$/);
     if (navMatch) {
         const targetUrl = navMatch[1];
-        // Bloquer les protocoles dangereux (javascript:, data:, vbscript:)
-        if (/^(?:javascript|data|vbscript):/i.test(targetUrl)) {
-            console.error(`[DOMSecurity] Protocole non autorisé dans la redirection: ${targetUrl}`);
+        if (!isSameOriginUrl(targetUrl)) {
+            console.error(`[DOMSecurity] Redirection hors du site bloquée: ${targetUrl}`);
             return;
         }
         if (element.tagName === 'A' && event) event.preventDefault();
         window.location.href = targetUrl;
+        return;
+    }
+
+    // 1bis. Ouverture d'un site externe officiel dans un nouvel onglet (liste fermée)
+    const openMatch = trimmed.match(/^(?:window\.)?open\(\s*['"]([^'"]+)['"]\s*(?:,\s*['"][^'"]*['"]\s*)?\)$/);
+    if (openMatch) {
+        if (element.tagName === 'A' && event) event.preventDefault();
+        if (isTrustedExternalUrl(openMatch[1])) {
+            window.open(openMatch[1], '_blank', 'noopener');
+        } else {
+            console.error(`[DOMSecurity] Ouverture d'un site non autorisé bloquée: ${openMatch[1]}`);
+        }
+        return;
+    }
+
+    // 1ter. Gestes d'interface écrits en ligne (afficher/masquer/retirer un bloc). Avant, ces
+    // ~25 boutons ne faisaient rien : aucune branche ne savait les exécuter.
+    const byIdMatch = trimmed.match(/^document\.getElementById\(\s*['"]([\w-]+)['"]\s*\)\.(?:classList\.(add|remove|toggle)\(\s*['"]([\w -]+)['"]\s*\)|style\.display\s*=\s*['"]([\w-]*)['"]|(remove)\(\s*\))$/);
+    if (byIdMatch) {
+        if (element.tagName === 'A' && event) event.preventDefault();
+        const target = document.getElementById(byIdMatch[1]);
+        if (!target) return;
+        if (byIdMatch[2]) {
+            byIdMatch[3].split(/\s+/).filter(Boolean).forEach((cls) => target.classList[byIdMatch[2]](cls));
+        } else if (byIdMatch[5]) {
+            target.remove();
+        } else {
+            target.style.display = byIdMatch[4];
+        }
+        return;
+    }
+    const parentRemoveMatch = trimmed.match(/^this((?:\.parentElement){0,4})\.remove\(\s*\)$/);
+    if (parentRemoveMatch) {
+        let target = element;
+        const depth = (parentRemoveMatch[1].match(/parentElement/g) || []).length;
+        for (let i = 0; i < depth && target; i++) target = target.parentElement;
+        if (target && target !== document.body && target !== document.documentElement) target.remove();
         return;
     }
 
@@ -102,7 +187,15 @@ function executeSingleAction(actionStr, element, event) {
             return;
         }
 
-        const fn = getAction(functionPath);
+        // Les fonctions internes du navigateur (localStorage.clear, location.assign, fetch…)
+        // ne sont jamais appelables depuis un attribut : un contenu piégé pourrait s'en servir.
+        const target = resolveActionTarget(functionPath);
+        if (isBlockedActionPath(functionPath)
+            || (target && isNativeFunction(target.fn) && !SAFE_NATIVE_ACTIONS.has(functionPath.replace(/^window\./, '')))) {
+            console.error(`[DOMSecurity] Fonction du navigateur bloquée: ${functionPath}`);
+            return;
+        }
+        const fn = target ? target.fn.bind(target.ctx) : undefined;
         if (typeof fn === 'function') {
             if (element.tagName === 'A' && event && (element.getAttribute('href') === '#' || !element.getAttribute('href'))) {
                 event.preventDefault();

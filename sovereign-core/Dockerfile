@@ -5,9 +5,11 @@ FROM node:22-alpine
 ENV NODE_ENV=production
 WORKDIR /app/sovereign-core
 
-# Dépendances d'abord (mise en cache des couches Docker)
-COPY sovereign-core/package.json ./
-RUN npm install --omit=dev --no-audit --no-fund && npm cache clean --force
+# Dépendances d'abord (mise en cache des couches Docker).
+# npm ci installe exactement les versions figées dans package-lock.json (image reproductible,
+# pas de nouvelle version d'une dépendance installée à l'insu du projet).
+COPY sovereign-core/package.json sovereign-core/package-lock.json ./
+RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
 
 # Code du serveur + modules partagés de vérification (boîte noire, signature Revolut)
 COPY sovereign-core/server ./server

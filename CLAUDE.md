@@ -20,7 +20,7 @@ npm run dev                  # Serveur de développement local sur http://localh
 npm run build                # Exécute scripts/sanitize-encoding.js (UTF-8) puis vite build -> dist/
 
 # 2. Tests Unitaires & Qualité du Code
-npm test                     # Exécute les 13 suites Jest (93 tests : sovereign-core, blackbox-core, dom-security, payments...)
+npm test                     # Exécute les 24 suites Jest (178 tests : sovereign-core, blackbox-core, dom-security, payments...)
 npm run lint                 # Vérification statique ESLint 9
 
 # 3. Pile Souveraine Autonome (OVHcloud Ready)

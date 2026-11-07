@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { coarsePosition, recentCutoff, MAX_SHARED_POSITIONS } from './location-privacy.js';
 
 /**
  * RADAR SOCIAL - Partage GPS Temps Réel
@@ -55,15 +56,16 @@ btn.innerHTML = '<i class="fa-solid fa-ghost"></i> Ghost Mode';
             (pos) => {
                 if (!this.isActive || typeof db === "undefined") return;
 
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
+                // Position arrondie à ~100 m : visible par les autres membres (location-privacy.js)
+                const shared = coarsePosition(pos.coords.latitude, pos.coords.longitude);
+                if (!shared) return;
                 const spd = pos.coords.speed || 0; // m/s
 
                 // Mise à jour optimisée dans Firestore
                 db.collection("social_radar").doc(window.session.uid).set({
                     username: window.session.username,
-                    lat: lat,
-                    lng: lng,
+                    lat: shared.lat,
+                    lng: shared.lng,
                     speed: Math.round(spd * 3.6), // km/h
                     last_seen: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
@@ -100,8 +102,10 @@ btn.innerHTML = '<i class="fa-solid fa-ghost"></i> Ghost Mode';
     listenToCommunity: function () {
         if (typeof db === "undefined") return;
 
-        // On écoute la collection. On pourrait filtrer sur le timestamp pour ignorer les vieux (> 5 min)
+        // Uniquement les positions récentes, en nombre limité (avant : toute la collection)
         this.radarUnsubscribe = db.collection("social_radar")
+            .where("last_seen", ">=", recentCutoff())
+            .limit(MAX_SHARED_POSITIONS)
             .onSnapshot((snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     const data = change.doc.data();

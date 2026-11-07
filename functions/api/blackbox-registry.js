@@ -732,9 +732,28 @@ exports.adminUpdateBlackboxInfo = onCall(
  * 6. Récupération publique du stock d'atelier disponible (IN_STOCK).
  * OWASP ASVS v5.0.0-8.x : Fournit uniquement les compteurs agrégés, sans aucune donnée sensible.
  */
+// Fonction publique (sans connexion) : elle lisait ET réécrivait le stock à chaque appel,
+// ce qui permettait à n'importe qui de multiplier les écritures facturées. Les fonctions
+// d'administration tiennent déjà le stock à jour ; ici on ne recalcule que si la valeur
+// a plus de 5 minutes.
+const STOCK_MAX_AGE_MS = 5 * 60 * 1000;
+
 exports.getBlackboxStock = onCall(
     { region: "europe-west1", timeoutSeconds: 30, memory: "256MiB" },
     async () => {
+        try {
+            const snap = await db.collection("stats").doc("blackbox_stock").get();
+            const data = snap.exists ? snap.data() : null;
+            const updatedAt = data?.updatedAt?.toMillis ? data.updatedAt.toMillis() : 0;
+            if (data && Date.now() - updatedAt < STOCK_MAX_AGE_MS) {
+                return {
+                    inStockCount: data.inStockCount || 0,
+                    prototypeInStockCount: data.prototypeInStockCount || 0,
+                };
+            }
+        } catch (e) {
+            console.warn("[BlackboxRegistry] Lecture du stock en cache impossible :", e.message);
+        }
         return await syncPublicStockCount();
     }
 );

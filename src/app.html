@@ -3,7 +3,7 @@
 
 <head>
   <!-- Phase 3 : Zero-Trust DOM Security -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+  <script src="/vendor/dompurify/purify.min.js"></script>
   <script type="module" src="/js/dom-security.js"></script>
 
   <meta charset="UTF-8">
@@ -134,7 +134,7 @@
     };
     (function (d, s) {
       var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
-      e.async = true; e.src = "//static.axept.io/sdk.js";
+      e.async = true; e.src = "https://static.axept.io/sdk.js";
       t.parentNode.insertBefore(e, t);
     })(document, "script");
   </script>

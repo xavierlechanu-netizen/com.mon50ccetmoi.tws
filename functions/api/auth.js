@@ -131,6 +131,8 @@ exports.deleteUserAccount = onRequest(
                 { coll: "battery_certificates", field: "userId" },
                 // Votes individuels ; la moyenne publique (garage_evaluations) est anonyme
                 { coll: "garage_votes", field: "uid" },
+                // Réservation du pseudo (le pseudo redevient libre)
+                { coll: "usernames", field: "uid" },
                 { coll: "presence", field: "userId" }
             ];
 

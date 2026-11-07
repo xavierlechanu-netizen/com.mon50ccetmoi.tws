@@ -113,11 +113,11 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
       blackbox_serial: "BB50V1-P01"
     }));
 
-    // 3. Permettre la création d'un profil standard
-    await assertSucceeds(userDb.collection("users").doc("pilot99").set({
-      username: "realpilot",
-      role: "user"
-    }));
+    // 3. Permettre la création d'un profil standard (pseudo réservé dans le même lot)
+    const batch = userDb.batch();
+    batch.set(userDb.collection("usernames").doc("realpilot"), { uid: "pilot99", username: "realpilot" });
+    batch.set(userDb.collection("users").doc("pilot99"), { username: "realpilot", role: "user" });
+    await assertSucceeds(batch.commit());
 
     // 4. Rejeter la mise à jour pour s'attribuer le rôle admin
     await assertFails(userDb.collection("users").doc("pilot99").update({
@@ -188,6 +188,85 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
     await assertFails(other.collection("insurer_profiles").doc("curious7").set({ name: "Faux", verified: true }));
     await assertFails(insurer.collection("invoices_to_issue").doc("ord_1").get());
     await assertFails(insurer.collection("invoices_to_issue").doc("ord_2").set({ status: "A_EMETTRE" }));
+  });
+
+  it("Inscription : profil + pseudo réservé acceptés, champ points refusé (bug du 1er novembre)", async () => {
+    const db = testEnv.authenticatedContext("new1").firestore();
+    // Ancien profil de l'inscription : refusé à cause de « points »
+    const bad = db.batch();
+    bad.set(db.collection("usernames").doc("bob"), { uid: "new1", username: "Bob" });
+    bad.set(db.collection("users").doc("new1"), { uid: "new1", username: "Bob", role: "user", points: 10 });
+    await assertFails(bad.commit());
+    // Profil actuel : accepté
+    const ok = db.batch();
+    ok.set(db.collection("usernames").doc("bob"), { uid: "new1", username: "Bob" });
+    ok.set(db.collection("users").doc("new1"), { uid: "new1", username: "Bob", role: "user", brand: "Peugeot", model: "Kisbee" });
+    await assertSucceeds(ok.commit());
+    // Profil sans réservation, ou pseudo invalide : refusé
+    const db2 = testEnv.authenticatedContext("new2").firestore();
+    await assertFails(db2.collection("users").doc("new2").set({ username: "Carole", role: "user" }));
+    const spaces = db2.batch();
+    spaces.set(db2.collection("usernames").doc("jean dupont"), { uid: "new2", username: "Jean Dupont" });
+    spaces.set(db2.collection("users").doc("new2"), { username: "Jean Dupont", role: "user" });
+    await assertFails(spaces.commit());
+  });
+
+  it("Pseudos : impossible de prendre celui d'un autre (lecture de ses messages privés)", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      const fs = ctx.firestore();
+      await fs.collection("users").doc("bob").set({ uid: "bob", username: "Bob", role: "user" });
+      await fs.collection("usernames").doc("bob").set({ uid: "bob", username: "Bob" });
+      await fs.collection("users").doc("mallory").set({ uid: "mallory", username: "Mallory", role: "user" });
+      await fs.collection("exchange_messages").doc("m1").set({ from: "Alice", to: "Bob", text: "privé" });
+    });
+    const mallory = testEnv.authenticatedContext("mallory").firestore();
+    // Avant : changer son pseudo en « Bob » donnait accès aux messages de Bob
+    await assertFails(mallory.collection("users").doc("mallory").update({ username: "Bob" }));
+    await assertFails(mallory.collection("exchange_messages").doc("m1").get());
+    // Réserver un pseudo qui n'est pas le sien : refusé ; le sien (ancien compte) : accepté
+    await assertFails(mallory.collection("usernames").doc("carole").set({ uid: "mallory", username: "Carole" }));
+    await assertSucceeds(mallory.collection("usernames").doc("mallory").set({ uid: "mallory", username: "Mallory" }));
+    // Un pseudo déjà réservé ne peut pas être repris, même dans un lot avec un nouveau profil
+    const thief = testEnv.authenticatedContext("thief").firestore();
+    const steal = thief.batch();
+    steal.set(thief.collection("usernames").doc("bob"), { uid: "thief", username: "Bob" });
+    steal.set(thief.collection("users").doc("thief"), { uid: "thief", username: "Bob", role: "user" });
+    await assertFails(steal.commit());
+    // Les autres champs du profil restent modifiables
+    await assertSucceeds(mallory.collection("users").doc("mallory").update({ brand: "MBK" }));
+  });
+
+  it("Crews : un membre rejoint ou quitte, mais ne modifie rien d'autre", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().collection("crews").doc("c1").set({ name: "Les Bleus", leaderUid: "lead", members: ["lead", "m1"], points: 10 });
+    });
+    const joiner = testEnv.authenticatedContext("j1").firestore();
+    await assertSucceeds(joiner.collection("crews").doc("c1").update({ members: ["lead", "m1", "j1"] }));
+    await assertFails(joiner.collection("crews").doc("c1").update({ members: ["lead", "j1"] })); // exclure m1
+    await assertFails(joiner.collection("crews").doc("c1").update({ name: "Volé", members: ["lead", "m1", "j1"] }));
+    await assertSucceeds(joiner.collection("crews").doc("c1").update({ members: ["lead", "m1"] })); // quitter
+    const leader = testEnv.authenticatedContext("lead").firestore();
+    await assertSucceeds(leader.collection("crews").doc("c1").update({ name: "Les Rouges", members: ["lead"] }));
+  });
+
+  it("Bourse d'échange : impossible de publier au nom d'un autre vendeur", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().collection("users").doc("s1").set({ username: "Vendeur1", role: "user" });
+    });
+    const s1 = testEnv.authenticatedContext("s1").firestore();
+    const listing = { title: "Pot Yasuni", price: 120 };
+    await assertSucceeds(s1.collection("exchange_listings").add({ ...listing, seller: "Vendeur1", sellerUid: "s1" }));
+    await assertFails(s1.collection("exchange_listings").add({ ...listing, seller: "Victime", sellerUid: "s1" }));
+    await assertFails(s1.collection("exchange_listings").add({ ...listing, seller: "Vendeur1", sellerUid: "victim" }));
+  });
+
+  it("Conversations Nexus Atlas : chacun n'écrit que dans les siennes", async () => {
+    const a = testEnv.authenticatedContext("ua").firestore();
+    const b = testEnv.authenticatedContext("ub").firestore();
+    await assertSucceeds(a.collection("nexus_conversations").doc("s1").set({ uid: "ua", summary: "salut" }));
+    await assertFails(b.collection("nexus_conversations").doc("s1").set({ uid: "ub", summary: "écrasé" }, { merge: true }));
+    await assertFails(b.collection("nexus_conversations").doc("s2").set({ uid: "ua", summary: "usurpé" }));
+    await assertSucceeds(a.collection("nexus_conversations").doc("s1").set({ uid: "ua", summary: "suite" }, { merge: true }));
   });
 
   it("Notes des garages : lisibles par les membres, écrites seulement par le serveur", async () => {

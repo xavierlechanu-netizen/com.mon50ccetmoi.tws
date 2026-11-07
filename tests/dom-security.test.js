@@ -69,9 +69,24 @@ describe('DOMSecurity & Safe Event Delegator (OWASP ASVS v5.0.0-1.3.1 & 1.3.2)',
       .replace(/export\s+function\s+parseSafeArgs/g, 'function parseSafeArgs')
       .replace(/export\s+/g, '');
 
+    // Même résolution que actionRegistry.resolveActionTarget (registre puis window, sans lier)
+    const resolveActionTarget = (p) => {
+      const walk = (root) => {
+        let fn = root;
+        let ctx = root;
+        for (const part of p.trim().split('.')) {
+          if (fn == null) return null;
+          ctx = fn;
+          fn = fn[part];
+        }
+        return typeof fn === 'function' ? { fn, ctx } : null;
+      };
+      return walk(Actions) || walk(window);
+    };
+
     // Exécuter dans le contexte
-    const evalFn = new Function('getAction', sanitizedCode + '\nreturn { parseSafeArgs: parseSafeArgs };');
-    const exportsObj = evalFn(getAction);
+    const evalFn = new Function('getAction', 'resolveActionTarget', sanitizedCode + '\nreturn { parseSafeArgs: parseSafeArgs };');
+    const exportsObj = evalFn(getAction, resolveActionTarget);
     DOMSecurity = window.DOMSecurity;
     DOMSecurity.parseSafeArgs = exportsObj.parseSafeArgs;
   });
@@ -126,6 +141,47 @@ describe('DOMSecurity & Safe Event Delegator (OWASP ASVS v5.0.0-1.3.1 & 1.3.2)',
 
     expect(() => btn.click()).not.toThrow();
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Action non trouvée'));
+  });
+
+  test('Boutons d\'interface en ligne : afficher, masquer, retirer (ne faisaient rien avant)', () => {
+    document.body.insertAdjacentHTML('beforeend',
+      '<div id="panel" class="hidden" style="display:block"></div><div id="toast"></div>' +
+      '<div id="modal"><div><button id="close" data-action="this.parentElement.parentElement.remove()">x</button></div></div>');
+    const click = (action) => {
+      const b = document.createElement('button');
+      b.setAttribute('data-action', action);
+      document.body.appendChild(b);
+      b.click();
+    };
+    click("document.getElementById('panel').classList.remove('hidden')");
+    expect(document.getElementById('panel').classList.contains('hidden')).toBe(false);
+    click("document.getElementById('panel').style.display='none'");
+    expect(document.getElementById('panel').style.display).toBe('none');
+    click("document.getElementById('toast').remove()");
+    expect(document.getElementById('toast')).toBeNull();
+    document.getElementById('close').click();
+    expect(document.getElementById('modal')).toBeNull();
+  });
+
+  test('Un contenu piégé ne peut pas rediriger hors du site ni appeler une fonction du navigateur', () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    localStorage.setItem('session', 'garder');
+    const click = (action) => {
+      const b = document.createElement('button');
+      b.setAttribute('data-action', action);
+      document.body.appendChild(b);
+      b.click();
+    };
+    click("localStorage.clear()");
+    expect(localStorage.getItem('session')).toBe('garder');
+    click("window.location.href='https://phishing.example/login'");
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('hors du site bloquée'));
+    const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+    click("window.open('https://phishing.example', '_blank')");
+    expect(openSpy).not.toHaveBeenCalled();
+    click("window.open('https://www.legifrance.gouv.fr/', '_blank')");
+    expect(openSpy).toHaveBeenCalledWith('https://www.legifrance.gouv.fr/', '_blank', 'noopener');
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Fonction du navigateur bloquée'));
   });
 
   test('DOMSecurity.safeHTML filtre les balises dangereuses via DOMPurify', () => {

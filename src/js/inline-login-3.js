@@ -68,21 +68,17 @@ function doLogin() {
             .get();
           let profile;
           if (!doc.exists) {
-            profile = {
-              uid: user.uid,
-              username: user.displayName || user.email.split("@")[0],
-              role: "user",
-              points: 50,
-              registrationDate: Date.now(),
-              brand: "Google Pilot",
-            };
-            await firebase
-              .firestore()
-              .collection("users")
-              .doc(user.uid)
-              .set(profile);
+            // Pseudo unique dérivé du nom Google (« Jean Dupont » → « JeanDupont », puis
+            // « JeanDupont-1234 » s'il est pris). Plus de champ « points » : il faisait
+            // refuser le profil, et seules les fonctions serveur attribuent des points.
+            profile = await window.createProfileWithAvailableUsername(
+              user,
+              user.displayName || (user.email || "").split("@")[0],
+              { brand: "Google Pilot" },
+            );
           } else {
             profile = doc.data();
+            window.reserveOwnUsername?.(user, profile);
           }
 
           secureSetItem("session", JSON.stringify(profile));
