@@ -67,7 +67,7 @@ describe("Voix de Nexus Atlas : dictionnaire intégré", () => {
   });
 
   test("l'inventaire trouve bien les phrases du site", () => {
-    expect(literals.length).toBeGreaterThan(150);
+    expect(literals.length).toBeGreaterThan(120); // 149 après retrait du code mort (7/11/2026)
     expect(templates.length).toBeGreaterThan(15);
   });
 

@@ -52,6 +52,15 @@ def twaManifest = [
     orientation: 'any',
 ]
 
+// Clé de signature Play Store : son emplacement est lu dans local.properties (propriété
+// storeFile), pour la garder HORS du dossier du projet. Par défaut : à la racine du projet.
+def signingProps = new Properties()
+def signingPropsFile = rootProject.file('local.properties')
+if (signingPropsFile.exists()) {
+    signingPropsFile.withReader('UTF-8') { reader -> signingProps.load(reader) }
+}
+def releaseKeystore = file(signingProps.getProperty('storeFile', rootProject.file('new-upload-keystore.jks').path))
+
 android {
     buildFeatures {
         resValues true
@@ -61,17 +70,10 @@ android {
 
     signingConfigs {
         release {
-            def localProperties = new Properties()
-            def localPropertiesFile = rootProject.file('local.properties')
-            if (localPropertiesFile.exists()) {
-                localPropertiesFile.withReader('UTF-8') { reader ->
-                    localProperties.load(reader)
-                }
-            }
-            storeFile rootProject.file("new-upload-keystore.jks")
-            storePassword localProperties.getProperty('storePassword', 'android')
+            storeFile releaseKeystore
+            storePassword signingProps.getProperty('storePassword', 'android')
             keyAlias "upload"
-            keyPassword localProperties.getProperty('keyPassword', 'android')
+            keyPassword signingProps.getProperty('keyPassword', 'android')
         }
     }
 
@@ -176,7 +178,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // La clé Play Store n'existe que sur le poste de publication (jamais dans git).
             // Sans elle (GitHub Actions), on compile une version non signée pour vérifier le code.
-            if (rootProject.file("new-upload-keystore.jks").exists()) {
+            if (releaseKeystore.exists()) {
                 signingConfig signingConfigs.release
             }
         }

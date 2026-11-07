@@ -99,3 +99,6 @@ hardware/firmware/.cache/
 .env
 .env.*
 !.env.example
+
+# Outil Android téléchargeable (31 Mo), gardé en local seulement
+tools/bundletool.jar

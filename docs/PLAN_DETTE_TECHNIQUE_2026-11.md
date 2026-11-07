@@ -37,7 +37,7 @@ Conséquence déjà visible : le bouton « Télécharger le rapport » du portai
 
 ## 3. Plan par étapes
 
-### Étape 1 — Grand ménage sans risque (½ journée)
+### Étape 1 — Grand ménage sans risque (½ journée) — FAIT le 7/11/2026
 
 - Archiver les 26 fichiers morts sur une branche `archive/code-mort-2026-11`, puis les retirer de `main`. Certains contiennent des idées à reprendre (Ange Gardien, caméra certifiée, cartes hors ligne) : la branche les garde.
 - Réparer ou retirer le bouton « Télécharger le rapport » du portail assurance.

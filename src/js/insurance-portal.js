@@ -97,12 +97,6 @@ container.innerHTML = `
     return `
             <div class="unlocked-view">
                 <p class="success-msg"><i class="fa-solid fa-circle-check"></i> Rapport débloqué avec succès.</p>
-                <button data-action="window.BlackBoxInsurance.generateReport()" class="btn-download-report">
-                    <i class="fa-solid fa-file-pdf"></i> Télécharger le Rapport Certifié
-                </button>
-                <button data-action="window.BlackBoxReplay.replay()" class="btn-replay-report">
-                    <i class="fa-solid fa-play"></i> Rejouer le Trajet en 3D
-                </button>
                 <button data-action="InsurancePortal.showSealedReport('${caseId}')" class="btn-download-report">
                     <i class="fa-solid fa-stamp"></i> Voir le rapport scellé (assureur)
                 </button>
