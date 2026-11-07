@@ -176,6 +176,11 @@
 
         <activity android:name="com.google.androidbrowserhelper.trusted.FocusActivity" />
 
+        <!-- Fenêtre transparente qui affiche la demande de permission GPS d'Android -->
+        <activity android:name="com.google.androidbrowserhelper.locationdelegation.PermissionRequestActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="@string/providerAuthority"

@@ -79,8 +79,8 @@ android {
         applicationId "com.mon50ccetmoi.twa"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode 1120000
-        versionName "112.00.00"
+        versionCode 1120001
+        versionName "112.00.01"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
@@ -174,7 +174,11 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            // La clé Play Store n'existe que sur le poste de publication (jamais dans git).
+            // Sans elle (GitHub Actions), on compile une version non signée pour vérifier le code.
+            if (rootProject.file("new-upload-keystore.jks").exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
     compileOptions {
@@ -232,6 +236,8 @@ dependencies {
     
     // androidbrowserhelper 2.7.4 pour compatibilité Android 15 Edge-to-Edge
     implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.4'
+    // Relais GPS : l'app demande la permission de localisation et fournit les positions à Chrome
+    implementation 'com.google.androidbrowserhelper:locationdelegation:1.1.2'
     // Requis pour l'API EdgeToEdge (Android 15+)
     implementation 'androidx.activity:activity:1.10.1'
 }

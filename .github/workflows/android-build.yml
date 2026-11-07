@@ -1,5 +1,10 @@
 name: Build Android App
 
+# App du Play Store (Trusted Web Activity, dossier app/).
+# La clé de signature n'est pas sur GitHub : cette compilation produit une version
+# NON signée, qui sert à vérifier que le code compile. La version publiée sur le
+# Play Store est signée sur le poste de publication.
+
 on:
   push:
     branches: [ main ]
@@ -13,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -31,14 +36,14 @@ jobs:
       - name: Build with Gradle (APK)
         run: ./gradlew assembleRelease
 
-      - name: Upload AAB (Google Play format)
+      - name: Upload AAB (non signé)
         uses: actions/upload-artifact@v4
         with:
-          name: app-release.aab
+          name: app-release-unsigned.aab
           path: app/build/outputs/bundle/release/app-release.aab
 
-      - name: Upload APK (Direct install)
+      - name: Upload APK (non signé)
         uses: actions/upload-artifact@v4
         with:
-          name: app-release.apk
+          name: app-release-unsigned.apk
           path: app/build/outputs/apk/release/app-release-unsigned.apk

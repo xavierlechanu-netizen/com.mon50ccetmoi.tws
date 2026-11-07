@@ -20,8 +20,8 @@
     "path": "./new-upload-keystore.jks",
     "alias": "upload"
   },
-  "appVersionName": "112.00.00",
-  "appVersionCode": 1120000,
+  "appVersionName": "112.00.01",
+  "appVersionCode": 1120001,
   "shortcuts": [
     {
       "name": "Navigation GPS",

@@ -1,5 +1,8 @@
 name: Build Android APK
 
+# Version Capacitor (dossier android/), non publiée sur le Play Store.
+# Capacitor 8 demande Java 21 ; le site se compile avec Node 22 (comme la CI).
+
 on:
   push:
     branches: [ "main" ]
@@ -10,21 +13,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22'
+        cache: 'npm'
 
     - name: Setup Java (Android SDK requirements)
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
-        java-version: '17'
+        java-version: '21'
+        cache: gradle
 
     - name: Install dependencies
-      run: npm install
+      run: npm ci
 
     - name: Build Web App (Vite)
       run: npm run build
@@ -35,11 +40,12 @@ jobs:
     - name: Build APK (Gradle)
       working-directory: android
       run: |
+        sed -i -e 's/\r$//' gradlew
         chmod +x gradlew
         ./gradlew assembleDebug
 
     - name: Upload APK Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Mon50cc-Android-APK
         path: android/app/build/outputs/apk/debug/app-debug.apk
