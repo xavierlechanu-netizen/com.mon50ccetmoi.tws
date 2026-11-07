@@ -42,9 +42,9 @@ function spokenPhrases() {
   return { literals, templates };
 }
 
-// Lexique « standard » d'OracleEngine (clés comme « start_guardian »)
+// Lexique « standard » d'OracleEngine (clés comme « start_guardian »), dans voice-engine.js
 function standardLexicon() {
-  const s = fs.readFileSync(path.join(JS, "app-core.js"), "utf8");
+  const s = fs.readFileSync(path.join(JS, "voice-engine.js"), "utf8");
   const start = s.indexOf("standard: {", s.indexOf("regionalLexicon"));
   const block = s.slice(start, s.indexOf("}", start));
   return Object.fromEntries([...block.matchAll(/(\w+):\s*\n?\s*"([^"]+)"/g)].map((m) => [m[1], m[2]]));
@@ -55,7 +55,7 @@ describe("Voix de Nexus Atlas : dictionnaire intégré", () => {
   const lexicon = standardLexicon();
 
   test("le code ne passe plus par Google Traduction", () => {
-    const core = fs.readFileSync(path.join(JS, "app-core.js"), "utf8");
+    const core = ["app-core.js", "voice-engine.js"].map((f) => fs.readFileSync(path.join(JS, f), "utf8")).join(String.fromCharCode(10));
     expect(core).not.toMatch(/translate\.googleapis\.com/);
   });
 

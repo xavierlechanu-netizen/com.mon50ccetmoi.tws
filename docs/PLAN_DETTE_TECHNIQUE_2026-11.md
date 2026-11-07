@@ -75,7 +75,7 @@ Corrigé au passage : renouvellement Boîte Noire+ (boutons morts, prix affiché
 - Ajouter l'interrupteur `CONFIG.BACKEND_MODE = "FIREBASE" | "SOVEREIGN"` prévu par la Phase A : la migration OVH se fera ensuite domaine par domaine, sans toucher au reste.
 - Même chose pour `localStorage` : un module de stockage local, avec des clés déclarées en un seul endroit.
 
-### Étape 5 — Découper l'application en modules (2 à 3 semaines, progressif) — EN COURS (tranche 1 faite le 7/11/2026)
+### Étape 5 — Découper l'application en modules (2 à 3 semaines, progressif) — EN COURS (tranches 1 et 2 faites le 7/11/2026)
 
 - Passer des 81 scripts qui communiquent par `window` (489 globales) à de vrais imports entre modules, rangés par fonctionnalité (`carte/`, `communauté/`, `boîte-noire/`, `assistant/`…).
 - Charger à la demande les fonctions rares (avocat de poche, certificats, diagnostic, marché du carbone…) : démarrage plus rapide.
@@ -90,7 +90,15 @@ Tranche 1 (7/11/2026) :
 - `geo-math.js` : distance GPS, lissage de vitesse, heures du mode nuit, icône du véhicule. La distance était
   recopiée dans 7 fichiers ; un test interdit d'en réintroduire une copie. Tests : `tests/geo-math.test.js`.
 - Réparé au passage : calculateur de mélange 2 temps (son bouton ne pouvait pas fonctionner).
-- Suite : découper `app-core.js` (GPS, alertes de danger, mode nuit), puis `app-features.js` et `app-map.js`.
+
+Tranche 2 (7/11/2026) — `app-core.js` : 2 063 → 1 000 lignes :
+- `voice-engine.js` : voix de l'assistant (lexique régional, choix de la voix, `speak`, `vibrate`).
+- `gps-tracking.js` : accord de localisation, démarrage du GPS, basse précision, bannières d'erreur ;
+  branché sur `updatePosition` par `configureGps()`. Tests : `tests/gps-tracking.test.js` (GPS simulé)
+  et un test navigateur qui vérifie que la position arrive jusqu'à l'app.
+- Retirés : « moteur de prédiction d'adhérence » (valeurs jamais lues, affichage inexistant) et 65 lignes
+  de style Google Maps (seul l'interrupteur du thème sombre servait).
+- Suite : alertes de danger et `updatePosition` (app-core), puis `app-features.js` et `app-map.js`.
 
 ### Étape 6 — Dépendances et outillage (½ journée, puis en continu)
 

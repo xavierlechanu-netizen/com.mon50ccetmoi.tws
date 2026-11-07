@@ -32,6 +32,14 @@ test("l'app reste sur la carte (pas de renvoi vers l'accueil)", async ({ page })
   expect(new URL(page.url()).pathname).toBe("/app.html");
 });
 
+test("la position GPS simulée (Lille) arrive jusqu'à l'app", async ({ page }) => {
+  await openApp(page);
+  await page.waitForFunction(() => window.currentPosition && window.currentPosition.lat, null, { timeout: 20_000 });
+  const pos = await page.evaluate(() => window.currentPosition);
+  expect(pos.lat).toBeCloseTo(LILLE.latitude, 3);
+  expect(pos.lng).toBeCloseTo(LILLE.longitude, 3);
+});
+
 // Borne une action dans le temps : pendant un changement de page, certaines commandes
 // attendent un contexte qui disparaît et ne rendraient jamais la main.
 const withTimeout = (promise, ms) =>
