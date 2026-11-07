@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { distanceMeters } from './geo-math.js';
 
 /**
  * ROADBOOKS - Carnets de Route GPS
@@ -135,16 +136,6 @@ btn.innerHTML = '<i class="fa-solid fa-route"></i> Rec Roadbook';
 
     // Utilitaire pour calculer la distance entre 2 points (en mètres)
     haversineDistance: function (pt1, pt2) {
-        const R = 6371e3; // Rayon de la Terre
-        const lat1 = pt1[1] * Math.PI / 180;
-        const lat2 = pt2[1] * Math.PI / 180;
-        const dLat = (pt2[1] - pt1[1]) * Math.PI / 180;
-        const dLon = (pt2[0] - pt1[0]) * Math.PI / 180;
-
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                  Math.cos(lat1) * Math.cos(lat2) *
-                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
+        return distanceMeters(pt1[1], pt1[0], pt2[1], pt2[0]); // points [lng, lat]
     }
 };

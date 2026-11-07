@@ -64,3 +64,19 @@ test("chaque bouton de la barre se clique sans erreur", async ({ page }) => {
   expect(labels.length).toBeGreaterThanOrEqual(30);
   expect(broken).toEqual([]);
 });
+
+test("les fonctions rares se chargent au premier clic, pas au démarrage", async ({ page }) => {
+  const pageErrors = await openApp(page);
+  const lazyAtStart = await page.evaluate(() =>
+    ["PocketLawyer", "MecaWizard", "InsurerPortal", "arNavigationManager"].filter((n) => window[n]?.__lazy));
+  expect(lazyAtStart).toEqual(["PocketLawyer", "MecaWizard", "InsurerPortal", "arNavigationManager"]);
+
+  // Bouton « Nexus Atlas Juridique » de la barre
+  await page.evaluate(() => {
+    const btn = [...document.querySelectorAll("#apple-smart-dock button")]
+      .find((b) => /Juridique/.test(b.getAttribute("aria-label") || b.title || b.textContent));
+    btn.click();
+  });
+  await page.waitForFunction(() => window.PocketLawyer && !window.PocketLawyer.__lazy, null, { timeout: 15_000 });
+  expect(pageErrors).toEqual([]);
+});

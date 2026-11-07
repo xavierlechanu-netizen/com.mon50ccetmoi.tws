@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { distanceMeters, createSpeedSmoother, isNightHour, vehicleIconFor } from './geo-math.js';
 import { weatherIsStale } from './weather-advice.js';
 import { voiceLanguage, translateForVoice } from './voice-phrases.js';
 
@@ -46,29 +47,7 @@ window.isPerfTracking = false;
 window.isRodageActive = false;
 window.isGarageVisible = false;
 window.garageStatus = "dispo";
-window.getVehicleIcon = function (brand, model) {
-  const b = (brand || "").toLowerCase();
-  const m = (model || "").toLowerCase();
-  const vspBrands = [
-    "citroën",
-    "citroen",
-    "ligier",
-    "microcar",
-    "aixam",
-    "chatenet",
-    "casalini",
-    "ami",
-  ];
-  if (
-    vspBrands.some((brandName) => b.includes(brandName)) ||
-    m.includes("ami") ||
-    b.includes("voturette") ||
-    b.includes("vsp")
-  ) {
-    return "fa-car";
-  }
-  return "fa-motorcycle";
-};
+window.getVehicleIcon = vehicleIconFor;
 
 // --- SECURITY SYSTEMS STATE ---
 window.lastMovementTime = Date.now();
@@ -972,20 +951,7 @@ class NeuralPredictionEngine {
 }
 window.NeuralEngine = new NeuralPredictionEngine();
 
-let speedHistory = [];
-function getSmoothedSpeed(rawSpeed, speedIsNull) {
-  // Si la vitesse est null (ex: fix WiFi), on ne l'ajoute pas à l'historique 
-  // pour ne pas fausser la moyenne avec des "0" intempestifs.
-  if (speedIsNull && speedHistory.length > 0) {
-    // Retourne la dernière moyenne connue
-    return speedHistory.reduce((a, b) => a + b, 0) / speedHistory.length;
-  }
-  
-  speedHistory.push(rawSpeed);
-  if (speedHistory.length > 5) speedHistory.shift();
-  const sum = speedHistory.reduce((a, b) => a + b, 0);
-  return sum / speedHistory.length;
-}
+const getSmoothedSpeed = createSpeedSmoother(5);
 
 function updatePosition(position) {
   // Arrêt du fallback basse précision si on récupère un signal GPS décent (< 100m)
@@ -1328,19 +1294,7 @@ iconContent.innerHTML = `<div style="background-color: #1a1a1a; color: ${color};
   }
 }
 
-// Fonction utilitaire pour calculer la distance (Formule de Haversine)
-function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371e3; // mètres
-  const p1 = (lat1 * Math.PI) / 180;
-  const p2 = (lat2 * Math.PI) / 180;
-  const dp = ((lat2 - lat1) * Math.PI) / 180;
-  const dl = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dp / 2) * Math.sin(dp / 2) +
-    Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) * Math.sin(dl / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+const getDistance = distanceMeters;
 
 function checkHazardProximity(lat, lng) {
   const raw = secureGetItem("hazards");
@@ -1951,8 +1905,7 @@ async function speak(phraseKey) {
 
 // --- NEW: Auto Night Mode ---
 function checkNightMode() {
-  const hr = new Date().getHours();
-  const isNight = hr >= 20 || hr <= 7;
+  const isNight = isNightHour(new Date().getHours());
   if (isNight && !nightModeActive) {
     document.body.classList.add("night-theme");
     nightModeActive = true;

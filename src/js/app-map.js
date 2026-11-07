@@ -1,6 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import * as geofire from 'geofire-common';
 import { registerAction } from './actionRegistry.js';
+import { distanceMeters } from './geo-math.js';
 
 // --- 3. ROUTAGE ---
 let directionsRenderer = null;
@@ -1117,13 +1118,7 @@ function getHaversineDist(pos1, pos2) {
   const lon1 = typeof pos1.lng === "function" ? pos1.lng() : pos1.lng;
   const lat2 = typeof pos2.lat === "function" ? pos2.lat() : pos2.lat;
   const lon2 = typeof pos2.lng === "function" ? pos2.lng() : pos2.lng;
-  const R = 6371e3;
-  const phi1 = (lat1 * Math.PI) / 180;
-  const phi2 = (lat2 * Math.PI) / 180;
-  const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
-  const deltaLambda = ((lon2 - lon1) * Math.PI) / 180;
-  const a = Math.sin(deltaPhi / 2) ** 2 + Math.cos(phi1) * Math.cos(phi2) * (Math.sin(deltaLambda / 2) ** 2);
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return distanceMeters(lat1, lon1, lat2, lon2);
 }
 
 // Tracking optimisé de km sur le code postal actuel si en mouvement (D-03)

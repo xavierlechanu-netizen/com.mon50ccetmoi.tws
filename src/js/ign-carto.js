@@ -21,6 +21,7 @@
  */
 
 import { registerAction } from './actionRegistry.js';
+import { distanceMeters } from './geo-math.js';
 
 const IGN_APICARTO_BASE_URL = 'https://apicarto.ign.fr/api';
 const DEFAULT_TIMEOUT_MS = 6000;
@@ -126,14 +127,7 @@ export function buildGeoJSONBBoxPolygon(lat, lng, radiusMeters = 12) {
  * @returns {number} Distance en mètres
  */
 export function distanceMetersWGS84(lat1, lng1, lat2, lng2) {
-  const R = 6371008.8; // Rayon terrestre moyen WGS84 (mètres)
-  const toRad = (deg) => (deg * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return distanceMeters(lat1, lng1, lat2, lng2);
 }
 
 /**

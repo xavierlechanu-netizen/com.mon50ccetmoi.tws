@@ -5,6 +5,19 @@
  */
 import { secureGetItem } from './config.js';
 
+// Calculateur de mélange 2 temps (page Labo méca) : ml d'huile pour X litres à Y %
+window.calculateOilMix = function () {
+  const liters = parseFloat(document.getElementById('mix-liters')?.value);
+  const percent = parseFloat(document.getElementById('mix-percent')?.value);
+  const res = document.getElementById('mix-res');
+  if (!res) return;
+  if (!(liters > 0) || !(percent > 0)) {
+    res.textContent = 'Indiquez les litres d’essence et le pourcentage d’huile.';
+    return;
+  }
+  res.textContent = `${Math.round(liters * 1000 * (percent / 100))} ml d’huile à ajouter`;
+};
+
 // Bouton « Réclamer mes 5 points » du défi de la quinzaine (page Défis)
 window.claimFortnightChallenge = function (periodIdx) {
   if (!window.Web4Economy) return;
@@ -336,7 +349,7 @@ export const PAGE_ROUTES = {
                 <div style="margin-top:15px;">
                     <input type="number" id="mix-liters" placeholder="Litres d'essence" class="scooter-brand-select" style="width:100%; margin-bottom:10px;">
                     <input type="number" id="mix-percent" placeholder="% d'huile (ex: 2)" class="scooter-brand-select" style="width:100%; margin-bottom:10px;">
-                    <button data-action="const vol = MecaWizard.calculateMix(document.getElementById('mix-liters').value, document.getElementById('mix-percent').value); document.getElementById('mix-res').innerHTML = vol + ' ml d'huile à ajouter';" 
+                    <button data-action="calculateOilMix()" 
                             class="btn-insurance" style="width:100%; background:var(--accent); color:black;">CALCULER</button>
                     <div id="mix-res" style="margin-top:15px; font-weight:bold; text-align:center; color:var(--neon-blue);"></div>
                 </div>

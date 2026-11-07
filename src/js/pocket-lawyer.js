@@ -697,14 +697,17 @@ tempDiv.innerHTML = htmlContent;
 // Auto-ouverture en cas de paramètre d'URL (ex: depuis banned.html)
 if (typeof window !== "undefined" && window.location && window.location.search) {
   if (window.location.search.includes("appeal=true") || window.location.search.includes("openLawyer=appeal")) {
-    window.addEventListener("DOMContentLoaded", () => {
+    const openAppeal = () => {
       setTimeout(() => {
         if (window.PocketLawyer) {
           window.PocketLawyer.openLawyer();
           window.PocketLawyer.appealBan();
         }
       }, 600);
-    });
+    };
+    // Module chargé à la demande (lazy-features.js) : la page peut être déjà prête
+    if (document.readyState === "loading") window.addEventListener("DOMContentLoaded", openAppeal);
+    else openAppeal();
   }
 }
 

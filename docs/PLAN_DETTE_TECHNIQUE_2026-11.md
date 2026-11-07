@@ -75,13 +75,22 @@ Corrigé au passage : renouvellement Boîte Noire+ (boutons morts, prix affiché
 - Ajouter l'interrupteur `CONFIG.BACKEND_MODE = "FIREBASE" | "SOVEREIGN"` prévu par la Phase A : la migration OVH se fera ensuite domaine par domaine, sans toucher au reste.
 - Même chose pour `localStorage` : un module de stockage local, avec des clés déclarées en un seul endroit.
 
-### Étape 5 — Découper l'application en modules (2 à 3 semaines, progressif)
+### Étape 5 — Découper l'application en modules (2 à 3 semaines, progressif) — EN COURS (tranche 1 faite le 7/11/2026)
 
 - Passer des 81 scripts qui communiquent par `window` (489 globales) à de vrais imports entre modules, rangés par fonctionnalité (`carte/`, `communauté/`, `boîte-noire/`, `assistant/`…).
 - Charger à la demande les fonctions rares (avocat de poche, certificats, diagnostic, marché du carbone…) : démarrage plus rapide.
 - Découper `app-core.js` (2 063 lignes), `app-features.js` (1 493) et `app-map.js` (1 226).
 - Remplacer progressivement les `innerHTML` par des créations d'éléments (`textContent`) : moins de `eslint-disable`, moins de risque XSS.
 - Méthode : un module à la fois, avec les tests de l'étape 2 comme filet.
+
+Tranche 1 (7/11/2026) :
+- `lazy-features.js` : avocat de poche, diagnostic mécanique, portails assureur, analyse de litige et vision AR
+  ne sont plus chargés au démarrage mais au premier clic. Démarrage de l'app : 499,8 → 479,4 Ko compressés
+  (budget abaissé en conséquence). Tests : `tests/lazy-features.test.js` et un test navigateur.
+- `geo-math.js` : distance GPS, lissage de vitesse, heures du mode nuit, icône du véhicule. La distance était
+  recopiée dans 7 fichiers ; un test interdit d'en réintroduire une copie. Tests : `tests/geo-math.test.js`.
+- Réparé au passage : calculateur de mélange 2 temps (son bouton ne pouvait pas fonctionner).
+- Suite : découper `app-core.js` (GPS, alertes de danger, mode nuit), puis `app-features.js` et `app-map.js`.
 
 ### Étape 6 — Dépendances et outillage (½ journée, puis en continu)
 

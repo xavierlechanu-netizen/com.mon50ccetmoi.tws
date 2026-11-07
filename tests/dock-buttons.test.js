@@ -28,6 +28,16 @@ const loadedScripts = [...appHtml.matchAll(/<script[^>]*src="\/js\/([^"?]+)/g)]
   .filter((f) => fs.existsSync(f))
   .map((f) => ({ file: path.basename(f), text: fs.readFileSync(f, "utf8") }));
 
+// Modules chargés au premier clic par lazy-features.js (étape 5) : comptent comme chargés
+const lazy = loadedScripts.find((s) => s.file === "lazy-features.js");
+if (lazy) {
+  for (const [, file] of lazy.text.matchAll(/import\("\.\/([\w-]+\.js)"\)/g)) {
+    if (!loadedScripts.some((s) => s.file === file)) {
+      loadedScripts.push({ file, text: fs.readFileSync(path.join(SRC, "js", file), "utf8") });
+    }
+  }
+}
+
 function definingScript(root) {
   // « window.X = » est une définition ; « window.X === … » n'est qu'une comparaison
   const definition = new RegExp(`window\\.${root}\\s*=(?!=)|registerAction\\(\\s*['"]${root}['"]`);
