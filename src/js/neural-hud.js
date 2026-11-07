@@ -544,30 +544,25 @@ if (window.NeuralHUD) {
     const windEl = document.getElementById("weather-wind");
     const radarEl = document.getElementById("radar-users");
 
-    if (tempEl) {
-      // Fake realistic temp between 12 and 22
-      const temp = Math.floor(Math.random() * 10) + 12;
-      tempEl.textContent = temp + "°C";
-      // Wind speed between 5 and 35 km/h
-      const wind = Math.floor(Math.random() * 30) + 5;
-      windEl.textContent = wind + " km/h";
-
-      if (wind > 25) {
-        windEl.style.color = "#ffb703"; // Warning high wind
-      } else {
-        windEl.style.color = "#00d2ff"; // Normal
-      }
+    // Uniquement la vraie météo (fetchWeather). Avant : température et vent tirés au hasard
+    // toutes les 15 s, affichés comme s'ils étaient réels.
+    const weather = window.currentWeather;
+    if (tempEl && windEl && weather) {
+      tempEl.textContent = weather.temp + "°C";
+      windEl.textContent = weather.wind + " km/h";
+      windEl.style.color = weather.wind > 25 ? "#ffb703" : "#00d2ff";
     }
 
     if (radarEl) {
-      // Fake nearby users
-      const users = Math.floor(Math.random() * 8);
+      // Membres réellement en ligne (présence des 15 dernières minutes, database.js).
+      // Avant : un nombre tiré au hasard entre 0 et 7.
+      const users = Array.isArray(window.communityMembers) ? window.communityMembers.length : 0;
       if (users > 0) {
         // eslint-disable-next-line no-restricted-syntax
-radarEl.innerHTML = `<span><strong style="color:#fff;">${users}</strong> Pilotes dans le secteur</span>`;
+radarEl.innerHTML = `<span><strong style="color:#fff;">${users}</strong> pilote${users > 1 ? "s" : ""} en ligne</span>`;
       } else {
         // eslint-disable-next-line no-restricted-syntax
-radarEl.innerHTML = `<span style="color:#aaa;">Zone dégagée</span>`;
+radarEl.innerHTML = `<span style="color:#aaa;">Aucun autre pilote en ligne</span>`;
       }
     }
   };

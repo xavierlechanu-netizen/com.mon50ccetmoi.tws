@@ -25,13 +25,13 @@ import { registerAction } from './actionRegistry.js';
     { id: 'blackbox', icon: 'fa-microchip', color: '#ff3333', label: 'Boîte Noire', action: () => { if(window.ScreenManager) window.ScreenManager.open('blackbox-ui-panel'); } },
     { id: 'wallet', icon: 'fa-store', color: '#b700ff', label: 'Marketplace BVC', action: () => { if(typeof window.openMarketplaceCheck === 'function') window.openMarketplaceCheck(); } },
     { id: 'profile', icon: 'fa-user-circle', color: '#00ff88', label: 'Mon Profil', action: () => { window.location.href = 'profile.html'; } },
-    { id: 'radar', icon: 'fa-users-viewfinder', color: '#fff', label: 'Radar Social', action: () => { if(typeof window.toggleSocialRadar === 'function') window.toggleSocialRadar(); } },
+    { id: 'radar', icon: 'fa-users-viewfinder', color: '#fff', label: 'Radar Social', action: () => { if(window.RadarSocial) window.RadarSocial.toggleGhostMode(); } }, // avant : toggleSocialRadar, inexistant
     { id: 'sensation', icon: 'fa-route', color: '#b700ff', label: 'Mode Sensation', action: () => { if(typeof window.toggleSensationMode === 'function') window.toggleSensationMode(); } },
     { id: 'brain', icon: 'fa-brain', color: '#0f0', label: 'Nexus Atlas Chat', action: () => { if(window.ScreenManager) window.ScreenManager.open('nexus-atlas-chat-modal'); else if(window.NexusAtlasChat) window.NexusAtlasChat.open(); }, size: '1.8rem' },
     { id: 'moto', icon: 'fa-motorcycle', color: '#aaa', label: 'Mon Véhicule', action: () => { if(window.ScreenManager) { window.ScreenManager.open('vehicle-config-screen'); if(window.GarageClient) window.GarageClient.loadMaintenanceLogs(); } } },
     { id: 'meca', icon: 'fa-stethoscope', color: '#ff0055', label: 'Meca Wizard', action: () => { if(window.MecaWizard) window.MecaWizard.startAcousticAnalysis(); } },
     { id: 'db', icon: 'fa-volume-high', color: '#00e676', label: 'Décibelmètre', action: () => { if(window.MecaWizard) window.MecaWizard.startDecibelMeter(); } },
-    { id: 'pilot', icon: 'fa-flag-checkered', color: '#ffeb3b', label: 'Score de Pilotage', action: () => { if(window.PredictiveMeca) window.PredictiveMeca.analyzeRidingStyle(); } },
+    { id: 'pilot', icon: 'fa-flag-checkered', color: '#ffeb3b', label: 'Score de Pilotage', action: () => { if(window.DrivingScore) window.DrivingScore.showDetailPanel(); } }, // avant : PredictiveMeca, non chargé
     { id: 'referral', icon: 'fa-user-plus', color: '#00d2ff', label: 'Parrainer un ami', action: () => { if(window.ReferralManager) window.ReferralManager.shareReferralLink(); } },
     { id: 'insurance', icon: 'fa-shield-cat', color: '#ff0055', label: 'Assurance Connectée', action: () => { window.location.href = 'insurance.html'; } },
     { id: 'battery', icon: 'fa-car-battery', color: '#00ffcc', label: 'Santé Batterie', action: () => { if(window.ScreenManager) window.ScreenManager.open('battery-health-screen'); } },
@@ -49,7 +49,7 @@ import { registerAction } from './actionRegistry.js';
     { id: 'market-hud-btn', icon: 'fa-wrench', color: '#ffaa00', text: 'Troc', action: () => { if(window.GarageMarket) window.GarageMarket.showModal(); } },
     { id: 'sos-hud-btn', icon: 'fa-triangle-exclamation', color: '#ff0000', text: 'S.O.S', action: () => { if(window.SosSystem) window.SosSystem.showModal(); }, isSOS: true },
     { id: 'leaderboard-hud-btn', icon: 'fa-trophy', color: '#ffd700', text: '', action: () => { if(window.Leaderboard) window.Leaderboard.showModal(); } },
-    { id: 'roadbook-rec-btn', icon: 'fa-route', color: '#b700ff', text: 'REC Trace', action: () => { if(window.RoadbookSystem) window.RoadbookSystem.toggleRecording(); } },
+    { id: 'roadbook-rec-btn', icon: 'fa-route', color: '#b700ff', text: 'REC Trace', action: () => { if(window.Roadbooks) window.Roadbooks.toggleRecording(); } }, // avant : RoadbookSystem, inexistant
     { id: 'pitstop-hud-btn', icon: 'fa-gas-pump', color: '#ff0055', text: 'Pit Stop', action: () => { if(window.PitStopSystem) window.PitStopSystem.showModal(); } },
     { id: 'ghost-mode-btn', icon: 'fa-eye', color: '#00ffcc', text: 'Visible', action: () => { if(window.PrivacyManager) window.PrivacyManager.toggleGhostMode(); } },
     { id: 'privacy-settings-btn', icon: 'fa-shield-halved', color: '#aaa', text: '', action: () => { if(window.PrivacyManager) window.PrivacyManager.showSettingsModal(); }, isSmall: true },

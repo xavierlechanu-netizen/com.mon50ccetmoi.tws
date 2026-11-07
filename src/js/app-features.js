@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { describeWeather } from './weather-advice.js';
 
 // NOTE : secureSetItem / secureGetItem sont définis dans config.js (chargé avant ce script).
 
@@ -12,20 +13,17 @@ window.fetchWeather = async function (lat, lon) {
     const data = await res.json();
     const temp = Math.round(data.current_weather.temperature);
     const code = data.current_weather.weathercode;
-
-    let icon = '<i class="fa-solid fa-cloud-sun"></i>';
+    const wind = Math.round(data.current_weather.windspeed);
 
     let alertMsg = "";
-    const wind = data.current_weather.windspeed;
     window.isVigilanceRouge = false; // Reset
 
-    // Détection mondiale Vigilance Rouge (Canicule ou Tempête)
-    if (temp >= 38 || wind >= 70 || code === 99 || code === 77) {
+    // Conditions extrêmes (canicule, tempête, orage avec grêle). Le code 77 (« grains de neige »,
+    // phénomène faible) ne déclenche plus d'alerte rouge.
+    if (temp >= 38 || wind >= 70 || code === 99) {
       window.isVigilanceRouge = true;
       alertMsg =
         "VIGILANCE ROUGE DÉTECTÉE : Conditions météorologiques extrêmes.";
-      icon =
-        '<i class="fa-solid fa-triangle-exclamation" style="color:#ff0000; animation: flash 1s infinite;"></i>';
       const banner = document.getElementById("vigilance-rouge-banner");
       const textEl = document.getElementById("vigilance-rouge-text");
       if (banner && textEl) {
@@ -35,29 +33,35 @@ window.fetchWeather = async function (lat, lon) {
       }
     }
 
-    if (!window.isVigilanceRouge) {
-      if (code >= 95) {
-        alertMsg = "Alerte Orage : Prudence maximale conseillée.";
-        icon = '<i class="fa-solid fa-cloud-bolt" style="color:#f1c40f;"></i>';
-      } else if (code >= 80) {
-        alertMsg = "Averses détectées : Route potentiellement glissante.";
-        icon = '<i class="fa-solid fa-cloud-showers-heavy"></i>';
-      } else if (code >= 71) {
-        alertMsg = "Alerte Neige : Conditions de circulation difficiles.";
-        icon = '<i class="fa-solid fa-snowflake"></i>';
-      } else if (code >= 61) {
-        alertMsg = "Pluie signalée par satellite. Équipez-vous.";
-        icon = '<i class="fa-solid fa-cloud-rain"></i>';
-      }
+    // Conseil tiré de la vraie météo (même texte que l'Assistant Trajet)
+    const advice = describeWeather({ temp, wind, code }, new Date().getHours());
+    if (!window.isVigilanceRouge && ["storm", "ice", "rain", "fog", "wind"].includes(advice.type)) {
+      alertMsg = advice.message;
     }
+
+    // Météo réelle partagée avec la bulle météo et l'Assistant Trajet
+    window.currentWeather = { temp, wind, code, at: Date.now() };
 
     const wHud = document.getElementById("weather-hud");
     if (wHud) {
-      // eslint-disable-next-line no-restricted-syntax
-wHud.innerHTML = `${icon} ${temp}°C`;
+      // On met à jour les cases (avant : innerHTML effaçait la case du vent)
+      const tempEl = document.getElementById("weather-temp");
+      const windEl = document.getElementById("weather-wind");
+      if (tempEl) tempEl.textContent = `${temp}°C`;
+      if (windEl) {
+        windEl.textContent = `${wind} km/h`;
+        windEl.style.color = wind > 25 ? "#ffb703" : "#00d2ff";
+      }
+      const iconEl = wHud.querySelector("i");
+      if (iconEl) {
+        iconEl.className = `fa-solid ${advice.icon}`;
+        iconEl.style.color = advice.color;
+      }
       if (alertMsg) wHud.classList.add("weather-alert");
       else wHud.classList.remove("weather-alert");
     }
+
+    document.dispatchEvent(new CustomEvent("mon50cc:weather", { detail: window.currentWeather }));
 
     if (alertMsg && !window.lastWeatherAlert) {
       speak(alertMsg);

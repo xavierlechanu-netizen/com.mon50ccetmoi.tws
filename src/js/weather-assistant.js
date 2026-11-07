@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { describeWeather } from './weather-advice.js';
 
 /**
  * Assistant Trajet Nexus Atlas (Météo & IA)
@@ -11,95 +12,45 @@ window.WeatherAssistant = {
     iconId: "weather-icon",
     textId: "weather-text",
     
-    scenarios: [
-        {
-            type: "rain",
-            icon: "<i class='fa-solid fa-cloud-showers-heavy'></i>",
-            color: "#00f2ff",
-            border: "#00f2ff",
-            messages: [
-                "Alerte : Risque de pluie dans 15 min. Équipez-vous.",
-                "Chaussée glissante prévue sur votre trajet habituel.",
-                "Averses modérées. Réduisez votre vitesse."
-            ]
-        },
-        {
-            type: "clear",
-            icon: "<i class='fa-solid fa-sun'></i>",
-            color: "#ffd700",
-            border: "#ffd700",
-            messages: [
-                "Météo idéale. Route sèche et dégagée.",
-                "Plein soleil ! Parfait pour une balade.",
-                "Visibilité excellente sur votre secteur."
-            ]
-        },
-        {
-            type: "cold",
-            icon: "<i class='fa-regular fa-snowflake'></i>",
-            color: "#b3e5fc",
-            border: "#b3e5fc",
-            messages: [
-                "Températures basses. Risque de verglas par endroits.",
-                "Il fait froid ce matin, laissez chauffer le moteur.",
-                "Gants d'hiver recommandés pour votre trajet."
-            ]
-        },
-        {
-            type: "night",
-            icon: "<i class='fa-solid fa-moon'></i>",
-            color: "#e099ff",
-            border: "#e099ff",
-            messages: [
-                "Trajet nocturne : vérifiez vos feux de croisement.",
-                "Visibilité réduite. Activez le mode prudent.",
-                "La température baisse, route potentiellement humide."
-            ]
-        }
-    ],
+    lastShownType: null,
 
     init: function() {
         console.log("[Nexus Atlas] Initialisation de l'Assistant Trajet Météo...");
-        // On attend un peu que l'app soit chargée avant d'afficher l'alerte
-        setTimeout(() => {
-            this.analyzeAndDisplay();
-        }, 3500); // 3.5s après chargement
+        // Le conseil s'affiche quand la VRAIE météo est connue (fetchWeather, au premier fix GPS).
+        // Avant : un message tiré au hasard 3,5 s après le chargement (« pour la démo »).
+        document.addEventListener("mon50cc:weather", (e) => this.analyzeAndDisplay(e.detail));
+        if (window.currentWeather) this.analyzeAndDisplay(window.currentWeather);
     },
 
-    analyzeAndDisplay: function() {
+    analyzeAndDisplay: function(weather) {
         const card = document.getElementById(this.cardId);
-        if (!card) return;
+        if (!card || !weather) return;
 
-        // Choix aléatoire d'un scénario pour la démo
-        // Dans une V2, on utiliserait navigator.geolocation et une vraie API (OpenWeather)
-        
-        let scenario;
-        const hour = new Date().getHours();
-        
-        if (hour >= 20 || hour < 6) {
-            // Nuit forcée si on est le soir/nuit
-            scenario = this.scenarios.find(s => s.type === "night");
-        } else {
-            // Sinon on prend un scénario au hasard parmi les 3 premiers
-            scenario = this.scenarios[Math.floor(Math.random() * 3)];
-        }
-
-        const randomMsg = scenario.messages[Math.floor(Math.random() * scenario.messages.length)];
+        const advice = describeWeather(weather, new Date().getHours());
+        // Pas de nouvelle carte toutes les 15 min si la situation n'a pas changé
+        if (advice.type === this.lastShownType) return;
+        this.lastShownType = advice.type;
 
         // Update UI
         const iconEl = document.getElementById(this.iconId);
         const textEl = document.getElementById(this.textId);
-        
+
         if (iconEl) {
-            // eslint-disable-next-line no-restricted-syntax
-iconEl.innerHTML = scenario.icon;
-            iconEl.style.color = scenario.color;
+            iconEl.replaceChildren();
+            const i = document.createElement("i");
+            i.className = `fa-solid ${advice.icon}`;
+            iconEl.appendChild(i);
+            iconEl.style.color = advice.color;
         }
         if (textEl) {
-            textEl.innerText = randomMsg;
+            textEl.textContent = `${advice.message} (${weather.temp} °C, vent ${weather.wind} km/h)`;
         }
-        
-        card.style.borderLeftColor = scenario.border;
+
+        card.style.borderLeftColor = advice.color;
+
+        // La bulle météo est au même endroit : on la masque tant que la carte est affichée
+        const bubble = document.getElementById("weather-hud");
+        if (bubble) bubble.style.visibility = "hidden";
 
         // Show card with a small animation
         card.style.display = "flex";
@@ -118,12 +69,17 @@ iconEl.innerHTML = scenario.icon;
     hide: function() {
         const card = document.getElementById(this.cardId);
         if (card) {
+            const finish = () => {
+                card.style.display = "none";
+                const bubble = document.getElementById("weather-hud");
+                if (bubble) bubble.style.visibility = "visible";
+            };
             card.animate([
                 { opacity: 1, transform: "translate(-50%, 0)" },
                 { opacity: 0, transform: "translate(-50%, -20px)" }
-            ], { duration: 300, easing: "ease-in" }).onfinish = () => {
-                card.style.display = "none";
-            };
+            ], { duration: 300, easing: "ease-in" }).onfinish = finish;
+            // Si l'animation ne tourne pas (app en arrière-plan), la carte se ferme quand même
+            setTimeout(finish, 400);
         }
     }
 };

@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { weatherIsStale } from './weather-advice.js';
 
 // Synchronous session hydration to prevent guest locks for admins/logged-in riders
 try {
@@ -1292,9 +1293,14 @@ iconContent.innerHTML = `<div style="background-color: #1a1a1a; color: ${color};
     }
   }
 
-  // Météo Auto
-  const wHud = document.getElementById("weather-hud");
-  if (wHud && wHud.textContent.includes("--")) {
+  // Météo Auto : récupérée au premier fix GPS puis toutes les 15 min (avant : une seule fois
+  // par session). Une tentative par minute au plus, même si la requête échoue.
+  if (
+    typeof window.fetchWeather === "function" &&
+    weatherIsStale(window.currentWeather) &&
+    Date.now() - (window.lastWeatherFetchAt || 0) > 60000
+  ) {
+    window.lastWeatherFetchAt = Date.now();
     window.fetchWeather(lat, lng);
   }
 
