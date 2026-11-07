@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { initialsAvatar } from './avatar.js';
 
 // ─── Real Data Fetching (Firestore) ─────────────────────
       let currentUser = null;
@@ -17,7 +18,7 @@ import { registerAction } from './actionRegistry.js';
           
           // Mise à jour de l'UI avec les infos du profil
           document.getElementById('dash-greeting-text').textContent = `Salut ${currentUser.username || 'Pilote'} 👋`;
-          const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.username || 'Pilote')}&background=111&color=fff`;
+          const avatarUrl = initialsAvatar(currentUser.username || 'Pilote', '#ffffff'); // local, plus d'envoi à ui-avatars.com
           document.getElementById('dash-avatar-img').src = avatarUrl;
 
           if (typeof db === 'undefined') {

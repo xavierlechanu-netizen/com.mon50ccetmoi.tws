@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { initialsAvatar } from './avatar.js';
 
 /**
  * Gestion du Profil Utilisateur & Mode Hôte de Recharge
@@ -26,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (user.photoURL) {
                     avatarEl.src = user.photoURL;
                 } else {
-                    avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nameEl.textContent)}&background=111&color=00f2ff`;
+                    avatarEl.src = initialsAvatar(nameEl.textContent, '#00f2ff'); // local, plus d'envoi à ui-avatars.com
                 }
 
                 // Charger les données Firestore (BVC, Host Status)
