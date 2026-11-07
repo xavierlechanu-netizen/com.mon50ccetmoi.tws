@@ -1823,6 +1823,27 @@ window.TranslationCache = {};
 async function speak(phraseKey) {
   if (!("speechSynthesis" in window)) return;
 
+  // Les navigateurs refusent de parler tant que la personne n'a pas touché la page : le
+  // message (ex. « Content de vous revoir ») était perdu. On garde le dernier et on le dit
+  // au premier clic ou appui sur une touche.
+  if (navigator.userActivation && !navigator.userActivation.hasBeenActive) {
+    window.pendingSpeech = phraseKey;
+    if (!window.pendingSpeechListening) {
+      window.pendingSpeechListening = true;
+      const flush = () => {
+        window.removeEventListener("click", flush, true);
+        window.removeEventListener("keydown", flush, true);
+        window.pendingSpeechListening = false; // se réinstalle si la voix est encore refusée
+        const pending = window.pendingSpeech;
+        window.pendingSpeech = null;
+        if (pending) speak(pending);
+      };
+      window.addEventListener("click", flush, { once: true, capture: true });
+      window.addEventListener("keydown", flush, { once: true, capture: true });
+    }
+    return;
+  }
+
   const baseLang = window.currentLang || "fr";
   const region = window.OracleEngine.currentRegion;
 
