@@ -37,48 +37,6 @@
           Chiffrement AES-256, RGPD/CNIL &amp; Ange Gardien
         </p>
 
-        <!-- BADGE 7000 LANGUES -->
-        <div style="
-            margin: 20px auto;
-            width: 90%;
-            max-width: 400px;
-            background: rgba(183, 0, 255, 0.1);
-            border: 1px solid #b700ff;
-            border-radius: 20px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(183, 0, 255, 0.3);
-          ">
-          <h3 style="color: #b700ff; margin: 0 0 5px 0; font-size: 1.1rem">
-            <i class="fa-solid fa-earth-americas fa-spin-pulse"></i> Nexus Atlas
-            Universal Translator
-          </h3>
-          <p style="color: #fff; font-size: 0.9rem; margin: 0; font-weight: bold">
-            7000+ dialectes &amp; langues supportés par IA.
-          </p>
-          <p style="
-              color: #aaa;
-              font-size: 0.7rem;
-              margin-top: 5px;
-              margin-bottom: 10px;
-            ">
-            Génération vocale dynamique. Sans téléchargement.
-          </p>
-          <div id="google_translate_element" style="margin-top: 10px"></div>
-          <script type="text/javascript">
-            function googleTranslateElementInit() {
-              new google.translate.TranslateElement(
-                {
-                  pageLanguage: "fr",
-                  layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                },
-                "google_translate_element",
-              );
-            }
-          </script>
-          <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-        </div>
-
         <div style="
             margin: 20px auto;
             width: 90%;
@@ -113,10 +71,7 @@
               background: #111;
               color: #fff;
             ">
-          <button onclick="
-              if (typeof window.saveGuardianContacts === 'function')
-                window.saveGuardianContacts();
-            " style="
+          <button data-action="window.saveGuardianContacts()" style="
               background: #00d2ff;
               color: #000;
               border: none;
@@ -159,9 +114,7 @@
             irrémédiablement toutes les clés, itinéraires et portefeuilles
             (Kill-Switch).
           </p>
-          <button onclick="
-              alert('Par sécurité (Zero Trust), le Protocole 0 ne peut plus être déclenché depuis le client. Veuillez contacter un administrateur pour l\'effacement RGPD backend.');
-            " style="
+          <button data-action="alert('Par sécurité (Zero Trust), le Protocole 0 ne peut plus être déclenché depuis le client. Veuillez contacter un administrateur pour l’effacement RGPD backend.')" style="
               background: #ff0000;
               color: #fff;
               border: none;
@@ -196,7 +149,7 @@
           Liez cet appareil à&nbsp; votre compte pour vous connecter via Face ID ou
           Touch ID, sans aucun mot de passe.
         </p>
-        <button onclick="window.registerBiometric()" style="
+        <button data-action="window.registerBiometric()" style="
             background: linear-gradient(135deg, #10a37f, #0d8a6a);
             color: #fff;
             border: none;
@@ -222,7 +175,7 @@
           padding: 20px;
           text-align: center;
         ">
-        <button onclick="window.logout()" style="
+        <button data-action="window.logout()" style="
             background: transparent;
             color: #ff0055;
             border: 1px solid #ff0055;
@@ -250,7 +203,7 @@
         <h3 style="color: #00d2ff; margin: 0 0 15px 0; font-size: 1rem">
           <i class="fa-solid fa-database"></i> Mes Données (RGPD)
         </h3>
-        <button onclick="window.exportMyData()" style="
+        <button data-action="window.exportMyData()" style="
             background: rgba(0, 210, 255, 0.15);
             color: #00d2ff;
             border: 1px solid rgba(0, 210, 255, 0.3);
@@ -263,7 +216,7 @@
           ">
           <i class="fa-solid fa-download"></i> Exporter mes données (Art. 20)
         </button>
-        <button onclick="window.revokeAndEraseData()" style="
+        <button data-action="window.revokeAndEraseData()" style="
             background: rgba(255, 0, 0, 0.1);
             color: #ff4d4d;
             border: 1px solid rgba(255, 0, 0, 0.3);

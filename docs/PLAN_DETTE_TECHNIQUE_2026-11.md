@@ -53,11 +53,21 @@ Conséquence déjà visible : le bouton « Télécharger le rapport » du portai
 - Budget de poids : la CI échoue si le code chargé au démarrage grossit de plus de 5 %.
 - Sortir les fonctions pures de `app-core.js` (calculs de vitesse, d'itinéraire, de consentement) dans des modules testés.
 
-### Étape 3 — Supprimer les derniers `onclick` et durcir la CSP (1 jour)
+### Étape 3 — Supprimer les derniers `onclick` et durcir la CSP (1 jour) — FAIT le 7/11/2026
 
 - Remplacer les 58 `onclick=` par `data-action` (le système sécurisé du projet).
 - Retirer `'unsafe-inline'` des scripts dans la CSP : c'est le dernier gros verrou contre les injections de code.
 - Garde-fou : un test interdit tout nouveau `onclick=`.
+
+Réalisé : 67 attributs `on…=` convertis (`data-action`, et nouveaux `data-enter-action`, `data-change-action`,
+`data-input-filter`, `data-fallback-icon` dans `dom-security.js`) ; 8 scripts écrits dans les pages déplacés dans
+des fichiers (`axeptio-config.js`, `gsi-callback.js`, `b2b-assureur-demo.js`, `dashboard-extras.js`,
+`radar-danger-init.js`, `banned-page.js`) ; `'unsafe-inline'` retiré de `script-src` (balise CSP et
+`firebase.json`). Garde-fous : `tests/strict-csp.test.js` et les tests navigateur, qui échouent si la CSP bloque un script.
+Corrigé au passage : renouvellement Boîte Noire+ (boutons morts, prix affiché 5,00 € au lieu de 4,99 €), bouton
+« Publier l'annonce » de la bourse d'échange, défi de la quinzaine ; retirés : page « IA prédictive » inaccessible
+(résultat d'analyse inventé), widget Google Traduction qui ne s'exécutait jamais.
+À reprendre : `assureur.html` appelle des fonctions inexistantes (`authenticateInsurer`, `searchCase`, `selectReport`).
 
 ### Étape 4 — Une couche d'accès aux données unique (3 à 5 jours, prépare OVH)
 

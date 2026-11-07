@@ -35,22 +35,22 @@
         </div>
       </div>
 
-      <!-- Section Abonnement Sentinel Care -->
+      <!-- Section Abonnement Boîte Noire+ -->
       <div style="margin-top: 20px; padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-        <h4 style="color: #ffaa00; margin: 0 0 10px; font-family: 'Inter', sans-serif;"><i class="fa-solid fa-gem"></i> Sentinel Care</h4>
+        <h4 style="color: #ffaa00; margin: 0 0 10px; font-family: 'Inter', sans-serif;"><i class="fa-solid fa-gem"></i> Boîte Noire+</h4>
         <p style="color: #ccc; font-size: 0.8rem; margin-bottom: 15px;">Remplacement gratuit du matériel en fin de vie.<br><strong style="color: #00ff88;">1ère année incluse à&nbsp; l'achat du boîtier !</strong></p>
         
         <div style="display: flex; flex-direction: column; gap: 10px;">
-          <button onclick="window.Wallet &amp;&amp; window.Wallet.createRevolutOrder('BLACKBOX_CARE_MONTHLY')" style="background: rgba(255, 170, 0, 0.2); color: #ffaa00; border: 1px solid #ffaa00; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">
-            S'abonner - 5.00€ / mois
+          <button data-action="BlackBoxShop.subscribeCare('MONTHLY')" style="background: rgba(255, 170, 0, 0.2); color: #ffaa00; border: 1px solid #ffaa00; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+            1 mois – 4,99 €
           </button>
-          <button onclick="window.Wallet &amp;&amp; window.Wallet.createRevolutOrder('BLACKBOX_CARE_ANNUAL')" style="background: #ffaa00; color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">
-            Abonnement Annuel - 50.00€ (2 mois offerts)
+          <button data-action="BlackBoxShop.subscribeCare('ANNUAL')" style="background: #ffaa00; color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;">
+            1 an – 50 € (sans renouvellement automatique)
           </button>
         </div>
       </div>
 
-      <button id="bb-connect-btn" onclick="if(window.BlackBox) window.BlackBox.connect();" style="
+      <button id="bb-connect-btn" data-action="window.BlackBox.connect()" style="
         width: 100%;
         padding: 12px;
         border-radius: 10px;
@@ -66,7 +66,7 @@
         <i class="fa-brands fa-bluetooth"></i> Connecter
       </button>
 
-      <button id="bb-export-btn" onclick="if(window.BlackBox) window.BlackBox.exportTelemetry(0, 100);" style="
+      <button id="bb-export-btn" data-action="window.BlackBox.exportTelemetry(0, 100)" style="
         width: 100%;
         padding: 12px;
         border-radius: 10px;

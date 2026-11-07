@@ -384,26 +384,7 @@
     </style>
     <script type="module" src="/js/error-tracking.js?v=1009000"></script>
   <!-- AXEPTIO CMP -->
-<script>
-window.axeptioSettings = {
-  clientId: "6abf7d654bd86ad927014c33",
-  cookiesVersion: "73984ab7-6f43-4eef-9577-94f735eedc51",
-  googleConsentMode: {
-    default: {
-      analytics_storage: "denied",
-      ad_storage: "denied",
-      ad_user_data: "denied",
-      ad_personalization: "denied",
-      wait_for_update: 500
-    }
-  }
-};
-(function(d, s) {
-  var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
-  e.async = true; e.src = "https://static.axept.io/sdk.js";
-  t.parentNode.insertBefore(e, t);
-})(document, "script");
-</script>
+<script type="module" src="/js/axeptio-config.js"></script>
 </head>
   <body>
     <div class="bg-grid"></div>
@@ -536,7 +517,7 @@ window.axeptioSettings = {
             <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Conservez la couleur Rose Néon sur votre GPS toute l'année. Montrez votre soutien à la communauté.</div>
           </div>
         </div>
-        <button id="btn-buy-pink" style="width: 100%; margin-top: var(--space-md); background: #ff007f; color: #fff; border: none; padding: 12px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; transition: 0.2s;" onclick="acheterThemeRose()">
+        <button id="btn-buy-pink" style="width: 100%; margin-top: var(--space-md); background: #ff007f; color: #fff; border: none; padding: 12px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; transition: 0.2s;" data-action="acheterThemeRose()">
           Débloquer (500 Points mon50cc)
         </button>
       </div>
@@ -635,82 +616,8 @@ window.axeptioSettings = {
     <script type="module" src="/js/crypto-native.js" charset="utf-8"></script>
 
     <script type="module" src="/js/inline-dashboard-2.js"></script>
-    <script>
-      // --- ANIMATION FEU D'ARTIFICE (1er et 2 Janvier) ---
-      function createFirework() {
-        const firework = document.createElement('div');
-        firework.style.position = 'fixed';
-        firework.style.left = Math.random() * 100 + 'vw';
-        firework.style.top = Math.random() * 100 + 'vh';
-        firework.style.width = '5px';
-        firework.style.height = '5px';
-        firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-        firework.style.borderRadius = '50%';
-        firework.style.boxShadow = `0 0 10px 5px hsl(${Math.random() * 360}, 100%, 50%)`;
-        firework.style.zIndex = '9999';
-        firework.style.pointerEvents = 'none';
-        
-        // Animation CSS inline simple
-        firework.animate([
-          { transform: 'scale(1) translateY(0)', opacity: 1 },
-          { transform: 'scale(20) translateY(-50px)', opacity: 0 }
-        ], {
-          duration: 1000 + Math.random() * 1000,
-          easing: 'ease-out'
-        });
+    <script type="module" src="/js/dashboard-extras.js"></script>
 
-        document.body.appendChild(firework);
-        setTimeout(() => firework.remove(), 2000);
-      }
-
-      function checkNewYearFireworks() {
-        const today = new Date();
-        // getMonth() === 0 -> Janvier. getDate() <= 2 -> Le 1er ou le 2.
-        if (today.getMonth() === 0 && (today.getDate() === 1 || today.getDate() === 2)) {
-          // Lancer quelques feux d'artifice au chargement
-          let count = 0;
-          const interval = setInterval(() => {
-            createFirework();
-            createFirework();
-            count++;
-            if(count > 15) clearInterval(interval); // Arrêter après 15 rafales
-          }, 400);
-        }
-      }
-
-      // Fonction pour débloquer le thème Rose définitivement via les points mon50cc
-      window.acheterThemeRose = function() {
-        // Simulation de déduction de 500 BVC
-        const btn = document.getElementById('btn-buy-pink');
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Traitement...';
-        
-        setTimeout(() => {
-          localStorage.setItem('unlockedTheme_Pink', 'true');
-          btn.style.background = 'rgba(0, 230, 118, 0.2)';
-          btn.style.color = 'var(--neon-green)';
-          btn.innerHTML = '<i class="fa-solid fa-check"></i> Débloqué à vie !';
-          btn.disabled = true;
-          alert("🎉 Félicitations ! Votre GPS brillera désormais en Rose Néon pour toujours. Merci pour votre soutien !");
-        }, 1000);
-      };
-
-      // Vérifier si déjà débloqué au chargement
-      document.addEventListener('DOMContentLoaded', () => {
-        // 1. Feu d'artifice de Janvier
-        checkNewYearFireworks();
-
-        // 2. Déblocage du thème Rose
-        if (localStorage.getItem('unlockedTheme_Pink') === 'true') {
-          const btn = document.getElementById('btn-buy-pink');
-          if(btn) {
-            btn.style.background = 'rgba(0, 230, 118, 0.2)';
-            btn.style.color = 'var(--neon-green)';
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> Débloqué à vie !';
-            btn.disabled = true;
-          }
-        }
-      });
-    </script>
   </body>
 </html>
 

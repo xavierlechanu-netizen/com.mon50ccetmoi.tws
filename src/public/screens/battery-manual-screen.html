@@ -22,11 +22,7 @@
           max-width: 500px;
           position: relative;
         ">
-        <button onclick="
-            document
-              .getElementById('battery-manual-screen')
-              .classList.add('hidden')
-          " style="
+        <button data-action="document.getElementById('battery-manual-screen').classList.add('hidden')" style="
             position: absolute;
             top: 15px;
             right: 15px;
@@ -111,9 +107,7 @@
           </div>
         </div>
 
-        <button onclick="
-            if (window.Certificate) window.Certificate.submitManualData();
-          " style="
+        <button data-action="window.Certificate.submitManualData()" style="
             background: #00ffcc;
             color: #000;
             border: none;

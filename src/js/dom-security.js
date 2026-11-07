@@ -232,21 +232,72 @@ if (typeof document !== 'undefined') {
             return;
         }
 
-        const actionString = actionElement.getAttribute('data-action');
-        if (!actionString) return;
+        runActionString(actionElement.getAttribute('data-action'), actionElement, event);
+    });
 
-        // Découper les instructions multiples enchaînées par des points-virgules
-        // et extraire d'éventuels if(window.X) sans jamais utiliser new Function
-        const statements = actionString.split(';').map(s => s.trim()).filter(Boolean);
-        for (const stmt of statements) {
-            let executableStmt = stmt;
-            const ifMatch = stmt.match(/^if\s*\([^)]+\)\s*(.+)$/);
-            if (ifMatch) {
-                executableStmt = ifMatch[1].trim();
-            }
-            executeSingleAction(executableStmt, actionElement, event);
+    // Remplacent les attributs en ligne (onkeyup, onchange, oninput, onerror), interdits par
+    // une CSP stricte (étape 3 du plan de dette technique, 7/11/2026).
+
+    // data-enter-action="fonction()" : exécutée quand on appuie sur Entrée dans le champ
+    document.addEventListener('keydown', function(event) {
+        if (event.key !== 'Enter' || event.isComposing) return;
+        const el = event.target.closest && event.target.closest('[data-enter-action]');
+        if (!el) return;
+        event.preventDefault();
+        runActionString(el.getAttribute('data-enter-action'), el, event);
+    });
+
+    // data-change-action="nomDeFonction" : appelée avec la nouvelle valeur du champ
+    document.addEventListener('change', function(event) {
+        const el = event.target.closest && event.target.closest('[data-change-action]');
+        if (!el) return;
+        const functionPath = (el.getAttribute('data-change-action') || '').trim();
+        if (!/^[a-zA-Z0-9_$.]+$/.test(functionPath) || isBlockedActionPath(functionPath)) return;
+        const target = resolveActionTarget(functionPath);
+        if (!target || isNativeFunction(target.fn)) {
+            console.warn(`[DOMSecurity] Action de changement introuvable: ${functionPath}`);
+            return;
+        }
+        try {
+            target.fn.call(target.ctx, el.value);
+        } catch (err) {
+            console.error(`[DOMSecurity] Erreur lors de l'exécution de ${functionPath}:`, err);
         }
     });
+
+    // data-input-filter="digits" : ne garde que les chiffres pendant la saisie
+    document.addEventListener('input', function(event) {
+        const el = event.target;
+        if (el && el.getAttribute && el.getAttribute('data-input-filter') === 'digits') {
+            const digits = el.value.replace(/\D/g, '');
+            if (digits !== el.value) el.value = digits;
+        }
+    });
+
+    // <img data-fallback-icon="fa-motorcycle"> : remplacée par une icône si l'image ne charge pas
+    // (l'événement « error » des images ne remonte pas : on l'écoute en phase de capture)
+    document.addEventListener('error', function(event) {
+        const img = event.target;
+        if (!img || img.tagName !== 'IMG' || !img.hasAttribute('data-fallback-icon')) return;
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid ' + (img.getAttribute('data-fallback-icon') || '').replace(/[^\w -]/g, '');
+        img.replaceWith(icon);
+    }, true);
+}
+
+// Exécute une chaîne d'action (instructions séparées par « ; », « if(...) » toléré),
+// sans jamais utiliser new Function ni eval
+function runActionString(actionString, element, event) {
+    if (!actionString) return;
+    const statements = actionString.split(';').map(s => s.trim()).filter(Boolean);
+    for (const stmt of statements) {
+        let executableStmt = stmt;
+        const ifMatch = stmt.match(/^if\s*\([^)]+\)\s*(.+)$/);
+        if (ifMatch) {
+            executableStmt = ifMatch[1].trim();
+        }
+        executeSingleAction(executableStmt, element, event);
+    }
 }
 
 // 2. MONKEY PATCH GLOBAL innerHTML (Sanitization stricte DOMPurify)

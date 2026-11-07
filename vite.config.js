@@ -14,12 +14,12 @@ htmlFiles.forEach(file => {
 // Content-Security-Policy injectée dans chaque page (audit 2026-11, E1).
 // GitHub Pages (mon50ccetmoi.com) n'envoie pas les en-têtes de firebase.json : la balise <meta>
 // est la seule protection CSP sur le domaine principal.
-// 'unsafe-inline' reste nécessaire pour les scripts tant que les onclick= et scripts inline
-// (Axeptio, Google Sign-In) n'ont pas été migrés vers data-action (Phase 5).
+// Scripts : aucun script écrit dans les pages ni attribut onclick= (étape 3 du plan de dette
+// technique, 7/11/2026) : 'unsafe-inline' est retiré de script-src. Les styles le gardent.
 // frame-ancestors est ignoré en <meta> : il reste dans firebase.json.
 const CSP_DIRECTIVES = {
   'default-src': ["'self'"],
-  'script-src': ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net', 'https://*.gstatic.com',
+  'script-src': ["'self'", 'https://cdn.jsdelivr.net', 'https://*.gstatic.com',
     'https://apis.google.com', 'https://unpkg.com', 'https://cdnjs.cloudflare.com',
     'https://translate.googleapis.com', 'https://accounts.google.com', 'https://merchant.revolut.com',
     'https://cdn.revolut.com', 'https://connect.facebook.net', 'https://static.axept.io'],

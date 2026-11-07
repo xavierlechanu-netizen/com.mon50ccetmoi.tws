@@ -4,6 +4,7 @@
     <!-- Phase 3 : Zero-Trust DOM Security -->
     <script src="/vendor/dompurify/purify.min.js"></script>
     <script type="module" src="/js/dom-security.js"></script>
+    <script type="module" src="/js/banned-page.js"></script>
 
     <meta charset="UTF-8" />
     <meta
@@ -75,7 +76,7 @@
           Pour contester un bannissement, vous pouvez demander une vérification humaine via l'<strong>assistant juridique Nexus Atlas</strong> en utilisant vos points mon50cc. Si la sanction est ensuite annulée après réexamen, votre interdiction est levée immédiatement, votre compteur de sanctions est réinitialisé à zéro, et vous recevez <strong>50 points mon50cc en guise de compensation</strong>.
         </p>
         <button
-          onclick="window.location.href = 'app.html?appeal=true';"
+          data-action="window.location.href = 'app.html?appeal=true'"
           style="background: linear-gradient(90deg, #cca300, #ffaa00); color: #000; border: none; padding: 10px 18px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;"
         >
           <i class="fa-solid fa-gavel"></i> Demander un réexamen (Nexus Atlas Juridique)
@@ -87,10 +88,7 @@
       </p>
       <button
         class="btn-exit"
-        onclick="
-          localStorage.clear();
-          window.location.href = 'login.html';
-        "
+        data-action="leaveBannedSession()"
       >
         Retour au menu
       </button>

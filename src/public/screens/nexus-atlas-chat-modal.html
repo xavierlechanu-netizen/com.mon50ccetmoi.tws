@@ -37,7 +37,7 @@
       <!-- Input Area -->
       <div style="padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.1); background: #111;">
         <div style="display: flex; gap: 10px;">
-          <input aria-label="Posez une question à&nbsp; Nexus Atlas..." id="nexus-atlas-chat-input" type="text" placeholder="Posez une question à&nbsp; Nexus Atlas..." onkeypress="if(window.NexusAtlasChat) window.NexusAtlasChat.handleEnter(event)" style="
+          <input aria-label="Posez une question à&nbsp; Nexus Atlas..." id="nexus-atlas-chat-input" type="text" placeholder="Posez une question à&nbsp; Nexus Atlas..." data-enter-action="NexusAtlasChat.sendMessage()" style="
               flex: 1;
               background: #222;
               border: 1px solid #333;
@@ -46,7 +46,7 @@
               border-radius: 20px;
               outline: none;
             ">
-          <button onclick="if(window.NexusAtlasChat) window.NexusAtlasChat.sendMessage()" style="
+          <button data-action="window.NexusAtlasChat.sendMessage()" style="
               background: #00f2ff;
               color: #000;
               border: none;

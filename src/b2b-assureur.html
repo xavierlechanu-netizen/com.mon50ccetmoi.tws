@@ -316,7 +316,7 @@
 
         <div class="input-group">
           <input type="text" id="hashInput" class="hash-input" placeholder="Ex: 0x8f9c2...a1b4" value="0x7f4A1b90E21Cd44F" />
-          <button class="btn-verify" id="verifyBtn" onclick="verifyCrash()">Vérifier l'intégrité <i class="fa-solid fa-microchip" style="margin-left:8px;"></i></button>
+          <button class="btn-verify" id="verifyBtn" data-action="verifyCrash()">Vérifier l'intégrité <i class="fa-solid fa-microchip" style="margin-left:8px;"></i></button>
         </div>
 
         <!-- Paywall Block -->
@@ -326,7 +326,7 @@
           <p style="color: var(--text-muted); margin-bottom: 20px;">L'utilisateur a autorisé l'accès à sa boîte noire pour le sinistre <strong>0x7f4A1b...</strong><br/>Le déverrouillage cryptographique de ce rapport d'expertise officiel nécessite 1 crédit B2B.</p>
           
           <div style="display: flex; justify-content: center; gap: 20px; align-items: center;">
-            <button class="btn-verify" style="background: var(--neon-gold); color: #000;" onclick="unlockReport()">
+            <button class="btn-verify" style="background: var(--neon-gold); color: #000;" data-action="unlockReport()">
               <i class="fa-solid fa-key" style="margin-right:8px;"></i> Déverrouiller (199,99 € HT)
             </button>
           </div>
@@ -372,36 +372,7 @@
 
     </div>
 
-    <script>
-      function verifyCrash() {
-        const btn = document.getElementById('verifyBtn');
-        const paywall = document.getElementById('paywallBlock');
-        const result = document.getElementById('resultBlock');
-        
-        // Simuler la recherche sur la blockchain/Firebase
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Localisation du contrat...';
-        btn.style.opacity = '0.8';
-        result.classList.remove('active');
-        
-        setTimeout(() => {
-          btn.innerHTML = 'Vérifier l\'intégrité <i class="fa-solid fa-microchip" style="margin-left:8px;"></i>';
-          btn.style.opacity = '1';
-          paywall.classList.add('active');
-        }, 1200);
-      }
+    <script type="module" src="/js/b2b-assureur-demo.js"></script>
 
-      function unlockReport() {
-        const paywall = document.getElementById('paywallBlock');
-        const result = document.getElementById('resultBlock');
-        const btn = paywall.querySelector('button');
-
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Déchiffrement AES...';
-        
-        setTimeout(() => {
-          paywall.classList.remove('active');
-          result.classList.add('active');
-        }, 1500);
-      }
-    </script>
   </body>
 </html>

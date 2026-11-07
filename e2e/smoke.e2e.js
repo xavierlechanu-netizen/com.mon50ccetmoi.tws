@@ -19,16 +19,27 @@ export async function openAndWatch(page, url, { settleMs = 1500 } = {}) {
     }
   });
   page.on("dialog", (d) => d.dismiss().catch(() => {})); // alert/confirm : jamais bloquants
+  // Scripts bloqués par la CSP stricte (ex. un onclick= oublié) : relevés par la page elle-même
+  await page.addInitScript(() => {
+    window.__cspViolations = [];
+    document.addEventListener("securitypolicyviolation", (e) => {
+      if (/^script-src/.test(e.effectiveDirective)) {
+        window.__cspViolations.push(`${e.effectiveDirective} ${e.blockedURI || "inline"} ${e.sourceFile || ""}:${e.lineNumber || ""}`);
+      }
+    });
+  });
   await page.goto(url, { waitUntil: "load" });
   await page.waitForTimeout(settleMs);
-  return { pageErrors, missing };
+  const cspViolations = await page.evaluate(() => window.__cspViolations || []).catch(() => []);
+  return { pageErrors, missing, cspViolations };
 }
 
 test.describe("Toutes les pages se chargent sans erreur", () => {
   for (const file of PAGES) {
     test(file, async ({ page }) => {
-      const { pageErrors, missing } = await openAndWatch(page, `/${file}`);
+      const { pageErrors, missing, cspViolations } = await openAndWatch(page, `/${file}`);
       expect(missing, "fichiers du site introuvables").toEqual([]);
+      expect(cspViolations, "scripts bloqués par la CSP").toEqual([]);
       expect(pageErrors, "erreurs JavaScript non rattrapées").toEqual([]);
     });
   }

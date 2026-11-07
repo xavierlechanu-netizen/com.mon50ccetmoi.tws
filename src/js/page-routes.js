@@ -5,6 +5,20 @@
  */
 import { secureGetItem } from './config.js';
 
+// Bouton « Réclamer mes 5 points » du défi de la quinzaine (page Défis)
+window.claimFortnightChallenge = function (periodIdx) {
+  if (!window.Web4Economy) return;
+  const key = `defi_claimed_${Number(periodIdx)}`;
+  if (localStorage.getItem(key)) return; // déjà réclamé
+  window.Web4Economy.mineToken(5.0, 'Défi Quinzaine Complété', 'CHALLENGE_COMPLETED');
+  localStorage.setItem(key, 'true');
+  if (window.session) {
+    window.session.completedChallengesCount = (window.session.completedChallengesCount || 0) + 1;
+  }
+  alert('Félicitations ! Vous avez remporté 5 points mon50cc pour avoir complété le défi.');
+  if (typeof window.showPage === 'function') window.showPage('defis');
+};
+
 export const PAGE_ROUTES = {
   stats: (content, t) => {
     if (!content) return;
@@ -103,7 +117,7 @@ export const PAGE_ROUTES = {
                         <strong style="color:#ffb703;">PROCHAIN CT</strong><br>
                         <small style="font-size:0.75rem;">Obligatoire depuis Avril 2024</small>
                     </div>
-                    <input type="date" id="ct-input" value="${ctDate}" onchange="saveCTDate(this.value)" style="background:#111; color:white; border:1px solid #444; border-radius:5px; padding:5px; font-size:0.8rem;">
+                    <input type="date" id="ct-input" value="${ctDate}" data-change-action="saveCTDate" style="background:#111; color:white; border:1px solid #444; border-radius:5px; padding:5px; font-size:0.8rem;">
                 </div>
             </div>
 
@@ -239,28 +253,6 @@ export const PAGE_ROUTES = {
   },
 
 
-  ia_predictive: (content) => {
-    if (!content) return;
-    // eslint-disable-next-line no-restricted-syntax
-    content.innerHTML = `<div class="card-insurance" style="border: 2px solid #b700ff; background: rgba(20, 10, 40, 0.9);">
-            <div class="insurance-badge" style="background: #b700ff; color: white;">IA Prédictive & Courtier</div>
-            <h3 style="color: #00d2ff;"><i class="fa-solid fa-microchip"></i> IA Prédictive</h3>
-            <p style="font-size: 0.85rem; color: #ddd; margin-bottom: 15px;">L'IA analyse vos trajets pour anticiper les pannes et optimiser votre conduite 50cc.</p>
-            
-            <div class="glassmorphism" style="padding:15px; margin-bottom:20px; background: rgba(0,0,0,0.4);">
-                <h4 style="color: #ffb703; font-size: 0.9rem; margin-bottom: 10px;"><i class="fa-solid fa-star"></i> Avantages Courtier Partenaire</h4>
-                <ul style="color: #aaa; font-size: 0.8rem; text-align: left; padding-left: 20px;">
-                    <li><strong style="color: #fff;">-20% de réduction</strong> sur votre assurance tous risques grâce à l'IA Prédictive.</li>
-                    <li><strong style="color: #fff;">Garantie panne 0 km</strong> incluse avec dépannage express.</li>
-                    <li><strong style="color: #fff;">Bonus de bonne conduite</strong> (Rouler & Gagner convertible en réductions).</li>
-                </ul>
-                <button class="btn-insurance" style="width:100%; margin-top:10px; background: #ffb703; color: black; font-weight: bold;" data-action="showPage('insurance')">VOIR MON OFFRE ASSURANCE</button>
-            </div>
-
-            <button class="btn-insurance" style="width:100%; background: linear-gradient(135deg, #b700ff, #00d2ff); color: white; font-weight: bold; border: none; padding: 15px; border-radius: 10px;" data-action="PredictiveMeca.checkAlerts(); alert('L’IA analyse vos données de télémétrie actuelles... Aucun risque de serrage moteur détecté pour le moment. Vous roulez de manière optimale !')"><i class="fa-solid fa-bolt"></i> LANCER L'ANALYSE IA</button>
-        </div>`;
-  },
-
   profile: (content) => {
     if (!content) return;
     // eslint-disable-next-line no-restricted-syntax
@@ -344,7 +336,7 @@ export const PAGE_ROUTES = {
                 <div style="margin-top:15px;">
                     <input type="number" id="mix-liters" placeholder="Litres d'essence" class="scooter-brand-select" style="width:100%; margin-bottom:10px;">
                     <input type="number" id="mix-percent" placeholder="% d'huile (ex: 2)" class="scooter-brand-select" style="width:100%; margin-bottom:10px;">
-                    <button data-action="const vol = MecaWizard.calculateMix(document.getElementById('mix-liters').value, document.getElementById('mix-percent').value); document.getElementById('mix-res').innerHTML = vol + ' ml d’huile à ajouter';" 
+                    <button data-action="const vol = MecaWizard.calculateMix(document.getElementById('mix-liters').value, document.getElementById('mix-percent').value); document.getElementById('mix-res').innerHTML = vol + ' ml d'huile à ajouter';" 
                             class="btn-insurance" style="width:100%; background:var(--accent); color:black;">CALCULER</button>
                     <div id="mix-res" style="margin-top:15px; font-weight:bold; text-align:center; color:var(--neon-blue);"></div>
                 </div>
@@ -418,15 +410,7 @@ export const PAGE_ROUTES = {
               progress >= 100 &&
               !localStorage.getItem(`defi_claimed_${currentPeriodIdx}`)
                 ? `
-                <button class="btn-insurance" style="margin-top:10px; width:100%; background:linear-gradient(90deg, #b700ff, #ff0055); color:white; font-weight:bold; box-shadow:0 0 15px rgba(183,0,255,0.5);" onclick="
-                    if(window.Web4Economy) {
-                        window.Web4Economy.mineToken(5.0, 'Défi Quinzaine Complété', 'CHALLENGE_COMPLETED');
-                        localStorage.setItem('defi_claimed_${currentPeriodIdx}', 'true');
-                        window.session.completedChallengesCount = (window.session.completedChallengesCount || 0) + 1;
-                        alert('Félicitations ! Vous avez remporté 5 points mon50cc pour avoir complété le défi.');
-                        showPage('defis');
-                    }
-                ">RÉCLAMER MES 5 POINTS MON50CC</button>
+                <button class="btn-insurance" style="margin-top:10px; width:100%; background:linear-gradient(90deg, #b700ff, #ff0055); color:white; font-weight:bold; box-shadow:0 0 15px rgba(183,0,255,0.5);" data-action="claimFortnightChallenge(${currentPeriodIdx})">RÉCLAMER MES 5 POINTS MON50CC</button>
             `
                 : progress >= 100
                   ? `<button class="btn-insurance" style="margin-top:10px; width:100%; background:#333; color:#aaa; cursor:not-allowed;" disabled>RÉCOMPENSE DE 5 POINTS MON50CC RÉCUPÉRÉE</button>`
@@ -546,7 +530,7 @@ export const PAGE_ROUTES = {
 
             <div class="card">
                 <label for="garage-status-select" style="font-size:0.8rem; display:block; margin-bottom:5px;">Statut immédiat de l'atelier</label>
-                <select id="garage-status-select" onchange="updateGarageStatus(this.value)" class="scooter-brand-select" style="width:100%; background:#111;">
+                <select id="garage-status-select" data-change-action="updateGarageStatus" class="scooter-brand-select" style="width:100%; background:#111;">
                     <option value="dispo" selected>✓ Prise en charge immédiate</option>
                     <option value="busy">⏳ RDV nécessaire (&gt;48h)</option>
                     <option value="full">🚫 Atelier Complet</option>

@@ -10,9 +10,7 @@
         overflow-y: auto;
         padding-bottom: 50px;
       ">
-      <button onclick="
-          document.getElementById('ai-diagnostic-modal').classList.add('hidden')
-        " style="
+      <button data-action="document.getElementById('ai-diagnostic-modal').classList.add('hidden')" style="
           position: absolute;
           top: 20px;
           right: 20px;
@@ -72,44 +70,5 @@
 
       <!-- Composants -->
       <div style="margin: 20px auto; width: 90%; max-width: 450px">
-        <!-- Composant Template -->
-        <script>
-          const components = [
-            {
-              id: "piston",
-              name: "Piston (Haut moteur)",
-              icon: "fa-gauge-high",
-            },
-            {
-              id: "belt",
-              name: "Courroie de transmission",
-              icon: "fa-dharmachakra",
-            },
-            { id: "oil", name: "Huile Moteur / Boîte", icon: "fa-oil-can" },
-            {
-              id: "brakes",
-              name: "Plaquettes de frein",
-              icon: "fa-circle-stop",
-            },
-            { id: "tires", name: "Grip Pneus", icon: "fa-road" },
-            { id: "battery", name: "Batterie 12V", icon: "fa-car-battery" },
-          ];
-          components.forEach((comp) => {
-            document.write(`
-                    <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:15px; padding:15px; margin-bottom:15px; display:flex; flex-direction:column; gap:10px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-weight:600; color:#fff;"><i class="fa-solid ${comp.icon}" style="color:#aaa; width:25px;"></i> ${comp.name}</span>
-                            <span id="ai-val-${comp.id}" style="font-weight:bold; color:#0f0;">0%</span>
-                        </div>
-                        <div style="width:100%; background:rgba(255,255,255,0.1); height:10px; border-radius:5px; overflow:hidden;">
-                            <div id="ai-bar-${comp.id}" style="width:0%; height:100%; background:#0f0; transition:width 1s, background-color 1s;"></div>
-                        </div>
-                        <div style="text-align:right;">
-                            <button onclick="if(window.PredictiveMeca) window.PredictiveMeca.resetComponent('${comp.id}')" style="background:transparent; border:1px solid #444; color:#aaa; font-size:0.75rem; padding:4px 10px; border-radius:10px; cursor:pointer;">Réinitialiser (Remplacé)</button>
-                        </div>
-                    </div>
-                `);
-          });
-        </script>
       </div>
     </div>

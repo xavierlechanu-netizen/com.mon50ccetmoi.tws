@@ -188,8 +188,6 @@
             text-decoration: none;
             transition: 0.2s;
           "
-          onmouseover="this.style.color = 'var(--accent)'"
-          onmouseout="this.style.color = 'var(--text-muted)'"
           >Mot de passe oublié ?</a
         >
         <button data-action="if(window.GaragePro) GaragePro.initRegistration()" style="margin-top:20px; width:100%; padding:10px; background:transparent; color:#00ff88; border:1px solid #00ff88; border-radius:6px; cursor:pointer; font-weight:bold;">
@@ -214,7 +212,7 @@
             id="siret-input"
             placeholder="Ex: 12345678901234"
             maxlength="14"
-            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+            data-input-filter="digits"
           />
           <button
             class="btn-action"
@@ -226,9 +224,7 @@
           <div id="siret-result"></div>
           <a
             href="#"
-            onclick="
-              document.getElementById('siret-modal').style.display = 'none'
-            "
+            data-action="document.getElementById('siret-modal').style.display = 'none'"
             style="
               display: block;
               margin-top: 15px;
@@ -568,9 +564,7 @@
                 background: var(--accent);
                 color: #000;
               "
-              onclick="
-                document.getElementById('campaign-modal').style.display = 'flex'
-              "
+              data-action="document.getElementById('campaign-modal').style.display = 'flex'"
             >
               + Nouvelle Offre Partenaire
             </button>
@@ -634,10 +628,7 @@
                   color: #000;
                   font-weight: bold;
                 "
-                onclick="
-                  document.getElementById('billing-modal').style.display =
-                    'flex'
-                "
+                data-action="document.getElementById('billing-modal').style.display = 'flex'"
               >
                 <i class="fa-solid fa-plus"></i> Recharger le compte
               </button>
@@ -1276,9 +1267,7 @@
               color: var(--text-color);
               border: 1px solid var(--border);
             "
-            onclick="
-              document.getElementById('campaign-modal').style.display = 'none'
-            "
+            data-action="document.getElementById('campaign-modal').style.display = 'none'"
           >
             Annuler
           </button>
@@ -1313,9 +1302,7 @@
             Paiement Sécurisé
           </h3>
           <button
-            onclick="
-              document.getElementById('billing-modal').style.display = 'none'
-            "
+            data-action="document.getElementById('billing-modal').style.display = 'none'"
             style="
               background: none;
               border: none;
@@ -1564,9 +1551,7 @@
               color: var(--text-color);
               border: 1px solid var(--border);
             "
-            onclick="
-              document.getElementById('report-modal').style.display = 'none'
-            "
+            data-action="document.getElementById('report-modal').style.display = 'none'"
           >
             Fermer
           </button>

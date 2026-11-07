@@ -221,11 +221,7 @@
           max-width: 400px;
           text-align: center;
         ">
-        <button onclick="
-            document
-              .getElementById('battery-pricing-screen')
-              .classList.remove('hidden')
-          " style="
+        <button data-action="document.getElementById('battery-pricing-screen').classList.remove('hidden')" style="
             background: linear-gradient(135deg, #00d2ff, #b700ff);
             color: #fff;
             border: none;
@@ -241,11 +237,7 @@
           ">
           <i class="fa-solid fa-file-signature"></i> Générer Certificat (Vente)
         </button>
-        <button onclick="
-            document
-              .getElementById('battery-manual-screen')
-              .classList.remove('hidden')
-          " style="
+        <button data-action="document.getElementById('battery-manual-screen').classList.remove('hidden')" style="
             background: linear-gradient(135deg, #222, #444);
             color: #fff;
             border: 1px solid #666;

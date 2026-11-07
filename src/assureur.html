@@ -264,7 +264,7 @@
             outline: none;
             box-sizing: border-box;
           "
-          onkeyup="if (event.key === 'Enter') authenticateInsurer();"
+          data-enter-action="authenticateInsurer()"
         />
         <div
           style="
@@ -314,7 +314,7 @@
           type="text"
           id="input-case-code"
           placeholder="Ex: LITIGE-XXXXXX"
-          onkeyup="if (event.key === 'Enter') searchCase();"
+          data-enter-action="searchCase()"
         />
         <button data-action="searchCase()">
           <i class="fa-solid fa-search"></i> Rechercher

@@ -213,6 +213,17 @@ window.ExchangeMarket = {
   },
 
   /**
+   * Bouton « Publier l'annonce » : lit le formulaire puis publie.
+   */
+  submitListingForm: function () {
+    const val = (id) => document.getElementById(id)?.value ?? "";
+    return this.publishListing(
+      val("ex-title"), val("ex-desc"), val("ex-price-type"), val("ex-price"),
+      val("ex-category"), val("ex-condition"), val("ex-photourl"), val("ex-compatibility"),
+    );
+  },
+
+  /**
    * Publie une nouvelle annonce dans Firestore.
    */
   publishListing: async function (title, description, priceType, price, category, condition, photoUrl, compatibility) {
@@ -528,8 +539,7 @@ container.innerHTML = `
       const date = listing.createdAt?.toDate ? listing.createdAt.toDate().toLocaleDateString("fr-FR") : "";
 
       const imageContent = listing.photoUrl
-        ? `<img src="${listing.photoUrl}" alt="Photo annonce" style="width:100%; height:100%; object-fit:cover; border-radius:10px;" onerror="// eslint-disable-next-line no-restricted-syntax
-this.parentElement.innerHTML = '<i class=\\'fa-solid ${icon}\\'></i>'">`
+        ? `<img src="${listing.photoUrl}" alt="Photo annonce" style="width:100%; height:100%; object-fit:cover; border-radius:10px;" data-fallback-icon="${icon}">`
         : `<i class="fa-solid ${icon}"></i>`;
 
       html += `
@@ -606,7 +616,7 @@ container.innerHTML = html;
     // eslint-disable-next-line no-restricted-syntax
 form.innerHTML = `
       <div style="width:100%; max-width:480px; background:rgba(20,25,40,0.8); border:1px solid rgba(0,242,255,0.3); border-radius:20px; padding:25px; box-shadow:0 0 30px rgba(0,242,255,0.2); position:relative; max-height:90vh; overflow-y:auto;">
-        <button data-action="ExchangeMarket.closePublishForm()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:#889; font-size:1.5rem; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#889'">
+        <button data-action="ExchangeMarket.closePublishForm()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:#889; font-size:1.5rem; cursor:pointer; transition:color 0.2s;">
           <i class="fa-solid fa-xmark"></i>
         </button>
         <div style="text-align:center; margin-bottom:20px;">
@@ -687,16 +697,7 @@ form.innerHTML = `
             </div>
           </div>
 
-          <button onclick="ExchangeMarket.publishListing(
-            document.getElementById('ex-title').value,
-            document.getElementById('ex-desc').value,
-            document.getElementById('ex-price-type').value,
-            document.getElementById('ex-price').value,
-            document.getElementById('ex-category').value,
-            document.getElementById('ex-condition').value,
-            document.getElementById('ex-photourl').value,
-            document.getElementById('ex-compatibility').value
-          )" style="margin-top:10px; width:100%; background:linear-gradient(135deg, #00f2ff, #0077ff); color:#fff; border:none; padding:15px; border-radius:12px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 0 15px rgba(0,242,255,0.3);">
+          <button data-action="ExchangeMarket.submitListingForm()" style="margin-top:10px; width:100%; background:linear-gradient(135deg, #00f2ff, #0077ff); color:#fff; border:none; padding:15px; border-radius:12px; font-weight:bold; font-size:1rem; cursor:pointer; box-shadow:0 0 15px rgba(0,242,255,0.3);">
             <i class="fa-solid fa-paper-plane"></i> Publier l'annonce
           </button>
         </div>

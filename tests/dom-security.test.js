@@ -184,6 +184,53 @@ describe('DOMSecurity & Safe Event Delegator (OWASP ASVS v5.0.0-1.3.1 & 1.3.2)',
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Fonction du navigateur bloquée'));
   });
 
+  // Remplaçants des onkeyup / onchange / oninput / onerror (CSP stricte, 7/11/2026).
+  // Rappel : chaque test recharge le module, donc un même événement peut être traité plusieurs fois.
+  test('data-enter-action : Entrée dans le champ lance l\'action, une autre touche non', () => {
+    const login = jest.fn();
+    registerAction('doLoginTest', login);
+    document.body.insertAdjacentHTML('beforeend', '<input id="pwd" data-enter-action="doLoginTest()">');
+    const input = document.getElementById('pwd');
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true }));
+    expect(login).not.toHaveBeenCalled();
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(login).toHaveBeenCalled();
+  });
+
+  test('data-change-action : la fonction reçoit la nouvelle valeur ; fonctions du navigateur refusées', () => {
+    const save = jest.fn();
+    registerAction('saveDateTest', save);
+    document.body.insertAdjacentHTML('beforeend',
+      '<input id="d" data-change-action="saveDateTest"><input id="evil" data-change-action="localStorage.clear">');
+    const d = document.getElementById('d');
+    d.value = '2026-12-01';
+    d.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(save).toHaveBeenCalledWith('2026-12-01');
+
+    localStorage.setItem('garde', 'oui');
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    document.getElementById('evil').dispatchEvent(new Event('change', { bubbles: true }));
+    expect(localStorage.getItem('garde')).toBe('oui');
+  });
+
+  test('data-input-filter="digits" ne garde que les chiffres', () => {
+    document.body.insertAdjacentHTML('beforeend', '<input id="siret" data-input-filter="digits">');
+    const siret = document.getElementById('siret');
+    siret.value = '123 456-78a9';
+    siret.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(siret.value).toBe('123456789');
+  });
+
+  test('data-fallback-icon : une image cassée est remplacée par une icône', () => {
+    document.body.insertAdjacentHTML('beforeend',
+      '<div id="box"><img id="photo" src="x.jpg" data-fallback-icon="fa-motorcycle"></div>');
+    document.getElementById('photo').dispatchEvent(new Event('error'));
+    const icon = document.querySelector('#box i');
+    expect(document.getElementById('photo')).toBeNull();
+    expect(icon.className).toBe('fa-solid fa-motorcycle');
+  });
+
   test('DOMSecurity.safeHTML filtre les balises dangereuses via DOMPurify', () => {
     const container = document.createElement('div');
     DOMSecurity.safeHTML(container, '<p>Texte sain</p><iframe src="evil.com"></iframe><style>body{color:red}</style>');

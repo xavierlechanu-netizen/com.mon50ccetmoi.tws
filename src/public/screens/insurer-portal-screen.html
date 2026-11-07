@@ -36,7 +36,7 @@
           font-size: 1.2rem;
           cursor: pointer;
           transition: all 0.3s ease;
-        " onmouseover="this.style.background = 'rgba(255,255,255,0.2)'" onmouseout="this.style.background = 'rgba(255,255,255,0.1)'">
+        ">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
@@ -102,11 +102,11 @@
           ">
         <input aria-label="Mot de passe" type="password" id="insurer-pwd-input" class="cyber-input" placeholder="Mot de passe" style="text-align: center; font-size: 1.2rem; margin-bottom: 30px">
 
-        <button class="btn-neon-action" onclick="window.InsurerPortal.login()" style="width: 100%; margin-bottom: 15px">
+        <button class="btn-neon-action" data-action="window.InsurerPortal.login()" style="width: 100%; margin-bottom: 15px">
           <i class="fa-solid fa-right-to-bracket" style="margin-right: 10px"></i>
           Connexion
         </button>
-        <button class="btn-neon-action" onclick="window.InsurerPortal.signup()" style="
+        <button class="btn-neon-action" data-action="window.InsurerPortal.signup()" style="
             width: 100%;
             background: rgba(255, 255, 255, 0.1);
             box-shadow: none;
@@ -145,11 +145,11 @@
             text-transform: uppercase;
             margin-bottom: 30px;
           ">
-        <button class="btn-neon-action" onclick="window.InsurerPortal.verifyCode()" style="width: 100%">
+        <button class="btn-neon-action" data-action="window.InsurerPortal.verifyCode()" style="width: 100%">
           <i class="fa-solid fa-magnifying-glass" style="margin-right: 10px"></i>
           Rechercher le dossier
         </button>
-        <button class="btn-neon-action" onclick="window.InsurerPortal.logout()" style="
+        <button class="btn-neon-action" data-action="window.InsurerPortal.logout()" style="
             width: 100%;
             background: transparent;
             box-shadow: none;
@@ -192,7 +192,7 @@
             <span style="color: #94a3b8; font-size: 0.9rem">Constat certifié blockchain, horodatage, trace GPS
               complète.</span>
           </div>
-          <button class="btn-neon-action" onclick="window.InsurerPortal.buyReport('Standard', 49.99, 5)" style="background: rgba(255, 255, 255, 0.1); box-shadow: none">
+          <button class="btn-neon-action" data-action="window.InsurerPortal.buyReport('Standard', 49.99, 5)" style="background: rgba(255, 255, 255, 0.1); box-shadow: none">
             49,99 € HT <small style="opacity:.7">(59,99 € TTC)</small>
           </button>
         </div>
@@ -210,7 +210,7 @@
             <span style="color: #94a3b8; font-size: 0.95rem">Inclus Standard + Télémétrie G-Force, Vitesse instantanée,
               Angle.</span>
           </div>
-          <button class="btn-neon-action" onclick="window.InsurerPortal.buyReport('Intermédiaire', 89.99, 10)">
+          <button class="btn-neon-action" data-action="window.InsurerPortal.buyReport('Intermédiaire', 89.99, 10)">
             89,99 € HT <small style="opacity:.7">(107,99 € TTC)</small>
           </button>
         </div>
@@ -246,7 +246,7 @@
             <span style="color: #cbd5e1; font-size: 0.95rem">Reconstitution 3D prédictive de l'accident via IA. Analyse
               stricte des responsabilités.</span>
           </div>
-          <button class="btn-neon-action" onclick="window.InsurerPortal.buyReport('Expert', 199.99, 20)" style="
+          <button class="btn-neon-action" data-action="window.InsurerPortal.buyReport('Expert', 199.99, 20)" style="
               background: linear-gradient(135deg, #b700ff 0%, #ff0055 100%);
               box-shadow: 0 0 20px rgba(183, 0, 255, 0.6);
             ">

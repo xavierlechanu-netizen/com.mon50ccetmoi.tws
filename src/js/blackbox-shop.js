@@ -145,6 +145,27 @@ export const BlackBoxShop = {
   },
 
   /**
+   * Abonnement Boîte Noire+ (renouvellement après l'année offerte avec le boîtier).
+   * Prix et durée fixés côté serveur (functions/api/payments-catalog.js).
+   * @param {"MONTHLY"|"ANNUAL"} plan
+   */
+  subscribeCare: async function (plan) {
+    if (this.isProcessing) return;
+    const offers = {
+      MONTHLY: { id: "BLACKBOX_CARE_MONTHLY", label: "Abonnement Boîte Noire+ (1 mois)", text: "4,99 € pour 1 mois" },
+      ANNUAL: { id: "BLACKBOX_CARE_ANNUAL", label: "Abonnement Boîte Noire+ (1 an)", text: "50 € pour 1 an" },
+    };
+    const offer = offers[plan];
+    if (!offer) return;
+    if (!confirm(`Abonnement Boîte Noire+ : ${offer.text}, sans renouvellement automatique.\nConfirmer le paiement sécurisé ?`)) return;
+    // Le module de paiement Revolut n'est chargé qu'au moment d'un achat
+    if (typeof window.RevolutCheckout !== "function" && typeof window.loadRevolutSDK === "function") {
+      await window.loadRevolutSDK().catch(() => {}); // l'échec est signalé par processRevolutPayment
+    }
+    await this.processRevolutPayment(offer.id, offer.label);
+  },
+
+  /**
    * Tunnel de Paiement Officiel Revolut Merchant API
    */
   processRevolutPayment: async function (reportType, label) {

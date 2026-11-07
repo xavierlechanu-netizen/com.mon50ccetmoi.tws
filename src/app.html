@@ -118,26 +118,7 @@
 
   <!-- GAMIFICATION HUD -->
   <!-- AXEPTIO CMP -->
-  <script>
-    window.axeptioSettings = {
-      clientId: "6abf7d654bd86ad927014c33",
-      cookiesVersion: "73984ab7-6f43-4eef-9577-94f735eedc51",
-      googleConsentMode: {
-        default: {
-          analytics_storage: "denied",
-          ad_storage: "denied",
-          ad_user_data: "denied",
-          ad_personalization: "denied",
-          wait_for_update: 500
-        }
-      }
-    };
-    (function (d, s) {
-      var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
-      e.async = true; e.src = "https://static.axept.io/sdk.js";
-      t.parentNode.insertBefore(e, t);
-    })(document, "script");
-  </script>
+  <script type="module" src="/js/axeptio-config.js"></script>
 </head>
 
 <body style="margin: 0; padding: 0; background: #000; overflow: hidden">
@@ -762,6 +743,7 @@
   <script type="module" src="/js/v3-smartcity.js" charset="utf-8"></script>
   <script type="module" src="/js/carbon-trading.js" charset="utf-8"></script>
   <script type="module" src="/js/api-client.js" charset="utf-8"></script>
+  <script type="module" src="/js/blackbox-shop.js" charset="utf-8"></script>
   <script type="module" src="/js/ign-carto.js" charset="utf-8"></script>
   <script type="module" src="/js/certificate.js" charset="utf-8"></script>
   <script type="module" src="/js/rgpd-cnil.js" charset="utf-8"></script>

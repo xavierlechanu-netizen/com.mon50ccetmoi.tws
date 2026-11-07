@@ -56,26 +56,7 @@
     <script type="module" src="/js/inline-admin-1.js"></script>
     <script type="module" src="/js/error-tracking.js?v=1008000"></script>
   <!-- AXEPTIO CMP -->
-<script>
-window.axeptioSettings = {
-  clientId: "6abf7d654bd86ad927014c33",
-  cookiesVersion: "73984ab7-6f43-4eef-9577-94f735eedc51",
-  googleConsentMode: {
-    default: {
-      analytics_storage: "denied",
-      ad_storage: "denied",
-      ad_user_data: "denied",
-      ad_personalization: "denied",
-      wait_for_update: 500
-    }
-  }
-};
-(function(d, s) {
-  var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
-  e.async = true; e.src = "https://static.axept.io/sdk.js";
-  t.parentNode.insertBefore(e, t);
-})(document, "script");
-</script>
+<script type="module" src="/js/axeptio-config.js"></script>
 </head>
   <body class="admin-body">
     <div class="admin-header">

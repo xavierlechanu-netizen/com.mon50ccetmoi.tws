@@ -10,11 +10,7 @@
         overflow-y: auto;
         padding-bottom: 50px;
       ">
-      <button onclick="
-          document
-            .getElementById('battery-pricing-screen')
-            .classList.add('hidden')
-        " style="
+      <button data-action="document.getElementById('battery-pricing-screen').classList.add('hidden')" style="
           position: absolute;
           top: 20px;
           right: 20px;
@@ -61,7 +57,7 @@
             <span style="color: #94a3b8; font-size: 0.9rem">État de santé SOH basique. Sans analyse de conduite. Document
               officiel filigrané.</span>
           </div>
-          <button onclick="window.Certificate.purchaseBatteryCert('basic')" style="
+          <button data-action="window.Certificate.purchaseBatteryCert('basic')" style="
               background: transparent;
               color: #fff;
               border: 1px solid #fff;
@@ -91,7 +87,7 @@
             <span style="color: #94a3b8; font-size: 0.95rem">PDF complet filigrané, diagnostic étendu, analyse IA du style de
               conduite.</span>
           </div>
-          <button onclick="window.Certificate.purchaseBatteryCert('premium')" style="
+          <button data-action="window.Certificate.purchaseBatteryCert('premium')" style="
               background: #00d2ff;
               color: #000;
               border: none;
@@ -139,7 +135,7 @@
             <span style="color: #cbd5e1; font-size: 0.95rem">Premium + Signature cryptographique inaltérable (Chiffrement E2EE
               de niveau militaire).</span>
           </div>
-          <button onclick="window.Certificate.purchaseBatteryCert('quantum')" style="
+          <button data-action="window.Certificate.purchaseBatteryCert('quantum')" style="
               background: linear-gradient(135deg, #b700ff 0%, #ff0055 100%);
               color: #fff;
               border: none;

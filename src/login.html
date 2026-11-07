@@ -25,15 +25,7 @@
     <script type="module" src="/js/inline-login-1.js"></script>
     <!-- CryptoJS -->
     <script type="module" src="/js/crypto-native.js" charset="utf-8"></script>
-    <script>
-      window.handleCredentialResponse = function(response) {
-        if (typeof window._handleCredentialResponseReal === 'function') {
-          window._handleCredentialResponseReal(response);
-        } else {
-          window._pendingGoogleResponse = response;
-        }
-      };
-    </script>
+    <script type="module" src="/js/gsi-callback.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script type="module" src="/js/inline-login-2.js"></script>
     <script type="module" src="/js/error-tracking.js?v=1008000"></script>
