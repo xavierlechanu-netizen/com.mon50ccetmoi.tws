@@ -7,6 +7,7 @@ import {
   configureGps, hasLocationConsent, checkLegalConsent, showGpsBanner, hideGpsBanner,
   startGeolocation, activateLowAccuracyFallback, stopLowAccuracyFallback,
 } from './gps-tracking.js';
+import { checkHazardProximity, showHazardConfirmation } from './hazard-alerts.js';
 
 // Positions GPS → updatePosition ; démarrage du GPS → écran maintenu allumé
 // (fonctions déclarées plus bas, disponibles dès maintenant)
@@ -45,7 +46,6 @@ window.hazardMarkers = [];
 window.officialPoiMarkers = [];
 window.wakeLock = null;
 window.isRiding = false;
-window.lastSpokenHazard = null;
 window.nightModeActive = false;
 window.isParkingMode = false;
 window.parkingStartPos = null;
@@ -788,104 +788,6 @@ iconContent.innerHTML = `<div style="background-color: #1a1a1a; color: ${color};
 }
 
 const getDistance = distanceMeters;
-
-function checkHazardProximity(lat, lng) {
-  const raw = secureGetItem("hazards");
-  const hazards = raw ? JSON.parse(raw) : [];
-
-  hazards.forEach((h, index) => {
-    const dist = getDistance(lat, lng, h.lat, h.lon);
-
-    // --- ALERTE ROUGE (GHOST CAR) ---
-    if (h.type === "danger_immediat") {
-      const ageMins = (Date.now() - new Date(h.date).getTime()) / 60000;
-      if (
-        dist < 1000 &&
-        ageMins <= 15 &&
-        window.lastSpokenRedAlert !== h.lat + h.lon
-      ) {
-        window.lastSpokenRedAlert = h.lat + h.lon;
-        if (typeof window.triggerRedAlert === "function") {
-          window.triggerRedAlert(Math.round(dist), h.description || "");
-        }
-      }
-    }
-    // --- ANIMAUX (Anticipation 500m) ---
-    else if (
-      (h.type === "animal" || h.type === "chien") &&
-      dist < 500 &&
-      lastSpokenHazard !== h.lat + h.lon
-    ) {
-      speak(
-        `Attention, ${h.type} signalé à environ 500 mètres. Restez vigilant.`,
-      );
-      lastSpokenHazard = h.lat + h.lon;
-      showHazardConfirmation(index, h.type);
-    }
-    // --- DANGERS STANDARDS ---
-    else if (dist < 100 && lastSpokenHazard !== h.lat + h.lon) {
-      speak(`Attention : ${h.type} signalé à proximité.`);
-      lastSpokenHazard = h.lat + h.lon;
-      showHazardConfirmation(index, h.type);
-    }
-  });
-}
-
-window.triggerRedAlert = function (distance, description) {
-  // Annonce vocale
-  let alertMsg = `Attention, conduite dangereuse signalée`;
-  if (description) {
-    alertMsg += ` : ${description}`;
-  }
-  alertMsg += ` à ${distance} mètres devant vous. Restez vigilant.`;
-  speak(alertMsg);
-
-  // Effet visuel clignotant rouge
-  const overlay = document.createElement("div");
-  overlay.style =
-    "position:fixed; top:0; left:0; width:100%; height:100%; box-shadow: inset 0 0 50px 20px rgba(255, 0, 0, 0.8); z-index:999999; pointer-events:none; transition: opacity 0.5s;";
-  document.body.appendChild(overlay);
-
-  let count = 0;
-  const interval = setInterval(() => {
-    overlay.style.opacity = count % 2 === 0 ? "0" : "1";
-    count++;
-    if (count > 10) {
-      clearInterval(interval);
-      overlay.remove();
-    }
-  }, 500);
-};
-
-function showHazardConfirmation(index, type) {
-  const toast = document.createElement("div");
-  toast.className = "hazard-toast glassmorphism";
-  // eslint-disable-next-line no-restricted-syntax
-toast.innerHTML = `
-        <p>Toujours là : <strong>${type}</strong> ?</p>
-        <div style="display:flex; gap:10px;">
-            <button data-action="confirmHazard(${index}, true)">✅ Oui</button>
-            <button data-action="confirmHazard(${index}, false)">&#10060; Non</button>
-        </div>
-    `;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 8000);
-}
-
-window.confirmHazard = function (index, exists) {
-  if (!exists) {
-    let hazards = JSON.parse(secureGetItem("hazards") || "[]");
-    hazards.splice(index, 1);
-    secureSetItem("hazards", JSON.stringify(hazards));
-    loadHazards();
-    speak("Merci, signalement mis à jour.");
-  } else {
-    speak("Merci de votre vigilance.");
-  }
-  const toast = document.querySelector(".hazard-toast");
-  if (toast) toast.remove();
-  vibrate(30);
-};
 
 // --- NEW: Auto Night Mode ---
 function checkNightMode() {

@@ -75,7 +75,7 @@ Corrigé au passage : renouvellement Boîte Noire+ (boutons morts, prix affiché
 - Ajouter l'interrupteur `CONFIG.BACKEND_MODE = "FIREBASE" | "SOVEREIGN"` prévu par la Phase A : la migration OVH se fera ensuite domaine par domaine, sans toucher au reste.
 - Même chose pour `localStorage` : un module de stockage local, avec des clés déclarées en un seul endroit.
 
-### Étape 5 — Découper l'application en modules (2 à 3 semaines, progressif) — EN COURS (tranches 1 et 2 faites le 7/11/2026)
+### Étape 5 — Découper l'application en modules (2 à 3 semaines, progressif) — EN COURS (tranches 1 à 3 faites le 7/11/2026)
 
 - Passer des 81 scripts qui communiquent par `window` (489 globales) à de vrais imports entre modules, rangés par fonctionnalité (`carte/`, `communauté/`, `boîte-noire/`, `assistant/`…).
 - Charger à la demande les fonctions rares (avocat de poche, certificats, diagnostic, marché du carbone…) : démarrage plus rapide.
@@ -98,7 +98,14 @@ Tranche 2 (7/11/2026) — `app-core.js` : 2 063 → 1 000 lignes :
   et un test navigateur qui vérifie que la position arrive jusqu'à l'app.
 - Retirés : « moteur de prédiction d'adhérence » (valeurs jamais lues, affichage inexistant) et 65 lignes
   de style Google Maps (seul l'interrupteur du thème sombre servait).
-- Suite : alertes de danger et `updatePosition` (app-core), puis `app-features.js` et `app-map.js`.
+
+Tranche 3 (7/11/2026) — `app-core.js` : 1 000 → 903 lignes :
+- `hazard-alerts.js` : alertes de danger pendant la conduite (règles de distance dans `hazardAlertFor`,
+  fonction pure). Tests : `tests/hazard-alerts.test.js` (18 cas).
+- Corrigé : un danger était reconnu par la somme latitude + longitude (deux dangers pouvaient se masquer) ;
+  seul le dernier danger annoncé était retenu (deux dangers proches répétés à chaque position GPS) ;
+  le type de danger était inséré comme du HTML dans « Toujours là ? ».
+- Suite : `app-features.js` (1 493 lignes) et `app-map.js` (1 226 lignes).
 
 ### Étape 6 — Dépendances et outillage (½ journée, puis en continu)
 
