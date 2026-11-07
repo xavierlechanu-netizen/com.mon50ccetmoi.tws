@@ -41,19 +41,31 @@ jobs:
       - name: Build
         run: npm run build
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
-          # Upload entire repository
           path: './dist'
+          # Indispensable : /.well-known/assetlinks.json (lien entre le site et l'app Play Store)
+          # est dans un dossier caché, exclu par défaut depuis la v4.
+          include-hidden-files: true
 
   # Deployment job
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
+        continue-on-error: true
+      # GitHub Pages refuse parfois une publication tant que la précédente est encore
+      # « en cours » de son côté (erreur « in progress deployment ») : on réessaie une fois.
+      - name: Attendre avant une seconde tentative
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 300
+      - name: Deploy to GitHub Pages (seconde tentative)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v5
