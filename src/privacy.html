@@ -73,53 +73,99 @@
   <body>
     <a href="app.html" class="back-btn">⬅ Retour à l'application</a>
     
-    <h1>Politique de Confidentialité Globale (Privacy Policy)</h1>
-    <p>Dernière mise à jour : Juillet 2026</p>
-    
+    <style>
+      table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9rem; }
+      th, td { border: 1px solid rgba(255,255,255,0.15); padding: 8px; text-align: left; vertical-align: top; }
+      th { background: rgba(255,255,255,0.06); }
+      .table-wrap { overflow-x: auto; }
+    </style>
+
+    <h1>Politique de confidentialité</h1>
+    <p>Dernière mise à jour : 7 novembre 2026</p>
+    <p>Cette page explique quelles données l'application mon50ccetmoi collecte, pourquoi, combien de temps elles sont conservées, avec qui elles sont partagées, et comment exercer vos droits, conformément au Règlement général sur la protection des données (RGPD) et à la loi Informatique et Libertés.</p>
+
     <div class="card">
-        <h2>1. Privacy by Design & RGPD (Europe)</h2>
-        <p>Notre application est conçue selon le standard de sécurité européen (RGPD), qui s'applique par défaut à tous nos utilisateurs mondiaux.</p>
+        <h2>1. Responsable du traitement</h2>
+        <p>Xavier Le Chanu, entrepreneur individuel — SIRET 891 912 503 00036 — contact : <a href="mailto:contact@mon50ccetmoi.com">contact@mon50ccetmoi.com</a>. Voir aussi les <a href="mentions-legales.html">mentions légales</a>.</p>
+    </div>
+
+    <div class="card">
+        <h2>2. Données collectées, finalités et bases légales</h2>
+        <div class="table-wrap"><table>
+            <tr><th>Données</th><th>Pourquoi</th><th>Base légale</th></tr>
+            <tr><td>Compte : pseudo, identifiant, e-mail (connexion Google) ou identifiant de connexion, marque et modèle du véhicule</td><td>Créer et gérer votre compte</td><td>Exécution du contrat</td></tr>
+            <tr><td>Position GPS précise, vitesse</td><td>Navigation sans autoroute, alertes de danger, météo du trajet, détection de chute. La position n'est utilisée que lorsque l'application est ouverte.</td><td>Consentement (écran « Utilisation de vos données de localisation »), retirable à tout moment</td></tr>
+            <tr><td>Position arrondie à environ 100 m</td><td>Présence et radar social, uniquement si vous les activez ; visible par les autres membres connectés</td><td>Consentement</td></tr>
+            <tr><td>Contacts d'urgence (nom, téléphone), position et message d'alerte</td><td>Prévenir vos proches en cas de chute ou d'alerte SOS</td><td>Exécution du contrat ; intérêt vital en cas d'accident</td></tr>
+            <tr><td>Signalements (dangers, annonces, messages, avis sur les garages)</td><td>Fonctions communautaires</td><td>Exécution du contrat</td></tr>
+            <tr><td>Questions posées à l'assistant Nexus Atlas</td><td>Vous répondre</td><td>Exécution du contrat</td></tr>
+            <tr><td>Données de conduite et de la boîte noire (accélérations, chocs, trajets), dossiers de sinistre</td><td>Analyse de sinistre, rapports remis à un assureur avec votre accord</td><td>Exécution du contrat ; consentement pour la transmission à un assureur</td></tr>
+            <tr><td>Achats, factures, coordonnées des acheteurs professionnels</td><td>Paiement, facturation, obligations comptables</td><td>Exécution du contrat ; obligation légale</td></tr>
+            <tr><td>Journaux de connexion (identifiant pseudonymisé, méthode, succès ou échec) et rapports d'erreur</td><td>Sécurité du service, correction des pannes</td><td>Intérêt légitime</td></tr>
+            <tr><td>Microphone, caméra</td><td>Commande vocale, diagnostic sonore du moteur, photos de sinistre — uniquement quand vous lancez ces fonctions</td><td>Consentement (autorisation du téléphone)</td></tr>
+        </table></div>
+        <p><strong>Ce que nous ne collectons pas :</strong> aucune publicité ciblée, aucune revente de données. La reconnaissance biométrique (empreinte, visage) utilisée pour la connexion sans mot de passe reste sur votre appareil : nous ne la recevons jamais.</p>
+    </div>
+
+    <div class="card">
+        <h2>3. Durées de conservation</h2>
         <ul>
-            <li><strong>Données Sensibles et Santé :</strong> Les données liées à votre santé (rythme cardiaque) ou à votre biométrie (reconnaissance faciale FIDO2) sont traitées en <strong>100% local (Edge Computing)</strong> sur votre appareil. Elles ne sont <strong>jamais</strong> envoyées ni téléversées sur nos serveurs.</li>
-            <li><strong>Chiffrement :</strong> Toutes les données stockées localement sont protégées par un chiffrement de qualité militaire (AES-256).</li>
+            <li><strong>Compte et contenus :</strong> tant que le compte est actif ; supprimés lorsque vous supprimez votre compte (fonction « Supprimer mon compte »), au plus tard 30 jours après votre demande.</li>
+            <li><strong>Position partagée (présence, radar) :</strong> seule la dernière position est conservée ; elle n'est plus affichée aux autres membres après 15 minutes et est supprimée quand vous désactivez le radar ou supprimez votre compte.</li>
+            <li><strong>Factures et données de paiement :</strong> 10 ans (obligation comptable).</li>
+            <li><strong>Rapports de sinistre et données de boîte noire :</strong> conservés tant que le compte est actif pour servir de preuve ; supprimés avec votre compte. Un rapport déjà acheté par un assureur reste dans ses propres archives.</li>
+            <li><strong>Rapports d'erreur et journaux de sécurité :</strong> 12 mois au plus.</li>
         </ul>
     </div>
 
     <div class="card">
-        <h2>2. Conformité CCPA / CPRA (États-Unis / Californie)</h2>
-        <p>Pour les résidents des États-Unis, nous appliquons strictement le principe <strong>"Do Not Sell My Personal Information"</strong>. Nous ne vendrons jamais vos informations personnelles à des courtiers en données ou à des tiers.</p>
-        <p><em>Note importante sur le matériel :</em> Les modules matériels avancés de l'application (Boîte noire et module télémétrique OBD-II) ne sont pas distribués aux États-Unis. En conséquence, aucune fonctionnalité liée à l'analyse avancée de la télémétrie matérielle n'est collectée pour les résidents américains.</p>
+        <h2>4. Destinataires et sous-traitants</h2>
+        <p>Vos données sont accessibles à l'éditeur et aux prestataires suivants, uniquement pour les besoins indiqués :</p>
+        <div class="table-wrap"><table>
+            <tr><th>Prestataire</th><th>Rôle</th><th>Lieu</th></tr>
+            <tr><td>Google (Firebase)</td><td>Comptes, base de données, fonctions serveur</td><td>Union européenne (Belgique)</td></tr>
+            <tr><td>Google (Gemini)</td><td>Réponses de l'assistant Nexus Atlas</td><td>UE / États-Unis</td></tr>
+            <tr><td>GitHub (GitHub Pages)</td><td>Hébergement des pages du site</td><td>États-Unis</td></tr>
+            <tr><td>Revolut</td><td>Paiements</td><td>Union européenne (Lituanie)</td></tr>
+            <tr><td>Amen</td><td>Envoi des e-mails</td><td>France</td></tr>
+            <tr><td>Axeptio</td><td>Recueil de votre consentement aux cookies</td><td>France</td></tr>
+            <tr><td>Notion</td><td>Suivi des rapports d'erreur techniques</td><td>États-Unis</td></tr>
+            <tr><td>IGN, OpenStreetMap, Open-Meteo</td><td>Cartes, itinéraires, adresses, garages, météo (positions envoyées sans votre identité)</td><td>Union européenne / Suisse</td></tr>
+            <tr><td>FreeTSA, OpenTimestamps</td><td>Horodatage des rapports (seule une empreinte numérique est envoyée, aucune donnée personnelle)</td><td>Allemagne / réseau Bitcoin</td></tr>
+        </table></div>
+        <p><strong>Autres membres :</strong> votre pseudo, vos signalements, vos annonces et, si vous activez le radar, votre position arrondie sont visibles des membres connectés. <strong>Assureurs :</strong> un rapport de sinistre n'est transmis qu'à l'assureur que vous désignez et qui l'a acheté. <strong>Contacts d'urgence :</strong> ils reçoivent votre alerte et votre position en cas de SOS.</p>
     </div>
 
     <div class="card">
-        <h2>3. Conformité PIPL / DSL (Chine)</h2>
-        <p>Conformément aux lois sur la protection des informations personnelles en République Populaire de Chine, nous appliquons une <strong>minimisation extrême des données</strong>.</p>
-        <p>Les données de trajets GPS et les déclarations de sinistres sont strictement catégorisées comme "Données Civiles". Elles n'ont aucun impact sur la sécurité nationale et sont purgées régulièrement.</p>
+        <h2>5. Transferts hors de l'Union européenne</h2>
+        <p>Certains prestataires (GitHub, Google pour Gemini, Notion) peuvent traiter des données aux États-Unis. Ces transferts sont encadrés par le cadre de protection des données UE–États-Unis (Data Privacy Framework) ou par les clauses contractuelles types de la Commission européenne.</p>
     </div>
 
     <div class="card">
-        <h2>4. Transparence sur l'Intelligence Artificielle (AI Act)</h2>
-        <p>Les modules d'Intelligence Artificielle intégrés dans l'application (Litigation AI, Meca Wizard, Oracle Voice Nexus Atlas) sont conçus pour agir uniquement à <strong>titre d'assistance</strong> pour le conducteur.</p>
-        <p><strong>Aucune décision légale ou mécanique automatisée n'est prise sans la supervision explicite d'un humain.</strong> L'IA est un co-pilote, mais vous restez le seul commandant de bord.</p>
+        <h2>6. Mineurs</h2>
+        <p>Un cyclomoteur se conduit dès 14 ans. Si vous avez moins de 15 ans, l'accord d'un de vos parents est nécessaire pour les traitements fondés sur votre consentement (position, radar, microphone, caméra).</p>
     </div>
 
     <div class="card">
-        <h2>5. Nous contacter (DPO)</h2>
-        <p>Pour toute question sur vos données, pour exercer votre droit à l'oubli (RGPD) ou votre droit de retrait (CCPA), utilisez notre formulaire sécurisé ci-dessous ou contactez le délégué à la protection des données depuis les paramètres de votre compte dans l'application.</p>
-        
-        <!-- Le widget DPO Axeptio viendra s'insérer ici -->
-        <div id="axeptio-dpo-widget" style="margin-top: 20px;"></div>
+        <h2>7. Intelligence artificielle et décisions automatisées</h2>
+        <p>Les modules d'IA (Nexus Atlas, Litigation AI, Meca Wizard) vous assistent ; ils ne prennent aucune décision juridique ou d'assurance à votre place. Si une mesure de modération vous concerne (suspension de compte), vous pouvez demander qu'une personne la réexamine en écrivant à <a href="mailto:contact@mon50ccetmoi.com">contact@mon50ccetmoi.com</a>.</p>
     </div>
 
-    <script>
-      void 0 === window._axcb && (window._axcb = []);
-      window._axcb.push(function(axeptio){
-        axeptio.mountWidget({
-          service: "",
-          id: "",
-          node: document.getElementById("axeptio-dpo-widget")
-        });
-      });
-    </script>
+    <div class="card">
+        <h2>8. Sécurité</h2>
+        <p>Les échanges sont chiffrés (HTTPS). Les données sont protégées par des règles d'accès strictes : chaque membre n'accède qu'à ce qui le concerne. Les rapports de boîte noire sont signés et horodatés pour garantir qu'ils n'ont pas été modifiés.</p>
+    </div>
+
+    <div class="card">
+        <h2>9. Vos droits</h2>
+        <p>Vous pouvez à tout moment demander l'<strong>accès</strong> à vos données, leur <strong>rectification</strong>, leur <strong>effacement</strong>, la <strong>limitation</strong> du traitement, la <strong>portabilité</strong> de vos données, vous <strong>opposer</strong> à un traitement fondé sur l'intérêt légitime, <strong>retirer votre consentement</strong>, et définir des directives sur le sort de vos données après votre décès.</p>
+        <p>Pour exercer ces droits : <a href="mailto:contact@mon50ccetmoi.com">contact@mon50ccetmoi.com</a>. Vous pouvez aussi supprimer votre compte et exporter vos données depuis l'application (Sécurité &amp; RGPD). Nous répondons sous un mois.</p>
+        <p>Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à la <strong>CNIL</strong> : <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener">www.cnil.fr/fr/plaintes</a> — 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07.</p>
+    </div>
+
+    <div class="card">
+        <h2>10. Cookies</h2>
+        <p>Voir la <a href="cookies.html">politique des cookies</a>. Vous pouvez modifier vos choix à tout moment depuis la bannière de consentement.</p>
+    </div>
   </body>
 </html>

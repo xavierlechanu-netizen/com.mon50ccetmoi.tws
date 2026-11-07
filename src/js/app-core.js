@@ -587,7 +587,7 @@ modal.innerHTML = `
 
             <div style="background:#1a1a1a; padding:16px; border-radius:8px; border-left:4px solid #ffb703; margin-bottom:20px;">
                 <p style="font-size:1rem; line-height:1.5; color:#ffffff; margin:0;">
-                    <strong>L'application mon 50cc et moi collecte et utilise vos données de localisation en arrière-plan</strong> pour permettre la détection automatique de chute (Guardian Angel), la navigation GPS étape par étape, et le signalement de dangers routiers. Ces données sont collectées <strong>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</strong> Elles ne sont pas utilisées pour afficher des annonces publicitaires.
+                    <strong>L'application mon 50cc et moi utilise votre position lorsqu'elle est ouverte</strong> pour la détection automatique de chute (Guardian Angel), la navigation GPS étape par étape et le signalement de dangers routiers. Votre position n'est pas collectée lorsque l'application est fermée. Elle n'est jamais utilisée pour de la publicité.
                 </p>
             </div>
 
@@ -682,7 +682,7 @@ hardLock.innerHTML = `
             <i class="fa-solid fa-location-crosshairs" style="font-size:4rem; color:#ef4444; margin-bottom:20px;"></i>
             <h2 style="margin-bottom:15px; color:#ffb703;">GPS OBLIGATOIRE</h2>
             <p style="font-size:0.9rem; line-height:1.5; margin-bottom:25px; text-align:left; background:rgba(0,0,0,0.5); padding:15px; border-radius:10px; border:1px solid #333;">
-                Cette application collecte des données de localisation pour activer la détection automatique de chute, la navigation GPS, le calcul de votre vitesse, et le partage de dangers et de votre position avec la communauté, <b>même lorsque l'application est fermée ou qu'elle n'est pas utilisée.</b><br><br>
+                Cette application collecte des données de localisation pour activer la détection automatique de chute, la navigation GPS, le calcul de votre vitesse, et, si vous l'activez, le partage de votre position arrondie avec la communauté, <b>uniquement lorsque l'application est ouverte.</b><br><br>
                 Sans accès à votre position, l'application ne peut pas fonctionner.
             </p>
             <button data-action="window.repairGps()" style="width:100%; padding:15px; background:#ffb703; color:black; border:none; border-radius:30px; font-weight:bold; font-size:1.1rem; margin-bottom:15px; box-shadow:0 0 15px rgba(255, 183, 3, 0.5);">

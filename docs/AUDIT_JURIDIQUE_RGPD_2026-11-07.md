@@ -17,7 +17,15 @@ Comparaison des pages légales (`terms.html` = CGU, `cgv.html`, `privacy.html`, 
 | Cookies / GPS | Refuser des cookies bloquait le GPS | Consentements séparés |
 | Positions partagées | Au mètre près, lisibles par tous | Arrondies à ~100 m, 15 dernières minutes |
 
-## 2. Politique de confidentialité (`privacy.html`) — à réécrire
+## 2. Politique de confidentialité (`privacy.html`)
+
+**Réécrite le 7/11** (à faire valider par un juriste) : responsable, données/finalités/bases légales, durées, sous-traitants réels (dont Amen pour les e-mails et Notion pour les rapports d'erreur), transferts hors UE, mineurs, IA et réexamen humain, droits et réclamation CNIL. Le faux formulaire DPO (widget Axeptio vide) est retiré.
+
+**Localisation « en arrière-plan, même lorsque l'application est fermée »** : affirmation fausse (l'app Play Store ne demande pas cette permission et ne peut pas suivre la position une fois fermée) et risquée vis-à-vis des règles Google Play. Corrigée dans les 5 écrans qui l'affichaient.
+
+**Engagements de la nouvelle politique à mettre en œuvre** : suppression des journaux de sécurité et rapports d'erreur après 12 mois (`auth_logs`, `crash_reports`) — à configurer avec une durée de vie (TTL) Firestore ; consentement parental avant 15 ans.
+
+Constats sur l'ancienne version, pour mémoire :
 
 La page actuelle ne contient pas les informations obligatoires (articles 13 et 14 du RGPD) :
 

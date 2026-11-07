@@ -35,7 +35,7 @@ function injectPrivacyBanner() {
             <div style="background: rgba(255,0,85,0.1); border-left: 4px solid #ff0055; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
                 <h3 style="margin: 0 0 10px 0; color: #ff0055; font-size: 1rem;"><i class="fa-brands fa-google-play"></i> Déclaration de Confidentialité</h3>
                 <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
-                    <strong>mon 50cc et moi</strong> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, même lorsque l'application est fermée ou qu'elle n'est pas utilisée. L'accès en arrière-plan est indispensable au service.
+                    <strong>mon 50cc et moi</strong> collecte des données de localisation pour permettre la détection automatique de chute, la navigation GPS étape par étape, et le signalement de dangers à la communauté, uniquement lorsque l'application est ouverte. Votre position n'est pas collectée lorsque l'application est fermée.
                 </p>
             </div>
 
