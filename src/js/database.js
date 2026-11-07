@@ -347,53 +347,25 @@ window.getBlacklist = async function () {
 
 // --- SYSTÈME ÉVALUATION GARAGES (COMMUNAUTÉ) ---
 
+// La moyenne est calculée par le serveur (fonction rateGarage) : un vote par
+// membre et par garage, revoter remplace l'ancienne note.
 window.evaluateGarage = async function (placeId, name, score) {
-  if (!db || !window.session) {
+  if (!window.session || typeof firebase === "undefined" || !firebase.app) {
     alert("Vous devez être membre pour évaluer un garage.");
     return;
   }
 
   try {
-    const docRef = db.collection("garage_evaluations").doc(placeId);
-    const doc = await docRef.get();
-
-    let totalScore = 0;
-    let count = 0;
-    let voters = [];
-
-    if (doc.exists) {
-      totalScore = doc.data().totalScore || 0;
-      count = doc.data().count || 0;
-      voters = doc.data().voters || [];
-    }
-
-    if (voters.includes(window.session.username)) {
-      alert("Vous avez déjà noté ce garage.");
-      return;
-    }
-
-    voters.push(window.session.username);
-    const newCount = count + 1;
-    const newTotalScore = totalScore + score;
-
-    await docRef.set(
-      {
-        placeId,
-        name,
-        count: newCount,
-        totalScore: newTotalScore,
-        avgRating: (newTotalScore / newCount).toFixed(1),
-        voters: voters,
-        lastVote: firebase.firestore.FieldValue.serverTimestamp(),
-      },
-      { merge: true },
-    );
-
+    const rateGarage = firebase.app().functions("europe-west1").httpsCallable("rateGarage");
+    const { data } = await rateGarage({ placeId, name, score: Number(score) });
     alert(
-      `Merci ! Votre évaluation a été prise en compte (${newCount}/1000 pour le Badge Pro).`,
+      data.updated
+        ? `Votre note a été remplacée par ${data.yourScore}/5. Moyenne : ${data.avgRating}/5 (${data.count} avis).`
+        : `Merci ! Votre évaluation a été prise en compte (${data.count}/1000 pour le Badge Pro).`,
     );
   } catch (e) {
     console.error("Eval fail", e);
+    alert(e?.message || "Votre note n'a pas pu être enregistrée. Réessayez plus tard.");
   }
 };
 
@@ -401,7 +373,14 @@ window.getGarageInternalInfo = async function (placeId) {
   if (!db) return null;
   try {
     const doc = await db.collection("garage_evaluations").doc(placeId).get();
-    return doc.exists ? doc.data() : null;
+    const data = doc.exists ? doc.data() : null;
+    // Seules les moyennes calculées par le serveur sont fiables (les anciennes
+    // étaient écrites par le navigateur et pouvaient être inventées).
+    if (!data || data.v !== 2) return null;
+    const count = Number(data.count);
+    const avgRating = Number(data.avgRating);
+    if (!Number.isFinite(count) || count < 1 || !Number.isFinite(avgRating)) return null;
+    return { count, avgRating: avgRating.toFixed(1) };
   } catch (e) {
     return null;
   }

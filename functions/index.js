@@ -16,6 +16,7 @@ const nexusInsights = require('./api/nexus-insights');
 const blackboxRegistry = require('./api/blackbox-registry');
 const pointsLedger = require('./api/points-ledger');
 const insurers = require('./api/insurers');
+const garages = require('./api/garages');
 
 module.exports = {
     // Points & Grand Livre Monétaire (OWASP ASVS v5.0.0-2.3.3)
@@ -51,6 +52,9 @@ module.exports = {
     sendEmergencySOS: alerts.sendEmergencySOS,
     triggerAntiTheftAlert: alerts.triggerAntiTheftAlert,
     createHazardReport: alerts.createHazardReport,
+
+    // Notation communautaire des garages (moyenne calculée par le serveur)
+    rateGarage: garages.rateGarage,
 
     // Social Media (Facebook Page)
     publishToFacebook: social.publishToFacebook,

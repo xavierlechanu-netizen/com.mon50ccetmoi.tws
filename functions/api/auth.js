@@ -129,7 +129,8 @@ exports.deleteUserAccount = onRequest(
                 { coll: "litigation_proposals", field: "userId" },
                 { coll: "maintenance_logs", field: "vehicleOwnerUid" },
                 { coll: "battery_certificates", field: "userId" },
-                { coll: "garage_evaluations", field: "userId" },
+                // Votes individuels ; la moyenne publique (garage_evaluations) est anonyme
+                { coll: "garage_votes", field: "uid" },
                 { coll: "presence", field: "userId" }
             ];
 

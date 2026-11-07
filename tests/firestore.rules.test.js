@@ -190,6 +190,22 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
     await assertFails(insurer.collection("invoices_to_issue").doc("ord_2").set({ status: "A_EMETTRE" }));
   });
 
+  it("Notes des garages : lisibles par les membres, écrites seulement par le serveur", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().collection("garage_evaluations").doc("osm-node-1").set({ v: 2, count: 3, totalScore: 12, avgRating: 4 });
+      await ctx.firestore().collection("garage_votes").doc("osm-node-1__pilot1").set({ uid: "pilot1", score: 4 });
+    });
+    const pilot = testEnv.authenticatedContext("pilot1").firestore();
+    await assertSucceeds(pilot.collection("garage_evaluations").doc("osm-node-1").get());
+    await assertFails(testEnv.unauthenticatedContext().firestore().collection("garage_evaluations").doc("osm-node-1").get());
+    // Plus de moyenne inventée par le navigateur
+    await assertFails(pilot.collection("garage_evaluations").doc("osm-node-2").set({ count: 1000, avgRating: 5 }));
+    await assertFails(pilot.collection("garage_evaluations").doc("osm-node-1").update({ count: 1000 }));
+    // Les votes individuels restent privés, même le sien
+    await assertFails(pilot.collection("garage_votes").doc("osm-node-1__pilot1").get());
+    await assertFails(pilot.collection("garage_votes").doc("osm-node-1__pilot1").set({ uid: "pilot1", score: 5 }));
+  });
+
   it("Classement public : lisible par les pilotes, jamais modifiable par eux", async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await ctx.firestore().collection("leaderboard").doc("pilot1").set({ username: "Pilote1", points: 120 });

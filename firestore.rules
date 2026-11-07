@@ -249,10 +249,15 @@ service cloud.firestore {
     }
 
     // Évaluations des garages (Garage Evaluations)
+    // Moyenne des garages : calculée et écrite uniquement par la fonction rateGarage
     match /garage_evaluations/{garageId} {
       allow read: if isSignedIn(); // Sécurisé : empêche le scraping anonyme (OWASP A01)
-      allow create: if signedInOwnCreate();
-      allow update, delete: if isAdmin() || (isSignedIn() && isOwner(resource.data.userId));
+      allow delete: if isAdmin(); // modération
+    }
+
+    // Votes individuels (qui a noté quoi) : serveur uniquement
+    match /garage_votes/{voteId} {
+      allow read, write: if false;
     }
 
     // Roadbooks partagés (Community Roadbooks)
