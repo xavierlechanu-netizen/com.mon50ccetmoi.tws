@@ -1,6 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { weatherIsStale } from './weather-advice.js';
+import { voiceLanguage, translateForVoice } from './voice-phrases.js';
 
 // Synchronous session hydration to prevent guest locks for admins/logged-in riders
 try {
@@ -1818,7 +1819,6 @@ window.OracleEngine = {
   },
 };
 
-window.TranslationCache = {};
 
 async function speak(phraseKey) {
   if (!("speechSynthesis" in window)) return;
@@ -1844,46 +1844,25 @@ async function speak(phraseKey) {
     return;
   }
 
-  const baseLang = window.currentLang || "fr";
   const region = window.OracleEngine.currentRegion;
+  const wantedLang = voiceLanguage(window.currentLang, navigator.language);
 
-  let text = phraseKey;
-  if (
-    window.OracleEngine.regionalLexicon &&
-    window.OracleEngine.regionalLexicon[baseLang]
-  ) {
-    text =
-      window.OracleEngine.regionalLexicon[baseLang][region]?.[phraseKey] ||
-      window.OracleEngine.regionalLexicon[baseLang]["standard"]?.[phraseKey] ||
-      phraseKey;
+  // Clés du lexique (« start_guardian »…) : version régionale en français, version
+  // standard pour les autres langues (c'est elle qui est traduite).
+  const lexicon = window.OracleEngine.regionalLexicon?.fr;
+  const text =
+    (wantedLang === "fr" && lexicon?.[region]?.[phraseKey]) ||
+    lexicon?.standard?.[phraseKey] ||
+    phraseKey;
+
+  // Traduction par le dictionnaire intégré (voice-phrases.js). Avant : chaque phrase
+  // partait vers un service de traduction Google non officiel.
+  const voiceText = translateForVoice(text, wantedLang);
+  if (!voiceText.translated) {
+    console.info(`[Voix] Phrase sans traduction (${wantedLang}) :`, text);
   }
-
-  let targetLang = navigator.language.split("-")[0].toLowerCase();
-  let finalMsg = text;
-
-  if (targetLang !== "fr") {
-    if (
-      window.TranslationCache[text] &&
-      window.TranslationCache[text][targetLang]
-    ) {
-      finalMsg = window.TranslationCache[text][targetLang];
-    } else {
-      try {
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=fr&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && data[0] && data[0][0] && data[0][0][0]) {
-          finalMsg = data[0].map((item) => item[0]).join(""); // Join parts if translated in multiple chunks
-          if (!window.TranslationCache[text])
-            window.TranslationCache[text] = {};
-          window.TranslationCache[text][targetLang] = finalMsg;
-        }
-      } catch (e) {
-        console.warn("Oracle Translation failed, fallback:", e);
-        targetLang = "fr";
-      }
-    }
-  }
+  const targetLang = voiceText.lang;
+  const finalMsg = voiceText.text;
 
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(finalMsg);
@@ -1893,7 +1872,7 @@ async function speak(phraseKey) {
   if (!voice && targetLang === "fr") voice = window.OracleEngine.getVoice("fr");
   if (voice) utterance.voice = voice;
 
-  utterance.lang = navigator.language;
+  utterance.lang = { fr: "fr-FR", en: "en-GB", es: "es-ES" }[targetLang] || "fr-FR";
 
   // Voice Modes (Marché Noir BVC)
   let rate = 0.95;
