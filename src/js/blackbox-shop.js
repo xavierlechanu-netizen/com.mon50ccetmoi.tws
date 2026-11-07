@@ -295,29 +295,8 @@ export const BlackBoxShop = {
     }, 2500);
   },
 
-  /**
-   * Pack Boîte Noire avec Abonnement (Engagement 24 mois & Dépôt de garantie 49,99 €)
-   */
-  buyPackSubscription: async function () {
-    if (this.isProcessing) return;
-    const msg = "Pack Boîte Noire + Abonnement (Engagement 24 mois)\n\n" +
-      "• Boîtier officiel Francelog mis à disposition sous caution\n" +
-      "• Dépôt de garantie initial : 49,99 € TTC (restituable à la fin du contrat)\n" +
-      "• Abonnement mensuel : 4,99 € /mois (IA Litige, Alertes Assureur, Historique illimité)\n" +
-      "• Engagement : 24 mois\n\n" +
-      "Confirmer la commande et régler le dépôt de garantie de 49,99 € via Revolut ?";
-
-    if (confirm(msg)) {
-      await this.processRevolutPayment("BLACKBOX_PACK_SUB", "Pack Boîte Noire + Abonnement (Caution 49,99 €)");
-    }
-  },
-
-  /**
-   * Rétro-compatibilité : Abonnement Premium appelle le Pack Abonnement
-   */
-  subscribePremium: async function () {
-    return this.buyPackSubscription();
-  }
+  // Pack « caution + engagement 24 mois » : suspendu le 7/11/2026 (aucun prélèvement mensuel
+  // n'existait). L'achat d'un boîtier inclut 1 an d'abonnement Boîte Noire+.
 };
 
 // Exposer globalement pour dom-security et l'ActionRegistry
@@ -326,8 +305,6 @@ window.buyPointsPack = (packId) => BlackBoxShop.buyPointsPack(packId);
 
 registerAction("BlackBoxShop.buyUnit", () => BlackBoxShop.buyUnit());
 registerAction("BlackBoxShop.buyPack", () => BlackBoxShop.buyPack());
-registerAction("BlackBoxShop.buyPackSubscription", () => BlackBoxShop.buyPackSubscription());
-registerAction("BlackBoxShop.subscribePremium", () => BlackBoxShop.subscribePremium());
 registerAction("BlackBoxShop.buyPointsPack", (packId) => BlackBoxShop.buyPointsPack(packId));
 registerAction("BlackBoxShop.buyPoints100", () => BlackBoxShop.buyPointsPack("POINTS_100"));
 registerAction("BlackBoxShop.buyPoints250", () => BlackBoxShop.buyPointsPack("POINTS_250"));

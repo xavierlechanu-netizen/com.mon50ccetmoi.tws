@@ -79,11 +79,8 @@ const CATALOG = {
         category: CATEGORIES.BLACKBOX_HW,
         label: "Pack Duo 2 Boîtes Noires V1"
     },
-    'BLACKBOX_PACK_SUB': {
-        price_cents: 4999,
-        category: CATEGORIES.BLACKBOX_SUB,
-        label: "Pack Boîte Noire + Abonnement (Caution 49,99€)"
-    },
+    // BLACKBOX_PACK_SUB (caution 49,99 € + engagement 24 mois) : offre suspendue le 7/11/2026,
+    // le paiement mensuel n'existait pas. Retirée du catalogue : le serveur refuse cet achat.
     'BLACKBOX_CARE_MONTHLY': {
         price_cents: 499,
         category: CATEGORIES.BLACKBOX_SUB,
