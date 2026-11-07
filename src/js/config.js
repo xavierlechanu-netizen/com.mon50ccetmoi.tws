@@ -57,8 +57,8 @@ export const CONFIG = {
     REPORT_PRICE_EUR: 49.99,
     // Seuils IA pour la sélection automatique du type de rapport
     AI_THRESHOLDS: {
-      IMPACT_G: 3.5, // Au-dessus ←’ Rapport Impact
-      EXPERT_G: 5.0, // Au-dessus ←’ Rapport Expertise Complète
+      IMPACT_G: 3.5, // Au-dessus → Rapport Impact
+      EXPERT_G: 5.0, // Au-dessus → Rapport Expertise Complète
       HIGH_SPEED_KMH: 60, // Vitesse considérée élevée pour le contexte 50cc
       LEAN_ANGLE_DEG: 35, // Angle d'inclinaison critique
     },

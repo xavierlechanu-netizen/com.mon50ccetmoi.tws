@@ -152,7 +152,7 @@ window.OfflineMapManager = (function () {
     leafletMap.panTo([lat, lng]);
   }
 
-  // ── Basculement Google Maps ←’ Leaflet ────────────────────────
+  // ── Basculement Google Maps → Leaflet ────────────────────────
   function switchToLeaflet() {
     if (isOfflineMode) return;
     isOfflineMode = true;
@@ -177,7 +177,7 @@ window.OfflineMapManager = (function () {
     }
   }
 
-  // ── Basculement Leaflet ←’ Google Maps ────────────────────────
+  // ── Basculement Leaflet → Google Maps ────────────────────────
   function switchToGoogleMaps() {
     if (!isOfflineMode) return;
     isOfflineMode = false;

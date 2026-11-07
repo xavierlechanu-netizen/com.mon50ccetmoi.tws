@@ -83,6 +83,8 @@ function repair(text) {
     let total = 0;
     // Tiret long « — » (E2 80 94) dont le dernier octet a été remplacé par un guillemet droit
     let current = text.replace(/â€" /g, () => { total++; return "— "; });
+    // Flèche « → » (E2 86 92) mal réparée lors d'un ancien passage : « ←’ » (vu dans app-core.js, nov. 2026)
+    current = current.replace(/←’/g, () => { total++; return "→"; });
     for (let pass = 0; pass < 5; pass++) {
         const a = repairOnce(current);
         const b = repairDoubleWithLoss(a.out);

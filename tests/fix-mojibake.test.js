@@ -34,4 +34,9 @@ describe("Réparation des lettres abîmées", () => {
   test("tiret long dont le dernier octet est devenu un guillemet droit", () => {
     expect(repair("partenaires â€\" accès").text).toBe("partenaires — accès");
   });
+
+  test("flèche « → » mal réparée en « ←’ » (instructions GPS affichées aux pilotes)", () => {
+    expect(repair("Paramètres ←’ Paramètres du site").text).toBe("Paramètres → Paramètres du site");
+    expect(repair("Retour ← arrière").text).toBe("Retour ← arrière"); // une vraie flèche gauche reste intacte
+  });
 });

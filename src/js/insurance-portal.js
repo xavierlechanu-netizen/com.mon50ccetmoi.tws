@@ -4,7 +4,7 @@ import { registerAction } from './actionRegistry.js';
 /**
  * PORTAIL ASSURANCE mon50ccetmoi
  * Paiements via Revolut Merchant API (SDK RevolutCheckout embarqué)
- * Flow : client ←’ Firebase Function (création ordre) ←’ Revolut ←’ webhook ←’ Firestore
+ * Flow : client → Firebase Function (création ordre) → Revolut → webhook → Firestore
  */
 window.InsurancePortal = {
   // Clé publique Merchant (config.js) — utilisée côté client uniquement
@@ -186,10 +186,10 @@ container.innerHTML = `
 
   // ──────────────────────────────────────────────────
   // OPTION 1 : Paiement Revolut Merchant (flow complet)
-  // 1. Appel Firebase Function ←’ création ordre Revolut (clé secrète serveur)
+  // 1. Appel Firebase Function → création ordre Revolut (clé secrète serveur)
   // 2. Récupération du order_token
   // 3. RevolutCheckout(token).payWithPopup()
-  // 4. Webhook Revolut ←’ Firebase ←’ déblocage rapport
+  // 4. Webhook Revolut → Firebase → déblocage rapport
   // ──────────────────────────────────────────────────
   // reportType : code du catalogue (SIMPLE, INTERMEDIAIRE, EXPERT) choisi par l'assureur
   async payInstant(caseId, reportType, displayPrice) {

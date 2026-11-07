@@ -533,24 +533,12 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // ── Garde de consentement : vérifie si l'utilisateur a accepté la divulgation ──
+// Le GPS dépend uniquement de l'écran « Utilisation de vos données de localisation »
+// (divulgation exigée par Google Play), pas de la bannière de cookies Axeptio.
+// Avant (corrigé le 7/11/2026) : le cookie Axeptio passait en premier et, faute de case
+// « google_maps » (la carte n'utilise plus Google), valait refus. Toute personne ayant
+// répondu à la bannière était renvoyée à l'accueil, même après « J'accepte ».
 function hasLocationConsent() {
-  // Vérification de la bannière Axeptio (RGPD)
-  const axCookie = document.cookie.split('; ').find(row => row.startsWith('axeptio_cookies='));
-  if (axCookie) {
-    try {
-      const val = decodeURIComponent(axCookie.split('=')[1]);
-      const parsed = JSON.parse(val);
-      // On accepte si l'utilisateur a tout accepté, ou s'il a accepté Google Maps / Geolocation spécifiquement
-      if (parsed.$$all || parsed.google_maps || parsed.geolocation) {
-        return true;
-      }
-      return false; // Refusé explicitement dans Axeptio
-    } catch (e) {
-      console.warn("Erreur lecture cookie Axeptio");
-    }
-  }
-  
-  // Fallback (Ancien système ou application hybride Capacitor sans cookies)
   return localStorage.getItem("location_consent_accepted") === "true";
 }
 
@@ -575,6 +563,7 @@ async function checkLegalConsent() {
   // Conforme à la politique relative aux données de l'utilisateur.
   // Affiché AVANT toute collecte de données de localisation.
   // ══════════════════════════════════════════════════════════════════
+  if (document.getElementById("location-disclosure-modal")) return; // écran déjà affiché
   const modal = document.createElement("div");
   modal.id = "location-disclosure-modal";
   modal.style.cssText = `
@@ -739,14 +728,14 @@ window.repairGps = function () {
         <div style="text-align:left; font-size:0.9rem; line-height:1.5;">
             <b style="color:#ffb703;">📱 Sur Android Chrome :</b><br>
             1. Appuie sur les 3 points ⋮ en haut à droite<br>
-            2. Paramètres ←’ Paramètres du site<br>
-            3. Localisation ←’ Cherche '${appUrl}'<br>
+            2. Paramètres → Paramètres du site<br>
+            3. Localisation → Cherche '${appUrl}'<br>
             4. Passe de 'Bloquer' à 'Autoriser'<br>
             5. Recharge l'application<br><br>
             <b style="color:#ffb703;">📱 Dans l'app Android :</b><br>
             1. Appui long sur l'icône de l'app<br>
-            2. Infos sur l'appli ←’ Autorisations<br>
-            3. Position ←’ Autoriser (ou Toujours autoriser)
+            2. Infos sur l'appli → Autorisations<br>
+            3. Position → Autoriser (ou Toujours autoriser)
         </div>
     `;
 
@@ -803,10 +792,8 @@ async function startGeolocation() {
     console.warn(
       "mon50cc GPS : Consentement de localisation non accordé. GPS bloqué.",
     );
-    alert(
-      "⚠️ Accès GPS bloqué : Le consentement de géolocalisation est requis. Vous allez être redirigé vers l'accueil.",
-    );
-    window.location.href = "index.html";
+    // On redemande l'accord (écran de divulgation) au lieu de renvoyer à l'accueil
+    checkLegalConsent();
     return;
   }
 
@@ -863,19 +850,19 @@ async function startGeolocation() {
     if (err.code === 3) msg = "Recherche GPS en cours... Patience.";
     console.error("mon50cc GPS :", msg, "code:", err.code);
 
-    // Permission refusée ←’ bannière immédiate
+    // Permission refusée → bannière immédiate
     if (err.code === 1) {
       speak("Le GPS est bloqué. Vérifiez les permissions.");
       showGpsBanner(msg, err.code);
       return;
     }
 
-    // Si on n'a aucune position ←’ tenter le fallback basse précision
+    // Si on n'a aucune position → tenter le fallback basse précision
     if (!currentPosition) {
       showGpsBanner(msg, err.code);
       activateLowAccuracyFallback();
     }
-    // Si on a déjà une position ←’ on garde celle-ci, pas de bannière
+    // Si on a déjà une position → on garde celle-ci, pas de bannière
   };
 
   // Nettoyer les anciens watchers avant d'en créer de nouveaux
@@ -906,7 +893,7 @@ async function startGeolocation() {
   setTimeout(() => {
     if (!currentPosition && fallbackWatchId === null) {
       console.warn(
-        "mon50cc GPS : Aucune position après 15s ←’ activation fallback.",
+        "mon50cc GPS : Aucune position après 15s → activation fallback.",
       );
       activateLowAccuracyFallback();
     }

@@ -34,7 +34,9 @@ const CSP_DIRECTIVES = {
     'https://apicarto.ign.fr', 'https://data.geopf.fr', 'https://*.project-osrm.org', 'https://nominatim.openstreetmap.org',
     'https://overpass-api.de', 'https://*.overpass-api.de', 'https://api.open-meteo.com', 'https://data.economie.gouv.fr',
     'https://recherche-entreprises.api.gouv.fr', 'https://*.axept.io', 'https://cdnjs.cloudflare.com',
-    'https://unpkg.com', 'https://cdn.jsdelivr.net'],
+    'https://unpkg.com', 'https://cdn.jsdelivr.net',
+    // Connexion Google (Google Identity Services) : exigé par Google pour la fenêtre de choix du compte
+    'https://accounts.google.com/gsi/'],
   'frame-src': ["'self'", 'https://mon50ccetmoi.firebaseapp.com', 'https://merchant.revolut.com', 'https://cdn.revolut.com', 'https://translate.google.com',
     'https://accounts.google.com', 'https://www.google.com', 'https://www.youtube.com'],
   'worker-src': ["'self'", 'blob:'],
