@@ -1,199 +1,395 @@
-import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
-import { registerAction } from './actionRegistry.js';
+// Portail assureur (assureur.html) : connexion, recherche d'un dossier par son code, vérification
+// de l'entreprise par SIREN, paiement Revolut et lecture du rapport scellé.
+//
+// Rien n'est simulé : le rapport n'est lisible qu'une fois le paiement confirmé par le serveur
+// (webhook Revolut → unlocked_for), et les règles Firestore refusent la lecture avant.
+// Remplace une ancienne page de démonstration (faux dossier chiffré, « paiement » validé au bout
+// de 2 s, clé de démo écrite dans le code), retirée le 8/11/2026.
+import { db, auth, firebase } from "./config.js";
+import { registerAction } from "./actionRegistry.js";
+import { authFetch } from "./api-client.js";
+import {
+  OFFERS,
+  offerByCode,
+  ttcCents,
+  formatEuros,
+  normalizeCaseCode,
+  isPreviewExpired,
+  hasPaidAccess,
+  sealedReportRows,
+} from "./insurer-reports.js";
 
-// js/assureur.js
-// Logique B2B : Recherche de dossier, paiement Revolut, et Déchiffrement Zero-Knowledge.
+const $ = (id) => document.getElementById(id);
 
-let currentReportData = null;
-let currentReportId = null;
-let decryptedTelemetry = null;
+const state = {
+  company: null, // { name, siren } une fois l'entreprise vérifiée
+  caseCode: null,
+  preview: null,
+  selected: null, // code de l'offre choisie
+  paying: false,
+};
 
-// ==========================================
-// 1. RECHERCHE DE DOSSIER (FIREBASE)
-// ==========================================
-async function searchReport() {
-  const hardwareId = document.getElementById("search-hw-id").value.trim();
-  const optionsDiv = document.getElementById("report-options-container");
-  const btnPay = document.getElementById("btn-pay");
-  const statusMsg = document.getElementById("status-msg");
+function show(id, visible) {
+  const el = $(id);
+  if (el) el.hidden = !visible;
+}
 
-  if (!hardwareId) {
-    // eslint-disable-next-line no-restricted-syntax
-statusMsg.innerHTML = '<span class="error">Veuillez entrer un ID de boîte noire.</span>';
+/** Message d'état : kind = "info" | "success" | "error". Texte brut uniquement. */
+function setStatus(id, text, kind = "info") {
+  const el = $(id);
+  if (!el) return;
+  el.textContent = text || "";
+  el.className = `status-msg ${text ? kind : ""}`.trim();
+}
+
+function functions() {
+  return firebase.app().functions("europe-west1");
+}
+
+// ──────────────────────────────────────────────
+// 1. Connexion
+// ──────────────────────────────────────────────
+
+const LOGIN_ERRORS = {
+  "auth/invalid-email": "Adresse email invalide.",
+  "auth/invalid-credential": "Email ou mot de passe incorrect.",
+  "auth/wrong-password": "Email ou mot de passe incorrect.",
+  "auth/user-not-found": "Email ou mot de passe incorrect.",
+  "auth/user-disabled": "Ce compte est désactivé. Écrivez à contact@mon50ccetmoi.com.",
+  "auth/too-many-requests": "Trop de tentatives. Réessayez dans quelques minutes.",
+  "auth/network-request-failed": "Connexion impossible : vérifiez votre réseau.",
+};
+
+async function authenticateInsurer() {
+  const email = $("insurer-email").value.trim();
+  const password = $("insurer-password").value;
+  if (!email || !password) {
+    setStatus("login-status", "Saisissez votre email et votre mot de passe.", "error");
     return;
   }
-
-  // eslint-disable-next-line no-restricted-syntax
-statusMsg.innerHTML = '<span class="info"><i class="fa-solid fa-spinner fa-spin"></i> Recherche sécurisée en cours...</span>';
-  
+  setStatus("login-status", "Connexion…");
   try {
-    // Dans une version finale, on ferait un getDoc sur Firebase :
-    // const docRef = db.collection('blackbox_telemetry').doc(hardwareId);
-    // const docSnap = await docRef.get();
-    
-    // Pour la démo, on simule la réponse chiffrée
-    setTimeout(() => {
-      // Simulation d'une trame AES-GCM (IV + Ciphertext) stockée en Base64
-      // Contenu original : {"speed": 62, "gForce": 12.4, "lean": 85, "timestamp": "2026-08-08T18:42:00Z", "lat": 48.8566, "lng": 2.3522}
-      currentReportData = {
-        iv: "bW9uNTBjY2V0bW9pMTIzNDU=", // IV fixe pour la démo
-        ciphertext: "dHVfYXMfZMOpY2hpZmZyw6lfYXZlY19zdWjZXM=" // Faux ciphertext
-      };
-      currentReportId = hardwareId;
-
-      optionsDiv.style.display = "flex";
-      btnPay.style.display = "block";
-      // eslint-disable-next-line no-restricted-syntax
-statusMsg.innerHTML = '<span class="success">Dossier crypté trouvé. Authentification requise pour l\'ouverture.</span>';
-    }, 1500);
-
+    await auth.signInWithEmailAndPassword(email, password);
+    $("insurer-password").value = "";
+    setStatus("login-status", "");
+    // La suite est gérée par onAuthStateChanged
   } catch (err) {
-    console.error(err);
-    // eslint-disable-next-line no-restricted-syntax
-statusMsg.innerHTML = '<span class="error">Erreur de connexion au registre distribué.</span>';
+    setStatus("login-status", LOGIN_ERRORS[err?.code] || "Connexion impossible. Réessayez.", "error");
   }
 }
 
-function selectReportOption(element) {
-  document.querySelectorAll('.report-card').forEach(c => c.classList.remove('selected'));
-  element.classList.add('selected');
+async function logoutInsurer() {
+  await auth.signOut();
 }
 
-// ==========================================
-// 2. PAIEMENT REVOLUT B2B
-// ==========================================
-function payReport() {
-  const btnPay = document.getElementById("btn-pay");
-  // eslint-disable-next-line no-restricted-syntax
-btnPay.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Transaction B2B en cours...';
-  btnPay.disabled = true;
-
-  // Simulation d'un appel Revolut Pay Merchant API
-  setTimeout(() => {
-    // eslint-disable-next-line no-restricted-syntax
-btnPay.innerHTML = '<i class="fa-solid fa-check"></i> Accès Déverrouillé';
-    btnPay.style.background = "#00ffcc";
-    btnPay.style.color = "#000";
-    
-    // Afficher la modale de déchiffrement Zero-Knowledge
-    document.getElementById("decryption-modal").style.display = "block";
-    
-  }, 2000);
+function resetPortal() {
+  state.company = null;
+  state.caseCode = null;
+  state.preview = null;
+  state.selected = null;
+  $("input-case-code").value = "";
+  setStatus("search-status", "");
+  setStatus("pay-status", "");
+  show("case-preview", false);
+  show("report-view", false);
 }
 
-// ==========================================
-// 3. DÉCHIFFREMENT ZERO-KNOWLEDGE (WEB CRYPTO API)
-// ==========================================
-async function decryptTelemetry() {
-  const keyInput = document.getElementById("master-key-input").value.trim();
-  const expertDashboard = document.getElementById("expert-dashboard");
-  const modal = document.getElementById("decryption-modal");
-  const hashElement = document.getElementById("telemetry-hash");
+async function onSignedIn(user) {
+  $("insurer-account").textContent = user.email || "compte connecté";
+  show("login-screen", false);
+  show("portal-content", true);
+  await loadCompany();
+}
 
-  if (!keyInput) {
-    alert("Vous devez fournir la Master Key de l'agence pour déchiffrer.");
+// ──────────────────────────────────────────────
+// 2. Entreprise (SIREN) : obligatoire pour acheter, elle figure sur la facture
+// ──────────────────────────────────────────────
+
+function renderCompany() {
+  const c = state.company;
+  $("company-name").textContent = c ? `${c.name} (SIREN ${c.siren})` : "non enregistrée";
+  show("company-form", !c);
+  updatePayButton();
+}
+
+async function loadCompany() {
+  try {
+    const res = await functions().httpsCallable("getInsurerProfile")();
+    state.company = res.data && res.data.registered ? res.data : null;
+  } catch (err) {
+    console.warn("[Assureur] Profil entreprise indisponible :", err);
+    state.company = null;
+  }
+  renderCompany();
+}
+
+async function registerCompany() {
+  const siren = $("company-siren").value.replace(/\s+/g, "");
+  const billingEmail = $("company-billing-email").value.trim();
+  if (!/^\d{9}$/.test(siren)) {
+    setStatus("company-status", "Le SIREN compte 9 chiffres.", "error");
+    return;
+  }
+  if (!billingEmail) {
+    setStatus("company-status", "Indiquez l'adresse email où recevoir les factures.", "error");
+    return;
+  }
+  setStatus("company-status", "Vérification dans l'annuaire officiel des entreprises…");
+  try {
+    const res = await functions().httpsCallable("registerInsurerProfile")({ siren, billingEmail });
+    state.company = res.data;
+    setStatus("company-status", `Entreprise vérifiée : ${res.data.name}.`, "success");
+    renderCompany();
+  } catch (err) {
+    setStatus("company-status", err?.message || "Vérification de l'entreprise impossible.", "error");
+  }
+}
+
+// ──────────────────────────────────────────────
+// 3. Recherche du dossier
+// ──────────────────────────────────────────────
+
+/** Lit le dossier complet si cet assureur l'a déjà payé, sinon null (lecture refusée avant). */
+async function readPaidCase(code) {
+  try {
+    const doc = await db.collection("litigation_proposals").doc(code).get();
+    if (doc.exists && hasPaidAccess(doc.data(), auth.currentUser?.uid)) return doc.data();
+  } catch (e) {
+    // Refus des règles Firestore : rapport pas encore payé par ce compte
+  }
+  return null;
+}
+
+async function searchCase() {
+  const code = normalizeCaseCode($("input-case-code").value);
+  show("case-preview", false);
+  show("report-view", false);
+  setStatus("pay-status", "");
+  if (!code) {
+    setStatus("search-status", "Code invalide. Format attendu : LITIGE-XXXX-XXXX-XXXX-XXXX.", "error");
+    return;
+  }
+  $("input-case-code").value = code;
+  setStatus("search-status", "Recherche du dossier…");
+
+  const paid = await readPaidCase(code);
+  if (paid) {
+    setStatus("search-status", "Vous avez déjà acheté ce rapport.", "success");
+    renderReport(paid);
     return;
   }
 
-  // === SIMULATION WEB CRYPTO API ===
-  // Dans un flux réel, nous utiliserions : 
-  // crypto.subtle.importKey(...) puis crypto.subtle.decrypt({name: "AES-GCM", iv}, key, ciphertext)
-  
-  if (keyInput === "AXA-MASTER-KEY-2026") { // Clé de démo
-    
-    // Simulation de la donnée claire obtenue après déchiffrement
-    decryptedTelemetry = {
-      speed: 62,
-      gForce: 12.4,
-      lean: 85,
-      timestamp: new Date().toLocaleString("fr-FR"),
-      lat: 48.856613,
-      lng: 2.352222,
-      hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    };
-
-    // Mise à jour de l'UI
-    document.getElementById("telemetry-id").textContent = currentReportId;
-    document.getElementById("telemetry-speed").textContent = decryptedTelemetry.speed + " km/h";
-    document.getElementById("telemetry-g").textContent = decryptedTelemetry.gForce + " G";
-    document.getElementById("telemetry-lean").textContent = decryptedTelemetry.lean + " °";
-    
-    document.getElementById("telemetry-time").textContent = " " + decryptedTelemetry.timestamp;
-    document.getElementById("telemetry-gps").textContent = ` ${decryptedTelemetry.lat}, ${decryptedTelemetry.lng}`;
-    
-    // Animation matrix du hash
-    hashElement.textContent = "Déchiffrement en cours...";
-    setTimeout(() => {
-      hashElement.style.color = "#00ffcc";
-      hashElement.textContent = decryptedTelemetry.hash;
-    }, 800);
-
-    // Affichage
-    modal.style.display = "none";
-    expertDashboard.style.display = "block";
-
-  } else {
-    alert("Clé AES invalide. La signature MAC a rejeté le déchiffrement (Anti-Tamper).");
+  let preview;
+  try {
+    const doc = await db.collection("litigation_previews").doc(code).get();
+    preview = doc.exists ? doc.data() : null;
+  } catch (err) {
+    console.error("[Assureur] Lecture du dossier :", err);
+    setStatus("search-status", "Erreur de connexion à la base. Réessayez.", "error");
+    return;
   }
-}
-
-// ==========================================
-// 4. MODULE IA LITIGE (RECONSTITUTION)
-// ==========================================
-function runLitigationAI() {
-  if (!decryptedTelemetry) {
-    alert("Veuillez d'abord déchiffrer les données de télémétrie.");
+  if (!preview) {
+    setStatus("search-status", "Dossier introuvable. Vérifiez le code transmis par le conducteur.", "error");
+    return;
+  }
+  if (isPreviewExpired(preview)) {
+    setStatus("search-status", "Code expiré (valable 72 h). Le conducteur doit en générer un nouveau depuis son application.", "error");
     return;
   }
 
-  const reportArea = document.getElementById("ai-report-area");
-  const contentSpan = document.getElementById("ai-report-content");
-  
-  reportArea.style.display = "block";
-  // eslint-disable-next-line no-restricted-syntax
-contentSpan.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Traitement par le modèle IA Litige en cours...';
+  state.caseCode = code;
+  state.preview = preview;
+  state.selected = offerByCode(preview.recommendedReport) ? preview.recommendedReport : "SIMPLE";
+  setStatus("search-status", "Dossier trouvé.", "success");
+  renderPreview();
+}
 
-  setTimeout(() => {
-    let report = "";
-    const s = decryptedTelemetry.speed;
-    const g = decryptedTelemetry.gForce;
-    const l = decryptedTelemetry.lean;
+function renderPreview() {
+  const p = state.preview;
+  $("preview-date").textContent = p.dateLabel || "—";
+  $("preview-severity").textContent = p.severityLabel || "—";
+  $("preview-recommended").textContent = offerByCode(p.recommendedReport)?.label || "—";
+  renderOffers();
+  show("case-preview", true);
+}
 
-    // Arbre de décision heuristique (Simulation IA)
-    if (g > 10 && s > 40 && l > 60) {
-      report = `
-        <strong style="color: #ff3333;">ALERTE CHOC MAJEUR</strong><br><br>
-        <strong>Circonstances probables :</strong> Le deux-roues circulait à une vitesse relativement élevée (${s} km/h). 
-        Le pic d'accélération de ${g}G indique un arrêt brutal (impact). L'inclinaison de ${l}° confirme que le véhicule est couché au sol suite à l'impact.<br><br>
-        <strong>Reconstitution :</strong> Collision latérale ou frontale avec un obstacle solide (probablement un tiers impliqué).<br><br>
-        <strong style="color: #b700ff;">Probabilité d'implication d'un tiers : 87%</strong>
-      `;
-    } else if (g <= 10 && l >= 80) {
-      report = `
-        <strong style="color: #ffaa00;">GLISSADE / PERTE D'ADHÉRENCE</strong><br><br>
-        <strong>Circonstances probables :</strong> Vitesse mesurée de ${s} km/h avec un choc modéré de ${g}G. 
-        L'inclinaison de ${l}° indique que le deux-roues s'est couché, mais l'absence de choc violent exclut un impact direct.<br><br>
-        <strong>Reconstitution :</strong> Perte de contrôle isolée (chaussée glissante, freinage excessif) ayant entraîné une chute du véhicule.<br><br>
-        <strong style="color: #b700ff;">Probabilité d'implication d'un tiers : 12% (Sinistre isolé présumé)</strong>
-      `;
-    } else {
-      report = `
-        <strong>INCIDENT MINEUR OU STATIONNEMENT</strong><br><br>
-        <strong>Circonstances probables :</strong> L'analyse de la force (${g}G) et de l'inclinaison (${l}°) ne correspond pas à un accident de circulation classique à cette vitesse (${s} km/h).<br><br>
-        <strong>Reconstitution :</strong> Chute à l'arrêt ou tentative de vol/vandalisme.<br><br>
-        <strong style="color: #b700ff;">Recommandation d'expertise physique conseillée.</strong>
-      `;
+function renderOffers() {
+  const list = $("report-options");
+  list.replaceChildren();
+  for (const offer of OFFERS) {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "report-card";
+    card.setAttribute("data-action", `selectReport('${offer.code}')`);
+    card.setAttribute("aria-pressed", String(offer.code === state.selected));
+    if (offer.code === state.selected) card.classList.add("selected");
+
+    const info = document.createElement("span");
+    info.className = "report-info";
+    const title = document.createElement("strong");
+    title.textContent = offer.label;
+    info.appendChild(title);
+    if (offer.code === state.preview?.recommendedReport) {
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = "Conseillé";
+      info.appendChild(badge);
     }
 
-    // Sécurité XSS : Assainissement du HTML de rapport (OWASP ASVS v5.0.0-1.3.1)
-    // eslint-disable-next-line no-restricted-syntax
-contentSpan.innerHTML = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(report) : report;
-  }, 2000);
+    const price = document.createElement("span");
+    price.className = "report-price";
+    const ht = document.createElement("span");
+    ht.textContent = `${formatEuros(offer.htCents)} € HT`;
+    const ttc = document.createElement("small");
+    ttc.textContent = `${formatEuros(ttcCents(offer.htCents))} € TTC`;
+    price.append(ht, ttc);
+
+    card.append(info, price);
+    list.appendChild(card);
+  }
+  updatePayButton();
 }
 
-// --- Action Registry (ESM) ---
-registerAction('searchReport', searchReport);
-registerAction('selectReportOption', selectReportOption);
-registerAction('payReport', payReport);
-registerAction('decryptTelemetry', decryptTelemetry);
-registerAction('runLitigationAI', runLitigationAI);
+function selectReport(code) {
+  if (!offerByCode(code) || state.paying) return;
+  state.selected = code;
+  renderOffers();
+}
+
+function updatePayButton() {
+  const btn = $("btn-pay");
+  if (!btn) return;
+  const offer = offerByCode(state.selected);
+  btn.textContent = offer
+    ? `Payer ${formatEuros(ttcCents(offer.htCents))} € TTC avec Revolut`
+    : "Payer avec Revolut";
+  btn.disabled = state.paying || !offer || !state.company;
+  show("pay-needs-company", !state.company);
+}
+
+// ──────────────────────────────────────────────
+// 4. Paiement Revolut, puis attente de la confirmation du serveur
+// ──────────────────────────────────────────────
+
+async function waitForRevolutSdk() {
+  for (let i = 0; i < 10 && typeof window.RevolutCheckout !== "function"; i++) {
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  if (typeof window.RevolutCheckout !== "function") {
+    throw new Error("Module de paiement Revolut non chargé. Vérifiez votre connexion.");
+  }
+}
+
+async function payReport() {
+  const offer = offerByCode(state.selected);
+  if (!offer || !state.caseCode || state.paying) return;
+  if (!state.company) {
+    setStatus("pay-status", "Enregistrez d'abord le SIREN de votre entreprise : il figure sur la facture.", "error");
+    return;
+  }
+  const code = state.caseCode;
+  const ttc = ttcCents(offer.htCents);
+  const ok = window.confirm(
+    `${offer.label} — dossier ${code}\n\n` +
+      `${formatEuros(offer.htCents)} € HT + TVA 20 % = ${formatEuros(ttc)} € TTC\n` +
+      `Facturé à : ${state.company.name} (SIREN ${state.company.siren})\n\n` +
+      "Le rapport sera accessible dès la confirmation du paiement par Revolut.",
+  );
+  if (!ok) return;
+
+  state.paying = true;
+  updatePayButton();
+  setStatus("pay-status", "Création de la commande…");
+  try {
+    const order = await authFetch("createRevolutOrder", {
+      method: "POST",
+      body: { case_id: code, report_type: offer.code },
+    });
+    if (!order?.order_token) throw new Error("Commande Revolut non créée. Réessayez.");
+    await waitForRevolutSdk();
+    const checkout = await window.RevolutCheckout(order.order_token, "prod");
+    setStatus("pay-status", "Paiement en cours dans la fenêtre Revolut…");
+    checkout.payWithPopup({
+      onSuccess: () => waitForUnlock(code),
+      onError: (message) => endPayment(`Paiement refusé : ${message || "erreur Revolut"}.`, "error"),
+      onCancel: () => endPayment("Paiement annulé.", "info"),
+    });
+  } catch (err) {
+    if (err?.status === 409) {
+      // Déjà acheté par ce compte : on ouvre directement le rapport
+      endPayment("");
+      await searchCase();
+      return;
+    }
+    if (err?.details?.code === "INSURER_PROFILE_REQUIRED") {
+      state.company = null;
+      renderCompany();
+    }
+    endPayment(err?.message || "Paiement impossible. Réessayez.", "error");
+  }
+}
+
+function endPayment(message, kind) {
+  state.paying = false;
+  updatePayButton();
+  setStatus("pay-status", message, kind);
+}
+
+/** Le serveur débloque le rapport à réception du webhook Revolut : on relit le dossier. */
+async function waitForUnlock(code, attempts = 20) {
+  setStatus("pay-status", "Paiement accepté. Attente de la confirmation du serveur…");
+  for (let i = 0; i < attempts; i++) {
+    await new Promise((r) => setTimeout(r, 3000));
+    const paid = await readPaidCase(code);
+    if (paid) {
+      endPayment("Paiement confirmé.", "success");
+      renderReport(paid);
+      return;
+    }
+  }
+  endPayment(
+    "Paiement accepté, confirmation encore en attente. Recherchez à nouveau le dossier dans quelques minutes ; " +
+      "en cas de problème, écrivez à contact@mon50ccetmoi.com avec le code du dossier.",
+    "info",
+  );
+}
+
+// ──────────────────────────────────────────────
+// 5. Rapport scellé (texte brut uniquement)
+// ──────────────────────────────────────────────
+
+function renderReport(data) {
+  const tbody = $("report-rows");
+  tbody.replaceChildren();
+  for (const [label, value] of sealedReportRows(data, auth.currentUser?.uid)) {
+    const tr = document.createElement("tr");
+    const th = document.createElement("th");
+    th.scope = "row";
+    th.textContent = label;
+    const td = document.createElement("td");
+    td.textContent = String(value);
+    tr.append(th, td);
+    tbody.appendChild(tr);
+  }
+  show("case-preview", false);
+  show("report-view", true);
+}
+
+// ──────────────────────────────────────────────
+
+registerAction("authenticateInsurer", authenticateInsurer);
+registerAction("logoutInsurer", logoutInsurer);
+registerAction("registerCompany", registerCompany);
+registerAction("searchCase", searchCase);
+registerAction("selectReport", selectReport);
+registerAction("payReport", payReport);
+
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    onSignedIn(user);
+  } else {
+    resetPortal();
+    show("portal-content", false);
+    show("login-screen", true);
+  }
+});

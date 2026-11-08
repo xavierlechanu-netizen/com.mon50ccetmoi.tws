@@ -6,11 +6,12 @@
     <script type="module" src="/js/dom-security.js"></script>
 
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portail Assureur B2B - mon50ccetmoi</title>
+    <meta
+      name="description"
+      content="Portail des professionnels de l'assurance : consultez et achetez le rapport de sinistre scellé transmis par un conducteur mon50ccetmoi."
+    />
     <link rel="canonical" href="https://mon50ccetmoi.com/assureur" />
 
     <link
@@ -23,26 +24,23 @@
     />
 
     <script src="https://merchant.revolut.com/embed.js" async charset="utf-8"></script>
-    <script type="module" src="/js/config.js" charset="utf-8"></script>
-    <script type="module" src="/js/database.js" charset="utf-8"></script>
-    <script type="module" src="/js/inline-assureur-1.js"></script>
 
     <style>
       body {
         margin: 0;
-        padding: 0;
-        font-family: "Inter", monospace;
+        padding: 24px 16px;
+        box-sizing: border-box;
+        font-family: "Inter", system-ui, sans-serif;
         background: #050a15;
         color: #e2e8f0;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         min-height: 100vh;
-        background-image: radial-gradient(
-          circle at 50% -20%,
-          rgba(0, 210, 255, 0.1) 0%,
-          transparent 70%
-        );
+        background-image: radial-gradient(circle at 50% -20%, rgba(0, 210, 255, 0.1) 0%, transparent 70%);
+      }
+      [hidden] {
+        display: none !important;
       }
       .container {
         width: 100%;
@@ -51,10 +49,8 @@
         backdrop-filter: blur(15px);
         border-radius: 16px;
         border: 1px solid rgba(0, 210, 255, 0.2);
-        box-shadow:
-          0 10px 40px rgba(0, 0, 0, 0.8),
-          inset 0 1px 1px rgba(255, 255, 255, 0.1);
-        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        padding: 32px;
         box-sizing: border-box;
         position: relative;
         overflow: hidden;
@@ -68,466 +64,407 @@
         height: 4px;
         background: linear-gradient(90deg, #00d2ff, #ff0055);
       }
+      #login-screen {
+        max-width: 450px;
+      }
       h1 {
         color: #fff;
         text-align: center;
-        margin-bottom: 5px;
-        font-size: 2rem;
+        margin: 0 0 5px;
+        font-size: 1.8rem;
         text-transform: uppercase;
         letter-spacing: 2px;
-        text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+      }
+      h2 {
+        color: #fff;
+        font-size: 1.1rem;
+        margin: 28px 0 12px;
       }
       p.subtitle {
         text-align: center;
         color: #94a3b8;
-        margin-bottom: 30px;
+        margin: 0 0 28px;
       }
-      .search-box {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 30px;
+      .field {
+        margin-bottom: 16px;
       }
-      .search-box input {
-        flex: 1;
-        padding: 15px;
+      .field label {
+        display: block;
+        margin-bottom: 5px;
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
+      input {
+        width: 100%;
+        padding: 14px;
         background: rgba(0, 0, 0, 0.5);
-        color: #fff;
         border: 2px solid #1e293b;
         border-radius: 8px;
-        font-size: 1.1rem;
-        font-family: monospace;
+        color: #fff;
+        font-size: 1rem;
         outline: none;
-        transition: all 0.3s;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
       }
-      .search-box input:focus {
+      input:focus {
         border-color: #00d2ff;
-        box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
       }
-      .search-box button {
-        background: linear-gradient(135deg, #00d2ff, #0056b3);
-        color: white;
+      .btn {
+        display: block;
+        width: 100%;
+        padding: 14px;
         border: none;
-        padding: 0 25px;
         border-radius: 8px;
         font-size: 1rem;
         font-weight: bold;
         cursor: pointer;
-        transition: all 0.3s;
+        color: #fff;
+        background: linear-gradient(135deg, #00d2ff, #0056b3);
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn-pay {
+        margin-top: 16px;
+        background: linear-gradient(135deg, #b700ff 0%, #ff0055 100%);
+      }
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid #334155;
+        color: #cbd5e1;
+        font-weight: 600;
+      }
+      .account-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        font-size: 0.9rem;
+        color: #94a3b8;
+        margin-bottom: 8px;
+      }
+      .account-bar strong {
+        color: #e2e8f0;
+        word-break: break-all;
+      }
+      .account-bar .btn {
+        width: auto;
+        padding: 8px 14px;
+      }
+      .company {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 14px;
+        font-size: 0.9rem;
+      }
+      #company-form {
+        margin-top: 12px;
+      }
+      .search-box {
+        display: flex;
+        gap: 10px;
+      }
+      .search-box input {
+        flex: 1;
+        min-width: 0;
+        font-family: monospace;
         text-transform: uppercase;
-        box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
       }
-      .search-box button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 25px rgba(0, 210, 255, 0.6);
+      .search-box .btn {
+        width: auto;
+        padding: 0 20px;
       }
-
+      .preview dl {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 6px 14px;
+        margin: 0 0 16px;
+        font-size: 0.9rem;
+      }
+      .preview dt {
+        color: #94a3b8;
+      }
+      .preview dd {
+        margin: 0;
+      }
       .report-options {
-        display: none;
+        display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
       }
       .report-card {
         background: rgba(0, 0, 0, 0.3);
         border: 1px solid #1e293b;
         border-radius: 8px;
-        padding: 20px;
+        padding: 16px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 12px;
         cursor: pointer;
-        transition: all 0.3s;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        width: 100%;
       }
       .report-card:hover {
         border-color: #ffb703;
-        background: rgba(255, 183, 3, 0.05);
       }
       .report-card.selected {
         border-color: #00ffcc;
-        background: rgba(0, 255, 204, 0.1);
-        box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+        background: rgba(0, 255, 204, 0.08);
       }
-      .report-info h3 {
-        margin: 0 0 5px 0;
-        font-size: 1.2rem;
+      .report-info strong {
+        display: block;
         color: #fff;
+        font-size: 1.05rem;
       }
-      .report-info p {
-        margin: 0;
-        font-size: 0.85rem;
-        color: #94a3b8;
+      .badge {
+        display: inline-block;
+        margin-top: 4px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #000;
+        background: #ffb703;
+        border-radius: 10px;
+        padding: 2px 8px;
       }
       .report-price {
-        font-size: 1.5rem;
+        text-align: right;
         font-weight: 800;
         color: #00ffcc;
-        text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        white-space: nowrap;
       }
-
-      .btn-pay {
-        display: none;
-        width: 100%;
-        padding: 15px;
-        background: linear-gradient(135deg, #b700ff 0%, #ff0055 100%);
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        font-weight: bold;
-        margin-top: 20px;
-        cursor: pointer;
-        text-transform: uppercase;
-        box-shadow: 0 0 20px rgba(183, 0, 255, 0.6);
-        transition: transform 0.2s;
+      .report-price small {
+        display: block;
+        font-weight: 400;
+        color: #94a3b8;
       }
-      .btn-pay:hover {
-        transform: scale(1.02);
-        box-shadow: 0 0 30px rgba(255, 0, 85, 0.8);
+      .note {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        line-height: 1.5;
       }
-
+      .note a,
+      .help a {
+        color: #00d2ff;
+      }
+      .help {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        line-height: 1.5;
+        margin-top: 18px;
+      }
       .status-msg {
-        text-align: center;
-        margin-top: 15px;
+        margin-top: 12px;
         font-weight: 600;
-        font-family: monospace;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+      .status-msg:empty {
+        display: none;
       }
       .error {
-        color: #ff3333;
-        text-shadow: 0 0 5px #ff3333;
+        color: #ff6b6b;
       }
       .success {
         color: #00ffcc;
-        text-shadow: 0 0 5px #00ffcc;
       }
       .info {
         color: #00d2ff;
-        text-shadow: 0 0 5px #00d2ff;
+      }
+      .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+      .report-table th,
+      .report-table td {
+        padding: 8px 6px;
+        border-bottom: 1px solid #1e293b;
+        text-align: left;
+        vertical-align: top;
+      }
+      .report-table th {
+        color: #94a3b8;
+        font-weight: 400;
+        width: 40%;
+      }
+      .report-table td {
+        word-break: break-word;
+      }
+      @media (max-width: 480px) {
+        .container {
+          padding: 24px 16px;
+        }
+        h1 {
+          font-size: 1.4rem;
+        }
+        .search-box {
+          flex-direction: column;
+        }
+        .search-box .btn {
+          width: 100%;
+          padding: 14px;
+        }
+      }
+      @media print {
+        body {
+          background: #fff;
+          color: #000;
+        }
+        .container {
+          box-shadow: none;
+          border: none;
+          background: none;
+        }
+        .no-print {
+          display: none !important;
+        }
+        .report-table th,
+        .report-table td {
+          color: #000;
+          border-color: #ccc;
+        }
       }
     </style>
     <script type="module" src="/js/error-tracking.js?v=1008000"></script>
   </head>
   <body>
-    <!-- NOUVEL ÉCRAN DE CONNEXION -->
-    <div id="login-screen" class="container" style="max-width: 450px">
+    <!-- Connexion -->
+    <main id="login-screen" class="container">
       <h1><i class="fa-solid fa-lock"></i> Accès B2B</h1>
-      <p class="subtitle">Authentification Expert Requise</p>
+      <p class="subtitle">Réservé aux professionnels de l'assurance</p>
 
-      <div style="margin-bottom: 20px">
-        <label
-          style="
-            display: block;
-            margin-bottom: 5px;
-            color: #94a3b8;
-            font-size: 0.9rem;
-          "
-          >Identifiant Agence / Expert</label
-        >
-        <input
-          type="text"
-          id="insurer-username"
-          placeholder="Ex: AXA-PRO-01"
-          style="
-            width: 100%;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid #1e293b;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1.1rem;
-            outline: none;
-            box-sizing: border-box;
-          "
-        />
+      <div class="field">
+        <label for="insurer-email">Email professionnel</label>
+        <input type="email" id="insurer-email" autocomplete="username" placeholder="nom@entreprise.fr" />
       </div>
-
-      <div style="margin-bottom: 20px">
-        <label
-          style="
-            display: block;
-            margin-bottom: 5px;
-            color: #94a3b8;
-            font-size: 0.9rem;
-          "
-          >Mot de passe Haute Sécurité</label
-        >
+      <div class="field">
+        <label for="insurer-password">Mot de passe</label>
         <input
           type="password"
           id="insurer-password"
-          placeholder="Mot de passe"
-          style="
-            width: 100%;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid #1e293b;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1.1rem;
-            outline: none;
-            box-sizing: border-box;
-          "
+          autocomplete="current-password"
           data-enter-action="authenticateInsurer()"
         />
-        <div
-          style="
-            font-size: 0.75rem;
-            color: #666;
-            margin-top: 8px;
-            line-height: 1.4;
-          "
-        >
-          <i class="fa-solid fa-shield-halved"></i>
-          <strong>Règles de sécurité :</strong><br />
-          - Minimum 20 caractères<br />
-          - Au moins 1 lettre majuscule<br />
-          - Au moins 1 caractère spécial
-        </div>
       </div>
 
-      <button
-        data-action="authenticateInsurer()"
-        class="btn-pay"
-        style="display: block; width: 100%"
-      >
-        SE CONNECTER
-      </button>
-      <div
-        id="login-error"
-        class="status-msg error"
-        style="
-          display: none;
-          font-size: 0.85rem;
-          margin-top: 15px;
-          padding: 10px;
-          background: rgba(255, 0, 0, 0.1);
-          border-radius: 5px;
-          border: 1px solid #ff3333;
-        "
-      ></div>
-    </div>
+      <button type="button" class="btn" data-action="authenticateInsurer()">Se connecter</button>
+      <div id="login-status" class="status-msg" role="status" aria-live="polite"></div>
 
-    <!-- CONTENU DU PORTAIL EXPERT (Caché au départ) -->
-    <div id="portal-content" class="container" style="display: none">
-      <h1><i class="fa-solid fa-shield-halved"></i> Portail Expert</h1>
-      <p class="subtitle">Accès sécurisé aux rapports Blackbox certifiés.</p>
+      <p class="help">
+        Compte Google ou clé d'accès, mot de passe oublié, pas encore de compte :
+        passez par la <a href="login.html">page de connexion</a>, puis revenez sur cette page.
+      </p>
+    </main>
 
-      <div class="search-box">
-        <input
-          type="text"
-          id="input-case-code"
-          placeholder="Ex: LITIGE-XXXXXX"
-          data-enter-action="searchCase()"
-        />
-        <button data-action="searchCase()">
-          <i class="fa-solid fa-search"></i> Rechercher
-        </button>
+    <!-- Portail (après connexion) -->
+    <main id="portal-content" class="container" hidden>
+      <h1><i class="fa-solid fa-shield-halved"></i> Portail assureur</h1>
+      <p class="subtitle">Rapports de sinistre scellés transmis par les conducteurs</p>
+
+      <div class="account-bar no-print">
+        <span>Connecté : <strong id="insurer-account"></strong></span>
+        <button type="button" class="btn btn-secondary" data-action="logoutInsurer()">Déconnexion</button>
       </div>
 
-      <div id="status-display" class="status-msg"></div>
-
-      <div id="report-options" class="report-options">
-        <div class="report-card" data-action="selectReport('SIMPLE', 49.9)">
-          <div class="report-info">
-            <h3>Rapport Simple</h3>
-            <p>Télémétrie de base (Vitesse, GPS).</p>
+      <section class="company no-print" aria-labelledby="company-title">
+        <span id="company-title">Entreprise facturée :</span> <strong id="company-name">vérification…</strong>
+        <div id="company-form" hidden>
+          <p class="note">
+            L'achat est réservé aux assureurs, courtiers, experts et avocats. Votre SIREN est vérifié
+            dans l'annuaire officiel des entreprises ; le nom et l'adresse de la facture en proviennent.
+          </p>
+          <div class="field">
+            <label for="company-siren">SIREN (9 chiffres)</label>
+            <input type="text" id="company-siren" inputmode="numeric" maxlength="11" data-input-filter="digits" />
           </div>
-          <div class="report-price">49,99 € HT</div>
-        </div>
-
-        <div class="report-card" data-action="selectReport('INTERMEDIAIRE', 89.99)">
-          <div class="report-info">
-            <h3>Rapport Intermédiaire</h3>
-            <p>Détection de choc, G-Force et inclinaison.</p>
+          <div class="field">
+            <label for="company-billing-email">Email de facturation</label>
+            <input
+              type="email"
+              id="company-billing-email"
+              autocomplete="email"
+              data-enter-action="registerCompany()"
+            />
           </div>
-          <div class="report-price">89,99 € HT</div>
+          <button type="button" class="btn btn-secondary" data-action="registerCompany()">
+            Vérifier mon entreprise
+          </button>
+          <div id="company-status" class="status-msg" role="status" aria-live="polite"></div>
         </div>
+      </section>
 
-        <div
-          class="report-card selected"
-          data-action="selectReport('EXPERT', 199.99)"
-        >
-          <div class="report-info">
-            <h3>Expertise Complète</h3>
-            <p>Replay 3D certifié, signature SHA-256 et données HF.</p>
-          </div>
-          <div class="report-price">199,99 € HT</div>
+      <section class="no-print" aria-labelledby="search-title">
+        <h2 id="search-title">Code du dossier</h2>
+        <div class="search-box">
+          <input
+            type="text"
+            id="input-case-code"
+            aria-label="Code du dossier"
+            placeholder="LITIGE-XXXX-XXXX-XXXX-XXXX"
+            autocomplete="off"
+            spellcheck="false"
+            data-enter-action="searchCase()"
+          />
+          <button type="button" class="btn" data-action="searchCase()">
+            <i class="fa-solid fa-magnifying-glass"></i> Rechercher
+          </button>
         </div>
+        <div id="search-status" class="status-msg" role="status" aria-live="polite"></div>
+        <p class="note">Le conducteur génère ce code dans son application ; il est valable 72 h.</p>
+      </section>
 
-        <button id="btn-pay" class="btn-pay" data-action="payReport()">
-          Payer par virement (Revolut) <span id="btn-price">199.99€</span>
-        </button>
-
-        <p
-          style="
-            font-size: 0.75rem;
-            color: #94a3b8;
-            text-align: center;
-            margin-top: 15px;
-            line-height: 1.4;
-            padding: 0 10px;
-          "
-        >
-          <i class="fa-solid fa-circle-info"></i> Conformément à la législation
-          sur les contenus numériques immatériels, vous renoncez expressément à
-          votre droit de rétractation.
-          <strong
-            >Aucun remboursement ne pourra être exigé après la livraison
-            numérique et le déverrouillage du rapport.</strong
-          >
+      <section id="case-preview" class="preview no-print" hidden aria-labelledby="preview-title">
+        <h2 id="preview-title">Dossier</h2>
+        <dl>
+          <dt>Date de l'incident</dt>
+          <dd id="preview-date"></dd>
+          <dt>Choc détecté</dt>
+          <dd id="preview-severity"></dd>
+          <dt>Niveau conseillé</dt>
+          <dd id="preview-recommended"></dd>
+        </dl>
+        <p class="note">
+          Contenu du rapport : date et position GPS de l'incident, force du choc, vitesse et inclinaison
+          maximales, gravité estimée par l'application, empreinte SHA-256 scellée par notre serveur au
+          paiement et horodatage.
         </p>
-      </div>
 
-      <!-- EXPERT DASHBOARD (Hidden until paid) -->
-      <div id="expert-dashboard" style="display: none; margin-top: 20px">
-        <div
-          style="
-            background: #111;
-            color: #00ffcc;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #0056b3;
-            font-family: monospace;
-            position: relative;
-            overflow: hidden;
-          "
-        >
-          <!-- BACKGROUND WATERMARK -->
-          <div
-            style="
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%) rotate(-35deg);
-              font-size: 4rem;
-              font-weight: 800;
-              color: rgba(255, 183, 3, 0.1);
-              white-space: nowrap;
-              pointer-events: none;
-              z-index: 0;
-              text-align: center;
-              line-height: 1.2;
-            "
-          >
-            CERTIFICATION<br />mon50cc.com
-          </div>
+        <div id="report-options" class="report-options"></div>
 
-          <div style="position: relative; z-index: 1">
-            <h3 style="margin-top: 0; color: #00d2ff">
-              <i class="fa-solid fa-satellite-dish"></i> TÉLÉMÉTRIE BLACKBOX :
-              <span id="telemetry-id"></span>
-            </h3>
+        <p id="pay-needs-company" class="note" hidden>
+          Enregistrez le SIREN de votre entreprise ci-dessus pour pouvoir payer.
+        </p>
+        <button type="button" id="btn-pay" class="btn btn-pay" data-action="payReport()" disabled>
+          Payer avec Revolut
+        </button>
+        <div id="pay-status" class="status-msg" role="status" aria-live="polite"></div>
+        <p class="note">
+          Achat réservé aux professionnels : le droit de rétractation des consommateurs ne s'applique pas.
+          Le rapport est accessible dès la confirmation du paiement. Voir nos <a href="cgv.html">CGV</a>.
+        </p>
+      </section>
 
-            <div style="display: flex; gap: 15px; margin-bottom: 20px">
-              <div
-                style="
-                  flex: 1;
-                  background: #222;
-                  padding: 15px;
-                  border-radius: 6px;
-                  text-align: center;
-                "
-              >
-                <div style="font-size: 0.8rem; color: #aaa">
-                  VITESSE À L'IMPACT
-                </div>
-                <div
-                  style="font-size: 1.5rem; font-weight: bold; color: #ff3333"
-                  id="telemetry-speed"
-                >
-                  -- km/h
-                </div>
-              </div>
-              <div
-                style="
-                  flex: 1;
-                  background: #222;
-                  padding: 15px;
-                  border-radius: 6px;
-                  text-align: center;
-                "
-              >
-                <div style="font-size: 0.8rem; color: #aaa">FORCE G (CHOC)</div>
-                <div
-                  style="font-size: 1.5rem; font-weight: bold; color: #ff9900"
-                  id="telemetry-g"
-                >
-                  -- G
-                </div>
-              </div>
-              <div
-                style="
-                  flex: 1;
-                  background: #222;
-                  padding: 15px;
-                  border-radius: 6px;
-                  text-align: center;
-                "
-              >
-                <div style="font-size: 0.8rem; color: #aaa">INCLINAISON</div>
-                <div
-                  style="font-size: 1.5rem; font-weight: bold; color: #00ffcc"
-                  id="telemetry-lean"
-                >
-                  -- °
-                </div>
-              </div>
-            </div>
+      <section id="report-view" hidden aria-labelledby="report-title">
+        <h2 id="report-title">Rapport de sinistre scellé</h2>
+        <table class="report-table">
+          <tbody id="report-rows"></tbody>
+        </table>
+        <p class="note">
+          L'empreinte SHA-256 permet de vérifier que les données n'ont pas été modifiées depuis le paiement.
+        </p>
+        <button type="button" class="btn btn-secondary no-print" data-action="window.print()">
+          <i class="fa-solid fa-print"></i> Imprimer ou enregistrer en PDF
+        </button>
+      </section>
+    </main>
 
-            <div
-              style="
-                background: #222;
-                padding: 15px;
-                border-radius: 6px;
-                font-size: 0.9rem;
-                line-height: 1.5;
-              "
-            >
-              <div>
-                <i class="fa-solid fa-clock"></i> <strong>Horodatage :</strong>
-                <span id="telemetry-time"></span>
-              </div>
-              <div>
-                <i class="fa-solid fa-location-dot"></i>
-                <strong>Coordonnées GPS :</strong>
-                <span id="telemetry-gps"></span>
-              </div>
-              <div>
-                <i class="fa-solid fa-shield-halved"></i>
-                <strong>Signature Cryptographique (SHA-256) :</strong>
-              </div>
-              <div
-                style="
-                  font-size: 0.7rem;
-                  color: #666;
-                  word-break: break-all;
-                  margin-top: 5px;
-                "
-                id="telemetry-hash"
-              ></div>
-            </div>
-
-            <button
-              data-action="window.print()"
-              style="
-                margin-top: 20px;
-                width: 100%;
-                padding: 12px;
-                background: #00d2ff;
-                color: #000;
-                border: none;
-                border-radius: 6px;
-                font-weight: bold;
-                cursor: pointer;
-              "
-            >
-              <i class="fa-solid fa-file-pdf"></i> Générer l'Attestation
-              Officielle (PDF)
-            </button>
-          </div>
-          <!-- END OF Z-INDEX:1 -->
-        </div>
-      </div>
-    </div>
-    <!-- Fin portal-content -->
-
-    <script type="module" src="/js/assureur.js?v=2"></script>
+    <script type="module" src="/js/assureur.js"></script>
   </body>
 </html>

@@ -67,7 +67,14 @@ des fichiers (`axeptio-config.js`, `gsi-callback.js`, `b2b-assureur-demo.js`, `d
 Corrigé au passage : renouvellement Boîte Noire+ (boutons morts, prix affiché 5,00 € au lieu de 4,99 €), bouton
 « Publier l'annonce » de la bourse d'échange, défi de la quinzaine ; retirés : page « IA prédictive » inaccessible
 (résultat d'analyse inventé), widget Google Traduction qui ne s'exécutait jamais.
-À reprendre : `assureur.html` appelle des fonctions inexistantes (`authenticateInsurer`, `searchCase`, `selectReport`).
+Repris le 8/11/2026 : `assureur.html` appelait des fonctions inexistantes (`authenticateInsurer`, `searchCase`,
+`selectReport`) et `assureur.js` était une simulation (faux dossier chiffré, « paiement » validé au bout de 2 s,
+clé de démo dans le code). La page suit maintenant le vrai parcours : connexion Firebase, entreprise vérifiée par
+SIREN, aperçu du dossier, paiement Revolut, rapport lisible seulement après confirmation du serveur. Offres, codes
+de dossier et contenu du rapport scellé sont dans `insurer-reports.js`, partagé avec l'app. Tests :
+`tests/insurer-reports.test.js` (prix identiques au catalogue serveur), `tests/assureur-portal.test.js` (parcours
+complet, Firebase et Revolut simulés) et `e2e/assureur.e2e.js`.
+Reste à décider : les trois niveaux (49,99 / 89,99 / 199,99 € HT) livrent aujourd'hui le même rapport.
 
 ### Étape 4 — Une couche d'accès aux données unique (3 à 5 jours, prépare OVH)
 

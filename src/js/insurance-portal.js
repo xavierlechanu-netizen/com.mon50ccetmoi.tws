@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { sealedReportRows } from './insurer-reports.js';
 
 /**
  * PORTAIL ASSURANCE mon50ccetmoi
@@ -121,26 +122,7 @@ container.innerHTML = `
       alert("Rapport non accessible : il n'est lisible qu'après paiement confirmé.");
       return;
     }
-    const t = data.telemetry || {};
-    const ai = data.ai || {};
-    const sealedAt = data.sealed_at && data.sealed_at.toDate ? data.sealed_at.toDate().toLocaleString("fr-FR") : "—";
-    const rows = [
-      ["Dossier", data.caseCode || caseId],
-      ["Date de l'incident", data.dateLabel || "—"],
-      ["Niveau acheté", (data.paid_tiers && window.session?.uid && data.paid_tiers[window.session.uid]) || data.paid_tier || "—"],
-      ["Force maximale", t.maxG_force != null ? `${t.maxG_force} G` : "—"],
-      ["Position GPS", data.gpsIncident ? `${data.gpsIncident.lat}, ${data.gpsIncident.lng}` : (t.gpsIncident ? `${t.gpsIncident.lat}, ${t.gpsIncident.lng}` : "—")],
-      ["Gravité estimée (IA)", ai.severityScore != null ? `${ai.severityScore} / 100` : "—"],
-      ["Analyse IA", ai.reportDescription || "—"],
-      ["Scellé par le serveur le", sealedAt],
-      ["Empreinte SHA-256", data.evidence_sha256 || "—"],
-      ["Horodatage", data.qualified_timestamp
-        ? "Qualifié eIDAS"
-        : data.free_timestamps
-          ? `Non qualifié — FreeTSA : ${data.free_timestamps.rfc3161?.genTime ? new Date(data.free_timestamps.rfc3161.genTime).toLocaleString("fr-FR") : "échec"} · OpenTimestamps (Bitcoin) : ${data.free_timestamps.opentimestamps?.status ? "ancrage en cours" : "échec"}`
-          : "En cours"],
-      ["Intégrité", data.integrity_alert ? "ALERTE : données modifiées après le premier paiement" : "Conforme au sceau"],
-    ];
+    const rows = sealedReportRows({ caseCode: caseId, ...data }, auth?.currentUser?.uid || window.session?.uid);
     while (content.firstChild) content.removeChild(content.firstChild);
     const box = document.createElement("div");
     box.style.cssText = "padding:16px; color:#fff;";
