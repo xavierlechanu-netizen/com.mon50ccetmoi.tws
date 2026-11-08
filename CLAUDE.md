@@ -63,7 +63,8 @@ npx firebase deploy --only hosting  # Déploie dist/ sur mon50ccetmoi.web.app
 | `├── b2b-assureur.html` | Portail B2B pour compagnies d'assurance (consultation et vérification cryptographique des rapports de sinistres). |
 | `├── admin-blackbox.html` | Console d'administration de la flotte de boîtiers Boîte Noire et audit de la chaîne de Merkle. |
 | `├── js/app-core.js` | Initialisation de l'application, état global partagé (`window.map`, `window.currentPosition`, etc.), géolocalisation. |
-| `├── js/app-map.js` | Contrôleur cartographique : itinéraires, dangers, garages, radars (via l'API `google.maps` souveraine ci-dessous). |
+| `├── js/app-map.js` | Contrôleur cartographique : itinéraires, membres en ligne, territoires (via l'API `google.maps` souveraine ci-dessous). |
+| `├── js/hazard-reports.js` | Signalements de dangers : menu, enregistrement, affichage de ceux de la communauté sur la carte. |
 | `├── js/gmaps-compat.js` | **Carte souveraine, zéro Google** : installe `window.google.maps` (Map, Marker, InfoWindow, Polyline, Geocoder, DirectionsService, Autocomplete…) sur Leaflet + fond Plan IGN. `window.map` est une carte Leaflet. |
 | `├── js/map-engine.js` | Services sans clé : itinéraire IGN `bdtopo-pgr` **autoroutes interdites** et durées plafonnées à 45 km/h, géocodage/autocomplétion IGN, garages OpenStreetMap (Overpass, 2 serveurs). |
 | `├── public/vendor/leaflet/` | Leaflet 1.9.4 auto-hébergé (plus de CDN unpkg). |
@@ -86,7 +87,7 @@ L'ensemble des règles de sécurité détaillées dans `.agents/AGENTS.md` et `N
    * Interdiction absolue de `eval()` ou `new Function()`.
    * Utiliser les attributs `data-action="nomFonction()"` couplés à `registerAction('nomFonction', nomFonction)` dans `src/js/actionRegistry.js`.
 2. **Portée ES Modules (`<script type="module">`) dans `src/js/`** :
-   * Les modules `app-core.js`, `app-map.js`, `app-features.js` et `app-ui.js` partagent l'état global sur `window` (`window.map`, `window.geocoder`, `window.currentPosition`, `window.hazardMarkers`, `window.officialPoiMarkers`, `window.isParkingMode`, `window.parkingStartPos`, `window.perfStartTime`, `window.isPerfTracking`, `window.isGuardianPromptActive`, `window.lastMovementTime`).
+   * Les modules `app-core.js`, `app-map.js`, `app-features.js` et `app-ui.js` partagent l'état global sur `window` (`window.map`, `window.geocoder`, `window.currentPosition`, `window.hazardMarkers`, `window.isParkingMode`, `window.parkingStartPos`, `window.perfStartTime`, `window.isPerfTracking`, `window.isGuardianPromptActive`, `window.lastMovementTime`).
    * Ne jamais redéclarer ces variables avec un `let` local dans `app-core.js`, sous peine de casser la visibilité inter-modules en mode strict ESM.
 3. **Sécurité Embarquée ESP32-C3 (`hardware/firmware/`)** :
    * **Interdiction d'opérations Flash/NVS dans une ISR** : Toute routine d'interruption (`IRAM_ATTR` dans `tamper.c`) ne doit manipuler que de la RAM volatile (`memset` sur pointeurs volatiles + drapeau `s_tamper_tripped`). L'effacement NVS (`blackbox_storage_zeroize_keys()`) est exécuté au réveil de `telemetry_task` dans `main.c`.

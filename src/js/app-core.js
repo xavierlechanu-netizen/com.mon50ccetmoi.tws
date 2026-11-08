@@ -43,7 +43,6 @@ window.currentPosition = null;
 window.routeFerries = [];
 window.lastSpokenFerryIndex = -1;
 window.hazardMarkers = [];
-window.officialPoiMarkers = [];
 window.wakeLock = null;
 window.isRiding = false;
 window.nightModeActive = false;
@@ -158,13 +157,6 @@ window.initMapController = async function () {
          window.executeAction('loadHazards');
       } else if (typeof loadHazards === "function") {
          loadHazards();
-      }
-
-      // UX Moderne : Afficher le bouton "Rechercher dans cette zone" pour les POI payants
-      if (typeof window.executeAction === "function") {
-         window.executeAction('checkMapPanForRadar');
-      } else if (typeof window.checkMapPanForRadar === "function") {
-         window.checkMapPanForRadar();
       }
     });
 

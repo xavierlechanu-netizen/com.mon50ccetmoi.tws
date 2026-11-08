@@ -114,6 +114,25 @@ Tranche 3 (7/11/2026) — `app-core.js` : 1 000 → 903 lignes :
   le type de danger était inséré comme du HTML dans « Toujours là ? ».
 - Suite : `app-features.js` (1 493 lignes) et `app-map.js` (1 226 lignes).
 
+Tranche 4 (8/11/2026) — `app-map.js` : 1 221 → 602 lignes :
+- Retiré : l'ancien « radar » de points d'intérêt (carburant, garages, santé, DAB, ~400 lignes). Aucun
+  bouton n'y menait depuis la refonte ; le radar carburant actif est `community-gas.js`. Il était de toute
+  façon cassé : il lisait les signalements d'abus, réservés aux administrateurs, et échouait pour tous les
+  autres ; il lisait la ville dans un champ mal orthographié (`vile`) et ne savait pas lire les prix d'une
+  station ne vendant qu'un carburant. Retirés aussi : le chrono (`trip-timer` n'existe dans aucune page), la
+  liste latérale des dangers (`live-hazards-list`, idem), l'appel à `updateXP` (fonction inexistante).
+- `hazard-reports.js` : menu, enregistrement et affichage des dangers de la communauté. Fonctions pures
+  (position, expiration des animaux après 30 min, doublons, sélection dans un rayon de 25 km), bulle en
+  texte brut. Tests : `tests/hazard-reports.test.js` (24 cas).
+- Corrigé : un danger enregistré au format `{pos}` était placé sans position sur la carte ; doublons
+  reconnus par identifiant de document (avant : date + auteur).
+- Démarrage de l'app : 478,7 → 475,8 Ko compressés (budget abaissé).
+- À reprendre : les alertes de conduite (`hazard-alerts.js`) ne lisent que les dangers signalés par le
+  pilote lui-même (stockage local), pas ceux de la communauté affichés sur la carte. Le signalement
+  d'abus de prix (`reportStationAbuse`, `database.js`) échoue pour tout non-administrateur (lecture de
+  `reports_abuse` refusée) : à refaire par une fonction serveur.
+- Suite : itinéraire (`calculateRouteSansAutoroute`, 320 lignes) puis `app-features.js`.
+
 ### Étape 6 — Dépendances et outillage (½ journée, puis en continu)
 
 - `firebase-admin` 14 et `@simplewebauthn/server` 14 (serveur), `@firebase/rules-unit-testing` 6, Jest et ESLint (alertes « modérées » des outils de développement).

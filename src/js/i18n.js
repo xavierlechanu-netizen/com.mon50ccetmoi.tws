@@ -200,22 +200,6 @@ window.updateI18N = function () {
   if (lStop) lStop.textContent = t("stop");
   const lReroute = document.getElementById("label-reroute");
   if (lReroute) lReroute.textContent = t("reroute");
-
-  const gasLabel =
-    document.querySelector("[onclick=\"scanRadar('fuel')\"] span") ||
-    document.querySelector("[onclick=\"scanRadar('fuel')\"]");
-  if (gasLabel)
-    setHtml(gasLabel, `<i class="fa-solid fa-gas-pump"></i> ${t("gas")}`);
-  const emergencyLabel =
-    document.querySelector("[onclick=\"scanRadar('doctors')\"] span") ||
-    document.querySelector("[onclick=\"scanRadar('doctors')\"]");
-  if (emergencyLabel)
-    setHtml(emergencyLabel, `<i class="fa-solid fa-hospital"></i> ${t("emergency")}`);
-  const bankLabel =
-    document.querySelector("[onclick=\"scanRadar('atm')\"] span") ||
-    document.querySelector("[onclick=\"scanRadar('atm')\"]");
-  if (bankLabel)
-    setHtml(bankLabel, `<i class="fa-solid fa-money-bill-1"></i> ${t("bank")}`);
 };
 
 window.updateUILabels = function () {
