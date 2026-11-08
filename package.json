@@ -46,7 +46,9 @@
   },
   "overrides": {
     "@grpc/grpc-js": "^1.14.6",
-    "uuid": "^11.1.1"
+    "uuid": "^11.1.1",
+    "glob": "^14.0.4",
+    "minimatch": "^11.0.5"
   },
   "jest": {
     "testEnvironment": "jsdom"

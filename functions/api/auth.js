@@ -8,6 +8,9 @@ const {
     generateAuthenticationOptions,
     verifyAuthenticationResponse
 } = require("@simplewebauthn/server");
+const {
+    credentialDocIdsToTry, storedCredentialFromRegistration, credentialForVerification
+} = require("./fido-credentials");
 
 const RP_NAME = "mon50ccetmoi";
 const isEmulator = Boolean(process.env.FUNCTIONS_EMULATOR);
@@ -230,15 +233,10 @@ exports.fidoVerifyRegistration = onCall({ region: "europe-west1" }, async (reque
     }
 
     if (verification.verified && verification.registrationInfo) {
-        const { credentialID, credentialPublicKey, counter } = verification.registrationInfo;
+        const { docId, data } = storedCredentialFromRegistration(verification.registrationInfo);
 
-        const credIdB64 = Buffer.from(credentialID).toString("base64");
-        const pubKeyB64 = Buffer.from(credentialPublicKey).toString("base64");
-
-        await db.collection("users").doc(uid).collection("fido_credentials").doc(credIdB64).set({
-            credentialID: credIdB64,
-            credentialPublicKey: pubKeyB64,
-            counter,
+        await db.collection("users").doc(uid).collection("fido_credentials").doc(docId).set({
+            ...data,
             timestamp: admin.firestore.FieldValue.serverTimestamp()
         });
 
@@ -310,21 +308,15 @@ exports.fidoVerifyAuthentication = onCall({ region: "europe-west1" }, async (req
 
     const expectedChallenge = challengeData.challenge;
 
-    const rawIdB64url = String(response.id);
-    const credIdB64 = Buffer.from(rawIdB64url, "base64url").toString("base64");
-
-    const credDoc = await db.collection("users").doc(uid).collection("fido_credentials").doc(credIdB64).get();
-    if (!credDoc.exists) {
+    const credentials = db.collection("users").doc(uid).collection("fido_credentials");
+    let credDoc = null;
+    for (const docId of credentialDocIdsToTry(response.id)) {
+        const doc = await credentials.doc(docId).get();
+        if (doc.exists) { credDoc = doc; break; }
+    }
+    if (!credDoc) {
         throw new HttpsError("not-found", "Credential not found.");
     }
-    const credData = credDoc.data();
-
-    const authenticator = {
-        credentialID: Buffer.from(credData.credentialID, "base64"),
-        credentialPublicKey: Buffer.from(credData.credentialPublicKey, "base64"),
-        counter: credData.counter,
-        transports: ["internal"]
-    };
 
     let verification;
     try {
@@ -334,7 +326,7 @@ exports.fidoVerifyAuthentication = onCall({ region: "europe-west1" }, async (req
             expectedChallenge,
             expectedOrigin: EXPECTED_ORIGINS,
             expectedRPID: RP_IDS,
-            authenticator
+            credential: credentialForVerification(credDoc.data())
         });
     } catch (error) {
         console.error("[FIDO] Auth Verification Error:", error.message);

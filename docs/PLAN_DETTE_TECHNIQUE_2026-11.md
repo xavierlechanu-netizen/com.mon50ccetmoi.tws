@@ -133,11 +133,31 @@ Tranche 4 (8/11/2026) — `app-map.js` : 1 221 → 602 lignes :
   `reports_abuse` refusée) : à refaire par une fonction serveur.
 - Suite : itinéraire (`calculateRouteSansAutoroute`, 320 lignes) puis `app-features.js`.
 
-### Étape 6 — Dépendances et outillage (½ journée, puis en continu)
+### Étape 6 — Dépendances et outillage (½ journée, puis en continu) — FAIT le 8/11/2026
 
 - `firebase-admin` 14 et `@simplewebauthn/server` 14 (serveur), `@firebase/rules-unit-testing` 6, Jest et ESLint (alertes « modérées » des outils de développement).
 - Ne pas migrer le SDK Firebase du navigateur vers la v13 : il sera remplacé par le serveur OVH.
 - Mise à jour automatique des dépendances (Dependabot) avec CI obligatoire.
+
+Réalisé :
+- **Connexion par clé d'accès réparée** (`functions/api/auth.js`, nouveau `fido-credentials.js`). Le code
+  utilisait l'interface de SimpleWebAuthn v10 avec la v13 installée : enregistrer une clé plantait et la
+  connexion échouait toujours. Autre bug : l'identifiant du document Firestore était en base64, qui contient
+  souvent « / » (environ une clé sur deux), refusé par Firestore ; les nouveaux documents sont en base64url,
+  les anciens restent lus. `@simplewebauthn/server` 14.1 (2 failles modérées corrigées en 14.0.2). Test de
+  bout en bout avec une clé d'accès simulée (vraie signature P-256) : `tests/fido-passkeys.test.js` (13 cas,
+  dont hameçonnage, rejeu, signature falsifiée) ; l'ancien code en échoue 8.
+- Mises à jour mineures (site : Capacitor 8.6, Vite 8.3.6… ; serveur : firebase-functions 7.4, nodemailer
+  10.4…). Outils de développement : `glob` 14 et `minimatch` 11 imposés (`overrides`) ; reste 1 alerte faible
+  (`deepmerge`, utilisé par Jest, aucun correctif publié). Code livré aux utilisateurs et serveur : 0 faille.
+- **Non fait, volontairement** : `firebase-admin` 14 supprime `admin.firestore()`, `admin.auth()`… utilisés
+  plus de 90 fois : réécriture du serveur Firebase inutile avant son remplacement par OVH (la v13 n'a aucune
+  faille connue). `@firebase/rules-unit-testing` 6 exige firebase 13 et Node 24.
+- `.github/dependabot.yml` : propositions hebdomadaires groupées (site, outils, serveur, serveur souverain),
+  mensuelles (actions GitHub, Android) ; majeures de firebase, rules-unit-testing et firebase-admin ignorées.
+  Pour rendre la CI obligatoire avant fusion : règle de protection de la branche `main` dans GitHub.
+- GitHub annonçait 57 alertes sur le dépôt miroir (3 critiques, 24 élevées) ; l'audit npm n'en trouve
+  aucune critique ou élevée dans les trois projets. Liste à vérifier sur la page Dependabot du dépôt.
 
 ### Étape 7 — Android et documentation (½ journée)
 

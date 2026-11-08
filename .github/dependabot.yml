@@ -1,0 +1,66 @@
+# Mises à jour automatiques des dépendances (étape 6 du plan de dette technique, 8/11/2026).
+# Chaque proposition passe par la CI (ci.yml : lint, tests, build, budget de poids, tests navigateur,
+# audit des fonctions serveur) avant d'être fusionnée à la main.
+version: 2
+updates:
+  # Site et outils (racine)
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      outils-de-developpement:
+        dependency-type: development
+        update-types: [minor, patch]
+      site:
+        dependency-type: production
+        update-types: [minor, patch]
+    ignore:
+      # SDK Firebase du navigateur : remplacé par le serveur souverain OVH, pas de migration en v13
+      - dependency-name: firebase
+        update-types: ["version-update:semver-major"]
+      # La v6 exige firebase 13 et Node 24
+      - dependency-name: "@firebase/rules-unit-testing"
+        update-types: ["version-update:semver-major"]
+
+  # Fonctions serveur Firebase (transitoires)
+  - package-ecosystem: npm
+    directory: "/functions"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      fonctions-serveur:
+        update-types: [minor, patch]
+    ignore:
+      # La v14 supprime admin.firestore(), admin.auth()… utilisés partout : réécriture inutile
+      # avant le remplacement de ces fonctions par le serveur OVH
+      - dependency-name: firebase-admin
+        update-types: ["version-update:semver-major"]
+
+  # Serveur souverain (OVHcloud)
+  - package-ecosystem: npm
+    directory: "/sovereign-core"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+
+  # Actions GitHub de la CI et de la publication
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        update-types: [minor, patch, major]
+
+  # Application Android publiée (TWA)
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
