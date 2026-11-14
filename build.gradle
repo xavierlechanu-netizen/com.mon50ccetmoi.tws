@@ -17,6 +17,55 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    // Versions minimales sans faille connue (alertes Dependabot du 14/11/2026).
+    // La règle ne fait que remonter une version trop ancienne, jamais la descendre, et reste
+    // dans la même branche (Netty 4.1, protobuf 3). Elle s'applique aux outils de compilation
+    // (classpath ci-dessous) et à toutes les configurations du projet (allprojects plus bas) :
+    //  - Guava est la seule bibliothèque concernée qui part dans l'APK (via androidbrowserhelper) ;
+    //  - Netty, Bouncy Castle, protobuf, commons-lang3, httpclient : outils de test sur appareil
+    //    d'Android (configurations _internal-unified-test-platform-*), jamais lancés ici ;
+    //  - Bouncy Castle, jdom2, jose4j, commons-lang3, Guava : outils de compilation (plugin Android).
+    // Non traité : kotlin-gradle-plugin (seul correctif publié : une bêta) ; la faille vise un
+    // cache de compilation Kotlin partagé, que ce projet n'utilise pas.
+    ext.versionsMinimales = { details ->
+        def demande = details.requested
+        def version = demande.version
+        if (!version || version =~ /[\[\](),+]/) return // pas de plage de versions
+        def plusAncienne = { String a, String b ->
+            def na = a.findAll(/\d+/)*.toInteger()
+            def nb = b.findAll(/\d+/)*.toInteger()
+            for (int i = 0; i < Math.max(na.size(), nb.size()); i++) {
+                def x = i < na.size() ? na[i] : 0
+                def y = i < nb.size() ? nb[i] : 0
+                if (x != y) return x < y
+            }
+            return false
+        }
+        def groupe = demande.group
+        def nom = demande.name
+        def cible = null
+        if (groupe == 'io.netty' && !nom.startsWith('netty-tcnative') && version.startsWith('4.1.')) {
+            cible = '4.1.140.Final'
+        } else if (groupe == 'org.bouncycastle' && nom.endsWith('-jdk18on')) {
+            cible = '1.87'
+        } else if (groupe == 'com.google.guava' && nom == 'guava') {
+            cible = version.endsWith('-android') ? '33.8.0-android' : '33.8.0-jre'
+        } else if (groupe == 'com.google.protobuf' && nom in ['protobuf-java', 'protobuf-kotlin'] && version.startsWith('3.')) {
+            cible = '3.25.9'
+        } else if (groupe == 'org.jdom' && nom == 'jdom2') {
+            cible = '2.0.6.1'
+        } else if (groupe == 'org.bitbucket.b_c' && nom == 'jose4j') {
+            cible = '0.9.7'
+        } else if (groupe == 'org.apache.commons' && nom == 'commons-lang3') {
+            cible = '3.22.0'
+        } else if (groupe == 'org.apache.httpcomponents' && nom == 'httpclient') {
+            cible = '4.5.14'
+        }
+        if (cible && plusAncienne(version, cible)) {
+            details.useVersion cible
+            details.because 'version minimale sans faille connue (alertes Dependabot du 14/11/2026)'
+        }
+    }
 
     repositories {
         google()
@@ -28,12 +77,18 @@ buildscript {
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
+    configurations.classpath {
+        resolutionStrategy.eachDependency(versionsMinimales)
+    }
 }
 
 allprojects {
     repositories {
         google()
         mavenCentral()
+    }
+    configurations.configureEach {
+        resolutionStrategy.eachDependency(rootProject.versionsMinimales)
     }
 }
 
