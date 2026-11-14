@@ -88,3 +88,43 @@ test("les fonctions rares se chargent au premier clic, pas au démarrage", async
   await page.waitForFunction(() => window.PocketLawyer && !window.PocketLawyer.__lazy, null, { timeout: 15_000 });
   expect(pageErrors).toEqual([]);
 });
+
+// Itinéraire IGN simulé (Lille → Roubaix, deux rues) : pas d'appel réseau réel en test
+const IGN_ROUTE = {
+  distance: 12345,
+  duration: 1000,
+  geometry: { coordinates: [[3.0573, 50.6292], [3.1, 50.65], [3.1746, 50.6942]] },
+  portions: [{ steps: [
+    { attributes: { nom_1_droite: "R NATIONALE" }, geometry: { coordinates: [[3.0573, 50.6292], [3.1, 50.65]] }, distance: 4000, duration: 300 },
+    { attributes: { nom_1_droite: "BD DE LA LIBERTE" }, geometry: { coordinates: [[3.1, 50.65], [3.1746, 50.6942]] }, distance: 8345, duration: 700 },
+  ] }],
+};
+
+test("itinéraire sans autoroute : tracé, bandeau de guidage, puis arrêt", async ({ page }) => {
+  const ignRequests = [];
+  await page.route("https://data.geopf.fr/navigation/itineraire**", (route) => {
+    ignRequests.push(new URL(route.request().url()));
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(IGN_ROUTE) });
+  });
+  const pageErrors = await openApp(page);
+  const paths = () => page.locator(".leaflet-overlay-pane path").count();
+  const before = await paths();
+
+  await page.evaluate(() => window.calculateRouteSansAutoroute({ lat: 50.6292, lng: 3.0573 }, { lat: 50.6942, lng: 3.1746 }));
+
+  // Autoroutes interdites dans la requête envoyée à l'IGN (Code de la route R421-2)
+  expect(ignRequests).toHaveLength(1);
+  expect(JSON.parse(ignRequests[0].searchParams.get("constraints"))).toMatchObject({ key: "waytype", value: "autoroute", constraintType: "banned" });
+  await expect(page.locator("#nav-info-bar")).toBeVisible();
+  await expect(page.locator("#nav-dist")).toHaveText("12,3 km");
+  await expect(page.locator("#nav-time")).toHaveText("23 min"); // 32 km/h de moyenne
+  await expect(page.locator("#next-step-name")).toHaveText("Partez par Rue Nationale");
+  expect(await paths()).toBe(before + 1);
+
+  // Clic direct : la bannière de cookies peut recouvrir le bas de l'écran
+  await page.evaluate(() => document.getElementById("btn-stop-nav").click());
+  await expect(page.locator("#nav-info-bar")).toBeHidden();
+  await expect(page.locator("#nav-instruction")).toBeHidden();
+  expect(await paths()).toBe(before);
+  expect(pageErrors).toEqual([]);
+});

@@ -42,68 +42,11 @@ window.initPotholeScanner = function () {
   }
 };
 
-// 2. Predictive Danger Radar (Intersections Mortelles)
-window.checkPredictiveDanger = function (instructionText) {
-  if (!instructionText) return;
+// 2. « Radar prédictif » (zone rouge annoncée à chaque rond-point ou carrefour) : retiré le 14/11/2026,
+// il ne s’exécutait jamais (greffé sur startPremiumNavigation, définie nulle part ; HUD absent de la page).
 
-  // Mots clés d'intersections complexes
-  const dangerKeywords = [
-    "rond-point",
-    "carrefour",
-    "intersection",
-    "voie rapide",
-  ];
-  const isDangerous = dangerKeywords.some((kw) =>
-    instructionText.toLowerCase().includes(kw),
-  );
-
-  if (isDangerous) {
-    // Déclencher le HUD Rouge
-    const hud = document.getElementById("turn-by-turn-hud");
-    if (hud) {
-      hud.style.borderColor = "#ff0000";
-      hud.style.boxShadow =
-        "0 0 40px rgba(255,0,0,0.8), inset 0 0 20px rgba(255,0,0,0.5)";
-
-      if (typeof speak === "function") {
-        setTimeout(
-          () =>
-            speak(
-              "Attention, zone rouge détectée. Risque d'accident élevé, ralentissez.",
-            ),
-          3000,
-        );
-      }
-
-      // Revenir à la normale après 15 secondes
-      setTimeout(() => {
-        hud.style.borderColor = "#00d2ff";
-        hud.style.boxShadow =
-          "0 10px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(0,210,255,0.3)";
-      }, 15000);
-    }
-  }
-};
-
-// Hook into existing Premium Navigation
 document.addEventListener("DOMContentLoaded", () => {
   setTimeout(window.initPotholeScanner, 3000);
-
-  // Override startPremiumNavigation to inject Predictive Danger
-  if (typeof window.startPremiumNavigation === "function") {
-    const legacyNav = window.startPremiumNavigation;
-    window.startPremiumNavigation = function (leg) {
-      legacyNav(leg);
-
-      if (leg && leg.steps && leg.steps.length > 0) {
-        const tempDiv = document.createElement("div");
-        // eslint-disable-next-line no-restricted-syntax
-tempDiv.innerHTML = leg.steps[0].instructions;
-        const instructionText = tempDiv.textContent || tempDiv.innerText || "";
-        window.checkPredictiveDanger(instructionText);
-      }
-    };
-  }
 });
 
 // 3. Mode Sensation (Anti-Ligne Droite)

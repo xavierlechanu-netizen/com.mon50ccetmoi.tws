@@ -82,7 +82,7 @@ Reste à décider : les trois niveaux (49,99 / 89,99 / 199,99 € HT) livrent au
 - Ajouter l'interrupteur `CONFIG.BACKEND_MODE = "FIREBASE" | "SOVEREIGN"` prévu par la Phase A : la migration OVH se fera ensuite domaine par domaine, sans toucher au reste.
 - Même chose pour `localStorage` : un module de stockage local, avec des clés déclarées en un seul endroit.
 
-### Étape 5 — Découper l'application en modules (2 à 3 semaines, progressif) — EN COURS (tranches 1 à 3 faites le 7/11/2026)
+### Étape 5 — Découper l'application en modules (2 à 3 semaines, progressif) — EN COURS (tranches 1 à 3 le 7/11, 4 le 8/11, 5 le 14/11/2026)
 
 - Passer des 81 scripts qui communiquent par `window` (489 globales) à de vrais imports entre modules, rangés par fonctionnalité (`carte/`, `communauté/`, `boîte-noire/`, `assistant/`…).
 - Charger à la demande les fonctions rares (avocat de poche, certificats, diagnostic, marché du carbone…) : démarrage plus rapide.
@@ -132,6 +132,40 @@ Tranche 4 (8/11/2026) — `app-map.js` : 1 221 → 602 lignes :
   d'abus de prix (`reportStationAbuse`, `database.js`) échoue pour tout non-administrateur (lecture de
   `reports_abuse` refusée) : à refaire par une fonction serveur.
 - Suite : itinéraire (`calculateRouteSansAutoroute`, 320 lignes) puis `app-features.js`.
+
+Tranche 5 (14/11/2026) — `app-map.js` : 602 → 140 lignes (reste : membres en ligne et territoires) :
+- `route-planner.js` : calcul de l'itinéraire sans autoroute, tracé, bandeau de guidage, annonces,
+  recherche de destination, bouton « GO » vers l'application GPS du téléphone. Fonctions pures (durée
+  annoncée, consigne en texte brut, icône de manœuvre, étapes en ferry, lien GPS). Plus d'`innerHTML`.
+  Tests : `tests/route-planner.test.js` (50 cas, carte et IGN simulés) et un test navigateur (requête IGN
+  sans autoroute, bandeau, tracé sur la carte Leaflet, arrêt).
+- Corrigé : deux recherches rapprochées dessinaient deux itinéraires, et un calcul annulé pouvait encore
+  s'afficher ou annoncer « Guidage interne démarré » après « Arrêter » (seul le dernier calcul compte) ;
+  l'alerte ferry continuait après l'arrêt ; le bouton d'annulation de la recherche restait affiché ; la
+  durée restait rouge après un trajet sous la pluie ; l'icône de virage se fiait au texte (« Rue de la
+  Rive Gauche » donnait un virage à gauche), elle suit la manœuvre calculée par l'IGN ; distances au
+  format français (« 12,3 km », aussi à l'oral).
+- Retirés (ne s'exécutaient jamais) : `startPremiumNavigation` était appelée mais définie nulle part ;
+  les deux fonctions qui s'y greffaient l'étaient donc aussi : durées par véhicule dans
+  `vehicle-config.js` (Duo +15 %, VSP +25 %, trottinette/vélo +35 %, avec conseils vocaux) et « radar
+  prédictif » de `beyond-maps.js` (zone rouge annoncée à chaque rond-point, sans donnée réelle, sur un
+  HUD absent de la page). Journaux `NeuralHUD`/`Telemetry` (supprimés à l'étape 1), titre `.route-title`.
+- Démarrage de l'app : 475,8 → 475,4 Ko compressés (budget abaissé).
+- Durées par véhicule : durée IGN plafonnée à 45 km/h (20 km/h à vélo et trottinette), +20 %, puis
+  32 km/h de moyenne au plus ; **+10 % en duo** sur un deux-roues 50 cc (2T, 4T, moto à boîte), pas en
+  VSP ni à vélo (`isDuoRide`, `DUO_FACTOR`). Les anciens coefficients n'ont pas été repris : +35 % à vélo
+  aurait compté deux fois le plafond de 20 km/h (≈ 12 km/h de moyenne), +25 % en VSP la rendait plus
+  lente qu'un 50 cc limité à la même vitesse. Les 10 % du duo sont une estimation : à vérifier sur les
+  durées réelles des trajets, par type de véhicule.
+- Suite : `app-features.js` (1 471 lignes).
+
+Hors tranche (14/11/2026) — `partenaires.html` devient un simple aiguillage vers `garage.html` et
+`assureur.html`, les deux vrais espaces professionnels. L'ancien « Partner Connect » n'était lié par
+aucune page (seulement par `sitemap.xml`) et tout y était simulé : boutons jamais enregistrés (aucun ne
+marchait), connexion qui aurait accepté n'importe quel compte, tableau de bord aux chiffres inventés,
+faux emails « envoyés » (SIRET, agents), faux paiement Stripe, campagnes publicitaires ciblées (contraires
+au choix « affiliation, pas de pub ») et un piège visant une société réelle (« Partenaire non recommandé »,
+10 000 € demandés). `inline-partenaires-1.js` et `-2.js` supprimés ; test `tests/partenaires-page.test.js`.
 
 ### Étape 6 — Dépendances et outillage (½ journée, puis en continu) — FAIT le 8/11/2026
 

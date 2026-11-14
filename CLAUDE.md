@@ -63,7 +63,8 @@ npx firebase deploy --only hosting  # Déploie dist/ sur mon50ccetmoi.web.app
 | `├── b2b-assureur.html` | Portail B2B pour compagnies d'assurance (consultation et vérification cryptographique des rapports de sinistres). |
 | `├── admin-blackbox.html` | Console d'administration de la flotte de boîtiers Boîte Noire et audit de la chaîne de Merkle. |
 | `├── js/app-core.js` | Initialisation de l'application, état global partagé (`window.map`, `window.currentPosition`, etc.), géolocalisation. |
-| `├── js/app-map.js` | Contrôleur cartographique : itinéraires, membres en ligne, territoires (via l'API `google.maps` souveraine ci-dessous). |
+| `├── js/app-map.js` | Contrôleur cartographique : membres en ligne, territoires (via l'API `google.maps` souveraine ci-dessous). |
+| `├── js/route-planner.js` | Itinéraire sans autoroute : recherche de destination, calcul, tracé, bandeau de guidage, bouton « GO » (`calculateRouteSansAutoroute`, `cancelRoute`, `searchDestination`). |
 | `├── js/hazard-reports.js` | Signalements de dangers : menu, enregistrement, affichage de ceux de la communauté sur la carte. |
 | `├── js/gmaps-compat.js` | **Carte souveraine, zéro Google** : installe `window.google.maps` (Map, Marker, InfoWindow, Polyline, Geocoder, DirectionsService, Autocomplete…) sur Leaflet + fond Plan IGN. `window.map` est une carte Leaflet. |
 | `├── js/map-engine.js` | Services sans clé : itinéraire IGN `bdtopo-pgr` **autoroutes interdites** et durées plafonnées à 45 km/h, géocodage/autocomplétion IGN, garages OpenStreetMap (Overpass, 2 serveurs). |
