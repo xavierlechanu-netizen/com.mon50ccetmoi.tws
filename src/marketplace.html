@@ -680,141 +680,50 @@
 
       <div class="divider"></div>
 
-      <!-- ─── HARDWARE SHOP (BLACKBOX) ─────────────────────── -->
+      <!-- ─── BOÎTE NOIRE : LISTE D'ATTENTE ─────────────────────
+           Le boîtier n'est pas encore fabriqué (sortie dans 6 mois au plus tôt) :
+           aucune vente ni aucun paiement, seulement une inscription pour être prévenu. -->
       <div id="blackbox-shop-section" class="animate-fade-in-up delay-6" style="margin-bottom: var(--space-4xl);">
-        
-        <div class="flex-between" style="flex-wrap: wrap; gap: var(--space-md); margin-bottom: var(--space-xl);">
-          <div>
-            <h2 class="heading-3 text-gradient-gold">
-              <i class="fa-solid fa-box"></i> Boîte Noire — Matériel Officiel
-            </h2>
-            <p class="text-small" style="margin-top: 4px;">
-              Boîtier enregistreur inviolable pour 50 cc — Chiffrement AES-256 · BLE 5.0 · GPS · IP68
-            </p>
-          </div>
-          <div class="badge badge-gold" style="font-family: var(--font-mono); padding: 10px 20px; font-size: var(--text-sm);">
-            <i class="fa-solid fa-cubes-stacked"></i> <span id="bb-stock-count">--</span> en stock
-          </div>
+        <div style="margin-bottom: var(--space-xl);">
+          <h2 class="heading-3 text-gradient-gold">
+            <i class="fa-solid fa-box"></i> Boîte Noire
+          </h2>
+          <p class="text-small" style="margin-top: 4px;">
+            L'enregistreur d'accident pour 50 cc et voitures sans permis : au choc, il garde et signe les 30 secondes avant et après.
+          </p>
         </div>
 
-        <div class="grid-2">
-          
-          <!-- Boîte Noire V1 (Unitaire) -->
-          <div class="glass-card product-card card-gold" id="bb-card-unit">
-            <div class="badge product-badge" style="background: linear-gradient(135deg, var(--neon-gold), #ff6600); color: black;">Officiel</div>
-            <div class="product-img" style="background: url('/assets/ui/blackbox.jpg') center/cover no-repeat, linear-gradient(160deg, #1a1a1a, #000);">
-              <i class="fa-solid fa-microchip" style="position: absolute; opacity: 0.1; font-size: 5rem; z-index: 0;"></i>
-              <div style="position: absolute; bottom: 8px; right: 10px; font-family: var(--font-mono); font-size: 0.65rem; color: rgba(255,255,255,0.5); z-index: 1;">WIRELESS & SEALED</div>
-            </div>
-            <h3 class="product-title">Boîte Noire V1 — 50 cc</h3>
-            <div style="font-size: var(--text-xs); color: var(--neon-green); margin-bottom: var(--space-sm);">
-              <i class="fa-solid fa-truck-fast"></i> Vendu par <strong>mon50ccetmoi.com</strong>
-            </div>
-            <div style="background: rgba(183, 0, 255, 0.1); border: 1px solid rgba(183, 0, 255, 0.3); padding: 8px; border-radius: var(--radius-sm); margin-bottom: var(--space-md);">
-              <span style="color: var(--neon-purple); font-size: var(--text-xs); font-weight: 700;"><i class="fa-solid fa-gift"></i> Offre Lancement : Prototype garanti à vie !</span>
-            </div>
-            <p class="product-desc" style="font-size: var(--text-xs);">
-              Finition Aluminium Noir Mat. Format ultra-plat (85×54 mm). Résine ignifuge UL 94-V0, scellé à vie avec autodestruction AES en cas d'ouverture.
-            </p>
-            
-            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: var(--space-md);">
-              <span class="badge badge-gold" style="padding: 4px 8px;"><i class="fa-solid fa-lock"></i> AES-256</span>
-              <span class="badge badge-cyan" style="padding: 4px 8px;"><i class="fa-solid fa-bluetooth-b"></i> BLE 5.0</span>
-              <span class="badge badge-green" style="padding: 4px 8px;"><i class="fa-solid fa-satellite"></i> GPS</span>
-              <span class="badge badge-red" style="padding: 4px 8px;"><i class="fa-solid fa-shield-halved"></i> IP68</span>
-            </div>
+        <div class="glass-card card-gold" id="bb-waitlist-card" style="max-width: 640px;">
+          <div class="badge badge-gold" style="display: inline-block; margin-bottom: var(--space-md);">
+            <i class="fa-solid fa-screwdriver-wrench"></i> En développement
+          </div>
+          <h3 class="product-title">Soyez prévenu à sa sortie</h3>
+          <p class="product-desc" style="margin-bottom: var(--space-md);">
+            La Boîte Noire est en cours de développement : elle ne sera pas disponible avant six mois au moins.
+            Rien à payer aujourd'hui. Laissez votre email, nous vous écrirons quand elle sortira.
+          </p>
 
-            <div style="background: rgba(10, 14, 25, 0.8); border: 1px solid rgba(255, 170, 0, 0.2); border-radius: var(--radius-sm); padding: var(--space-sm); margin-bottom: var(--space-md); text-align: center;">
-              <label style="color: var(--neon-gold); font-size: 0.7rem; font-weight: 700; display: block; margin-bottom: 4px;">
-                <i class="fa-solid fa-barcode"></i> S/N ATTRIBUÉ
-              </label>
-              <div id="bb-serial-display" style="font-family: var(--font-mono); font-size: 1.1rem; color: #fff; letter-spacing: 2px; padding: 4px; background: rgba(255, 170, 0, 0.05); border-radius: 4px;">BB50V1-A01</div>
-            </div>
+          <form id="bb-waitlist-form" novalidate>
+            <label for="bb-waitlist-email" style="display: block; font-size: var(--text-sm); font-weight: 600; margin-bottom: 6px;">Votre adresse email</label>
+            <input id="bb-waitlist-email" class="input-field" type="email" name="email" autocomplete="email" inputmode="email" maxlength="254" required placeholder="prenom.nom@exemple.fr" style="width: 100%; margin-bottom: var(--space-md);">
 
-            <div class="product-price-row">
-              <span class="price-main">49,99 €</span>
-              <span class="price-old" style="text-decoration: none;">Livraison garantie &lt; 24h 🇫🇷</span>
-            </div>
-            <button class="btn btn-cta" style="width: 100%;" id="bb-buy-unit-btn" data-action="BlackBoxShop.buyUnit()">
-              <i class="fa-solid fa-cart-shopping"></i> Commander (49,99 €)
+            <label for="bb-waitlist-consent" style="display: flex; gap: 10px; align-items: flex-start; font-size: var(--text-xs); line-height: 1.5; margin-bottom: var(--space-md); cursor: pointer;">
+              <input type="checkbox" id="bb-waitlist-consent" name="consent" required style="margin-top: 3px;">
+              <span>J'accepte de recevoir un email à la sortie de la Boîte Noire. J'ai 15 ans ou plus, ou l'accord d'un de mes parents.</span>
+            </label>
+
+            <button type="submit" class="btn btn-cta" id="bb-waitlist-submit" style="width: 100%;">
+              <i class="fa-solid fa-bell" style="margin-right: 8px;"></i> Me prévenir à la sortie
             </button>
-          </div>
+            <p id="bb-waitlist-status" role="status" aria-live="polite" style="min-height: 1.5em; margin-top: var(--space-sm); font-size: var(--text-sm);"></p>
+          </form>
 
-          <!-- Pack Duo & Premium -->
-          <div class="flex-col gap-lg">
-            
-            <!-- Pack Duo -->
-            <div class="glass-card product-card card-gold">
-              <div class="badge product-badge" style="background: linear-gradient(135deg, var(--neon-green), #00cc66); color: black;">-10% Pack</div>
-              <div class="flex-between">
-                <div>
-                  <h3 class="product-title">Pack Duo — 2 Boîtiers</h3>
-                  <div style="font-size: var(--text-xs); color: var(--neon-green); margin-bottom: var(--space-xs);">
-                    <i class="fa-solid fa-truck-fast"></i> Vendu par <strong>mon50ccetmoi.com</strong>
-                  </div>
-                </div>
-                <div style="font-size: 2.5rem; color: var(--neon-gold);"><i class="fa-solid fa-boxes-stacked"></i></div>
-              </div>
-              <p class="product-desc" style="font-size: var(--text-xs); margin-top: var(--space-sm);">
-                Idéal pour protéger 2 véhicules ou offrir à un proche avec l'édition Standard. 
-                S/N attribués : <span style="font-family: var(--font-mono); color: var(--neon-gold);">BB50V1-A01 &amp; BB50V1-A02</span>
-              </p>
-              <div class="product-price-row" style="margin-bottom: var(--space-xs);">
-                <span class="price-main">161,98 €</span>
-                <span class="price-old">179,98 €</span>
-              </div>
-              <button class="btn btn-cta" style="width: 100%; padding: 12px;" data-action="BlackBoxShop.buyPack(2)">
-                <i class="fa-solid fa-cart-shopping"></i> Commander Pack
-              </button>
-            </div>
-
-            <!-- Abonnement Boîte Noire+ : 1 an offert avec le boîtier (le pack caution + 24 mois est suspendu depuis le 7/11/2026) -->
-            <div class="glass-card product-card card-purple">
-              <div class="flex-between">
-                <div>
-                  <h3 class="product-title">Abonnement Boîte Noire+</h3>
-                  <div style="font-size: var(--text-xs); color: var(--neon-purple); margin-bottom: var(--space-xs);">
-                    <i class="fa-solid fa-gift"></i> 1 an offert avec chaque boîtier
-                  </div>
-                </div>
-                <div style="font-size: 2.5rem; color: var(--neon-purple);"><i class="fa-solid fa-crown"></i></div>
-              </div>
-              <div class="product-price-row" style="margin-bottom: 2px;">
-                <span class="price-main">4,99 € <span style="font-size: var(--text-sm); font-weight: normal;">/mois</span></span>
-                <span class="price-old" style="text-decoration: none; color: var(--neon-gold); font-weight: 600;">ou 50 € /an</span>
-              </div>
-              <div style="font-size: var(--text-xs); color: rgba(255,255,255,0.7);">
-                <i class="fa-solid fa-circle-check" style="color: var(--neon-green); margin-right: 4px;"></i>Après l'année offerte, renouvelable depuis l'espace Boîte Noire de l'application. Sans engagement ni reconduction automatique.
-              </div>
-            </div>
-
-          </div>
+          <p style="font-size: var(--text-xs); color: rgba(255,255,255,0.65); margin-top: var(--space-sm);">
+            Un seul email, à la sortie. Votre adresse n'est ni revendue ni utilisée pour de la publicité.
+            Pour la faire supprimer : admin@mon50ccetmoi.com.
+            <a href="privacy.html" style="color: var(--neon-cyan);">Confidentialité</a>
+          </p>
         </div>
-
-        <!-- Garanties -->
-        <div class="guarantee-grid">
-          <div class="guarantee-card">
-            <i class="fa-solid fa-truck-fast"></i>
-            <p>Livraison &lt; 24h</p>
-            <span>Expédition Express</span>
-          </div>
-          <div class="guarantee-card">
-            <i class="fa-solid fa-shield-halved"></i>
-            <p>Garantie 2 ans</p>
-            <span>Pièces & main d'œuvre</span>
-          </div>
-          <div class="guarantee-card">
-            <i class="fa-solid fa-lock"></i>
-            <p>Paiement sécurisé</p>
-            <span>Revolut / CB / Apple Pay</span>
-          </div>
-          <div class="guarantee-card">
-            <i class="fa-solid fa-rotate-left"></i>
-            <p>Satisfait ou remboursé</p>
-            <span>30 jours</span>
-          </div>
-        </div>
-
       </div>
     </div>
 
@@ -844,6 +753,7 @@
     <script type="module" src="/js/inline-marketplace-1.js"></script>
     <script type="module" src="/js/exchange.js" charset="utf-8"></script>
     <script type="module" src="/js/blackbox-shop.js" charset="utf-8"></script>
+    <script type="module" src="/js/blackbox-waitlist.js" charset="utf-8"></script>
     
     <script type="module" src="/js/inline-marketplace-2.js"></script>
   </body>

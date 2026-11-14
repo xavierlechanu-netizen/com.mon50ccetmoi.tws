@@ -68,17 +68,9 @@ const CATALOG = {
         label: "Droit d'entrée Garage Partenaire Certifié"
     },
 
-    // Matériel physique Black Box
-    'BLACKBOX_UNIT': {
-        price_cents: 8999, // Prix standard (dynamique pour les 10 premiers prototypes à 49,99€)
-        category: CATEGORIES.BLACKBOX_HW,
-        label: "Boîtier Matériel Black Box V1 Indestructible"
-    },
-    'BLACKBOX_DUO': {
-        price_cents: 16198,
-        category: CATEGORIES.BLACKBOX_HW,
-        label: "Pack Duo 2 Boîtes Noires V1"
-    },
+    // Matériel physique Black Box (BLACKBOX_UNIT, BLACKBOX_DUO) : retiré du catalogue le 12/11/2026.
+    // Le boîtier n'est pas encore fabriqué (sortie dans 6 mois au plus tôt) : le serveur refuse
+    // de l'encaisser. Le site propose une liste d'attente gratuite à la place.
     // BLACKBOX_PACK_SUB (caution 49,99 € + engagement 24 mois) : offre suspendue le 7/11/2026,
     // le paiement mensuel n'existait pas. Retirée du catalogue : le serveur refuse cet achat.
     'BLACKBOX_CARE_MONTHLY': {

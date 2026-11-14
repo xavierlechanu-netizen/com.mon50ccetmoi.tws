@@ -259,6 +259,21 @@ service cloud.firestore {
       allow update, delete: if isAdmin() || (isSignedIn() && isOwner(resource.data.userId));
     }
 
+    // Liste d'attente de la Boîte Noire (12/11/2026) : le boîtier n'est pas encore fabriqué,
+    // les visiteurs laissent seulement leur email pour être prévenus à la sortie.
+    // Création seule (sans compte), champs et format contrôlés ; lecture par l'administration.
+    match /blackbox_waitlist/{entryId} {
+      allow create: if request.resource.data.keys().hasOnly(['email', 'consent', 'source', 'createdAt'])
+        && request.resource.data.keys().hasAll(['email', 'consent', 'source', 'createdAt'])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.email.matches('^[a-z0-9._%+-]+@[a-z0-9.-]+[.][a-z]{2,}$')
+        && request.resource.data.consent == true
+        && request.resource.data.source == 'marketplace'
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if isAdmin();
+    }
+
     // Inscriptions Beta Testeurs
     match /beta_testers/{testerId} {
       allow read: if isOwner(testerId) || isAdmin(); 

@@ -339,3 +339,36 @@ describe("Tests des Règles de Sécurité Firestore (Zero-Trust)", () => {
     await assertFails(curious.collection("litigation_proposals").doc(code).get());
   });
 });
+
+describe("Liste d'attente de la Boîte Noire", () => {
+  // Les contextes de test renvoient l'API Firestore « compat » : mêmes horodatages qu'elle.
+  const firebase = require("firebase/compat/app").default;
+  require("firebase/compat/firestore");
+  const serverTimestamp = () => firebase.firestore.FieldValue.serverTimestamp();
+  const { Timestamp } = firebase.firestore;
+  const entry = (over = {}) => ({
+    email: "alice@exemple.fr", consent: true, source: "marketplace",
+    createdAt: serverTimestamp(), ...over,
+  });
+
+  it("un visiteur sans compte peut s'inscrire, mais ne peut rien lire ni modifier", async () => {
+    const anon = testEnv.unauthenticatedContext().firestore();
+    await assertSucceeds(anon.collection("blackbox_waitlist").doc("e1").set(entry()));
+    await assertFails(anon.collection("blackbox_waitlist").doc("e1").get());
+    await assertFails(anon.collection("blackbox_waitlist").get());
+    await assertFails(anon.collection("blackbox_waitlist").doc("e1").update({ email: "x@exemple.fr" }));
+    await assertFails(anon.collection("blackbox_waitlist").doc("e1").delete());
+  });
+
+  it("refuse une adresse invalide, sans consentement, un champ en trop ou une date choisie par le client", async () => {
+    const anon = testEnv.unauthenticatedContext().firestore();
+    const col = anon.collection("blackbox_waitlist");
+    await assertFails(col.doc("a").set(entry({ email: "pas-une-adresse" })));
+    await assertFails(col.doc("b").set(entry({ email: "Alice@Exemple.fr" }))); // pas en minuscules
+    await assertFails(col.doc("c").set(entry({ email: "a".repeat(250) + "@x.fr" })));
+    await assertFails(col.doc("d").set(entry({ consent: false })));
+    await assertFails(col.doc("e").set(entry({ source: "ailleurs" })));
+    await assertFails(col.doc("f").set(entry({ role: "admin" })));
+    await assertFails(col.doc("g").set(entry({ createdAt: Timestamp.fromMillis(0) })));
+  });
+});

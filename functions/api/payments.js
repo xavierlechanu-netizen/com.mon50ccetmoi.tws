@@ -57,7 +57,7 @@ exports.createRevolutOrder = onRequest(
         }
 
         // Montant réellement encaissé : TTC (rapports assureurs affichés HT → HT + TVA 20 %)
-        let amount_cents = computeAmounts(catalogItem).ttc_cents;
+        const amount_cents = computeAmounts(catalogItem).ttc_cents;
         const currency = "EUR";
 
         // Détermination et vérification de la propriété du dossier selon la catégorie
@@ -102,19 +102,6 @@ exports.createRevolutOrder = onRequest(
                     ? "Vous avez déjà acheté ce rapport."
                     : "Ce dossier a déjà été réglé avec succès."
             });
-        }
-
-        // Tarification dynamique pour le matériel Black Box (Offre lancement : 10 prototypes garantis à vie)
-        if (report_type === 'BLACKBOX_UNIT') {
-            try {
-                const statDoc = await db.collection("stats").doc("blackbox_sales").get();
-                const count = statDoc.exists ? (statDoc.data().count || 0) : 0;
-                if (count < 10) {
-                    amount_cents = 4999;
-                }
-            } catch (e) {
-                console.warn("[Revolut] Avertissement calcul prix prototype:", e.message);
-            }
         }
 
         const secretKey = REVOLUT_SECRET_KEY.value();
