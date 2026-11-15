@@ -12,6 +12,11 @@ const crypto = require("crypto");
 const { spawn } = require("child_process");
 const { Pool } = require("pg");
 
+// Comptes importés de Firebase : paramètres de hachage du vecteur de test publié par Firebase
+process.env.FIREBASE_SCRYPT_SIGNER_KEY = "jxspr8Ki0RYycVU8zykbdLGjFQ3McFUH0uiiTvC8pVMXAn210wjLNmdZJzxUECKbm0QsEmYUSDzZvpjeJ9WmXA==";
+process.env.FIREBASE_SCRYPT_SALT_SEPARATOR = "Bw==";
+const { importUsers } = require("../sovereign-core/scripts/import-firebase-users");
+
 const { signSovereignJwt } = require("../sovereign-core/server/crypto-auth");
 const { createSovereignApp } = require("../sovereign-core/server/index");
 const { createPgStore } = require("../sovereign-core/server/store-pg");
@@ -91,6 +96,39 @@ describe("Serveur souverain sur PostgreSQL", () => {
 
     expect((await call(app, "POST", "/api/v1/auth/register", { email: "pilote@example.com", username: "Autre", password: "MotDePasse2026!" })).status).toBe(409);
     expect((await call(app, "POST", "/api/v1/auth/register", { email: "autre@example.com", username: "PilotePG", password: "MotDePasse2026!" })).status).toBe(409);
+  });
+
+  test("jour J : import des comptes Firebase (simulation, import, relance), connexion puis conversion", async () => {
+    const exportData = { users: [
+      { localId: "fbUidImportPg000000000000001", email: "importe@example.com", displayName: "PilotePG",
+        passwordHash: "lSrfV15cpx95/sZS2W9c9Kp6i/LVgQNDNC/qzrCnh1SAyZvqmZqAjTdn3aoItz+VHjoZilo78198JAdRuid5lQ==",
+        salt: "42xEC+ixf3L2lw==", createdAt: "1700000000000" },
+      { localId: "fbUidImportPg000000000000002", email: "google@example.com", displayName: "Google" },
+    ] };
+    const count = async () => (await pool.query("SELECT count(*)::int AS n FROM users WHERE firebase_uid IS NOT NULL")).rows[0].n;
+
+    const dry = await importUsers(pool, exportData);
+    expect(dry.toImport).toBe(2);
+    expect(await count()).toBe(0); // simulation : rien d'écrit
+
+    expect((await importUsers(pool, exportData, { apply: true })).toImport).toBe(2);
+    expect(await count()).toBe(2);
+    const { rows } = await pool.query("SELECT uid, username, password_hash, created_at FROM users WHERE firebase_uid = $1", ["fbUidImportPg000000000000001"]);
+    expect(rows[0].uid).toMatch(/^[0-9a-f-]{36}$/);
+    expect(rows[0].username).toBe("PilotePG-2"); // « PilotePG » existe déjà (test d'inscription)
+    expect(rows[0].password_hash.startsWith("firebase-scrypt$")).toBe(true);
+    expect(rows[0].created_at.toISOString()).toBe("2023-11-14T22:13:20.000Z");
+
+    const again = await importUsers(pool, exportData, { apply: true });
+    expect(again).toMatchObject({ toImport: 0, alreadyImported: 2 });
+
+    const login = await call(app, "POST", "/api/v1/auth/login", { email: "importe@example.com", password: "user1password" });
+    expect(login.status).toBe(200);
+    expect(login.body.uid).toBe(rows[0].uid);
+    const after = await pool.query("SELECT password_hash FROM users WHERE uid = $1", [rows[0].uid]);
+    expect(after.rows[0].password_hash.startsWith("scrypt$")).toBe(true);
+    // Connexion Google seule : aucun mot de passe ne marche
+    expect((await call(app, "POST", "/api/v1/auth/login", { email: "google@example.com", password: "!" })).status).toBe(401);
   });
 
   test("boîtier + télémétrie signée : enregistrée en base, puis immuable", async () => {

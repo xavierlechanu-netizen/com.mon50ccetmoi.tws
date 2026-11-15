@@ -61,16 +61,7 @@ function base64UrlDecodeToBuffer(str) {
     return Buffer.from(String(str), "base64url");
 }
 
-/**
- * Hache un mot de passe utilisateur avec scrypt et un sel aléatoire de 128 bits.
- * Format de sortie : `scrypt$<salt_hex>$<hash_hex>`
- * @param {string} plainPassword
- * @returns {string}
- */
-function hashPassword(plainPassword) {
-    if (typeof plainPassword !== "string" || plainPassword.length < 8 || plainPassword.length > 256) {
-        throw new Error("INVALID_PASSWORD_LENGTH");
-    }
+function scryptHash(plainPassword) {
     const salt = crypto.randomBytes(16);
     const derived = crypto.scryptSync(plainPassword, salt, SCRYPT_PARAMS.keylen, {
         N: SCRYPT_PARAMS.N,
@@ -81,14 +72,114 @@ function hashPassword(plainPassword) {
 }
 
 /**
+ * Hache un mot de passe utilisateur avec scrypt et un sel aléatoire de 128 bits.
+ * Format de sortie : `scrypt$<salt_hex>$<hash_hex>`
+ * @param {string} plainPassword
+ * @returns {string}
+ */
+function hashPassword(plainPassword) {
+    if (typeof plainPassword !== "string" || plainPassword.length < 8 || plainPassword.length > 256) {
+        throw new Error("INVALID_PASSWORD_LENGTH");
+    }
+    return scryptHash(plainPassword);
+}
+
+/**
+ * Re-hache au format du serveur un mot de passe DÉJÀ vérifié (compte importé de Firebase).
+ * Pas de longueur minimale : Firebase acceptait 6 caractères, le compte doit rester utilisable.
+ * @param {string} plainPassword
+ * @returns {string}
+ */
+function rehashVerifiedPassword(plainPassword) {
+    if (typeof plainPassword !== "string" || !plainPassword || plainPassword.length > 256) {
+        throw new Error("INVALID_PASSWORD_LENGTH");
+    }
+    return scryptHash(plainPassword);
+}
+
+// ---------------------------------------------------------------------------
+// Comptes importés de Firebase Authentication (déménagement vers OVHcloud)
+// ---------------------------------------------------------------------------
+// Firebase ne donne pas les mots de passe, seulement leur empreinte, calculée avec SA variante de
+// scrypt : clé = scrypt(mot de passe, sel + séparateur, N = 2^memCost, r = rounds, p = 1, 64 octets),
+// puis empreinte = AES-256-CTR(clé[0..32], IV nul) appliqué à la « signer key » du projet.
+// Les 4 paramètres du projet se lisent dans la console Firebase : Authentication > Users >
+// ⋮ > « Password hash parameters ». Ils vont dans .env (FIREBASE_SCRYPT_*).
+// Empreinte stockée : `firebase-scrypt$<sel base64>$<empreinte base64>`. À la première connexion
+// réussie, le serveur la remplace par une empreinte à son format : les paramètres ne servent plus.
+const FIREBASE_PREFIX = "firebase-scrypt$";
+
+function firebaseHashParamsFromEnv(env = process.env) {
+    const signerKey = env.FIREBASE_SCRYPT_SIGNER_KEY;
+    const saltSeparator = env.FIREBASE_SCRYPT_SALT_SEPARATOR;
+    if (!signerKey || !saltSeparator) return null;
+    const rounds = Number(env.FIREBASE_SCRYPT_ROUNDS || 8);
+    const memCost = Number(env.FIREBASE_SCRYPT_MEM_COST || 14);
+    if (!Number.isInteger(rounds) || rounds < 1 || rounds > 16 || !Number.isInteger(memCost) || memCost < 10 || memCost > 16) {
+        throw new Error("FIREBASE_SCRYPT_ROUNDS (1 à 16) ou FIREBASE_SCRYPT_MEM_COST (10 à 16) invalide.");
+    }
+    return {
+        signerKey: Buffer.from(signerKey, "base64"),
+        saltSeparator: Buffer.from(saltSeparator, "base64"),
+        rounds,
+        memCost
+    };
+}
+
+const FIREBASE_PARAMS = firebaseHashParamsFromEnv();
+
+// Empreinte Firebase d'un mot de passe (variante scrypt de Firebase).
+function firebaseScrypt(plainPassword, salt, params) {
+    const N = 2 ** params.memCost;
+    const derived = crypto.scryptSync(Buffer.from(plainPassword, "utf8"),
+        Buffer.concat([salt, params.saltSeparator]), 64,
+        { N, r: params.rounds, p: 1, maxmem: 256 * N * params.rounds });
+    const cipher = crypto.createCipheriv("aes-256-ctr", derived.subarray(0, 32), Buffer.alloc(16, 0));
+    return Buffer.concat([cipher.update(params.signerKey), cipher.final()]);
+}
+
+/**
+ * Empreinte à stocker pour un compte exporté par `firebase auth:export` (sel et empreinte en base64).
+ * @param {string} saltB64
+ * @param {string} hashB64
+ * @returns {string}
+ */
+function firebaseStoredHash(saltB64, hashB64) {
+    const salt = Buffer.from(String(saltB64), "base64");
+    const hash = Buffer.from(String(hashB64), "base64");
+    if (!salt.length || !hash.length) throw new Error("FIREBASE_HASH_INCOMPLETE");
+    return `${FIREBASE_PREFIX}${salt.toString("base64")}$${hash.toString("base64")}`;
+}
+
+function isFirebaseHash(storedHash) {
+    return typeof storedHash === "string" && storedHash.startsWith(FIREBASE_PREFIX);
+}
+
+function verifyFirebasePassword(plainPassword, storedHash, params) {
+    if (!params) return false;
+    const parts = storedHash.slice(FIREBASE_PREFIX.length).split("$");
+    if (parts.length !== 2) return false;
+    const salt = Buffer.from(parts[0], "base64");
+    const expected = Buffer.from(parts[1], "base64");
+    if (!salt.length || expected.length !== params.signerKey.length) return false;
+    return crypto.timingSafeEqual(firebaseScrypt(plainPassword, salt, params), expected);
+}
+
+/**
  * Vérifie un mot de passe contre son empreinte stockée en temps constant.
+ * Accepte aussi les empreintes importées de Firebase (`firebase-scrypt$...`).
  * @param {string} plainPassword
  * @param {string} storedHash
+ * @param {{firebaseParams?: object|null}} [opts] paramètres Firebase (par défaut : ceux de .env)
  * @returns {boolean}
  */
-function verifyPassword(plainPassword, storedHash) {
+function verifyPassword(plainPassword, storedHash, opts = {}) {
     if (typeof plainPassword !== "string" || typeof storedHash !== "string") {
         return false;
+    }
+    if (isFirebaseHash(storedHash)) {
+        const params = opts.firebaseParams !== undefined ? opts.firebaseParams : FIREBASE_PARAMS;
+        return verifyFirebasePassword(plainPassword, storedHash, params);
     }
     const parts = storedHash.split("$");
     if (parts.length !== 3 || parts[0] !== "scrypt") {
@@ -201,7 +292,11 @@ function verifySovereignJwt(token) {
 
 module.exports = {
     hashPassword,
+    rehashVerifiedPassword,
     verifyPassword,
+    isFirebaseHash,
+    firebaseStoredHash,
+    firebaseHashParamsFromEnv,
     signSovereignJwt,
     verifySovereignJwt,
     loadJwtKeys,

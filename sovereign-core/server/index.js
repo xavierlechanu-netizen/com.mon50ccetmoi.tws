@@ -20,7 +20,9 @@ const http = require("http");
 const crypto = require("crypto");
 const {
     hashPassword,
+    rehashVerifiedPassword,
     verifyPassword,
+    isFirebaseHash,
     signSovereignJwt,
     verifySovereignJwt
 } = require("./crypto-auth");
@@ -244,6 +246,16 @@ function createSovereignApp(options = {}) {
                 res.statusCode = 401;
                 res.end(JSON.stringify({ error: "Identifiants invalides." }));
                 return;
+            }
+
+            // Compte importé de Firebase : le mot de passe vient d'être vérifié, on remplace
+            // l'empreinte Firebase par une empreinte au format du serveur (une seule fois).
+            if (isFirebaseHash(user.passwordHash)) {
+                try {
+                    await store.updatePasswordHash(user.uid, rehashVerifiedPassword(String(password)));
+                } catch (e) {
+                    console.error("[SovereignServer] Conversion de l'empreinte Firebase impossible :", e.message);
+                }
             }
 
             const token = signSovereignJwt({

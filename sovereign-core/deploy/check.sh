@@ -59,6 +59,36 @@ if [ -n "$domain" ]; then
     fi
 fi
 
+# --- 3 bis. Le site ----------------------------------------------------------------
+site_domain="$( [ -r "$ENV_FILE" ] && env_get SITE_DOMAIN || true )"
+site_root="$( [ -r "$ENV_FILE" ] && env_get SITE_ROOT || true )"
+site_root="${site_root:-/srv/mon50cc/site}"
+if [ ! -e "$site_root/current/index.html" ]; then
+    warn "site pas encore publié sur le VPS → sudo $CORE_DIR/deploy/publish-site.sh"
+elif [ -n "$site_domain" ]; then
+    if curl -fsS --max-time 15 -o /dev/null "https://$site_domain/app"; then
+        ok "site en ligne depuis le VPS : https://$site_domain (version $(readlink "$site_root/current" | sed 's|releases/||'))"
+    else
+        bad "site injoignable sur https://$site_domain (DNS chez Amen.fr ou certificat HTTPS)"
+    fi
+elif compose exec -T caddy wget -qO /dev/null http://127.0.0.1:8081/app 2>/dev/null; then
+    ok "site publié, prêt à l'intérieur du VPS (SITE_DOMAIN vide : le public voit encore l'ancien hébergement)"
+else
+    bad "site publié mais Caddy ne le sert pas → sudo docker compose -f $COMPOSE_FILE logs caddy"
+fi
+
+# --- 3 ter. Comptes importés de Firebase ------------------------------------------
+db_user="$( [ -r "$ENV_FILE" ] && env_get DB_USER || true )"
+pending="$(compose exec -T postgres-postgis psql -U "${db_user:-mon50cc_admin}" -d mon50ccetmoi -tAc \
+    "SELECT count(*) FROM users WHERE password_hash LIKE 'firebase-scrypt\$%'" 2>/dev/null | tr -dc '0-9')"
+if [ "${pending:-0}" -gt 0 ]; then
+    if [ -n "$( [ -r "$ENV_FILE" ] && env_get FIREBASE_SCRYPT_SIGNER_KEY || true )" ]; then
+        ok "$pending compte(s) Firebase pas encore reconnecté(s) (paramètres de hachage présents)"
+    else
+        bad "$pending compte(s) importé(s) de Firebase ne peuvent pas se connecter : FIREBASE_SCRYPT_* vides dans .env (README, étape 11)"
+    fi
+fi
+
 # --- 4. La base n'est pas exposée sur Internet --------------------------------
 if ss -ltnH 'sport = :5432' | grep -q .; then
     bad "un service écoute sur le port 5432 de l'hôte : la base ne doit jamais être exposée"

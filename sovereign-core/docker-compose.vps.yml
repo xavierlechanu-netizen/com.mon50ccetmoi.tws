@@ -76,6 +76,12 @@ services:
       OVH_SMS_CONSUMER_KEY: ${OVH_SMS_CONSUMER_KEY:-}
       OVH_SMS_SERVICE: ${OVH_SMS_SERVICE:-}
       OVH_SMS_SENDER: ${OVH_SMS_SENDER:-}
+      # Comptes importés de Firebase (jour J) : paramètres de hachage du projet Firebase,
+      # pour vérifier leurs mots de passe jusqu'à leur première connexion (deploy/README.md, étape 10).
+      FIREBASE_SCRYPT_SIGNER_KEY: ${FIREBASE_SCRYPT_SIGNER_KEY:-}
+      FIREBASE_SCRYPT_SALT_SEPARATOR: ${FIREBASE_SCRYPT_SALT_SEPARATOR:-}
+      FIREBASE_SCRYPT_ROUNDS: ${FIREBASE_SCRYPT_ROUNDS:-8}
+      FIREBASE_SCRYPT_MEM_COST: ${FIREBASE_SCRYPT_MEM_COST:-14}
     # « frontend » donne aussi la sortie vers Internet (Object Storage, Revolut).
     networks:
       - backend
@@ -90,12 +96,17 @@ services:
     environment:
       API_DOMAIN: ${API_DOMAIN:?Nom de domaine de l API requis (ex. api.mon50ccetmoi.com)}
       ACME_EMAIL: ${ACME_EMAIL:?Adresse email requise pour le certificat HTTPS}
+      # Site public (ex. mon50ccetmoi.com). Vide : servi seulement dans le VPS, port 8081 non ouvert.
+      SITE_DOMAIN: ${SITE_DOMAIN:-:8081}
+      SITE_WWW_DOMAIN: ${SITE_WWW_DOMAIN:-:8082}
     ports:
       - "80:80"
       - "443:443"
       - "443:443/udp"
     volumes:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Fichiers du site, publiés par deploy/publish-site.sh (hors du dépôt git)
+      - ${SITE_ROOT:-/srv/mon50cc/site}:/srv/site:ro
       - caddy_data:/data
       - caddy_config:/config
     networks:

@@ -66,6 +66,9 @@ plan OVHcloud) : on bascule un domaine à la fois, et on peut revenir en arrièr
   jamais en clair. Le meilleur choix : le serveur souverain sait **vérifier ce format** à la première
   connexion, puis réenregistre le mot de passe dans son propre format. Bascule invisible pour les
   utilisateurs. (L'export des comptes Firebase fournit les empreintes et les paramètres nécessaires.)
+  **Prêt** (15/11/2026) : vérification et conversion dans `sovereign-core/server/crypto-auth.js`,
+  import par `sovereign-core/scripts/import-firebase-users.js` ; mode d'emploi dans
+  `sovereign-core/deploy/README.md`, étape 11.
 - **Connexion avec Google** : par définition liée à Google. Ces comptes passeront à l'email
   (lien de connexion envoyé par email, ou mot de passe à choisir).
 - **Temps réel** : Firestore pousse les changements tout seul. Il faudra un WebSocket sur le VPS ;
@@ -93,6 +96,8 @@ Ordre, une fois le VPS installé :
 
 1. **Site** : Caddy sert le site sur le VPS ; DNS de `mon50ccetmoi.com` et `www` chez Amen.fr vers
    l'IP du VPS. L'appli Android (TWA) suit, le domaine ne changeant pas (`assetlinks.json` à garder).
+   **Prêt** (15/11/2026) : `deploy/publish-site.sh` et le `Caddyfile` ; bascule et retour arrière
+   dans `sovereign-core/deploy/README.md`, étapes 10 et 12.
 2. **Code** : Forgejo sur le VPS, dépôt importé avec tout son historique, sauvegardé comme la base.
 3. **Vérifications** : Forgejo Actions, Renovate, Semgrep.
 4. **Fermer** GitHub Pages, puis les dépôts GitHub (principal et miroir).

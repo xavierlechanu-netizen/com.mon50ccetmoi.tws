@@ -76,6 +76,37 @@ jobs:
             sovereign-core/deploy/env.vps.example > "$RUNNER_TEMP/vps.env"
           docker compose -f sovereign-core/docker-compose.vps.yml --env-file "$RUNNER_TEMP/vps.env" config --quiet
 
+      - name: Caddy sert le site (adresses sans .html, 404, en-têtes de sécurité)
+        run: |
+          # Faux site, rangé comme le fait deploy/publish-site.sh (releases/<date> + lien « current »)
+          site="$RUNNER_TEMP/site"
+          mkdir -p "$site/releases/v1"
+          echo '<html>accueil</html>' > "$site/releases/v1/index.html"
+          echo '<html>cockpit</html>' > "$site/releases/v1/app.html"
+          echo '<html>introuvable</html>' > "$site/releases/v1/404.html"
+          ln -s releases/v1 "$site/current"
+          img=$(grep -oE 'caddy:[0-9.]+-alpine' sovereign-core/docker-compose.vps.yml)
+          # Configuration avec le site en ligne (domaine réel) : doit être valide
+          docker run --rm -v "$PWD/sovereign-core/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            -e API_DOMAIN=api.example.com -e ACME_EMAIL=ci@example.com \
+            -e SITE_DOMAIN=example.com -e SITE_WWW_DOMAIN=www.example.com \
+            "$img" caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+          # Avant la bascule DNS (SITE_DOMAIN vide → port interne 8081)
+          docker run -d --name caddy-ci -p 8081:8081 \
+            -v "$PWD/sovereign-core/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" -v "$site:/srv/site:ro" \
+            -e API_DOMAIN=localhost -e ACME_EMAIL=ci@example.com -e SITE_DOMAIN=:8081 -e SITE_WWW_DOMAIN=:8082 "$img"
+          for i in $(seq 1 20); do curl -fsS -o /dev/null http://127.0.0.1:8081/ && break; sleep 1; done
+          curl -fsS http://127.0.0.1:8081/ | grep -q accueil
+          curl -fsS http://127.0.0.1:8081/app | grep -q cockpit
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8081/nexiste-pas)" = 404
+          curl -s http://127.0.0.1:8081/nexiste-pas | grep -q introuvable
+          headers=$(curl -sI http://127.0.0.1:8081/app)
+          echo "$headers"
+          echo "$headers" | grep -qi '^x-content-type-options: nosniff'
+          echo "$headers" | grep -qi '^cache-control: no-cache'
+          echo "$headers" | grep -qi '^permissions-policy:.*camera=(self)'
+          docker rm -f caddy-ci
+
       - name: Image Docker de l'API
         run: docker build -f sovereign-core/Dockerfile -t mon50cc-api:ci .
 

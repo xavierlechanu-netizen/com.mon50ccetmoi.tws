@@ -77,6 +77,15 @@ function createPgStore({ connectionString, pool } = {}) {
             return mapUser(rows[0]);
         },
 
+        async updatePasswordHash(uid, passwordHash) {
+            if (!UUID_RE.test(String(uid))) return false;
+            const { rowCount } = await db.query(
+                "UPDATE users SET password_hash = $2, updated_at = NOW() WHERE uid = $1 AND deleted_at IS NULL",
+                [uid, passwordHash]
+            );
+            return rowCount === 1;
+        },
+
         /**
          * RGPD art. 17 : l'identité est effacée (email, pseudo, mot de passe, clés biométriques).
          * Les preuves (télémétrie, grand livre) sont conservées sous l'identifiant devenu anonyme
@@ -89,7 +98,7 @@ function createPgStore({ connectionString, pool } = {}) {
             try {
                 await client.query("BEGIN");
                 const { rowCount } = await client.query(
-                    `UPDATE users SET email = $2, username = $3, password_hash = '!', brave_coins = 0,
+                    `UPDATE users SET email = $2, username = $3, password_hash = '!', brave_coins = 0, firebase_uid = NULL,
                             is_premium = FALSE, premium_plan = NULL, ban_reason = NULL,
                             deleted_at = NOW(), updated_at = NOW()
                       WHERE uid = $1 AND deleted_at IS NULL`,

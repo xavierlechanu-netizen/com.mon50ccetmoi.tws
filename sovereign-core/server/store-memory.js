@@ -57,6 +57,13 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             return u && !u.deletedAt ? { ...u } : null;
         },
 
+        async updatePasswordHash(uid, passwordHash) {
+            const u = usersById.get(uid);
+            if (!u || u.deletedAt) return false;
+            u.passwordHash = passwordHash;
+            return true;
+        },
+
         /** RGPD : identité effacée, preuves conservées sous un identifiant anonyme. */
         async anonymizeUser(uid) {
             const u = usersById.get(uid);

@@ -1,10 +1,13 @@
 # Caddy : seul point d'entrée Internet du VPS.
-# Il obtient et renouvelle seul le certificat HTTPS (Let's Encrypt) pour {$API_DOMAIN}.
-# Prérequis : un enregistrement DNS A de {$API_DOMAIN} vers l'adresse IP du VPS.
+# Il obtient et renouvelle seul les certificats HTTPS (Let's Encrypt).
+# Prérequis : des enregistrements DNS A vers l'adresse IP du VPS (deploy/README.md, étape 2).
 {
 	email {$ACME_EMAIL}
 }
 
+# ---------------------------------------------------------------------------
+# L'API : {$API_DOMAIN} (ex. api.mon50ccetmoi.com)
+# ---------------------------------------------------------------------------
 {$API_DOMAIN} {
 	encode zstd gzip
 
@@ -21,4 +24,57 @@
 		output stdout
 		format console
 	}
+}
+
+# ---------------------------------------------------------------------------
+# Le site : {$SITE_DOMAIN} (ex. mon50ccetmoi.com), fichiers publiés par deploy/publish-site.sh.
+# Tant que SITE_DOMAIN est vide dans .env, le site n'est servi qu'à l'intérieur du VPS, sur le
+# port 8081 (non ouvert sur Internet) : on peut le préparer et le vérifier avant de changer le DNS.
+# ---------------------------------------------------------------------------
+{$SITE_DOMAIN::8081} {
+	# « current » pointe sur la dernière version publiée (bascule d'un seul coup)
+	root * /srv/site/current
+	encode zstd gzip
+
+	# Mêmes protections que l'hébergement Firebase (firebase.json). La politique de contenu (CSP)
+	# est déjà dans chaque page (balise <meta>, voir vite.config.js).
+	header {
+		# Sans includeSubDomains : d'autres sous-domaines (messagerie Amen.fr…) ne sont peut-être pas en HTTPS.
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Cross-Origin-Opener-Policy "same-origin-allow-popups"
+		# Caméra (navigation AR, scanner), micro (copilote vocal), capteurs (détection de chute) :
+		# autorisés pour le site lui-même, refusés aux contenus d'autres sites intégrés.
+		Permissions-Policy "geolocation=(self), camera=(self), microphone=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self)"
+		-Server
+	}
+
+	# Pages, service worker et manifeste : toujours revalidés, pour que les mises à jour arrivent.
+	# (adresses sans extension comme /app comprises : le filtre voit l'adresse avant try_files)
+	@toujours_frais path_regexp ^(/[^.]*|.*\.html|/sw\.js|/manifest\.json)$
+	header @toujours_frais Cache-Control "no-cache"
+
+	# Adresses sans « .html » (/app → app.html), comme sur Firebase (cleanUrls).
+	try_files {path} {path}.html {path}/index.html
+	file_server
+
+	handle_errors {
+		@introuvable expression {err.status_code} == 404
+		handle @introuvable {
+			rewrite * /404.html
+			file_server
+		}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+# www.mon50ccetmoi.com → mon50ccetmoi.com (inactif tant que SITE_WWW_DOMAIN est vide).
+{$SITE_WWW_DOMAIN::8082} {
+	redir https://{$SITE_DOMAIN}{uri} permanent
 }

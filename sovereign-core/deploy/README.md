@@ -11,7 +11,8 @@ Les preuves de la Boîte Noire et les sauvegardes partent dans l'**Object Storag
 Fichiers :
 
 - `../docker-compose.vps.yml` — les 3 services ; la base n'a **aucun port ouvert**.
-- `Caddyfile` — HTTPS automatique (Let's Encrypt) pour le domaine de l'API.
+- `Caddyfile` — HTTPS automatique (Let's Encrypt) pour l'API et, au jour J, pour le site.
+- `publish-site.sh` — construit et publie le site sur le VPS (bascule d'un seul coup, retour arrière possible).
 - `env.vps.example` — modèle du fichier `.env`.
 - `install.sh` — prépare le VPS (Docker, pare-feu, SSH par clé, mises à jour auto, swap, secrets, sauvegarde nocturne).
 - `check.sh` — bilan de santé, ne modifie rien.
@@ -173,6 +174,88 @@ dit honnêtement et propose d'appeler le 112.
 Protections en place : pilote connecté obligatoire, 1 à 3 mobiles français (06/07) seulement,
 au plus 3 alertes par 10 minutes. Un SMS n'est annoncé comme envoyé que si OVHcloud l'a accepté.
 
+---
+
+# Jour J : le site et les comptes passent sur le VPS
+
+Les étapes 10 et 11 se préparent **sans rien changer pour le public** : tant que le DNS de
+`mon50ccetmoi.com` n'est pas modifié, les visiteurs voient l'ancien hébergement (GitHub Pages).
+Seule l'étape 12 fait la bascule, et elle se défait en remettant les anciens enregistrements DNS.
+
+> **À savoir.** Après la bascule du site, l'appli utilise encore Firebase pour les connexions et les
+> données : c'est la phase A (`CONFIG.BACKEND_MODE`) qui la branchera sur le VPS. L'import des
+> comptes (étape 11) prépare ce moment ; on le **refait juste avant** la phase A pour inclure les
+> derniers inscrits (le script ignore les comptes déjà importés).
+
+## 10. Le site sur le VPS (sans toucher au DNS)
+
+```bash
+sudo /opt/mon50cc/sovereign-core/deploy/publish-site.sh
+sudo /opt/mon50cc/sovereign-core/deploy/check.sh
+```
+
+Le script construit le site à partir de ce qui est dans git (quelques minutes) et le publie d'un
+seul coup. `check.sh` doit dire « site publié, prêt à l'intérieur du VPS ».
+Après chaque `git pull`, relancez `publish-site.sh` pour mettre le site à jour.
+En cas de souci après une publication : `sudo .../publish-site.sh --rollback` remet la version d'avant.
+
+## 11. Les comptes Firebase
+
+Les mots de passe ne sont jamais connus, ni de Firebase ni de nous : on copie leur **empreinte**,
+que le serveur sait vérifier, puis convertit à son propre format à la première connexion.
+
+1. **Console Firebase › Authentication › Users › ⋮ (en haut à droite de la liste) › Password hash
+   parameters** : recopiez les 4 valeurs dans `.env` (`FIREBASE_SCRYPT_SIGNER_KEY`,
+   `FIREBASE_SCRYPT_SALT_SEPARATOR`, `FIREBASE_SCRYPT_ROUNDS`, `FIREBASE_SCRYPT_MEM_COST`), puis
+   `cd /opt/mon50cc/sovereign-core && sudo docker compose -f docker-compose.vps.yml up -d`.
+2. **Sur le PC**, dans le dossier du projet :
+
+   ```powershell
+   npx firebase auth:export comptes.json --format=json --project mon50ccetmoi
+   scp comptes.json ubuntu@IP:/tmp/comptes.json
+   Remove-Item comptes.json
+   ```
+
+3. **Sur le VPS**, d'abord une simulation (rien n'est écrit), puis l'import :
+
+   ```bash
+   cd /opt/mon50cc/sovereign-core
+   sudo docker compose -f docker-compose.vps.yml exec -T sovereign-api node scripts/import-firebase-users.js - < /tmp/comptes.json
+   sudo docker compose -f docker-compose.vps.yml exec -T sovereign-api node scripts/import-firebase-users.js - --apply < /tmp/comptes.json
+   shred -u /tmp/comptes.json
+   ```
+
+   Le bilan donne le nombre de comptes importés. Ceux qui se connectaient **uniquement avec Google**
+   n'ont pas de mot de passe : ils devront en choisir un (« mot de passe oublié », à construire avec
+   l'envoi d'emails). Les comptes désactivés et ceux sans email ne sont pas importés.
+
+`comptes.json` contient les empreintes de tous les mots de passe : il ne doit rester **nulle part**
+(ni sur le PC, ni sur le VPS, ni dans git).
+
+## 12. La bascule du DNS (le site passe sur le VPS)
+
+1. **La veille**, chez Amen.fr : réduisez la durée de vie (TTL) des enregistrements de
+   `mon50ccetmoi.com` et `www` à 5 minutes, et **notez les valeurs actuelles** (adresses de GitHub
+   Pages `185.199.108.153` à `.111.153`, et `www` → `xavierlechanu-netizen.github.io`) : c'est le
+   retour arrière.
+2. Dans `.env` : `SITE_DOMAIN=mon50ccetmoi.com` et `SITE_WWW_DOMAIN=www.mon50ccetmoi.com`.
+3. Chez Amen.fr : remplacez les 4 enregistrements **A** de `mon50ccetmoi.com` par **un seul A vers
+   l'IP du VPS** (supprimez aussi un éventuel AAAA de GitHub), et faites pointer `www` vers l'IP du
+   VPS (enregistrement A) au lieu de GitHub.
+4. Dès que `nslookup mon50ccetmoi.com` donne l'IP du VPS :
+
+   ```bash
+   cd /opt/mon50cc/sovereign-core && sudo docker compose -f docker-compose.vps.yml up -d
+   sudo /opt/mon50cc/sovereign-core/deploy/check.sh
+   ```
+
+   Caddy obtient alors le certificat HTTPS du site (une minute environ). `check.sh` doit dire
+   « site en ligne depuis le VPS ».
+5. Vérifiez à la main sur le téléphone : accueil, connexion, carte et itinéraire.
+
+**Retour arrière** : remettre chez Amen.fr les valeurs notées au point 1 ; le site revient sur
+GitHub Pages en quelques minutes (TTL réduit). Rien n'est perdu : rien n'a été effacé.
+
 ## Au quotidien
 
 ### Sauvegardes
@@ -193,6 +276,7 @@ sudo /opt/mon50cc/sovereign-core/deploy/restore.sh <nom> --yes       # REMPLACE 
 ```bash
 cd /opt/mon50cc && sudo git pull
 cd sovereign-core && sudo docker compose -f docker-compose.vps.yml up -d --build
+sudo /opt/mon50cc/sovereign-core/deploy/publish-site.sh
 sudo /opt/mon50cc/sovereign-core/deploy/check.sh
 ```
 

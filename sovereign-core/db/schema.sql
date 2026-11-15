@@ -47,6 +47,11 @@ CREATE TABLE IF NOT EXISTS users (
 -- Bases déjà créées avant l'ajout de la colonne
 ALTER TABLE users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;
 
+-- Déménagement depuis Firebase : identifiant de l'ancien compte (28 caractères, pas un UUID).
+-- Sert à rattacher les données Firestore au bon compte lors de leur import ; effacé à l'anonymisation.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS firebase_uid VARCHAR(128);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_firebase_uid ON users(firebase_uid) WHERE firebase_uid IS NOT NULL;
+
 -- RGPD : un compte n'est jamais supprimé physiquement (les tables de preuves immuables qui le
 -- référencent bloqueraient la suppression en cascade). Il est ANONYMISÉ : email, pseudo, mot de
 -- passe et clés biométriques effacés ; preuves conservées (art. 17.3.e, défense de droits en justice).
