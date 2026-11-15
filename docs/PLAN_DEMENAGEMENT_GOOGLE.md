@@ -75,8 +75,37 @@ plan OVHcloud) : on bascule un domaine à la fois, et on peut revenir en arrièr
 - **Notifications push** : à vérifier au moment de l'étape 6 (aucun usage de Firebase Messaging
   trouvé dans le code).
 
-## 4. Ce qui ne bouge pas
+## 4. Quitter aussi GitHub (Microsoft)
 
-- **Le site** reste sur GitHub Pages (mon50ccetmoi.com).
+Décidé le 15/11/2026 : après Google, GitHub (Microsoft, américain) part aussi. Tout va sur le VPS
+de Gravelines, avec des logiciels libres. Codeberg et Framagit, européens, sont exclus : ils sont
+réservés aux projets en logiciel libre.
+
+| Aujourd'hui sur GitHub | Remplaçant | Où |
+| :--- | :--- | :--- |
+| Hébergement du site (GitHub Pages) | Caddy (déjà installé par `deploy/install.sh`) sert `dist/` | VPS |
+| Dépôt du code et miroir | **Forgejo** (pull requests, tickets, interface proche de GitHub) | VPS |
+| Vérifications (GitHub Actions) | **Forgejo Actions** (relit presque tels quels les fichiers de `.github/workflows/`) | VPS ; travaux lourds (Android, navigateur) sur le PC ou un second petit serveur |
+| Mises à jour des dépendances (Dependabot) | **Renovate** auto-hébergé | VPS |
+| Analyse de sécurité (CodeQL) | **Semgrep** (logiciel libre), dans les vérifications | VPS |
+
+Ordre, une fois le VPS installé :
+
+1. **Site** : Caddy sert le site sur le VPS ; DNS de `mon50ccetmoi.com` et `www` chez Amen.fr vers
+   l'IP du VPS. L'appli Android (TWA) suit, le domaine ne changeant pas (`assetlinks.json` à garder).
+2. **Code** : Forgejo sur le VPS, dépôt importé avec tout son historique, sauvegardé comme la base.
+3. **Vérifications** : Forgejo Actions, Renovate, Semgrep.
+4. **Fermer** GitHub Pages, puis les dépôts GitHub (principal et miroir).
+
+### Le domaine (registrar)
+
+Le domaine reste chez **Amen.fr** (société européenne) pendant le déménagement : seuls les
+enregistrements DNS changent, et l'email **contact@mon50ccetmoi.com** continue de fonctionner.
+Plus tard, transfert possible chez OVHcloud pour tout regrouper : code de transfert (AUTH) chez
+Amen, zone DNS recopiée **avant** (surtout les **MX** de l'email), environ une semaine de délai.
+
+## 5. Ce qui ne bouge pas
+
+- **Le domaine** `mon50ccetmoi.com` (chez Amen.fr pour l'instant, voir § 4).
 - **Les cartes** sont déjà sans Google (IGN + Leaflet + OpenStreetMap).
 - **L'appli Android** (TWA) ouvre le site : elle suit sans nouvelle publication, sauf changement de domaine.
