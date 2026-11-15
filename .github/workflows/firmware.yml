@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Compilation ESP-IDF v5.3 (esp32c3)
         uses: espressif/esp-idf-ci-action@v1
@@ -33,7 +33,7 @@ jobs:
         run: ls -l hardware/firmware/build/*.bin
 
       - name: Binaire compilé
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: firmware-blackbox-esp32c3
           path: |
