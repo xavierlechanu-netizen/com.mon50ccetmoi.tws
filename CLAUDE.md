@@ -107,6 +107,7 @@ L'ensemble des règles de sécurité détaillées dans `.agents/AGENTS.md` et `N
 ## 5. Prochaines Étapes pour Claude Code (Roadmap Migration OVHcloud)
 
 > Audit complet et plan détaillé (priorités sécurité avant la migration) : `docs/AUDIT_2026-11.md`.
+> Inventaire de tout ce qui dépend encore de Google et ordre du déménagement : `docs/PLAN_DEMENAGEMENT_GOOGLE.md`.
 
 1. **Phase A — Branchement progressif du Frontend sur `SovereignClient`** :
    * Connecter `src/js/auth.js`, `src/js/database.js` et `src/js/blackbox-ble.js` au SDK `sovereign-core/client/sovereign-sdk.js` (avec bascule par variable de configuration `CONFIG.BACKEND_MODE = "SOVEREIGN" | "FIREBASE"`).
