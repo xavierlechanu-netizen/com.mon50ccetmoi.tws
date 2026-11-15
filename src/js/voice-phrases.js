@@ -92,7 +92,7 @@ export const PHRASES = {
   "Alerte de collision annulée. Restez prudent.": { en: "Collision alert cancelled. Stay careful.", es: "Alerta de colisión cancelada. Tenga cuidado." },
   "ALERTE SOS LANÇÉE. Transfert des données aux secours.": { en: "SOS ALERT SENT. Sharing data with emergency services.", es: "ALERTA SOS ENVIADA. Transmitiendo los datos a emergencias." },
   "SOS Manuel activé. Alerte de la meute et de l'Ange Gardien.": { en: "Manual SOS on. Alerting the pack and the Guardian Angel.", es: "SOS manual activado. Alertando a la manada y al Ángel Guardián." },
-  "Chute détectée. Annulez si vous allez bien, sinon les secours seront prévenus.": { en: "Fall detected. Cancel if you are OK, otherwise help will be called.", es: "Caída detectada. Cancele si está bien; si no, se avisará a emergencias." },
+  "Chute détectée. Annulez si vous allez bien.": { en: "Fall detected. Cancel if you are OK.", es: "Caída detectada. Cancele si está bien." },
   "Alerte critique. Chute détectée. Vous avez 10 secondes pour annuler avant l'envoi des secours.": { en: "Critical alert. Fall detected. You have 10 seconds to cancel before help is sent.", es: "Alerta crítica. Caída detectada. Tiene 10 segundos para cancelar antes de avisar a emergencias." },
   "Délai expiré. Protocole SOS engagé. Alerte envoyée à la communauté.": { en: "Time is up. SOS protocol started. Alert sent to the community.", es: "Tiempo agotado. Protocolo SOS iniciado. Alerta enviada a la comunidad." },
   "Alerte annulée. Reprise de la navigation.": { en: "Alert cancelled. Resuming navigation.", es: "Alerta cancelada. Reanudando la navegación." },

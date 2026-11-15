@@ -151,6 +151,28 @@ sudo /opt/mon50cc/sovereign-core/deploy/restore.sh <nom affiché> --yes
 
 Une sauvegarde jamais relue n'est pas une sauvegarde.
 
+## 9. SMS d'urgence (alerte SOS)
+
+Sans cette étape, le serveur fonctionne, mais l'alerte SOS ne peut pas envoyer de SMS : l'appli le
+dit honnêtement et propose d'appeler le 112.
+
+1. **Espace client OVHcloud › Télécom › SMS** : commandez un petit pack de crédits SMS (un SMS
+   d'alerte vers la France consomme environ 1 crédit). Notez le nom du compte SMS (`sms-xx12345-1`).
+2. **Facultatif** : déclarez un nom d'expéditeur (par exemple `MON50CC`), validé par OVHcloud sous
+   quelques jours. Sans lui, les SMS partent d'un numéro court.
+3. **Clé d'API limitée au seul envoi de SMS** : sur <https://eu.api.ovh.com/createToken/>, créez une
+   clé avec un seul droit, `POST /sms/<nom du compte SMS>/jobs`, durée illimitée. Notez les trois
+   valeurs (Application Key, Application Secret, Consumer Key) dans le gestionnaire de mots de passe.
+4. Dans `.env` : `OVH_SMS_APP_KEY`, `OVH_SMS_APP_SECRET`, `OVH_SMS_CONSUMER_KEY`, `OVH_SMS_SERVICE`
+   (nom du compte SMS) et, si validé, `OVH_SMS_SENDER`. Puis :
+
+   ```bash
+   cd /opt/mon50cc/sovereign-core && sudo docker compose -f docker-compose.vps.yml up -d
+   ```
+
+Protections en place : pilote connecté obligatoire, 1 à 3 mobiles français (06/07) seulement,
+au plus 3 alertes par 10 minutes. Un SMS n'est annoncé comme envoyé que si OVHcloud l'a accepté.
+
 ## Au quotidien
 
 ### Sauvegardes

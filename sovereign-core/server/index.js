@@ -28,7 +28,13 @@ const { resolveWormVault } = require("./storage-worm-s3");
 const { createMemoryStore } = require("./store-memory");
 const { createPgStore } = require("./store-pg");
 const { StoreError } = require("./store-errors");
+const { smsClientFromEnv, normalizeFrenchMobile } = require("./sms-ovh");
 const pointsRules = require("../../functions/api/points-rules");
+
+// Alerte SOS : au plus 3 numéros, 3 alertes par pilote et par 10 minutes (anti-abus, SMS payants)
+const SOS_MAX_CONTACTS = 3;
+const SOS_MAX_ALERTS = 3;
+const SOS_WINDOW_MS = 10 * 60 * 1000;
 
 const HAZARD_TYPES = ["pothole", "accident", "police", "roadwork", "obstacle", "weather", "other"];
 const HAZARDS_PER_DAY = 30;
@@ -83,6 +89,9 @@ function resolveStore(options, env = process.env) {
 function createSovereignApp(options = {}) {
     const wormVault = resolveWormVault(options);
     const store = resolveStore(options);
+    // Envoi des SMS d'urgence (OVHcloud) ; null si non configuré : la route SOS répond alors 503.
+    const smsClient = options.smsClient !== undefined ? options.smsClient : smsClientFromEnv();
+    const sosHits = new Map();
 
     // Limitation des tentatives d'authentification (anti force brute, OWASP ASVS v5.0.0-6.3)
     const authLimit = {
@@ -536,6 +545,76 @@ function createSovereignApp(options = {}) {
             const hazards = await store.findHazardsNear({ lat, lng, radiusM: radiusKm * 1000 });
             res.statusCode = 200;
             res.end(JSON.stringify({ radiusKm, count: hazards.length, hazards }));
+            return;
+        }
+
+        // 4c bis. ALERTE SOS : SMS réels aux anges gardiens, par OVHcloud.
+        // « sent » ne compte que les numéros acceptés par OVHcloud : l'appli n'annonce jamais
+        // un envoi qui n'a pas eu lieu.
+        if (req.method === "POST" && pathname === "/api/v1/sos") {
+            const authUser = extractBearerUser(req);
+            if (!authUser) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Authentification requise.", sent: 0 }));
+                return;
+            }
+            const { lat, lng, accuracy, contacts, kind } = body;
+            const numbers = Array.isArray(contacts)
+                ? [...new Set(contacts.map(normalizeFrenchMobile).filter(Boolean))]
+                : [];
+            if (!isLat(lat) || !isLng(lng) || numbers.length === 0 || numbers.length > SOS_MAX_CONTACTS ||
+                (kind !== undefined && kind !== "fall" && kind !== "manual")) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({
+                    error: `Position GPS et 1 à ${SOS_MAX_CONTACTS} numéros de mobile français (06 ou 07) requis.`,
+                    sent: 0,
+                }));
+                return;
+            }
+            const user = await store.findUserById(authUser.uid);
+            if (!user) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Compte introuvable ou supprimé.", sent: 0 }));
+                return;
+            }
+            const now = Date.now();
+            const recent = (sosHits.get(authUser.uid) || []).filter((t) => now - t < SOS_WINDOW_MS);
+            if (recent.length >= SOS_MAX_ALERTS) {
+                res.statusCode = 429;
+                res.end(JSON.stringify({ error: "Trop d'alertes SOS rapprochées. Appelez le 112.", sent: 0 }));
+                return;
+            }
+            if (!smsClient) {
+                res.statusCode = 503;
+                res.end(JSON.stringify({ error: "Envoi de SMS non configuré sur ce serveur.", sent: 0 }));
+                return;
+            }
+            recent.push(now);
+            sosHits.set(authUser.uid, recent);
+
+            const pseudo = String(user.username || "Un pilote").slice(0, 30);
+            const where = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+            const precision = Number.isFinite(accuracy) && accuracy > 0 ? ` (precision ${Math.round(accuracy)} m)` : "";
+            const message = [
+                "ALERTE SOS mon50ccetmoi",
+                kind === "manual"
+                    ? `${pseudo} a declenche une alerte et a besoin d'aide.`
+                    : `${pseudo} a peut-etre chute et ne repond pas.`,
+                `Position${precision} : https://www.openstreetmap.org/?mlat=${lat.toFixed(5)}&mlon=${lng.toFixed(5)}#map=17/${where.replace(",", "/")}`,
+                "Appelez-le. Urgence : 112.",
+            ].join("\n");
+            try {
+                const result = await smsClient.send({ receivers: numbers, message });
+                const sent = result.validReceivers.length;
+                // Journal sans numéros de téléphone (données personnelles)
+                console.log(`[SOS] ${authUser.uid} : ${sent}/${numbers.length} SMS acceptés par OVHcloud`);
+                res.statusCode = sent > 0 ? 200 : 502;
+                res.end(JSON.stringify({ sent, requested: numbers.length, invalid: result.invalidReceivers.length }));
+            } catch (e) {
+                console.error("[SOS] Envoi impossible :", e.message);
+                res.statusCode = 502;
+                res.end(JSON.stringify({ error: "L'envoi des SMS a échoué. Appelez le 112 et prévenez vos proches.", sent: 0 }));
+            }
             return;
         }
 

@@ -106,6 +106,15 @@ export class SovereignClient {
         });
     }
 
+    /**
+     * Alerte SOS : SMS réels aux anges gardiens (OVHcloud). Renvoie { sent, requested, invalid } ;
+     * lève une erreur si aucun SMS n'est parti (l'appli doit alors proposer le 112 et le SMS manuel).
+     * @param {{lat: number, lng: number, accuracy?: number, contacts: string[], kind?: "fall"|"manual"}} alerte
+     */
+    async sendSos(alerte) {
+        return await this.request("/sos", { method: "POST", body: alerte });
+    }
+
     async deleteMyAccountRgpd() {
         const res = await this.request("/rgpd/account", { method: "DELETE" });
         this.signOut();

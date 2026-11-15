@@ -230,7 +230,7 @@ window.revokeAndEraseData = async function () {
       alert(
         "Échec de la suppression sécurisée sur nos serveurs (" +
           (e.message || "Erreur réseau") +
-          "). Par sécurité, vos données locales ne sont pas effacées. Veuillez réessayer ou contacter le support dpo@mon50ccetmoi.com."
+          "). Par sécurité, vos données locales ne sont pas effacées. Veuillez réessayer ou contacter le support contact@mon50ccetmoi.com."
       );
       return;
     }

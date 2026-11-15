@@ -70,6 +70,12 @@ services:
       WORM_S3_ACCESS_KEY_ID: ${WORM_S3_ACCESS_KEY_ID:?Cle S3 requise}
       WORM_S3_SECRET_ACCESS_KEY: ${WORM_S3_SECRET_ACCESS_KEY:?Cle S3 requise}
       WORM_RETENTION_DAYS: ${WORM_RETENTION_DAYS:-1826}
+      # SMS de l'alerte SOS (OVHcloud) ; vides : la route SOS répond « non configuré » (503)
+      OVH_SMS_APP_KEY: ${OVH_SMS_APP_KEY:-}
+      OVH_SMS_APP_SECRET: ${OVH_SMS_APP_SECRET:-}
+      OVH_SMS_CONSUMER_KEY: ${OVH_SMS_CONSUMER_KEY:-}
+      OVH_SMS_SERVICE: ${OVH_SMS_SERVICE:-}
+      OVH_SMS_SENDER: ${OVH_SMS_SENDER:-}
     # « frontend » donne aussi la sortie vers Internet (Object Storage, Revolut).
     networks:
       - backend

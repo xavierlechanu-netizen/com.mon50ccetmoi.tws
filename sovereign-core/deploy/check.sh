@@ -30,6 +30,11 @@ if [ -r "$ENV_FILE" ]; then
     for v in WORM_S3_ACCESS_KEY_ID WORM_S3_SECRET_ACCESS_KEY BACKUP_S3_ACCESS_KEY_ID BACKUP_S3_SECRET_ACCESS_KEY; do
         [ -n "$(env_get "$v")" ] || bad "$v vide dans .env (clés de l'Object Storage, deploy/README.md étape 1)"
     done
+    if [ -n "$(env_get OVH_SMS_APP_KEY)" ]; then
+        ok "SMS d'urgence configurés (alerte SOS)"
+    else
+        warn "SMS d'urgence non configurés : l'alerte SOS ne peut pas prévenir les proches (deploy/README.md, étape 9)"
+    fi
     domain="$(env_get API_DOMAIN)"
 else
     bad ".env introuvable ($ENV_FILE) → sudo sovereign-core/deploy/install.sh"

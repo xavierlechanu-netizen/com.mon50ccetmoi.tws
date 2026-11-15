@@ -1,6 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { PAGE_ROUTES } from './page-routes.js';
+import { getSosPosition, sendSosAuto, smsHref, sosText } from './sos-alert.js';
 
 // --- SYSTEM STARTUP ---
 function runCinematicStartup() {
@@ -177,15 +178,11 @@ window.addEventListener("devicemotion", (e) => {
   if (force > 45) {
     // Seuil d'impact (G-force importante)
     triggerFallAlert();
-    if (window.isGuardianActive && typeof triggerEmergencySOS === "function") {
-      triggerEmergencySOS(
-        "Chute brutale détectée par l'accéléromètre.",
-      );
-    }
   }
 });
 
 function triggerFallAlert(isManual = false) {
+  window.sosKind = isManual ? "manual" : "fall";
   if (typeof Hardware !== "undefined") {
     Hardware.vibratePattern("sos");
     Hardware.toggleFlashlightSOS(true);
@@ -197,7 +194,7 @@ function triggerFallAlert(isManual = false) {
     speak(
       isManual
         ? "SOS Manuel activé. Alerte de la meute et de l'Ange Gardien."
-        : "Chute détectée. Annulez si vous allez bien, sinon les secours seront prévenus.",
+        : "Chute détectée. Annulez si vous allez bien.",
     );
   }
 
@@ -240,71 +237,60 @@ window.cancelFallAlert = function () {
   if (typeof speak === "function") speak("Alerte annulée.");
 };
 
-window.executeAngeGardienProtocol = async function () {
-  const contact1 = localStorage.getItem("guardian_contact_1");
-  const contact2 = localStorage.getItem("guardian_contact_2");
-  const contacts = [contact1, contact2].filter(Boolean);
+// Alerte SOS après le compte à rebours (voir sos-alert.js).
+// L'appli n'annonce « prévenus » que si le serveur a confirmé l'envoi des SMS ; sinon elle le dit
+// et propose en un geste d'appeler le 112 ou d'envoyer sa position par SMS depuis le téléphone.
+function sosButton(label, href, background, color = "#fff") {
+  const a = document.createElement("a");
+  a.href = href;
+  a.textContent = label;
+  a.style.cssText = `display:block; margin:12px auto; padding:16px 28px; max-width:340px; background:${background}; color:${color}; text-decoration:none; border-radius:50px; font-weight:900; font-size:1.15rem;`;
+  return a;
+}
 
+function renderSosScreen(div, { title, color, text, buttons }) {
+  div.replaceChildren();
+  const h1 = document.createElement("h1");
+  h1.textContent = title;
+  h1.style.color = color;
+  const p = document.createElement("p");
+  p.textContent = text;
+  p.style.maxWidth = "420px";
+  const close = document.createElement("button");
+  close.textContent = "FERMER";
+  close.setAttribute("data-action", "window.cancelFallAlert()");
+  close.style.cssText = "margin-top:20px; padding:12px 28px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid #fff; border-radius:50px; font-weight:bold;";
+  div.append(h1, p, ...buttons, close);
+}
+
+window.executeAngeGardienProtocol = async function () {
+  const kind = window.sosKind === "manual" ? "manual" : "fall";
+  const contacts = [localStorage.getItem("guardian_contact_1"), localStorage.getItem("guardian_contact_2")]
+    .map((c) => (c || "").trim())
+    .filter(Boolean);
   const div = document.getElementById("fall-screen");
   if (div) {
-    // eslint-disable-next-line no-restricted-syntax
-div.innerHTML = `
-            <div style="width: 60px; height: 60px; border: 4px solid #333; border-top-color: #00d2ff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto;"></div>
-            <h1 style="color:#00d2ff;">TRANSMISSION SOS...</h1>
-            <p>Connexion aux serveurs d'urgence en cours.</p>
-        `;
+    renderSosScreen(div, { title: "ALERTE EN COURS…", color: "#00d2ff", text: "Recherche de votre position GPS.", buttons: [] });
   }
 
-  let message = "Alerte de la Meute transmise.";
+  const position = await getSosPosition();
+  const auto = await sendSosAuto({ position, contacts, kind });
+  const appel = sosButton("📞 APPELER LE 112", "tel:112", "#ff0000");
+  const sms = contacts.length > 0
+    ? sosButton("💬 ENVOYER MA POSITION PAR SMS", smsHref(contacts, sosText(position, kind), navigator.userAgent), "#ffb703", "#000")
+    : null;
 
-  // Appel de la vraie Cloud Function
-  try {
-    const userId = window.session?.user_id || "anonymous";
-    // On suppose que firebase est initialisé globalement
-    const sendSOSCall = firebase
-      .functions("europe-west1")
-      .httpsCallable("sendEmergencySOS");
-
-    await sendSOSCall({
-      user_id: userId,
-      location: "GPS Coord (Simulated)",
-      contacts: contacts,
-      message: "Alerte SOS de l'utilisateur.",
-    });
-
-    if (contacts.length > 0) {
-      message += ` Vos ${contacts.length} Ange(s) Gardien(s) ont été notifiés par SMS.`;
-    }
-  } catch (e) {
-    console.error("[SOS] Cloud Function failed", e);
-    // Fallback local HTTP POST using fetch if callable SDK fails (due to V2 https function)
-    try {
-      await fetch("https://sendemergencysos-rwdjqtbv2q-ew.a.run.app", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          data: { user_id: window.session?.user_id, contacts: contacts },
-        }),
-      });
-
-      if (contacts.length > 0) message += ` Ange(s) Gardien(s) notifiés.`;
-    } catch (errFetch) {
-      message =
-        "Erreur réseau lors de la transmission du SOS automatisé. Veuillez appeler les secours manuellement.";
-    }
+  let message;
+  if (auto.sent > 0) {
+    message = `${auto.sent} ange(s) gardien(s) prévenu(s) par SMS, avec votre position.`;
+    if (div) renderSosScreen(div, { title: "ANGES GARDIENS PRÉVENUS", color: "#00ff88", text: message, buttons: [appel] });
+  } else {
+    message = contacts.length > 0
+      ? `${auto.reason} Vos anges gardiens ne sont PAS prévenus : appelez le 112 ou envoyez-leur votre position par SMS.`
+      : `${auto.reason} Appelez le 112 si vous avez besoin d'aide. Ajoutez des anges gardiens dans votre profil.`;
+    if (div) renderSosScreen(div, { title: "PRÉVENEZ VOS PROCHES", color: "#ffb703", text: message, buttons: [appel, sms].filter(Boolean) });
   }
-
   if (typeof speak === "function") speak(message);
-
-  if (div) {
-    // eslint-disable-next-line no-restricted-syntax
-div.innerHTML = `
-            <i class="fa-solid fa-satellite-dish" style="font-size:5rem; margin-bottom:20px; color:#00d2ff;"></i>
-            <h1 style="color:#00d2ff;">ANGE GARDIEN ACTIVÉ</h1>
-            <p>${message}</p>
-            <button data-action="window.cancelFallAlert()" style="margin-top:20px; padding:15px 30px; background:#00d2ff; color:#000; border:none; border-radius:50px; font-weight:bold; font-size:1rem;">OK</button>
-        `;
-  }
 };
 
 window.saveGuardianContacts = function () {
