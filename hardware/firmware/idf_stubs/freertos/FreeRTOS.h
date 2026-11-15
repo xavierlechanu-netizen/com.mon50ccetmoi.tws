@@ -19,6 +19,7 @@ typedef void *TaskHandle_t;
 #define pdFAIL  0
 
 #define pdMS_TO_TICKS(xTimeInMs) ((TickType_t)(xTimeInMs))
+#define portMAX_DELAY ((TickType_t)0xffffffffUL)
 
 #ifdef __cplusplus
 }

@@ -36,6 +36,7 @@
 #include "ble_comm.h"
 #include "gps_parser.h"
 #include "imu.h"
+#include "factory_console.h"
 
 /* ---- Tag de log ---- */
 static const char *TAG = "MAIN";
@@ -48,12 +49,15 @@ static const char *TAG = "MAIN";
 #define TELEMETRY_PERIOD_MS 100         /* 10 Hz (1 point / 1,25 m à 45 km/h) */
 #define SHOCK_THRESHOLD_X10 30          /* 3.0G = Bascule en GATT Indicate + Flush Flash */
 #define DEEP_SLEEP_TIMEOUT  (5 * 60 * 1000000ULL)  /* 5 min en µs */
+#define BATTERY_LOW_MV      3000        /* LiFePO4 : en dessous, signer l'accident en cours sans attendre */
 
 /* Commandes PMTK Quectel L76-LB (avec checksum XOR NMEA) */
 #define PMTK_SET_BAUD_115200 "$PMTK251,115200*1F\r\n"
 #define PMTK_SET_NMEA_10HZ   "$PMTK220,100*2F\r\n"
 
 static volatile bool s_power_fail_triggered = false;
+static TaskHandle_t s_event_export_task = NULL;
+static volatile uint8_t s_event_export_slot = 0;
 
 /* ---- Prototypes ---- */
 static void init_nvs(void);
@@ -64,6 +68,10 @@ static bool is_external_power_present(void);
 static void telemetry_task(void *pvParameters);
 static void enter_deep_sleep(void);
 static void on_export_request(uint32_t start_index, uint32_t count);
+static uint16_t on_event_info(uint8_t *buf, uint16_t cap);
+static void on_event_export(uint8_t slot);
+static void on_ack(uint32_t seq);
+static void event_export_task(void *arg);
 static uint16_t read_battery_mv(void);
 
 /* ============================================================================
@@ -87,10 +95,17 @@ void app_main(void)
      * ================================================================ */
     if (tamper_is_bricked()) {
         ESP_LOGE(TAG, "████████████████████████████████████████████");
-        ESP_LOGE(TAG, "█  BOÎTIER NEUTRALISÉ — TAMPER DÉTECTÉ    █");
-        ESP_LOGE(TAG, "█  Toutes les données ont été effacées.    █");
+        ESP_LOGE(TAG, "█  BOÎTIER OUVERT — plus d'enregistrement █");
+        ESP_LOGE(TAG, "█  Accidents signés récupérables par BLE   █");
         ESP_LOGE(TAG, "████████████████████████████████████████████");
 
+        /* Comme l'enregistreur d'un avion après l'accident : on n'enregistre plus,
+         * mais on laisse l'appli récupérer les accidents déjà signés. */
+        if (blackbox_storage_init() == ESP_OK && ble_comm_init() == ESP_OK) {
+            ble_comm_set_event_callbacks(on_event_info, on_event_export, on_ack);
+            ble_comm_update_tamper_state(TAMPER_STATE_DESTROYED);
+            xTaskCreate(event_export_task, "evt_export", 3072, NULL, 4, &s_event_export_task);
+        }
         while (1) {
             vTaskDelay(pdMS_TO_TICKS(10000));
         }
@@ -120,6 +135,8 @@ void app_main(void)
     } else {
         ESP_LOGI(TAG, "  ✓ AES-256-GCM + Merkle SHA-256 + ECDSA P-256 actifs (%lu trames).",
                  (unsigned long)blackbox_storage_count());
+        /* Boîtier neuf, sans numéro de série : port série d'usine pour la mise en service */
+        factory_console_start();
     }
 
     /* ================================================================
@@ -139,6 +156,8 @@ void app_main(void)
         ESP_LOGE(TAG, "ERREUR : BLE non initialisé.");
     } else {
         ble_comm_set_export_callback(on_export_request);
+        ble_comm_set_event_callbacks(on_event_info, on_event_export, on_ack);
+        xTaskCreate(event_export_task, "evt_export", 3072, NULL, 4, &s_event_export_task);
         ESP_LOGI(TAG, "  ✓ BLE GATT Server actif (Notify + Indicate + ACK_SEQ_ID).");
     }
 
@@ -175,8 +194,8 @@ static void telemetry_task(void *pvParameters)
         /* ---- Priorité 0 : Vérifier l'état d'intrusion physique (Two-Stage Zeroization) ---- */
         if (tamper_get_state() != TAMPER_STATE_SAFE) {
             ESP_LOGE(TAG, "🚨 INTRUSION PHYSIQUE DÉTECTÉE — Exécution Zeroization matérielle !");
-            blackbox_storage_zeroize_keys();
-            tamper_zeroize();
+            blackbox_storage_tamper_wipe();   /* signe l'accident en cours, garde les accidents */
+            tamper_zeroize();                 /* marque eFuse « ouvert », redémarre */
         }
 
         /* ---- Vérifier la présence du 12V véhicule ("Last-Gasp Write" sur coupure) ---- */
@@ -187,11 +206,20 @@ static void telemetry_task(void *pvParameters)
         was_ext_powered = ext_power;
 
         if (s_power_fail_triggered) {
-            ESP_LOGW(TAG, "⚡ COUPURE 12V DÉTECTÉE (Last-Gasp Write) — Sauvegarde d'urgence Flash !");
-            gps_power_off();
-            ble_comm_stop_advertising();
+            /* Le boîtier a sa propre batterie : la coupure du 12 V (faisceau arraché dans
+             * l'accident, contact coupé) ne l'arrête pas. Il continue d'enregistrer, le GPS
+             * reste allumé jusqu'à la fin de la fenêtre (+30 s) et l'appli peut toujours se
+             * connecter pour récupérer l'accident. Avant : GPS et Bluetooth coupés et
+             * accident signé immédiatement, donc les 30 s après le choc perdues. */
+            ESP_LOGW(TAG, "⚡ Coupure du 12 V : fonctionnement sur batterie interne.");
             blackbox_storage_flush();
             s_power_fail_triggered = false;
+        }
+
+        /* Batterie qui faiblit : figer et signer tout de suite plutôt que tout perdre */
+        if (blackbox_event_pending() && read_battery_mv() < BATTERY_LOW_MV) {
+            ESP_LOGW(TAG, "Batterie faible : accident en cours signé sans attendre la fin de la fenêtre.");
+            blackbox_event_seal_now();
         }
 
         /* ---- Lire les trames NMEA du GPS (10 Hz @ 115200 bps) ---- */
@@ -264,7 +292,11 @@ static void telemetry_task(void *pvParameters)
             last_ext_power_time = esp_timer_get_time();
         } else {
             int64_t elapsed = esp_timer_get_time() - last_ext_power_time;
-            if (elapsed > (int64_t)DEEP_SLEEP_TIMEOUT) {
+            /* Pas de sommeil profond tant qu'un accident attend d'être récupéré par l'appli
+             * (le Bluetooth s'éteindrait) : le téléphone a souvent cassé dans l'accident,
+             * le propriétaire peut revenir des heures plus tard avec un autre. */
+            if (elapsed > (int64_t)DEEP_SLEEP_TIMEOUT &&
+                !blackbox_event_pending() && blackbox_event_oldest_unacked() < 0) {
                 ESP_LOGW(TAG, "Alimentation ext. absente > 5 min → Deep Sleep.");
                 gps_power_off();
                 enter_deep_sleep();
@@ -281,6 +313,9 @@ static void telemetry_task(void *pvParameters)
  */
 static uint16_t read_battery_mv(void)
 {
+    /* À FAIRE avec le plan de l'usine (CONFIG_BB_PIN_VBAT_ADC) : lecture ADC réelle.
+     * En attendant, valeur nominale : la signature anticipée sur batterie faible ne
+     * se déclenche jamais, celle à +30 s et au redémarrage restent actives. */
     return 3300;
 }
 
@@ -397,6 +432,67 @@ static void enter_deep_sleep(void)
  * on_export_request() — Callback BLE d'export des trames
  * ============================================================================
  */
+/* ============================================================================
+ * Événements d'accident signés : lecture, export (tâche dédiée), acquittement
+ * ============================================================================
+ */
+static uint16_t on_event_info(uint8_t *buf, uint16_t cap)
+{
+    if (cap < 65) {
+        return 0;
+    }
+    if (blackbox_storage_get_pubkey(buf) != ESP_OK) {
+        memset(buf, 0, 65);
+    }
+    uint16_t n = 65;
+    int slot = blackbox_event_oldest_unacked();
+    blackbox_event_t ev;
+    if (slot >= 0 && cap >= n + sizeof(ev) && blackbox_event_get((uint8_t)slot, &ev) == ESP_OK) {
+        memcpy(buf + n, &ev, sizeof(ev));
+        n += sizeof(ev);
+    }
+    return n;
+}
+
+/* Appelé depuis la tâche BLE : on ne fait que réveiller la tâche d'export */
+static void on_event_export(uint8_t slot)
+{
+    if (slot < BLACKBOX_EVENT_SLOTS && s_event_export_task != NULL) {
+        s_event_export_slot = slot;
+        xTaskNotifyGive(s_event_export_task);
+    }
+}
+
+static void on_ack(uint32_t seq)
+{
+    if (blackbox_event_ack(seq) == ESP_OK) {
+        ESP_LOGI(TAG, "Événement terminé en #%lu acquitté : emplacement libéré.", (unsigned long)seq);
+    }
+}
+
+static void event_export_task(void *arg)
+{
+    (void)arg;
+    for (;;) {
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        const uint8_t slot = s_event_export_slot;
+        blackbox_event_t ev;
+        if (blackbox_event_get(slot, &ev) != ESP_OK) {
+            continue;
+        }
+        uint32_t count = ev.end_seq - ev.start_seq + 1;
+        ESP_LOGI(TAG, "Export de l'événement %u : %lu trames.", slot, (unsigned long)count);
+        for (uint32_t i = 0; i < count; i++) {
+            blackbox_frame_t frame;
+            if (blackbox_event_read_frame(slot, i, &frame) == ESP_OK) {
+                ble_comm_notify_frame((const uint8_t *)&frame, sizeof(frame));
+            }
+            memset(&frame, 0, sizeof(frame));
+            vTaskDelay(pdMS_TO_TICKS(20));
+        }
+    }
+}
+
 static void on_export_request(uint32_t start_index, uint32_t count)
 {
     uint32_t total = blackbox_storage_count();

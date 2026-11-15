@@ -108,7 +108,8 @@ describe("Phase 1 — sécurité du serveur souverain", () => {
 
     test("C2 : seul un admin peut enregistrer un boîtier, et sa clé ne peut pas être remplacée", async () => {
         const app = makeApp();
-        const unit = { serial: "BB50V1-P03", ecdsaPublicKey: device.pubHex, ownerUid };
+        // Clé neuve : celle de `device` appartient déjà à BB50V1-P02 (une clé = un boîtier)
+        const unit = { serial: "BB50V1-P03", ecdsaPublicKey: newDeviceKeys().pubHex, ownerUid };
 
         const asUser = await invokeRequest(app, "POST", "/api/v1/admin/blackbox/units", unit,
             { Authorization: `Bearer ${ownerJwt()}` });
@@ -122,6 +123,10 @@ describe("Phase 1 — sécurité du serveur souverain", () => {
         const replace = await invokeRequest(app, "POST", "/api/v1/admin/blackbox/units",
             { ...unit, ecdsaPublicKey: newDeviceKeys().pubHex }, { Authorization: `Bearer ${adminJwt}` });
         expect(replace.status).toBe(409);
+
+        const sameKeyOtherSerial = await invokeRequest(app, "POST", "/api/v1/admin/blackbox/units",
+            { serial: "BB50V1-P04", ecdsaPublicKey: device.pubHex }, { Authorization: `Bearer ${adminJwt}` });
+        expect(sameKeyOtherSerial.status).toBe(409);
 
         const badKey = await invokeRequest(app, "POST", "/api/v1/admin/blackbox/units",
             { serial: "BB50V1-P04", ecdsaPublicKey: "04abc" }, { Authorization: `Bearer ${adminJwt}` });

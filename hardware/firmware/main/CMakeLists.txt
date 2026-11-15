@@ -1,12 +1,12 @@
 idf_component_register(
-    SRCS "main.c"
+    SRCS "main.c" "factory_console.c"
     INCLUDE_DIRS "."
     REQUIRES
         driver
         esp_event
         esp_system
         esp_timer
-        esp_sleep
+        esp_hw_support
         nvs_flash
         esp_partition
         mbedtls

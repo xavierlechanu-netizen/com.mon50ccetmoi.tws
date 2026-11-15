@@ -30,7 +30,7 @@ node sovereign-core/server/index.js                 # Démarrage direct du serve
 # 4. Firmware Embarqué C ESP32-C3 ("Boîte Noire Aragon REV3")
 npm run firmware:build       # Compilation ESP-IDF (idf.py -C hardware/firmware build)
 npm run firmware:flash       # Flash série (idf.py -C hardware/firmware flash)
-npm run firmware:provision   # Provisionnement clé unique par boîtier (hardware/provision_device.py)
+npm run firmware:provision -- --port <port>   # Mise en service usine : clé faite dans la puce, numéro lié par le serveur (tools/mise_en_service.py)
 
 # 5. Déploiement Production Actuel (GitHub Pages + Firebase Hosting transitoire)
 git push origin HEAD:main    # Déploie sur GitHub Pages (xavierlechanu-netizen.github.io -> mon50ccetmoi.com)
@@ -49,13 +49,14 @@ npx firebase deploy --only hosting  # Déploie dist/ sur mon50ccetmoi.web.app
 | `├── server/store-pg.js` · `store-memory.js` | Couche d'accès aux données (même contrat). Testée sur un vrai PostgreSQL portable : `tests/sovereign-pg.test.js` (schéma de production sans PostGIS). |
 | `├── Dockerfile` | Image du serveur (Node 22, `npm install` de `pg`, utilisateur non privilégié). |
 | `├── server/crypto-auth.js` | Hachage mot de passe `scrypt` (N=16384, sel 32o, timing-safe) et jetons JWT asymétriques `ES256` (ECDSA P-256). |
-| `├── server/storage-worm.js` | Stockage forensique immuable WORM (`chmod 0o444`, empreinte `SHA-256`, compatible S3 Object Lock Compliance). |
+| `├── server/storage-worm.js` | Coffre local des preuves (`chmod 0o444`, empreinte `SHA-256`) : **développement et tests uniquement**, refusé en production. |
+| `├── server/storage-worm-s3.js` | Coffre de production : S3 Object Lock mode **COMPLIANCE** (OVHcloud), rétention 5 ans, `ChecksumSHA256`, relecture par `VersionId`. Démarrage refusé si `WORM_S3_BUCKET` absent ou bucket sans Object Lock. |
 | `├── db/schema.sql` | Schéma PostgreSQL 16 + PostGIS (`GEOGRAPHY(POINT, 4326)`, index `GIST`) + triggers PL/pgSQL d'immuabilité forensique. |
 | `├── client/sovereign-sdk.js` | SDK client léger (`window.SovereignClient`) destiné à remplacer le SDK Firebase dans `src/js/`. |
 | `└── CAHIER_DES_CHARGES_OVHCLOUD.md` | Spécifications complètes pour l'équipe avant-vente / Programme Startup OVHcloud. |
 | `hardware/firmware/` | **Firmware C ESP-IDF v5.x pour microcontrôleur ESP32-C3 (Boîte Noire REV3)**. |
 | `├── main/main.c` | Tâche temps réel 10 Hz (`telemetry_task`), acquisition IMU/GPS/ADC, zeroization en 2 étapes, transmission BLE. |
-| `├── components/blackbox/` | Stockage circulaire NVS/Flash, chiffrement `AES-256-GCM` (nonce 12 o aléatoire TRNG), signature `ECDSA P-256`, chaîne de Merkle `SHA-256`. |
+| `├── components/blackbox/` | Anneau de trames (42 par secteur), chiffrement `AES-256-GCM`, chaîne de Merkle `SHA-256`, en-tête journalisé (anti-usure), reprise après redémarrage. **Au choc ≥ 3 G** : fenêtre ±30 s figée hors de l'anneau (2 emplacements) et signée `ECDSA P-256` sur SHA-256(racine) ; libérée seulement après acquittement. Protocole : `hardware/firmware/README.md`. Testé sur PC par `tests/firmware-signed-event.test.js` (banc `tests/firmware-host/`). |
 | `├── components/tamper/` | Détection d'effraction physique par interruption `IRAM_ATTR` (< 1 µs) avec effacement RAM immédiat puis purge NVS hors ISR. |
 | `└── idf_stubs/` | En-têtes de compatibilité ESP-IDF/FreeRTOS pour l'analyse statique `clangd` (0 erreur / 0 warning). |
 | `src/` | **Frontend Web & PWA Multi-Pages (Vite)** compilé vers `dist/`. |

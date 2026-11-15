@@ -23,5 +23,9 @@ BaseType_t xTaskCreate(
 }
 #endif
 
+
+/* Notifications de tâche (FreeRTOS) */
+static inline BaseType_t xTaskNotifyGive(TaskHandle_t xTaskToNotify) { (void)xTaskToNotify; return pdTRUE; }
+static inline uint32_t ulTaskNotifyTake(BaseType_t xClearCountOnExit, TickType_t xTicksToWait) { (void)xClearCountOnExit; (void)xTicksToWait; return 1; }
 #endif
 

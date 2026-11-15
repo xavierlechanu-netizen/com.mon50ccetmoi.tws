@@ -133,6 +133,12 @@ function signSovereignJwt(claims, opts = {}) {
         exp: nowSec + ttl,
         jti: crypto.randomUUID()
     };
+    // Jeton à usage particulier (ex. défi de mise en service) : jamais une session
+    if (typeof claims.purpose === "string" && claims.purpose) {
+        payload.purpose = claims.purpose;
+        payload.role = "none";
+        payload.ctx = claims.ctx && typeof claims.ctx === "object" ? claims.ctx : {};
+    }
 
     const signingInput = `${base64UrlEncode(JSON.stringify(header))}.${base64UrlEncode(JSON.stringify(payload))}`;
     const signature = crypto.sign("SHA256", Buffer.from(signingInput, "utf8"), {

@@ -16,7 +16,7 @@
     "firmware:build": "cd hardware/firmware && idf.py build",
     "firmware:flash": "cd hardware/firmware && idf.py flash",
     "firmware:monitor": "cd hardware/firmware && idf.py monitor",
-    "firmware:provision": "python tools/provision_blackbox.py",
+    "firmware:provision": "python tools/mise_en_service.py",
     "test:e2e": "playwright test",
     "check:size": "node scripts/check-bundle-size.js"
   },

@@ -44,7 +44,7 @@ extern "C" {
 #define BLE_UUID_CHR_FRAME_DATA    0x0102  /**< Données trame (notify + indicate sur choc >3G) */
 #define BLE_UUID_CHR_EXPORT_CMD    0x0103  /**< Commande d'export (write) */
 #define BLE_UUID_CHR_ACK_SEQ       0x0104  /**< Acquittement applicatif ACK_SEQ_ID (write) */
-#define BLE_UUID_CHR_ECDSA_SIG     0x0105  /**< Signature ECDSA P-256 + Clé publique (read/notify) */
+#define BLE_UUID_CHR_ECDSA_SIG     0x0105  /**< Clé publique + événement d'accident signé (read) */
 
 /* Diagnostic */
 #define BLE_UUID_CHR_BATTERY       0x0201  /**< Tension batterie mV (read) */
@@ -75,6 +75,25 @@ typedef enum {
  * @param count       Nombre de trames demandées (0 = toutes).
  */
 typedef void (*ble_export_request_cb_t)(uint32_t start_index, uint32_t count);
+
+/**
+ * @brief Remplit `buf` avec la clé publique (65 o) suivie de l'événement d'accident
+ *        non acquitté le plus ancien (blackbox_event_t, 156 o) s'il y en a un.
+ *        Lu par l'appli sur la caractéristique ECDSA_SIG. Retourne la longueur écrite.
+ */
+typedef uint16_t (*ble_event_info_cb_t)(uint8_t *buf, uint16_t cap);
+
+/**
+ * @brief Demande d'export des trames d'un événement (commande EXPORT_CMD de 2 octets :
+ *        [0xEE][emplacement]). Les trames partent en notification sur FRAME_DATA.
+ */
+typedef void (*ble_event_export_cb_t)(uint8_t slot);
+
+/**
+ * @brief Acquittement applicatif reçu (ACK_SEQ). Pour un événement, la valeur est son
+ *        end_seq : l'appli ne l'envoie qu'après réception de la preuve par le serveur.
+ */
+typedef void (*ble_ack_cb_t)(uint32_t seq);
 
 /**
  * @brief Initialise la stack BLE NimBLE et enregistre les services GATT.
@@ -133,6 +152,11 @@ uint32_t ble_comm_get_last_acked_seq(void);
  * @brief Enregistre le callback d'export de trames.
  */
 void ble_comm_set_export_callback(ble_export_request_cb_t cb);
+
+/** @brief Callbacks des événements d'accident signés (lecture, export, acquittement). */
+void ble_comm_set_event_callbacks(ble_event_info_cb_t info_cb,
+                                  ble_event_export_cb_t export_cb,
+                                  ble_ack_cb_t ack_cb);
 
 /**
  * @brief Met à jour la valeur de la caractéristique batterie.

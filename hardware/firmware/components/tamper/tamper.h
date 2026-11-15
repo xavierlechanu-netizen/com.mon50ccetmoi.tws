@@ -52,7 +52,7 @@ tamper_state_t tamper_get_state(void);
  *
  * Cette fonction est conçue pour s'exécuter en quelques microsecondes
  * depuis une ISR (Interrupt Service Routine). Elle est déclarée
- * IRAM_ATTR pour résider en SRAM et non en Flash (accès plus rapide).
+ * Appelée hors interruption (elle efface la Flash) : voir main.c, telemetry_task.
  *
  * Actions réalisées :
  *   1. Mise à zéro de la clé AES-256 en RAM volatile.
@@ -63,7 +63,7 @@ tamper_state_t tamper_get_state(void);
  * @warning Cette opération est IRRÉVERSIBLE. Le boîtier devient
  *          définitivement inutilisable après appel.
  */
-void IRAM_ATTR tamper_zeroize(void);
+void tamper_zeroize(void);
 
 /**
  * @brief Vérifie si le boîtier a déjà été neutralisé (flag eFuse).

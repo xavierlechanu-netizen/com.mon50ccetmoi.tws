@@ -34,9 +34,10 @@ class BlackBoxBLE {
     this.telemetryService = null;
     this.diagnosticService = null;
 
-    // Base UUID 128-bit défini dans ble_comm.h & blackbox_ble.ino
+    // UUID 128 bits du firmware (ble_comm.c) : 50ccXXXX-0000-4d6f-6e35-306363657431.
+    // Correctif : il manquait le groupe « -0000 » (UUID de 28 chiffres, refusé par Web Bluetooth).
     this.baseUuidPrefix = "50cc0000-";
-    this.baseUuidSuffix = "-4d6f-6e35-306363657431";
+    this.baseUuidSuffix = "-0000-4d6f-6e35-306363657431";
 
     this.SVC_TELEMETRY  = this.buildUuid("0001");
     this.SVC_DIAGNOSTIC = this.buildUuid("0002");
@@ -112,7 +113,7 @@ class BlackBoxBLE {
     try {
       console.log("[BLE] Demande d'appareil Web Bluetooth...");
       this.device = await navigator.bluetooth.requestDevice({
-        filters: [{ namePrefix: 'BB50-' }],
+        filters: [{ namePrefix: 'BB50' }], // « BB50V1-A01 » (numéroté) ou « BB50-XXXX » (mode usine)
         optionalServices: [this.SVC_TELEMETRY, this.SVC_DIAGNOSTIC]
       });
 
@@ -146,7 +147,7 @@ class BlackBoxBLE {
       await nativeBle.initialize({ androidNeverForLocation: true });
 
       const device = await nativeBle.requestDevice({
-        prefix: "BB50-",
+        prefix: "BB50",
         optionalServices: [this.SVC_TELEMETRY, this.SVC_DIAGNOSTIC]
       });
 

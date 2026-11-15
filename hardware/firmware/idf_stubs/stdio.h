@@ -16,5 +16,9 @@ int puts(const char *s);
 }
 #endif
 
+typedef struct __stub_FILE FILE;
+extern FILE *stdout;
+int fflush(FILE *stream);
+
 #endif
 

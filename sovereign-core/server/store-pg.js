@@ -116,6 +116,47 @@ function createPgStore({ connectionString, pool } = {}) {
             return mapUnit(rows[0]);
         },
 
+        async findBlackboxUnitByPublicKey(ecdsaPublicKey) {
+            const { rows } = await db.query("SELECT * FROM blackbox_units WHERE lower(ecdsa_public_key) = lower($1)", [ecdsaPublicKey]);
+            return mapUnit(rows[0]);
+        },
+
+        /**
+         * Mise en service en usine : attribue le prochain numéro à une clé publique.
+         * Verrou transactionnel : deux postes d'usine ne reçoivent jamais le même numéro.
+         * Même clé présentée deux fois (outil relancé) → même numéro, rien de créé.
+         */
+        async registerFactoryUnit({ ecdsaPublicKey, revision, type, nextSerial }) {
+            const client = typeof db.connect === "function" ? await db.connect() : db;
+            try {
+                await client.query("BEGIN");
+                await client.query("SELECT pg_advisory_xact_lock(hashtext('blackbox_serials'))");
+                const found = await client.query("SELECT * FROM blackbox_units WHERE lower(ecdsa_public_key) = lower($1)", [ecdsaPublicKey]);
+                if (found.rows[0]) {
+                    await client.query("COMMIT");
+                    return { unit: mapUnit(found.rows[0]), created: false };
+                }
+                const { rows: all } = await client.query("SELECT serial FROM blackbox_units");
+                const serial = nextSerial(all.map((r) => r.serial), revision, type);
+                const { rows } = await client.query(
+                    `INSERT INTO blackbox_units (serial, revision, status, ecdsa_public_key)
+                     VALUES ($1, $2, 'IN_STOCK', $3) RETURNING *`,
+                    [serial, revision, ecdsaPublicKey]
+                );
+                await client.query(
+                    "INSERT INTO blackbox_unit_history (serial, action, details) VALUES ($1, $2, $3)",
+                    [serial, "FACTORY_REGISTERED", JSON.stringify({ type })]
+                );
+                await client.query("COMMIT");
+                return { unit: mapUnit(rows[0]), created: true };
+            } catch (e) {
+                await client.query("ROLLBACK").catch(() => {});
+                throw e;
+            } finally {
+                if (client !== db && typeof client.release === "function") client.release();
+            }
+        },
+
         async createBlackboxUnit({ serial, revision = "V1", ecdsaPublicKey, ownerUid = null }) {
             try {
                 const { rows } = await db.query(
@@ -130,6 +171,7 @@ function createPgStore({ connectionString, pool } = {}) {
                 );
                 return mapUnit(rows[0]);
             } catch (e) {
+                if (e.code === "23505" && /pubkey/.test(e.constraint || "")) throw new StoreError("KEY_EXISTS", "Cette clé appartient déjà à un autre boîtier.");
                 if (e.code === "23505") throw new StoreError("UNIT_EXISTS", "Boîtier déjà enregistré (la clé ne peut pas être remplacée).");
                 if (e.code === "23503" || e.code === "22P02") throw new StoreError("OWNER_NOT_FOUND", "Propriétaire du boîtier introuvable.");
                 throw e;

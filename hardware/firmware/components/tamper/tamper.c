@@ -32,7 +32,7 @@
 #include "mbedtls/platform_util.h"
 
 #include "tamper.h"
-#include "blackbox_pins.h"
+#include "../../main/blackbox_pins.h"
 
 /* ---- Tag de log ---- */
 static const char *TAG = "TAMPER";
@@ -45,6 +45,14 @@ static volatile tamper_state_t s_tamper_state = TAMPER_STATE_SAFE;
 
 /* ---- Flag anti-rebond pour éviter les déclenchements multiples ---- */
 static volatile bool s_zeroize_triggered = false;
+
+/*
+ * Bit d'eFuse « boîtier détruit après effraction » : 1er bit du bloc utilisateur
+ * (EFUSE_BLK3), libre (les clés de démarrage sécurisé et de chiffrement Flash
+ * utilisent les blocs KEY0..KEY5). Gravé une seule fois, jamais effaçable.
+ */
+static const esp_efuse_desc_t TAMPER_DESTROYED_BIT[] = { { EFUSE_BLK3, 0, 1 } };
+static const esp_efuse_desc_t *ESP_EFUSE_TAMPER_DESTROYED[] = { &TAMPER_DESTROYED_BIT[0], NULL };
 
 /* ============================================================================
  * ISR — Routine d'interruption ultra-rapide (exécutée depuis l'IRAM)
@@ -196,7 +204,7 @@ tamper_state_t tamper_get_state(void)
  * pour résister à cette optimisation.
  * ============================================================================
  */
-void IRAM_ATTR tamper_zeroize(void)
+void tamper_zeroize(void)
 {
     /*
      * ╔═══════════════════════════════════════════════════════════╗
@@ -216,25 +224,11 @@ void IRAM_ATTR tamper_zeroize(void)
      * La partition NVS (Non-Volatile Storage) peut contenir des
      * clés de session BLE ou des tokens FOTA. On efface tout.
      */
-    nvs_flash_erase();
-
-    /*
-     * ╔═══════════════════════════════════════════════════════════╗
-     * ║  ÉTAPE 3 : Effacement de la partition "blackbox_data"    ║
-     * ╚═══════════════════════════════════════════════════════════╝
-     *
-     * Efface la partition contenant les logs GPS / télémétrie
-     * chiffrés. Sans la clé (effacée à l'étape 1), les données
-     * étaient déjà illisibles, mais on les écrase par sécurité.
-     */
-    const esp_partition_t *data_part = esp_partition_find_first(
-        ESP_PARTITION_TYPE_DATA,
-        ESP_PARTITION_SUBTYPE_ANY,
-        "blackbox_data"
-    );
-    if (data_part != NULL) {
-        esp_partition_erase_range(data_part, 0, data_part->size);
-    }
+    /* Les étapes « effacement NVS » et « effacement de toute la partition » ont été
+     * retirées : elles détruisaient les accidents signés (la preuve) au moment même
+     * où quelqu'un a intérêt à les faire disparaître. Le tri est fait avant l'appel,
+     * par blackbox_storage_tamper_wipe() (clé de signature détruite, trajets effacés,
+     * accidents conservés). */
 
     /*
      * ╔═══════════════════════════════════════════════════════════╗
@@ -250,6 +244,7 @@ void IRAM_ATTR tamper_zeroize(void)
      * Pour le prototype, on utilise le champ de désactivation JTAG
      * qui a le double avantage de bricker ET de couper le debug.
      */
+    esp_efuse_write_field_bit(ESP_EFUSE_TAMPER_DESTROYED);
     esp_efuse_write_field_bit(ESP_EFUSE_DIS_PAD_JTAG);
     esp_efuse_write_field_bit(ESP_EFUSE_DIS_USB_JTAG);
 
@@ -271,10 +266,9 @@ void IRAM_ATTR tamper_zeroize(void)
 bool tamper_is_bricked(void)
 {
     /*
-     * Si JTAG est désactivé par eFuse, c'est que la zeroization
-     * a été déclenchée. Le boîtier est neutralisé.
+     * Bit d'eFuse dédié, gravé uniquement par tamper_zeroize().
+     * (Avant : on lisait DIS_PAD_JTAG, que le profil production grave
+     * dès la fabrication → chaque boîtier vendu se serait cru détruit.)
      */
-    bool jtag_disabled = false;
-    esp_efuse_read_field_bit(ESP_EFUSE_DIS_PAD_JTAG, &jtag_disabled);
-    return jtag_disabled;
+    return esp_efuse_read_field_bit(ESP_EFUSE_TAMPER_DESTROYED);
 }

@@ -107,7 +107,7 @@ describe("Serveur souverain sur PostgreSQL", () => {
 
     // Propriétaire inexistant → refusé proprement
     const ghost = await call(app, "POST", "/api/v1/admin/blackbox/units",
-      { serial: "BB50V1-P06", ecdsaPublicKey: pubHex, ownerUid: crypto.randomUUID() }, { Authorization: `Bearer ${adminJwt}` });
+      { serial: "BB50V1-P06", ecdsaPublicKey: crypto.generateKeyPairSync("ec", { namedCurve: "prime256v1" }).publicKey.export({ type: "spki", format: "der" }).subarray(-65).toString("hex"), ownerUid: crypto.randomUUID() }, { Authorization: `Bearer ${adminJwt}` });
     expect(ghost.status).toBe(400);
 
     const seed = "c".repeat(64);
@@ -211,5 +211,33 @@ describe("Serveur souverain sur PostgreSQL", () => {
 
     // L'email libéré peut servir à un nouveau compte
     expect((await call(app, "POST", "/api/v1/auth/register", { email: "efface@example.com", username: "Nouveau", password: "MotDePasse2026!" })).status).toBe(201);
+  });
+
+  test("usine : numéro attribué sous verrou, une clé = un numéro, lien numéro ↔ clé définitif en SQL", async () => {
+    const factory = { Authorization: `Bearer ${signSovereignJwt({ uid: "usine-pg", role: "factory", username: "Usine" })}` };
+    const dev = () => {
+      const { publicKey, privateKey } = crypto.generateKeyPairSync("ec", { namedCurve: "prime256v1" });
+      const pub = publicKey.export({ type: "spki", format: "der" }).subarray(-65).toString("hex");
+      return { pub, pop: (c) => crypto.sign("sha256", Buffer.from(`mon50cc-factory-pop:${c}:${pub}`), privateKey).toString("hex") };
+    };
+    const reg = async (d) => {
+      const ch = await call(app, "POST", "/api/v1/factory/challenge", {}, factory);
+      return call(app, "POST", "/api/v1/factory/units",
+        { ecdsaPublicKey: d.pub, challengeToken: ch.body.challengeToken, popSignature: d.pop(ch.body.challenge) }, factory);
+    };
+    const a = dev(), b = dev();
+    // Deux postes en même temps : jamais le même numéro
+    const [ra, rb] = await Promise.all([reg(a), reg(b)]);
+    expect(new Set([ra.body.serial, rb.body.serial]).size).toBe(2);
+    expect((await reg(a)).body).toMatchObject({ serial: ra.body.serial, created: false });
+
+    await expect(pool.query("UPDATE blackbox_units SET ecdsa_public_key = $1 WHERE serial = $2", [b.pub, ra.body.serial]))
+      .rejects.toThrow(/définitif/);
+    await expect(pool.query("UPDATE blackbox_units SET serial = 'BB50V1-Z98' WHERE serial = $1", [ra.body.serial]))
+      .rejects.toThrow(/définitif|INTÉGRITÉ|violates/i);
+    await expect(pool.query("INSERT INTO blackbox_units (serial, ecdsa_public_key) VALUES ('BB50V1-Z97', $1)", [a.pub.toUpperCase()]))
+      .rejects.toThrow(/uq_blackbox_units_pubkey|duplicate/);
+    // Le statut (stock, vendu, activé…) reste modifiable : seul le lien est figé
+    await pool.query("UPDATE blackbox_units SET status = 'SOLD' WHERE serial = $1", [ra.body.serial]);
   });
 });

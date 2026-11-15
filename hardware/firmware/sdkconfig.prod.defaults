@@ -1,0 +1,28 @@
+# ============================================================================
+# sdkconfig.prod.defaults — Boîtiers vendus (s'ajoute à sdkconfig.defaults)
+# ============================================================================
+# Compilation : idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.prod.defaults" build
+#
+# ATTENTION : au premier démarrage, ces options GRAVENT les eFuses de la puce
+# (irréversible). À valider d'abord sur un prototype sacrifiable.
+# La clé de signature du démarrage sécurisé reste chez mon50ccetmoi, jamais
+# chez le fabricant : il reçoit des binaires déjà signés.
+# ============================================================================
+
+# ---- Démarrage sécurisé V2 : seul un firmware signé par nous démarre ----
+CONFIG_SECURE_BOOT=y
+CONFIG_SECURE_BOOT_V2_ENABLED=y
+CONFIG_SECURE_BOOT_BUILD_SIGNED_BINARIES=y
+CONFIG_SECURE_BOOT_SIGNING_KEY="secure_boot_signing_key.pem"
+
+# ---- Chiffrement de la Flash (mode release : plus de lecture en clair) ----
+CONFIG_SECURE_FLASH_ENC_ENABLED=y
+CONFIG_SECURE_FLASH_ENCRYPTION_MODE_RELEASE=y
+
+# ---- NVS chiffrée avec la clé de la partition nvs_keys (provisionnement usine) ----
+CONFIG_NVS_ENCRYPTION=y
+CONFIG_NVS_SEC_KEY_PROTECT_USING_FLASH_ENC=y
+
+# ---- Plus de débogage matériel ni de téléchargement non chiffré ----
+CONFIG_SECURE_DISABLE_JTAG=y
+CONFIG_SECURE_UART_ROM_DL_MODE_ENABLED=y

@@ -8,12 +8,20 @@
 # ---- Cible matérielle ----
 CONFIG_IDF_TARGET="esp32c3"
 
+# ---- Flash 4 Mo (ESP32-C3-MINI-1) : nécessaire pour partitions.csv ----
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+
 # ---- Table de partitions personnalisée ----
 CONFIG_PARTITION_TABLE_CUSTOM=y
 CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
 
-# ---- Chiffrement NVS (Protection des clés AES au repos) ----
-CONFIG_NVS_ENCRYPTION=y
+# ---- Chiffrement NVS ----
+# Configuration de DÉVELOPPEMENT : rien n'est gravé dans les eFuses.
+# Sans chiffrement de la Flash, ESP-IDF chiffrerait la NVS avec une clé HMAC
+# gravée définitivement en eFuse au premier démarrage. La production utilise
+# sdkconfig.prod.defaults (chiffrement Flash + NVS via la partition nvs_keys,
+# clé générée par ESP-IDF au premier démarrage chiffré, + démarrage sécurisé).
+CONFIG_NVS_ENCRYPTION=n
 
 # ---- Secure Boot V2 (FOTA authentifiée) ----
 # Décommenter pour la production (nécessite la clé de signature)

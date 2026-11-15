@@ -4,6 +4,14 @@ Toutes les modifications notables du projet sont documentées dans ce fichier.
 
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère au [Versionnement Sémantique](https://semver.org/lang/fr/).
 
+## [Non publié] - 2026-11-10 - 🔏 Boîte Noire : preuves signées de bout en bout
+
+- **Firmware unique ESP-IDF** (`hardware/firmware/`), compilé par la CI ; prototype Arduino `firmware_esp32/` retiré (aucun boîtier fabriqué ne l'utilisait).
+- **Accident figé et signé au choc**, conservé jusqu'à l'acquittement ; anneau de trames et usure de la Flash corrigés ; reprise après redémarrage.
+- **Clés d'usine propres à chaque boîtier** lues au bon endroit ; ouverture du boîtier sans destruction des preuves ; batterie interne prise en compte.
+- **Bluetooth** : UUID 128 bits identiques côté appli et boîtier (`50ccXXXX-0000-4d6f-6e35-306363657431`).
+- **Serveur souverain** : preuve non signée refusée ; coffre S3 Object Lock (OVHcloud) en production.
+
 ## [112.04.00] - 2026-11-01 - 🗺️ Intégration Souveraine IGN API Carto v2.10.5 (Géoplateforme Sans Clé API) & Plan d'Homologation Black Box REV3
 
 ### Géodonnées Souveraines & Qualification Juridique de Sinistre ([src/js/ign-carto.js](file:///c:/Users/xavie/.gemini/antigravity-ide/scratch/com.mon50ccetmoi.tws-main/src/js/ign-carto.js))

@@ -1,0 +1,46 @@
+menu "Boîte noire — câblage (plan des broches de l'usine)"
+
+    comment "ESP32-C3-MINI-1 : GPIO 0 à 10 et 18 à 21 seulement (11 à 17 = Flash interne). -1 = non câblé."
+
+    config BB_PIN_IMU_SDA
+        int "Accéléromètre (IMU) — SDA"
+        range -1 21
+        default -1
+    config BB_PIN_IMU_SCL
+        int "Accéléromètre (IMU) — SCL"
+        range -1 21
+        default -1
+    config BB_PIN_GPS_RX
+        int "GPS — RX de l'ESP32 (TX du module)"
+        range -1 21
+        default -1
+    config BB_PIN_GPS_TX
+        int "GPS — TX de l'ESP32 (RX du module)"
+        range -1 21
+        default -1
+    config BB_PIN_GPS_POWER
+        int "GPS — commande d'alimentation"
+        range -1 21
+        default -1
+    config BB_PIN_TAMPER_MESH
+        int "Maillage de cuivre anti-ouverture"
+        range -1 21
+        default -1
+    config BB_PIN_TAMPER_LIGHT
+        int "Capteur de lumière anti-ouverture"
+        range -1 21
+        default -1
+    config BB_PIN_VEXT_SENSE
+        int "Détection du 12 V véhicule"
+        range -1 21
+        default -1
+    config BB_PIN_VBAT_ADC
+        int "Mesure de la batterie (ADC)"
+        range -1 21
+        default -1
+    config BB_PIN_LED_STATUS
+        int "LED d'état"
+        range -1 21
+        default -1
+
+endmenu

@@ -126,6 +126,24 @@ CREATE TABLE IF NOT EXISTS blackbox_unit_history (
 
 ALTER TABLE blackbox_units ALTER COLUMN ecdsa_public_key TYPE TEXT;
 
+-- Une clé de boîtier n'appartient qu'à un seul numéro de série
+CREATE UNIQUE INDEX IF NOT EXISTS uq_blackbox_units_pubkey ON blackbox_units (lower(ecdsa_public_key));
+
+-- Le lien numéro de série ↔ clé publique est définitif (fixé à la mise en service en usine)
+CREATE OR REPLACE FUNCTION prevent_blackbox_key_change() RETURNS trigger AS $$
+BEGIN
+    IF NEW.serial IS DISTINCT FROM OLD.serial OR NEW.ecdsa_public_key IS DISTINCT FROM OLD.ecdsa_public_key THEN
+        RAISE EXCEPTION 'INTÉGRITÉ : le lien numéro de série / clé du boîtier % est définitif', OLD.serial;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_blackbox_key_immutable ON blackbox_units;
+CREATE TRIGGER trg_blackbox_key_immutable
+BEFORE UPDATE ON blackbox_units
+FOR EACH ROW EXECUTE FUNCTION prevent_blackbox_key_change();
+
 DROP TRIGGER IF EXISTS trg_immutable_bb_history ON blackbox_unit_history;
 CREATE TRIGGER trg_immutable_bb_history
 BEFORE UPDATE OR DELETE ON blackbox_unit_history

@@ -138,7 +138,7 @@ Le projet `mon50ccetmoi` vise le **Tier 3 (Repeatable)** : Politiques de sécuri
 
 - **ID.AM — Gestion des Actifs** :
   - **ID.AM-01** : Inventaire matériel : Boîtier ESP32-C3, module GPS Quectel L76-LB, IMU MPU6050, PCB custom (Gerber), connecteur OBD-II.
-  - **ID.AM-02** : Inventaire logiciel : 26 pages HTML, ~59 modules JS, 12+ Cloud Functions, firmware Arduino (`blackbox_ble.ino`), `firestore.rules` (442 lignes).
+  - **ID.AM-02** : Inventaire logiciel : 26 pages HTML, ~59 modules JS, 12+ Cloud Functions, firmware ESP-IDF (`hardware/firmware/`), `firestore.rules` (442 lignes).
   - **ID.AM-05** : Actifs priorisés par criticité : (1) Clés AES-256, (2) `firestore.rules`, (3) Cloud Functions paiement/auth, (4) firmware crypto, (5) données utilisateur.
   - **ID.AM-07** : Inventaire données : 30+ collections Firestore, 18+ types de documents, partitions NVS/LittleFS (ESP32), preuves chiffrées Zero-Knowledge.
   - **ID.AM-08** : Cycle de vie : les données éphémères (`hazards`, `presence`, `moods`, `fido_challenges`) doivent avoir un TTL Firestore configuré. Les données probantes (`blackbox_reports`) sont immutables et archivées indéfiniment.

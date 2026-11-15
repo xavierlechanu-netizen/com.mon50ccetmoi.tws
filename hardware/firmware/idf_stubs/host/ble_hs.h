@@ -37,6 +37,7 @@ struct os_mbuf *ble_hs_mbuf_from_flat(const void *buf, uint16_t len);
 #define BLE_ATT_ERR_WRITE_NOT_PERMITTED    0x03
 #define BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN 0x0d
 #define BLE_ATT_ERR_UNLIKELY               0x0e
+#define BLE_ATT_ERR_INSUFFICIENT_RES       0x11
 
 struct ble_gatt_chr_def;
 struct ble_gatt_access_ctxt {

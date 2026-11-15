@@ -3,8 +3,8 @@
 
 #include "esp_efuse.h"
 
-extern const esp_efuse_desc_t *ESP_EFUSE_DIS_PAD_JTAG;
-extern const esp_efuse_desc_t *ESP_EFUSE_DIS_USB_JTAG;
+extern const esp_efuse_desc_t *ESP_EFUSE_DIS_PAD_JTAG[];
+extern const esp_efuse_desc_t *ESP_EFUSE_DIS_USB_JTAG[];
 
 #endif
 

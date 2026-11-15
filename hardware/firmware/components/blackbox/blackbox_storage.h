@@ -62,8 +62,45 @@ typedef struct __attribute__((packed)) {
 _Static_assert(sizeof(blackbox_frame_t) == 64,
     "blackbox_frame_t doit faire exactement 64 octets (4 blocs AES)");
 
+/* ---- Événement d'accident figé et signé (comme l'enregistreur d'un avion) ----
+ *
+ * Au premier choc >= 3,0 G, le boîtier fige la fenêtre [-30 s ; +30 s] :
+ *   1. il retient la graine de chaîne (hash avant la 1re trame de la fenêtre) ;
+ *   2. 30 s après le choc (ou à la coupure d'alimentation), il copie les trames
+ *      chiffrées de la fenêtre dans un emplacement protégé, hors de l'anneau
+ *      (elles ne seront plus écrasées par la suite du trajet) ;
+ *   3. il signe la racine de chaîne : ECDSA P-256 sur SHA-256(racine), ce que
+ *      vérifie le serveur (crypto.verify("sha256", racine, cléPublique, sig)).
+ * L'emplacement n'est libéré qu'après acquittement de l'appli (preuve reçue par
+ * le serveur). Deux emplacements : si les deux attendent un acquittement, un
+ * nouvel événement n'écrase pas les anciens (le premier accident fait foi).
+ */
+#define BLACKBOX_EVENT_SLOTS        2
+#define BLACKBOX_EVENT_PRE_FRAMES   300   /**< 30 s avant le choc à 10 Hz */
+#define BLACKBOX_EVENT_POST_FRAMES  300   /**< 30 s après le choc à 10 Hz */
+#define BLACKBOX_EVENT_MAGIC        0x31545645UL /* "EVT1" */
+#define BLACKBOX_SIG_MAX            72    /**< Signature ECDSA P-256 DER max */
+
+typedef struct __attribute__((packed)) {
+    uint32_t magic;                  /**< BLACKBOX_EVENT_MAGIC si l'emplacement contient un événement */
+    uint32_t start_seq;              /**< 1re trame de la fenêtre */
+    uint32_t end_seq;                /**< Dernière trame de la fenêtre */
+    uint32_t impact_seq;             /**< Trame du choc */
+    uint8_t  seed[32];               /**< Hash de chaîne avant start_seq (graine de vérification) */
+    uint8_t  root[32];               /**< Hash de chaîne après end_seq (racine signée) */
+    uint8_t  sig_len;                /**< 0 si la signature a échoué (clé absente) */
+    uint8_t  sig[BLACKBOX_SIG_MAX];  /**< ECDSA P-256 DER sur SHA-256(root) */
+    uint8_t  ack;                    /**< 0xFF = en attente, 0x00 = acquitté (écrit sans effacement) */
+    uint8_t  reserved[2];
+} blackbox_event_t;
+
+_Static_assert(sizeof(blackbox_event_t) == 156, "blackbox_event_t : 156 octets");
+
 /**
  * @brief Initialise le module de stockage (partition Flash + clé AES-256-GCM + clé ECDSA P-256).
+ *        Après un redémarrage inattendu, reprend la chaîne là où la Flash s'arrête
+ *        (trames écrites après la dernière synchronisation de l'en-tête) et scelle
+ *        un événement resté en cours.
  *
  * @return ESP_OK ou ESP_FAIL.
  */
@@ -124,18 +161,70 @@ esp_err_t blackbox_storage_get_pubkey(uint8_t pubkey_out[65]);
 esp_err_t blackbox_storage_flush(void);
 
 /**
- * @brief Détruit immédiatement en RAM les clés cryptographiques AES-256-GCM,
- *        ECDSA P-256 et le condensat Merkle courant (Zeroization anti-tamper).
+ * @brief Détruit en RAM la clé privée ECDSA (plus aucune signature possible).
  */
 void blackbox_storage_zeroize_keys(void);
 
 /**
- * @brief Transfère les trames de la fenêtre de sinistre (±30s) vers l'app mobile via BLE.
- *
- * @param max_frames Nombre maximum de trames à transférer (0 = fenêtre ±30s soit 600 trames à 10Hz).
- * @return ESP_OK.
+ * @brief Ouverture du boîtier : signe l'accident en cours, détruit la clé de signature
+ *        (RAM + NVS), efface les trajets ordinaires, CONSERVE les accidents signés.
  */
-esp_err_t blackbox_storage_export_ble(uint32_t max_frames);
+esp_err_t blackbox_storage_tamper_wipe(void);
+
+/**
+ * @brief Scelle immédiatement l'événement en cours (coupure d'alimentation) :
+ *        la fenêtre s'arrête à la dernière trame écrite.
+ * @return ESP_OK, ESP_ERR_NOT_FOUND si aucun événement en cours.
+ */
+esp_err_t blackbox_event_seal_now(void);
+
+/** @brief true si un choc a ouvert un événement pas encore scellé. */
+bool blackbox_event_pending(void);
+
+/**
+ * @brief Lit l'enregistrement d'un emplacement d'événement.
+ * @return ESP_OK, ESP_ERR_NOT_FOUND si l'emplacement est vide.
+ */
+esp_err_t blackbox_event_get(uint8_t slot, blackbox_event_t *out);
+
+/**
+ * @brief Lit et déchiffre (AES-256-GCM, tag vérifié) la i-ème trame d'un événement.
+ */
+esp_err_t blackbox_event_read_frame(uint8_t slot, uint32_t i, blackbox_frame_t *frame);
+
+/**
+ * @brief Acquitte l'événement dont la dernière trame est end_seq (preuve reçue par le serveur).
+ *        L'emplacement devient réutilisable.
+ * @return ESP_OK, ESP_ERR_NOT_FOUND si aucun événement ne correspond.
+ */
+esp_err_t blackbox_event_ack(uint32_t end_seq);
+
+/** @brief Emplacement de l'événement non acquitté le plus ancien, -1 s'il n'y en a pas. */
+int blackbox_event_oldest_unacked(void);
+
+/* ---- Identité du boîtier ----
+ * Boîtier neuf (ni clé ni numéro) = MODE USINE : au démarrage, la paire de clés ECDSA et le
+ * code d'appairage sont fabriqués dans la puce. L'outil d'usine relève la clé publique, fait
+ * prouver au boîtier qu'il détient la clé privée (signature d'un défi du serveur), reçoit du
+ * serveur le numéro de série lié à cette clé et l'écrit dans le boîtier — une seule fois.
+ */
+#define BLACKBOX_SERIAL_MAX 16
+
+/** @brief Numéro de série écrit en usine. ESP_ERR_NOT_FOUND si le boîtier est encore en mode usine. */
+esp_err_t blackbox_identity_get_serial(char *out, size_t cap);
+
+/** @brief Écrit le numéro de série (format BB50V1-A01 / BB50V1-P01). Refusé s'il existe déjà. */
+esp_err_t blackbox_identity_set_serial(const char *serial);
+
+/** @brief Code d'appairage Bluetooth à 6 chiffres. */
+esp_err_t blackbox_identity_get_pin(uint32_t *pin);
+
+/**
+ * @brief Preuve de possession pour la mise en service : signe
+ *        SHA-256("mon50cc-factory-pop:<défi hex>:<clé publique hex>").
+ *        Refusé dès que le numéro de série est écrit.
+ */
+esp_err_t blackbox_factory_pop(const uint8_t challenge[32], uint8_t *sig_der_out, size_t *sig_len_out);
 
 #ifdef __cplusplus
 }

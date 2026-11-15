@@ -13,6 +13,9 @@ const pg = new EmbeddedPostgres({
   password: "test",
   port,
   persistent: false,
+  // UTF-8 comme en production (Docker) : sous Windows, initdb prendrait sinon WIN1252
+  // et refuserait des caractères comme « ↔ ».
+  initdbFlags: ["--encoding=UTF8", "--locale=C"],
   onLog: () => {},
   onError: () => {},
 });

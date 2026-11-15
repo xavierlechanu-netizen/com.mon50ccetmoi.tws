@@ -32,12 +32,13 @@ Le boîtier électronique (PCB) a été conçu pour être compact, peu coûteux 
 
 ## 💻 Spécifications Logicielles (Software)
 
-### 1. Firmware (ESP32 Arduino Core & Roadmap ESP-IDF)
-Le code embarqué (`firmware_esp32/blackbox_ble.ino`) gère l'acquisition télémétrique temps réel :
-- **Sécurité cryptographique (ASVS v5.0.0-11.x)** : Clé AES-256 et code PIN BLE 6 chiffres stockés en NVS (partition sécurisée). Chiffrement AES-256-CBC des preuves avec IV aléatoire TRNG matériel (`esp_fill_random`).
-- **Mode Non-Provisionné** : Refus strict de transmission ou de chiffrement avec clé nulle si la NVS n'a pas été initialisée.
-- **Pile BLE** : Secure Connections Pairing (LE SC) avec bonding et code PIN unique par unité.
-- **Roadmap V2** : Migration ESP-IDF native, stockage hors-ligne LittleFS et signature ECDSA matérielle.
+### 1. Firmware (ESP-IDF 5.3, ESP32-C3)
+Un seul firmware : `hardware/firmware/` (le prototype Arduino `firmware_esp32/` a été retiré le 10/11/2026, aucun boîtier ne l'utilisait). Compilé par la CI à chaque modification ; voir `hardware/firmware/README.md` :
+- **Accident figé et signé** : au choc ≥ 3 G, fenêtre ±30 s gardée hors de l'anneau et signée ECDSA P-256 ; conservée jusqu'à l'acquittement du serveur.
+- **Chiffrement** : trames en AES-256-GCM, chaîne de Merkle SHA-256 ; clés propres à chaque boîtier.
+- **Batterie interne** : enregistrement et Bluetooth continuent après la coupure du 12 V.
+- **Ouverture** (résine + maillage de cuivre) : clé de signature détruite, accidents signés conservés.
+- **Pile BLE** : Secure Connections avec code d'appairage unique par boîtier.
 
 ### 2. Application Mobile (PWA & Android TWA)
 - Application Web Progressive ultra-rapide (Vite + Vanilla JS).

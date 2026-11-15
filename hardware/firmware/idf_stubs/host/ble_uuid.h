@@ -27,6 +27,7 @@ typedef struct {
 #define BLE_UUID16_INIT(uuid16) { .u = { .type = BLE_UUID_TYPE_16 }, .value = (uuid16) }
 #define BLE_UUID16_DECLARE(uuid16) ((const ble_uuid_t *)(&(ble_uuid16_t)BLE_UUID16_INIT(uuid16)))
 #define BLE_UUID128_INIT(...) { .u = { .type = BLE_UUID_TYPE_128 }, .value = { __VA_ARGS__ } }
+#define BLE_UUID128_DECLARE(...) ((const ble_uuid_t *) (&(ble_uuid128_t) BLE_UUID128_INIT(__VA_ARGS__)))
 
 uint16_t ble_uuid_u16(const ble_uuid_t *uuid);
 

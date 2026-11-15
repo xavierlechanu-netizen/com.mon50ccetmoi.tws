@@ -78,8 +78,24 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             return u ? { ...u } : null;
         },
 
+        async findBlackboxUnitByPublicKey(ecdsaPublicKey) {
+            const k = String(ecdsaPublicKey).toLowerCase();
+            for (const u of units.values()) if (String(u.ecdsaPublicKey).toLowerCase() === k) return { ...u };
+            return null;
+        },
+
+        async registerFactoryUnit({ ecdsaPublicKey, revision, type, nextSerial }) {
+            const existing = await this.findBlackboxUnitByPublicKey(ecdsaPublicKey);
+            if (existing) return { unit: existing, created: false };
+            const serial = nextSerial([...units.keys()], revision, type);
+            return { unit: await this.createBlackboxUnit({ serial, revision, ecdsaPublicKey }), created: true };
+        },
+
         async createBlackboxUnit({ serial, revision = "V1", ecdsaPublicKey, ownerUid = null }) {
             if (units.has(serial)) throw new StoreError("UNIT_EXISTS", "Boîtier déjà enregistré (la clé ne peut pas être remplacée).");
+            if (await this.findBlackboxUnitByPublicKey(ecdsaPublicKey)) {
+                throw new StoreError("KEY_EXISTS", "Cette clé appartient déjà à un autre boîtier.");
+            }
             const unit = {
                 serial,
                 revision,
