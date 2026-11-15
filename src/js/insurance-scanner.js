@@ -74,8 +74,12 @@ content.innerHTML = formattedReply;
 zone.innerHTML = `
                 <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: #ff4444; margin-bottom: 10px;"></i>
                 <div style="font-weight: bold; color: #ff4444;">Erreur d'analyse</div>
-                <div style="font-size: 0.8rem; color: #888; margin-top: 5px;">Impossible de joindre le cloud AI. Réessayez.</div>
+                <div class="scanner-error-detail" style="font-size: 0.8rem; color: #888; margin-top: 5px;"></div>
             `;
+            // Texte posé sans HTML ; message clair si le service serveur est à l'arrêt (service-guard.js)
+            zone.querySelector(".scanner-error-detail").textContent = error && error.indisponible
+                ? error.message
+                : "Impossible de joindre le cloud AI. Réessayez.";
             zone.style.borderColor = "#ff4444";
         } finally {
             this.isScanning = false;

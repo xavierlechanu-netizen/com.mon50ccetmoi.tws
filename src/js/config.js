@@ -9,10 +9,14 @@ import 'firebase/compat/firestore';
 // (points, achat de rapports, envoi de la boîte noire, profil assureur) étaient ignorés en silence.
 import 'firebase/compat/functions';
 import localforage from 'localforage';
+import { installServiceGuard } from './service-guard.js';
 
 export const CONFIG = {
   // Carte : Leaflet + IGN Géoplateforme (voir gmaps-compat.js), aucune clé Google nécessaire.
   MAPS: {},
+  // Cloud Functions Firebase à l'arrêt (facturation Google coupée le 14/11/2026), en attendant le
+  // serveur souverain OVHcloud. À repasser à true quand les services serveur répondent à nouveau.
+  SERVICES_SERVEUR_ACTIFS: false,
 
   // Auth Configuration
   AUTH: {
@@ -82,6 +86,13 @@ if (!firebase.apps.length) {
       }
     }
 }
+// Fonctions serveur Firebase à l'arrêt : échec immédiat avec un message clair (service-guard.js)
+installServiceGuard({
+  win: typeof window !== 'undefined' ? window : null,
+  firebaseNs: firebase,
+  actif: CONFIG.SERVICES_SERVEUR_ACTIFS,
+});
+
 export const db = firebase.firestore();
 export const auth = firebase.auth();
 export { firebase };

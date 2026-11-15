@@ -212,6 +212,8 @@ class NexusAtlasAI {
 
     } catch (error) {
       console.error("[Nexus Atlas] Gemini API Error:", error);
+      // Service serveur à l'arrêt (service-guard.js) : le dire clairement
+      if (error && error.indisponible) return error.message;
       return "Une erreur de communication est survenue. Veuillez réessayer.";
     }
   }
