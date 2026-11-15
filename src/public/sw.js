@@ -1,9 +1,13 @@
-const CACHE_NAME = 'mon50cc-cache-v1120030';
+const CACHE_NAME = 'mon50cc-cache-v1120031';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/offline.html',
   '/css/design-system.css',
+  // Polices hébergées sur le site (plus de Google Fonts) : disponibles hors ligne
+  '/fonts/fonts.css',
+  '/fonts/inter-latin-wght-normal.woff2',
+  '/fonts/outfit-latin-wght-normal.woff2',
   '/manifest.json',
   '/store_icon.png'
 ];

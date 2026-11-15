@@ -30,8 +30,7 @@ export const CONFIG = {
     projectId: "mon50ccetmoi",
     storageBucket: "mon50ccetmoi.firebasestorage.app",
     messagingSenderId: "618915667828",
-    appId: "1:618915667828:web:8508e0362e4edd0a0dd621",
-    measurementId: "G-S482ZE7TKG"
+    appId: "1:618915667828:web:8508e0362e4edd0a0dd621"
   },
 
   // ─────────────────────────────────────────────────────

@@ -6,23 +6,7 @@ import { registerAction } from './actionRegistry.js';
         if (window.QuantumCrypto) window.QuantumCrypto.init();
         if (window.ZeroTrust) window.ZeroTrust.init();
 
-        // Firebase Analytics — Track user engagement
-        try {
-          if (typeof firebase !== "undefined" && firebase.analytics) {
-            window.mon50Analytics = firebase.analytics();
-            if (
-              window.mon50Analytics &&
-              typeof window.mon50Analytics.logEvent === "function"
-            ) {
-              window.mon50Analytics.logEvent("app_open", {
-                version: "110.00.00",
-              });
-            }
-            console.log("mon50cc : Firebase Analytics initialisé.");
-          }
-        } catch (e) {
-          console.warn("Analytics init skipped:", e.message);
-        }
+        // Firebase Analytics retiré le 15/11/2026 (sortie de Google) : le module n'était pas chargé.
 
         // WebGL / Canvas Holographic Effect (Simplified for performance)
         const canvas = document.getElementById("quantum-bg");

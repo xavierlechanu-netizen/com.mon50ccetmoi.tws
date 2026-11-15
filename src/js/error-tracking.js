@@ -96,14 +96,6 @@ window.CrashReporter = {
             err,
           ),
         );
-
-      // Also log to Firebase Analytics if available
-      if (window.mon50Analytics) {
-        window.mon50Analytics.logEvent("exception", {
-          description: errorData.message,
-          fatal: false,
-        });
-      }
     } catch (e) {
       console.warn("🛡️ CrashReporter internal error:", e);
     }
