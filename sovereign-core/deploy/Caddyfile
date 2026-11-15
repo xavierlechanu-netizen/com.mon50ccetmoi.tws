@@ -1,0 +1,24 @@
+# Caddy : seul point d'entrée Internet du VPS.
+# Il obtient et renouvelle seul le certificat HTTPS (Let's Encrypt) pour {$API_DOMAIN}.
+# Prérequis : un enregistrement DNS A de {$API_DOMAIN} vers l'adresse IP du VPS.
+{
+	email {$ACME_EMAIL}
+}
+
+{$API_DOMAIN} {
+	encode zstd gzip
+
+	# Limite la taille des requêtes (les trames Boîte Noire tiennent largement dedans).
+	request_body {
+		max_size 5MB
+	}
+
+	# Caddy remplace X-Forwarded-For par l'adresse réelle du client :
+	# l'API s'en sert pour limiter les tentatives de connexion.
+	reverse_proxy sovereign-api:8080
+
+	log {
+		output stdout
+		format console
+	}
+}

@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Bilan de santé du VPS mon50ccetmoi. Ne modifie RIEN : il regarde et il dit.
+# À lancer après l'installation, puis de temps en temps :
+#   sudo sovereign-core/deploy/check.sh
+# Chaque ligne : ✅ en ordre, ⚠️  à surveiller, ❌ à corriger.
+# Code de sortie 1 s'il y a au moins un ❌ (utilisable dans un script).
+# ============================================================================
+set -uo pipefail
+
+# shellcheck source-path=SCRIPTDIR source=lib.sh
+. "$(dirname "$0")/lib.sh"
+
+[ "$(id -u)" -eq 0 ] || die "lancez ce script en root (sudo)"
+
+failures=0
+ok()   { echo "✅ $*"; }
+warn() { echo "⚠️  $*"; }
+bad()  { echo "❌ $*"; failures=$((failures + 1)); }
+
+# --- 1. Fichier .env ---------------------------------------------------------
+domain=""
+if [ -r "$ENV_FILE" ]; then
+    mode="$(stat -c '%a' "$ENV_FILE")"
+    if [ "$mode" = "600" ]; then
+        ok ".env présent, lisible par root seulement"
+    else
+        bad ".env en $mode (attendu : 600) → sudo chmod 600 $ENV_FILE"
+    fi
+    for v in WORM_S3_ACCESS_KEY_ID WORM_S3_SECRET_ACCESS_KEY BACKUP_S3_ACCESS_KEY_ID BACKUP_S3_SECRET_ACCESS_KEY; do
+        [ -n "$(env_get "$v")" ] || bad "$v vide dans .env (clés de l'Object Storage, deploy/README.md étape 1)"
+    done
+    domain="$(env_get API_DOMAIN)"
+else
+    bad ".env introuvable ($ENV_FILE) → sudo sovereign-core/deploy/install.sh"
+fi
+
+# --- 2. Conteneurs -------------------------------------------------------------
+for svc in postgres-postgis sovereign-api caddy; do
+    state="$(compose ps --format '{{.State}} {{.Health}}' "$svc" 2>/dev/null | head -n 1)"
+    case "$state" in
+        "running healthy"|"running ") ok "conteneur $svc : en marche" ;;
+        running*)                     warn "conteneur $svc : $state (démarrage en cours ?)" ;;
+        *)                            bad "conteneur $svc : ${state:-arrêté} → cd $CORE_DIR && sudo docker compose -f docker-compose.vps.yml up -d" ;;
+    esac
+done
+
+# --- 3. API publique : DNS, certificat HTTPS, réponse ---------------------------
+if [ -n "$domain" ]; then
+    if body="$(curl -fsS --max-time 15 "https://$domain/api/v1/health" 2>&1)" && printf '%s' "$body" | grep -q '"status":"OK"'; then
+        ok "API joignable en HTTPS : https://$domain/api/v1/health"
+    else
+        bad "API injoignable sur https://$domain (DNS, certificat ou API) : ${body:0:160}"
+    fi
+fi
+
+# --- 4. La base n'est pas exposée sur Internet --------------------------------
+if ss -ltnH 'sport = :5432' | grep -q .; then
+    bad "un service écoute sur le port 5432 de l'hôte : la base ne doit jamais être exposée"
+else
+    ok "base PostgreSQL non exposée (aucun port 5432 ouvert sur le serveur)"
+fi
+
+# --- 5. Pare-feu et SSH --------------------------------------------------------
+if ufw status 2>/dev/null | grep -qiE '^(status|état) *: *(active|actif)'; then
+    ok "pare-feu actif (SSH, HTTP et HTTPS seulement)"
+else
+    bad "pare-feu inactif → sudo ufw --force enable"
+fi
+if sshd -T 2>/dev/null | grep -qi '^passwordauthentication no'; then
+    ok "SSH : connexion par clé uniquement"
+else
+    warn "SSH : connexion par mot de passe encore possible (deploy/README.md, étape 3)"
+fi
+
+# --- 6. Sauvegardes ------------------------------------------------------------
+if [ -f /etc/cron.d/mon50cc-backup ]; then
+    ok "sauvegarde nocturne programmée (3 h 30)"
+else
+    bad "sauvegarde nocturne non programmée → sudo sovereign-core/deploy/install.sh"
+fi
+last="$(find /var/backups/mon50cc -maxdepth 1 -name 'mon50cc-*.dump.enc' -mmin -1560 2>/dev/null | sort | tail -n 1)"
+if [ -n "$last" ]; then
+    ok "sauvegarde de moins de 26 h : $(basename "$last")"
+else
+    warn "aucune sauvegarde de moins de 26 h (normal le premier jour) → sudo sovereign-core/deploy/backup.sh"
+fi
+if [ -f /var/log/mon50cc-backup.log ] \
+    && tail -n 50 /var/log/mon50cc-backup.log | grep -E 'Terminé\.|ERREUR' | tail -n 1 | grep -q 'ERREUR'; then
+    bad "la dernière sauvegarde a échoué → sudo tail -n 30 /var/log/mon50cc-backup.log"
+fi
+
+# --- 7. Disque, mises à jour, redémarrage ---------------------------------------
+use="$(df --output=pcent / | tail -n 1 | tr -dc '0-9')"
+if [ "${use:-0}" -lt 80 ]; then
+    ok "disque utilisé à ${use} %"
+else
+    warn "disque utilisé à ${use} % → faire de la place (vieilles images : sudo docker image prune -a)"
+fi
+if grep -qs 'Unattended-Upgrade "1"' /etc/apt/apt.conf.d/20auto-upgrades; then
+    ok "mises à jour de sécurité automatiques"
+else
+    warn "mises à jour de sécurité automatiques non configurées"
+fi
+if [ -f /var/run/reboot-required ]; then
+    warn "une mise à jour demande un redémarrage → sudo reboot (les services repartent seuls)"
+fi
+
+echo
+if [ "$failures" -eq 0 ]; then
+    echo "Bilan : tout est en ordre."
+    exit 0
+fi
+echo "Bilan : $failures point(s) à corriger."
+exit 1

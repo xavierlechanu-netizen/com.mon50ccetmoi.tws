@@ -1,0 +1,109 @@
+# ============================================================================
+# sovereign-core/docker-compose.vps.yml
+# Installation « petit budget » : TOUT sur un seul VPS OVHcloud (VPS-2 : 4 vCores, 8 Go).
+#   - PostgreSQL 16 + PostGIS : jamais exposé à Internet (réseau Docker interne, sans port publié)
+#   - API Node.js 22 : joignable seulement par Caddy
+#   - Caddy : seul service ouvert (80/443), certificat HTTPS Let's Encrypt automatique
+# Les preuves de la Boîte Noire partent dans l'Object Storage OVHcloud (Object Lock).
+#
+# Démarrage (depuis sovereign-core/, après deploy/install.sh et le remplissage de .env) :
+#   docker compose -f docker-compose.vps.yml up -d --build
+# Guide complet : deploy/README.md
+# ============================================================================
+
+name: mon50cc
+
+services:
+  postgres-postgis:
+    image: postgis/postgis:16-3.4-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mon50ccetmoi
+      POSTGRES_USER: ${DB_USER:-mon50cc_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Variable DB_PASSWORD requise}
+    # Réglages pour un VPS de 8 Go partagé avec l'API (environ 1/4 de la mémoire pour PostgreSQL)
+    command:
+      - postgres
+      - -c
+      - shared_buffers=1GB
+      - -c
+      - effective_cache_size=3GB
+      - -c
+      - work_mem=16MB
+      - -c
+      - maintenance_work_mem=256MB
+      - -c
+      - max_connections=50
+    shm_size: 256mb
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    # Aucun « ports: » : la base n'est joignable que par l'API, sur le réseau interne.
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-mon50cc_admin} -d mon50ccetmoi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  sovereign-api:
+    build:
+      context: ..
+      dockerfile: sovereign-core/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      SOVEREIGN_CORS_ORIGIN: ${CORS_ORIGIN:-https://mon50ccetmoi.com}
+      DATABASE_URL: postgres://${DB_USER:-mon50cc_admin}:${DB_PASSWORD}@postgres-postgis:5432/mon50ccetmoi
+      SOVEREIGN_JWT_PRIVATE_KEY: ${SOVEREIGN_JWT_PRIVATE_KEY:?Cle JWT requise (deploy/install.sh la genere)}
+      SOVEREIGN_JWT_PUBLIC_KEY: ${SOVEREIGN_JWT_PUBLIC_KEY:?Cle JWT requise}
+      # Derrière Caddy : l'adresse du client arrive dans X-Forwarded-For.
+      # Caddy remplace cet en-tête (il ignore celui envoyé par le client), il est donc fiable.
+      SOVEREIGN_TRUST_PROXY: "1"
+      REVOLUT_WEBHOOK_SECRET: ${REVOLUT_WEBHOOK_SECRET:-}
+      # Coffre des preuves : bucket OVHcloud Object Storage créé AVEC Object Lock
+      WORM_S3_BUCKET: ${WORM_S3_BUCKET:?Bucket S3 Object Lock requis pour les preuves}
+      WORM_S3_ENDPOINT: ${WORM_S3_ENDPOINT:-https://s3.gra.io.cloud.ovh.net}
+      WORM_S3_REGION: ${WORM_S3_REGION:-gra}
+      WORM_S3_ACCESS_KEY_ID: ${WORM_S3_ACCESS_KEY_ID:?Cle S3 requise}
+      WORM_S3_SECRET_ACCESS_KEY: ${WORM_S3_SECRET_ACCESS_KEY:?Cle S3 requise}
+      WORM_RETENTION_DAYS: ${WORM_RETENTION_DAYS:-1826}
+    # « frontend » donne aussi la sortie vers Internet (Object Storage, Revolut).
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      postgres-postgis:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?Nom de domaine de l API requis (ex. api.mon50ccetmoi.com)}
+      ACME_EMAIL: ${ACME_EMAIL:?Adresse email requise pour le certificat HTTPS}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - frontend
+    depends_on:
+      - sovereign-api
+
+networks:
+  # Réseau interne : aucun accès Internet, aucun port publié. Seuls l'API et la base y sont.
+  backend:
+    internal: true
+  frontend: {}
+
+volumes:
+  pg_data:
+  caddy_data:
+  caddy_config:

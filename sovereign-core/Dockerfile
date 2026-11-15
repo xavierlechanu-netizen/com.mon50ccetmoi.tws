@@ -14,6 +14,8 @@ RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
 # Code du serveur + modules partagés de vérification (boîte noire, signature Revolut)
 COPY sovereign-core/server ./server
 COPY sovereign-core/db ./db
+# Outils d'exploitation (sauvegardes vers l'Object Storage, lancés par deploy/backup.sh)
+COPY sovereign-core/scripts ./scripts
 COPY functions/api/blackbox-core.js functions/api/revolut-signature.js functions/api/points-rules.js /app/functions/api/
 
 # Coffre WORM des preuves : appartient à l'utilisateur non privilégié

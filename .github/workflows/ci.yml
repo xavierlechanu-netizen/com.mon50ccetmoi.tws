@@ -27,6 +27,11 @@ jobs:
       - name: Install Root Dependencies
         run: npm ci
 
+      # Serveur souverain (VPS OVHcloud) : ses tests chargent ses propres dépendances
+      # (@aws-sdk/client-s3 pour le coffre des preuves et les sauvegardes).
+      - name: Dépendances du serveur souverain
+        run: npm ci --prefix sovereign-core
+
       - name: Run ESLint
         run: npm run lint
 
@@ -49,3 +54,39 @@ jobs:
         run: |
           npm ci --prefix functions
           npm audit --prefix functions --audit-level=high
+
+      - name: Audit du serveur souverain
+        run: npm audit --prefix sovereign-core --audit-level=high
+
+  # Ce qui part sur le VPS OVHcloud : scripts d'installation, composition Docker, image de l'API.
+  vps:
+    name: Serveur souverain (VPS)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Scripts du VPS (shellcheck)
+        run: shellcheck -x --severity=warning sovereign-core/deploy/*.sh
+
+      - name: Composition Docker du VPS
+        run: |
+          # Valeurs factices pour les variables obligatoires (le vrai .env n'est jamais dans git).
+          sed -E 's/^(DB_PASSWORD|SOVEREIGN_JWT_PRIVATE_KEY|SOVEREIGN_JWT_PUBLIC_KEY|BACKUP_PASSPHRASE|WORM_S3_ACCESS_KEY_ID|WORM_S3_SECRET_ACCESS_KEY)=.*/\1=valeur-de-test/' \
+            sovereign-core/deploy/env.vps.example > "$RUNNER_TEMP/vps.env"
+          docker compose -f sovereign-core/docker-compose.vps.yml --env-file "$RUNNER_TEMP/vps.env" config --quiet
+
+      - name: Image Docker de l'API
+        run: docker build -f sovereign-core/Dockerfile -t mon50cc-api:ci .
+
+      - name: L'image démarre et répond (sans base ni coffre)
+        run: |
+          # Mode développement : stockage en mémoire, coffre local. Vérifie que l'image contient
+          # tout ce qu'il faut pour démarrer (code, dépendances, modules partagés).
+          docker run -d --name api-ci -p 8080:8080 -e NODE_ENV=development mon50cc-api:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/api/v1/health; then echo; exit 0; fi
+            sleep 1
+          done
+          docker logs api-ci
+          exit 1
