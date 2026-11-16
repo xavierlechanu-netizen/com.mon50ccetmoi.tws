@@ -15,6 +15,7 @@ const ScreenManager = {
   cache: {},
   containerEl: null,
   activeScreenId: null,
+  rootObserver: null,
 
   /**
    * Obtenir ou créer le conteneur d'écrans
@@ -94,6 +95,8 @@ closeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
         closeBtn.onclick = () => this.close();
         container.prepend(closeBtn);
       }
+
+      this.revealRoot(container, screenId);
     } catch (err) {
       console.error('[ScreenManager]', err);
       // eslint-disable-next-line no-restricted-syntax
@@ -105,10 +108,55 @@ container.innerHTML = '<div style="display:flex;align-items:center;justify-conte
   },
 
   /**
+   * Rendre visible la racine de l'écran chargé.
+   * Chaque fichier de /screens/ commence par <div id="<screenId>" class="hidden ...">,
+   * héritage de l'époque où ces blocs dormaient cachés dans app.html. Sans ce geste,
+   * le conteneur s'affiche mais l'écran reste invisible (constaté le 16/11/2026).
+   * Exception : une racine marquée data-screen-show="manual" reste cachée ; son propre
+   * code l'affichera au bon moment (ex. écran de choc, montré seulement après une chute).
+   * @returns {HTMLElement|null} la racine, ou null si le fichier n'en a pas
+   */
+  revealRoot(container, screenId) {
+    const root = Array.prototype.find.call(container.children, (el) => el.id === screenId) || null;
+    if (!root) return null;
+    if (root.getAttribute('data-screen-show') !== 'manual') {
+      root.classList.remove('hidden');
+    }
+    this.watchRoot(root, screenId);
+    return root;
+  },
+
+  /**
+   * Si l'écran se cache lui-même (bouton « Fermer » qui ajoute `hidden` ou met display:none
+   * sur sa racine), fermer aussi le conteneur : sinon il reste un fond noir plein écran.
+   */
+  watchRoot(root, screenId) {
+    this.stopWatchingRoot();
+    if (typeof MutationObserver === 'undefined') return;
+    const isVisible = () => !root.classList.contains('hidden') && root.style.display !== 'none';
+    let wasVisible = isVisible();
+    this.rootObserver = new MutationObserver(() => {
+      if (this.activeScreenId !== screenId) return;
+      const visible = isVisible();
+      if (wasVisible && !visible) this.close();
+      wasVisible = visible;
+    });
+    this.rootObserver.observe(root, { attributes: true, attributeFilter: ['class', 'style'] });
+  },
+
+  stopWatchingRoot() {
+    if (this.rootObserver) {
+      this.rootObserver.disconnect();
+      this.rootObserver = null;
+    }
+  },
+
+  /**
    * Fermer l'écran actif
    */
   close() {
     const container = this.getContainer();
+    this.stopWatchingRoot();
     
     // Garbage Collector : Purger les écouteurs d'événements liés à cet écran
     if (this.activeScreenId && typeof window.Mon50ccEventManager !== 'undefined') {

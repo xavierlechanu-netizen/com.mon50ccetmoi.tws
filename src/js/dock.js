@@ -13,7 +13,7 @@ import { registerAction } from './actionRegistry.js';
 
   const DOCK_BUTTONS = [
     // --- Icon Buttons (petits, ronds) ---
-    { id: 'sos', icon: 'fa-truck-medical', color: '#ff0055', label: 'SOS', action: () => { if(window.ScreenManager) window.ScreenManager.open('tim-cook-sos-screen'); else if (typeof window.triggerFallAlert === 'function') window.triggerFallAlert(true); } },
+    { id: 'sos', icon: 'fa-truck-medical', color: '#ff0055', label: 'SOS', action: () => { if (typeof window.triggerFallAlert === 'function') window.triggerFallAlert(true); } }, // avant : écran « Choc détecté » au compte à rebours figé, qui n'envoyait rien
     { id: 'academy', icon: 'fa-graduation-cap', color: '#00d2ff', label: 'Académie du Code', action: () => { window.location.href = 'code-de-la-route.html'; } },
     { id: 'contrat', icon: 'fa-file-signature', color: '#00e676', label: 'Contrat de Route', action: () => { window.location.href = 'contrat-de-route.html'; } },
     { id: 'lawyer', icon: 'fa-scale-balanced', color: '#cca300', label: 'Nexus Atlas Juridique', action: () => { if(window.PocketLawyer && typeof window.PocketLawyer.toggleLawyer === 'function') window.PocketLawyer.toggleLawyer(); else if (typeof window.toggleLawyer === 'function') window.toggleLawyer(); } },
@@ -27,8 +27,8 @@ import { registerAction } from './actionRegistry.js';
     { id: 'profile', icon: 'fa-user-circle', color: '#00ff88', label: 'Mon Profil', action: () => { window.location.href = 'profile.html'; } },
     { id: 'radar', icon: 'fa-users-viewfinder', color: '#fff', label: 'Radar Social', action: () => { if(window.RadarSocial) window.RadarSocial.toggleGhostMode(); } }, // avant : toggleSocialRadar, inexistant
     { id: 'sensation', icon: 'fa-route', color: '#b700ff', label: 'Mode Sensation', action: () => { if(typeof window.toggleSensationMode === 'function') window.toggleSensationMode(); } },
-    { id: 'brain', icon: 'fa-brain', color: '#0f0', label: 'Nexus Atlas Chat', action: () => { if(window.ScreenManager) window.ScreenManager.open('nexus-atlas-chat-modal'); else if(window.NexusAtlasChat) window.NexusAtlasChat.open(); }, size: '1.8rem' },
-    { id: 'moto', icon: 'fa-motorcycle', color: '#aaa', label: 'Mon Véhicule', action: () => { if(window.ScreenManager) { window.ScreenManager.open('vehicle-config-screen').then(() => { const el = document.getElementById('vehicle-config-screen'); if (el) el.classList.remove('hidden'); if (window.restoreCritAir) window.restoreCritAir(); }); if(window.GarageClient) window.GarageClient.loadMaintenanceLogs(); } } },
+    { id: 'brain', icon: 'fa-brain', color: '#0f0', label: 'Nexus Atlas Chat', action: () => { if(window.ScreenManager) window.ScreenManager.open('nexus-atlas-chat-modal').then(() => { if(window.NexusAtlasChat) window.NexusAtlasChat.open(); }); else if(window.NexusAtlasChat) window.NexusAtlasChat.open(); }, size: '1.8rem' },
+    { id: 'moto', icon: 'fa-motorcycle', color: '#aaa', label: 'Mon Véhicule', action: () => { if(window.ScreenManager) { window.ScreenManager.open('vehicle-config-screen').then(() => { if (window.restoreCritAir) window.restoreCritAir(); }); if(window.GarageClient) window.GarageClient.loadMaintenanceLogs(); } } },
     { id: 'meca', icon: 'fa-stethoscope', color: '#ff0055', label: 'Meca Wizard', action: () => { if(window.MecaWizard) window.MecaWizard.startAcousticAnalysis(); } },
     { id: 'db', icon: 'fa-volume-high', color: '#00e676', label: 'Décibelmètre', action: () => { if(window.MecaWizard) window.MecaWizard.startDecibelMeter(); } },
     { id: 'pilot', icon: 'fa-flag-checkered', color: '#ffeb3b', label: 'Score de Pilotage', action: () => { if(window.DrivingScore) window.DrivingScore.showDetailPanel(); } }, // avant : PredictiveMeca, non chargé
@@ -36,7 +36,7 @@ import { registerAction } from './actionRegistry.js';
     { id: 'insurance', icon: 'fa-shield-cat', color: '#ff0055', label: 'Assurance Connectée', action: () => { window.location.href = 'insurance.html'; } },
     { id: 'battery', icon: 'fa-car-battery', color: '#00ffcc', label: 'Santé Batterie', action: () => { if(window.ScreenManager) window.ScreenManager.open('battery-health-screen'); } },
     { id: 'trophy', icon: 'fa-trophy', color: '#ffb703', label: 'Classement', action: () => { if(window.ScreenManager) window.ScreenManager.open('leaderboard-modal'); else if(typeof window.showLeaderboard === 'function') window.showLeaderboard(); } },
-    { id: 'insurer', icon: 'fa-building-shield', color: '#ff0055', label: 'Portail Assureur B2B', action: () => { if(window.ScreenManager) window.ScreenManager.open('insurer-portal-screen'); else if(window.InsurerPortal) window.InsurerPortal.open(); } },
+    { id: 'insurer', icon: 'fa-building-shield', color: '#ff0055', label: 'Portail Assureur B2B', action: () => { if(window.ScreenManager) window.ScreenManager.open('insurer-portal-screen').then(() => { if(window.InsurerPortal && document.getElementById('insurer-portal-screen')) window.InsurerPortal.open(); }); else if(window.InsurerPortal) window.InsurerPortal.open(); } },
     { id: 'stethoscope', icon: 'fa-microphone-lines', color: '#00d2ff', label: 'Diagnostic Acoustique', action: () => { if(window.MecaWizard) window.MecaWizard.startAcousticAnalysis(); } },
     { id: 'security', icon: 'fa-shield-halved', color: '#10a37f', label: 'Sécurité & RGPD', action: () => { if(window.ScreenManager) window.ScreenManager.open('security-settings-screen'); } },
     { id: 'sentry', icon: 'fa-lock', color: '#ff3333', label: 'Mode Sentinelle', action: () => { if(window.AntiTheft) window.AntiTheft.toggleSentryMode(); } },
