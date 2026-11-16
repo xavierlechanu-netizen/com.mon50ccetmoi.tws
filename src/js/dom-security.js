@@ -27,6 +27,8 @@ export function isBlockedActionPath(functionPath) {
 const TRUSTED_EXTERNAL_HOSTS = new Set([
     'www.legifrance.gouv.fr', 'legifrance.gouv.fr', 'www.service-public.fr',
     'www.securite-routiere.gouv.fr', 'www.cnil.fr',
+    // Seul site officiel de la vignette Crit'Air (service-public.gouv.fr, fiche F33371)
+    'www.certificat-air.gouv.fr',
 ]);
 
 export function isNativeFunction(fn) {

@@ -68,6 +68,7 @@ npx firebase deploy --only hosting  # Déploie dist/ sur mon50ccetmoi.web.app
 | `├── js/app-map.js` | Contrôleur cartographique : membres en ligne, territoires (via l'API `google.maps` souveraine ci-dessous). |
 | `├── js/route-planner.js` | Itinéraire sans autoroute : recherche de destination, calcul, tracé, bandeau de guidage, bouton « GO » (`calculateRouteSansAutoroute`, `cancelRoute`, `searchDestination`). |
 | `├── js/hazard-reports.js` | Signalements de dangers : menu, enregistrement, affichage de ceux de la communauté sur la carte. |
+| `├── js/crit-air.js` · `zfe-zones.js` | Vignette Crit'Air calculée sur place (arrêté du 21/06/2016, sources dans l'en-tête) dans « Mon Véhicule », lien vers le seul site officiel certificat-air.gouv.fr (aucune vente). Alerte à l'entrée d'une ZFE : périmètres `public/data/zfe.geojson` refaits par `scripts/build-zfe-geojson.js` depuis transport.data.gouv.fr (ODbL). |
 | `├── js/gmaps-compat.js` | **Carte souveraine, zéro Google** : installe `window.google.maps` (Map, Marker, InfoWindow, Polyline, Geocoder, DirectionsService, Autocomplete…) sur Leaflet + fond Plan IGN. `window.map` est une carte Leaflet. |
 | `├── js/map-engine.js` | Services sans clé : itinéraire IGN `bdtopo-pgr` **autoroutes interdites** et durées plafonnées à 45 km/h, géocodage/autocomplétion IGN, garages OpenStreetMap (Overpass, 2 serveurs). |
 | `├── public/vendor/leaflet/` | Leaflet 1.9.4 auto-hébergé (plus de CDN unpkg). |

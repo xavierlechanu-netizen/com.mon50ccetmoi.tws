@@ -177,6 +177,58 @@
         </div>
       </div>
 
+      <!-- Vignette Crit'Air et ZFE (calcul : src/js/crit-air.js, écran : src/js/vehicle-config.js) -->
+      <div id="critair-section" style="margin: 30px auto; width: 90%; max-width: 400px;">
+        <h3 style="color: #fff; font-size: 1.1rem; margin-bottom: 8px;">
+          <i class="fa-solid fa-leaf" style="color: #2e9e4f;"></i> Vignette Crit'Air &amp; ZFE
+        </h3>
+        <p style="color: #aaa; font-size: 0.85rem; margin: 0 0 12px;">
+          Elle est demandée dans les zones à faibles émissions (ZFE) de plusieurs villes. Le type de véhicule choisi plus haut est utilisé.
+        </p>
+        <label for="critair-date" style="display:block; color:#ccc; font-size:0.85rem; margin-bottom:4px;">Date de 1re immatriculation (case B de la carte grise)</label>
+        <input id="critair-date" type="date" min="1950-01-01" style="width:100%; padding:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(0,210,255,0.3); border-radius:10px; color:#fff; font-size:1rem; margin-bottom:10px; box-sizing:border-box;">
+        <label for="critair-energy" style="display:block; color:#ccc; font-size:0.85rem; margin-bottom:4px;">Énergie (case P.3)</label>
+        <select id="critair-energy" style="width:100%; padding:12px; background:#0b1220; border:1px solid rgba(0,210,255,0.3); border-radius:10px; color:#fff; font-size:1rem; margin-bottom:10px;">
+          <option value="thermique">Essence ou gazole</option>
+          <option value="electrique">Électrique ou hydrogène</option>
+        </select>
+        <label for="critair-euro" style="display:block; color:#ccc; font-size:0.85rem; margin-bottom:4px;">Norme Euro (case V.9, facultatif)</label>
+        <select id="critair-euro" style="width:100%; padding:12px; background:#0b1220; border:1px solid rgba(0,210,255,0.3); border-radius:10px; color:#fff; font-size:1rem; margin-bottom:12px;">
+          <option value="">Je ne sais pas</option>
+          <option value="5">Euro 5</option>
+          <option value="4">Euro 4</option>
+          <option value="3">Euro 3</option>
+          <option value="2">Euro 2</option>
+          <option value="1">Euro 1</option>
+        </select>
+        <button id="critair-compute" data-action="computeCritAir()" style="width:100%; padding:12px; background:rgba(46,158,79,0.15); border:1px solid #2e9e4f; border-radius:10px; color:#fff; font-weight:bold; cursor:pointer;">
+          <i class="fa-solid fa-calculator"></i> Connaître ma vignette
+        </button>
+
+        <div id="critair-result" class="hidden" role="status" aria-live="polite" style="margin-top:14px; padding:14px; border:1px solid rgba(255,255,255,0.15); border-radius:12px; background:rgba(255,255,255,0.04);">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span id="critair-badge" style="flex:0 0 auto; width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.3rem; border:2px solid #fff;"></span>
+            <div>
+              <div id="critair-label" style="font-weight:bold; font-size:1.05rem;"></div>
+              <div id="critair-reason" style="color:#bbb; font-size:0.85rem;"></div>
+            </div>
+          </div>
+          <p id="critair-check" class="hidden" style="color:#ffb347; font-size:0.85rem; margin:10px 0 0;">
+            <i class="fa-solid fa-circle-question"></i> Cas incertain : vérifiez votre classe sur certificat-air.gouv.fr avant de commander.
+          </p>
+          <p id="critair-reminder" class="hidden" style="color:#00ff88; font-size:0.85rem; margin:10px 0 0;">
+            <i class="fa-solid fa-note-sticky"></i> Pensez à coller votre vignette, bien visible à l'avant du véhicule.
+          </p>
+        </div>
+
+        <button data-action="window.open('https://www.certificat-air.gouv.fr/', '_blank')" style="width:100%; margin-top:12px; padding:12px; background:#0055a4; border:none; border-radius:10px; color:#fff; font-weight:bold; cursor:pointer;">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Commander sur le site officiel
+        </button>
+        <p style="color:#ffb347; font-size:0.8rem; margin:8px 0 0;">
+          <i class="fa-solid fa-triangle-exclamation"></i> Seul <strong>certificat-air.gouv.fr</strong> est officiel. Méfiez-vous des sites intermédiaires qui font payer la vignette plus cher. L'appli ne vend pas la vignette et ne prend aucun paiement.
+        </p>
+      </div>
+
       <!-- Carnet d'Entretien Numérique -->
       <div style="margin: 30px auto; width: 90%; max-width: 400px;">
         <h3 style="color: #fff; font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">

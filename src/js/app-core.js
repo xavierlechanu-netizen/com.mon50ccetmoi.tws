@@ -8,6 +8,7 @@ import {
   startGeolocation, activateLowAccuracyFallback, stopLowAccuracyFallback,
 } from './gps-tracking.js';
 import { checkHazardProximity, showHazardConfirmation } from './hazard-alerts.js';
+import { checkZfeEntry } from './zfe-zones.js';
 
 // Positions GPS → updatePosition ; démarrage du GPS → écran maintenu allumé
 // (fonctions déclarées plus bas, disponibles dès maintenant)
@@ -759,6 +760,7 @@ iconContent.innerHTML = `<div style="background-color: #1a1a1a; color: ${color};
 
   // --- NEW: Hazard Proximity Verification ---
   checkHazardProximity(lat, lng);
+  checkZfeEntry(lat, lng); // entrée dans une zone à faibles émissions (vignette Crit'Air)
   checkFerryProximity(lat, lng);
 
   // --- OFFLINE MAP: Sync Leaflet marker position ---

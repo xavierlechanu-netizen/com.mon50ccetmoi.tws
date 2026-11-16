@@ -181,6 +181,14 @@ describe('DOMSecurity & Safe Event Delegator (OWASP ASVS v5.0.0-1.3.1 & 1.3.2)',
     expect(openSpy).not.toHaveBeenCalled();
     click("window.open('https://www.legifrance.gouv.fr/', '_blank')");
     expect(openSpy).toHaveBeenCalledWith('https://www.legifrance.gouv.fr/', '_blank', 'noopener');
+    // Vignette Crit'Air : seul le site officiel s'ouvre, pas les sites intermédiaires sosies
+    click("window.open('https://www.certificat-air.gouv.fr/', '_blank')");
+    expect(openSpy).toHaveBeenCalledWith('https://www.certificat-air.gouv.fr/', '_blank', 'noopener');
+    openSpy.mockClear();
+    click("window.open('https://www.certificat-air.gouv.fr.vignette-express.example/', '_blank')");
+    click("window.open('https://certificat-air-gouv.example/', '_blank')");
+    click("window.open('http://www.certificat-air.gouv.fr/', '_blank')");
+    expect(openSpy).not.toHaveBeenCalled();
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Fonction du navigateur bloquée'));
   });
 

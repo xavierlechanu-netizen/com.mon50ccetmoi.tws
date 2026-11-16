@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon50cc-cache-v1120035';
+const CACHE_NAME = 'mon50cc-cache-v1120036';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -70,8 +70,9 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Stratégie 2 : Cache-First pour les assets statiques (CSS, JS, Images, Fonts)
-  const isStaticAsset = url.pathname.match(/\.(css|js|png|jpg|jpeg|svg|woff2|webp)$/i);
+  // Stratégie 2 : Cache-First pour les assets statiques (CSS, JS, Images, Fonts) et les
+  // périmètres ZFE (.geojson) : disponibles hors ligne, renouvelés à chaque version (CACHE_NAME)
+  const isStaticAsset = url.pathname.match(/\.(css|js|png|jpg|jpeg|svg|woff2|webp|geojson)$/i);
   if (isStaticAsset) {
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
