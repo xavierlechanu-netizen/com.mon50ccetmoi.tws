@@ -53,6 +53,18 @@ describe("Envoi automatique : succès seulement si le serveur le confirme", () =
     expect(r).toEqual({ sent: 0, reason: expect.stringMatching(/pas encore en service/) });
   });
 
+  test("serveur branché mais téléphone sans jeton : rien n'est tenté, raison claire", async () => {
+    const client = { token: null, sosToken: null, sendSos: jest.fn() };
+    const r = await M.sendSosAuto({ position: POS, contacts, kind: "fall" }, { client });
+    expect(r).toEqual({ sent: 0, reason: expect.stringMatching(/pas activé sur ce téléphone/) });
+    expect(client.sendSos).not.toHaveBeenCalled();
+  });
+
+  test("le jeton SOS seul suffit (session expirée depuis longtemps)", async () => {
+    const client = { token: null, sosToken: "sos", sendSos: async (a) => ({ sent: a.contacts.length }) };
+    await expect(M.sendSosAuto({ position: POS, contacts, kind: "manual" }, { client })).resolves.toEqual({ sent: 1 });
+  });
+
   test("serveur qui confirme : sent = nombre de SMS acceptés", async () => {
     const client = { token: "t", sendSos: async (a) => ({ sent: a.contacts.length }) };
     await expect(M.sendSosAuto({ position: POS, contacts, kind: "fall" }, { client })).resolves.toEqual({ sent: 1 });

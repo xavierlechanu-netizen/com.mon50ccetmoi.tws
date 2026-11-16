@@ -158,3 +158,51 @@ describe("Route POST /api/v1/sos", () => {
         expect((await invoke(app, "POST", "/api/v1/sos", body, auth("pilote2"))).status).toBe(200);
     });
 });
+
+describe("Jeton SOS : l'alerte part des jours après la connexion", () => {
+    const body = { ...LILLE, contacts: ["0612345678"], kind: "fall" };
+    const bearer = (t) => ({ Authorization: `Bearer ${t}` });
+    const sosJwt = (uid, ttl) => signSovereignJwt({ uid, purpose: "sos" }, ttl === undefined ? {} : { expiresInSec: ttl });
+
+    test("inscription et connexion le donnent, valable 30 jours", async () => {
+        const app = makeApp(fakeSms());
+        const reg = await invoke(app, "POST", "/api/v1/auth/register", { email: "lea@mon50cc.internal", username: "lea", password: "motdepasse-1" });
+        expect(reg.status).toBe(201);
+        const login = await invoke(app, "POST", "/api/v1/auth/login", { email: "lea@mon50cc.internal", password: "motdepasse-1" });
+        expect(login.status).toBe(200);
+        const claims = JSON.parse(Buffer.from(login.body.sosToken.split(".")[1], "base64url").toString("utf8"));
+        expect(claims).toMatchObject({ uid: login.body.uid, purpose: "sos", role: "none" });
+        expect(claims.exp - claims.iat).toBe(30 * 24 * 3600);
+        expect((await invoke(app, "POST", "/api/v1/sos", body, bearer(reg.body.sosToken))).status).toBe(200);
+    });
+
+    test("il n'ouvre QUE l'alerte SOS, jamais une session", async () => {
+        const app = makeApp(fakeSms());
+        const t = bearer(sosJwt("pilote1"));
+        expect((await invoke(app, "POST", "/api/v1/sos", body, t)).status).toBe(200);
+        expect((await invoke(app, "POST", "/api/v1/telemetry/upload", {}, t)).status).toBe(401);
+        expect((await invoke(app, "POST", "/api/v1/points/transact", {}, t)).status).toBe(401);
+        expect((await invoke(app, "DELETE", "/api/v1/rgpd/account", null, t)).status).toBe(401);
+    });
+
+    test("un autre jeton à usage particulier (défi d'usine) n'ouvre pas l'alerte", async () => {
+        const sms = fakeSms();
+        const usine = signSovereignJwt({ uid: "pilote1", purpose: "factory-pop", ctx: {} });
+        expect((await invoke(makeApp(sms), "POST", "/api/v1/sos", body, bearer(usine))).status).toBe(401);
+        expect(sms.calls).toHaveLength(0);
+    });
+
+    test("jeton expiré : refusé", async () => {
+        expect((await invoke(makeApp(fakeSms()), "POST", "/api/v1/sos", body, bearer(sosJwt("pilote1", -10)))).status).toBe(401);
+    });
+
+    test("renouvellement : nouveau jeton SOS, seulement si le compte existe encore", async () => {
+        const app = makeApp(fakeSms());
+        const r = await invoke(app, "POST", "/api/v1/auth/sos-token", null, bearer(sosJwt("pilote1")));
+        expect(r.status).toBe(200);
+        expect((await invoke(app, "POST", "/api/v1/sos", body, bearer(r.body.sosToken))).status).toBe(200);
+        expect((await invoke(app, "POST", "/api/v1/auth/sos-token", null, bearer(sosJwt("compte-supprime")))).status).toBe(401);
+        expect((await invoke(app, "POST", "/api/v1/auth/sos-token", null, bearer(sosJwt("pilote1", -10)))).status).toBe(401);
+        expect((await invoke(app, "POST", "/api/v1/auth/sos-token", null)).status).toBe(401);
+    });
+});

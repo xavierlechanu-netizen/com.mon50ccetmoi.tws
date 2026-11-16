@@ -18,6 +18,8 @@ export class SovereignClient {
         this.apiBaseUrl = (config.apiBaseUrl || "https://api.mon50ccetmoi.com/api/v1").replace(/\/+$/, "");
         this.wsBaseUrl = config.wsBaseUrl || "wss://api.mon50ccetmoi.com/ws";
         this.token = null;
+        // Jeton SOS (30 jours, renouvelable) : n'ouvre que l'alerte SOS, voir sendSos()
+        this.sosToken = null;
         this.currentUser = null;
         this.authListeners = new Set();
     }
@@ -49,7 +51,8 @@ export class SovereignClient {
             "Content-Type": "application/json",
             ...headers
         };
-        if (this.token) {
+        // Un en-tête Authorization fourni par l'appelant (jeton SOS) n'est jamais écrasé
+        if (this.token && !reqHeaders.Authorization) {
             reqHeaders.Authorization = `Bearer ${this.token}`;
         }
 
@@ -61,7 +64,9 @@ export class SovereignClient {
 
         const data = await response.json().catch(() => ({}));
         if (!response.ok) {
-            throw new Error(data.error || `Erreur HTTP ${response.status}`);
+            const err = new Error(data.error || `Erreur HTTP ${response.status}`);
+            err.status = response.status;
+            throw err;
         }
         return data;
     }
@@ -72,6 +77,7 @@ export class SovereignClient {
             body: { email, username, password }
         });
         this.token = res.token;
+        this.sosToken = res.sosToken || null;
         this.currentUser = { uid: res.uid, username: res.username, role: res.role };
         this._notifyAuthChange();
         return this.currentUser;
@@ -83,6 +89,7 @@ export class SovereignClient {
             body: { email, password }
         });
         this.token = res.token;
+        this.sosToken = res.sosToken || null;
         this.currentUser = {
             uid: res.uid,
             username: res.username,
@@ -95,6 +102,7 @@ export class SovereignClient {
 
     signOut() {
         this.token = null;
+        this.sosToken = null;
         this.currentUser = null;
         this._notifyAuthChange();
     }
@@ -112,7 +120,20 @@ export class SovereignClient {
      * @param {{lat: number, lng: number, accuracy?: number, contacts: string[], kind?: "fall"|"manual"}} alerte
      */
     async sendSos(alerte) {
-        return await this.request("/sos", { method: "POST", body: alerte });
+        return await this.request("/sos", { method: "POST", body: alerte, headers: this._sosAuth() });
+    }
+
+    /** Nouveau jeton SOS (30 jours) à partir du jeton SOS ou de session encore valide. */
+    async renewSosToken() {
+        const res = await this.request("/auth/sos-token", { method: "POST", headers: this._sosAuth() });
+        this.sosToken = res.sosToken || null;
+        return this.sosToken;
+    }
+
+    /** Le jeton SOS passe en premier : le jeton de session, lui, expire au bout d'une heure. */
+    _sosAuth() {
+        const bearer = this.sosToken || this.token;
+        return bearer ? { Authorization: `Bearer ${bearer}` } : {};
     }
 
     async deleteMyAccountRgpd() {

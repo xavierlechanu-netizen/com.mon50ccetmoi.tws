@@ -2,6 +2,7 @@ import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { PAGE_ROUTES } from './page-routes.js';
 import { getSosPosition, sendSosAuto, smsHref, sosText } from './sos-alert.js';
+import { isSovereignSosReady } from './sovereign.js';
 
 // --- SYSTEM STARTUP ---
 function runCinematicStartup() {
@@ -302,8 +303,11 @@ window.saveGuardianContacts = function () {
     : "";
   localStorage.setItem("guardian_contact_1", c1);
   localStorage.setItem("guardian_contact_2", c2);
+  // Dire la vérité sur ce que fera l'alerte (sovereign.js) : jamais de promesse d'envoi qui n'aura pas lieu
   alert(
-    "Contacts Ange Gardien sauvegardés ! En cas de chute ou SOS, l'application tentera d'envoyer un message d'urgence.",
+    isSovereignSosReady()
+      ? "Contacts Ange Gardien sauvegardés ! En cas de chute ou SOS, ils recevront automatiquement un SMS avec votre position."
+      : "Contacts Ange Gardien sauvegardés. L'envoi automatique des SMS n'est pas encore activé sur ce téléphone : en cas de chute ou SOS, l'appli vous proposera d'appeler le 112 et de leur envoyer votre position par SMS.",
   );
 };
 

@@ -71,6 +71,7 @@ npx firebase deploy --only hosting  # Déploie dist/ sur mon50ccetmoi.web.app
 | `├── js/gmaps-compat.js` | **Carte souveraine, zéro Google** : installe `window.google.maps` (Map, Marker, InfoWindow, Polyline, Geocoder, DirectionsService, Autocomplete…) sur Leaflet + fond Plan IGN. `window.map` est une carte Leaflet. |
 | `├── js/map-engine.js` | Services sans clé : itinéraire IGN `bdtopo-pgr` **autoroutes interdites** et durées plafonnées à 45 km/h, géocodage/autocomplétion IGN, garages OpenStreetMap (Overpass, 2 serveurs). |
 | `├── public/vendor/leaflet/` | Leaflet 1.9.4 auto-hébergé (plus de CDN unpkg). |
+| `├── js/sovereign.js` · `sovereign-session.js` | Branchement de l'appli sur le serveur souverain (`CONFIG.SOVEREIGN`) : `window.sovereignClient`, connexion en parallèle de Firebase, **jeton SOS** de 30 jours (n'ouvre que `/api/v1/sos`) utilisé par `sos-alert.js`. |
 | `├── js/app-features.js` | Fonctionnalités métier (Guardian Angel, roadbooks, météo vigilance, carnet d'entretien, points). |
 | `├── js/app-ui.js` | Interface utilisateur, démarrage cinématique (`runCinematicStartup`), mode parking, alerte chute SOS. |
 | `├── js/i18n.js` | Système multilingue (`window.t`, `window.updateI18N`, `window.updateUILabels`). |

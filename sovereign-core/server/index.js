@@ -37,6 +37,12 @@ const pointsRules = require("../../functions/api/points-rules");
 const SOS_MAX_CONTACTS = 3;
 const SOS_MAX_ALERTS = 3;
 const SOS_WINDOW_MS = 10 * 60 * 1000;
+// Jeton SOS : n'ouvre QUE l'alerte SOS (jamais une session). Une chute peut arriver des jours après
+// la dernière saisie du mot de passe, alors que le jeton de session ne vit qu'une heure : l'appli
+// garde ce jeton et le renouvelle (POST /api/v1/auth/sos-token) tant qu'elle est utilisée.
+const SOS_TOKEN_PURPOSE = "sos";
+const SOS_TOKEN_TTL_SEC = 30 * 24 * 3600;
+const issueSosToken = (uid) => signSovereignJwt({ uid, purpose: SOS_TOKEN_PURPOSE }, { expiresInSec: SOS_TOKEN_TTL_SEC });
 
 const HAZARD_TYPES = ["pothole", "accident", "police", "roadwork", "obstacle", "weather", "other"];
 const HAZARDS_PER_DAY = 30;
@@ -139,6 +145,16 @@ function createSovereignApp(options = {}) {
         return verif.valid && !verif.payload.purpose ? verif.payload : null;
     }
 
+    /** Pilote de l'alerte SOS : jeton de session OU jeton SOS (rien d'autre). */
+    function extractSosUser(req) {
+        const authHeader = req.headers.authorization || "";
+        if (!authHeader.startsWith("Bearer ")) return null;
+        const verif = verifySovereignJwt(authHeader.slice(7).trim());
+        if (!verif.valid) return null;
+        const purpose = verif.payload.purpose;
+        return !purpose || purpose === SOS_TOKEN_PURPOSE ? verif.payload : null;
+    }
+
     async function handleRequest(req, res, rawBodyBuffer) {
         applySecurityHeaders(res);
 
@@ -224,7 +240,8 @@ function createSovereignApp(options = {}) {
                 uid: userRecord.uid,
                 username: userRecord.username,
                 role: userRecord.role,
-                token
+                token,
+                sosToken: issueSosToken(userRecord.uid)
             }));
             return;
         }
@@ -270,8 +287,24 @@ function createSovereignApp(options = {}) {
                 username: user.username,
                 role: user.role,
                 braveCoins: user.braveCoins,
-                token
+                token,
+                sosToken: issueSosToken(user.uid)
             }));
+            return;
+        }
+
+        // 3 bis. RENOUVELLEMENT DU JETON SOS (glissant) : avec un jeton SOS ou de session encore valide,
+        // et seulement si le compte existe toujours.
+        if (req.method === "POST" && pathname === "/api/v1/auth/sos-token") {
+            const authUser = extractSosUser(req);
+            const user = authUser ? await store.findUserById(authUser.uid) : null;
+            if (!user) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Reconnectez-vous pour réactiver l'alerte SOS automatique." }));
+                return;
+            }
+            res.statusCode = 200;
+            res.end(JSON.stringify({ sosToken: issueSosToken(user.uid) }));
             return;
         }
 
@@ -564,7 +597,7 @@ function createSovereignApp(options = {}) {
         // « sent » ne compte que les numéros acceptés par OVHcloud : l'appli n'annonce jamais
         // un envoi qui n'a pas eu lieu.
         if (req.method === "POST" && pathname === "/api/v1/sos") {
-            const authUser = extractBearerUser(req);
+            const authUser = extractSosUser(req);
             if (!authUser) {
                 res.statusCode = 401;
                 res.end(JSON.stringify({ error: "Authentification requise.", sent: 0 }));

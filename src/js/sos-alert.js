@@ -69,8 +69,12 @@ export function getSosPosition({ win = globalThis, timeoutMs = 8000 } = {}) {
 export async function sendSosAuto({ position, contacts, kind }, { client = globalThis.sovereignClient } = {}) {
   if (!contacts || contacts.length === 0) return { sent: 0, reason: "Aucun ange gardien enregistré." };
   if (!position) return { sent: 0, reason: "Position GPS introuvable." };
-  if (!client || !client.token || typeof client.sendSos !== "function") {
+  if (!client || typeof client.sendSos !== "function") {
     return { sent: 0, reason: "L'envoi automatique des SMS n'est pas encore en service." };
+  }
+  // Jeton SOS (30 jours) obtenu à la connexion par mot de passe : voir sovereign-session.js
+  if (!client.sosToken && !client.token) {
+    return { sent: 0, reason: "L'envoi automatique des SMS n'est pas activé sur ce téléphone." };
   }
   try {
     const res = await client.sendSos({ lat: position.lat, lng: position.lng, accuracy: position.accuracy, contacts, kind });

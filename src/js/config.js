@@ -18,6 +18,14 @@ export const CONFIG = {
   // serveur souverain OVHcloud. À repasser à true quand les services serveur répondent à nouveau.
   SERVICES_SERVEUR_ACTIFS: false,
 
+  // Serveur souverain OVHcloud (sovereign-core/), branché par sovereign.js.
+  // Actif : à la connexion, l'appli s'y connecte aussi pour l'alerte SOS automatique (SMS aux anges
+  // gardiens). Tant que api.mon50ccetmoi.com n'existe pas, rien ne part et l'alerte propose le 112.
+  SOVEREIGN: {
+    ACTIF: true,
+    API_URL: "https://api.mon50ccetmoi.com/api/v1",
+  },
+
   // Auth Configuration
   AUTH: {
     GOOGLE_CLIENT_ID:

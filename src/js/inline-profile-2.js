@@ -1,7 +1,9 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { forgetSovereign } from './sovereign.js';
 
 function logout() {
+        forgetSovereign(); // plus de jeton de l'alerte SOS automatique sur ce téléphone
         if (window.auth) {
           window.auth.signOut().then(() => {
             window.location.href = "login.html";

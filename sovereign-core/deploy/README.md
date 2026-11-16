@@ -157,8 +157,11 @@ Une sauvegarde jamais relue n'est pas une sauvegarde.
 Sans cette étape, le serveur fonctionne, mais l'alerte SOS ne peut pas envoyer de SMS : l'appli le
 dit honnêtement et propose d'appeler le 112.
 
-1. **Espace client OVHcloud › Télécom › SMS** : commandez un petit pack de crédits SMS (un SMS
-   d'alerte vers la France consomme environ 1 crédit). Notez le nom du compte SMS (`sms-xx12345-1`).
+1. **Espace client OVHcloud › Télécom › SMS** : commandez un petit pack de crédits SMS. Le message
+   d'alerte (pseudo, lien de carte, 112) dépasse 160 caractères : comptez **2 crédits par ange
+   gardien et par alerte** en France. Notez le nom du compte SMS (`sms-xx12345-1`).
+   N'utilisez pas « Créer un utilisateur API » sur cette page : c'est l'ancienne méthode
+   (identifiant et mot de passe), le serveur passe par la clé d'API de l'étape 3.
 2. **Facultatif** : déclarez un nom d'expéditeur (par exemple `MON50CC`), validé par OVHcloud sous
    quelques jours. Sans lui, les SMS partent d'un numéro court.
 3. **Clé d'API limitée au seul envoi de SMS** : sur <https://eu.api.ovh.com/createToken/>, créez une
@@ -173,6 +176,19 @@ dit honnêtement et propose d'appeler le 112.
 
 Protections en place : pilote connecté obligatoire, 1 à 3 mobiles français (06/07) seulement,
 au plus 3 alertes par 10 minutes. Un SMS n'est annoncé comme envoyé que si OVHcloud l'a accepté.
+
+**Ces clés restent sur le VPS, jamais dans l'appli** : elles permettent d'envoyer des SMS à nos
+frais. L'appli ne fait que prévenir le serveur, qui envoie les SMS.
+
+**Côté appli** (déjà branché, `CONFIG.SOVEREIGN` dans `src/js/config.js`) : à chaque connexion par
+mot de passe, l'appli se connecte aussi à l'API et garde un **jeton SOS** de 30 jours, renouvelé
+chaque jour d'utilisation, qui n'ouvre que l'alerte SOS. Pour qu'un pilote en ait un, il faut :
+
+- que son compte existe sur le serveur (étape 11, import des comptes Firebase, à refaire de temps
+  en temps pour les nouveaux inscrits) ;
+- qu'il se reconnecte **une fois** après la mise en ligne de l'API (les pilotes déjà connectés ne
+  retapent jamais leur mot de passe). L'écran « Contacts Ange Gardien » lui dit si l'envoi
+  automatique est actif sur son téléphone.
 
 ---
 

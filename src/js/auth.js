@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem, firebase } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { connectSovereign, forgetSovereign } from './sovereign.js';
 
 
 // --- FIREBASE INITIALIZATION ---
@@ -173,6 +174,10 @@ window.login = async function (username, password) {
       .signInWithEmailAndPassword(email, password);
     const user = userCredential.user;
 
+    // Serveur souverain (OVHcloud), en parallèle : jeton de l'alerte SOS automatique.
+    // Ne rejette jamais et abandonne au bout de 4 s : la connexion à l'appli n'en dépend pas.
+    const sovereignReady = connectSovereign(email, password);
+
     // Télémétrie d'audit pseudonymisée
     recordAuthEvent('password', 'success', user.uid);
 
@@ -210,6 +215,7 @@ window.login = async function (username, password) {
     cacheSetItem("session", JSON.stringify(session));
     window.session = session;
 
+    await sovereignReady; // sinon le changement de page couperait la connexion souveraine
     window.location.href = session.role === "admin" ? "admin.html" : "app.html";
   } catch (error) {
     console.error("Login Error:", error);
@@ -281,6 +287,7 @@ window.logout = async function () {
       await firebase.auth().signOut();
     }
   } catch (e) {}
+  forgetSovereign();
   cacheRemoveItem("session");
   window.location.href = "login.html";
 };
