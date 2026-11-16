@@ -132,18 +132,29 @@ function showZfeToast(message) {
   setTimeout(() => toast.remove(), 10000);
 }
 
-/** Appelée à chaque position GPS : alerte une fois à l'entrée, se réarme à la sortie */
+/** Sortie confirmée après 3 positions de suite hors de la zone (le GPS qui hésite en bordure ne fait pas parler en boucle). */
+export const ZFE_EXIT_FIXES = 3;
+let outsideCount = 0;
+
+/** Appelée à chaque position GPS : alerte une fois à l'entrée, annonce la sortie et se réarme */
 export function checkZfeEntry(lat, lng) {
   if (!zones) {
     loadZones();
     return;
   }
   const zone = findZfe(zones, lat, lng, todayIso());
-  if (zone && zone !== currentZone) {
-    const message = zfeAlertMessage(zone, savedCritAirClass());
-    speak(message);
-    showZfeToast(message);
-    vibrate(60);
+  if (zone) {
+    outsideCount = 0;
+    if (zone !== currentZone) {
+      const message = zfeAlertMessage(zone, savedCritAirClass());
+      speak(message);
+      showZfeToast(message);
+      vibrate(60);
+    }
+    currentZone = zone;
+  } else if (currentZone && ++outsideCount >= ZFE_EXIT_FIXES) {
+    currentZone = null;
+    outsideCount = 0;
+    speak("Vous quittez la zone à faibles émissions.");
   }
-  currentZone = zone;
 }

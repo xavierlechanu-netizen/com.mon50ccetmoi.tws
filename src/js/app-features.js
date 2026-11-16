@@ -1138,14 +1138,6 @@ window.triggerRegionalWelcome = function (lat, lng) {
     });
 };
 
-window.getLocalizedRouteMsg = function (dist, etaText, isRodage) {
-  if (isRodage) {
-    return `Itinéraire rodage calculé. ${dist} à parcourir. Bonne route avec mon 50 cc et moi.`;
-  } else {
-    return `Itinéraire calculé. ${dist}, arrivée prévue à ${etaText}. Bonne route avec mon 50 cc et moi.`;
-  }
-};
-
 // --- 1. SHADOW MODE ---
 window.toggleShadowMode = function () {
   const isShadow = document.body.classList.toggle("shadow-mode");

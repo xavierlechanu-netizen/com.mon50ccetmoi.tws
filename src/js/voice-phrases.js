@@ -63,6 +63,15 @@ export const PHRASES = {
   "Vision nocturne activée. Optimisation des contrastes route.": { en: "Night vision on. Optimising road contrast.", es: "Visión nocturna activada. Optimizando el contraste de la carretera." },
   "Vision nocturne désactivée.": { en: "Night vision off.", es: "Visión nocturna desactivada." },
 
+  // --- Guidage pendant le trajet (route-guidance.js, 16/11/2026) ---
+  "Recalcul de l'itinéraire.": { en: "Recalculating the route.", es: "Recalculando la ruta." },
+  "Vous êtes arrivé à destination. Bonne journée.": { en: "You have arrived at your destination. Have a good day.", es: "Ha llegado a su destino. Que tenga un buen día." },
+  "Arrivée prévue dans 5 minutes.": { en: "Arriving in 5 minutes.", es: "Llegada prevista en 5 minutos." },
+  "Pause conseillée : vous roulez depuis deux heures.": { en: "Time for a break: you have been riding for two hours.", es: "Se aconseja una pausa: lleva dos horas conduciendo." },
+  "Signal GPS perdu, prudence.": { en: "GPS signal lost, take care.", es: "Señal GPS perdida, precaución." },
+  "Itinéraire annulé.": { en: "Route cancelled.", es: "Ruta cancelada." },
+  "Vous quittez la zone à faibles émissions.": { en: "You are leaving the low-emission zone.", es: "Sale de la zona de bajas emisiones." },
+
   // --- Profils véhicule ---
   "Profil Trottinette Électrique configuré. Vitesse légale 25 km/h. Pistes cyclables prioritaires.": { en: "E-scooter profile set. Legal speed 25 km/h. Cycle lanes preferred.", es: "Perfil de patinete eléctrico configurado. Velocidad legal 25 km/h. Carriles bici preferentes." },
   "Profil Vélo et VAE configuré. Pistes cyclables prioritaires. Bonne route !": { en: "Bike and e-bike profile set. Cycle lanes preferred. Ride safe!", es: "Perfil de bicicleta y bici eléctrica configurado. Carriles bici preferentes. ¡Buen viaje!" },
@@ -288,6 +297,15 @@ export const PATTERNS = [
   { re: /^Alerte\. Pic sonore à (.+) décibels\. Votre pot d'échappement dépasse la limite légale\.$/, en: "Alert. Noise peak at $1 decibels. Your exhaust exceeds the legal limit.", es: "Alerta. Pico de ruido de $1 decibelios. Su escape supera el límite legal." },
   { re: /^Alerte SOS : Pilote en détresse à (.+) kilomètres\.$/, en: "SOS alert: rider in distress $1 kilometres away.", es: "Alerta SOS: piloto en apuros a $1 kilómetros." },
   { re: /^Bonne nouvelle\. (.+) est en route pour vous aider\.$/, en: "Good news. $1 is on the way to help you.", es: "Buenas noticias. $1 va de camino para ayudarle." },
+  // Guidage pendant le trajet (route-guidance.js, route-planner.js). Les consignes IGN restent en français.
+  { re: /^Itinéraire calculé sans autoroute\. (.+), arrivée prévue à (.+)\. Bonne route et prudence\.$/, en: "Route calculated, no motorways. $1, arriving at $2. Ride safe.", es: "Ruta calculada sin autopistas. $1, llegada prevista a las $2. Buen viaje y prudencia." },
+  { re: /^Itinéraire rodage calculé sans autoroute\. (.+) à parcourir\. Bonne route et prudence\.$/, en: "Running-in route calculated, no motorways. $1 to go. Ride safe.", es: "Ruta de rodaje calculada sin autopistas. $1 por recorrer. Buen viaje y prudencia." },
+  { re: /^Itinéraire recalculé\. (.+), arrivée prévue à (.+)\.$/, en: "Route recalculated. $1, arriving at $2.", es: "Ruta recalculada. $1, llegada prevista a las $2." },
+  { re: /^Guidage démarré\. (.+)$/, en: "Guidance started. $1", es: "Guiado iniciado. $1" },
+  { re: /^Dans ([^,]+), (.+)$/, en: "In $1, $2", es: "En $1, $2" },
+  { re: /^Continuez sur (\d+) km\.$/, en: "Continue for $1 km.", es: "Continúe durante $1 km." },
+  { re: /^Il vous reste (.+), soit environ (\d+) minutes?\.$/, en: "$1 to go, about $2 minutes.", es: "Le quedan $1, unos $2 minutos." },
+  { re: /^Il vous reste (.+), soit environ (\d+) heures\.$/, en: "$1 to go, about $2 hours.", es: "Le quedan $1, unas $2 horas." },
   // Conseils météo à valeur variable (weather-advice.js)
   { re: /^Vent fort \((.+) km\/h\)\. Attention aux rafales sur deux-roues\.$/, en: "Strong wind ($1 km/h). Watch out for gusts on two wheels.", es: "Viento fuerte ($1 km/h). Cuidado con las ráfagas en dos ruedas." },
   { re: /^Il fait (.+) °C : risque de verglas par endroits\. Gants recommandés\.$/, en: "It is $1 °C: risk of black ice in places. Gloves recommended.", es: "Hace $1 °C: riesgo de hielo en algunos tramos. Se recomiendan guantes." },

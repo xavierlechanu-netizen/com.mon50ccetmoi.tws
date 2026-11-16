@@ -18,6 +18,7 @@
 import { registerAction } from "./actionRegistry.js";
 import { readLatLng, formatDistance, formatDuration } from "./map-engine.js";
 import { speak } from "./voice-engine.js";
+import { departureMessage, rerouteMessage, startGuidance, stopGuidance, isGuiding, announce } from "./route-guidance.js";
 
 /** Vitesse moyenne réaliste d'un 50 cc, arrêts compris (32 km/h). */
 export const AVG_SPEED_MS = 32 / 3.6;
@@ -231,7 +232,8 @@ function showWeatherDelay(ticket, durationSec, destination) {
   });
 }
 
-function showRoute(ticket, { path, leg }, destination) {
+function showRoute(ticket, route, destination, { reroute = false } = {}) {
+  const { path, leg } = route;
   const g = window.google.maps;
   const map = window.map;
 
@@ -270,19 +272,28 @@ function showRoute(ticket, { path, leg }, destination) {
       icon.className = className;
       icon.style.transform = transform;
     }
-    // Après l'annonce de l'heure d'arrivée
-    later(ticket, 6000, () => speak(`Guidage interne démarré. Dans ${dist}, ${text}`));
+    // Après l'annonce de l'heure d'arrivée. La consigne 0 se fait au départ : « Dans … » viendra
+    // avec le premier virage (route-guidance.js).
+    if (!reroute) later(ticket, 6000, () => speak(`Guidage démarré. ${text}.`));
   }
 
   window.routeFerries = ferrySteps(leg.steps);
   window.lastSpokenFerryIndex = -1;
-  if (window.routeFerries.length > 0) later(ticket, 4000, () => speak("ferry_detected"));
+  if (window.routeFerries.length > 0 && !reroute) later(ticket, 4000, () => speak("ferry_detected"));
 
-  speak(
-    typeof window.getLocalizedRouteMsg === "function"
-      ? window.getLocalizedRouteMsg(distText, etaText, window.isRodageActive)
-      : `Itinéraire calculé. ${distText}, arrivée prévue à ${etaText}.`,
-  );
+  // Recalcul : dit après « Recalcul de l'itinéraire. », sans le couper
+  if (reroute) announce(rerouteMessage(distText, etaText));
+  else speak(departureMessage(distText, etaText, { rodage: !!window.isRodageActive }));
+
+  // Guidage pendant le trajet : virages, temps restant, recalcul, arrivée
+  startGuidance(route, {
+    destination,
+    durationSec,
+    quietUntil: Date.now() + (reroute ? 0 : 9000), // laisse finir les annonces de départ
+    textOf: instructionText,
+    onReroute: () => rerouteFromHere(destination),
+    onArrive: () => cancelRoute({ silent: true }),
+  });
 
   if (window.SafeRide?.checkWeatherForRoute) showWeatherDelay(ticket, durationSec, destination);
 
@@ -303,7 +314,7 @@ function showRoute(ticket, { path, leg }, destination) {
  * Calcule et affiche l'itinéraire sans autoroute de start à end ({lat, lng}, LatLng ou {lat, lon}).
  * Renvoie l'itinéraire affiché ({ path, leg }) ou null.
  */
-export async function calculateRouteSansAutoroute(start, end) {
+export async function calculateRouteSansAutoroute(start, end, { reroute = false } = {}) {
   const origin = readLatLng(start);
   const destination = readLatLng(end);
   if (!origin || !destination) {
@@ -314,7 +325,10 @@ export async function calculateRouteSansAutoroute(start, end) {
 
   window.currentRouteDestination = end; // pour le bouton « GO » (application GPS du téléphone)
   const ticket = ++routeTicket;
-  clearRouteLayers();
+  if (!reroute) {
+    stopGuidance(); // nouvel itinéraire demandé : l'ancien guidage s'arrête
+    clearRouteLayers();
+  }
 
   let route = null;
   try {
@@ -333,7 +347,8 @@ export async function calculateRouteSansAutoroute(start, end) {
   }
 
   try {
-    showRoute(ticket, route, destination);
+    clearRouteLayers(); // recalcul : l'ancien tracé restait affiché jusqu'ici
+    showRoute(ticket, route, destination, { reroute });
   } catch (err) {
     console.error("[Itinéraire] Affichage impossible :", err);
     speak("Erreur de calcul d'itinéraire.");
@@ -341,9 +356,27 @@ export async function calculateRouteSansAutoroute(start, end) {
   return route;
 }
 
-export function cancelRoute() {
+let rerouting = false;
+
+/** Sorti du tracé : nouvel itinéraire depuis la position actuelle (un seul calcul à la fois). */
+async function rerouteFromHere(destination) {
+  if (rerouting || !window.currentPosition) return;
+  rerouting = true;
+  try {
+    await calculateRouteSansAutoroute(window.currentPosition, destination, { reroute: true });
+  } finally {
+    rerouting = false;
+  }
+}
+
+/** Bouton « Arrêter » : annonce « Itinéraire annulé. » ; options.silent à l'arrivée. */
+export function cancelRoute(options) {
+  const silent = options?.silent === true;
+  const wasActive = routeLayers.length > 0 || isGuiding();
   routeTicket++; // calcul en cours et annonces en attente abandonnés
+  stopGuidance({ clear: !silent });
   clearRouteLayers();
+  if (!silent && wasActive) speak("Itinéraire annulé.");
   window.routeFerries = [];
 
   byId("nav-instruction")?.classList.add("hidden");

@@ -13,17 +13,20 @@ const stripModule = (code) =>
 const EXPORTS = [
   "AVG_SPEED_MS", "DUO_FACTOR", "isDuoRide", "travelModeFor", "pickRouteIndex", "routeFromDirections", "estimateDurationSec",
   "instructionText", "maneuverKind", "maneuverIcon", "ferrySteps", "nativeGpsUrl",
-  "calculateRouteSansAutoroute", "cancelRoute", "searchDestination", "launchNativeGPS",
+  "calculateRouteSansAutoroute", "cancelRoute", "searchDestination", "launchNativeGPS", "onGpsFix", "isGuiding",
 ];
 
 // Modules ESM (navigateur) : on retire imports et "export" pour les évaluer ici, avec les vraies
-// fonctions de map-engine.js (format des distances et durées, lecture des coordonnées).
+// fonctions de map-engine.js (format des distances et durées, lecture des coordonnées) et le
+// guidage en route (route-guidance.js).
 function loadModule({ speak = jest.fn() } = {}) {
+  window.__routeGuidanceTimer = true; // pas de minuterie réelle pendant les tests
   const engine = stripModule(read("map-engine.js"));
+  const guidance = stripModule(read("route-guidance.js"));
   const code = stripModule(read("route-planner.js"));
   const api = new Function(
     "speak", "registerAction",
-    `${engine}\n${code}\nreturn { ${EXPORTS.join(", ")} };`,
+    `${engine}\n${guidance}\n${code}\nreturn { ${EXPORTS.join(", ")} };`,
   )(speak, () => {});
   return { ...api, speak };
 }
@@ -233,7 +236,7 @@ describe("Calcul et affichage de l'itinéraire", () => {
     delete window.SafeRide;
     delete window.isRodageActive;
     delete window.avoidCityCenters;
-    window.getLocalizedRouteMsg = (dist, eta) => `Itinéraire calculé. ${dist}, arrivée prévue à ${eta}.`;
+    delete window.currentPosition;
   });
 
   test("itinéraire sans autoroute tracé, bandeau rempli et annoncé", async () => {
@@ -261,7 +264,10 @@ describe("Calcul et affichage de l'itinéraire", () => {
     expect(text("next-step-name")).toBe("Partez par Rue Nationale");
     expect(text("next-step-dist")).toBe("300 m");
     expect(document.querySelector(".nav-icon i").className).toBe("fa-solid fa-arrow-up");
-    expect(R.speak).toHaveBeenCalledWith(expect.stringMatching(/^Itinéraire calculé\. 12,3 km, arrivée prévue à \d/));
+    expect(R.speak).toHaveBeenCalledWith(
+      expect.stringMatching(/^Itinéraire calculé sans autoroute\. 12,3 km, arrivée prévue à \d.*\. Bonne route et prudence\.$/),
+    );
+    expect(R.isGuiding()).toBe(true);
     expect(window.currentRouteDestination).toBe(ROUBAIX);
   });
 
@@ -326,7 +332,9 @@ describe("Calcul et affichage de l'itinéraire", () => {
     }
     expect(document.getElementById("route-search").value).toBe("");
     expect(window.routeFerries).toEqual([]);
-    expect(R.speak).not.toHaveBeenCalledWith(expect.stringMatching(/^Guidage interne démarré/));
+    expect(R.speak).not.toHaveBeenCalledWith(expect.stringMatching(/^Guidage démarré/));
+    expect(R.speak).toHaveBeenLastCalledWith("Itinéraire annulé.");
+    expect(R.isGuiding()).toBe(false);
   });
 
   test("annonce de la première consigne après celle de l'arrivée", async () => {
@@ -336,7 +344,44 @@ describe("Calcul et affichage de l'itinéraire", () => {
     await jest.advanceTimersByTimeAsync(0);
     await done;
     jest.advanceTimersByTime(6000);
-    expect(R.speak).toHaveBeenLastCalledWith("Guidage interne démarré. Dans 300 m, Partez par Rue Nationale");
+    expect(R.speak).toHaveBeenLastCalledWith("Guidage démarré. Partez par Rue Nationale.");
+  });
+
+  test("arrivée : « Vous êtes arrivé », guidage arrêté sans « Itinéraire annulé » ni recalcul", async () => {
+    const R = loadModule();
+    await R.calculateRouteSansAutoroute(LILLE, ROUBAIX);
+    R.onGpsFix(ROUBAIX.lat, ROUBAIX.lng);
+    expect(R.speak).toHaveBeenLastCalledWith("Vous êtes arrivé à destination. Bonne journée.");
+    expect(R.isGuiding()).toBe(false);
+    expect(layers.some(visible)).toBe(false);
+    expect(document.getElementById("nav-info-bar").style.display).toBe("none");
+    window.currentPosition = { lat: 50.75, lng: 3.3 };
+    for (let i = 0; i < 5; i++) R.onGpsFix(50.75, 3.3);
+    await flush();
+    expect(requests).toHaveLength(1);
+    expect(R.speak).not.toHaveBeenCalledWith("Itinéraire annulé.");
+    expect(R.speak).not.toHaveBeenCalledWith("Recalcul de l'itinéraire.");
+  });
+
+  test("sorti du tracé : recalcul depuis la position actuelle, l'ancien tracé reste jusqu'au nouveau", async () => {
+    const R = loadModule();
+    await R.calculateRouteSansAutoroute(LILLE, ROUBAIX);
+    const first = layers.slice();
+    let release;
+    respond = () => new Promise((r) => { release = r; });
+    R.onGpsFix(LILLE.lat, LILLE.lng); // sur le tracé
+    window.currentPosition = { lat: 50.6, lng: 3.0 }; // à plusieurs km du tracé
+    for (let i = 0; i < 6; i++) R.onGpsFix(50.6, 3.0);
+    expect(R.speak).toHaveBeenCalledWith("Recalcul de l'itinéraire.");
+    expect(requests).toHaveLength(2); // un seul recalcul
+    expect(requests[1].origin).toMatchObject({ lat: 50.6, lng: 3.0 });
+    expect(first.every(visible)).toBe(true);
+    release([directionsResult({ distance: 8000 }), "OK"]);
+    await flush();
+    await flush();
+    expect(first.some(visible)).toBe(false);
+    expect(R.speak).toHaveBeenCalledWith(expect.stringMatching(/^Itinéraire recalculé\. 8,0 km, arrivée prévue à \d/));
+    expect(R.speak).not.toHaveBeenCalledWith(expect.stringMatching(/sans autoroute.*8,0 km/));
   });
 
   test("un calcul annulé pendant la requête ne s'affiche pas", async () => {

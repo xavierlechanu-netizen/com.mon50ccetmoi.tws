@@ -9,6 +9,7 @@ import {
 } from './gps-tracking.js';
 import { checkHazardProximity, showHazardConfirmation } from './hazard-alerts.js';
 import { checkZfeEntry } from './zfe-zones.js';
+import { onGpsFix } from './route-guidance.js';
 
 // Positions GPS → updatePosition ; démarrage du GPS → écran maintenu allumé
 // (fonctions déclarées plus bas, disponibles dès maintenant)
@@ -761,6 +762,8 @@ iconContent.innerHTML = `<div style="background-color: #1a1a1a; color: ${color};
   // --- NEW: Hazard Proximity Verification ---
   checkHazardProximity(lat, lng);
   checkZfeEntry(lat, lng); // entrée dans une zone à faibles émissions (vignette Crit'Air)
+  // Guidage vocal en route (virages, temps restant, recalcul, arrivée), pause après 2 h, retour du GPS
+  onGpsFix(lat, lng, { moving: window.isRiding, accuracy: safeAccuracy });
   checkFerryProximity(lat, lng);
 
   // --- OFFLINE MAP: Sync Leaflet marker position ---

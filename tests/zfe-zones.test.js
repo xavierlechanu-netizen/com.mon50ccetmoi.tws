@@ -147,9 +147,19 @@ describe("checkZfeEntry pendant la conduite", () => {
     const toast = document.querySelector(".hazard-toast p");
     expect(toast.textContent).toMatch(/Zone test/);
 
-    mod.checkZfeEntry(50, 50); // sortie
-    mod.checkZfeEntry(5, 5); // nouvelle entrée
+    mod.checkZfeEntry(50, 50); // une position dehors (GPS qui hésite en bordure) : rien
+    mod.checkZfeEntry(5, 5);
+    expect(speak).toHaveBeenCalledTimes(1);
+
+    mod.checkZfeEntry(50, 50); // sortie confirmée à la 3e position dehors
+    mod.checkZfeEntry(50, 50);
+    mod.checkZfeEntry(50, 50);
+    mod.checkZfeEntry(50, 50);
     expect(speak).toHaveBeenCalledTimes(2);
+    expect(speak).toHaveBeenLastCalledWith("Vous quittez la zone à faibles émissions.");
+
+    mod.checkZfeEntry(5, 5); // nouvelle entrée
+    expect(speak).toHaveBeenCalledTimes(3);
   });
 
   test("le nom de zone n'est jamais interprété comme du HTML", async () => {

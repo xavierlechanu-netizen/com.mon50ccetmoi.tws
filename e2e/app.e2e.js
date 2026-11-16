@@ -106,6 +106,9 @@ test("itinéraire sans autoroute : tracé, bandeau de guidage, puis arrêt", asy
     ignRequests.push(new URL(route.request().url()));
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(IGN_ROUTE) });
   });
+  // Météo fixée (temps calme) : avec la vraie météo de Lille, une pluie affichait « 28 min (Météo) »
+  await page.route("https://api.open-meteo.com/**", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ current_weather: { temperature: 15, windspeed: 5, weathercode: 0 } }) }));
   const pageErrors = await openApp(page);
   const paths = () => page.locator(".leaflet-overlay-pane path").count();
   const before = await paths();
