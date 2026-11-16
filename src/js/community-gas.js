@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml } from './html-escape.js';
 import { distanceMeters } from './geo-math.js';
 
 ﻿/* --- COMMUNITY GAS RADAR (OpenData Gouv + Firebase) --- */
@@ -184,7 +185,7 @@ listContainer.innerHTML = "";
       // eslint-disable-next-line no-restricted-syntax
 card.innerHTML = `
                 <div class="gas-header">
-                    <h4><i class="fa-solid fa-gas-pump"></i> ${station.name}</h4>
+                    <h4><i class="fa-solid fa-gas-pump"></i> ${escapeHtml(station.name)}</h4>
                     <span class="gas-distance">${station.distance.toFixed(1)} km</span>
                 </div>
                 <div class="gas-body">

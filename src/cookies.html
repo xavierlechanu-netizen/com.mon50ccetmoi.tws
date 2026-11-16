@@ -4,6 +4,7 @@
     <!-- Phase 3 : Zero-Trust DOM Security -->
     <script src="/vendor/dompurify/purify.min.js"></script>
     <script type="module" src="/js/dom-security.js"></script>
+    <script type="module" src="/js/axeptio-config.js"></script>
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -53,7 +54,7 @@
   </head>
   <body>
     <h1>Politique d'utilisation des Cookies</h1>
-    <p>Dernière mise à jour : 26 Mai 2026</p>
+    <p>Dernière mise à jour : 16 novembre 2026</p>
 
     <div class="card">
       <p>
@@ -71,9 +72,9 @@
 
     <h2>2. Les cookies que nous utilisons</h2>
     <p>
-      Nous utilisons **exclusivement des cookies strictement nécessaires**
-      (fonctionnels). Nous ne faisons **pas** de retargeting publicitaire ni de
-      vente de données de profilage.
+      Nous utilisons <strong>exclusivement des traceurs strictement
+      nécessaires</strong> (fonctionnels). Aucun traceur publicitaire, aucune
+      mesure d'audience, aucune vente de données de profilage.
     </p>
     <ul>
       <li>
@@ -107,9 +108,20 @@
       communication en ligne expressément demandé par l'utilisateur.
     </p>
     <p>
-      Étant donné que nous n'utilisons que des traceurs d'authentification et de
-      sécurité exemptés de consentement, votre utilisation de l'application vaut
-      acceptation de ces traceurs essentiels.
+      Les traceurs ci-dessus sont dispensés de consentement : ils restent actifs
+      même si vous cliquez sur « Non merci ». Aucun traceur facultatif ne sera
+      déposé sans votre accord : le bandeau de consentement (Axeptio) vous
+      demande votre choix, avec « Non merci » au même niveau que « OK pour moi ».
+      Vous pouvez changer d'avis à tout moment avec le bouton ci-dessous.
+    </p>
+    <p>
+      <button
+        type="button"
+        data-action="openAxeptioCookies()"
+        style="background: #ffb703; color: #000; border: none; padding: 10px 20px; border-radius: 30px; font-weight: bold; cursor: pointer;"
+      >
+        Modifier mes choix
+      </button>
     </p>
     <p>
       Vous pouvez toutefois purger toutes vos données à tout moment en utilisant

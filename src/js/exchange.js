@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml, safeId, safeActionText, safeNumber, safeImageUrl } from './html-escape.js';
 
 /**
  * 🔄 BOURSE D'ÉCHANGE
@@ -538,9 +539,10 @@ container.innerHTML = `
       const isReserved = listing.status === "reserved" || listing.status === "sold";
       const date = listing.createdAt?.toDate ? listing.createdAt.toDate().toLocaleDateString("fr-FR") : "";
 
-      const imageContent = listing.photoUrl
-        ? `<img src="${listing.photoUrl}" alt="Photo annonce" style="width:100%; height:100%; object-fit:cover; border-radius:10px;" data-fallback-icon="${icon}">`
-        : `<i class="fa-solid ${icon}"></i>`;
+      const photoUrl = safeImageUrl(listing.photoUrl);
+      const imageContent = photoUrl
+        ? `<img src="${escapeHtml(photoUrl)}" alt="Photo annonce" style="width:100%; height:100%; object-fit:cover; border-radius:10px;" data-fallback-icon="${escapeHtml(icon)}">`
+        : `<i class="fa-solid ${escapeHtml(icon)}"></i>`;
 
       html += `
         <div class="product-card" style="position:relative; ${isReserved ? 'opacity:0.75;' : ''}">
@@ -550,30 +552,30 @@ container.innerHTML = `
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <span style="background:rgba(0,242,255,0.15); border:1px solid rgba(0,242,255,0.3); color:#00f2ff; padding:3px 10px; border-radius:12px; font-size:0.7rem; font-weight:600;">
-              ${catLabel}
+              ${escapeHtml(catLabel)}
             </span>
             <span style="color:#aaa; font-size:0.7rem;">${condLabel}</span>
           </div>
-          <h3 id="listing-title-${listing.id}" style="margin:5px 0; font-size:1.1rem; color:#fff; font-weight:600;"></h3>
-          <p id="listing-desc-${listing.id}" style="color:#99a; font-size:0.85rem; line-height:1.4; height:38px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; margin-bottom:12px;"></p>
+          <h3 id="listing-title-${escapeHtml(listing.id)}" style="margin:5px 0; font-size:1.1rem; color:#fff; font-weight:600;"></h3>
+          <p id="listing-desc-${escapeHtml(listing.id)}" style="color:#99a; font-size:0.85rem; line-height:1.4; height:38px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; margin-bottom:12px;"></p>
           <div class="price-tag" style="display:flex; align-items:center; gap:8px;">
             ${isBvc ? `<i class="fa-brands fa-ethereum" style="color:#b700ff;"></i>` : `<i class="fa-solid fa-tag" style="color:#00f2ff;"></i>`}
             <span>${priceLabel}</span>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; color:#667; font-size:0.75rem; margin-bottom:15px; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px;">
-            <span><i class="fa-solid fa-user-circle"></i> <span id="listing-seller-${listing.id}"></span></span>
+            <span><i class="fa-solid fa-user-circle"></i> <span id="listing-seller-${escapeHtml(listing.id)}"></span></span>
             ${date ? `<span><i class="fa-regular fa-clock"></i> ${date}</span>` : ""}
           </div>
           ${
             isOwner
-              ? `<button class="buy-btn" style="background:linear-gradient(135deg, #ff4d4d, #cc0000);" data-action="ExchangeMarket.deleteListing('${listing.id}')"><i class="fa-solid fa-trash-can"></i> Supprimer</button>`
+              ? `<button class="buy-btn" style="background:linear-gradient(135deg, #ff4d4d, #cc0000);" data-action="ExchangeMarket.deleteListing('${safeId(listing.id)}')"><i class="fa-solid fa-trash-can"></i> Supprimer</button>`
               : isReserved
               ? `<button class="buy-btn" style="background:#333; color:#777; cursor:not-allowed;" disabled><i class="fa-solid fa-lock"></i> Indisponible</button>`
               : `<div style="display:flex; gap:8px;">
-                  <button class="buy-btn" style="flex:1; background:linear-gradient(135deg, #00f2ff, #0077ff);" data-action="ExchangeMarket.reserveListing('${listing.id}', ${listing.price}, '${listing.priceType}')">
+                  <button class="buy-btn" style="flex:1; background:linear-gradient(135deg, #00f2ff, #0077ff);" data-action="ExchangeMarket.reserveListing('${safeId(listing.id)}', ${safeNumber(listing.price)}, '${isBvc ? "bvc" : "euro"}')">
                     ${isBvc ? '<i class="fa-solid fa-cart-shopping"></i> Réserver' : '<i class="fa-solid fa-handshake"></i> Acheter'}
                   </button>
-                  <button class="buy-btn" style="width:42px; padding:0; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);" data-action="ExchangeMarket.contactSeller('${listing.id}', '${listing.seller}')" title="Contacter">
+                  <button class="buy-btn" style="width:42px; padding:0; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);" data-action="ExchangeMarket.contactSeller('${safeId(listing.id)}', '${escapeHtml(safeActionText(listing.seller))}')" title="Contacter">
                     <i class="fa-solid fa-envelope"></i>
                   </button>
                 </div>`

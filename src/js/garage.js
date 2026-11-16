@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml } from './html-escape.js';
 
 /**
  * 🏍️ GARAGE VIRTUEL
@@ -119,7 +120,7 @@ window.VirtualGarage = {
       partsHTML += `
                 <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; margin-bottom: 15px; border-left: 4px solid ${part.color};">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                        <strong style="color: #fff;"><i class="fa-solid fa-wrench" style="color: #777; margin-right: 5px;"></i> ${part.name}</strong>
+                        <strong style="color: #fff;"><i class="fa-solid fa-wrench" style="color: #777; margin-right: 5px;"></i> ${escapeHtml(part.name)}</strong>
                         <span style="color: ${wear.isCritical ? "#ff4d4d" : "#ccc"};">${Math.floor(wear.distance)} / ${part.maxLife} km</span>
                     </div>
                     <div style="width: 100%; background: #333; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 10px;">
@@ -215,10 +216,10 @@ container.innerHTML = `
             ${data.certified ? '<div style="position:absolute; top:-10px; right:10px; background:#00ff88; color:#000; font-weight:bold; font-size:0.6rem; padding:3px 8px; border-radius:10px; text-transform:uppercase;"><i class="fa-solid fa-check-circle"></i> Certifié</div>' : ''}
             <div style="color: #aaa; font-size: 0.8rem; margin-bottom: 5px;">
               <i class="fa-regular fa-calendar"></i> ${dateStr} &nbsp;&nbsp;|&nbsp;&nbsp; 
-              <i class="fa-solid fa-gauge-high"></i> ${data.mileage} km
+              <i class="fa-solid fa-gauge-high"></i> ${escapeHtml(data.mileage)} km
             </div>
-            <strong style="color: #fff; font-size: 1rem; display:block; margin-bottom: 5px;">${data.category}</strong>
-            <p style="color: #ccc; font-size: 0.85rem; line-height: 1.4; margin: 0;">${data.description}</p>
+            <strong style="color: #fff; font-size: 1rem; display:block; margin-bottom: 5px;">${escapeHtml(data.category)}</strong>
+            <p style="color: #ccc; font-size: 0.85rem; line-height: 1.4; margin: 0;">${escapeHtml(data.description)}</p>
           </div>
         `;
       });

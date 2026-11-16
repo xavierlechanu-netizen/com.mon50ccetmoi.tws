@@ -609,8 +609,9 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────────
     match /garage_partners/{partnerId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && isOwner(partnerId);
-      allow update: if isOwner(partnerId) || isAdmin();
+      // Écrit uniquement par le webhook Revolut après paiement (Admin SDK). Avant (16/11/2026) :
+      // n'importe quel membre pouvait se déclarer garage partenaire avec un faux numéro de commande.
+      allow create, update: if false;
       allow delete: if isAdmin();
     }
 

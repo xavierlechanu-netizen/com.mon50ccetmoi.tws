@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml } from './html-escape.js';
 import { coarsePosition, recentCutoff, MAX_SHARED_POSITIONS } from './location-privacy.js';
 
 /**
@@ -135,10 +136,10 @@ btn.innerHTML = '<i class="fa-solid fa-ghost"></i> Ghost Mode';
         /*
         if (this.friendsMarkers[uid]) {
             this.friendsMarkers[uid].setLatLng([data.lat, data.lng]);
-            this.friendsMarkers[uid].setPopupContent(`<b>${data.username}</b><br>${data.speed} km/h`);
+            this.friendsMarkers[uid].setPopupContent(`<b>${escapeHtml(data.username)}</b><br>${escapeHtml(data.speed)} km/h`);
         } else {
             const marker = L.marker([data.lat, data.lng], { icon: L.icon({ iconUrl: 'assets/motorcycle-icon.png' }) })
-                .bindPopup(`<b>${data.username}</b><br>${data.speed} km/h`)
+                .bindPopup(`<b>${escapeHtml(data.username)}</b><br>${escapeHtml(data.speed)} km/h`)
                 .addTo(window.map);
             this.friendsMarkers[uid] = marker;
         }

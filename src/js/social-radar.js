@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml } from './html-escape.js';
 import { coarsePosition, recentCutoff } from './location-privacy.js';
 
 /**
@@ -158,7 +159,7 @@ if (typeof window.SocialRadarManager === "undefined") {
         const icon = L.divIcon({
           html: `<div style="text-align:center;">
                    <i class="fa-solid fa-motorcycle" style="color: #00f2ff; font-size: 22px; filter: drop-shadow(0 0 10px #00f2ff);"></i>
-                   <div style="background:rgba(6,9,19,0.85); border:1px solid #00f2ff; color:#00f2ff; font-size:10px; padding:2px 6px; border-radius:8px; white-space:nowrap; margin-top:2px; font-weight:bold;">${rider.username}</div>
+                   <div style="background:rgba(6,9,19,0.85); border:1px solid #00f2ff; color:#00f2ff; font-size:10px; padding:2px 6px; border-radius:8px; white-space:nowrap; margin-top:2px; font-weight:bold;">${escapeHtml(rider.username)}</div>
                  </div>`,
           className: "rider-radar-marker",
           iconSize: [40, 40],
@@ -168,8 +169,8 @@ if (typeof window.SocialRadarManager === "undefined") {
         const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
         marker.bindPopup(`
           <div style="color:#fff; font-family:'Inter',sans-serif; text-align:center;">
-            <strong style="color:#00f2ff; font-size:1.1rem;">${rider.username}</strong><br>
-            <span style="color:#aaa; font-size:0.8rem;">Monture : ${rider.vehicle || "50cc"}</span><br>
+            <strong style="color:#00f2ff; font-size:1.1rem;">${escapeHtml(rider.username)}</strong><br>
+            <span style="color:#aaa; font-size:0.8rem;">Monture : ${escapeHtml(rider.vehicle || "50cc")}</span><br>
             <span style="color:#00ff88; font-size:0.75rem;"><i class="fa-solid fa-circle-dot"></i> En balade</span>
           </div>
         `);

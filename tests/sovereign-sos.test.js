@@ -157,6 +157,47 @@ describe("Route POST /api/v1/sos", () => {
         expect(r.body.error).toMatch(/112/);
         expect((await invoke(app, "POST", "/api/v1/sos", body, auth("pilote2"))).status).toBe(200);
     });
+
+    // Audit du 16/11/2026 (D2) : plafonds sur 24 h, les SMS étant payants et les numéros libres
+    describe("plafonds sur 24 heures", () => {
+        let now;
+        beforeEach(() => {
+            now = Date.parse("2026-11-16T08:00:00Z");
+            jest.spyOn(Date, "now").mockImplementation(() => now);
+        });
+        afterEach(() => jest.restoreAllMocks());
+
+        test("au plus 10 alertes par pilote sur 24 h, même espacées ; à nouveau possible le lendemain", async () => {
+            const sms = fakeSms();
+            const app = makeApp(sms);
+            for (let i = 0; i < 10; i++) {
+                expect((await invoke(app, "POST", "/api/v1/sos", body, auth("pilote1"))).status).toBe(200);
+                now += 11 * 60 * 1000; // au-delà de la fenêtre de 10 minutes
+            }
+            const r = await invoke(app, "POST", "/api/v1/sos", body, auth("pilote1"));
+            expect(r.status).toBe(429);
+            expect(r.body.error).toMatch(/112/);
+            expect(sms.calls).toHaveLength(10);
+            now += 24 * 3600 * 1000;
+            expect((await invoke(app, "POST", "/api/v1/sos", body, auth("pilote1"))).status).toBe(200);
+        });
+
+        test("budget SMS du serveur : au-delà, plus aucun envoi (comptes créés en série), le 112 est proposé", async () => {
+            const sms = fakeSms();
+            const app = createSovereignApp({
+                users: [{ uid: "a" }, { uid: "b" }, { uid: "c" }], smsClient: sms, sosDailySmsBudget: 4,
+            });
+            expect((await invoke(app, "POST", "/api/v1/sos", body, auth("a"))).status).toBe(200); // 2 SMS
+            expect((await invoke(app, "POST", "/api/v1/sos", body, auth("b"))).status).toBe(200); // 4 SMS
+            const r = await invoke(app, "POST", "/api/v1/sos", body, auth("c"));
+            expect(r.status).toBe(429);
+            expect(r.body).toMatchObject({ sent: 0 });
+            expect(r.body.error).toMatch(/112/);
+            expect(sms.calls).toHaveLength(2);
+            now += 24 * 3600 * 1000;
+            expect((await invoke(app, "POST", "/api/v1/sos", body, auth("c"))).status).toBe(200);
+        });
+    });
 });
 
 describe("Jeton SOS : l'alerte part des jours après la connexion", () => {

@@ -372,3 +372,17 @@ describe("Liste d'attente de la Boîte Noire", () => {
     await assertFails(col.doc("g").set(entry({ createdAt: Timestamp.fromMillis(0) })));
   });
 });
+
+describe("Garages partenaires : réservés au webhook de paiement (audit du 16/11/2026)", () => {
+  it("un membre ne peut pas se déclarer garage partenaire lui-même, ni modifier sa fiche", async () => {
+    const garage = testEnv.authenticatedContext("garage1").firestore();
+    await assertFails(garage.collection("garage_partners").doc("garage1").set({
+      revolut_order_id: "faux-paiement", user_id: "garage1", certified_at: new Date(),
+    }));
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().collection("garage_partners").doc("garage1").set({ revolut_order_id: "ord-1", user_id: "garage1" });
+    });
+    await assertFails(garage.collection("garage_partners").doc("garage1").update({ revolut_order_id: "autre" }));
+    await assertSucceeds(garage.collection("garage_partners").doc("garage1").get());
+  });
+});

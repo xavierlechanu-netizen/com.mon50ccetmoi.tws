@@ -155,4 +155,39 @@ describe("Phase 1 — sécurité du serveur souverain", () => {
         });
         expect(keys.privateKey).toContain("\nabc\n");
     });
+
+    // Audit du 16/11/2026
+    test("inscription : email mal formé, pseudo avec balise ou mot de passe démesuré → refusés", async () => {
+        const app = makeApp();
+        const register = (body, ip) => invokeRequest(app, "POST", "/api/v1/auth/register",
+            { email: "pilote@example.com", username: "Pilote", password: "motdepasse-solide", ...body }, { ip });
+        expect((await register({ email: "pas-un-email" }, "5.5.5.1")).status).toBe(400);
+        expect((await register({ username: "<img src=x>" }, "5.5.5.2")).status).toBe(400);
+        expect((await register({ username: "Bob\" data-action=\"x()" }, "5.5.5.3")).status).toBe(400);
+        // Avant : plus de 256 caractères → plantage du hachage, erreur 500
+        expect((await register({ password: "a".repeat(257) }, "5.5.5.4")).status).toBe(400);
+        // Long mot de passe (phrase de passe) et pseudo avec espace : acceptés
+        expect((await register({ password: "une phrase de passe ".repeat(12), username: "Poste 1" }, "5.5.5.5")).status).toBe(201);
+    });
+
+    test("connexion : un email inconnu prend autant de temps qu'un mauvais mot de passe (pas d'énumération)", async () => {
+        const app = makeApp();
+        const created = await invokeRequest(app, "POST", "/api/v1/auth/register",
+            { email: "connu@example.com", username: "Connu", password: "motdepasse-solide" }, { ip: "6.6.6.0" });
+        expect(created.status).toBe(201);
+
+        const timeLogin = async (email, ip) => {
+            const start = process.hrtime.bigint();
+            const res = await invokeRequest(app, "POST", "/api/v1/auth/login", { email, password: "mauvais-mot" }, { ip });
+            expect(res.status).toBe(401);
+            expect(res.body.error).toBe("Identifiants invalides.");
+            return Number(process.hrtime.bigint() - start) / 1e6;
+        };
+        const median = (xs) => xs.sort((a, b) => a - b)[1];
+        await timeLogin("echauffement@example.com", "6.6.6.9"); // calcule le leurre une fois
+        const known = median([await timeLogin("connu@example.com", "6.6.6.1"), await timeLogin("connu@example.com", "6.6.6.2"), await timeLogin("connu@example.com", "6.6.6.3")]);
+        const unknown = median([await timeLogin("inconnu1@example.com", "6.6.6.4"), await timeLogin("inconnu2@example.com", "6.6.6.5"), await timeLogin("inconnu3@example.com", "6.6.6.6")]);
+        // Sans le leurre, l'email inconnu répondait ~50 fois plus vite (aucun calcul scrypt)
+        expect(unknown).toBeGreaterThan(known * 0.4);
+    });
 });

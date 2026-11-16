@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml, safeNumber } from './html-escape.js';
 
 // --- PIT STOPS INTELLIGENCE ---
 window.PitStopSystem = {
@@ -57,10 +58,10 @@ window.PitStopSystem = {
 
     const info = new google.maps.InfoWindow({
       content: `<div style="color:black; font-family:'Outfit';">
-                        <h3 style="margin:0;">${isGas ? "⛽" : "🔧"} ${data.name}</h3>
-                        <p style="margin:5px 0;">${data.desc || ""}</p>
-                        <small>Ajouté par: ${data.author}</small><br>
-                        <button data-action="window.calculateRoute(new google.maps.LatLng(${data.lat}, ${data.lng}))" style="margin-top:5px; background:#111; color:white; padding:5px 10px; border:none; border-radius:5px; cursor:pointer;">Y aller</button>
+                        <h3 style="margin:0;">${isGas ? "⛽" : "🔧"} ${escapeHtml(data.name)}</h3>
+                        <p style="margin:5px 0;">${escapeHtml(data.desc)}</p>
+                        <small>Ajouté par: ${escapeHtml(data.author)}</small><br>
+                        <button data-action="window.calculateRoute(new google.maps.LatLng(${safeNumber(data.lat)}, ${safeNumber(data.lng)}))" style="margin-top:5px; background:#111; color:white; padding:5px 10px; border:none; border-radius:5px; cursor:pointer;">Y aller</button>
                       </div>`,
     });
 

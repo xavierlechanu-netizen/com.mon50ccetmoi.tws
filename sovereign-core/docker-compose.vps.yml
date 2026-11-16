@@ -76,6 +76,7 @@ services:
       OVH_SMS_CONSUMER_KEY: ${OVH_SMS_CONSUMER_KEY:-}
       OVH_SMS_SERVICE: ${OVH_SMS_SERVICE:-}
       OVH_SMS_SENDER: ${OVH_SMS_SENDER:-}
+      SOS_DAILY_SMS_BUDGET: ${SOS_DAILY_SMS_BUDGET:-300}
       # Comptes importés de Firebase (jour J) : paramètres de hachage du projet Firebase,
       # pour vérifier leurs mots de passe jusqu'à leur première connexion (deploy/README.md, étape 10).
       FIREBASE_SCRYPT_SIGNER_KEY: ${FIREBASE_SCRYPT_SIGNER_KEY:-}

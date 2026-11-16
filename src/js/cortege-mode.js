@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml } from './html-escape.js';
 
 // --- MODE CORTÈGE (Balade Synchro) ---
 window.CortegeSystem = {
@@ -145,7 +146,7 @@ window.CortegeSystem = {
         title: data.name,
       });
       const info = new google.maps.InfoWindow({
-        content: `<b>${data.name}</b>`,
+        content: `<b>${escapeHtml(data.name)}</b>`,
       });
       this.markers[uid].addListener("click", () =>
         info.open(map, this.markers[uid]),

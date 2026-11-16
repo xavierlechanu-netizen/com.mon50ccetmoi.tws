@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml, safeId } from './html-escape.js';
 
 // --- S.O.S COMMUNAUTAIRE ---
 window.SosSystem = {
@@ -193,12 +194,12 @@ this.div.innerHTML = `
     const info = new google.maps.InfoWindow({
       content: `<div style="color:red; font-family:'Outfit', sans-serif; text-align:center; padding:10px;">
                         <h3 style="margin:0; font-size:1.2rem;">🚨 S.O.S</h3>
-                        <p style="margin:5px 0;"><b>Pilote :</b> ${data.author}</p>
-                        <p style="margin:5px 0; color:#000;"><b>Problème :</b> ${data.type}</p>
+                        <p style="margin:5px 0;"><b>Pilote :</b> ${escapeHtml(data.author)}</p>
+                        <p style="margin:5px 0; color:#000;"><b>Problème :</b> ${escapeHtml(data.type)}</p>
                         ${
                           data.authorUid === window.session.uid
-                            ? `<button data-action="window.SosSystem.resolveAlert('${alertId}')" style="background:green; color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">Problème Résolu</button>`
-                            : `<button data-action="window.SosSystem.volunteerToHelp('${alertId}')" style="background:#00d2ff; color:black; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">J'arrive pour aider !</button>`
+                            ? `<button data-action="window.SosSystem.resolveAlert('${safeId(alertId)}')" style="background:green; color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">Problème Résolu</button>`
+                            : `<button data-action="window.SosSystem.volunteerToHelp('${safeId(alertId)}')" style="background:#00d2ff; color:black; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">J'arrive pour aider !</button>`
                         }
                       </div>`,
     });

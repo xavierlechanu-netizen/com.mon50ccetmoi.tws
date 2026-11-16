@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml } from './html-escape.js';
 
 ﻿// --- LEADERBOARD (King of the Street) ---
 window.Leaderboard = {
@@ -144,8 +145,8 @@ window.Leaderboard = {
 
       htmlList += `
                 <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #333; color:${color}; font-weight:${index < 3 ? "bold" : "normal"};">
-                    <span>${index + 1}. ${crownIcon} ${p.username}</span>
-                    <span>${p.points} pts</span>
+                    <span>${index + 1}. ${crownIcon} ${escapeHtml(p.username)}</span>
+                    <span>${escapeHtml(p.points)} pts</span>
                 </div>
             `;
     });

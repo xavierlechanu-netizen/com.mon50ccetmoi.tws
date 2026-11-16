@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml } from './html-escape.js';
 import Moderation from './moderation.js';
 
 ﻿/**
@@ -160,8 +161,8 @@ messagesDiv.innerHTML = "";
 
           // eslint-disable-next-line no-restricted-syntax
 msgEl.innerHTML = `
-                        ${!isMe ? `<strong style="color:#00f2ff; font-size:0.75rem; display:block; margin-bottom:3px;">${data.authorName}</strong>` : ""}
-                        ${data.text}
+                        ${!isMe ? `<strong style="color:#00f2ff; font-size:0.75rem; display:block; margin-bottom:3px;">${escapeHtml(data.authorName)}</strong>` : ""}
+                        ${escapeHtml(data.text)}
                         <div style="font-size:0.65rem; color:#888; text-align:right; margin-top:5px;">${time}</div>
                     `;
 

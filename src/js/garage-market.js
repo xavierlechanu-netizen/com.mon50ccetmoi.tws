@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml, safeId } from './html-escape.js';
 
 // --- GARAGE MARKET (Troc et Vente de pièces) ---
 window.GarageMarket = {
@@ -72,10 +73,10 @@ tradeIcon.innerHTML = `<i class="fa-solid fa-wrench"></i>`;
     const info = new google.maps.InfoWindow({
       content: `<div style="color:black; font-family:'Outfit', sans-serif; max-width:200px;">
                         <span style="font-size:0.7rem; background:${isWTB ? "#ffaa00" : "#00d2ff"}; color:white; padding:2px 5px; border-radius:3px;">${typeStr}</span>
-                        <h3 style="margin:5px 0;">${data.title}</h3>
-                        <p style="margin:0 0 10px 0; font-size:0.9rem;">${data.desc}</p>
-                        <small>Par: ${data.author}</small><br>
-                        <a href="mailto:contact@mon50ccetmoi.com?subject=Annonce_${tradeId}" style="display:inline-block; margin-top:10px; background:#111; color:white; padding:5px 10px; text-decoration:none; border-radius:5px; font-size:0.8rem;">Contacter</a>
+                        <h3 style="margin:5px 0;">${escapeHtml(data.title)}</h3>
+                        <p style="margin:0 0 10px 0; font-size:0.9rem;">${escapeHtml(data.desc)}</p>
+                        <small>Par: ${escapeHtml(data.author)}</small><br>
+                        <a href="mailto:contact@mon50ccetmoi.com?subject=Annonce_${encodeURIComponent(safeId(tradeId))}" style="display:inline-block; margin-top:10px; background:#111; color:white; padding:5px 10px; text-decoration:none; border-radius:5px; font-size:0.8rem;">Contacter</a>
                       </div>`,
     });
 

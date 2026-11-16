@@ -85,8 +85,8 @@ function injectPrivacyBanner() {
         <h2>Politique de Confidentialité Globale</h2>
         <p>En accord avec les règles Google Play et les lois RGPD (Europe), CCPA (USA) et PIPL (Chine).</p>
         
-        <h3>1. Accès à la Localisation en Arrière-plan (Google Play)</h3>
-        <p>Notre application accède à votre position GPS de manière continue, y compris lorsque l'application est en arrière-plan, afin de calculer les distances parcourues pour le Score Éco et le Radar Social. Ces données sont utilisées exclusivement pour la fonctionnalité principale du service et ne sont pas revendues.</p>
+        <h3>1. Accès à la Localisation (Google Play)</h3>
+        <p>Notre application utilise votre position GPS uniquement lorsqu'elle est ouverte (navigation, détection de chute, signalement de dangers, Score Éco et Radar Social). Votre position n'est pas collectée lorsque l'application est fermée ou en arrière-plan. Ces données ne sont pas revendues.</p>
         
         <h3>2. Europe (RGPD) & Privacy by Design</h3>
         <p>Vos données sont traitées de façon sécurisée (AES-256). Vous disposez d'un droit inconditionnel à l'oubli. La fonction "Supprimer mes données" écrase vos données locales et purge irrévocablement votre compte sur le Cloud Firebase.</p>

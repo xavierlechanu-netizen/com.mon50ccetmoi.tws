@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { escapeHtml } from './html-escape.js';
 
 /**
  * 🗺️ MODE CONVOI
@@ -253,7 +254,7 @@ window.ConvoyManager = {
       const icon = L.divIcon({
         className: "convoy-marker",
         html: `<div style="background:#00d2ff; color:#000; padding:4px 10px; border-radius:20px; font-weight:bold; font-size:0.75rem; white-space:nowrap; box-shadow:0 2px 8px rgba(0,210,255,0.5); text-align:center;">
-                    <i class="fa-solid fa-motorcycle"></i> ${member.username}
+                    <i class="fa-solid fa-motorcycle"></i> ${escapeHtml(member.username)}
                 </div>`,
         iconSize: [100, 30],
         iconAnchor: [50, 15],
@@ -305,7 +306,7 @@ window.ConvoyManager = {
           : "En attente GPS";
         membersHTML += `
                     <div style="display:flex; justify-content:space-between; padding:10px 15px; background:rgba(255,255,255,0.05); border-radius:12px; margin-bottom:8px;">
-                        <span><i class="fa-solid fa-motorcycle" style="color:#00d2ff; margin-right:8px;"></i> ${m.username}</span>
+                        <span><i class="fa-solid fa-motorcycle" style="color:#00d2ff; margin-right:8px;"></i> ${escapeHtml(m.username)}</span>
                         <span style="color:#aaa;">${speed}</span>
                     </div>
                 `;
