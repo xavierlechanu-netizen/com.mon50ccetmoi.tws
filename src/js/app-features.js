@@ -1130,11 +1130,11 @@ window.triggerRegionalWelcome = function (lat, lng) {
         window.OracleEngine.currentRegion = regionKey;
         window.OracleEngine._regionSetByNominatim = regionKey !== "default";
       }
-      speak(REGION_MESSAGES[regionKey]);
+      speak(REGION_MESSAGES[regionKey], { greet: true });
     })
     .catch((err) => {
       console.error("Erreur Geocoding Inverse pour Oracle:", err);
-      speak(REGION_MESSAGES["default"]);
+      speak(REGION_MESSAGES["default"], { greet: true });
     });
 };
 

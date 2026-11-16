@@ -224,7 +224,7 @@ class OracleVoice {
     if (commandText.length < 3 || commandText.match(/^(es-tu là|tu m'entends|ça va|quoi de neuf)$/i)) {
         reply([
             "Oui, je vous écoute.", 
-            "À vos ordres, pilote.", 
+            "À vos ordres, {pseudo}.", 
             "Système en ligne. Que puis-je faire pour vous ?", 
             "Je suis prêt. Quelle est la destination ?"
         ]);

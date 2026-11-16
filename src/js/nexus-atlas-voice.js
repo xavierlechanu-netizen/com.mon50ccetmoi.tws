@@ -421,7 +421,7 @@ window.initVoiceAI = function () {
 
       // Si la commande est vide après "nexus-atlas"
       if (command.length < 2) {
-        window.NexusAtlasEngine.speak("À vos ordres, pilote.");
+        window.NexusAtlasEngine.speak("À vos ordres, {pseudo}.");
         return;
       }
 

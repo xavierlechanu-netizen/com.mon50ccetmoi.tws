@@ -33,7 +33,7 @@ export const PHRASES = {
   "Mode économie d'énergie Ultra Max activé. Passage en navigation hors ligne.": { en: "Ultra Max power saving on. Switching to offline navigation.", es: "Ahorro de energía Ultra Max activado. Cambio a navegación sin conexión." },
   "Conformité internationale validée. Bienvenue.": { en: "International compliance confirmed. Welcome.", es: "Conformidad internacional validada. Bienvenido." },
   "Paramètres de confidentialité enregistrés. Bienvenue dans la communauté.": { en: "Privacy settings saved. Welcome to the community.", es: "Ajustes de privacidad guardados. Bienvenido a la comunidad." },
-  "À vos ordres, pilote.": { en: "At your command, rider.", es: "A sus órdenes, piloto." },
+  "À vos ordres, {pseudo}.": { en: "At your command, {pseudo}.", es: "A sus órdenes, {pseudo}." },
 
   // --- Navigation ---
   "Lieu de départ introuvable.": { en: "Starting point not found.", es: "No se encuentra el punto de partida." },
@@ -255,7 +255,7 @@ export const PHRASES = {
   "Core Universel stabilisé. Liaison totale établie.": { en: "Universal core stabilised. Full link established.", es: "Núcleo universal estabilizado. Conexión total establecida." },
   "Alerte : Vitesse excessive. Ralentissez immédiatement.": { en: "Alert: excessive speed. Slow down now.", es: "Alerta: velocidad excesiva. Reduzca inmediatamente." },
   "ANALYSE : Menace identifiée. Prudence conseillée.": { en: "ANALYSIS: threat identified. Caution advised.", es: "ANÁLISIS: amenaza identificada. Se aconseja prudencia." },
-  "Félicitations Pilote. Votre expérience a augmenté.": { en: "Congratulations, rider. Your experience has increased.", es: "Enhorabuena, piloto. Su experiencia ha aumentado." },
+  "Félicitations {pseudo}. Votre expérience a augmenté.": { en: "Congratulations, {pseudo}. Your experience has increased.", es: "Enhorabuena, {pseudo}. Su experiencia ha aumentado." },
   "Ange Gardien activé. Surveillance périmétrique en cours.": { en: "Guardian Angel on. Watching over you.", es: "Ángel Guardián activado. Vigilancia en curso." },
   "Ange Gardien désactivé. Fin de la surveillance.": { en: "Guardian Angel off. Monitoring stopped.", es: "Ángel Guardián desactivado. Fin de la vigilancia." },
   "ATTENTION : DÉPASSEMENT DANGEREUX DÉTECTÉ.": { en: "CAUTION: DANGEROUS OVERTAKING DETECTED.", es: "ATENCIÓN: ADELANTAMIENTO PELIGROSO DETECTADO." },
@@ -306,6 +306,22 @@ export const PREFIXES = {
   "Trajet terminé. Félicitations, vous avez économisé ": { en: "Trip finished. Congratulations, you saved ", es: "Trayecto terminado. Enhorabuena, ha ahorrado " },
   "Intelligence prédictive activée. Itinéraire vers ": { en: "Predictive intelligence on. Route to ", es: "Inteligencia predictiva activada. Ruta hacia " },
 };
+
+// Le pilote est appelé par son pseudo (16/11/2026) : avant, Nexus Atlas disait « pilote » à tout le monde.
+const PILOT_FALLBACK = { fr: "pilote", en: "rider", es: "piloto" };
+const HELLO = { fr: "Bonjour", en: "Hello", es: "Hola" };
+
+/**
+ * Remplace {pseudo} par le pseudo du pilote (« pilote » si personne n'est connecté) et, avec
+ * greet, commence par « Bonjour <pseudo>. ». Le texte est déjà dans la langue `lang`.
+ * Le pseudo est limité à 30 caractères et débarrassé des signes qui gêneraient la voix.
+ */
+export function personalizeVoiceText(text, lang, name, { greet = false } = {}) {
+  const pseudo = String(name || "").replace(/[<>{}[\]\\|"`]/g, " ").replace(/\s+/g, " ").trim().slice(0, 30);
+  const said = String(text ?? "").replace(/\{pseudo\}/g, pseudo || PILOT_FALLBACK[lang] || PILOT_FALLBACK.fr);
+  if (!greet || !pseudo) return said;
+  return `${HELLO[lang] || HELLO.fr} ${pseudo}. ${said}`;
+}
 
 /** Langue de la voix : celle choisie dans l'app (i18n.js), sinon celle du téléphone. */
 export function voiceLanguage(appLang, browserLang) {

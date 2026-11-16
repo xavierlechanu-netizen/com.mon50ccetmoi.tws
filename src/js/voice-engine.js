@@ -6,7 +6,13 @@
  * - speak(clé ou phrase) : dit la phrase dans la langue de l'utilisateur (voice-phrases.js) ;
  * - vibrate(ms) : vibration, seulement après une première interaction (règle des navigateurs).
  */
-import { voiceLanguage, translateForVoice } from './voice-phrases.js';
+import { voiceLanguage, translateForVoice, personalizeVoiceText } from './voice-phrases.js';
+
+/** Pseudo du pilote connecté (vide si personne n'est connecté). */
+export function pilotName() {
+  const s = window.session || {};
+  return String(s.username || s.displayName || "").trim();
+}
 
 // --- NEW: Voice Synthesis & Haptics ---
 export function vibrate(ms) {
@@ -53,7 +59,7 @@ window.OracleEngine = {
         start: "Core Universel stabilisé. Liaison totale établie.",
         speed: "Alerte : Vitesse excessive. Ralentissez immédiatement.",
         threat_detected: "ANALYSE : Menace identifiée. Prudence conseillée.",
-        level_up: "Félicitations Pilote. Votre expérience a augmenté.",
+        level_up: "Félicitations {pseudo}. Votre expérience a augmenté.",
         start_guardian:
           "Ange Gardien activé. Surveillance périmétrique en cours.",
         stop_guardian: "Ange Gardien désactivé. Fin de la surveillance.",
@@ -389,14 +395,18 @@ window.OracleEngine = {
 };
 
 
-export async function speak(phraseKey) {
+/**
+ * @param {string} phraseKey  clé du lexique ou phrase ; « {pseudo} » est remplacé par le pseudo du pilote
+ * @param {{greet?: boolean}} [opts]  greet : commence par « Bonjour <pseudo>. »
+ */
+export async function speak(phraseKey, opts = {}) {
   if (!("speechSynthesis" in window)) return;
 
   // Les navigateurs refusent de parler tant que la personne n'a pas touché la page : le
   // message (ex. « Content de vous revoir ») était perdu. On garde le dernier et on le dit
   // au premier clic ou appui sur une touche.
   if (navigator.userActivation && !navigator.userActivation.hasBeenActive) {
-    window.pendingSpeech = phraseKey;
+    window.pendingSpeech = { phraseKey, opts };
     if (!window.pendingSpeechListening) {
       window.pendingSpeechListening = true;
       const flush = () => {
@@ -405,7 +415,7 @@ export async function speak(phraseKey) {
         window.pendingSpeechListening = false; // se réinstalle si la voix est encore refusée
         const pending = window.pendingSpeech;
         window.pendingSpeech = null;
-        if (pending) speak(pending);
+        if (pending) speak(pending.phraseKey, pending.opts);
       };
       window.addEventListener("click", flush, { once: true, capture: true });
       window.addEventListener("keydown", flush, { once: true, capture: true });
@@ -431,7 +441,7 @@ export async function speak(phraseKey) {
     console.info(`[Voix] Phrase sans traduction (${wantedLang}) :`, text);
   }
   const targetLang = voiceText.lang;
-  const finalMsg = voiceText.text;
+  const finalMsg = personalizeVoiceText(voiceText.text, targetLang, pilotName(), opts);
 
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(finalMsg);

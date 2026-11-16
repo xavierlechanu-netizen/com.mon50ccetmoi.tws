@@ -13,7 +13,7 @@ function loadModule() {
   const src = fs.readFileSync(path.join(JS, "voice-phrases.js"), "utf8")
     .replace(/^export (const|function) /gm, "$1 ");
   // eslint-disable-next-line no-new-func
-  return new Function(`${src}\nreturn { PHRASES, PATTERNS, PREFIXES, translateForVoice, voiceLanguage };`)();
+  return new Function(`${src}\nreturn { PHRASES, PATTERNS, PREFIXES, translateForVoice, voiceLanguage, personalizeVoiceText };`)();
 }
 const V = loadModule();
 
@@ -91,5 +91,31 @@ describe("Voix de Nexus Atlas : dictionnaire intégré", () => {
     expect(V.voiceLanguage("en", "fr-FR")).toBe("en");
     expect(V.voiceLanguage(null, "es-ES")).toBe("es");
     expect(V.voiceLanguage("de", "de-DE")).toBe("fr");
+  });
+});
+
+describe("Nexus Atlas appelle le pilote par son pseudo (16/11/2026)", () => {
+  test("{pseudo} devient le pseudo, ou « pilote » si personne n est connecté", () => {
+    expect(V.personalizeVoiceText("À vos ordres, {pseudo}.", "fr", "Xavier")).toBe("À vos ordres, Xavier.");
+    expect(V.personalizeVoiceText("À vos ordres, {pseudo}.", "fr", "")).toBe("À vos ordres, pilote.");
+    expect(V.personalizeVoiceText("At your command, {pseudo}.", "en", null)).toBe("At your command, rider.");
+  });
+  test("traduit avant de remplacer : le pseudo n est jamais traduit", () => {
+    const en = V.translateForVoice("Félicitations {pseudo}. Votre expérience a augmenté.", "en");
+    expect(V.personalizeVoiceText(en.text, en.lang, "Zoé")).toBe("Congratulations, Zoé. Your experience has increased.");
+  });
+  test("accueil : « Bonjour <pseudo>. » devant le message, seulement si on connaît le pseudo", () => {
+    const msg = "Bienvenue en région Rhône-Alpes. Attention aux routes sinueuses en montagne.";
+    expect(V.personalizeVoiceText(msg, "fr", "Xavier", { greet: true })).toBe("Bonjour Xavier. " + msg);
+    expect(V.personalizeVoiceText(msg, "fr", "", { greet: true })).toBe(msg);
+    expect(V.personalizeVoiceText("Welcome.", "es", "Ana", { greet: true })).toBe("Hola Ana. Welcome.");
+  });
+  test("pseudo nettoyé et limité à 30 caractères", () => {
+    expect(V.personalizeVoiceText("{pseudo}", "fr", "<b>Bob</b>")).toBe("b Bob /b");
+    expect(V.personalizeVoiceText("{pseudo}", "fr", "a".repeat(50))).toHaveLength(30);
+  });
+  test("plus aucun « pilote » écrit en dur dans les salutations", () => {
+    const code = ["nexus-atlas-voice.js", "oracle-voice.js", "voice-engine.js"].map((f) => fs.readFileSync(path.join(JS, f), "utf8")).join(" ");
+    expect(code).not.toMatch(/À vos ordres, pilote|Félicitations Pilote./);
   });
 });
