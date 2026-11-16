@@ -2,6 +2,8 @@
 # ============================================================================
 # Crée sovereign-core/.env à partir de deploy/env.vps.example, avec des secrets neufs :
 # mot de passe de la base, paire de clés JWT ES256, phrase de chiffrement des sauvegardes.
+# Les clés que vous seul pouvez créer restent vides, à coller vous-même dans .env (deploy/README.md) :
+# Object Storage (WORM_S3_*, BACKUP_S3_*), SMS (OVH_SMS_*), vigilance Météo-France (METEO_FRANCE_API_KEY).
 # N'écrase jamais un .env existant. Appelé par install.sh ; utilisable seul :
 #   sovereign-core/deploy/make-env.sh            (ENV_FILE=... pour un autre chemin)
 # Affiche la phrase de chiffrement sur la sortie standard, à recopier tout de suite.

@@ -111,6 +111,7 @@ sudo nano /opt/mon50cc/sovereign-core/.env
 - `ACME_EMAIL` : une adresse qui reçoit vraiment le courrier (avertissements du certificat HTTPS).
 - `API_DOMAIN` et `CORS_ORIGIN` : à changer seulement si le domaine n'est pas `mon50ccetmoi.com`.
 - `REVOLUT_WEBHOOK_SECRET` : à laisser vide pour l'instant.
+- `METEO_FRANCE_API_KEY` : à laisser vide pour l'instant (étape 9 bis).
 
 Enregistrez avec Ctrl+O puis Entrée, quittez avec Ctrl+X.
 
@@ -189,6 +190,42 @@ chaque jour d'utilisation, qui n'ouvre que l'alerte SOS. Pour qu'un pilote en ai
 - qu'il se reconnecte **une fois** après la mise en ligne de l'API (les pilotes déjà connectés ne
   retapent jamais leur mot de passe). L'écran « Contacts Ange Gardien » lui dit si l'envoi
   automatique est actif sur son téléphone.
+
+## 9 bis. Vigilance Météo-France (bandeau « vigilance rouge »)
+
+Sans cette étape, le serveur fonctionne, mais l'appli n'affiche pas d'alerte de vigilance
+Météo-France (la météo du trajet, qui vient d'Open-Meteo, n'est pas concernée).
+
+1. Sur <https://portail-api.meteofrance.fr>, créez un compte (gratuit), puis abonnez-vous à l'API
+   **« Données Publiques Vigilance »**.
+2. Générez une **clé d'API** (« API Key »), pas un identifiant d'application (« Application ID ») :
+   le serveur envoie la clé telle quelle, dans l'en-tête `apikey`. Prenez la durée de validité la
+   plus longue proposée et notez la **date d'expiration** dans le gestionnaire de mots de passe :
+   il faudra recréer la clé avant cette date.
+3. **Vous-même**, collez-la dans `.env` sur le VPS, jamais dans une conversation, un email ou le
+   code de l'appli :
+
+   ```bash
+   sudo nano /opt/mon50cc/sovereign-core/.env
+   ```
+
+   Ligne `METEO_FRANCE_API_KEY=` (si elle n'existe pas, parce que `.env` a été créé avant cette
+   version, ajoutez-la en bas du fichier). Puis :
+
+   ```bash
+   cd /opt/mon50cc/sovereign-core && sudo docker compose -f docker-compose.vps.yml up -d
+   ```
+
+4. Vérification : `sudo /opt/mon50cc/sovereign-core/deploy/check.sh` (ligne « vigilance
+   Météo-France »), ou depuis le PC `https://api.mon50ccetmoi.com/api/v1/meteo/vigilance`, qui doit
+   afficher une longue réponse contenant `"product"`. Si elle contient `"fallback":true`, la clé est
+   absente, refusée (expirée, ou pas d'abonnement à l'API Vigilance) ou Météo-France ne répond pas :
+   `sudo docker compose -f docker-compose.vps.yml logs sovereign-api | grep Meteo` dit pourquoi.
+
+Fonctionnement : route publique (les visiteurs sans compte voient aussi l'alerte), carte gardée
+10 minutes en mémoire, donc Météo-France est interrogé au plus 6 fois par heure quel que soit le
+nombre de pilotes. Si Météo-France ne répond plus, la dernière carte connue (24 h au plus) est
+renvoyée avec `"stale":true`. Au plus 120 demandes par adresse IP et par 10 minutes.
 
 ---
 

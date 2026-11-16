@@ -35,6 +35,8 @@ if [ -r "$ENV_FILE" ]; then
     else
         warn "SMS d'urgence non configurés : l'alerte SOS ne peut pas prévenir les proches (deploy/README.md, étape 9)"
     fi
+    meteo_key="$(env_get METEO_FRANCE_API_KEY)"
+    [ -n "$meteo_key" ] || warn "vigilance Météo-France non configurée : pas de bandeau « vigilance rouge » dans l'appli (deploy/README.md, étape 9 bis)"
     domain="$(env_get API_DOMAIN)"
 else
     bad ".env introuvable ($ENV_FILE) → sudo sovereign-core/deploy/install.sh"
@@ -56,6 +58,15 @@ if [ -n "$domain" ]; then
         ok "API joignable en HTTPS : https://$domain/api/v1/health"
     else
         bad "API injoignable sur https://$domain (DNS, certificat ou API) : ${body:0:160}"
+    fi
+    if [ -n "${meteo_key:-}" ]; then
+        meteo="$(curl -fsS --max-time 20 "https://$domain/api/v1/meteo/vigilance" 2>/dev/null)"
+        case "$meteo" in
+            *'"fallback":true'*) warn "vigilance Météo-France : aucune carte (clé refusée ou Météo-France muet) → sudo docker compose -f $COMPOSE_FILE logs sovereign-api | grep Meteo" ;;
+            *'"stale":true'*)    warn "vigilance Météo-France : Météo-France ne répond plus, ancienne carte servie" ;;
+            *'"product"'*)       ok "vigilance Météo-France : carte du jour reçue" ;;
+            *)                   warn "vigilance Météo-France : réponse inattendue de l'API" ;;
+        esac
     fi
 fi
 

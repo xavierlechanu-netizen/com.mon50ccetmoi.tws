@@ -38,7 +38,8 @@ Gravelines (`sovereign-core/`), commandé le 14/11/2026 ; son installation est p
 | Copilote | `nexus_conversations`, `nexus_suggestions` | ❌ avec Mistral |
 
 Le serveur souverain a aujourd'hui 12 routes (`/api/v1/auth/*`, `hazards`, `points/transact`,
-`leaderboard`, `telemetry/upload`, `rgpd/account`, `webhooks/revolut`, usine et admin Boîte Noire).
+`leaderboard`, `telemetry/upload`, `rgpd/account`, `webhooks/revolut`, usine et admin Boîte Noire),
+plus, depuis, l'alerte SOS (`sos`) et la vigilance Météo-France (`meteo/vigilance`, 16/11/2026).
 Le SDK client (`sovereign-core/client/sovereign-sdk.js`) n'en couvre encore qu'une partie.
 
 ## 2. Ordre du déménagement
@@ -56,7 +57,7 @@ plan OVHcloud) : on bascule un domaine à la fois, et on peut revenir en arrièr
 | **5. Boîte Noire** | Télémétrie signée (prête), boîtiers, certificats batterie | Indépendant du lancement du boîtier, mais prêt pour lui |
 | **6. Temps réel** | WebSocket sur le VPS (Caddy le gère déjà) : cortège, convois, chats, radar, SOS | Le plus gros chantier technique |
 | **7. Garages, bourse, roadbooks** | Routes simples de lecture et d'écriture | Peu de risques |
-| **8. Services extérieurs** | Copilote Mistral, météo (Météo-France), Légifrance, Notion, Facebook | Chacun indépendant |
+| **8. Services extérieurs** | Copilote Mistral, ~~météo (Météo-France)~~ **prête** (16/11/2026 : route publique `GET /api/v1/meteo/vigilance`, appli branchée dessus ; reste à coller `METEO_FRANCE_API_KEY` sur le VPS, `deploy/README.md` étape 9 bis), Légifrance, Notion, Facebook | Chacun indépendant |
 | **9. Déménagement des données** | Export Firestore → script d'import PostgreSQL, vérifié par comptage | Juste avant la bascule finale |
 | **10. Fermer Google** | Firebase Hosting, Auth, Firestore, projet Google Cloud | Quand plus rien ne lit Firebase |
 

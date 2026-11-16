@@ -31,6 +31,7 @@ const { createMemoryStore } = require("./store-memory");
 const { createPgStore } = require("./store-pg");
 const { StoreError } = require("./store-errors");
 const { smsClientFromEnv, normalizeFrenchMobile } = require("./sms-ovh");
+const { vigilanceServiceFromEnv } = require("./meteo-vigilance");
 const pointsRules = require("../../functions/api/points-rules");
 
 // Alerte SOS : au plus 3 numéros, 3 alertes par pilote et par 10 minutes (anti-abus, SMS payants)
@@ -119,11 +120,21 @@ function createSovereignApp(options = {}) {
     let sosSmsLog = [];
     const sosDailySmsBudget = options.sosDailySmsBudget ||
         Number(process.env.SOS_DAILY_SMS_BUDGET) || SOS_DEFAULT_DAILY_SMS_BUDGET;
+    // Vigilance Météo-France : clé METEO_FRANCE_API_KEY facultative (sans elle, la route répond « fallback »)
+    const vigilance = options.vigilance || vigilanceServiceFromEnv();
 
     // Limitation des tentatives d'authentification (anti force brute, OWASP ASVS v5.0.0-6.3)
     const authLimit = {
         maxAttempts: options.authMaxAttempts || 10,
         windowMs: options.authWindowMs || 15 * 60 * 1000,
+        hits: new Map()
+    };
+    // Routes publiques de lecture (vigilance météo) : l'appli interroge toutes les 5 min, et
+    // plusieurs pilotes peuvent partager une adresse IP (box, réseau mobile) : limite large,
+    // seulement contre l'arrosage.
+    const publicReadLimit = {
+        maxAttempts: options.publicReadMaxRequests || 120,
+        windowMs: options.publicReadWindowMs || 10 * 60 * 1000,
         hits: new Map()
     };
 
@@ -136,17 +147,17 @@ function createSovereignApp(options = {}) {
     }
 
     /** Enregistre une tentative et renvoie true si la limite est dépassée. */
-    function isRateLimited(key) {
+    function isRateLimited(key, limit = authLimit) {
         const now = Date.now();
-        const recent = (authLimit.hits.get(key) || []).filter((t) => now - t < authLimit.windowMs);
+        const recent = (limit.hits.get(key) || []).filter((t) => now - t < limit.windowMs);
         recent.push(now);
-        authLimit.hits.set(key, recent);
-        if (authLimit.hits.size > 50000) {
-            for (const [k, v] of authLimit.hits) {
-                if (!v.some((t) => now - t < authLimit.windowMs)) authLimit.hits.delete(k);
+        limit.hits.set(key, recent);
+        if (limit.hits.size > 50000) {
+            for (const [k, v] of limit.hits) {
+                if (!v.some((t) => now - t < limit.windowMs)) limit.hits.delete(k);
             }
         }
-        return recent.length > authLimit.maxAttempts;
+        return recent.length > limit.maxAttempts;
     }
 
     // Empreinte d'un mot de passe aléatoire, calculée une fois : sert de leurre quand l'email est inconnu
@@ -156,9 +167,9 @@ function createSovereignApp(options = {}) {
         return dummyHash;
     }
 
-    function rejectTooManyAttempts(res) {
+    function rejectTooManyAttempts(res, limit = authLimit) {
         res.statusCode = 429;
-        res.setHeader("Retry-After", String(Math.ceil(authLimit.windowMs / 1000)));
+        res.setHeader("Retry-After", String(Math.ceil(limit.windowMs / 1000)));
         res.end(JSON.stringify({ error: "Trop de tentatives. Réessayez plus tard." }));
     }
 
@@ -767,6 +778,20 @@ function createSovereignApp(options = {}) {
             return;
         }
 
+        // 4f. VIGILANCE MÉTÉO-FRANCE : information publique de sécurité, sans compte (visiteurs compris).
+        // La clé Météo-France reste sur le serveur ; carte gardée 10 min (meteo-vigilance.js).
+        if (req.method === "GET" && pathname === "/api/v1/meteo/vigilance") {
+            if (isRateLimited(`meteo:${clientIp(req)}`, publicReadLimit)) {
+                rejectTooManyAttempts(res, publicReadLimit);
+                return;
+            }
+            const carte = await vigilance.current();
+            res.statusCode = 200;
+            res.setHeader("Cache-Control", carte.cacheControl);
+            res.end(JSON.stringify(carte.body));
+            return;
+        }
+
         // 5. WEBHOOK REVOLUT SOUVERAIN (Vérification HMAC-SHA256 à temps constant)
         if (req.method === "POST" && pathname === "/api/v1/webhooks/revolut") {
             const secret = process.env.REVOLUT_WEBHOOK_SECRET || options.revolutWebhookSecret;
@@ -831,12 +856,15 @@ function createSovereignApp(options = {}) {
         });
     });
 
-    return { server, store, wormVault, handleRequest };
+    return { server, store, wormVault, vigilance, handleRequest };
 }
 
 if (require.main === module) {
     const port = Number(process.env.PORT) || 8080;
-    const { server, store, wormVault } = createSovereignApp();
+    const { server, store, wormVault, vigilance } = createSovereignApp();
+    if (!vigilance.configured) {
+        console.warn("[SovereignCore] METEO_FRANCE_API_KEY absente : la vigilance Météo-France répond « indisponible » (deploy/README.md, étape 9 bis).");
+    }
     // Un coffre S3 sans Object Lock ne protège rien : le serveur refuse de démarrer.
     const ready = typeof wormVault.assertBucketLocked === "function" ? wormVault.assertBucketLocked() : Promise.resolve();
     ready.catch((err) => {

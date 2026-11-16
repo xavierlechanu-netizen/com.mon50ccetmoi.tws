@@ -1,47 +1,23 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { chargerVigilance } from './vigilance-meteo.js';
 
 /**
  * Simulateur Cerveau IA - Nexus Atlas (Oracle Code de la Route)
  * v2.0 — Connecté à Gemini | Météo contextuelle | Oracle Voice (Web Speech API)
  */
 
-// Fonction pour récupérer la vigilance météo depuis la Cloud Function existante
+// Vigilance Météo-France du jour, par le serveur souverain (route publique : aucun jeton envoyé)
 async function fetchMeteoContext() {
   try {
-    const token = window.auth && window.auth.currentUser
-      ? await window.auth.currentUser.getIdToken()
-      : null;
-    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-    const response = await fetch(
-      "https://europe-west1-mon50ccetmoi.cloudfunctions.net/getVigilanceMeteo",
-      { headers }
-    );
-    if (!response.ok) return null;
-    const data = await response.json();
-    // Extraire le niveau d'alerte max (1=Vert, 2=Jaune, 3=Orange, 4=Rouge)
-    let maxLevel = 1;
-    const hazardTypes = [];
-    if (data && data.product && data.product.periods) {
-      const period = data.product.periods[0];
-      if (period && period.timelaps) {
-        for (const timelap of period.timelaps) {
-          if (timelap.max_color_id > maxLevel) maxLevel = timelap.max_color_id;
-          if (timelap.phenomenon_items) {
-            for (const ph of timelap.phenomenon_items) {
-              if (ph.phenomenon_max_color_id >= 2) {
-                hazardTypes.push(ph.phenomenon_name);
-              }
-            }
-          }
-        }
-      }
-    }
+    const vigilance = await chargerVigilance(CONFIG.SOVEREIGN);
+    if (!vigilance) return null;
+    // Niveau d'alerte max en France (1=Vert, 2=Jaune, 3=Orange, 4=Rouge)
     const meteoLabels = { 1: 'verte (pas de risque)', 2: 'jaune (vigilance)', 3: 'orange (alerte forte)', 4: 'rouge (alerte maximale)' };
     return {
-      level: maxLevel,
-      label: meteoLabels[maxLevel] || 'inconnue',
-      hazards: [...new Set(hazardTypes)].join(', ') || 'aucun'
+      level: vigilance.niveau,
+      label: meteoLabels[vigilance.niveau] || 'inconnue',
+      hazards: vigilance.risques.join(', ') || 'aucun'
     };
   } catch (e) {
     console.warn('[Nexus Atlas] Météo non disponible:', e.message);

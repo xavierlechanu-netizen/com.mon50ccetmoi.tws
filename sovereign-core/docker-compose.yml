@@ -51,6 +51,8 @@ services:
       SOVEREIGN_JWT_PUBLIC_KEY: ${SOVEREIGN_JWT_PUBLIC_KEY:?Cle JWT requise}
       SOVEREIGN_TRUST_PROXY: ${SOVEREIGN_TRUST_PROXY:-0}
       REVOLUT_WEBHOOK_SECRET: ${REVOLUT_WEBHOOK_SECRET:-}
+      # Vigilance Météo-France (facultatif) ; vide : la route répond « indisponible »
+      METEO_FRANCE_API_KEY: ${METEO_FRANCE_API_KEY:-}
       # Coffre des preuves : bucket OVHcloud Object Storage créé avec Object Lock activé
       WORM_S3_BUCKET: ${WORM_S3_BUCKET:?Bucket S3 Object Lock requis pour les preuves}
       WORM_S3_ENDPOINT: ${WORM_S3_ENDPOINT:-https://s3.gra.io.cloud.ovh.net}

@@ -2,6 +2,7 @@ import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { describeWeather } from './weather-advice.js';
 import { distanceMeters } from './geo-math.js';
+import { chargerVigilance, texteZonesRouges } from './vigilance-meteo.js';
 
 // NOTE : secureSetItem / secureGetItem sont définis dans config.js (chargé avant ce script).
 
@@ -1272,38 +1273,26 @@ window.generateTacticalExploration = function () {
 };
 
 // ============================================================
-// --- 6. VIGILANCE ROUGE MÉTÉO-FRANCE (OPENDATA) ---
+// --- 6. VIGILANCE ROUGE MÉTÉO-FRANCE ---
 // ============================================================
 window.checkVigilanceRouge = async function () {
   try {
-    // Appel sécurisé via Cloud Function (évite d'exposer la clé Météo-France)
-    const url = "https://europe-west1-mon50ccetmoi.cloudfunctions.net/getVigilanceMeteo";
-    const response = await fetch(url);
+    // Par le serveur souverain (clé Météo-France gardée sur le serveur, jamais dans l'appli)
+    const vigilance = await chargerVigilance(CONFIG.SOVEREIGN);
+    // Serveur pas encore en ligne ou Météo-France indisponible : on ne change rien à l'affichage
+    if (!vigilance) return;
 
-    if (!response.ok) {
-        return;
-    }
-
-    const data = await response.json();
-    // La nouvelle API renvoie un tableau d'alertes, il faut l'adapter
-    // On extrait juste les zones en rouge pour simuler le comportement précédent
-    let alerts = [];
-    if (data && data.product && data.product.domain) {
-      alerts = data.product.domain.filter(d => d.max_color_id === 4); // 4 = Rouge chez Météo France
-    }
     const banner = document.getElementById("vigilance-rouge-banner");
     const textEl = document.getElementById("vigilance-rouge-text");
 
-    if (alerts.length > 0 && banner && textEl) {
-      // Regrouper les départements en alerte
-      const deptsList = alerts
-        .map(
-          (a) =>
-            `${a.nom_dept || a.departement || "Département inconnu"} (${a.risque || "Danger imminent"})`,
-        )
-        .join(" | ");
-      // eslint-disable-next-line no-restricted-syntax
-textEl.innerHTML = `🚨 <strong>VIGILANCE ROUGE MÉTÉO-FRANCE :</strong> ${deptsList}. Soyez extrêmement prudents, limitez vos déplacements en 2-roues.`;
+    if (vigilance.zonesRouges.length > 0 && banner && textEl) {
+      const titre = document.createElement("strong");
+      titre.textContent = "VIGILANCE ROUGE MÉTÉO-FRANCE :";
+      textEl.replaceChildren(
+        "🚨 ",
+        titre,
+        ` ${texteZonesRouges(vigilance.zonesRouges)}. Soyez extrêmement prudents, limitez vos déplacements en 2-roues.`,
+      );
       banner.style.display = "block";
 
       // Notification vocale (uniquement si ce n'est pas déjà affiché pour éviter le spam)
