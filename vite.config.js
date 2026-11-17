@@ -18,18 +18,16 @@ htmlFiles.forEach(file => {
 // technique, 7/11/2026) : 'unsafe-inline' est retiré de script-src. Les styles le gardent.
 // frame-ancestors est ignoré en <meta> : il reste dans firebase.json.
 // script-src (16/11/2026) : seulement les sites dont une page charge vraiment un script (Firebase
-// Auth, connexion Google, Revolut, bandeau cookies Axeptio). Retirés : unpkg, jsdelivr et cdnjs
+// Auth, connexion Google, Revolut). Retirés : unpkg, jsdelivr et cdnjs
 // (ils servent n'importe quel paquet npm ou une vieille version d'AngularJS : une seule balise
 // injectée suffisait à contourner la CSP), Facebook et Google Traduction (plus utilisés).
 // Garde-fou : tests/strict-csp.test.js.
 const CSP_DIRECTIVES = {
   'default-src': ["'self'"],
   'script-src': ["'self'", 'https://*.gstatic.com', 'https://apis.google.com',
-    'https://accounts.google.com', 'https://merchant.revolut.com', 'https://cdn.revolut.com',
-    'https://static.axept.io'],
-  'style-src': ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://accounts.google.com',
-    'https://static.axept.io'],
-  'font-src': ["'self'", 'data:', 'https://cdnjs.cloudflare.com', 'https://static.axept.io'],
+    'https://accounts.google.com', 'https://merchant.revolut.com', 'https://cdn.revolut.com'],
+  'style-src': ["'self'", "'unsafe-inline'", 'https://cdnjs.cloudflare.com', 'https://accounts.google.com'],
+  'font-src': ["'self'", 'data:', 'https://cdnjs.cloudflare.com'],
   'img-src': ["'self'", 'data:', 'blob:', 'https:'],
   'media-src': ["'self'", 'data:', 'blob:'],
   'connect-src': ["'self'", 'https://*.googleapis.com', 'https://*.gstatic.com', 'https://*.firebaseio.com',
@@ -37,7 +35,7 @@ const CSP_DIRECTIVES = {
     'https://merchant.revolut.com', 'https://cdn.revolut.com', 'https://api.piste.gouv.fr', 'https://oauth.piste.gouv.fr',
     'https://apicarto.ign.fr', 'https://data.geopf.fr', 'https://nominatim.openstreetmap.org',
     'https://overpass-api.de', 'https://*.overpass-api.de', 'https://api.open-meteo.com', 'https://data.economie.gouv.fr',
-    'https://recherche-entreprises.api.gouv.fr', 'https://*.axept.io', 'https://cdnjs.cloudflare.com',
+    'https://recherche-entreprises.api.gouv.fr', 'https://cdnjs.cloudflare.com',
     // Connexion Google (Google Identity Services) : exigé par Google pour la fenêtre de choix du compte
     'https://accounts.google.com/gsi/'],
   'frame-src': ["'self'", 'https://mon50ccetmoi.firebaseapp.com', 'https://merchant.revolut.com', 'https://cdn.revolut.com',

@@ -4,7 +4,7 @@
     <!-- Phase 3 : Zero-Trust DOM Security -->
     <script src="/vendor/dompurify/purify.min.js"></script>
     <script type="module" src="/js/dom-security.js"></script>
-    <script type="module" src="/js/axeptio-config.js"></script>
+    <script type="module" src="/js/cookie-consent.js"></script>
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -109,15 +109,16 @@
     </p>
     <p>
       Les traceurs ci-dessus sont dispensés de consentement : ils restent actifs
-      même si vous cliquez sur « Non merci ». Aucun traceur facultatif ne sera
-      déposé sans votre accord : le bandeau de consentement (Axeptio) vous
-      demande votre choix, avec « Non merci » au même niveau que « OK pour moi ».
-      Vous pouvez changer d'avis à tout moment avec le bouton ci-dessous.
+      même si vous cliquez sur « Tout refuser ». Aucun traceur facultatif ne sera
+      déposé sans votre accord : le bandeau vous demande votre choix, avec
+      « Tout refuser » et « Tout accepter » au même niveau. Votre choix est
+      conservé 6 mois sur votre appareil, puis redemandé. Vous pouvez changer
+      d'avis à tout moment avec le bouton ci-dessous.
     </p>
     <p>
       <button
         type="button"
-        data-action="openAxeptioCookies()"
+        data-action="openCookieChoices()"
         style="background: #ffb703; color: #000; border: none; padding: 10px 20px; border-radius: 30px; font-weight: bold; cursor: pointer;"
       >
         Modifier mes choix

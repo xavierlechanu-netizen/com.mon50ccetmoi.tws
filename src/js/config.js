@@ -10,7 +10,7 @@ import 'firebase/compat/firestore';
 import 'firebase/compat/functions';
 import localforage from 'localforage';
 import { installServiceGuard } from './service-guard.js';
-import './axeptio-config.js';
+import { showCookieBanner } from './cookie-consent.js';
 
 export const CONFIG = {
   // Carte : Leaflet + IGN Géoplateforme (voir gmaps-compat.js), aucune clé Google nécessaire.
@@ -195,7 +195,11 @@ export const secureSetItem = window.secureSetItem;
 export const secureGetItem = window.secureGetItem;
 export { localforage };
 
-// --- BANDEAU COOKIES : Axeptio seul (import './axeptio-config.js' en tête de fichier) ---
-// Avant (16/11/2026) : un second bandeau « J'ai compris », sans bouton pour refuser, s'affichait ici
-// en même temps qu'Axeptio, et une autre copie des réglages Axeptio (autre version) était injectée.
-// Axeptio propose « Non merci » au même niveau que « OK pour moi » (CNIL).
+// --- BANDEAU COOKIES (cookie-consent.js), gratuit ---
+// « Tout refuser » et « Tout accepter » au même niveau (CNIL). Axeptio retiré le 17/11/2026 : devenu payant,
+// et inutile pour un site qui n'utilise que des traceurs indispensables.
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => showCookieBanner());
+} else {
+  showCookieBanner();
+}
