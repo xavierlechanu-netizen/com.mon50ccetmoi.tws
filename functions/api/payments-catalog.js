@@ -44,22 +44,9 @@ const CATALOG = {
         label: "Diagnostic Mécanique IA & Pulse"
     },
 
-    // Certificats Batterie SOH
-    'BATTERY_CERT_BASIQUE': {
-        price_cents: 499,
-        category: CATEGORIES.BATTERY_CERT,
-        label: "Certificat Batterie SOH Basique"
-    },
-    'BATTERY_CERT_PREMIUM': {
-        price_cents: 1499,
-        category: CATEGORIES.BATTERY_CERT,
-        label: "Certificat Batterie SOH Premium (+ Style IA)"
-    },
-    'BATTERY_CERT_QUANTUM': {
-        price_cents: 2999,
-        category: CATEGORIES.BATTERY_CERT,
-        label: "Certificat Batterie SOH Quantum Shield E2EE"
-    },
+    // Certificats Batterie SOH : retirés de la vente le 16/11/2026 (aucune mesure réelle, valeurs
+    // inventées par défaut, fausse « clé blockchain »). Sans entrée ici, toute commande est refusée.
+    // Les certificats déjà émis restent lisibles par leur propriétaire (firestore.rules).
 
     // Frais d'adhésion Pro
     'GARAGE_FEE': {

@@ -88,7 +88,7 @@ describe("ScreenManager : l'écran ouvert est visible", () => {
   });
 
   test("ouvrir un autre écran ne referme pas le nouveau", async () => {
-    await SM.open("battery-health-screen");
+    await SM.open("leaderboard-modal");
     await SM.open("security-settings-screen");
     await flush();
     expect(SM.activeScreenId).toBe("security-settings-screen");
