@@ -103,12 +103,27 @@ Pendant l'installation :
 
 ## 5. Compléter le fichier .env
 
+Si le VPS a été installé il y a quelque temps, récupérez d'abord la dernière version :
+
 ```bash
-sudo nano /opt/mon50cc/sovereign-core/.env
+cd /opt/mon50cc && sudo git pull
 ```
 
-- Collez les **4 clés S3** de l'étape 1 (`WORM_S3_…` pour les preuves, `BACKUP_S3_…` pour les sauvegardes).
+Puis enregistrez les clés **une par une**, sans éditeur : chaque commande demande la valeur, qui
+reste **invisible** pendant que vous la collez, et l'écrit dans `.env` (seule la longueur s'affiche).
+Ne collez ces clés nulle part ailleurs (e-mail, conversation, capture d'écran).
+
+```bash
+sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh WORM_S3_ACCESS_KEY_ID
+sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh WORM_S3_SECRET_ACCESS_KEY
+sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh BACKUP_S3_ACCESS_KEY_ID
+sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh BACKUP_S3_SECRET_ACCESS_KEY
+sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh ACME_EMAIL
+```
+
+- Les **4 clés S3** de l'étape 1 (`WORM_S3_…` pour les preuves, `BACKUP_S3_…` pour les sauvegardes).
 - `ACME_EMAIL` : une adresse qui reçoit vraiment le courrier (avertissements du certificat HTTPS).
+- Pour vérifier ou corriger autre chose : `sudo nano /opt/mon50cc/sovereign-core/.env`.
 - `API_DOMAIN` et `CORS_ORIGIN` : à changer seulement si le domaine n'est pas `mon50ccetmoi.com`.
 - `REVOLUT_WEBHOOK_SECRET` : à laisser vide pour l'instant.
 - `METEO_FRANCE_API_KEY` : à laisser vide pour l'instant (étape 9 bis).
@@ -168,15 +183,23 @@ dit honnêtement et propose d'appeler le 112.
 3. **Clé d'API limitée au seul envoi de SMS** : sur <https://eu.api.ovh.com/createToken/>, créez une
    clé avec un seul droit, `POST /sms/<nom du compte SMS>/jobs`, durée illimitée. Notez les trois
    valeurs (Application Key, Application Secret, Consumer Key) dans le gestionnaire de mots de passe.
-4. Dans `.env` : `OVH_SMS_APP_KEY`, `OVH_SMS_APP_SECRET`, `OVH_SMS_CONSUMER_KEY`, `OVH_SMS_SERVICE`
-   (nom du compte SMS) et, si validé, `OVH_SMS_SENDER`. Puis :
+4. Enregistrez-les sans éditeur (valeur invisible, voir l'étape 5), puis redémarrez :
 
    ```bash
+   sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh OVH_SMS_APP_KEY
+   sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh OVH_SMS_APP_SECRET
+   sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh OVH_SMS_CONSUMER_KEY
+   sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh OVH_SMS_SERVICE
+   sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh OVH_SMS_SENDER
    cd /opt/mon50cc/sovereign-core && sudo docker compose -f docker-compose.vps.yml up -d
    ```
 
+   `OVH_SMS_SERVICE` = nom du compte SMS (`sms-xx12345-1`) ; `OVH_SMS_SENDER` seulement une fois
+   l'expéditeur validé par OVHcloud.
+
 Protections en place : pilote connecté obligatoire, 1 à 3 mobiles français (06/07) seulement,
-au plus 3 alertes par 10 minutes. Un SMS n'est annoncé comme envoyé que si OVHcloud l'a accepté.
+au plus 3 alertes par 10 minutes et 10 par 24 h et par pilote, et un budget de SMS par jour pour tout
+le serveur (`SOS_DAILY_SMS_BUDGET`, 300 par défaut). Un SMS n'est annoncé comme envoyé que si OVHcloud l'a accepté.
 
 **Ces clés restent sur le VPS, jamais dans l'appli** : elles permettent d'envoyer des SMS à nos
 frais. L'appli ne fait que prévenir le serveur, qui envoie les SMS.
