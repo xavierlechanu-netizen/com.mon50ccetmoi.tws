@@ -7,12 +7,17 @@ service cloud.firestore {
       return request.auth != null;
     }
     
+    // Visiteur non connecté : réponse « non » nette, au lieu d'une erreur d'évaluation (request.auth est nul)
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
     
+    // Sans fiche users/{uid} (profil jamais créé, assureur sans compte pilote), get() échouait et faisait
+    // refuser TOUTE la règle, même la partie qui devait autoriser (17/11/2026) : on vérifie d'abord l'existence.
     function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == 'admin';
     }
 
     function getUsername() {

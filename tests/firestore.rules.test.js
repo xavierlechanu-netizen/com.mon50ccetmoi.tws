@@ -6,6 +6,9 @@ const { initializeTestEnvironment, assertFails, assertSucceeds } = require('@fir
 
 let testEnv;
 
+// Le premier appel à l'émulateur compile les règles : plus long que les 5 s par défaut de Jest
+jest.setTimeout(30000);
+
 beforeAll(async () => {
   // Load rules from firestore.rules
   const rules = fs.readFileSync('firestore.rules', 'utf8');
@@ -384,5 +387,24 @@ describe("Garages partenaires : réservés au webhook de paiement (audit du 16/1
     });
     await assertFails(garage.collection("garage_partners").doc("garage1").update({ revolut_order_id: "autre" }));
     await assertSucceeds(garage.collection("garage_partners").doc("garage1").get());
+  });
+});
+
+describe("Règles robustes sans fiche pilote (17/11/2026)", () => {
+  it("un assureur payeur SANS fiche users lit le rapport ; un membre sans fiche rejoint un crew", async () => {
+    await testEnv.withSecurityRulesDisabled(async (ctx) => {
+      await ctx.firestore().collection("litigation_proposals").doc("LITIGE-Z").set({ userId: "pilot1", unlocked_for: ["assureur-sans-fiche"] });
+      await ctx.firestore().collection("crews").doc("c9").set({ name: "C9", leaderUid: "lead", members: ["lead"] });
+    });
+    // Aucune fiche users/assureur-sans-fiche ni users/nouveau : avant, isAdmin() plantait et tout était refusé
+    await assertSucceeds(testEnv.authenticatedContext("assureur-sans-fiche").firestore().collection("litigation_proposals").doc("LITIGE-Z").get());
+    await assertFails(testEnv.authenticatedContext("autre-sans-fiche").firestore().collection("litigation_proposals").doc("LITIGE-Z").get());
+    await assertSucceeds(testEnv.authenticatedContext("nouveau").firestore().collection("crews").doc("c9").update({ members: ["lead", "nouveau"] }));
+  });
+
+  it("un visiteur non connecté reçoit un refus net (pas d'erreur d'évaluation)", async () => {
+    const anon = testEnv.unauthenticatedContext().firestore();
+    await assertFails(anon.collection("users").doc("pilot1").get());
+    await assertFails(anon.collection("gamification_stats").doc("pilot1").set({ xp: 999 }));
   });
 });
