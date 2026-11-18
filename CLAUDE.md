@@ -32,10 +32,16 @@ npm run firmware:build       # Compilation ESP-IDF (idf.py -C hardware/firmware 
 npm run firmware:flash       # Flash série (idf.py -C hardware/firmware flash)
 npm run firmware:provision -- --port <port>   # Mise en service usine : clé faite dans la puce, numéro lié par le serveur (tools/mise_en_service.py)
 
-# 5. Déploiement Production Actuel (GitHub Pages + Firebase Hosting transitoire)
-git push origin HEAD:main    # Déploie sur GitHub Pages (xavierlechanu-netizen.github.io -> mon50ccetmoi.com)
-git push repo2 HEAD:main     # Synchronise le dépôt miroir (com.mon50ccetmoi.tws.git)
-npx firebase deploy --only hosting  # Déploie dist/ sur mon50ccetmoi.web.app
+# 5. Déploiement Production : le VPS OVHcloud (site + API) depuis le 18/11/2026
+#    mon50ccetmoi.com, www et api.mon50ccetmoi.com pointent vers le VPS (159.173.138.133, DNS chez Amen.fr).
+#    Fusionner une PR sur main suffit pour le SITE : le VPS reprend main toutes les 5 minutes et le
+#    republie (deploy/auto-update.sh, cron ; journal /var/log/mon50cc-auto-update.log).
+#    L'API n'est PAS reconstruite d'office (alertes SOS) : quand check.sh dit « API pas à jour » :
+ssh ubuntu@159.173.138.133 'cd /opt/mon50cc/sovereign-core && sudo docker compose -f docker-compose.vps.yml up -d --build'
+ssh ubuntu@159.173.138.133 'sudo /opt/mon50cc/sovereign-core/deploy/check.sh'    # Bilan de santé
+git push repo2 origin/main:refs/heads/main   # Synchronise le dépôt miroir (com.mon50ccetmoi.tws.git)
+# Plus en production : GitHub Pages (garde une copie du site, ne sert plus le domaine) et
+# Firebase Hosting (mon50ccetmoi.web.app). Retour arrière DNS : sovereign-core/deploy/README.md, étape 12.
 ```
 
 ---
@@ -48,7 +54,7 @@ npx firebase deploy --only hosting  # Déploie dist/ sur mon50ccetmoi.web.app
 | `├── server/index.js` | Serveur HTTP REST (`node:http`) : auth, upload télémétrie boîte noire, provisionnement des boîtiers, webhook Revolut, RGPD (anonymisation), santé `/api/v1/health`. Stockage **PostgreSQL** si `DATABASE_URL` (obligatoire en production), mémoire sinon. Pas encore de WebSockets ni de routes hazards. |
 | `├── server/store-pg.js` · `store-memory.js` | Couche d'accès aux données (même contrat). Testée sur un vrai PostgreSQL portable : `tests/sovereign-pg.test.js` (schéma de production sans PostGIS). |
 | `├── Dockerfile` | Image du serveur (Node 22, `npm install` de `pg`, utilisateur non privilégié). |
-| `├── docker-compose.vps.yml` · `deploy/` | Mise en ligne sur **un seul VPS OVHcloud** (VPS-2, Ubuntu 26.04, Gravelines) : Caddy (HTTPS auto), PostgreSQL sans port publié, `install.sh` (Docker, pare-feu, SSH par clé, secrets), `check.sh` (bilan de santé), `backup.sh`/`restore.sh` (sauvegardes chiffrées vers l'Object Storage), `publish-site.sh` (le site servi par Caddy, bascule atomique). Jour J : `scripts/import-firebase-users.js` importe les comptes Firebase (empreintes vérifiées puis converties à la 1re connexion). Guide pas à pas : `deploy/README.md`. |
+| `├── docker-compose.vps.yml` · `deploy/` | Mise en ligne sur **un seul VPS OVHcloud** (VPS-2, Ubuntu 26.04, Gravelines) : Caddy (HTTPS auto), PostgreSQL sans port publié, `install.sh` (Docker, pare-feu, SSH par clé, secrets), `check.sh` (bilan de santé), `backup.sh`/`restore.sh` (sauvegardes chiffrées vers l'Object Storage), `publish-site.sh` (le site servi par Caddy, bascule atomique), `auto-update.sh` (le site republié tout seul depuis main, toutes les 5 min), `set-secret.sh` et `windows/saisir-cles.cmd` (saisie des clés sans les afficher). **En production depuis le 18/11/2026.** Jour J : `scripts/import-firebase-users.js` importe les comptes Firebase (empreintes vérifiées puis converties à la 1re connexion). Guide pas à pas : `deploy/README.md`. |
 | `├── server/crypto-auth.js` | Hachage mot de passe `scrypt` (N=16384, sel 32o, timing-safe) et jetons JWT asymétriques `ES256` (ECDSA P-256). |
 | `├── server/storage-worm.js` | Coffre local des preuves (`chmod 0o444`, empreinte `SHA-256`) : **développement et tests uniquement**, refusé en production. |
 | `├── server/storage-worm-s3.js` | Coffre de production : S3 Object Lock mode **COMPLIANCE** (OVHcloud), rétention 5 ans, `ChecksumSHA256`, relecture par `VersionId`. Démarrage refusé si `WORM_S3_BUCKET` absent ou bucket sans Object Lock. |
@@ -116,6 +122,8 @@ L'ensemble des règles de sécurité détaillées dans `.agents/AGENTS.md` et `N
 2. **Phase B — Intégration OVHcloud AI Endpoints (Mistral AI)** :
    * Ajouter la route `/api/v1/ai/copilot` dans `sovereign-core/server/index.js` connectée à l'API Mistral d'OVHcloud pour remplacer `nexus-atlas-gemini.js`.
 3. **Phase International — Cartes hors de France** : l'IGN ne couvre que la France. Héberger chez OVHcloud tuiles OpenStreetMap (OpenMapTiles), itinéraires Valhalla (autoroutes interdites) et géocodage Photon pour l'Europe ; `map-engine.js` choisit IGN en France, nos serveurs ailleurs.
-4. **Phase C — Déploiement sur l'infrastructure OVHcloud (`GRA` / `RBX`)** :
-   * Provisionner l'instance Public Cloud + Managed PostgreSQL 16 (PostGIS) + S3 Object Lock WORM dès validation des crédits du Programme Startup OVHcloud.
+4. **Phase C — Déploiement sur l'infrastructure OVHcloud (`GRA`)** : **fait pour l'essentiel.**
+   * Un VPS-2 à Gravelines porte, depuis le 16 au 18/11/2026, l'API, PostgreSQL 16/PostGIS et le site.
+   * Les preuves sont dans un Object Storage S3 avec Object Lock (`mon50cc-preuves`), les sauvegardes chiffrées chaque nuit dans `mon50cc-sauvegardes`. Une restauration a été testée.
+   * Reste : rien d'obligatoire. Un Managed PostgreSQL ou une 2e région seulement si la charge ou les crédits du Programme Startup le justifient.
 
