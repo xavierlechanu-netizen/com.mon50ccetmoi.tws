@@ -58,6 +58,22 @@ describeIfBash("Saisie des clés secrètes du VPS (set-secret.sh)", () => {
     expect(env()).toContain("WORM_S3_ACCESS_KEY_ID=\n");
   });
 
+  test("retire le BOM UTF-8 que PowerShell 5.1 ajoute en tête quand il envoie la valeur à ssh", () => {
+    const r = run(["OVH_SMS_SERVICE"], "﻿sms-wu40275-1\r\n");
+    expect(r.status).toBe(0);
+    expect(r.stdout).toMatch(/\(13 caractères\)/);
+    expect(env()).toContain("OVH_SMS_SERVICE=sms-wu40275-1\n");
+    expect(env()).not.toContain("﻿");
+  });
+
+  test("refuse un caractère invisible ou accentué collé avec la clé", () => {
+    for (const bad of ["abc​def\n", "abc def\n", "clé123\n", "﻿﻿abc\n"]) {
+      const r = run(["WORM_S3_ACCESS_KEY_ID"], bad);
+      expect(r.status).not.toBe(0);
+    }
+    expect(env()).toContain("WORM_S3_ACCESS_KEY_ID=\n");
+  });
+
   test("sans nom : affiche la liste des noms acceptés", () => {
     const r = run([], "");
     expect(r.status).not.toBe(0);

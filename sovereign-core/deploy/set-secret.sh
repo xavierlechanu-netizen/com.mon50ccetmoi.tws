@@ -42,9 +42,15 @@ else
     IFS= read -r value || true
 fi
 
-# Retire un éventuel retour chariot (copier-coller depuis Windows) et les espaces autour.
-value="$(printf '%s' "$value" | tr -d '\r' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')"
+# Retire un éventuel retour chariot (copier-coller depuis Windows), un BOM UTF-8 en tête (ajouté
+# sans bruit par PowerShell 5.1 quand il envoie du texte à ssh) et les espaces autour.
+value="$(printf '%s' "$value" | tr -d '\r' | LC_ALL=C sed -E 's/^\xEF\xBB\xBF//; s/^[[:space:]]+//; s/[[:space:]]+$//')"
 [ -n "$value" ] || die "valeur vide : rien n'est modifié"
+# Toutes les clés attendues sont en ASCII visible : un caractère invisible ou accentué (espace
+# insécable, espace de largeur nulle copié depuis une page web…) ferait échouer la clé sans bruit.
+if LC_ALL=C grep -q '[^[:print:]]' <<<"$value"; then
+    die "la valeur contient un caractère invisible ou accentué : recopiez la clé (bouton « Copier » du site si possible)"
+fi
 # Caractères qui casseraient le fichier .env ou que Docker Compose interpréterait ($).
 case "$value" in
     *[[:space:]]* | *\"* | *\'* | *'$'* | *'#'* | *'\'* | *'`'*)
