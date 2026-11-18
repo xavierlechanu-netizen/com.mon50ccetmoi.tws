@@ -235,15 +235,16 @@ Météo-France (la météo du trajet, qui vient d'Open-Meteo, n'est pas concern�
    le serveur envoie la clé telle quelle, dans l'en-tête `apikey`. Prenez la durée de validité la
    plus longue proposée et notez la **date d'expiration** dans le gestionnaire de mots de passe :
    il faudra recréer la clé avant cette date.
-3. **Vous-même**, collez-la dans `.env` sur le VPS, jamais dans une conversation, un email ou le
-   code de l'appli :
+3. **Vous-même**, enregistrez-la sur le VPS, jamais dans une conversation, un email ou le code de
+   l'appli. Copiez-la en entier avec le bouton « Copier » du site : un double-clic n'en prend que le
+   début, qui s'arrête au premier point. Depuis Windows : `sovereign-core\deploy\windows\saisir-cles.cmd -Groupe meteo`.
+   Sur le VPS :
 
    ```bash
-   sudo nano /opt/mon50cc/sovereign-core/.env
+   sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh METEO_FRANCE_API_KEY
    ```
 
-   Ligne `METEO_FRANCE_API_KEY=` (si elle n'existe pas, parce que `.env` a été créé avant cette
-   version, ajoutez-la en bas du fichier). Puis :
+   Puis :
 
    ```bash
    cd /opt/mon50cc/sovereign-core && sudo docker compose -f docker-compose.vps.yml up -d
@@ -291,9 +292,11 @@ Les mots de passe ne sont jamais connus, ni de Firebase ni de nous : on copie le
 que le serveur sait vérifier, puis convertit à son propre format à la première connexion.
 
 1. **Console Firebase › Authentication › Users › ⋮ (en haut à droite de la liste) › Password hash
-   parameters** : recopiez les 4 valeurs dans `.env` (`FIREBASE_SCRYPT_SIGNER_KEY`,
-   `FIREBASE_SCRYPT_SALT_SEPARATOR`, `FIREBASE_SCRYPT_ROUNDS`, `FIREBASE_SCRYPT_MEM_COST`), puis
-   `cd /opt/mon50cc/sovereign-core && sudo docker compose -f docker-compose.vps.yml up -d`.
+   parameters** : enregistrez les 4 valeurs sur le VPS (`FIREBASE_SCRYPT_SIGNER_KEY`,
+   `FIREBASE_SCRYPT_SALT_SEPARATOR`, `FIREBASE_SCRYPT_ROUNDS`, `FIREBASE_SCRYPT_MEM_COST`).
+   Depuis Windows, sans terminal : `sovereign-core\deploy\windows\saisir-cles.cmd -Groupe firebase`.
+   Sur le VPS : `sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh FIREBASE_SCRYPT_SIGNER_KEY`, et
+   ainsi de suite. Puis `cd /opt/mon50cc/sovereign-core && sudo docker compose -f docker-compose.vps.yml up -d`.
 2. **Sur le PC**, dans le dossier du projet :
 
    ```powershell

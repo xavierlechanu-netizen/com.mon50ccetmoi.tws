@@ -8,12 +8,13 @@
 #   saisir-cles.cmd -Groupe stockage      (les 4 clés S3 : preuves + sauvegardes)
 #   saisir-cles.cmd -Groupe sms           (les 3 valeurs de la clé d'API SMS)
 #   saisir-cles.cmd -Groupe meteo         (clé Météo-France, à refaire avant son expiration)
-#   saisir-cles.cmd -Groupe revolut       (secret du webhook Revolut)
+#   saisir-cles.cmd -Groupe revolut       (clé secrète de l'API Revolut et secret du webhook)
+#   saisir-cles.cmd -Groupe firebase      (les 4 paramètres de hachage des mots de passe Firebase)
 #   saisir-cles.cmd -Noms OVH_SMS_SENDER  (n'importe quels noms acceptés par set-secret.sh)
 # Prérequis : la clé SSH du PC (ssh ubuntu@… sans mot de passe), comme pour le reste du guide.
 # ============================================================================
 param(
-    [ValidateSet('', 'stockage', 'sms', 'meteo', 'revolut')][string]$Groupe = '',
+    [ValidateSet('', 'stockage', 'sms', 'meteo', 'revolut', 'firebase')][string]$Groupe = '',
     [string[]]$Noms = @(),
     [string]$Serveur = 'ubuntu@api.mon50ccetmoi.com'
 )
@@ -36,14 +37,20 @@ $catalogue = [ordered]@{
     OVH_SMS_SERVICE             = @('SMS : nom du compte SMS', 'de la forme sms-xx12345-1 (pas secret)', $false)
     OVH_SMS_SENDER              = @('SMS : expéditeur validé', 'seulement une fois validé par OVHcloud, ex. Mon50cc (pas secret)', $false)
     METEO_FRANCE_API_KEY        = @('Clé d''API Météo-France (API Key)', 'portail-api.meteofrance.fr › Vigilance › Utiliser › API Key › Générer Token : bouton Copier, pas de double-clic', $true)
-    REVOLUT_WEBHOOK_SECRET      = @('Secret du webhook Revolut', 'Revolut Business › API › Webhooks', $true)
+    REVOLUT_SECRET_KEY          = @('Revolut : clé secrète de l''API (commence par sk_)', 'Revolut Business › API › Merchant API : la NOUVELLE clé, l''ancienne étant révoquée', $true)
+    REVOLUT_WEBHOOK_SECRET      = @('Revolut : secret de signature du webhook', 'Revolut Business › API › Webhooks › adresse https://api.mon50ccetmoi.com/api/v1/webhooks/revolut', $true)
+    FIREBASE_SCRYPT_SIGNER_KEY  = @('Firebase : base64_signer_key', 'console Firebase › Authentication › Users › ⋮ (en haut à droite) › Password hash parameters', $true)
+    FIREBASE_SCRYPT_SALT_SEPARATOR = @('Firebase : base64_salt_separator', 'même fenêtre « Password hash parameters »', $true)
+    FIREBASE_SCRYPT_ROUNDS      = @('Firebase : rounds', 'même fenêtre ; un petit nombre, souvent 8 (pas secret)', $false)
+    FIREBASE_SCRYPT_MEM_COST    = @('Firebase : mem_cost', 'même fenêtre ; un petit nombre, souvent 14 (pas secret)', $false)
     ACME_EMAIL                  = @('Adresse e-mail du certificat HTTPS', 'une adresse qui reçoit vraiment le courrier (pas secret)', $false)
 }
 $groupes = @{
     stockage = @('WORM_S3_ACCESS_KEY_ID', 'WORM_S3_SECRET_ACCESS_KEY', 'BACKUP_S3_ACCESS_KEY_ID', 'BACKUP_S3_SECRET_ACCESS_KEY')
     sms      = @('OVH_SMS_APP_KEY', 'OVH_SMS_APP_SECRET', 'OVH_SMS_CONSUMER_KEY')
     meteo    = @('METEO_FRANCE_API_KEY')
-    revolut  = @('REVOLUT_WEBHOOK_SECRET')
+    revolut  = @('REVOLUT_SECRET_KEY', 'REVOLUT_WEBHOOK_SECRET')
+    firebase = @('FIREBASE_SCRYPT_SIGNER_KEY', 'FIREBASE_SCRYPT_SALT_SEPARATOR', 'FIREBASE_SCRYPT_ROUNDS', 'FIREBASE_SCRYPT_MEM_COST')
 }
 
 $liste = @()
@@ -71,6 +78,9 @@ function Test-Valeur([string]$nom, [string]$texte) {
     if ($t.StartsWith('eyJ') -and ([regex]::Matches($t, '\.').Count -ne 2)) { return '✗ clé INCOMPLÈTE : copiez-la en entier' }
     if ($nom -eq 'ACME_EMAIL' -and $t -notmatch '^[^@]+@[^@]+\.[^@]+$') { return '✗ ce n''est pas une adresse e-mail' }
     if ($nom -eq 'OVH_SMS_SERVICE' -and $t -notmatch '^sms-[a-z0-9]+-\d+$') { return '✗ attendu : sms-xx12345-1' }
+    if (($nom -in @('FIREBASE_SCRYPT_ROUNDS', 'FIREBASE_SCRYPT_MEM_COST')) -and ($t -notmatch '^\d{1,2}$')) { return '✗ attendu : un petit nombre (ex. 8 ou 14)' }
+    if (($nom -in @('FIREBASE_SCRYPT_SIGNER_KEY', 'FIREBASE_SCRYPT_SALT_SEPARATOR')) -and ($t -notmatch '^[A-Za-z0-9+/]+={0,2}$')) { return '✗ attendu : une valeur base64 (lettres, chiffres, + / =)' }
+    if ($nom -eq 'REVOLUT_SECRET_KEY' -and -not $t.StartsWith('sk_')) { return '✗ une clé secrète Revolut commence par sk_' }
     return $t
 }
 

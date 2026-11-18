@@ -74,6 +74,15 @@ describeIfBash("Saisie des clés secrètes du VPS (set-secret.sh)", () => {
     expect(env()).toContain("WORM_S3_ACCESS_KEY_ID=\n");
   });
 
+  test("accepte les paramètres Firebase (base64 avec + / =) et la clé Revolut", () => {
+    expect(run(["FIREBASE_SCRYPT_SIGNER_KEY"], "ZmF1c3Nl+Y2xl/ZGV0ZXN0ZmFjdGljZQ==\n").status).toBe(0);
+    expect(run(["FIREBASE_SCRYPT_SALT_SEPARATOR"], "Bw==\n").status).toBe(0);
+    expect(run(["FIREBASE_SCRYPT_ROUNDS"], "8\n").status).toBe(0);
+    expect(run(["REVOLUT_SECRET_KEY"], "sk_test_valeur-factice_123\n").status).toBe(0);
+    expect(env()).toContain("FIREBASE_SCRYPT_SALT_SEPARATOR=Bw==\n");
+    expect(env()).toContain("REVOLUT_SECRET_KEY=sk_test_valeur-factice_123\n");
+  });
+
   test("sans nom : affiche la liste des noms acceptés", () => {
     const r = run([], "");
     expect(r.status).not.toBe(0);
