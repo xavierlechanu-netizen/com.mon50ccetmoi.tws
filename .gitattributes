@@ -2,3 +2,6 @@
 # même extraits sur un PC Windows (core.autocrlf), sinon bash échoue sur les « \r ».
 *.sh    text eol=lf
 gradlew text eol=lf
+
+# Lanceurs Windows : fins de ligne Windows.
+*.cmd   text eol=crlf

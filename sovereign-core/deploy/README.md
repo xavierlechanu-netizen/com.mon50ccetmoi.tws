@@ -124,6 +124,16 @@ sudo /opt/mon50cc/sovereign-core/deploy/set-secret.sh ACME_EMAIL
 - Les **4 clés S3** de l'étape 1 (`WORM_S3_…` pour les preuves, `BACKUP_S3_…` pour les sauvegardes).
 - `ACME_EMAIL` : une adresse qui reçoit vraiment le courrier (avertissements du certificat HTTPS).
 - Pour vérifier ou corriger autre chose : `sudo nano /opt/mon50cc/sovereign-core/.env`.
+
+**Depuis Windows, sans terminal** : `sovereign-core\deploy\windows\saisir-cles.cmd -Groupe stockage`
+(ou `sms`, `meteo`, `revolut`, ou `-Noms NOM1,NOM2`) ouvre une fenêtre avec une case par clé. On copie
+chaque clé, puis on la colle avec Ctrl+V. Elle reste masquée, un ✓ vert confirme qu'elle est reconnue,
+et elle part au VPS par SSH, sans passer par aucun fichier. La fenêtre repère aussi :
+- une ligne entière de tableau copiée par erreur, dont elle ne garde que la clé ;
+- une clé Météo-France incomplète (le double-clic s'arrête au premier point) ;
+- une même clé collée dans deux cases.
+
+Cet outil a servi le 17/11/2026 : la saisie dans le terminal ne recevait pas le collage.
 - `API_DOMAIN` et `CORS_ORIGIN` : à changer seulement si le domaine n'est pas `mon50ccetmoi.com`.
 - `REVOLUT_WEBHOOK_SECRET` : à laisser vide pour l'instant.
 - `METEO_FRANCE_API_KEY` : à laisser vide pour l'instant (étape 9 bis).
