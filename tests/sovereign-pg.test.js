@@ -134,6 +134,22 @@ describe("Serveur souverain sur PostgreSQL", () => {
     expect((await call(app, "POST", "/api/v1/auth/login", { email: "google@example.com", password: "!" })).status).toBe(401);
   });
 
+  test("jour J : adresse déjà prise par un compte créé sur le serveur → ni importée, ni rattachée", async () => {
+    // « pilote@example.com » a été créé directement sur le serveur (test d'inscription ci-dessus)
+    const exportData = { users: [
+      { localId: "fbUidConflitPg00000000000001", email: "pilote@example.com", displayName: "Vrai Pilote",
+        passwordHash: "lSrfV15cpx95/sZS2W9c9Kp6i/LVgQNDNC/qzrCnh1SAyZvqmZqAjTdn3aoItz+VHjoZilo78198JAdRuid5lQ==",
+        salt: "42xEC+ixf3L2lw==" },
+    ] };
+    const report = await importUsers(pool, exportData, { apply: true });
+    expect(report.toImport).toBe(0);
+    expect(report.conflicts).toEqual([{ firebaseUid: "fbUidConflitPg00000000000001", reason: "compte créé sur le serveur" }]);
+    const { rows } = await pool.query("SELECT firebase_uid, password_hash FROM users WHERE email = $1", ["pilote@example.com"]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].firebase_uid).toBeNull();
+    expect(rows[0].password_hash.startsWith("scrypt$")).toBe(true); // empreinte du compte du serveur intacte
+  });
+
   test("boîtier + télémétrie signée : enregistrée en base, puis immuable", async () => {
     const reg = await call(app, "POST", "/api/v1/auth/register", { email: "rider@example.com", username: "RiderPG", password: "MotDePasse2026!" });
     const userJwt = reg.body.token;

@@ -103,7 +103,9 @@ describe("Préparation de l'import (export « firebase auth:export »)", () => {
 
   test("chaque cas est rangé au bon endroit", () => {
     const { rows, report } = planImport(exportData);
-    expect(report).toMatchObject({ total: 7, toImport: 3, withPassword: 1, withoutPassword: 2, alreadyImported: 1 });
+    expect(report).toMatchObject({ total: 7, toImport: 3, withPassword: 1, withoutPassword: 2, alreadyImported: 0 });
+    // Même adresse qu'un autre compte du fichier : ni importé, ni rattaché, à vérifier
+    expect(report.conflicts).toEqual([{ firebaseUid: "fbUidDoublon000000000000005", reason: "autre compte Firebase" }]);
     expect(report.skippedDisabled).toEqual(["fbUidDesactive00000000000003"]);
     expect(report.skippedNoEmail).toEqual(["fbUidTelephone00000000000004"]);
     expect(report.skippedInvalid).toEqual(["(sans identifiant)"]);
@@ -123,6 +125,24 @@ describe("Préparation de l'import (export « firebase auth:export »)", () => {
     });
     expect(report.alreadyImported).toBe(3);
     expect(rows.map((r) => r.username)).toEqual(["pilote-2"]);
+  });
+
+  test("adresse déjà prise par un compte créé sur le serveur : pas importé, signalé, rien de rattaché", () => {
+    const { rows, report } = planImport(exportData, {
+      accounts: [
+        // Créé directement sur le serveur avec l'adresse d'Alice (avant l'import) : peut-être un usurpateur
+        { email: "alice@example.com", username: "Alice", firebaseUid: null },
+        // Bob, déjà importé lors d'un passage précédent
+        { email: "bob@gmail.com", username: "Alice-2", firebaseUid: "fbUidGoogle00000000000000002" },
+      ],
+    });
+    expect(report.alreadyImported).toBe(1);
+    expect(report.conflicts).toEqual([
+      { firebaseUid: "fbUidMotDePasse0000000000001", reason: "compte créé sur le serveur" },
+      { firebaseUid: "fbUidDoublon000000000000005", reason: "compte créé sur le serveur" },
+    ]);
+    expect(rows.map((r) => r.email)).toEqual(["x@example.com"]);
+    expect(rows.find((r) => r.email === "alice@example.com")).toBeUndefined();
   });
 
   test("un fichier qui n'est pas un export Firebase est refusé", () => {

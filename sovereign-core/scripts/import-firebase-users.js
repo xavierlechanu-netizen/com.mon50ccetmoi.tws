@@ -30,15 +30,27 @@ function baseUsername(u, email) {
 
 /**
  * Prépare l'import (fonction pure, testée) : une ligne par compte à créer et le bilan.
+ *
+ * Adresse déjà prise sur le serveur par un AUTRE compte (créé directement sur le serveur, ou venu
+ * d'un autre compte Firebase) : rien n'est importé ni rattaché, le compte est listé dans
+ * `conflicts` pour vérification à la main. Sinon, quelqu'un qui aurait créé sur le serveur un
+ * compte avec l'adresse d'un pilote avant l'import le priverait de son compte, puis de ses données.
+ *
  * @param {{users?: object[]}} exportData contenu de `firebase auth:export --format=json`
- * @param {{emails?: Set<string>, firebaseUids?: Set<string>, usernames?: Set<string>}} [existing]
+ * @param {{accounts?: {email: string, username: string, firebaseUid: string|null}[],
+ *          emails?: string[], firebaseUids?: string[], usernames?: string[]}} [existing]
+ *   accounts : les comptes déjà sur le serveur ; emails/firebaseUids/usernames : forme ancienne
+ *   (une adresse connue sans son identifiant Firebase compte alors comme déjà importée).
  */
 function planImport(exportData, existing = {}) {
-    const emails = new Set(existing.emails || []);
-    const firebaseUids = new Set(existing.firebaseUids || []);
-    const usernames = new Set(existing.usernames || []);
+    const accounts = existing.accounts || [];
+    // Adresse → identifiant Firebase du compte qui l'a (null : créé sur le serveur ; undefined : inconnu)
+    const emailOwner = new Map((existing.emails || []).map((e) => [e, undefined]));
+    for (const a of accounts) emailOwner.set(a.email, a.firebaseUid || null);
+    const firebaseUids = new Set([...(existing.firebaseUids || []), ...accounts.map((a) => a.firebaseUid).filter(Boolean)]);
+    const usernames = new Set([...(existing.usernames || []), ...accounts.map((a) => a.username)]);
     const report = { total: 0, toImport: 0, withPassword: 0, withoutPassword: 0,
-        alreadyImported: 0, skippedNoEmail: [], skippedDisabled: [], skippedInvalid: [] };
+        alreadyImported: 0, conflicts: [], skippedNoEmail: [], skippedDisabled: [], skippedInvalid: [] };
     const rows = [];
 
     const users = exportData && Array.isArray(exportData.users) ? exportData.users : null;
@@ -52,7 +64,13 @@ function planImport(exportData, existing = {}) {
         if (!email) { report.skippedNoEmail.push(firebaseUid); continue; }
         if (email.length > 255 || !email.includes("@")) { report.skippedInvalid.push(firebaseUid); continue; }
         if (u.disabled) { report.skippedDisabled.push(firebaseUid); continue; }
-        if (emails.has(email) || firebaseUids.has(firebaseUid)) { report.alreadyImported++; continue; }
+        if (firebaseUids.has(firebaseUid)) { report.alreadyImported++; continue; }
+        if (emailOwner.has(email)) {
+            const owner = emailOwner.get(email);
+            if (owner === undefined) { report.alreadyImported++; continue; }
+            report.conflicts.push({ firebaseUid, reason: owner === null ? "compte créé sur le serveur" : "autre compte Firebase" });
+            continue;
+        }
 
         let passwordHash = NO_PASSWORD;
         if (u.passwordHash && u.salt) {
@@ -74,7 +92,7 @@ function planImport(exportData, existing = {}) {
             passwordHash,
             createdAt: Number.isFinite(createdMs) && createdMs > 0 ? new Date(createdMs).toISOString() : null
         });
-        emails.add(email);
+        emailOwner.set(email, firebaseUid);
         firebaseUids.add(firebaseUid);
         usernames.add(username);
         report.toImport++;
@@ -96,9 +114,7 @@ async function importUsers(pool, exportData, { apply = false } = {}) {
         await client.query("LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE");
         const { rows: current } = await client.query("SELECT email, username, firebase_uid FROM users");
         const plan = planImport(exportData, {
-            emails: current.map((r) => r.email),
-            usernames: current.map((r) => r.username),
-            firebaseUids: current.filter((r) => r.firebase_uid).map((r) => r.firebase_uid)
+            accounts: current.map((r) => ({ email: r.email, username: r.username, firebaseUid: r.firebase_uid }))
         });
         for (const r of plan.rows) {
             await client.query(
@@ -125,12 +141,19 @@ function printReport(report, apply) {
         `    dont avec mot de passe       : ${report.withPassword}`,
         `    dont connexion Google seule  : ${report.withoutPassword} (devront choisir un mot de passe)`,
         `  Déjà importés (ignorés)        : ${report.alreadyImported}`,
+        `  Adresse déjà prise (à vérifier): ${report.conflicts.length}`,
         `  Sans email (ignorés)           : ${report.skippedNoEmail.length}`,
         `  Désactivés (ignorés)           : ${report.skippedDisabled.length}`,
         `  Invalides (ignorés)            : ${report.skippedInvalid.length}`
     ];
     const ignored = [...report.skippedNoEmail, ...report.skippedDisabled, ...report.skippedInvalid];
     if (ignored.length) lines.push(`  Identifiants Firebase ignorés  : ${ignored.join(", ")}`);
+    if (report.conflicts.length) {
+        lines.push("", "ADRESSES DÉJÀ PRISES SUR LE SERVEUR : ces comptes Firebase ne sont PAS importés.",
+            "  Le compte du serveur qui a la même adresse n'est pas venu de l'import. Ne rien rattacher sans",
+            "  avoir vérifié avec la personne (contact@mon50ccetmoi.com) : ce pourrait être quelqu'un d'autre.");
+        for (const c of report.conflicts) lines.push(`  - ${c.firebaseUid} (${c.reason})`);
+    }
     console.log(lines.join("\n"));
 }
 
