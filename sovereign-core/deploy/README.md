@@ -359,6 +359,15 @@ sudo /opt/mon50cc/sovereign-core/deploy/restore.sh <nom> --yes       # REMPLACE 
 
 ### Mettre à jour l'application
 
+**Le site se met à jour tout seul.** Toutes les 5 minutes, `deploy/auto-update.sh` regarde s'il y a
+du nouveau sur `main`. Si oui, il avance le dépôt du VPS, en avance rapide seulement, puis republie le
+site avec `publish-site.sh`. Si la construction échoue, le site en ligne ne change pas.
+Le journal est dans `/var/log/mon50cc-auto-update.log`, et `check.sh` signale un échec.
+Pour forcer tout de suite : `sudo /opt/mon50cc/sovereign-core/deploy/auto-update.sh`.
+
+**L'API, elle, se reconstruit à la main**, parce qu'elle porte les alertes SOS. Quand son code a
+changé, `check.sh` affiche « API pas à jour », et le journal de mise à jour le signale aussi :
+
 ```bash
 cd /opt/mon50cc && sudo git pull
 cd sovereign-core && sudo docker compose -f docker-compose.vps.yml up -d --build

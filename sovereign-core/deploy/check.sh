@@ -146,6 +146,33 @@ if [ -f /var/log/mon50cc-backup.log ]; then
     fi
 fi
 
+# --- 6 bis. Mise à jour automatique du site, API à jour ------------------------
+if [ -f /etc/cron.d/mon50cc-auto-update ]; then
+    ok "mise à jour automatique du site programmée (toutes les 5 minutes depuis main)"
+else
+    warn "mise à jour automatique du site non programmée → sudo sovereign-core/deploy/install.sh"
+fi
+if [ -f /var/log/mon50cc-auto-update.log ]; then
+    last_update_status="$(tail -n 50 /var/log/mon50cc-auto-update.log | grep -E 'Terminé\.|ERREUR' | tail -n 1)"
+    if grep -q 'ERREUR' <<<"$last_update_status"; then
+        bad "la dernière mise à jour automatique a échoué → sudo tail -n 20 /var/log/mon50cc-auto-update.log"
+    fi
+fi
+# L'API n'est pas reconstruite automatiquement : son code a-t-il changé depuis la construction de l'image ?
+repo_dir="$(cd "$CORE_DIR/.." && pwd)"
+api_code_ts="$(git -c safe.directory="$repo_dir" -C "$repo_dir" log -1 --format=%ct -- \
+    sovereign-core/server sovereign-core/db sovereign-core/Dockerfile sovereign-core/package.json \
+    sovereign-core/package-lock.json sovereign-core/scripts 2>/dev/null || true)"
+api_image_date="$(docker image inspect -f '{{.Created}}' mon50cc-sovereign-api 2>/dev/null || true)"
+api_image_ts="$( [ -n "$api_image_date" ] && date -d "$api_image_date" +%s 2>/dev/null || true)"
+if [ -n "$api_code_ts" ] && [ -n "$api_image_ts" ]; then
+    if [ "$api_code_ts" -gt "$api_image_ts" ]; then
+        warn "API pas à jour : son code a changé depuis sa construction → cd $CORE_DIR && sudo docker compose -f $COMPOSE_FILE up -d --build"
+    else
+        ok "API construite avec le dernier code du serveur"
+    fi
+fi
+
 # --- 7. Disque, mises à jour, redémarrage ---------------------------------------
 use="$(df --output=pcent / | tail -n 1 | tr -dc '0-9')"
 if [ "${use:-0}" -lt 80 ]; then

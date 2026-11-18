@@ -119,4 +119,23 @@ cat > /etc/cron.d/mon50cc-backup <<EOF
 EOF
 chmod 644 /etc/cron.d/mon50cc-backup
 
+# Site mis à jour tout seul après chaque fusion sur main (deploy/auto-update.sh ; l'API reste manuelle).
+cat > /etc/cron.d/mon50cc-auto-update <<EOF
+# Mise à jour automatique du site mon50ccetmoi depuis main, toutes les 5 minutes
+*/5 * * * * root $CORE_DIR/deploy/auto-update.sh >> /var/log/mon50cc-auto-update.log 2>&1
+EOF
+chmod 644 /etc/cron.d/mon50cc-auto-update
+
+# Journaux des tâches programmées : tournants, gardés 8 semaines au plus.
+cat > /etc/logrotate.d/mon50cc <<'EOF'
+/var/log/mon50cc-backup.log /var/log/mon50cc-auto-update.log {
+    weekly
+    rotate 8
+    compress
+    missingok
+    notifempty
+}
+EOF
+chmod 644 /etc/logrotate.d/mon50cc
+
 log "Préparation terminée. Étapes suivantes : deploy/README.md (compléter .env, DNS, démarrage)."
