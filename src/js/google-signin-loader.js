@@ -58,7 +58,7 @@ export async function startGoogleSignIn(doc = document, win = window) {
     gsi.renderButton(slot, {
       type: "standard",
       shape: "rectangular",
-      theme: "outline",
+      theme: "filled_black", // version noire officielle de Google, accordée au fond sombre de la page
       text: "signin_with",
       size: "large",
       logo_alignment: "left",

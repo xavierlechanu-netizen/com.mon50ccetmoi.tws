@@ -39,6 +39,13 @@ describe("D-4 : Google n'est chargé qu'au clic", () => {
     expect(login).toMatch(/Google n'est contacté que si vous cliquez/);
   });
 
+  test("bouton du site aux couleurs de la version noire de Google (choix du 18/11/2026)", () => {
+    const button = login.match(/<button[^>]*id="google-signin-trigger"[^>]*>/s)[0];
+    expect(button).toMatch(/background: #131314;/);
+    expect(button).toMatch(/color: #e3e3e3;/);
+    expect(button).toMatch(/border: 1px solid #8e918f;/);
+  });
+
   describe("google-signin-loader.js", () => {
     const registered = {};
     let L;
@@ -83,7 +90,8 @@ describe("D-4 : Google n'est chargé qu'au clic", () => {
       expect(id.initialize).toHaveBeenCalledWith(expect.objectContaining({
         client_id: "123-abc.apps.googleusercontent.com", ux_mode: "popup", auto_select: false,
       }));
-      expect(id.renderButton).toHaveBeenCalledWith(document.getElementById("google-signin-slot"), expect.any(Object));
+      expect(id.renderButton).toHaveBeenCalledWith(document.getElementById("google-signin-slot"),
+        expect.objectContaining({ theme: "filled_black", text: "signin_with" }));
       expect(document.getElementById("google-signin-trigger").style.display).toBe("none");
       expect(document.getElementById("google-signin-status").textContent).toMatch(/bouton Google/);
 
