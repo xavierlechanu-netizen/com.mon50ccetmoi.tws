@@ -7,6 +7,10 @@
 # Code de sortie 1 s'il y a au moins un ❌ (utilisable dans un script).
 # ============================================================================
 set -uo pipefail
+# Jamais « commande | grep -q » ici : avec pipefail, grep -q s'arrête au premier résultat, la
+# commande reçoit SIGPIPE en écrivant la suite et le test échoue au hasard (fausse alerte, ou pire,
+# faux « en ordre »). On garde la sortie dans une variable, puis grep -q … <<<"$variable".
+# (tests/vps-scripts-pipefail.test.js le vérifie.)
 
 # shellcheck source-path=SCRIPTDIR source=lib.sh
 . "$(dirname "$0")/lib.sh"
@@ -54,7 +58,7 @@ done
 
 # --- 3. API publique : DNS, certificat HTTPS, réponse ---------------------------
 if [ -n "$domain" ]; then
-    if body="$(curl -fsS --max-time 15 "https://$domain/api/v1/health" 2>&1)" && printf '%s' "$body" | grep -q '"status":"OK"'; then
+    if body="$(curl -fsS --max-time 15 "https://$domain/api/v1/health" 2>&1)" && grep -q '"status":"OK"' <<<"$body"; then
         ok "API joignable en HTTPS : https://$domain/api/v1/health"
     else
         bad "API injoignable sur https://$domain (DNS, certificat ou API) : ${body:0:160}"
@@ -101,19 +105,23 @@ if [ "${pending:-0}" -gt 0 ]; then
 fi
 
 # --- 4. La base n'est pas exposée sur Internet --------------------------------
-if ss -ltnH 'sport = :5432' | grep -q .; then
+if ! port_5432="$(ss -ltnH 'sport = :5432' 2>&1)"; then
+    warn "impossible de vérifier le port 5432 (ss a échoué) : ${port_5432:0:120}"
+elif [ -n "$port_5432" ]; then
     bad "un service écoute sur le port 5432 de l'hôte : la base ne doit jamais être exposée"
 else
     ok "base PostgreSQL non exposée (aucun port 5432 ouvert sur le serveur)"
 fi
 
 # --- 5. Pare-feu et SSH --------------------------------------------------------
-if ufw status 2>/dev/null | grep -qiE '^(status|état) *: *(active|actif)'; then
+ufw_status="$(ufw status 2>/dev/null)"
+if grep -qiE '^(status|état) *: *(active|actif)' <<<"$ufw_status"; then
     ok "pare-feu actif (SSH, HTTP et HTTPS seulement)"
 else
     bad "pare-feu inactif → sudo ufw --force enable"
 fi
-if sshd -T 2>/dev/null | grep -qi '^passwordauthentication no'; then
+sshd_config="$(sshd -T 2>/dev/null)"
+if grep -qi '^passwordauthentication no' <<<"$sshd_config"; then
     ok "SSH : connexion par clé uniquement"
 else
     warn "SSH : connexion par mot de passe encore possible (deploy/README.md, étape 3)"
@@ -131,9 +139,11 @@ if [ -n "$last" ]; then
 else
     warn "aucune sauvegarde de moins de 26 h (normal le premier jour) → sudo sovereign-core/deploy/backup.sh"
 fi
-if [ -f /var/log/mon50cc-backup.log ] \
-    && tail -n 50 /var/log/mon50cc-backup.log | grep -E 'Terminé\.|ERREUR' | tail -n 1 | grep -q 'ERREUR'; then
-    bad "la dernière sauvegarde a échoué → sudo tail -n 30 /var/log/mon50cc-backup.log"
+if [ -f /var/log/mon50cc-backup.log ]; then
+    last_backup_status="$(tail -n 50 /var/log/mon50cc-backup.log | grep -E 'Terminé\.|ERREUR' | tail -n 1)"
+    if grep -q 'ERREUR' <<<"$last_backup_status"; then
+        bad "la dernière sauvegarde a échoué → sudo tail -n 30 /var/log/mon50cc-backup.log"
+    fi
 fi
 
 # --- 7. Disque, mises à jour, redémarrage ---------------------------------------

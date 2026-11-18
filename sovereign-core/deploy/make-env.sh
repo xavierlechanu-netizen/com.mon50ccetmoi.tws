@@ -45,7 +45,7 @@ awk '
 # Contrôle : chaque secret est bien sur une seule ligne et rempli.
 for v in DB_PASSWORD SOVEREIGN_JWT_PRIVATE_KEY SOVEREIGN_JWT_PUBLIC_KEY BACKUP_PASSPHRASE; do
     [ "$(grep -c "^$v=" "$tmpdir/env")" -eq 1 ] || die "génération de $v ratée"
-    ENV_FILE="$tmpdir/env" env_get "$v" | grep -q . || die "$v vide"
+    [ -n "$(ENV_FILE="$tmpdir/env" env_get "$v")" ] || die "$v vide"
 done
 grep -q '^-----' "$tmpdir/env" && die "une clé s'est répartie sur plusieurs lignes"
 
