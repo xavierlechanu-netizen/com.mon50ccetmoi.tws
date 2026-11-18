@@ -7,6 +7,7 @@
 // de 2 s, clé de démo écrite dans le code), retirée le 8/11/2026.
 import { db, auth, firebase } from "./config.js";
 import { registerAction } from "./actionRegistry.js";
+import { comptes, onAuthChange, comptesErrorMessage } from "./comptes.js";
 import { authFetch } from "./api-client.js";
 import {
   OFFERS,
@@ -69,17 +70,18 @@ async function authenticateInsurer() {
   }
   setStatus("login-status", "Connexion…");
   try {
-    await auth.signInWithEmailAndPassword(email, password);
+    // Firebase ou serveur souverain selon CONFIG.BACKEND_MODE.comptes (comptes.js)
+    await comptes.seConnecter(email, password);
     $("insurer-password").value = "";
     setStatus("login-status", "");
-    // La suite est gérée par onAuthStateChanged
+    // La suite est gérée par onAuthChange
   } catch (err) {
-    setStatus("login-status", LOGIN_ERRORS[err?.code] || "Connexion impossible. Réessayez.", "error");
+    setStatus("login-status", LOGIN_ERRORS[err?.code] || (err?.status ? comptesErrorMessage(err) : "Connexion impossible. Réessayez."), "error");
   }
 }
 
 async function logoutInsurer() {
-  await auth.signOut();
+  await comptes.seDeconnecter();
 }
 
 function resetPortal() {
@@ -384,7 +386,7 @@ registerAction("searchCase", searchCase);
 registerAction("selectReport", selectReport);
 registerAction("payReport", payReport);
 
-auth.onAuthStateChanged((user) => {
+onAuthChange((user) => {
   if (user) {
     onSignedIn(user);
   } else {

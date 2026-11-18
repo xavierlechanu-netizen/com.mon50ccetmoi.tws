@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem, firebase } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { onAuthChange } from './comptes.js';
 
 /**
  * Contrat de Route — Gamification de la sécurité routière
@@ -173,7 +174,7 @@ function showToast(message) {
 document.addEventListener("DOMContentLoaded", async () => {
   // Attendre que Firebase Auth soit prêt
   if (window.auth) {
-    window.auth.onAuthStateChanged(async (user) => {
+    onAuthChange(async (user) => {
       if (user) {
         await loadSignedContrats();
         updatePointsDisplay();

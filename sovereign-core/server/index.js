@@ -62,6 +62,28 @@ const SOS_DEFAULT_DAILY_SMS_BUDGET = 300;
 const SOS_TOKEN_PURPOSE = "sos";
 const SOS_TOKEN_TTL_SEC = 30 * 24 * 3600;
 const issueSosToken = (uid) => signSovereignJwt({ uid, purpose: SOS_TOKEN_PURPOSE }, { expiresInSec: SOS_TOKEN_TTL_SEC });
+// Jeton de renouvellement (18/11/2026, phase A « comptes ») : le jeton de session ne vit qu'une heure,
+// mais un pilote ne doit pas retaper son mot de passe à chaque page. Ce jeton de 30 jours n'ouvre QUE
+// POST /api/v1/auth/refresh, qui vérifie à chaque fois que le compte existe encore et n'est pas banni,
+// puis rend un nouveau jeton de session et un nouveau jeton de renouvellement (30 jours glissants).
+const REFRESH_TOKEN_PURPOSE = "refresh";
+const REFRESH_TOKEN_TTL_SEC = 30 * 24 * 3600;
+const issueRefreshToken = (uid) => signSovereignJwt({ uid, purpose: REFRESH_TOKEN_PURPOSE }, { expiresInSec: REFRESH_TOKEN_TTL_SEC });
+
+/** Réponse commune de l'inscription, de la connexion et du renouvellement de session. */
+function sessionResponse(user) {
+    return {
+        uid: user.uid,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        braveCoins: user.braveCoins || 0,
+        createdAt: user.createdAt || null,
+        token: signSovereignJwt({ uid: user.uid, role: user.role, username: user.username }),
+        refreshToken: issueRefreshToken(user.uid),
+        sosToken: issueSosToken(user.uid)
+    };
+}
 
 // Inscription et connexion (audit du 16/11/2026)
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -308,22 +330,11 @@ function createSovereignApp(options = {}) {
                 throw e;
             }
 
-            const token = signSovereignJwt({
-                uid: userRecord.uid,
-                role: userRecord.role,
-                username: userRecord.username
-            });
             await audit({ action: AUDIT_ACTIONS.AUTH_REGISTER, actorUid: userRecord.uid, actorRole: userRecord.role,
                 targetType: "user", targetId: userRecord.uid });
 
             res.statusCode = 201;
-            res.end(JSON.stringify({
-                uid: userRecord.uid,
-                username: userRecord.username,
-                role: userRecord.role,
-                token,
-                sosToken: issueSosToken(userRecord.uid)
-            }));
+            res.end(JSON.stringify(sessionResponse(userRecord)));
             return;
         }
 
@@ -355,6 +366,15 @@ function createSovereignApp(options = {}) {
                 return;
             }
 
+            // Compte banni : même règle que le renouvellement de session (route /auth/refresh)
+            if (user.isBanned) {
+                await audit({ action: AUDIT_ACTIONS.AUTH_LOGIN_FAILED, outcome: "denied", targetType: "user", targetId: user.uid,
+                    details: { reason: "banned" } });
+                res.statusCode = 403;
+                res.end(JSON.stringify({ error: "Ce compte est suspendu. Écrivez à contact@mon50ccetmoi.com." }));
+                return;
+            }
+
             // Compte importé de Firebase : le mot de passe vient d'être vérifié, on remplace
             // l'empreinte Firebase par une empreinte au format du serveur (une seule fois).
             if (isFirebaseHash(user.passwordHash)) {
@@ -365,22 +385,27 @@ function createSovereignApp(options = {}) {
                 }
             }
 
-            const token = signSovereignJwt({
-                uid: user.uid,
-                role: user.role,
-                username: user.username
-            });
             await audit({ action: AUDIT_ACTIONS.AUTH_LOGIN, actorUid: user.uid, actorRole: user.role, targetType: "user", targetId: user.uid });
 
             res.statusCode = 200;
-            res.end(JSON.stringify({
-                uid: user.uid,
-                username: user.username,
-                role: user.role,
-                braveCoins: user.braveCoins,
-                token,
-                sosToken: issueSosToken(user.uid)
-            }));
+            res.end(JSON.stringify(sessionResponse(user)));
+            return;
+        }
+
+        // 3 ter. RENOUVELLEMENT DE LA SESSION : jeton de renouvellement (30 jours) → nouveau jeton de
+        // session (1 h). Compte supprimé (RGPD) ou banni : refusé, il faudra se reconnecter.
+        if (req.method === "POST" && pathname === "/api/v1/auth/refresh") {
+            const authHeader = req.headers.authorization || "";
+            const verif = authHeader.startsWith("Bearer ") ? verifySovereignJwt(authHeader.slice(7).trim()) : { valid: false };
+            const claims = verif.valid && verif.payload.purpose === REFRESH_TOKEN_PURPOSE ? verif.payload : null;
+            const user = claims ? await store.findUserById(claims.uid) : null;
+            if (!user || user.isBanned) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Session expirée. Reconnectez-vous." }));
+                return;
+            }
+            res.statusCode = 200;
+            res.end(JSON.stringify(sessionResponse(user)));
             return;
         }
 

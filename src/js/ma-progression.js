@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { onAuthChange } from './comptes.js';
 
 /**
  * ma-progression.js — Tableau de bord personnel "Ma Progression"
@@ -326,7 +327,7 @@ function getBvcLevel(points) {
 // --- Init ---
 document.addEventListener('DOMContentLoaded', () => {
   if (window.auth) {
-    window.auth.onAuthStateChanged(user => {
+    onAuthChange(user => {
       renderProgression();
     });
   } else {

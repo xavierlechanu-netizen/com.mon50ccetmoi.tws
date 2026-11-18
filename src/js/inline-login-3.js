@@ -1,5 +1,13 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem, firebase } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { comptes } from './comptes.js';
+
+// Comptes sur "SOVEREIGN" : le serveur souverain ne connaît pas la connexion Google (elle ouvrirait une
+// session Firebase sans lui). Les comptes Google choisissent un mot de passe avant la bascule
+// (docs/PLAN_DEMENAGEMENT_GOOGLE.md, § 6).
+const GOOGLE_UNAVAILABLE_MESSAGE =
+  "La connexion avec Google n'est plus proposée. Connectez-vous avec l'adresse email de votre compte Google " +
+  "et votre mot de passe mon50ccetmoi. Pas encore de mot de passe ? Écrivez à contact@mon50ccetmoi.com.";
 
 // Âge (RGPD art. 8 ; loi Informatique et Libertés art. 45 : 15 ans en France). La réponse est
 // gardée dans le profil (ageConfirmed, ageConfirmedAt) pour pouvoir montrer qu'elle a été demandée.
@@ -58,6 +66,10 @@ function doLogin() {
         console.log("Tentative de connexion Google via Firebase...");
         if (!response || !response.credential) {
           console.warn("Credential Google manquant.");
+          return;
+        }
+        if (comptes.mode === "SOVEREIGN") {
+          alert(GOOGLE_UNAVAILABLE_MESSAGE);
           return;
         }
         const credential = firebase.auth.GoogleAuthProvider.credential(

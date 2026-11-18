@@ -149,9 +149,18 @@ describe("D-7 : confirmation de l'âge à la création du compte", () => {
         firestore: () => ({ collection: () => ({ doc: () => ({ get: async () => profileDoc }) }) }),
       };
       return loadModule("src/js/inline-login-3.js", ["doRegister", "handleCredentialResponse"], {
-        firebase, registerAction: () => {}, secureSetItem: jest.fn(),
+        firebase, registerAction: () => {}, secureSetItem: jest.fn(), comptes: { mode: comptesMode },
       });
     }
+    let comptesMode = "FIREBASE";
+    afterEach(() => { comptesMode = "FIREBASE"; });
+
+    test("comptes sur SOVEREIGN : la connexion Google n'ouvre rien et explique quoi faire", async () => {
+      comptesMode = "SOVEREIGN";
+      await load().handleCredentialResponse({ credential: "jeton-google" });
+      expect(authObj.signInWithCredential).not.toHaveBeenCalled();
+      expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/adresse email de votre compte Google/));
+    });
 
     beforeEach(() => {
       document.body.innerHTML = `

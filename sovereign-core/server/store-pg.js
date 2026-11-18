@@ -26,6 +26,7 @@ function mapUser(r) {
         role: r.role,
         braveCoins: r.brave_coins,
         hideFromLeaderboard: Boolean(r.hide_from_leaderboard),
+        isBanned: Boolean(r.is_banned),
         createdAt: iso(r.created_at),
     };
 }

@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { comptes, onAuthChange } from './comptes.js';
 
 /**
  * Logique du Tableau de Bord Garage Pro
@@ -20,7 +21,7 @@ if (typeof document !== 'undefined') {
     
     // Étape 1 : Vérifier que Firebase Auth est chargé et que l'utilisateur est connecté
     if (typeof firebase !== "undefined" && firebase.auth) {
-      firebase.auth().onAuthStateChanged(async (firebaseUser) => {
+      onAuthChange(async (firebaseUser) => {
         if (!firebaseUser) {
           // Pas connecté Firebase → redirection
           window.location.href = "garage.html";
@@ -61,7 +62,8 @@ if (typeof document !== 'undefined') {
 
 function logoutGarage() {
   if (window.auth) {
-    window.auth.signOut().then(() => {
+    // Firebase et serveur souverain (comptes.js)
+    comptes.seDeconnecter().then(() => {
       localStorage.removeItem("session");
       window.location.href = "garage.html";
     });

@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { onAuthChange } from './comptes.js';
 import { escapeHtml, safeId, safeActionText, safeNumber, safeImageUrl } from './html-escape.js';
 
 /**
@@ -60,7 +61,7 @@ window.ExchangeMarket = {
     };
 
     if (window.firebase && firebase.auth()) {
-      firebase.auth().onAuthStateChanged(() => checkUser());
+      onAuthChange(() => checkUser());
     } else {
       checkUser();
     }

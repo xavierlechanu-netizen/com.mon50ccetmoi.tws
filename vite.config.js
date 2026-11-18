@@ -66,6 +66,11 @@ export default defineConfig({
   publicDir: 'public', // Résolu par rapport à root (donc src/public)
   server: {
     port: 5000,
+    // Serveur souverain lancé sur le PC (node sovereign-core/server/index.js, port 8080) : avec
+    // VITE_SOVEREIGN_API_URL=/api/v1, l'appli de développement lui parle sans souci de CORS ni de CSP.
+    proxy: {
+      '/api/v1': 'http://localhost:8080',
+    },
   },
   base: '/',
   build: {

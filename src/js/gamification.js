@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { onAuthChange } from './comptes.js';
 
 /**
  * GAMIFICATION ENGINE v2.0
@@ -294,7 +295,7 @@ toast.innerHTML = `
 // Auto-init
 window.addEventListener('DOMContentLoaded', () => {
     if (typeof firebase !== 'undefined' && firebase.auth) {
-        firebase.auth().onAuthStateChanged((user) => {
+        onAuthChange((user) => {
             window.Gamification.init();
         });
     } else {

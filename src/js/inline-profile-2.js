@@ -1,14 +1,12 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
-import { forgetSovereign } from './sovereign.js';
+import { comptes } from './comptes.js';
 
 function logout() {
-        forgetSovereign(); // plus de jeton de l'alerte SOS automatique sur ce téléphone
-        if (window.auth) {
-          window.auth.signOut().then(() => {
-            window.location.href = "login.html";
-          });
-        }
+        // Firebase et serveur souverain : plus de session ni de jeton SOS sur ce téléphone
+        comptes.seDeconnecter().then(() => {
+          window.location.href = "login.html";
+        });
       }
 
       // Host toggle visibility

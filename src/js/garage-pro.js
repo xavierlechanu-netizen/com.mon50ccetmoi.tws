@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { comptes, comptesErrorMessage } from './comptes.js';
 
 /**
  * GARAGE PRO - Logique Métier
@@ -92,8 +93,11 @@ window.GaragePro = {
     // Création du compte utilisateur puis redirection vers le flux de paiement officiel Revolut
     try {
       if (typeof firebase !== "undefined" && firebase.auth) {
-        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pwd);
-        const uid = userCredential.user.uid;
+        // Firebase ou serveur souverain selon CONFIG.BACKEND_MODE.comptes (comptes.js). Le serveur
+        // souverain demande un pseudonyme : tiré de l'email du garage.
+        const local = email.split("@")[0].replace(/[^A-Za-z0-9_.-]/g, "").slice(0, 40);
+        const created = await comptes.creerCompte({ email, username: `garage-${local || "pro"}`, password: pwd });
+        const uid = created.firebaseUser ? created.firebaseUser.uid : created.compte.uid;
         if (typeof window.session !== "undefined") {
           window.session = { uid, email, role: "user" };
         }
@@ -109,7 +113,7 @@ window.GaragePro = {
       }
     } catch (e) {
       console.error("Erreur inscription garage", e);
-      alert("Erreur lors de l'inscription : " + e.message);
+      alert("Erreur lors de l'inscription : " + comptesErrorMessage(e));
     }
   },
 

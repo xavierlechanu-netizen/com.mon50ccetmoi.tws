@@ -101,6 +101,23 @@ describe("Serveur souverain sur PostgreSQL", () => {
     expect((await call(app, "POST", "/api/v1/auth/register", { email: "autre@example.com", username: "PilotePG", password: "MotDePasse2026!" })).status).toBe(409);
   });
 
+  test("session de 30 jours (comptes de l'appli) : renouvelée, puis refusée au compte banni", async () => {
+    const login = await call(app, "POST", "/api/v1/auth/login", { email: "pilote@example.com", password: "MotDePasse2026!" });
+    expect(login.body.createdAt).toMatch(/^\d{4}-\d\d-\d\dT/);
+    const refresh = () => call(app, "POST", "/api/v1/auth/refresh", null, { Authorization: `Bearer ${login.body.refreshToken}` });
+    const ok = await refresh();
+    expect(ok.status).toBe(200);
+    expect(ok.body).toEqual(expect.objectContaining({ uid: login.body.uid, email: "pilote@example.com", token: expect.any(String) }));
+
+    await pool.query("UPDATE users SET is_banned = TRUE WHERE uid = $1", [login.body.uid]);
+    try {
+      expect((await refresh()).status).toBe(401);
+      expect((await call(app, "POST", "/api/v1/auth/login", { email: "pilote@example.com", password: "MotDePasse2026!" })).status).toBe(403);
+    } finally {
+      await pool.query("UPDATE users SET is_banned = FALSE WHERE uid = $1", [login.body.uid]);
+    }
+  });
+
   test("jour J : import des comptes Firebase (simulation, import, relance), connexion puis conversion", async () => {
     const exportData = { users: [
       { localId: "fbUidImportPg000000000000001", email: "importe@example.com", displayName: "PilotePG",

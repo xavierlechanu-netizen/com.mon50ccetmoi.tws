@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { onAuthChange } from './comptes.js';
 import { initialsAvatar } from './avatar.js';
 
 /**
@@ -20,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Attente de l'authentification Firebase
     if (typeof firebase !== 'undefined' && firebase.auth) {
-        firebase.auth().onAuthStateChanged((user) => {
+        onAuthChange((user) => {
             if (user) {
                 // Remplir les infos de base
                 nameEl.textContent = user.displayName || user.email.split('@')[0];

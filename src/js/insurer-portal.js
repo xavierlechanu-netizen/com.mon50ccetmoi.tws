@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { comptes } from './comptes.js';
 
 /* --- B2B INSURER PORTAL (WEB4) --- */
 
@@ -35,7 +36,8 @@ window.InsurerPortal = {
     }
 
     try {
-      await firebase.auth().signInWithEmailAndPassword(id, pwd);
+      // Firebase ou serveur souverain selon CONFIG.BACKEND_MODE.comptes (comptes.js)
+      await comptes.seConnecter(id, pwd);
       this.currentInsurer = id;
       document.getElementById("insurer-name-display").innerText =
         this.currentInsurer;

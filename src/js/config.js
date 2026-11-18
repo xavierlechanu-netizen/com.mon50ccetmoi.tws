@@ -24,8 +24,21 @@ export const CONFIG = {
   // gardiens). Tant que api.mon50ccetmoi.com n'existe pas, rien ne part et l'alerte propose le 112.
   SOVEREIGN: {
     ACTIF: true,
-    API_URL: "https://api.mon50ccetmoi.com/api/v1",
+    // Développement : VITE_SOVEREIGN_API_URL=/api/v1 (serveur souverain local, voir vite.config.js)
+    API_URL: import.meta.env?.VITE_SOVEREIGN_API_URL || "https://api.mon50ccetmoi.com/api/v1",
   },
+
+  // Interrupteur du déménagement (phase A, 18/11/2026 ; mode d'emploi : backend-mode.js).
+  // Domaine par domaine : "FIREBASE" = comme avant, "SOVEREIGN" = serveur souverain OVHcloud.
+  // Retour arrière : remettre "FIREBASE" et republier le site. Ne passer les comptes sur "SOVEREIGN"
+  // qu'APRÈS l'import des comptes Firebase sur le serveur (docs/PLAN_DEMENAGEMENT_GOOGLE.md, § 6).
+  BACKEND_MODE: {
+    comptes: "FIREBASE",
+  },
+  // Comptes sur "SOVEREIGN" : tant que les données sont dans Firestore, la connexion souveraine ouvre
+  // aussi une session Firebase (même email, même mot de passe) pour les lire. À couper (false) quand
+  // plus rien ne lit Firestore.
+  PONT_FIREBASE: import.meta.env?.VITE_PONT_FIREBASE !== "0",
 
   // Auth Configuration
   AUTH: {

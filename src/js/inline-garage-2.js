@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem, firebase } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { comptes } from './comptes.js';
 
 
 /**
@@ -26,16 +27,22 @@ import { registerAction } from './actionRegistry.js';
 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion en cours...';
 
         try {
-          const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
-          const uid = userCredential.user.uid;
+          // Firebase ou serveur souverain selon CONFIG.BACKEND_MODE.comptes (comptes.js)
+          await comptes.seConnecter(email, pass);
+          // Le statut de garage certifié est encore dans Firestore : sans pont Firebase, pas d'accès.
+          // L'identifiant vient de « qui est connecté », jamais de la réponse de connexion (jetons).
+          const current = comptes.utilisateurActuel();
+          const uid = current && !current.isSovereign ? current.uid : null;
 
           // Vérifier le statut garage certifié dans Firestore
-          const doc = await firebase.firestore().collection("users").doc(uid).get();
+          const doc = uid ? await firebase.firestore().collection("users").doc(uid).get() : null;
 
-          if (!doc.exists || !doc.data().isCertifiedGarage) {
+          if (!doc || !doc.exists || !doc.data().isCertifiedGarage) {
             // L'utilisateur existe mais n'est pas un garage certifié
-            await firebase.auth().signOut();
-            errorBox.textContent = "Ce compte n'est pas un compte Garage Pro certifié. Utilisez l'accès Pilote ou inscrivez votre garage.";
+            await comptes.seDeconnecter();
+            errorBox.textContent = doc
+              ? "Ce compte n'est pas un compte Garage Pro certifié. Utilisez l'accès Pilote ou inscrivez votre garage."
+              : "Espace garage momentanément indisponible. Réessayez plus tard ou écrivez à contact@mon50ccetmoi.com.";
             errorBox.style.display = "block";
             btn.disabled = false;
             // eslint-disable-next-line no-restricted-syntax
@@ -57,9 +64,10 @@ btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> SE CONNECTER';
         } catch (error) {
           console.error("Erreur connexion Garage:", error);
           let msg = "Erreur d'authentification.";
-          if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
+          if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password" || error.code === "auth/invalid-credential" ||
+              error.status === 401) {
             msg = "Identifiants incorrects. Vérifiez votre email et mot de passe.";
-          } else if (error.code === "auth/too-many-requests") {
+          } else if (error.code === "auth/too-many-requests" || error.status === 429) {
             msg = "Trop de tentatives. Veuillez réessayer dans quelques minutes.";
           } else if (error.code === "auth/invalid-email") {
             msg = "Format d'email invalide.";

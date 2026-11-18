@@ -1,6 +1,24 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem, firebase } from './config.js';
 import { registerAction } from './actionRegistry.js';
-import { connectSovereign, forgetSovereign } from './sovereign.js';
+import { comptes, onAuthChange, comptesErrorMessage } from './comptes.js';
+
+// Comptes : Firebase ou serveur souverain selon CONFIG.BACKEND_MODE.comptes (comptes-core.js).
+// En "SOVEREIGN", firebaseUser est le « pont » vers les données encore dans Firestore ; il peut
+// manquer : le profil est alors celui du serveur souverain (sessionFromSovereign).
+
+/** Session de l'appli quand le profil Firestore est inaccessible (comptes sur "SOVEREIGN", sans pont). */
+function sessionFromSovereign(compte) {
+  const created = Date.parse(compte.createdAt || "");
+  return {
+    uid: compte.uid,
+    sovereignUid: compte.uid,
+    username: compte.username,
+    role: compte.role || "user",
+    braveCoins: compte.braveCoins || 0,
+    registrationDate: Number.isFinite(created) ? created : Date.now(),
+    profileSource: "sovereign",
+  };
+}
 
 
 // --- FIREBASE INITIALIZATION ---
@@ -169,14 +187,19 @@ window.login = async function (username, password) {
     : `${username.toLowerCase()}@mon50cc.internal`;
 
   try {
-    const userCredential = await firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password);
-    const user = userCredential.user;
+    // Comptes sur "FIREBASE" : Firebase Auth, et le serveur souverain en parallèle pour le jeton de
+    // l'alerte SOS (ne rejette jamais, abandonne au bout de 4 s).
+    // Comptes sur "SOVEREIGN" : le serveur souverain juge le mot de passe ; Firebase sert de pont.
+    const { firebaseUser: user, compte, sovereignReady } = await comptes.seConnecter(email, password);
 
-    // Serveur souverain (OVHcloud), en parallèle : jeton de l'alerte SOS automatique.
-    // Ne rejette jamais et abandonne au bout de 4 s : la connexion à l'appli n'en dépend pas.
-    const sovereignReady = connectSovereign(email, password);
+    if (!user) {
+      // Session souveraine sans pont Firebase : profil réduit venu du serveur souverain
+      const session = { ...sessionFromSovereign(compte), lastSeen: Date.now() };
+      cacheSetItem("session", JSON.stringify(session));
+      window.session = session;
+      window.location.href = session.role === "admin" ? "admin.html" : "app.html";
+      return;
+    }
 
     // Télémétrie d'audit pseudonymisée
     recordAuthEvent('password', 'success', user.uid);
@@ -207,6 +230,7 @@ window.login = async function (username, password) {
 
     // Mettre à jour la session locale
     const session = { ...userData, uid: user.uid, lastSeen: Date.now() };
+    if (compte) session.sovereignUid = compte.uid;
 
     // NOTE SÉCURITÉ : Le rôle admin est déterminé EXCLUSIVEMENT par le champ
     // 'role' dans Firestore, jamais par le pseudo. Toute logique de privilèges
@@ -219,7 +243,7 @@ window.login = async function (username, password) {
     window.location.href = session.role === "admin" ? "admin.html" : "app.html";
   } catch (error) {
     console.error("Login Error:", error);
-    recordAuthEvent('password', 'failure', null, error.code || error.message);
+    recordAuthEvent('password', 'failure', null, error.code || error.status || error.message);
 
     // Support pour environnement local / présentation si les referrers Google Cloud bloquent localhost
     const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -229,7 +253,7 @@ window.login = async function (username, password) {
       console.warn("[Auth] Mode local détecté avec restriction de referer Google.");
     }
 
-    alert("Erreur de connexion : " + error.message);
+    alert("Erreur de connexion : " + comptesErrorMessage(error));
   }
 };
 
@@ -253,10 +277,18 @@ window.register = async function (username, password, brand, model, { ageConfirm
 
   let user = null;
   try {
-    const userCredential = await firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password);
-    user = userCredential.user;
+    // Comptes sur "SOVEREIGN" : compte créé sur le serveur souverain, puis le pont Firebase
+    const created = await comptes.creerCompte({ email, username, password });
+    user = created.firebaseUser;
+
+    if (!user) {
+      // Pont Firebase indisponible : le compte existe sur le serveur souverain, profil réduit
+      const session = { ...sessionFromSovereign(created.compte), brand, model, ageConfirmed: true, ageConfirmedAt: Date.now() };
+      cacheSetItem("session", JSON.stringify(session));
+      window.session = session;
+      window.location.href = "app.html";
+      return;
+    }
 
     // Profil + réservation du pseudo dans le même lot. Les points ne sont plus écrits ici :
     // seules les fonctions serveur peuvent en attribuer (avant, ce champ faisait refuser
@@ -268,13 +300,14 @@ window.register = async function (username, password, brand, model, { ageConfirm
       });
     } catch (e) {
       // Pseudo déjà réservé (ex. par un compte Google) : on supprime le compte tout juste créé
-      // pour que la personne puisse réessayer avec un autre pseudo.
-      await user.delete().catch(() => {});
+      // (des deux côtés en "SOVEREIGN") pour que la personne puisse réessayer avec un autre pseudo.
+      await comptes.annulerInscription(user);
       if (e?.code === "permission-denied") {
         return alert("Ce pseudo est déjà utilisé. Choisissez-en un autre.");
       }
       throw e;
     }
+    if (created.compte) profile.sovereignUid = created.compte.uid;
 
     // Session locale
     cacheSetItem("session", JSON.stringify(profile));
@@ -283,17 +316,13 @@ window.register = async function (username, password, brand, model, { ageConfirm
     window.location.href = "app.html";
   } catch (error) {
     console.error("Register Error:", error);
-    alert("Erreur d'inscription : " + error.message);
+    alert("Erreur d'inscription : " + comptesErrorMessage(error));
   }
 };
 
 window.logout = async function () {
-  try {
-    if (typeof firebase !== "undefined" && firebase.auth()) {
-      await firebase.auth().signOut();
-    }
-  } catch (e) {}
-  forgetSovereign();
+  // Firebase (pont compris) et serveur souverain : session et jeton SOS oubliés sur ce téléphone
+  await comptes.seDeconnecter();
   cacheRemoveItem("session");
   window.location.href = "login.html";
 };
@@ -400,6 +429,11 @@ window.registerBiometric = async function () {
 };
 
 window.loginBiometric = async function () {
+  // Comptes sur "SOVEREIGN" : la clé d'accès ouvrirait une session Firebase sans passer par le serveur
+  // souverain. Elle reviendra quand le serveur saura la vérifier (table fido_credentials prête).
+  if (comptes.mode === "SOVEREIGN") {
+    return alert("La connexion par empreinte revient bientôt. En attendant, connectez-vous avec votre pseudo et votre mot de passe.");
+  }
   try {
     const storedUid = window.cacheGetItem("fido2_uid");
     
@@ -495,8 +529,13 @@ window.checkAuth = function (requireAdmin = false) {
       return resolve(null);
     }
 
-    const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
-      unsubscribe(); // Run only once
+    let done = false;
+    let unsubscribe = null;
+    unsubscribe = onAuthChange(async (user) => {
+      if (done) return;
+      done = true; // Run only once
+      // L'écouteur peut répondre tout de suite, avant même d'avoir rendu sa fonction de désabonnement
+      Promise.resolve().then(() => unsubscribe && unsubscribe());
 
       if (!user) {
         window.location.href = "login.html";
@@ -504,17 +543,30 @@ window.checkAuth = function (requireAdmin = false) {
       }
 
       try {
-        // Validation stricte côté serveur
-        await user.getIdTokenResult(true);
-        const doc = await firebase.firestore().collection("users").doc(user.uid).get();
-        
-        if (!doc.exists) {
-          window.location.href = "login.html";
-          return resolve(null);
-        }
+        let session;
+        if (user.isSovereign) {
+          // Comptes sur "SOVEREIGN" sans pont Firebase : profil du serveur souverain, session vérifiée
+          // par le renouvellement du jeton (refus du serveur = compte supprimé ou banni). Hors réseau, on
+          // garde la session : le pilote doit pouvoir rouler sans couverture.
+          await user.getIdToken().catch((e) => {
+            if (e && e.status === 401) throw e;
+          });
+          session = sessionFromSovereign(comptes.compteSouverain() || { uid: user.uid, username: user.displayName, role: user.role });
+        } else {
+          // Validation stricte côté serveur
+          await user.getIdTokenResult(true);
+          const doc = await firebase.firestore().collection("users").doc(user.uid).get();
 
-        const session = doc.data();
-        session.uid = user.uid;
+          if (!doc.exists) {
+            window.location.href = "login.html";
+            return resolve(null);
+          }
+
+          session = doc.data();
+          session.uid = user.uid;
+          const compte = comptes.mode === "SOVEREIGN" ? comptes.compteSouverain() : null;
+          if (compte) session.sovereignUid = compte.uid;
+        }
 
         if (requireAdmin && session.role !== "admin") {
           alert("Accès refusé.");
@@ -553,10 +605,11 @@ window.checkAuth = function (requireAdmin = false) {
   });
 };
 
-// Écouteur de changement d'état (Sync Firebase -> Local)
+// Écouteur de changement d'état (Sync Firebase -> Local). Sans pont Firebase (comptes sur
+// "SOVEREIGN"), il n'y a pas de profil Firestore à relire : la session vient de checkAuth / login.
 if (typeof firebase !== "undefined" && firebase.auth()) {
-  firebase.auth().onAuthStateChanged(async (user) => {
-    if (user) {
+  onAuthChange(async (user) => {
+    if (user && !user.isSovereign) {
       try {
         const doc = await firebase
           .firestore()
@@ -566,6 +619,8 @@ if (typeof firebase !== "undefined" && firebase.auth()) {
         if (doc.exists) {
           const profile = doc.data();
           const sessionData = { ...profile, uid: user.uid };
+          const compte = comptes.mode === "SOVEREIGN" ? comptes.compteSouverain() : null;
+          if (compte) sessionData.sovereignUid = compte.uid;
           cacheSetItem(
             "session",
             JSON.stringify(sessionData),

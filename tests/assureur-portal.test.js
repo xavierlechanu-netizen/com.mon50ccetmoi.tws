@@ -16,6 +16,11 @@ const BODY = read("assureur.html")
 // Modules ESM (navigateur) : on retire imports et "export" pour les évaluer ici
 const REPORTS = read("js/insurer-reports.js").replace(/^export (const|function) /gm, "$1 ");
 const PORTAL = read("js/assureur.js").replace(/^import[\s\S]*?from\s+"[^"]+";\s*$/gm, "");
+// Comptes (comptes-core.js), interrupteur sur "FIREBASE" comme en production aujourd'hui
+const COMPTES = read("js/comptes-core.js").replace(/^export /gm, "");
+const { createComptes, comptesErrorMessage } =
+  // eslint-disable-next-line no-new-func
+  new Function(`${COMPTES}; return { createComptes, comptesErrorMessage };`)();
 
 const CODE = "LITIGE-AB2C-D3EF-GH4J-K5LM";
 const USER = { uid: "insurer9", email: "expert@assureur.fr" };
@@ -72,8 +77,11 @@ function setup({ profile = AXA, preview, sealed } = {}) {
   window.RevolutCheckout = jest.fn(async () => ({ payWithPopup: (opts) => { popup = opts; } }));
   window.confirm = jest.fn(() => true);
 
-  new Function("db", "auth", "firebase", "registerAction", "authFetch", `${REPORTS}\n${PORTAL}`)(
+  const comptes = createComptes({ mode: "FIREBASE", firebaseAuth: auth, sovereign: null });
+  new Function("db", "auth", "firebase", "registerAction", "authFetch", "comptes", "onAuthChange", "comptesErrorMessage",
+    `${REPORTS}\n${PORTAL}`)(
     db, auth, firebase, (name, fn) => { actions[name] = fn; }, authFetch,
+    comptes, (cb) => comptes.onAuthChange(cb), comptesErrorMessage,
   );
   authCallback(null); // Firebase signale l'état de connexion au chargement
 

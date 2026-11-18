@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { onAuthChange } from './comptes.js';
 import { coarsePosition, recentCutoff, MAX_SHARED_POSITIONS } from './location-privacy.js';
 
 /**
@@ -138,7 +139,7 @@ function syncCommunityPositions() {
 
   // Only listen to presence if user is authenticated (firestore.rules requires isSignedIn)
   if (typeof firebase !== "undefined" && firebase.auth()) {
-    firebase.auth().onAuthStateChanged((user) => {
+    onAuthChange((user) => {
       if (user) {
         // Membres actifs récemment, en nombre limité (avant : toute la collection, en continu)
         db.collection("presence")
