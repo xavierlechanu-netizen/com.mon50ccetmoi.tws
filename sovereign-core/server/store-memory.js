@@ -8,6 +8,7 @@
 
 const crypto = require("crypto");
 const { StoreError } = require("./store-errors");
+const { sealEntry, AUDIT_RETENTION_DAYS } = require("./audit-log");
 
 function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const usersById = new Map();
@@ -18,6 +19,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const hazards = [];
     const ledger = [];
     const quotas = new Map(); // `${uid}|${jour}` → { motif: points, __unverified: points }
+    const audit = []; // journal d'audit (ajout seul, chaîné : audit-log.js)
 
     // Utilisateurs pré-enregistrés (tests) : [{ uid, email?, username?, role? }]
     for (const u of users) {
@@ -75,9 +77,85 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
                 username: `supprime-${uid}`,
                 passwordHash: "!",
                 braveCoins: 0,
+                hideFromLeaderboard: false,
                 deletedAt: new Date().toISOString(),
             });
+            // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
+            for (const h of hazards) if (h.uid === uid) h.description = "";
             return true;
+        },
+
+        /** Rectification (RGPD art. 16) et opposition au classement (art. 21). */
+        async updateUserProfile(uid, { email, username, hideFromLeaderboard } = {}) {
+            const u = usersById.get(uid);
+            if (!u || u.deletedAt) throw new StoreError("USER_NOT_FOUND", "Profil utilisateur introuvable.");
+            if (email !== undefined && email !== u.email && usersByEmail.has(email)) {
+                throw new StoreError("EMAIL_TAKEN", "Cet email est déjà enregistré.");
+            }
+            if (username !== undefined && username !== u.username && usernames.has(username)) {
+                throw new StoreError("USERNAME_TAKEN", "Ce pseudonyme est déjà pris.");
+            }
+            if (email !== undefined && email !== u.email) {
+                usersByEmail.delete(u.email);
+                u.email = email;
+                usersByEmail.set(email, u);
+            }
+            if (username !== undefined && username !== u.username) {
+                usernames.delete(u.username);
+                u.username = username;
+                usernames.add(username);
+            }
+            if (hideFromLeaderboard !== undefined) u.hideFromLeaderboard = Boolean(hideFromLeaderboard);
+            return { ...u };
+        },
+
+        /** Droit d'accès et portabilité (RGPD art. 15 et 20) : tout ce que le serveur garde sur le compte. */
+        async exportUserData(uid) {
+            const u = usersById.get(uid);
+            if (!u || u.deletedAt) return null;
+            return {
+                account: {
+                    uid: u.uid, email: u.email, username: u.username, role: u.role, braveCoins: u.braveCoins || 0,
+                    leaderboardVisible: !u.hideFromLeaderboard, createdAt: u.createdAt,
+                },
+                hazards: hazards.filter((h) => h.uid === uid).map(({ hazardId, type, lat, lng, description, active, createdAt }) =>
+                    ({ hazardId, type, lat, lng, description, active, createdAt })),
+                pointsLedger: ledger.filter((l) => l.uid === uid).map(({ action, reason, delta, balanceAfter, createdAt }) =>
+                    ({ action, reason, delta, balanceAfter, createdAt: createdAt || null })),
+                telemetrySessions: sessions.filter((s) => s.uid === uid).map((s) => ({
+                    sessionId: s.sessionId, hardwareId: s.hardwareId, isCrashReport: s.isCrashReport,
+                    impactTimestamp: s.impactTimestamp, frameCount: s.frameCount, merkleRootHex: s.merkleRootHex,
+                    wormStoragePath: s.wormStoragePath, wormSha256Hex: s.wormSha256Hex, sealedAt: s.sealedAt || null,
+                })),
+                blackboxUnits: [...units.values()].filter((x) => x.ownerUid === uid)
+                    .map(({ serial, revision, status, createdAt }) => ({ serial, revision, status, createdAt })),
+            };
+        },
+
+        // ─── Journal d'audit (ajout seul, chaîné) ───────────────────────────
+        async appendAudit(event) {
+            const entry = sealEntry(event, audit[audit.length - 1] || null);
+            audit.push(Object.freeze({ ...entry, details: Object.freeze({ ...entry.details }) }));
+            return { ...entry };
+        },
+        async listAudit({ afterSeq = 0, limit = 200, subjectUid = null } = {}) {
+            return audit
+                .filter((e) => e.seq > afterSeq && (!subjectUid || e.actorUid === subjectUid || e.targetId === subjectUid))
+                .slice(0, Math.min(Math.max(limit, 1), 1000))
+                .map((e) => ({ ...e, details: { ...e.details } }));
+        },
+        async purgeAudit(now = Date.now()) {
+            const limit = now - AUDIT_RETENTION_DAYS * 24 * 3600 * 1000;
+            let n = 0;
+            while (audit.length && Date.parse(audit[0].at) < limit) {
+                audit.shift();
+                n += 1;
+            }
+            return n;
+        },
+
+        async migrate() {
+            return [];
         },
 
         async getBlackboxUnit(serial) {
@@ -176,7 +254,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             const delta = t.action === "DEDUCT" ? -t.amount : t.amount;
             user.braveCoins = before + delta;
             ledger.push({ uid: t.uid, action: t.action, reason: t.reason, delta, balanceAfter: user.braveCoins,
-                idempotencyKey: t.idempotencyKey || null });
+                idempotencyKey: t.idempotencyKey || null, createdAt: new Date().toISOString() });
             if (t.action === "AWARD") {
                 quota[t.reason] = (quota[t.reason] || 0) + t.amount;
                 if (t.unverified) quota.__unverified = (quota.__unverified || 0) + t.amount;
@@ -189,7 +267,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             for (const l of ledger) if (l.action === "AWARD") sums.set(l.uid, (sums.get(l.uid) || 0) + l.delta);
             return [...sums.entries()]
                 .map(([uid, points]) => ({ user: usersById.get(uid), points }))
-                .filter((x) => x.user && !x.user.deletedAt)
+                .filter((x) => x.user && !x.user.deletedAt && !x.user.hideFromLeaderboard)
                 .sort((a, b) => b.points - a.points)
                 .slice(0, limit)
                 .map((x) => ({ username: x.user.username, points: x.points }));

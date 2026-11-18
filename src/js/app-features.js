@@ -10,7 +10,8 @@ import { chargerVigilance, texteZonesRouges } from './vigilance-meteo.js';
 window.fetchWeather = async function (lat, lon) {
   try {
     const res = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`,
+      // Position arrondie à ~1 km : la météo n'a pas besoin de plus (RGPD, minimisation)
+      `https://api.open-meteo.com/v1/forecast?latitude=${Number(lat).toFixed(2)}&longitude=${Number(lon).toFixed(2)}&current_weather=true`,
     );
     const data = await res.json();
     const temp = Math.round(data.current_weather.temperature);
@@ -1112,7 +1113,8 @@ const REGION_MESSAGES = {
 };
 
 window.triggerRegionalWelcome = function (lat, lng) {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=fr`;
+  // Seule la région compte : position arrondie à ~1 km et réponse au niveau région (zoom=5)
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&zoom=5&lat=${Number(lat).toFixed(2)}&lon=${Number(lng).toFixed(2)}&accept-language=fr`;
   fetch(url)
     .then((response) => response.json())
     .then((data) => {

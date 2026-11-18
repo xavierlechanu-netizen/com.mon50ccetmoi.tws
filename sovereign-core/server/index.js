@@ -32,7 +32,19 @@ const { createPgStore } = require("./store-pg");
 const { StoreError } = require("./store-errors");
 const { smsClientFromEnv, normalizeFrenchMobile } = require("./sms-ovh");
 const { vigilanceServiceFromEnv } = require("./meteo-vigilance");
+const { AUDIT_ACTIONS, verifyAuditChain } = require("./audit-log");
 const pointsRules = require("../../functions/api/points-rules");
+
+// Signalement des failles de sécurité (RFC 9116), même texte que src/public/.well-known/security.txt.
+// « Expires » : à repousser chaque année (tests/security-txt.test.js échoue un mois avant).
+const SECURITY_TXT = [
+    "Contact: mailto:contact@mon50ccetmoi.com",
+    "Expires: 2027-11-16T23:00:00.000Z",
+    "Preferred-Languages: fr, en",
+    "Canonical: https://mon50ccetmoi.com/.well-known/security.txt",
+    "Canonical: https://api.mon50ccetmoi.com/.well-known/security.txt",
+    "",
+].join("\n");
 
 // Alerte SOS : au plus 3 numéros, 3 alertes par pilote et par 10 minutes (anti-abus, SMS payants)
 const SOS_MAX_CONTACTS = 3;
@@ -83,13 +95,16 @@ const SOVEREIGN_CSP = [
 
 function applySecurityHeaders(res) {
     res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Idempotency-Key");
     res.setHeader("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("X-Frame-Options", "SAMEORIGIN");
     res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
     res.setHeader("Content-Security-Policy", SOVEREIGN_CSP);
+    // Réponses de l'API (comptes, export RGPD…) : jamais gardées par le navigateur ni un proxy.
+    // La vigilance météo, publique, remplace cette valeur par sa propre durée.
+    res.setHeader("Cache-Control", "no-store");
     res.setHeader("Content-Type", "application/json; charset=utf-8");
 }
 
@@ -182,6 +197,18 @@ function createSovereignApp(options = {}) {
         return verif.valid && !verif.payload.purpose ? verif.payload : null;
     }
 
+    /**
+     * Note une action dans le journal d'audit (audit-log.js). Ne bloque jamais la réponse : un
+     * effacement RGPD ou une alerte SOS ne doivent pas échouer parce que le journal est indisponible.
+     */
+    async function audit(event) {
+        try {
+            await store.appendAudit(event);
+        } catch (e) {
+            console.error("[Audit] Écriture impossible :", e.message);
+        }
+    }
+
     /** Pilote de l'alerte SOS : jeton de session OU jeton SOS (rien d'autre). */
     function extractSosUser(req) {
         const authHeader = req.headers.authorization || "";
@@ -225,6 +252,15 @@ function createSovereignApp(options = {}) {
                 firebaseDependencies: 0,
                 timestamp: new Date().toISOString()
             }));
+            return;
+        }
+
+        // 1 bis. SIGNALEMENT DES FAILLES (RFC 9116)
+        if (req.method === "GET" && pathname === "/.well-known/security.txt") {
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "text/plain; charset=utf-8");
+            res.setHeader("Cache-Control", "public, max-age=86400");
+            res.end(SECURITY_TXT);
             return;
         }
 
@@ -277,6 +313,8 @@ function createSovereignApp(options = {}) {
                 role: userRecord.role,
                 username: userRecord.username
             });
+            await audit({ action: AUDIT_ACTIONS.AUTH_REGISTER, actorUid: userRecord.uid, actorRole: userRecord.role,
+                targetType: "user", targetId: userRecord.uid });
 
             res.statusCode = 201;
             res.end(JSON.stringify({
@@ -308,6 +346,10 @@ function createSovereignApp(options = {}) {
                 verifyPassword(plainPassword, user ? user.passwordHash : dummyPasswordHash());
 
             if (!user || !passwordOk) {
+                // Compte existant seulement : un email inconnu n'est jamais écrit dans le journal
+                if (user) {
+                    await audit({ action: AUDIT_ACTIONS.AUTH_LOGIN_FAILED, outcome: "denied", targetType: "user", targetId: user.uid });
+                }
                 res.statusCode = 401;
                 res.end(JSON.stringify({ error: "Identifiants invalides." }));
                 return;
@@ -328,6 +370,7 @@ function createSovereignApp(options = {}) {
                 role: user.role,
                 username: user.username
             });
+            await audit({ action: AUDIT_ACTIONS.AUTH_LOGIN, actorUid: user.uid, actorRole: user.role, targetType: "user", targetId: user.uid });
 
             res.statusCode = 200;
             res.end(JSON.stringify({
@@ -491,6 +534,9 @@ function createSovereignApp(options = {}) {
                 wormSha256Hex: evidenceReceipt.sha256Hex,
                 sealedAt: evidenceReceipt.sealedAt
             });
+            await audit({ action: AUDIT_ACTIONS.EVIDENCE_SEALED, actorUid: authUser.uid, actorRole: authUser.role,
+                targetType: "telemetry_session", targetId: sessionRecord.sessionId,
+                details: { frames: finalFrames.length, crash: Boolean(isCrashReport), unit: unit.serial } });
 
             res.statusCode = 201;
             res.end(JSON.stringify({
@@ -504,6 +550,10 @@ function createSovereignApp(options = {}) {
         if (req.method === "POST" && pathname === "/api/v1/admin/blackbox/units") {
             const authUser = extractBearerUser(req);
             if (!authUser || authUser.role !== "admin") {
+                if (authUser) {
+                    await audit({ action: AUDIT_ACTIONS.ADMIN_BLACKBOX_PROVISION, outcome: "denied",
+                        actorUid: authUser.uid, actorRole: authUser.role });
+                }
                 res.statusCode = 403;
                 res.end(JSON.stringify({ error: "Réservé aux administrateurs." }));
                 return;
@@ -531,6 +581,8 @@ function createSovereignApp(options = {}) {
                 }
                 throw e;
             }
+            await audit({ action: AUDIT_ACTIONS.ADMIN_BLACKBOX_PROVISION, actorUid: authUser.uid, actorRole: authUser.role,
+                targetType: "blackbox_unit", targetId: unit.serial, details: { assigned: Boolean(unit.ownerUid) } });
             res.statusCode = 201;
             res.end(JSON.stringify({ serial: unit.serial, status: unit.status, ownerUid: unit.ownerUid }));
             return;
@@ -589,6 +641,10 @@ function createSovereignApp(options = {}) {
                     return;
                 }
                 throw e;
+            }
+            if (reg.created) {
+                await audit({ action: AUDIT_ACTIONS.FACTORY_UNIT_REGISTERED, actorUid: authUser.uid, actorRole: authUser.role,
+                    targetType: "blackbox_unit", targetId: reg.unit.serial, details: { revision, type } });
             }
             // Même clé présentée deux fois (outil relancé) → même numéro, rien de créé
             res.statusCode = reg.created ? 201 : 200;
@@ -709,8 +765,10 @@ function createSovereignApp(options = {}) {
             try {
                 const result = await smsClient.send({ receivers: numbers, message });
                 const sent = result.validReceivers.length;
-                // Journal sans numéros de téléphone (données personnelles)
+                // Journal sans numéros de téléphone ni position (données personnelles)
                 console.log(`[SOS] ${authUser.uid} : ${sent}/${numbers.length} SMS acceptés par OVHcloud`);
+                await audit({ action: AUDIT_ACTIONS.SOS_SENT, outcome: sent > 0 ? "success" : "failure", actorUid: authUser.uid,
+                    targetType: "user", targetId: authUser.uid, details: { sent, requested: numbers.length, kind: kind || "fall" } });
                 res.statusCode = sent > 0 ? 200 : 502;
                 res.end(JSON.stringify({ sent, requested: numbers.length, invalid: result.invalidReceivers.length }));
             } catch (e) {
@@ -809,20 +867,150 @@ function createSovereignApp(options = {}) {
             return;
         }
 
-        // 6. DROIT À L'EFFACEMENT RGPD ART. 17
-        if (req.method === "DELETE" && pathname === "/api/v1/rgpd/account") {
+        // 6. DROITS DES PERSONNES (RGPD) sur /api/v1/rgpd/account, avec un jeton de session :
+        //    GET = accès et portabilité (art. 15 et 20), PATCH = rectification (art. 16) et
+        //    opposition au classement (art. 21), DELETE = effacement (art. 17).
+        if (pathname === "/api/v1/rgpd/account" && ["GET", "PATCH", "DELETE"].includes(req.method)) {
             const authUser = extractBearerUser(req);
-            if (!authUser) {
+            const user = authUser ? await store.findUserById(authUser.uid) : null;
+            if (!user) {
                 res.statusCode = 401;
                 res.end(JSON.stringify({ error: "Authentification requise." }));
                 return;
             }
-            await store.anonymizeUser(authUser.uid);
+
+            if (req.method === "GET") {
+                const data = await store.exportUserData(user.uid);
+                const ownTrail = await store.listAudit({ subjectUid: user.uid, limit: 1000 });
+                await audit({ action: AUDIT_ACTIONS.RGPD_EXPORT, actorUid: user.uid, actorRole: user.role, targetType: "user", targetId: user.uid });
+                res.statusCode = 200;
+                res.setHeader("Content-Disposition", 'attachment; filename="mon50ccetmoi-mes-donnees.json"');
+                res.end(JSON.stringify({
+                    format: "mon50ccetmoi-export-rgpd-v1",
+                    generatedAt: new Date().toISOString(),
+                    controller: "Xavier Le Chanu (EI), mon50ccetmoi.com — contact@mon50ccetmoi.com",
+                    ...data,
+                    // Qui a fait quoi sur ce compte (connexions, exports, preuves scellées…)
+                    auditTrail: ownTrail.map(({ seq, at, action, outcome, actorRole, targetType, details }) =>
+                        ({ seq, at, action, outcome, actorRole, targetType, details })),
+                    notes: [
+                        "Les trames de la Boîte Noire scellées comme preuves sont gardées 5 ans dans un coffre inaltérable (OVHcloud, Gravelines). Une copie peut être demandée à contact@mon50ccetmoi.com.",
+                        "Les numéros des anges gardiens ne sont pas conservés par ce serveur : ils restent dans votre téléphone et ne sont transmis à OVHcloud qu'au moment d'une alerte SOS.",
+                        "Les données encore gérées par l'ancienne plateforme (Firebase) s'exportent depuis l'application : Sécurité & RGPD > Exporter mes données.",
+                    ],
+                }, null, 2));
+                return;
+            }
+
+            if (req.method === "PATCH") {
+                const changes = {};
+                const fields = [];
+                if (body.username !== undefined || body.email !== undefined) {
+                    // Changer d'identifiant demande le mot de passe actuel (un jeton volé ne suffit pas)
+                    const current = String(body.currentPassword || "");
+                    if (!current || current.length > PASSWORD_MAX_LENGTH || !verifyPassword(current, user.passwordHash)) {
+                        await audit({ action: AUDIT_ACTIONS.RGPD_RECTIFY, outcome: "denied", actorUid: user.uid, actorRole: user.role,
+                            targetType: "user", targetId: user.uid });
+                        res.statusCode = 403;
+                        res.end(JSON.stringify({ error: "Mot de passe actuel requis pour changer d'email ou de pseudonyme." }));
+                        return;
+                    }
+                }
+                if (body.email !== undefined) {
+                    const cleanEmail = String(body.email).trim().toLowerCase();
+                    if (cleanEmail.length > 255 || !EMAIL_RE.test(cleanEmail)) {
+                        res.statusCode = 400;
+                        res.end(JSON.stringify({ error: "Email invalide (255 caractères au plus)." }));
+                        return;
+                    }
+                    changes.email = cleanEmail;
+                    fields.push("email");
+                }
+                if (body.username !== undefined) {
+                    const cleanUsername = String(body.username).trim();
+                    if (cleanUsername.length < 2 || cleanUsername.length > 64 || UNSAFE_USERNAME_RE.test(cleanUsername)) {
+                        res.statusCode = 400;
+                        res.end(JSON.stringify({ error: "Pseudonyme invalide (2 à 64 car., sans < > \" ' & `)." }));
+                        return;
+                    }
+                    changes.username = cleanUsername;
+                    fields.push("username");
+                }
+                if (body.leaderboardVisible !== undefined) {
+                    if (typeof body.leaderboardVisible !== "boolean") {
+                        res.statusCode = 400;
+                        res.end(JSON.stringify({ error: "leaderboardVisible doit valoir true ou false." }));
+                        return;
+                    }
+                    changes.hideFromLeaderboard = !body.leaderboardVisible;
+                    fields.push("leaderboardVisible");
+                }
+                if (fields.length === 0) {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({ error: "Rien à modifier (email, username ou leaderboardVisible)." }));
+                    return;
+                }
+                let updated;
+                try {
+                    updated = await store.updateUserProfile(user.uid, changes);
+                } catch (e) {
+                    if (e instanceof StoreError) {
+                        res.statusCode = e.code === "USER_NOT_FOUND" ? 404 : 409;
+                        res.end(JSON.stringify({ error: e.message }));
+                        return;
+                    }
+                    throw e;
+                }
+                await audit({ action: AUDIT_ACTIONS.RGPD_RECTIFY, actorUid: user.uid, actorRole: user.role,
+                    targetType: "user", targetId: user.uid, details: { fields } });
+                res.statusCode = 200;
+                res.end(JSON.stringify({
+                    uid: updated.uid, email: updated.email, username: updated.username,
+                    leaderboardVisible: !updated.hideFromLeaderboard,
+                }));
+                return;
+            }
+
+            await store.anonymizeUser(user.uid);
+            await audit({ action: AUDIT_ACTIONS.RGPD_ERASE, actorUid: user.uid, actorRole: user.role, targetType: "user", targetId: user.uid });
             res.statusCode = 200;
             res.end(JSON.stringify({
                 success: true,
-                message: "Données personnelles effacées (RGPD art. 17). Les preuves d'accident sont conservées de façon anonyme (art. 17.3.e)."
+                message: "Données personnelles effacées (RGPD art. 17) : email, pseudonyme, mot de passe et textes des signalements. " +
+                    "Les preuves d'accident déjà scellées restent 5 ans dans le coffre, rattachées à un identifiant qui ne mène plus à vous (art. 17.3.e)."
             }));
+            return;
+        }
+
+        // 7. JOURNAL D'AUDIT (administrateurs) : lecture par pages et vérification de la chaîne.
+        //    Chaque lecture est elle-même notée (on sait qui a regardé le journal).
+        if (req.method === "GET" && (pathname === "/api/v1/admin/audit" || pathname === "/api/v1/admin/audit/verify")) {
+            const authUser = extractBearerUser(req);
+            if (!authUser || authUser.role !== "admin") {
+                res.statusCode = 403;
+                res.end(JSON.stringify({ error: "Réservé aux administrateurs." }));
+                return;
+            }
+            const verifyAll = pathname.endsWith("/verify");
+            await audit({ action: AUDIT_ACTIONS.ADMIN_AUDIT_READ, actorUid: authUser.uid, actorRole: authUser.role,
+                targetType: "audit_log", details: { verify: verifyAll } });
+            if (verifyAll) {
+                const all = [];
+                for (let after = 0; ;) {
+                    const page = await store.listAudit({ afterSeq: after, limit: 1000 });
+                    all.push(...page);
+                    if (page.length < 1000) break;
+                    after = page[page.length - 1].seq;
+                }
+                res.statusCode = 200;
+                res.end(JSON.stringify(verifyAuditChain(all)));
+                return;
+            }
+            const afterSeq = Math.max(Number(url.searchParams.get("afterSeq")) || 0, 0);
+            const limit = Math.min(Math.max(Number(url.searchParams.get("limit")) || 100, 1), 1000);
+            const entries = await store.listAudit({ afterSeq, limit });
+            res.statusCode = 200;
+            res.end(JSON.stringify({ entries, nextAfterSeq: entries.length ? entries[entries.length - 1].seq : afterSeq }));
             return;
         }
 
@@ -866,7 +1054,9 @@ if (require.main === module) {
         console.warn("[SovereignCore] METEO_FRANCE_API_KEY absente : la vigilance Météo-France répond « indisponible » (deploy/README.md, étape 9 bis).");
     }
     // Un coffre S3 sans Object Lock ne protège rien : le serveur refuse de démarrer.
-    const ready = typeof wormVault.assertBucketLocked === "function" ? wormVault.assertBucketLocked() : Promise.resolve();
+    // Puis les migrations de la base (db/migrations, rejouables) avant d'accepter des requêtes.
+    const ready = (typeof wormVault.assertBucketLocked === "function" ? wormVault.assertBucketLocked() : Promise.resolve())
+        .then(() => store.migrate());
     ready.catch((err) => {
         console.error("[SovereignCore] Démarrage refusé :", err.message);
         process.exit(1);
@@ -874,6 +1064,38 @@ if (require.main === module) {
     ready.then(() => server.listen(port, () => {
         console.log(`[SovereignCore] Serveur actif sur le port ${port} — stockage : ${store.kind === "postgres" ? "PostgreSQL" : "MÉMOIRE (développement uniquement)"} — preuves : ${wormVault.kind || "fichiers locaux (développement uniquement)"}`);
     }));
+
+    // Chaque jour : purge du journal d'audit au-delà d'un an, puis sceau de la tête de la chaîne
+    // dans le coffre des preuves (Object Lock 5 ans). Réécrire le journal en base se verrait alors
+    // en comparant la chaîne avec ces sceaux.
+    let lastSealedSeq = 0;
+    const dailyAuditCare = async () => {
+        try {
+            await store.purgeAudit();
+            const all = [];
+            for (let after = 0; ;) {
+                const page = await store.listAudit({ afterSeq: after, limit: 1000 });
+                all.push(...page);
+                if (page.length < 1000) break;
+                after = page[page.length - 1].seq;
+            }
+            const check = verifyAuditChain(all);
+            if (!check.valid) console.error(`[Audit] CHAÎNE ROMPUE à l'entrée ${check.brokenAtSeq} : ${check.reason}`);
+            if (check.valid && check.headSeq && check.headSeq > lastSealedSeq) {
+                await wormVault.sealTelemetryEvidence("audit-checkpoints", {
+                    kind: "audit-checkpoint", headSeq: check.headSeq, headHash: check.headHash, count: check.count,
+                    sealedAt: new Date().toISOString(),
+                });
+                lastSealedSeq = check.headSeq;
+            }
+        } catch (e) {
+            console.error("[Audit] Entretien quotidien impossible :", e.message);
+        }
+    };
+    ready.then(() => {
+        setTimeout(dailyAuditCare, 60 * 1000).unref();
+        setInterval(dailyAuditCare, 24 * 3600 * 1000).unref();
+    }).catch(() => {});
     const shutdown = () => server.close(() => store.close().finally(() => process.exit(0)));
     process.on("SIGTERM", shutdown);
     process.on("SIGINT", shutdown);

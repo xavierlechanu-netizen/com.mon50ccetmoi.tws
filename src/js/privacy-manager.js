@@ -170,42 +170,17 @@ modal.innerHTML = `
     );
   },
 
+  // Avant le 17/11/2026, ce bouton n'effaçait que la fiche users/{uid} en annonçant « toutes vos
+  // données supprimées » (faux : compte de connexion, signalements, radar… restaient). Il passe
+  // désormais par le parcours complet d'effacement (rgpd-cnil.js), avec la demande par e-mail en secours.
   deleteMyData: async function () {
-    if (
-      !confirm(
-        "⚠️ ATTENTION ⚠️\nCette action est irréversible. Votre compte, vos points mon50cc, vos territoires et vos traces seront définitivement supprimés.\n\nÊtes-vous absolument sûr(e) de vouloir tout supprimer ?",
-      )
-    ) {
-      return;
+    if (typeof window.revokeAndEraseData === "function") {
+      return window.revokeAndEraseData();
     }
-
-    if (
-      typeof firebase === "undefined" ||
-      !window.session ||
-      !window.session.uid
-    ) {
-      alert("Vous n'êtes pas connecté ou erreur système.");
-      return;
-    }
-
-    try {
-      const uid = window.session.uid;
-
-      // 1. Delete from Firestore users collection
-      await firebase.firestore().collection("users").doc(uid).delete();
-
-      // 2. Clear Local Storage
-      localStorage.clear();
-
-      alert(
-        "✅ Vos données ont été supprimées avec succès (Droit à l'oubli). Vous allez être déconnecté.",
-      );
-
-      // 3. Reload page to enforce logout
-      window.location.reload();
-    } catch (e) {
-      console.error(e);
-      alert("Erreur lors de la suppression de vos données : " + e.message);
+    if (confirm("Envoyer votre demande d'effacement par e-mail à contact@mon50ccetmoi.com ?")) {
+      window.location.href =
+        "mailto:contact@mon50ccetmoi.com?subject=" +
+        encodeURIComponent("Demande d'effacement de mon compte (RGPD art. 17)");
     }
   },
 };

@@ -470,19 +470,9 @@ async function applyAbuseSanction(userId) {
     isPermanentlyBanned: isDefinitive,
   });
 
-  // BLOCAGE IP GLOBAL (Si ban définitif)
-  if (isDefinitive) {
-    try {
-      const ipRes = await fetch("https://api.ipify.org?format=json");
-      const ipData = await ipRes.json();
-      const currentIp = ipData.ip;
-      await db.collection("banned_ips").doc(currentIp).set({
-        userId,
-        reason: "Bannissement définitif - Abus cumulés",
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-    } catch (e) {}
-  }
+  // Plus de blocage d'adresse IP (17/11/2026) : l'adresse était demandée à un service américain
+  // (ipify) puis écrite dans banned_ips, ce que les règles Firestore refusent à un membre.
+  // Inutile, non annoncé dans la politique de confidentialité : retiré (RGPD art. 5 et 13).
   if (window.session && window.session.username === userId) {
     window.session.bannedUntil = banUntil;
     secureSetItem("session", JSON.stringify(window.session));

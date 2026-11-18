@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 sellerId: user.uid,
                 sellerName: user.displayName || user.email.split('@')[0],
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                imageUrl: "https://images.unsplash.com/photo-1549423668-cb0a4c5ce8b1?q=80&w=600&auto=format&fit=crop" // Image générique prise électrique
+                imageUrl: "/assets/icons/icon-512x512.png" // Image du site : plus d'appel à Unsplash (RGPD)
             }, { merge: true });
         } else {
             // L'utilisateur ne veut plus être hôte, on supprime l'annonce

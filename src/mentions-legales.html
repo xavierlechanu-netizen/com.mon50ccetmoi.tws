@@ -142,15 +142,20 @@
           <td>88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis</td>
         </tr>
         <tr>
-          <th>Hébergeur des données et serveurs</th>
+          <th>Hébergeur du serveur de l'application</th>
           <td>
-            Google Ireland Limited (Firebase Authentication, Cloud Firestore,
-            Cloud Functions) — Gordon House, Barrow Street, Dublin 4, Irlande
+            OVH SAS (OVHcloud) — 2 rue Kellermann, 59100 Roubaix, France —
+            téléphone : 1007. Serveur, base de données, coffre des preuves et
+            sauvegardes en France (Gravelines, Roubaix).
           </td>
         </tr>
         <tr>
-          <th>Localisation des données</th>
-          <td>Union Européenne (europe-west1, Belgique)</td>
+          <th>Hébergeur des données (en cours de transfert vers OVHcloud)</th>
+          <td>
+            Google Ireland Limited (Firebase Authentication, Cloud Firestore) —
+            Gordon House, Barrow Street, Dublin 4, Irlande. Base de données dans
+            l'Union européenne (europe-west1, Belgique).
+          </td>
         </tr>
       </table>
     </div>
@@ -168,9 +173,14 @@
           <th>Localisation</th>
         </tr>
         <tr>
+          <td>OVHcloud (OVH SAS)</td>
+          <td>Serveur de l'application, base de données, coffre des preuves (5 ans), sauvegardes chiffrées, SMS d'alerte SOS</td>
+          <td>France</td>
+        </tr>
+        <tr>
           <td>Google Firebase</td>
-          <td>Authentification, base de données, hébergement</td>
-          <td>UE (Irlande)</td>
+          <td>Connexion et base de données (en cours de remplacement par OVHcloud)</td>
+          <td>UE (Belgique) ; États-Unis possible pour la connexion (Data Privacy Framework UE-US)</td>
         </tr>
         <tr>
           <td>GitHub (GitHub Pages)</td>
@@ -179,8 +189,13 @@
         </tr>
         <tr>
           <td>Google (Gemini)</td>
-          <td>Réponses de l'assistant Nexus Atlas (texte des questions posées)</td>
+          <td>Réponses de l'assistant Nexus Atlas (texte des questions posées) — à l'arrêt depuis le 14/11/2026</td>
           <td>UE/États-Unis (Data Privacy Framework UE-US)</td>
+        </tr>
+        <tr>
+          <td>Google (connexion « Continuer avec Google »)</td>
+          <td>Uniquement si vous choisissez cette connexion</td>
+          <td>États-Unis (Data Privacy Framework UE-US)</td>
         </tr>
         <tr>
           <td>Revolut</td>
@@ -188,14 +203,19 @@
           <td>UE (Lituanie)</td>
         </tr>
         <tr>
+          <td>Kolecto, Amen</td>
+          <td>Factures électroniques ; envoi des e-mails</td>
+          <td>France</td>
+        </tr>
+        <tr>
           <td>IGN (Géoplateforme), OpenStreetMap (Overpass, Nominatim)</td>
           <td>Fonds de carte, itinéraires, adresses, garages (position envoyée sans identité)</td>
-          <td>UE (France, Allemagne)</td>
+          <td>France, Allemagne, Royaume-Uni (décision d'adéquation)</td>
         </tr>
         <tr>
           <td>Open-Meteo</td>
-          <td>Météo du trajet (position arrondie envoyée sans identité)</td>
-          <td>UE (Suisse/Allemagne)</td>
+          <td>Météo du trajet (position arrondie à ~1 km, envoyée sans identité)</td>
+          <td>Suisse (décision d'adéquation) / Allemagne</td>
         </tr>
         <tr>
           <td>FreeTSA, OpenTimestamps</td>
@@ -247,30 +267,40 @@
           <span class="highlight">Base légale des traitements :</span>
           <ul>
             <li>
-              <strong>Nécessité contractuelle</strong> (Art. 6.1.b RGPD) : GPS,
-              navigation, détection de chute
+              <strong>Nécessité contractuelle</strong> (Art. 6.1.b RGPD) : compte,
+              navigation, fonctions communautaires, paiements
             </li>
             <li>
-              <strong>Consentement</strong> (Art. 6.1.a RGPD) : microphone,
-              caméra, analytics
+              <strong>Consentement</strong> (Art. 6.1.a RGPD) : position GPS,
+              radar social, microphone, caméra, transmission d'un rapport à un assureur
+            </li>
+            <li>
+              <strong>Intérêts vitaux</strong> (Art. 6.1.d RGPD) : alerte SOS aux anges gardiens
             </li>
             <li>
               <strong>Intérêt légitime</strong> (Art. 6.1.f RGPD) : sécurité,
-              modération
+              modération, journal d'audit, conservation des preuves d'accident
+            </li>
+            <li>
+              <strong>Obligation légale</strong> (Art. 6.1.c RGPD) : factures
             </li>
           </ul>
         </li>
         <li>
           <span class="highlight">Durée de conservation :</span> Données
           conservées tant que le compte est actif. Suppression sous 30 jours
-          après demande d'effacement.
+          après demande d'effacement, sauf les preuves d'accident scellées
+          (5 ans, coffre inaltérable, sans lien avec votre identité après
+          suppression du compte) et les factures (10 ans). Détail dans la
+          <a href="privacy.html">politique de confidentialité</a>.
         </li>
         <li>
-          <span class="highlight">Transferts hors UE :</span> Les données sont
-          hébergées en UE (europe-west1). Les transferts vers les
-          États-Unis (pages du site chez GitHub, questions posées à Nexus Atlas
-          traitées par Google Gemini) sont encadrés par le
-          <strong>Data Privacy Framework (DPF)</strong> UE-US.
+          <span class="highlight">Transferts hors UE :</span> Le serveur de
+          l'application, ses sauvegardes et le coffre des preuves sont en France
+          (OVHcloud) ; la base Firebase est dans l'UE (Belgique). Les transferts
+          vers les États-Unis (pages du site chez GitHub, connexion Google,
+          questions posées à Nexus Atlas traitées par Google Gemini) sont
+          encadrés par le <strong>Data Privacy Framework (DPF)</strong> UE-US.
         </li>
       </ul>
       <p>

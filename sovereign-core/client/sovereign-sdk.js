@@ -136,6 +136,22 @@ export class SovereignClient {
         return bearer ? { Authorization: `Bearer ${bearer}` } : {};
     }
 
+    /** Droit d'accès et portabilité (RGPD art. 15 et 20) : toutes les données du compte, en JSON. */
+    async exportMyDataRgpd() {
+        return await this.request("/rgpd/account", { method: "GET" });
+    }
+
+    /**
+     * Rectification (art. 16) et opposition au classement (art. 21).
+     * @param {{email?: string, username?: string, leaderboardVisible?: boolean, currentPassword?: string}} changes
+     *   currentPassword est exigé pour changer d'email ou de pseudonyme.
+     */
+    async updateMyAccountRgpd(changes) {
+        const res = await this.request("/rgpd/account", { method: "PATCH", body: changes });
+        if (this.currentUser && res.username) this.currentUser = { ...this.currentUser, username: res.username };
+        return res;
+    }
+
     async deleteMyAccountRgpd() {
         const res = await this.request("/rgpd/account", { method: "DELETE" });
         this.signOut();

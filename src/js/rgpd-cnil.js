@@ -227,11 +227,19 @@ window.revokeAndEraseData = async function () {
       }
     } catch (e) {
       console.error("[RGPD] Erreur suppression serveur :", e);
-      alert(
-        "Échec de la suppression sécurisée sur nos serveurs (" +
-          (e.message || "Erreur réseau") +
-          "). Par sécurité, vos données locales ne sont pas effacées. Veuillez réessayer ou contacter le support contact@mon50ccetmoi.com."
-      );
+      // Le droit à l'effacement doit rester exerçable même quand le serveur est en panne
+      // (fonctions Firebase à l'arrêt depuis le 14/11/2026) : demande par e-mail, traitée sous un mois.
+      if (
+        confirm(
+          "La suppression automatique ne répond pas pour le moment (" +
+            (e.message || "erreur réseau") +
+            "). Vos données locales ne sont pas effacées.\n\n" +
+            "Voulez-vous envoyer votre demande d'effacement par e-mail à contact@mon50ccetmoi.com ? " +
+            "Elle sera traitée sous un mois au plus.",
+        )
+      ) {
+        window.location.href = rgpdMailto("Demande d'effacement de mon compte (RGPD art. 17)");
+      }
       return;
     }
 
@@ -270,8 +278,27 @@ window.revokeAndEraseData = async function () {
   }
 };
 
-// ─── Export des données ───────
-window.exportMyData = function () {
+// ─── Demande par e-mail (droits RGPD) ───────
+// Seulement un objet de message : l'adresse de l'expéditeur suffit à retrouver le compte.
+function rgpdMailto(subject) {
+  return "mailto:contact@mon50ccetmoi.com?subject=" + encodeURIComponent(subject);
+}
+
+// Profil enregistré sur le serveur (Firestore, users/{uid}) : son propriétaire peut le lire.
+async function readServerProfile() {
+  try {
+    const user = window.auth && window.auth.currentUser;
+    if (!user || !window.db) return null;
+    const snap = await window.db.collection("users").doc(user.uid).get();
+    if (!snap.exists) return null;
+    return JSON.parse(JSON.stringify(snap.data())); // dates Firestore → objets simples
+  } catch (e) {
+    return { indisponible: "Profil serveur illisible pour le moment : demandez-le à contact@mon50ccetmoi.com." };
+  }
+}
+
+// ─── Export des données (droits d'accès et de portabilité, RGPD art. 15 et 20) ───────
+window.exportMyData = async function () {
   try {
     const exportData = {
       _meta: {
@@ -315,6 +342,10 @@ window.exportMyData = function () {
         }
       })(),
       odometer: localStorage.getItem("total_km") || "0",
+      profil_serveur: await readServerProfile(),
+      autres_donnees:
+        "Signalements, messages, alertes et rapports enregistrés sur nos serveurs : copie complète " +
+        "sur simple demande à contact@mon50ccetmoi.com (réponse sous un mois).",
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
@@ -330,7 +361,7 @@ window.exportMyData = function () {
     URL.revokeObjectURL(url);
 
     alert(
-      "✅ Export terminé ! Vos données locales ont été téléchargées.",
+      "✅ Export terminé : vos données de ce téléphone et votre profil ont été téléchargés.",
     );
   } catch (e) {
     console.error("Erreur export:", e);
@@ -352,3 +383,4 @@ registerAction('injectPrivacyBanner', injectPrivacyBanner);
 registerAction('exportMyData', () => window.exportMyData());
 registerAction('revokeAndEraseData', () => window.revokeAndEraseData());
 registerAction('closePrivacyPolicy', () => window.closePrivacyPolicy());
+registerAction('requestRgpdByEmail', () => { window.location.href = rgpdMailto("Exercice de mes droits RGPD"); });

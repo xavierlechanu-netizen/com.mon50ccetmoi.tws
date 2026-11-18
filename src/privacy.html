@@ -60,12 +60,14 @@
     </style>
 
     <h1>Politique de confidentialité</h1>
-    <p>Dernière mise à jour : 7 novembre 2026</p>
-    <p>Cette page explique quelles données l'application mon50ccetmoi collecte, pourquoi, combien de temps elles sont conservées, avec qui elles sont partagées, et comment exercer vos droits, conformément au Règlement général sur la protection des données (RGPD) et à la loi Informatique et Libertés.</p>
+    <p>Dernière mise à jour : 17 novembre 2026</p>
+    <p>Cette page explique quelles données l'application mon50ccetmoi collecte, pourquoi, combien de temps elles sont conservées, avec qui elles sont partagées, et comment exercer vos droits, conformément au Règlement général sur la protection des données (RGPD) et à la loi Informatique et Libertés. Le registre des traitements tenu par l'éditeur (article 30 du RGPD) reprend les mêmes informations.</p>
+    <p><strong>Période de transition :</strong> le service quitte Google (Firebase) pour un serveur installé en France chez OVHcloud. Pendant ce déménagement, une partie des données est encore chez Google, l'autre chez OVHcloud ; les deux sont indiquées ci-dessous.</p>
 
     <div class="card">
         <h2>1. Responsable du traitement</h2>
         <p>Xavier Le Chanu, entrepreneur individuel — SIRET 891 912 503 00036 — contact : <a href="mailto:contact@mon50ccetmoi.com">contact@mon50ccetmoi.com</a>. Voir aussi les <a href="mentions-legales.html">mentions légales</a>.</p>
+        <p>Aucun délégué à la protection des données (DPO) n'est désigné à ce jour : pour toute question sur vos données, écrivez à <a href="mailto:contact@mon50ccetmoi.com">contact@mon50ccetmoi.com</a>.</p>
     </div>
 
     <div class="card">
@@ -73,29 +75,35 @@
         <div class="table-wrap"><table>
             <tr><th>Données</th><th>Pourquoi</th><th>Base légale</th></tr>
             <tr><td>Compte : pseudo, identifiant, e-mail (connexion Google) ou identifiant de connexion, marque et modèle du véhicule</td><td>Créer et gérer votre compte</td><td>Exécution du contrat</td></tr>
-            <tr><td>Position GPS précise, vitesse</td><td>Navigation sans autoroute, alertes de danger, météo du trajet, détection de chute. La position n'est utilisée que lorsque l'application est ouverte.</td><td>Consentement (écran « Utilisation de vos données de localisation »), retirable à tout moment</td></tr>
+            <tr><td>Position GPS précise, vitesse</td><td>Navigation sans autoroute, alertes de danger, météo du trajet, détection de chute. La position n'est utilisée que lorsque l'application est ouverte. Pour la météo et le message d'accueil régional, seule une position arrondie à environ 1 km est envoyée.</td><td>Consentement (écran « Utilisation de vos données de localisation »), retirable à tout moment</td></tr>
             <tr><td>Position arrondie à environ 100 m</td><td>Présence et radar social, uniquement si vous les activez ; visible par les autres membres connectés</td><td>Consentement</td></tr>
-            <tr><td>Contacts d'urgence (nom, téléphone), position et message d'alerte</td><td>Prévenir vos proches en cas de chute ou d'alerte SOS</td><td>Exécution du contrat ; intérêt vital en cas d'accident</td></tr>
+            <tr><td>Alerte SOS : votre pseudo, votre position, le type d'alerte (chute ou appel manuel) et les numéros de vos anges gardiens (3 au plus)</td><td>Prévenir vos proches par SMS en cas de chute ou d'alerte SOS. Le serveur n'enregistre pas les numéros : il les transmet à OVHcloud pour l'envoi, puis ne garde que le nombre de SMS envoyés.</td><td>Sauvegarde des intérêts vitaux (art. 6.1.d) ; exécution du contrat</td></tr>
+            <tr><td>Contacts d'urgence (nom, téléphone) enregistrés dans l'application</td><td>Pouvoir lancer l'alerte même avec un réseau faible ; ils restent dans votre téléphone</td><td>Exécution du contrat</td></tr>
             <tr><td>Signalements (dangers, annonces, messages, avis sur les garages)</td><td>Fonctions communautaires</td><td>Exécution du contrat</td></tr>
-            <tr><td>Questions posées à l'assistant Nexus Atlas</td><td>Vous répondre</td><td>Exécution du contrat</td></tr>
-            <tr><td>Données de conduite et de la boîte noire (accélérations, chocs, trajets), dossiers de sinistre</td><td>Analyse de sinistre, rapports remis à un assureur avec votre accord</td><td>Exécution du contrat ; consentement pour la transmission à un assureur</td></tr>
+            <tr><td>Classement des pilotes (pseudo et points gagnés)</td><td>Animation de la communauté</td><td>Intérêt légitime ; vous pouvez vous y opposer et sortir du classement</td></tr>
+            <tr><td>Questions posées à l'assistant Nexus Atlas</td><td>Vous répondre (service à l'arrêt depuis le 14 novembre 2026, en attente de son remplacement par une IA hébergée en France)</td><td>Exécution du contrat</td></tr>
+            <tr><td>Données de conduite et de la boîte noire (accélérations, chocs, positions, trajets), dossiers de sinistre</td><td>Analyse de sinistre ; preuve d'un accident ; rapports remis à un assureur avec votre accord</td><td>Exécution du contrat ; intérêt légitime pour la conservation des preuves ; consentement pour la transmission à un assureur</td></tr>
             <tr><td>Adresse email laissée sur la liste d'attente de la Boîte Noire (sans compte)</td><td>Vous prévenir, par un seul email, de la sortie du boîtier</td><td>Consentement (case à cocher), retirable à tout moment</td></tr>
             <tr><td>Achats, factures, coordonnées des acheteurs professionnels</td><td>Paiement, facturation, obligations comptables</td><td>Exécution du contrat ; obligation légale</td></tr>
-            <tr><td>Journaux de connexion (identifiant pseudonymisé, méthode, succès ou échec) et rapports d'erreur</td><td>Sécurité du service, correction des pannes</td><td>Intérêt légitime</td></tr>
+            <tr><td>Journal d'audit : identifiant interne du compte, action (connexion, export, rectification, effacement, preuve scellée, alerte SOS, action d'administration), date, résultat. Jamais d'e-mail, de pseudo, de numéro, de position ni d'adresse IP.</td><td>Savoir qui a fait quoi sur les données personnelles et les actions sensibles ; prouver que vos demandes ont été traitées</td><td>Obligation de sécurité (art. 32) et de responsabilité (art. 5.2) ; intérêt légitime</td></tr>
+            <tr><td>Journaux techniques du serveur (adresse IP, page demandée, date, navigateur) et journaux de connexion de l'application</td><td>Sécurité du service, lutte contre les abus, correction des pannes</td><td>Intérêt légitime</td></tr>
             <tr><td>Microphone, caméra</td><td>Commande vocale, diagnostic sonore du moteur, photos de sinistre — uniquement quand vous lancez ces fonctions</td><td>Consentement (autorisation du téléphone)</td></tr>
         </table></div>
-        <p><strong>Ce que nous ne collectons pas :</strong> aucune publicité ciblée, aucune revente de données. La reconnaissance biométrique (empreinte, visage) utilisée pour la connexion sans mot de passe reste sur votre appareil : nous ne la recevons jamais.</p>
+        <p><strong>Ce que nous ne collectons pas :</strong> aucune publicité ciblée, aucune mesure d'audience, aucune revente de données, aucun blocage par adresse IP. La reconnaissance biométrique (empreinte, visage) utilisée pour la connexion sans mot de passe reste sur votre appareil : nous ne la recevons jamais. La vigilance Météo-France est demandée par notre serveur : Météo-France ne reçoit ni votre position ni votre adresse IP.</p>
     </div>
 
     <div class="card">
         <h2>3. Durées de conservation</h2>
         <ul>
-            <li><strong>Compte et contenus :</strong> tant que le compte est actif ; supprimés lorsque vous supprimez votre compte (fonction « Supprimer mon compte »), au plus tard 30 jours après votre demande.</li>
+            <li><strong>Compte et contenus :</strong> tant que le compte est actif ; supprimés lorsque vous supprimez votre compte, au plus tard 30 jours après votre demande. Le texte libre de vos signalements est effacé ; le danger signalé peut rester affiché sans lien avec vous.</li>
             <li><strong>Position partagée (présence, radar) :</strong> seule la dernière position est conservée ; elle n'est plus affichée aux autres membres après 15 minutes et est supprimée quand vous désactivez le radar ou supprimez votre compte.</li>
+            <li><strong>Alerte SOS :</strong> les numéros des anges gardiens ne sont pas conservés par notre serveur. OVHcloud, qui envoie les SMS, garde un historique des envois dans notre espace client (numéro, date, texte) selon ses propres règles.</li>
+            <li><strong>Preuves d'accident de la Boîte Noire :</strong> les trames signées par le boîtier et scellées comme preuve sont conservées <strong>5 ans</strong> dans un coffre inaltérable (stockage OVHcloud en France, verrouillé en écriture) : personne, pas même l'éditeur, ne peut les modifier ni les effacer avant ce délai. Si vous supprimez votre compte, elles restent ce délai, rattachées à un identifiant qui ne mène plus à votre identité (article 17.3.e du RGPD : constatation, exercice ou défense de droits en justice).</li>
             <li><strong>Liste d'attente de la Boîte Noire :</strong> jusqu'à l'envoi de l'email annonçant la sortie du boîtier, puis supprimée ; au plus 2 ans. Suppression immédiate sur simple demande à contact@mon50ccetmoi.com.</li>
             <li><strong>Factures et données de paiement :</strong> 10 ans (obligation comptable).</li>
-            <li><strong>Rapports de sinistre et données de boîte noire :</strong> conservés tant que le compte est actif pour servir de preuve ; supprimés avec votre compte. Un rapport déjà acheté par un assureur reste dans ses propres archives.</li>
-            <li><strong>Rapports d'erreur et journaux de sécurité :</strong> 12 mois au plus.</li>
+            <li><strong>Journal d'audit :</strong> 1 an, puis effacement automatique.</li>
+            <li><strong>Journaux techniques du serveur :</strong> remplacés au fil de l'eau (quelques semaines au plus). <strong>Rapports d'erreur et journaux de connexion de l'application :</strong> 12 mois au plus.</li>
+            <li><strong>Sauvegardes chiffrées du serveur :</strong> 30 jours, puis effacées.</li>
         </ul>
     </div>
 
@@ -104,21 +112,24 @@
         <p>Vos données sont accessibles à l'éditeur et aux prestataires suivants, uniquement pour les besoins indiqués :</p>
         <div class="table-wrap"><table>
             <tr><th>Prestataire</th><th>Rôle</th><th>Lieu</th></tr>
-            <tr><td>Google (Firebase)</td><td>Comptes, base de données, fonctions serveur</td><td>Union européenne (Belgique)</td></tr>
-            <tr><td>Google (Gemini)</td><td>Réponses de l'assistant Nexus Atlas</td><td>UE / États-Unis</td></tr>
-            <tr><td>GitHub (GitHub Pages)</td><td>Hébergement des pages du site</td><td>États-Unis</td></tr>
+            <tr><td>OVHcloud (OVH SAS)</td><td>Serveur de l'application, base de données, coffre des preuves, sauvegardes chiffrées, envoi des SMS d'alerte SOS</td><td>France (Gravelines, Roubaix)</td></tr>
+            <tr><td>Google (Firebase)</td><td>Comptes et connexion, base de données de l'application (en cours de remplacement par OVHcloud)</td><td>Union européenne (Belgique) pour la base ; États-Unis possible pour la connexion</td></tr>
+            <tr><td>Google (connexion « Continuer avec Google »)</td><td>Uniquement si vous choisissez de vous connecter avec votre compte Google</td><td>États-Unis</td></tr>
+            <tr><td>Google (Gemini)</td><td>Réponses de l'assistant Nexus Atlas (à l'arrêt depuis le 14 novembre 2026)</td><td>UE / États-Unis</td></tr>
+            <tr><td>GitHub (GitHub Pages)</td><td>Hébergement des pages du site (votre adresse IP lui parvient quand vous ouvrez une page)</td><td>États-Unis</td></tr>
             <tr><td>Revolut</td><td>Paiements</td><td>Union européenne (Lituanie)</td></tr>
+            <tr><td>Kolecto</td><td>Émission des factures électroniques</td><td>France</td></tr>
             <tr><td>Amen</td><td>Envoi des e-mails</td><td>France</td></tr>
-            <tr><td>Notion</td><td>Suivi des rapports d'erreur techniques</td><td>États-Unis</td></tr>
-            <tr><td>IGN, OpenStreetMap, Open-Meteo</td><td>Cartes, itinéraires, adresses, garages, météo (positions envoyées sans votre identité)</td><td>Union européenne / Suisse</td></tr>
+            <tr><td>Notion</td><td>Suivi des rapports d'erreur techniques (à l'arrêt depuis le 14 novembre 2026)</td><td>États-Unis</td></tr>
+            <tr><td>IGN (Géoplateforme), OpenStreetMap (Overpass, Nominatim), Open-Meteo</td><td>Cartes, itinéraires, adresses, garages, météo (positions envoyées sans votre identité ; votre adresse IP leur parvient)</td><td>France, Allemagne, Royaume-Uni, Suisse</td></tr>
             <tr><td>FreeTSA, OpenTimestamps</td><td>Horodatage des rapports (seule une empreinte numérique est envoyée, aucune donnée personnelle)</td><td>Allemagne / réseau Bitcoin</td></tr>
         </table></div>
-        <p><strong>Autres membres :</strong> votre pseudo, vos signalements, vos annonces et, si vous activez le radar, votre position arrondie sont visibles des membres connectés. <strong>Assureurs :</strong> un rapport de sinistre n'est transmis qu'à l'assureur que vous désignez et qui l'a acheté. <strong>Contacts d'urgence :</strong> ils reçoivent votre alerte et votre position en cas de SOS.</p>
+        <p><strong>Autres membres :</strong> votre pseudo, vos signalements, vos annonces et, si vous activez le radar, votre position arrondie sont visibles des membres connectés ; votre pseudo et vos points apparaissent dans le classement, sauf si vous vous y opposez. <strong>Assureurs :</strong> un rapport de sinistre n'est transmis qu'à l'assureur que vous désignez et qui l'a acheté ; chaque consultation est notée dans le journal d'audit. <strong>Anges gardiens :</strong> ils reçoivent par SMS votre pseudo, le type d'alerte et un lien vers votre position en cas de SOS.</p>
     </div>
 
     <div class="card">
         <h2>5. Transferts hors de l'Union européenne</h2>
-        <p>Certains prestataires (GitHub, Google pour Gemini, Notion) peuvent traiter des données aux États-Unis. Ces transferts sont encadrés par le cadre de protection des données UE–États-Unis (Data Privacy Framework) ou par les clauses contractuelles types de la Commission européenne.</p>
+        <p>Certains prestataires (GitHub, Google pour la connexion et Gemini, Notion) peuvent traiter des données aux États-Unis. Ces transferts sont encadrés par le cadre de protection des données UE–États-Unis (Data Privacy Framework) ou par les clauses contractuelles types de la Commission européenne. Le Royaume-Uni (OpenStreetMap) et la Suisse (Open-Meteo) bénéficient d'une décision d'adéquation de la Commission européenne. Le serveur souverain, ses sauvegardes et le coffre des preuves sont en France.</p>
     </div>
 
     <div class="card">
@@ -128,24 +139,24 @@
 
     <div class="card">
         <h2>7. Intelligence artificielle et décisions automatisées</h2>
-        <p>Les modules d'IA (Nexus Atlas, Litigation AI, Meca Wizard) vous assistent ; ils ne prennent aucune décision juridique ou d'assurance à votre place. Si une mesure de modération vous concerne (suspension de compte), vous pouvez demander qu'une personne la réexamine en écrivant à <a href="mailto:contact@mon50ccetmoi.com">contact@mon50ccetmoi.com</a>.</p>
+        <p>Les modules d'IA (Nexus Atlas, Litigation AI, Meca Wizard) vous assistent ; ils ne prennent aucune décision juridique ou d'assurance à votre place. Si une mesure de modération vous concerne (suspension de compte), vous pouvez demander gratuitement qu'une personne la réexamine en écrivant à <a href="mailto:contact@mon50ccetmoi.com">contact@mon50ccetmoi.com</a>.</p>
     </div>
 
     <div class="card">
         <h2>8. Sécurité</h2>
-        <p>Les échanges sont chiffrés (HTTPS). Les données sont protégées par des règles d'accès strictes : chaque membre n'accède qu'à ce qui le concerne. Les rapports de boîte noire sont signés et horodatés pour garantir qu'ils n'ont pas été modifiés.</p>
+        <p>Les échanges sont chiffrés (HTTPS). Les données sont protégées par des règles d'accès strictes : chaque membre n'accède qu'à ce qui le concerne. Les mots de passe ne sont jamais conservés en clair. Les rapports de boîte noire sont signés par le boîtier et scellés dans un coffre inaltérable. Les actions sensibles (connexions, exports, effacements, administration) sont notées dans un journal d'audit chaîné : toute modification du journal se voit. Pour signaler une faille : <a href="/.well-known/security.txt">security.txt</a>.</p>
     </div>
 
     <div class="card">
         <h2>9. Vos droits</h2>
-        <p>Vous pouvez à tout moment demander l'<strong>accès</strong> à vos données, leur <strong>rectification</strong>, leur <strong>effacement</strong>, la <strong>limitation</strong> du traitement, la <strong>portabilité</strong> de vos données, vous <strong>opposer</strong> à un traitement fondé sur l'intérêt légitime, <strong>retirer votre consentement</strong>, et définir des directives sur le sort de vos données après votre décès.</p>
-        <p>Pour exercer ces droits : <a href="mailto:contact@mon50ccetmoi.com">contact@mon50ccetmoi.com</a>. Vous pouvez aussi supprimer votre compte et exporter vos données depuis l'application (Sécurité &amp; RGPD). Nous répondons sous un mois.</p>
+        <p>Vous pouvez à tout moment demander l'<strong>accès</strong> à vos données, leur <strong>rectification</strong>, leur <strong>effacement</strong>, la <strong>limitation</strong> du traitement, la <strong>portabilité</strong> de vos données, vous <strong>opposer</strong> à un traitement fondé sur l'intérêt légitime (par exemple au classement des pilotes), <strong>retirer votre consentement</strong>, et définir des directives sur le sort de vos données après votre décès.</p>
+        <p><strong>Depuis l'application</strong> (Sécurité &amp; RGPD) : exporter vos données (fichier JSON, avec votre profil), supprimer votre compte. Si la suppression automatique ne répond pas, l'application vous propose d'envoyer la demande par e-mail. <strong>Par e-mail</strong> : <a href="mailto:contact@mon50ccetmoi.com">contact@mon50ccetmoi.com</a>, pour tout droit, y compris une copie complète de vos signalements, messages, alertes et preuves. Nous répondons sous un mois.</p>
         <p>Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à la <strong>CNIL</strong> : <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener">www.cnil.fr/fr/plaintes</a> — 3 place de Fontenoy, TSA 80715, 75334 Paris Cedex 07.</p>
     </div>
 
     <div class="card">
         <h2>10. Cookies</h2>
-        <p>Voir la <a href="cookies.html">politique des cookies</a>. Le site n'utilise que des traceurs indispensables à son fonctionnement ; vous pouvez modifier vos choix à tout moment depuis la page Cookies (bouton « Modifier mes choix »).</p>
+        <p>Voir la <a href="cookies.html">politique des cookies</a>. Le site n'utilise que des traceurs indispensables à son fonctionnement. Les icônes et les polices sont servies par le site lui-même ; les services extérieurs listés au point 4 ne sont contactés que pour faire fonctionner ce que vous utilisez (carte, itinéraire, connexion, météo, paiement). Sur la page de connexion, le bouton « Continuer avec Google » est fourni par Google, qui reçoit alors votre adresse IP. Vous pouvez modifier vos choix à tout moment depuis la page Cookies (bouton « Modifier mes choix »).</p>
     </div>
   </body>
 </html>

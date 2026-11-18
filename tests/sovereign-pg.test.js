@@ -63,6 +63,9 @@ beforeAll(async () => {
   await startPostgres();
   pool = new Pool({ host: "127.0.0.1", port: PORT, user: "postgres", password: "test", database: "mon50cc_test" });
   await pool.query(schemaWithoutPostgis());
+  // Comme au démarrage du serveur : migrations db/migrations (deux fois : elles doivent être rejouables)
+  await createPgStore({ pool }).migrate();
+  expect(await createPgStore({ pool }).migrate()).toContain("001-audit-rgpd.sql");
   wormDir = fs.mkdtempSync(path.join(os.tmpdir(), "mon50cc-worm-pg-"));
 }, 180000);
 
@@ -249,6 +252,45 @@ describe("Serveur souverain sur PostgreSQL", () => {
 
     // L'email libéré peut servir à un nouveau compte
     expect((await call(app, "POST", "/api/v1/auth/register", { email: "efface@example.com", username: "Nouveau", password: "MotDePasse2026!" })).status).toBe(201);
+  });
+
+  test("RGPD : export, rectification et opposition au classement sur PostgreSQL", async () => {
+    const reg = await call(app, "POST", "/api/v1/auth/register", { email: "export@example.com", username: "ExportPG", password: "MotDePasse2026!" });
+    const auth = { Authorization: `Bearer ${reg.body.token}` };
+    await call(app, "POST", "/api/v1/hazards", { type: "pothole", lat: 45.04, lng: 3.88, description: "trou" }, auth);
+    await call(app, "POST", "/api/v1/points/transact", { action: "AWARD", reason: "RIDE_COMPLETED" }, auth);
+
+    const exp = await call(app, "GET", "/api/v1/rgpd/account", null, auth);
+    expect(exp.status).toBe(200);
+    expect(exp.body.account).toMatchObject({ email: "export@example.com", username: "ExportPG", leaderboardVisible: true });
+    expect(exp.body.hazards).toHaveLength(1);
+    expect(exp.body.pointsLedger).toEqual([expect.objectContaining({ action: "AWARD", reason: "RIDE_COMPLETED", delta: 12 })]);
+    expect(exp.body.auditTrail.map((e) => e.action)).toEqual(["auth.register"]);
+
+    const top = async () => (await call(app, "GET", "/api/v1/leaderboard", null, auth)).body.top.map((p) => p.username);
+    expect(await top()).toContain("ExportPG");
+    expect((await call(app, "PATCH", "/api/v1/rgpd/account", { leaderboardVisible: false }, auth)).status).toBe(200);
+    expect(await top()).not.toContain("ExportPG");
+
+    expect((await call(app, "PATCH", "/api/v1/rgpd/account", { username: "PilotePG", currentPassword: "MotDePasse2026!" }, auth)).status).toBe(409);
+    const ren = await call(app, "PATCH", "/api/v1/rgpd/account", { username: "ExportPG2", currentPassword: "MotDePasse2026!" }, auth);
+    expect(ren.body).toMatchObject({ username: "ExportPG2", leaderboardVisible: false });
+  });
+
+  test("journal d'audit en SQL : chaîne valide, ni UPDATE, ni DELETE récent, ni TRUNCATE", async () => {
+    const admin = { Authorization: `Bearer ${signSovereignJwt({ uid: "admin-pg", role: "admin", username: "Admin" })}` };
+    const v = await call(app, "GET", "/api/v1/admin/audit/verify", null, admin);
+    expect(v.status).toBe(200);
+    expect(v.body.valid).toBe(true);
+    expect(v.body.count).toBeGreaterThan(5);
+
+    await expect(pool.query("UPDATE audit_log SET outcome = 'failure' WHERE seq = 1")).rejects.toThrow(/INTÉGRITÉ/);
+    await expect(pool.query("DELETE FROM audit_log WHERE seq = 1")).rejects.toThrow(/INTÉGRITÉ/);
+    await expect(pool.query("TRUNCATE audit_log")).rejects.toThrow(/INTÉGRITÉ/);
+    expect(await createPgStore({ pool }).purgeAudit()).toBe(0); // rien n'a plus d'un an
+
+    const { rows } = await pool.query("SELECT details::text AS d, actor_uid, target_id FROM audit_log");
+    expect(rows.map((r) => r.d).join(" ")).not.toContain("@");
   });
 
   test("usine : numéro attribué sous verrou, une clé = un numéro, lien numéro ↔ clé définitif en SQL", async () => {

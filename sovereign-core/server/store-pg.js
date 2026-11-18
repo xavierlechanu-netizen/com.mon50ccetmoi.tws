@@ -6,10 +6,15 @@
  */
 "use strict";
 
+const fs = require("fs");
+const path = require("path");
 const { Pool } = require("pg");
 const { StoreError } = require("./store-errors");
+const { sealEntry, AUDIT_RETENTION_DAYS } = require("./audit-log");
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MIGRATIONS_DIR = path.join(__dirname, "../db/migrations");
+const iso = (d) => (d instanceof Date ? d.toISOString() : d);
 
 function mapUser(r) {
     if (!r) return null;
@@ -20,7 +25,24 @@ function mapUser(r) {
         passwordHash: r.password_hash,
         role: r.role,
         braveCoins: r.brave_coins,
-        createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at,
+        hideFromLeaderboard: Boolean(r.hide_from_leaderboard),
+        createdAt: iso(r.created_at),
+    };
+}
+
+function mapAudit(r) {
+    return {
+        seq: Number(r.seq),
+        at: iso(r.at),
+        actorUid: r.actor_uid,
+        actorRole: r.actor_role,
+        action: r.action,
+        targetType: r.target_type,
+        targetId: r.target_id,
+        outcome: r.outcome,
+        details: r.details || {},
+        prevHash: r.prev_hash,
+        hash: r.hash,
     };
 }
 
@@ -99,7 +121,7 @@ function createPgStore({ connectionString, pool } = {}) {
                 await client.query("BEGIN");
                 const { rowCount } = await client.query(
                     `UPDATE users SET email = $2, username = $3, password_hash = '!', brave_coins = 0, firebase_uid = NULL,
-                            is_premium = FALSE, premium_plan = NULL, ban_reason = NULL,
+                            is_premium = FALSE, premium_plan = NULL, ban_reason = NULL, hide_from_leaderboard = FALSE,
                             deleted_at = NOW(), updated_at = NOW()
                       WHERE uid = $1 AND deleted_at IS NULL`,
                     [uid, `${uid}@supprime.invalid`, `supprime-${uid}`]
@@ -110,6 +132,8 @@ function createPgStore({ connectionString, pool } = {}) {
                 }
                 await client.query("DELETE FROM fido_credentials WHERE user_uid = $1", [uid]);
                 await client.query("DELETE FROM fido_challenges WHERE user_uid = $1", [uid]);
+                // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
+                await client.query("UPDATE hazards SET description = '' WHERE user_uid = $1 AND description <> ''", [uid]);
                 await client.query("COMMIT");
                 return true;
             } catch (e) {
@@ -118,6 +142,112 @@ function createPgStore({ connectionString, pool } = {}) {
             } finally {
                 client.release();
             }
+        },
+
+        /** Rectification (RGPD art. 16) et opposition au classement (art. 21). */
+        async updateUserProfile(uid, { email, username, hideFromLeaderboard } = {}) {
+            if (!UUID_RE.test(String(uid))) throw new StoreError("USER_NOT_FOUND", "Profil utilisateur introuvable.");
+            try {
+                const { rows } = await db.query(
+                    `UPDATE users SET email = COALESCE($2, email), username = COALESCE($3, username),
+                            hide_from_leaderboard = COALESCE($4, hide_from_leaderboard), updated_at = NOW()
+                      WHERE uid = $1 AND deleted_at IS NULL RETURNING *`,
+                    [uid, email === undefined ? null : email, username === undefined ? null : username,
+                        hideFromLeaderboard === undefined ? null : Boolean(hideFromLeaderboard)]
+                );
+                if (!rows[0]) throw new StoreError("USER_NOT_FOUND", "Profil utilisateur introuvable.");
+                return mapUser(rows[0]);
+            } catch (e) {
+                if (e.code === "23505") {
+                    const onEmail = /email/i.test(`${e.constraint || ""} ${e.detail || ""}`);
+                    throw onEmail
+                        ? new StoreError("EMAIL_TAKEN", "Cet email est déjà enregistré.")
+                        : new StoreError("USERNAME_TAKEN", "Ce pseudonyme est déjà pris.");
+                }
+                throw e;
+            }
+        },
+
+        /** Droit d'accès et portabilité (RGPD art. 15 et 20) : tout ce que le serveur garde sur le compte. */
+        async exportUserData(uid) {
+            const user = await this.findUserById(uid);
+            if (!user) return null;
+            const [hz, led, tel, bb] = await Promise.all([
+                db.query(`SELECT hazard_id, type, lat, lng, description, active, created_at FROM hazards
+                           WHERE user_uid = $1 ORDER BY created_at`, [uid]),
+                db.query(`SELECT action, reason, delta, balance_after, created_at FROM points_ledger
+                           WHERE user_uid = $1 ORDER BY created_at`, [uid]),
+                db.query(`SELECT session_id, hardware_id, is_crash_report, impact_timestamp, frame_count, merkle_root_hex,
+                                 worm_storage_path, worm_sha256_hex, created_at FROM telemetry_sessions
+                           WHERE user_uid = $1 ORDER BY created_at`, [uid]),
+                db.query("SELECT serial, revision, status, created_at FROM blackbox_units WHERE owner_uid = $1 ORDER BY serial", [uid]),
+            ]);
+            return {
+                account: {
+                    uid: user.uid, email: user.email, username: user.username, role: user.role,
+                    braveCoins: user.braveCoins, leaderboardVisible: !user.hideFromLeaderboard, createdAt: user.createdAt,
+                },
+                hazards: hz.rows.map((r) => ({ hazardId: r.hazard_id, type: r.type, lat: r.lat, lng: r.lng,
+                    description: r.description, active: r.active, createdAt: iso(r.created_at) })),
+                pointsLedger: led.rows.map((r) => ({ action: r.action, reason: r.reason, delta: r.delta,
+                    balanceAfter: r.balance_after, createdAt: iso(r.created_at) })),
+                telemetrySessions: tel.rows.map((r) => ({ sessionId: r.session_id, hardwareId: r.hardware_id,
+                    isCrashReport: r.is_crash_report, impactTimestamp: r.impact_timestamp === null ? null : Number(r.impact_timestamp),
+                    frameCount: r.frame_count, merkleRootHex: r.merkle_root_hex, wormStoragePath: r.worm_storage_path,
+                    wormSha256Hex: r.worm_sha256_hex, sealedAt: iso(r.created_at) })),
+                blackboxUnits: bb.rows.map((r) => ({ serial: r.serial, revision: r.revision, status: r.status, createdAt: iso(r.created_at) })),
+            };
+        },
+
+        // ─── Journal d'audit (ajout seul, chaîné : audit-log.js) ────────────
+
+        /** Écrit une entrée sous verrou : deux requêtes simultanées ne cassent jamais la chaîne. */
+        async appendAudit(event) {
+            const client = await db.connect();
+            try {
+                await client.query("BEGIN");
+                await client.query("SELECT pg_advisory_xact_lock(hashtext('audit_log'))");
+                const { rows } = await client.query("SELECT seq, hash FROM audit_log ORDER BY seq DESC LIMIT 1");
+                const entry = sealEntry(event, rows[0] ? { seq: Number(rows[0].seq), hash: rows[0].hash } : null);
+                await client.query(
+                    `INSERT INTO audit_log (seq, at, actor_uid, actor_role, action, target_type, target_id, outcome, details, prev_hash, hash)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+                    [entry.seq, entry.at, entry.actorUid, entry.actorRole, entry.action, entry.targetType, entry.targetId,
+                        entry.outcome, JSON.stringify(entry.details), entry.prevHash, entry.hash]
+                );
+                await client.query("COMMIT");
+                return entry;
+            } catch (e) {
+                await client.query("ROLLBACK").catch(() => {});
+                throw e;
+            } finally {
+                client.release();
+            }
+        },
+
+        async listAudit({ afterSeq = 0, limit = 200, subjectUid = null } = {}) {
+            const max = Math.min(Math.max(Number(limit) || 200, 1), 1000);
+            const { rows } = subjectUid
+                ? await db.query(
+                    `SELECT * FROM audit_log WHERE seq > $1 AND (actor_uid = $2 OR target_id = $2) ORDER BY seq LIMIT $3`,
+                    [afterSeq, subjectUid, max])
+                : await db.query("SELECT * FROM audit_log WHERE seq > $1 ORDER BY seq LIMIT $2", [afterSeq, max]);
+            return rows.map(mapAudit);
+        },
+
+        /** Purge des entrées de plus d'un an (seule suppression que le trigger accepte). */
+        async purgeAudit() {
+            const { rowCount } = await db.query(
+                `DELETE FROM audit_log WHERE at < NOW() - make_interval(days => $1)`, [AUDIT_RETENTION_DAYS]
+            );
+            return rowCount;
+        },
+
+        /** Migrations db/migrations/*.sql, rejouables sans effet, appliquées au démarrage. */
+        async migrate(dir = MIGRATIONS_DIR) {
+            const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /^\d+.*\.sql$/.test(f)).sort() : [];
+            for (const f of files) await db.query(fs.readFileSync(path.join(dir, f), "utf8"));
+            return files;
         },
 
         async getBlackboxUnit(serial) {
@@ -327,7 +457,7 @@ function createPgStore({ connectionString, pool } = {}) {
             const { rows } = await db.query(
                 `SELECT u.username, SUM(l.delta)::int AS points
                    FROM points_ledger l JOIN users u ON u.uid = l.user_uid
-                  WHERE l.action = 'AWARD' AND u.deleted_at IS NULL
+                  WHERE l.action = 'AWARD' AND u.deleted_at IS NULL AND NOT u.hide_from_leaderboard
                   GROUP BY u.uid, u.username ORDER BY points DESC LIMIT $1`,
                 [limit]
             );

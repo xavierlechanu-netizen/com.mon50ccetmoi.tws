@@ -13,8 +13,18 @@
 
 name: mon50cc
 
+# Journaux Docker (RGPD) : ceux de Caddy contiennent les adresses IP et les adresses demandées.
+# Sans limite, ils grossiraient et seraient gardés sans fin. 5 fichiers de 10 Mo par service, les
+# plus anciens remplacés au fil de l'eau (quelques semaines au plus, politique de confidentialité, § 3).
+x-journaux: &journaux
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   postgres-postgis:
+    logging: *journaux
     image: postgis/postgis:16-3.4-alpine
     restart: unless-stopped
     environment:
@@ -48,6 +58,7 @@ services:
       retries: 5
 
   sovereign-api:
+    logging: *journaux
     build:
       context: ..
       dockerfile: sovereign-core/Dockerfile
@@ -94,6 +105,7 @@ services:
         condition: service_healthy
 
   caddy:
+    logging: *journaux
     image: caddy:2.8-alpine
     restart: unless-stopped
     environment:

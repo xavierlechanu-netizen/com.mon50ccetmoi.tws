@@ -1,12 +1,13 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 
-﻿// --- SAFE RIDE (Météo Prédictive) ---
+// --- SAFE RIDE (Météo Prédictive) ---
 window.SafeRide = {
   checkWeatherForRoute: async function (lat, lng) {
     try {
       // Utilisation de l'API gratuite Open-Meteo
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`;
+      // Position arrondie à ~1 km : la météo n'a pas besoin de plus (RGPD, minimisation)
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${Number(lat).toFixed(2)}&longitude=${Number(lng).toFixed(2)}&current_weather=true`;
       const res = await fetch(url);
       const data = await res.json();
 
