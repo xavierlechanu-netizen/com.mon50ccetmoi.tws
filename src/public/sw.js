@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon50cc-cache-v1120047';
+const CACHE_NAME = 'mon50cc-cache-v1120048';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

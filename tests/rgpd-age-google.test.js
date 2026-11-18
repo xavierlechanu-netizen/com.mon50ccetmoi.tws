@@ -235,4 +235,13 @@ describe("D-5 : mentions légales de l'éditeur", () => {
     expect(tel).not.toBeNull();
     expect(tel[1].slice(3)).toBe(tel[2].replace(/\s/g, "").slice(1)); // lien et texte identiques
   });
+
+  test("même adresse de l'éditeur dans les mentions légales, les CGV et la politique de confidentialité", () => {
+    const m = read("src/mentions-legales.html").match(/<th>Adresse<\/th>\s*<td>([^<]+)<\/td>/);
+    expect(m).not.toBeNull();
+    const adresse = m[1].trim();
+    expect(adresse).toMatch(/\b\d{5} [A-ZÉ][\w-]+/); // code postal + commune
+    expect(read("src/cgv.html")).toContain(adresse);
+    expect(read("src/privacy.html")).toContain(adresse);
+  });
 });
