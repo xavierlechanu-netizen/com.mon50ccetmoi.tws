@@ -127,6 +127,8 @@ EOF
 chmod 644 /etc/cron.d/mon50cc-auto-update
 
 # Journaux des tâches programmées : tournants, gardés 8 semaines au plus.
+# « su root root » : sous Ubuntu, /var/log est aussi accessible en écriture au groupe syslog, et
+# logrotate refuse alors de tourner les journaux si on ne lui dit pas sous quel compte le faire.
 cat > /etc/logrotate.d/mon50cc <<'EOF'
 /var/log/mon50cc-backup.log /var/log/mon50cc-auto-update.log {
     weekly
@@ -134,6 +136,7 @@ cat > /etc/logrotate.d/mon50cc <<'EOF'
     compress
     missingok
     notifempty
+    su root root
 }
 EOF
 chmod 644 /etc/logrotate.d/mon50cc
