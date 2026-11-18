@@ -26,7 +26,8 @@
     <!-- CryptoJS -->
     <script type="module" src="/js/crypto-native.js" charset="utf-8"></script>
     <script type="module" src="/js/gsi-callback.js"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Google n'est chargé qu'au clic sur « Continuer avec Google » (RGPD : rien envoyé à Google avant) -->
+    <script type="module" src="/js/google-signin-loader.js"></script>
     <script type="module" src="/js/inline-login-2.js"></script>
     <script type="module" src="/js/error-tracking.js?v=1008000"></script>
   </head>
@@ -197,25 +198,32 @@
             <i class="fa-solid fa-building-shield"></i> Accès Portail Assureur
           </button>
 
-          <!-- Google Sign-In Button -->
-          <div
-            id="g_id_onload"
-            data-client_id="618915667828-ebv4uc1ehq7mhks9l1qajrtg7k833jab.apps.googleusercontent.com"
-            data-context="signin"
-            data-ux_mode="popup"
-            data-callback="handleCredentialResponse"
-            data-auto_prompt="false"
-          ></div>
-          <div
-            class="g_id_signin"
-            data-type="standard"
-            data-shape="rectangular"
-            data-theme="outline"
-            data-text="signin_with"
-            data-size="large"
-            data-logo_alignment="left"
-            style="margin-bottom: 20px"
-          ></div>
+          <!-- Connexion Google : bouton du site ; le script de Google n'est chargé qu'au clic
+               (google-signin-loader.js), puis le vrai bouton Google s'affiche dans le cadre ci-dessous. -->
+          <button
+            type="button"
+            id="google-signin-trigger"
+            class="btn-auth"
+            data-action="startGoogleSignIn()"
+            data-client-id="618915667828-ebv4uc1ehq7mhks9l1qajrtg7k833jab.apps.googleusercontent.com"
+            style="
+              background: #fff;
+              color: #1f1f1f;
+              border: 1px solid #dadce0;
+              margin-bottom: 6px;
+            "
+          >
+            <i class="fa-brands fa-google"></i> Continuer avec Google
+          </button>
+          <div id="google-signin-slot" style="display: flex; justify-content: center"></div>
+          <p
+            id="google-signin-status"
+            aria-live="polite"
+            style="font-size: 0.75rem; color: #888; margin: 6px 0 20px"
+          >
+            Google n'est contacté que si vous cliquez sur ce bouton
+            (<a href="cookies.html" target="_blank" style="color: #aaa">en savoir plus</a>).
+          </p>
           <p class="switch-link" data-action="toggleForm('register')">
             Pas encore membre ? <strong>Rejoindre</strong>
           </p>
@@ -266,6 +274,35 @@
             name="reg-model"
             placeholder="Modèle (Ex: Ami, Kisbee, Booster, Zip...)"
           />
+          <!-- Âge (RGPD art. 8, loi Informatique et Libertés art. 45 : 15 ans en France) -->
+          <label
+            for="reg-age"
+            style="
+              display: flex;
+              gap: 8px;
+              align-items: flex-start;
+              text-align: left;
+              font-size: 0.8rem;
+              color: #ccc;
+              margin: 10px 0 14px;
+              cursor: pointer;
+            "
+          >
+            <input
+              type="checkbox"
+              id="reg-age"
+              name="reg-age"
+              required
+              style="width: auto; margin: 2px 0 0; flex: none"
+            />
+            <span
+              >J'ai 15 ans ou plus, ou l'un de mes parents (ou mon représentant
+              légal) est d'accord pour que j'utilise l'application.
+              <a href="privacy.html#mineurs" target="_blank" style="color: #aaa"
+                >Pourquoi ?</a
+              ></span
+            >
+          </label>
           <button data-action="doRegister()" class="btn-auth btn-auth-alt">
             CRÉER MON COMPTE
           </button>

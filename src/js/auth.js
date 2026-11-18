@@ -233,12 +233,16 @@ window.login = async function (username, password) {
   }
 };
 
-window.register = async function (username, password, brand, model) {
+window.register = async function (username, password, brand, model, { ageConfirmed = false } = {}) {
   if (!username || !password) return alert("Veuillez remplir tous les champs.");
 
   // --- REGISTRATION SECURITY ---
 
   if (!brand || !model) return alert("Veuillez renseigner votre véhicule.");
+  // Âge : case « 15 ans ou plus, ou accord d'un parent » cochée (RGPD art. 8), sinon pas de compte
+  if (ageConfirmed !== true) {
+    return alert("Pour créer un compte, il faut avoir 15 ans ou plus, ou l'accord d'un de vos parents (ou de votre représentant légal).");
+  }
 
   username = String(username).trim();
   if (!USERNAME_RE.test(username)) {
@@ -259,7 +263,9 @@ window.register = async function (username, password, brand, model) {
     // tout le profil depuis le 1er novembre 2026).
     let profile;
     try {
-      profile = await createProfileWithUsername(user, username, { brand, model });
+      profile = await createProfileWithUsername(user, username, {
+        brand, model, ageConfirmed: true, ageConfirmedAt: Date.now(),
+      });
     } catch (e) {
       // Pseudo déjà réservé (ex. par un compte Google) : on supprime le compte tout juste créé
       // pour que la personne puisse réessayer avec un autre pseudo.

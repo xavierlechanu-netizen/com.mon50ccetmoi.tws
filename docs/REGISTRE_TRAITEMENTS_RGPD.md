@@ -42,7 +42,7 @@ Légende de l'état : ✅ en service · 🟡 construit, pas encore en service ·
 | Finalité | Créer et gérer le compte, connecter le pilote |
 | Base légale | Exécution du contrat (art. 6.1.b) |
 | Personnes | Utilisateurs (dont mineurs de 14 à 18 ans) |
-| Données | E-mail, pseudo, empreinte du mot de passe (scrypt / Firebase), rôle, points, véhicule ; clés d'accès FIDO2 (clé publique seule) |
+| Données | E-mail, pseudo, empreinte du mot de passe (scrypt / Firebase), rôle, points, véhicule ; clés d'accès FIDO2 (clé publique seule) ; confirmation « 15 ans ou plus, ou accord d'un parent » et sa date (`ageConfirmed`, `ageConfirmedAt`, depuis le 18/11/2026) |
 | Où | Firebase Auth + Firestore `users`, `usernames`, `users/*/fido_credentials` ; serveur souverain table `users`, `fido_credentials` |
 | Destinataires | Éditeur ; Google (Firebase) ; OVHcloud |
 | Durée | Vie du compte ; effacement/anonymisation sous 30 jours après la demande |
