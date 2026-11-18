@@ -33,6 +33,9 @@ const { StoreError } = require("./store-errors");
 const { smsClientFromEnv, normalizeFrenchMobile } = require("./sms-ovh");
 const { vigilanceServiceFromEnv } = require("./meteo-vigilance");
 const { AUDIT_ACTIONS, verifyAuditChain } = require("./audit-log");
+const { revolutClientFromEnv } = require("./revolut-merchant");
+const { createPaymentsService, openProductsFromEnv, PaymentError } = require("./payments");
+const { invoicesToCsv } = require("../../functions/api/invoicing");
 const pointsRules = require("../../functions/api/points-rules");
 
 // Signalement des failles de sécurité (RFC 9116), même texte que src/public/.well-known/security.txt.
@@ -174,6 +177,22 @@ function createSovereignApp(options = {}) {
         windowMs: options.publicReadWindowMs || 10 * 60 * 1000,
         hits: new Map()
     };
+    // Paiements : 20 commandes par pilote et par 10 min ; suivi d'une commande toutes les 2 s au plus
+    const paymentOrderLimit = { maxAttempts: 20, windowMs: 10 * 60 * 1000, hits: new Map() };
+    const paymentPollLimit = { maxAttempts: 30, windowMs: 60 * 1000, hits: new Map() };
+
+    // Paiements Revolut (payments.js) : REVOLUT_SECRET_KEY absente → « pas encore ouvert » (503)
+    const revolut = options.revolut !== undefined ? options.revolut : revolutClientFromEnv();
+    const payments = createPaymentsService({
+        store, revolut, audit,
+        openProducts: options.paymentsOpenProducts || openProductsFromEnv(),
+    });
+
+    function sendPaymentError(res, e) {
+        if (!(e instanceof PaymentError)) throw e;
+        res.statusCode = e.status;
+        res.end(JSON.stringify({ error: e.message, ...e.extra }));
+    }
 
     function clientIp(req) {
         if (options.trustProxy || process.env.SOVEREIGN_TRUST_PROXY === "1") {
@@ -887,8 +906,65 @@ function createSovereignApp(options = {}) {
                 res.end(JSON.stringify({ error: "Signature Revolut invalide", reason: verif.reason }));
                 return;
             }
+            // Signature bonne : la commande est encore relue chez Revolut avant toute livraison (payments.js)
+            const out = await payments.handleWebhookEvent(body);
+            res.statusCode = out.status;
+            res.end(JSON.stringify({ success: out.status === 200, ...out.body }));
+            return;
+        }
+
+        // 5 bis. PAIEMENTS : nouvelle commande, puis suivi par l'acheteur (remplacent les Cloud Functions
+        // createRevolutOrder et checkPaymentStatus). Pilote connecté au serveur souverain obligatoire.
+        if (pathname === "/api/v1/payments/orders" && (req.method === "POST" || req.method === "GET")) {
+            const authUser = extractBearerUser(req);
+            if (!authUser) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Connectez-vous pour payer." }));
+                return;
+            }
+            const limit = req.method === "POST" ? paymentOrderLimit : paymentPollLimit;
+            if (isRateLimited(`pay-${req.method}:${authUser.uid}`, limit)) {
+                rejectTooManyAttempts(res, limit);
+                return;
+            }
+            try {
+                const result = req.method === "POST"
+                    ? await payments.createOrder(authUser, body)
+                    : await payments.orderStatus(authUser, url.searchParams.get("case_id"));
+                res.statusCode = 200;
+                res.end(JSON.stringify(result));
+            } catch (e) {
+                sendPaymentError(res, e);
+            }
+            return;
+        }
+
+        // 5 ter. PAIEMENTS, administrateur : commandes récentes (avec ce qu'il reste à faire à la main)
+        //        et factures à émettre (CSV pour Kolecto). Chaque lecture est notée dans le journal.
+        if (req.method === "GET" && (pathname === "/api/v1/admin/payments" || pathname === "/api/v1/admin/payments/invoices.csv")) {
+            const authUser = extractBearerUser(req);
+            if (!authUser || authUser.role !== "admin") {
+                res.statusCode = 403;
+                res.end(JSON.stringify({ error: "Réservé aux administrateurs." }));
+                return;
+            }
+            const csv = pathname.endsWith(".csv");
+            await audit({ action: AUDIT_ACTIONS.ADMIN_PAYMENTS_READ, actorUid: authUser.uid, actorRole: authUser.role,
+                details: { invoices: csv } });
+            if (csv) {
+                res.statusCode = 200;
+                res.setHeader("Content-Type", "text/csv; charset=utf-8");
+                res.setHeader("Content-Disposition", 'attachment; filename="factures-a-emettre.csv"');
+                res.end("﻿" + invoicesToCsv(await store.listInvoicesToIssue()));
+                return;
+            }
             res.statusCode = 200;
-            res.end(JSON.stringify({ success: true }));
+            res.end(JSON.stringify({
+                configured: payments.configured,
+                mode: revolut ? revolut.mode : null,
+                openProducts: payments.openProducts,
+                orders: await payments.listForAdmin(Number(url.searchParams.get("limit")) || 100),
+            }));
             return;
         }
 
@@ -1069,14 +1145,19 @@ function createSovereignApp(options = {}) {
         });
     });
 
-    return { server, store, wormVault, vigilance, handleRequest };
+    return { server, store, wormVault, vigilance, payments, handleRequest };
 }
 
 if (require.main === module) {
     const port = Number(process.env.PORT) || 8080;
-    const { server, store, wormVault, vigilance } = createSovereignApp();
+    const { server, store, wormVault, vigilance, payments } = createSovereignApp();
     if (!vigilance.configured) {
         console.warn("[SovereignCore] METEO_FRANCE_API_KEY absente : la vigilance Météo-France répond « indisponible » (deploy/README.md, étape 9 bis).");
+    }
+    if (!payments.configured) {
+        console.warn("[SovereignCore] REVOLUT_SECRET_KEY absente : les paiements répondent « pas encore ouvert » (docs/PLAN_DEMENAGEMENT_GOOGLE.md, § 7).");
+    } else {
+        console.log(`[SovereignCore] Paiements Revolut (${process.env.REVOLUT_ENV === "sandbox" ? "SANDBOX, essais" : "production"}) : ${payments.openProducts.join(", ") || "aucun produit ouvert"}.`);
     }
     // Un coffre S3 sans Object Lock ne protège rien : le serveur refuse de démarrer.
     // Puis les migrations de la base (db/migrations, rejouables) avant d'accepter des requêtes.

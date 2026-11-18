@@ -309,7 +309,7 @@ async function payReport() {
     });
     if (!order?.order_token) throw new Error("Commande Revolut non créée. Réessayez.");
     await waitForRevolutSdk();
-    const checkout = await window.RevolutCheckout(order.order_token, "prod");
+    const checkout = await window.RevolutCheckout(order.order_token, order.mode || "prod");
     setStatus("pay-status", "Paiement en cours dans la fenêtre Revolut…");
     checkout.payWithPopup({
       onSuccess: () => waitForUnlock(code),

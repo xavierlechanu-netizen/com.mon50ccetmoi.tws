@@ -575,48 +575,37 @@ window.requestCertification = function () {
   speak("Demande enregistrée.");
 };
 
+/** Montant en euros « 50,00 € » à partir de centimes, ou null. */
+function eurosText(cents) {
+  return Number.isFinite(cents) ? (cents / 100).toFixed(2).replace(".", ",") + " €" : null;
+}
+
 window.payGarageEntryFee = async function () {
-  let amountCents = 4999;
-  let priceStr = "49,99€";
-  
-  if (typeof speak === "function") speak("Vérification des tarifs en cours...");
-  
+  // Le prix affiché est celui que le serveur encaisse (catalogue) : avant le 18/11/2026, l'écran
+  // annonçait 19,99 € ou 49,99 € alors que le serveur demandait 50 €.
+  if (typeof speak === "function") speak("Initialisation du paiement sécurisé.");
   try {
-    if (window.firebase && firebase.firestore) {
-      const db = firebase.firestore();
-      const snap = await db.collection("users").where("isCertifiedGarage", "==", true).count().get();
-      const count = snap.data().count;
-      if (count < 50) {
-        amountCents = 1999;
-        priceStr = "19,99€ (Offre de lancement : 50 premiers garages)";
-      }
+    const caseId = "GARAGE-" + Date.now();
+
+    if (!window.ApiClient) {
+      throw new Error("Module API non chargé.");
     }
-  } catch (e) {
-    console.warn("[GARAGE] Could not fetch garage count, defaulting to standard pricing.", e);
-  }
 
-  const ok = confirm(
-    "Confirmez-vous le paiement du droit d'entrée de " + priceStr + " TTC pour devenir Garage Certifié ?"
-  );
-  if (ok) {
-    if (typeof speak === "function")
-      speak("Initialisation du paiement sécurisé.");
-    try {
-      const caseId = "GARAGE-" + Date.now();
-
-      if (!window.ApiClient) {
-        throw new Error("Module API non chargé.");
-      }
-
-      const orderData = await window.ApiClient.authFetch("createRevolutOrder", {
-        method: "POST",
-        body: {
-          case_id: caseId,
-          report_type: "GARAGE_FEE",
-        },
-      });
-
-      const instance = await RevolutCheckout(orderData.order_token, "prod");
+    // La commande est créée d'abord (rien n'est encore payé) : son montant est celui qui sera débité
+    const orderData = await window.ApiClient.authFetch("createRevolutOrder", {
+      method: "POST",
+      body: {
+        case_id: caseId,
+        report_type: "GARAGE_FEE",
+      },
+    });
+    const priceStr = eurosText(orderData.amount) || "50,00 €";
+    const ok = confirm(
+      "Confirmez-vous le paiement du droit d'entrée de " + priceStr + " TTC pour devenir Garage Certifié ?"
+    );
+    if (ok) {
+      const orderCaseId = orderData.case_id || caseId;
+      const instance = await RevolutCheckout(orderData.order_token, orderData.mode || "prod");
 
       instance.payWithPopup({
         onSuccess: () => {
@@ -631,9 +620,15 @@ window.payGarageEntryFee = async function () {
             try {
               const data = await window.ApiClient.authFetch("checkPaymentStatus", {
                 method: "GET",
-                query: { case_id: caseId, user_id: window.session?.uid || "" }
+                query: { case_id: orderCaseId, user_id: window.session?.uid || "" }
               });
-              if (data && data.paid) {
+              if (data && data.paid && data.garage_activation === "manual") {
+                // Serveur souverain : paiement enregistré, l'équipe active l'espace garage (Firestore)
+                clearInterval(checkStatus);
+                if (typeof speak === "function") speak("Paiement validé. Merci !");
+                alert("Paiement validé, merci ! Notre équipe active votre accès Garage Certifié sous 24 h (jours ouvrés).");
+                showPage("home");
+              } else if (data && data.paid) {
                 clearInterval(checkStatus);
                 if (typeof speak === "function")
                   speak(
@@ -661,10 +656,10 @@ window.payGarageEntryFee = async function () {
         },
         onCancel: () => {},
       });
-    } catch (err) {
-      console.error(err);
-      alert("Impossible d'initialiser le paiement : " + err.message);
     }
+  } catch (err) {
+    console.error(err);
+    alert("Impossible d'initialiser le paiement : " + err.message);
   }
 };
 

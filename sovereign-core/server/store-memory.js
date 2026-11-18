@@ -20,6 +20,8 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const ledger = [];
     const quotas = new Map(); // `${uid}|${jour}` → { motif: points, __unverified: points }
     const audit = []; // journal d'audit (ajout seul, chaîné : audit-log.js)
+    const orders = new Map(); // commandes Revolut, par identifiant Revolut (payments.js)
+    const invoices = new Map(); // factures à émettre, par identifiant de commande
 
     // Utilisateurs pré-enregistrés (tests) : [{ uid, email?, username?, role? }]
     for (const u of users) {
@@ -129,6 +131,9 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
                 })),
                 blackboxUnits: [...units.values()].filter((x) => x.ownerUid === uid)
                     .map(({ serial, revision, status, createdAt }) => ({ serial, revision, status, createdAt })),
+                payments: [...orders.values()].filter((o) => o.uid === uid)
+                    .map(({ caseId, product, amountCents, currency, status, createdAt, completedAt }) =>
+                        ({ caseId, product, amountCents, currency, status, createdAt, completedAt })),
             };
         },
 
@@ -262,6 +267,67 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             }
             return { idempotent: false, balance: user.braveCoins, delta };
         },
+        // ─── Paiements Revolut (payments.js) ─────────────────────────────────
+        async createPaymentOrder(o) {
+            if ([...orders.values()].some((x) => x.caseId === o.caseId) || orders.has(o.revolutOrderId)) {
+                throw new StoreError("ORDER_EXISTS", "Commande déjà enregistrée.");
+            }
+            const order = { revolutOrderId: o.revolutOrderId, caseId: o.caseId, uid: o.uid, product: o.product,
+                category: o.category, amountCents: o.amountCents, currency: o.currency || "EUR", status: "PENDING",
+                orderToken: o.orderToken, createdAt: new Date().toISOString(), completedAt: null };
+            orders.set(order.revolutOrderId, order);
+            return { ...order };
+        },
+        async findPaymentOrder(revolutOrderId) {
+            const o = orders.get(revolutOrderId);
+            return o ? { ...o } : null;
+        },
+        async findPaymentOrderByCase(caseId) {
+            const o = [...orders.values()].find((x) => x.caseId === caseId);
+            return o ? { ...o } : null;
+        },
+        async findReusablePendingOrder(uid, product, sinceMs) {
+            const o = [...orders.values()].reverse().find((x) => x.uid === uid && x.product === product &&
+                x.status === "PENDING" && x.orderToken && Date.parse(x.createdAt) > sinceMs);
+            return o ? { ...o } : null;
+        },
+        async completePaymentOrder(revolutOrderId, { pointsToCredit = 0, certifyGarage = false, invoice = null } = {}) {
+            const o = orders.get(revolutOrderId);
+            if (!o) return { notFound: true };
+            if (o.status === "COMPLETED") return { alreadyProcessed: true, order: { ...o } };
+            o.status = "COMPLETED";
+            o.completedAt = new Date().toISOString();
+            const user = usersById.get(o.uid);
+            let balance = null;
+            if (pointsToCredit > 0 && user) {
+                user.braveCoins = (user.braveCoins || 0) + pointsToCredit;
+                balance = user.braveCoins;
+                ledger.push({ uid: o.uid, action: "PURCHASE", reason: "POINTS_PURCHASE", delta: pointsToCredit,
+                    balanceAfter: balance, idempotencyKey: `revolut:${revolutOrderId}`, createdAt: o.completedAt });
+            }
+            if (certifyGarage && user) {
+                user.isCertifiedGarage = true;
+                user.certifiedAt = user.certifiedAt || o.completedAt;
+            }
+            if (invoice && !invoices.has(revolutOrderId)) invoices.set(revolutOrderId, { ...invoice, paid_at: o.completedAt });
+            return { processed: true, balance, order: { ...o } };
+        },
+        async failPaymentOrder(revolutOrderId) {
+            const o = orders.get(revolutOrderId);
+            if (!o || o.status !== "PENDING") return false;
+            o.status = "FAILED";
+            return true;
+        },
+        async listPaymentOrders({ limit = 100 } = {}) {
+            return [...orders.values()].reverse().slice(0, Math.min(Math.max(limit, 1), 500)).map((o) => {
+                const u = usersById.get(o.uid);
+                return { ...o, username: u ? u.username : null, firebaseUid: (u && u.firebaseUid) || null };
+            });
+        },
+        async listInvoicesToIssue() {
+            return [...invoices.values()].map((i) => ({ ...i }));
+        },
+
         async topPilots(limit = 10) {
             const sums = new Map();
             for (const l of ledger) if (l.action === "AWARD") sums.set(l.uid, (sums.get(l.uid) || 0) + l.delta);

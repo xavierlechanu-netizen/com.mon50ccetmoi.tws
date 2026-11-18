@@ -43,10 +43,15 @@ const AUDIT_ACTIONS = Object.freeze({
     // Réservé au portail assureur, quand il passera sur le serveur souverain (toute consultation
     // d'un rapport de sinistre par un assureur devra être notée avec cette action).
     B2B_REPORT_ACCESS: "b2b.report_access",
+    // Paiements Revolut (payments.js) : commande créée, payée et livrée, refusée ; lecture par l'admin
+    PAYMENT_ORDER_CREATED: "payment.order_created",
+    PAYMENT_COMPLETED: "payment.completed",
+    PAYMENT_FAILED: "payment.failed",
+    ADMIN_PAYMENTS_READ: "admin.payments_read",
 });
 const ACTION_SET = new Set(Object.values(AUDIT_ACTIONS));
 const OUTCOMES = new Set(["success", "denied", "failure"]);
-const TARGET_TYPES = new Set(["user", "blackbox_unit", "telemetry_session", "audit_log", "insurer_report"]);
+const TARGET_TYPES = new Set(["user", "blackbox_unit", "telemetry_session", "audit_log", "insurer_report", "payment_order"]);
 
 // Durée de conservation du journal : 1 an (recommandation CNIL pour les journaux : 6 mois à 1 an)
 const AUDIT_RETENTION_DAYS = 365;

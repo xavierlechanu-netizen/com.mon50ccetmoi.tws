@@ -7,11 +7,63 @@
  */
 
 import { auth, CONFIG } from './config.js';
+import { backendMode } from './backend.js';
+import { sovereignSession } from './sovereign.js';
 
 export class AuthRequiredError extends Error {
   constructor(message = "Authentification requise pour cette opération.") {
     super(message);
     this.name = "AuthRequiredError";
+  }
+}
+
+// ─── Paiements sur le serveur souverain (interrupteur CONFIG.BACKEND_MODE.paiements) ───
+// Mêmes noms et mêmes réponses que les anciennes Cloud Functions : les écrans d'achat ne changent pas.
+// Réponse de la commande : { order_id, order_token, amount, currency, status, case_id, mode }.
+const SOVEREIGN_PAYMENT_ROUTES = {
+  createRevolutOrder: (o) => ({ method: "POST", endpoint: "/payments/orders", body: o.body || {} }),
+  checkPaymentStatus: (o) => ({
+    method: "GET",
+    endpoint: `/payments/orders?case_id=${encodeURIComponent(String((o.query && o.query.case_id) || ""))}`,
+  }),
+};
+
+/** Appel souverain correspondant à une Cloud Function de paiement, ou null s'il n'y en a pas. */
+export function sovereignPaymentRequest(functionName, options = {}) {
+  const route = Object.prototype.hasOwnProperty.call(SOVEREIGN_PAYMENT_ROUTES, functionName)
+    ? SOVEREIGN_PAYMENT_ROUTES[functionName] : null;
+  return route ? route(options) : null;
+}
+
+/** Vrai si les paiements passent par le serveur souverain (réglage du site ou essai sur ce téléphone). */
+function sovereignPayments() {
+  return typeof backendMode === "function" && backendMode("paiements") === "SOVEREIGN";
+}
+
+async function sovereignFetch(request, functionName, timeoutMs) {
+  const session = typeof sovereignSession !== "undefined" ? sovereignSession : null;
+  if (!session || !session.hasAccount()) {
+    // Pas de session sur le serveur souverain (compte pas encore importé, ou connexion trop ancienne)
+    throw new AuthRequiredError("Reconnectez-vous pour payer : votre session a expiré.");
+  }
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const e = new Error(`Délai d'attente dépassé pour ${functionName} (${timeoutMs}ms)`);
+      e.status = 408;
+      reject(e);
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([
+      session.client.request(request.endpoint, { method: request.method, body: request.body || null }),
+      timeout,
+    ]);
+  } catch (e) {
+    if (e && e.status === 401) throw new AuthRequiredError("Reconnectez-vous pour payer : votre session a expiré.");
+    throw e;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -37,6 +89,10 @@ export async function authFetch(functionName, options = {}) {
     timeoutMs = 15000,
     headers = {}
   } = options;
+
+  // 0. Paiements : serveur souverain si l'interrupteur le dit (sinon Cloud Functions, comme avant)
+  const sovereignRequest = sovereignPayments() ? sovereignPaymentRequest(functionName, options) : null;
+  if (sovereignRequest) return sovereignFetch(sovereignRequest, functionName, timeoutMs);
 
   // 1. Vérification de la session Auth Firebase
   let currentAuth = auth;

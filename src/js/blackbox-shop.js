@@ -87,12 +87,12 @@ export const BlackBoxShop = {
         }
       }
 
-      const instance = await window.RevolutCheckout(orderData.order_token, "prod");
+      const instance = await window.RevolutCheckout(orderData.order_token, orderData.mode || "prod");
 
       instance.payWithPopup({
         onSuccess: () => {
           alert("✅ Paiement Revolut validé ! Enregistrement de votre commande en cours...");
-          this.pollConfirmation(caseId);
+          this.pollConfirmation(orderData.case_id || caseId);
         },
         onError: (err) => {
           console.error("[Revolut Checkout] Erreur :", err);
@@ -159,6 +159,26 @@ export const BlackBoxShop = {
 
     setTimeout(async () => {
       try {
+        // Paiements sur le serveur souverain : on lui demande l'état de la commande (pas de Firestore)
+        if (typeof window.backendMode === "function" && window.backendMode("paiements") === "SOVEREIGN" && window.ApiClient) {
+          const data = await window.ApiClient.authFetch("checkPaymentStatus", { method: "GET", query: { case_id: caseId } });
+          if (data && data.paid) {
+            if (data.points_credited) {
+              alert(`🎉 Félicitations ! Votre recharge de ${data.points_credited} Points mon50cc a été créditée sur votre compte.`);
+            } else {
+              alert("🎉 Votre achat est confirmé et enregistré.");
+            }
+            this.isProcessing = false;
+            return;
+          }
+          if (data && data.status === "FAILED") {
+            alert("Le paiement a été refusé ou annulé : rien n'a été débité.");
+            this.isProcessing = false;
+            return;
+          }
+          this.pollConfirmation(caseId, attempts + 1);
+          return;
+        }
         if (typeof db !== "undefined") {
           let doc = await db.collection("blackbox_sales").doc(caseId).get();
           if (!doc.exists) {

@@ -53,7 +53,7 @@ plan OVHcloud) : on bascule un domaine à la fois, et on peut revenir en arrièr
 | **1. Petits cartons sans risque** | Polices hébergées sur le site (fin de Google Fonts), retrait de Firebase Analytics | Rapide, utile pour le RGPD, ne dépend pas du VPS |
 | **2. Comptes** | Connexion par le serveur souverain ; vérification des mots de passe Firebase (voir § 3) ; comptes Google ; clés d'accès FIDO. **Interrupteur prêt** (18/11/2026, voir § 6) : connexion, inscription, déconnexion et les 11 suivis de session passent par `src/js/comptes.js` ; reste sur `"FIREBASE"` jusqu'à l'import des comptes | Tout le reste en dépend |
 | **3. Dangers, points, classement** | Routes déjà écrites : brancher l'appli dessus | Le cœur de l'appli, déjà prêt côté serveur |
-| **4. Paiements et assureurs** | Création de commande Revolut, rapports et litiges, abonnements | Les paiements sont coupés aujourd'hui : c'est de l'argent qui ne rentre pas |
+| **4. Paiements et assureurs** | Création de commande Revolut, rapports et litiges, abonnements. **Paiements codés** (18/11/2026, § 7) : rien en vente tant que vous ne l'avez pas décidé, droit d'entrée garage d'abord, interrupteur `paiements` sur `"FIREBASE"` | Les paiements sont coupés aujourd'hui : c'est de l'argent qui ne rentre pas |
 | **5. Boîte Noire** | Télémétrie signée (prête), boîtiers, certificats batterie | Indépendant du lancement du boîtier, mais prêt pour lui |
 | **6. Temps réel** | WebSocket sur le VPS (Caddy le gère déjà) : cortège, convois, chats, radar, SOS | Le plus gros chantier technique |
 | **7. Garages, bourse, roadbooks** | Routes simples de lecture et d'écriture | Peu de risques |
@@ -170,68 +170,61 @@ choix est gardé sur ce téléphone. Pour revenir : `https://mon50ccetmoi.com/?e
 **Retour arrière** : remettre `comptes: "FIREBASE"` et republier le site. Les comptes Firebase n'ont
 pas bougé. Un pilote inscrit pendant la bascule a aussi son compte Firebase, grâce au pont.
 
-## 7. Paiements Revolut : plan proposé (18/11/2026, rien de fait encore)
+## 7. Paiements Revolut (18/11/2026)
 
-**Situation** : plus aucun paiement depuis le 14/11. Les commandes passaient par deux Cloud
-Functions, `createRevolutOrder` et `revolutWebhook`, coupées avec la facturation Google. Côté
-serveur du VPS, le webhook ne fait aujourd'hui que vérifier la signature. La table `revolut_orders`
-existe déjà dans `db/schema.sql`.
+**Situation** : plus aucun paiement depuis le 14/11. Les commandes passaient par trois Cloud Functions
+(`createRevolutOrder`, `revolutWebhook`, `checkPaymentStatus`), coupées avec la facturation Google.
 
-**Ce qui peut vraiment rapporter tout de suite** (catalogue `functions/api/payments-catalog.js`) :
+### Ce qui est fait (option B : commandes par le serveur du VPS)
 
-| Produit | Prix | Vendable tout de suite ? |
+- **Serveur** (`sovereign-core/server/payments.js`, `revolut-merchant.js`) :
+  - `POST /api/v1/payments/orders` : le prix vient du catalogue (`functions/api/payments-catalog.js`),
+    jamais de la demande. Double clic : la même commande est reprise.
+  - `GET /api/v1/payments/orders?case_id=…` : suivi par l'acheteur seulement.
+  - `POST /api/v1/webhooks/revolut` : signature vérifiée, puis la commande est **relue chez Revolut**.
+    Elle n'est livrée que si Revolut dit « payée », au bon montant, et une seule fois. Si le webhook
+    n'arrive pas, le suivi relit Revolut et livre aussi.
+  - Livraison : **droit d'entrée garage** → compte « garage certifié » sur le serveur ; **points** →
+    grand livre du serveur, sans compter au classement. Une **facture à émettre** est préparée à chaque
+    paiement (même format qu'avant, pour Kolecto).
+  - Administrateur : `GET /api/v1/admin/payments` (commandes, et ce qu'il reste à faire à la main) et
+    `GET /api/v1/admin/payments/invoices.csv` (factures à émettre).
+  - Produits en vente : `PAYMENTS_OPEN_PRODUCTS`, **vide par défaut** : même avec la clé Revolut en place,
+    rien ne se vend tant que vous ne l'avez pas décidé. Premier produit prévu : `GARAGE_FEE`.
+  - Sans `REVOLUT_SECRET_KEY`, tout répond « paiement pas encore ouvert ». `REVOLUT_ENV=sandbox` :
+    essais avec le compte de test de Revolut (l'appli ouvre alors la fenêtre de paiement de test).
+- **Appli** : interrupteur `paiements` (reste sur `"FIREBASE"`). Les 4 écrans qui vendent passent par
+  `api-client.js` sans autre changement. Essai sur un seul téléphone : `?essai-souverain=paiements`.
+- **Prix du garage corrigé** : l'écran annonçait 19,99 € (« 50 premiers garages ») ou 49,99 €, alors que
+  le serveur encaissait 50 €. Il affiche maintenant le montant réellement débité. Une offre de lancement
+  devra être ajoutée au catalogue si vous la voulez (décision à prendre).
+- **Tests** : `tests/sovereign-payments.test.js` (25 cas, Revolut simulé) et le même parcours sur un vrai
+  PostgreSQL. Vérifié dans l'appli en local : l'achat garage part bien vers le serveur du VPS.
+
+### Ce qui reste à la main, tant que les données sont dans Firestore
+
+- **Garage** : l'espace garage lit encore Firestore. Après un paiement, recopier `isCertifiedGarage: true`
+  dans la console Firebase (fiche `users/<identifiant Firebase>`, donné par `/admin/payments`). Le pilote
+  voit « accès activé sous 24 h ».
+- **Packs de points** : prêts, mais fermés. L'appli lit le solde dans Firestore : les points achetés ne
+  s'y verraient pas. À ouvrir quand le domaine `points` passera sur le serveur.
+- **Acheteurs** : il faut un compte sur le serveur du VPS, donc l'import des comptes d'abord.
+
+### Pour rouvrir les ventes, dans l'ordre
+
+| # | Étape | Qui |
 | :--- | :--- | :--- |
-| Droit d'entrée Garage Partenaire | 50 € | Oui |
-| Packs de points | 2,99 à 24,99 € | Oui. Le grand livre des points existe déjà sur le serveur |
-| Rapports assureurs | 49,99 à 199,99 € HT | Seulement quand il y aura des dossiers de sinistre (il faut les boîtiers) |
-| Boîte Noire+ | 4,99 €/mois ou 50 €/an | Non : le boîtier n'est pas encore fabriqué |
-| Diagnostic IA | 4,99 € | Non : le copilote IA est coupé |
+| 1 | Importer les comptes (`docs/IMPORT_COMPTES_FIREBASE.md`) | Vous, puis Claude avec votre accord |
+| 2 | Dire si la clé déjà saisie sur le VPS (18/11/2026) est de **production** ou de **test**. Pour les essais : compte de test Revolut (sandbox-business.revolut.com, gratuit), clé secrète de test et webhook de test vers `https://api.mon50ccetmoi.com/api/v1/webhooks/revolut` | Vous |
+| 3 | Les deux secrets de test dans la fenêtre : `saisir-cles.cmd -Groupe revolut` | Vous |
+| 4 | `REVOLUT_ENV=sandbox` et `PAYMENTS_OPEN_PRODUCTS=GARAGE_FEE` sur le VPS, API reconstruite | Claude, avec votre accord |
+| 5 | Sur votre téléphone : `mon50ccetmoi.com/app.html?essai-souverain=paiements`, achat du droit d'entrée garage avec une carte de test Revolut | Vous |
+| 6 | Production : nouvelle clé secrète dans Revolut Business, **ancienne révoquée** (elle était chez Google), webhook de production vers la même adresse, les deux secrets dans la fenêtre | Vous |
+| 7 | `REVOLUT_ENV=prod`, API reconstruite, un vrai achat d'essai (remboursable dans Revolut) | Vous et Claude |
+| 8 | Bascule `paiements: "SOVEREIGN"` pour tout le monde (site republié) | Claude, avec votre accord |
 
-### Option A, tout de suite et sans code serveur : liens de paiement Revolut
+**Coût** : aucun abonnement. Le compte de test Revolut est gratuit ; en production, seulement la
+commission Revolut par paiement, inchangée.
 
-- Vous créez dans Revolut Business un lien de paiement à montant fixe : droit d'entrée garage, ou
-  rapport assureur sur demande. Ce lien n'est pas secret.
-- L'appli l'affiche à la place du bouton en panne (`CONFIG.REVOLUT.PAYMENT_LINK` existe déjà).
-- À chaque paiement, Revolut vous prévient ; vous débloquez le garage à la main.
-- Coût : seulement la commission Revolut, comme avant.
-- Limite : tout se fait à la main. C'est bien pour quelques garages, pas pour des packs de points.
-
-### Option B, recommandée : commandes par le serveur du VPS (2 petites PR)
-
-1. **Serveur** :
-   - `POST /api/v1/payments/orders` : le prix est lu dans le catalogue, jamais dans la demande.
-     Appel à l'API Merchant de Revolut, commande gardée dans `revolut_orders`.
-   - `GET /api/v1/payments/orders/{id}` : suivre l'état d'une commande.
-   - Le webhook marque la commande payée une seule fois, puis livre :
-     - **points** : dans le grand livre du serveur ;
-     - **garage, assureur** : alerte à l'administrateur et déblocage à la main, tant que leurs
-       données sont dans Firestore.
-   - Une table des factures à émettre (aujourd'hui `invoices_to_issue` dans Firestore).
-2. **Appli** :
-   - interrupteur `paiements` dans `api-client.js`, pour les 4 écrans qui vendent : `app-features.js`,
-     `assureur.js`, `blackbox-shop.js`, `insurance-portal.js` ;
-   - la fenêtre de paiement Revolut ne change pas (clé publique `pk_…` dans `config.js`).
-3. **Prérequis** :
-   - les comptes importés (une commande appartient à un compte du serveur) ;
-   - un pilote qui s'est reconnecté une fois depuis l'import. Pas besoin d'avoir basculé les comptes.
-
-**Ce que vous faites vous-même** (jamais de clé dans la conversation) :
-
-1. **Clé secrète Merchant** (`sk_…`, production) : Revolut Business › Merchant API. Elle va sur le
-   VPS par la fenêtre de saisie des clés. Il faut d'abord y ajouter le nom `REVOLUT_SECRET_KEY`,
-   comme pour `FIREBASE_SCRYPT_*` (dossier `deploy/`).
-2. **Webhook** :
-   - remplacer l'adresse de l'ancienne Cloud Function par
-     `https://api.mon50ccetmoi.com/api/v1/webhooks/revolut` ;
-   - copier le **secret de signature** dans la fenêtre de saisie, groupe `revolut`
-     (`REVOLUT_WEBHOOK_SECRET`).
-3. **Choisir** ce qu'on remet en vente d'abord. Proposition : packs de points et droit d'entrée garage.
-4. **Un achat d'essai réel** à 2,99 € (pack de 100 points), remboursable ensuite depuis Revolut.
-5. **Votre accord** pour fusionner, reconstruire l'API sur le VPS, puis basculer `paiements`.
-
-**Coût** : aucun abonnement. Seulement la commission Revolut par paiement, inchangée.
-
-### Option C, déconseillée : réactiver la facturation Google
-
-Elle relancerait les Cloud Functions telles quelles. Mais elle remet une carte bancaire chez Google,
-au rebours du déménagement, et le coût mensuel n'est pas garanti.
+*Écartées* : les liens de paiement Revolut (tout à la main) et la réactivation de la facturation Google
+(une carte bancaire chez Google, au rebours du déménagement).

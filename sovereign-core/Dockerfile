@@ -16,7 +16,9 @@ COPY sovereign-core/server ./server
 COPY sovereign-core/db ./db
 # Outils d'exploitation (sauvegardes vers l'Object Storage, lancés par deploy/backup.sh)
 COPY sovereign-core/scripts ./scripts
-COPY functions/api/blackbox-core.js functions/api/revolut-signature.js functions/api/points-rules.js /app/functions/api/
+# Paiements (18/11/2026) : catalogue des prix et factures, les mêmes que l'ancienne Cloud Function
+COPY functions/api/blackbox-core.js functions/api/revolut-signature.js functions/api/points-rules.js \
+     functions/api/payments-catalog.js functions/api/invoicing.js /app/functions/api/
 
 # Coffre WORM des preuves : appartient à l'utilisateur non privilégié
 RUN mkdir -p /app/sovereign-core/worm_vault && chown -R node:node /app/sovereign-core/worm_vault

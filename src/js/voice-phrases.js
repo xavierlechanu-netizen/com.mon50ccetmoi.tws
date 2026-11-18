@@ -209,6 +209,7 @@ export const PHRASES = {
   "Initialisation du paiement sécurisé Revolut.": { en: "Starting secure Revolut payment.", es: "Iniciando el pago seguro con Revolut." },
   "Validation du paiement par le serveur, veuillez patienter...": { en: "The server is validating your payment, please wait...", es: "El servidor está validando el pago, espere por favor..." },
   "Paiement validé ! Vous êtes maintenant un Garage Certifié.": { en: "Payment confirmed! You are now a Certified Garage.", es: "¡Pago confirmado! Ahora es un Taller Certificado." },
+  "Paiement validé. Merci !": { en: "Payment confirmed. Thank you!", es: "Pago confirmado. ¡Gracias!" },
   "Paiement Revolut validé. Génération de votre document.": { en: "Revolut payment confirmed. Generating your document.", es: "Pago con Revolut confirmado. Generando su documento." },
   "Paiement Revolut confirmé. Vérification en cours.": { en: "Revolut payment confirmed. Verifying.", es: "Pago con Revolut confirmado. Verificando." },
   "Le paiement a échoué.": { en: "The payment failed.", es: "El pago ha fallado." },

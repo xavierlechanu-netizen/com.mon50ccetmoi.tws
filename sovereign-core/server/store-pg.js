@@ -27,7 +27,26 @@ function mapUser(r) {
         braveCoins: r.brave_coins,
         hideFromLeaderboard: Boolean(r.hide_from_leaderboard),
         isBanned: Boolean(r.is_banned),
+        isCertifiedGarage: Boolean(r.is_certified_garage),
         createdAt: iso(r.created_at),
+    };
+}
+
+/** Commande Revolut (table revolut_orders), même forme que store-memory.js. */
+function mapOrder(r) {
+    if (!r) return null;
+    return {
+        revolutOrderId: r.revolut_order_id,
+        caseId: r.case_id,
+        uid: r.user_uid,
+        product: r.report_type,
+        category: r.category,
+        amountCents: r.amount_cents,
+        currency: String(r.currency || "EUR").trim(),
+        status: r.status,
+        orderToken: r.order_token,
+        createdAt: iso(r.created_at),
+        completedAt: iso(r.completed_at) || null,
     };
 }
 
@@ -173,7 +192,7 @@ function createPgStore({ connectionString, pool } = {}) {
         async exportUserData(uid) {
             const user = await this.findUserById(uid);
             if (!user) return null;
-            const [hz, led, tel, bb] = await Promise.all([
+            const [hz, led, tel, bb, pay] = await Promise.all([
                 db.query(`SELECT hazard_id, type, lat, lng, description, active, created_at FROM hazards
                            WHERE user_uid = $1 ORDER BY created_at`, [uid]),
                 db.query(`SELECT action, reason, delta, balance_after, created_at FROM points_ledger
@@ -182,6 +201,7 @@ function createPgStore({ connectionString, pool } = {}) {
                                  worm_storage_path, worm_sha256_hex, created_at FROM telemetry_sessions
                            WHERE user_uid = $1 ORDER BY created_at`, [uid]),
                 db.query("SELECT serial, revision, status, created_at FROM blackbox_units WHERE owner_uid = $1 ORDER BY serial", [uid]),
+                db.query("SELECT * FROM revolut_orders WHERE user_uid = $1 ORDER BY created_at", [uid]),
             ]);
             return {
                 account: {
@@ -197,6 +217,8 @@ function createPgStore({ connectionString, pool } = {}) {
                     frameCount: r.frame_count, merkleRootHex: r.merkle_root_hex, wormStoragePath: r.worm_storage_path,
                     wormSha256Hex: r.worm_sha256_hex, sealedAt: iso(r.created_at) })),
                 blackboxUnits: bb.rows.map((r) => ({ serial: r.serial, revision: r.revision, status: r.status, createdAt: iso(r.created_at) })),
+                payments: pay.rows.map(mapOrder).map(({ caseId, product, amountCents, currency, status, createdAt, completedAt }) =>
+                    ({ caseId, product, amountCents, currency, status, createdAt, completedAt })),
             };
         },
 
@@ -451,6 +473,126 @@ function createPgStore({ connectionString, pool } = {}) {
             } finally {
                 client.release();
             }
+        },
+
+        // ─── Paiements Revolut (payments.js) ─────────────────────────────────
+
+        async createPaymentOrder(o) {
+            const { rows } = await db.query(
+                `INSERT INTO revolut_orders (revolut_order_id, case_id, user_uid, report_type, category, amount_cents,
+                                             currency, status, order_token)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, 'PENDING', $8) RETURNING *`,
+                [o.revolutOrderId, o.caseId, o.uid, o.product, o.category, o.amountCents, o.currency || "EUR", o.orderToken]
+            );
+            return mapOrder(rows[0]);
+        },
+
+        async findPaymentOrder(revolutOrderId) {
+            const { rows } = await db.query("SELECT * FROM revolut_orders WHERE revolut_order_id = $1", [revolutOrderId]);
+            return mapOrder(rows[0]);
+        },
+
+        async findPaymentOrderByCase(caseId) {
+            const { rows } = await db.query("SELECT * FROM revolut_orders WHERE case_id = $1", [caseId]);
+            return mapOrder(rows[0]);
+        },
+
+        /** Commande en attente récente du même acheteur pour le même produit (double clic, fenêtre fermée). */
+        async findReusablePendingOrder(uid, product, sinceMs) {
+            if (!UUID_RE.test(String(uid))) return null;
+            const { rows } = await db.query(
+                `SELECT * FROM revolut_orders WHERE user_uid = $1 AND report_type = $2 AND status = 'PENDING'
+                    AND order_token IS NOT NULL AND created_at > to_timestamp($3 / 1000.0)
+                  ORDER BY created_at DESC LIMIT 1`,
+                [uid, product, sinceMs]
+            );
+            return mapOrder(rows[0]);
+        },
+
+        /**
+         * Commande payée : passage à COMPLETED et livraison dans la même transaction, une seule fois.
+         * @param {string} revolutOrderId
+         * @param {{pointsToCredit?: number, certifyGarage?: boolean, invoice?: object}} delivery
+         */
+        async completePaymentOrder(revolutOrderId, { pointsToCredit = 0, certifyGarage = false, invoice = null } = {}) {
+            const client = await db.connect();
+            try {
+                await client.query("BEGIN");
+                const { rows } = await client.query("SELECT * FROM revolut_orders WHERE revolut_order_id = $1 FOR UPDATE", [revolutOrderId]);
+                const order = rows[0];
+                if (!order) {
+                    await client.query("ROLLBACK");
+                    return { notFound: true };
+                }
+                if (order.status === "COMPLETED") {
+                    await client.query("ROLLBACK");
+                    return { alreadyProcessed: true, order: mapOrder(order) };
+                }
+                const done = await client.query(
+                    `UPDATE revolut_orders SET status = 'COMPLETED', completed_at = NOW(), updated_at = NOW()
+                      WHERE revolut_order_id = $1 RETURNING *`, [revolutOrderId]
+                );
+                let balance = null;
+                if (pointsToCredit > 0) {
+                    const u = await client.query("SELECT brave_coins FROM users WHERE uid = $1 FOR UPDATE", [order.user_uid]);
+                    const before = u.rows[0].brave_coins;
+                    balance = before + pointsToCredit;
+                    await client.query("UPDATE users SET brave_coins = $2, updated_at = NOW() WHERE uid = $1", [order.user_uid, balance]);
+                    await client.query(
+                        `INSERT INTO points_ledger (user_uid, action, reason, description, delta, amount, balance_before,
+                                                    balance_after, idempotency_key, metadata)
+                         VALUES ($1, 'PURCHASE', 'POINTS_PURCHASE', $2, $3, $3, $4, $5, $6, $7)`,
+                        [order.user_uid, `Pack de points ${order.report_type} (Revolut)`, pointsToCredit, before, balance,
+                            `revolut:${revolutOrderId}`, JSON.stringify({ revolutOrderId, product: order.report_type })]
+                    );
+                }
+                if (certifyGarage) {
+                    await client.query(
+                        `UPDATE users SET is_certified_garage = TRUE, certified_at = COALESCE(certified_at, NOW()), updated_at = NOW()
+                          WHERE uid = $1`, [order.user_uid]
+                    );
+                }
+                if (invoice) {
+                    await client.query(
+                        `INSERT INTO invoices_to_issue (revolut_order_id, invoice) VALUES ($1, $2)
+                         ON CONFLICT (revolut_order_id) DO NOTHING`, [revolutOrderId, JSON.stringify(invoice)]
+                    );
+                }
+                await client.query("COMMIT");
+                return { processed: true, balance, order: mapOrder(done.rows[0]) };
+            } catch (e) {
+                await client.query("ROLLBACK").catch(() => {});
+                throw e;
+            } finally {
+                client.release();
+            }
+        },
+
+        /** Paiement refusé ou annulé (jamais une commande déjà payée). Vrai si la commande a changé. */
+        async failPaymentOrder(revolutOrderId) {
+            const { rowCount } = await db.query(
+                `UPDATE revolut_orders SET status = 'FAILED', failed_at = NOW(), updated_at = NOW()
+                  WHERE revolut_order_id = $1 AND status = 'PENDING'`, [revolutOrderId]
+            );
+            return rowCount === 1;
+        },
+
+        /** Administrateur : dernières commandes, avec le pseudo et l'identifiant Firebase de l'acheteur. */
+        async listPaymentOrders({ limit = 100 } = {}) {
+            const max = Math.min(Math.max(Number(limit) || 100, 1), 500);
+            const { rows } = await db.query(
+                `SELECT o.*, u.username, u.firebase_uid FROM revolut_orders o JOIN users u ON u.uid = o.user_uid
+                  ORDER BY o.created_at DESC LIMIT $1`, [max]
+            );
+            return rows.map((r) => ({ ...mapOrder(r), username: r.username, firebaseUid: r.firebase_uid || null }));
+        },
+
+        /** Factures à émettre (export CSV pour Kolecto). */
+        async listInvoicesToIssue() {
+            const { rows } = await db.query(
+                "SELECT invoice, paid_at FROM invoices_to_issue WHERE status = 'A_EMETTRE' ORDER BY paid_at"
+            );
+            return rows.map((r) => ({ ...r.invoice, paid_at: iso(r.paid_at) }));
         },
 
         /** Classement : points GAGNÉS (jamais achetés ni dépensés), comptes anonymisés exclus. */

@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS fido_challenges (
 CREATE TABLE IF NOT EXISTS points_ledger (
     ledger_id       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_uid        UUID NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
-    action          VARCHAR(10) NOT NULL CHECK (action IN ('AWARD', 'DEDUCT')),
+    action          VARCHAR(10) NOT NULL CHECK (action IN ('AWARD', 'DEDUCT', 'PURCHASE')), -- PURCHASE : points achetés (migration 002)
     reason          VARCHAR(64) NOT NULL,
     description     TEXT NOT NULL,
     delta           INTEGER NOT NULL,

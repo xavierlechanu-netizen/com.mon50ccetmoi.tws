@@ -326,6 +326,70 @@ describe("Serveur souverain sur PostgreSQL", () => {
     expect(rows.map((r) => r.d).join(" ")).not.toContain("@");
   });
 
+  test("paiements Revolut (Revolut simulé) : livrés une fois, points achetés hors classement, factures", async () => {
+    const { createRevolutClient } = require("../sovereign-core/server/revolut-merchant");
+    const remote = new Map();
+    let n = 0;
+    const reply = (status, body) => ({ ok: status < 400, status, json: async () => body, text: async () => "" });
+    const fetchImpl = async (url, init) => {
+      if (init.method === "POST") {
+        const b = JSON.parse(init.body);
+        n += 1;
+        const o = { id: `pg-ord-${n}`, token: `tok_${n}`, state: "pending", amount: b.amount, currency: b.currency };
+        remote.set(o.id, o);
+        return reply(201, o);
+      }
+      return reply(200, remote.get(decodeURIComponent(url.split("/orders/")[1])));
+    };
+    const store = createPgStore({ pool });
+    // Base du VPS créée avant la migration 002 : grand livre sans « PURCHASE ». La migration l'ajoute.
+    await pool.query(`ALTER TABLE points_ledger DROP CONSTRAINT points_ledger_action_check;
+      ALTER TABLE points_ledger ADD CONSTRAINT points_ledger_action_check CHECK (action IN ('AWARD', 'DEDUCT'))`);
+    expect(await store.migrate()).toContain("002-paiements-revolut.sql");
+    const check = await pool.query(`SELECT pg_get_constraintdef(oid) AS d FROM pg_constraint WHERE conname = 'points_ledger_action_check'`);
+    expect(check.rows[0].d).toContain("PURCHASE");
+    const payApp = createSovereignApp({ store, wormDir, revolut: createRevolutClient({ secretKey: "sk_test", fetchImpl }),
+      paymentsOpenProducts: ["GARAGE_FEE", "POINTS_100"], revolutWebhookSecret: "wsk_pg" });
+    const reg = await call(payApp, "POST", "/api/v1/auth/register", { email: "acheteur@example.com", username: "AcheteurPG", password: "MotDePasse2026!" });
+    const auth = { Authorization: `Bearer ${reg.body.token}` };
+
+    // Pack de points : payé chez Revolut, livré par le suivi (sans webhook)
+    const pts = await call(payApp, "POST", "/api/v1/payments/orders", { report_type: "POINTS_100", amount: 1 }, auth);
+    expect(pts.body).toMatchObject({ amount: 299, status: "PENDING" });
+    remote.get(pts.body.order_id).state = "completed";
+    const s = await call(payApp, "GET", `/api/v1/payments/orders?case_id=${pts.body.case_id}`, null, auth);
+    expect(s.body).toMatchObject({ paid: true, points_credited: 100, balance: 100 });
+    expect((await store.completePaymentOrder(pts.body.order_id, { pointsToCredit: 100 })).alreadyProcessed).toBe(true);
+    const led = await pool.query("SELECT action, reason, delta FROM points_ledger WHERE user_uid = $1", [reg.body.uid]);
+    expect(led.rows).toEqual([{ action: "PURCHASE", reason: "POINTS_PURCHASE", delta: 100 }]);
+    expect((await store.topPilots(50)).find((p) => p.username === "AcheteurPG")).toBeUndefined();
+
+    // Droit d'entrée garage : livré par le webhook signé, une seule fois
+    const g = await call(payApp, "POST", "/api/v1/payments/orders", { report_type: "GARAGE_FEE" }, auth);
+    remote.get(g.body.order_id).state = "completed";
+    const raw = JSON.stringify({ event: "ORDER_COMPLETED", order_id: g.body.order_id });
+    const ts = String(Date.now());
+    const sig = "v1=" + crypto.createHmac("sha256", "wsk_pg").update(`v1.${ts}.${raw}`).digest("hex");
+    const hook = () => new Promise((resolve, reject) => {
+      const req = { method: "POST", url: "/api/v1/webhooks/revolut", socket: { remoteAddress: "10.1.1.1" },
+        headers: { "revolut-signature": sig, "revolut-request-timestamp": ts } };
+      const res = { statusCode: 200, setHeader() {}, end(p) { resolve({ status: this.statusCode, body: JSON.parse(p) }); } };
+      payApp.handleRequest(req, res, Buffer.from(raw)).catch(reject);
+    });
+    expect((await hook()).body.state).toBe("COMPLETED");
+    expect((await hook()).body.alreadyProcessed).toBe(true);
+    const u = await pool.query("SELECT is_certified_garage, certified_at FROM users WHERE uid = $1", [reg.body.uid]);
+    expect(u.rows[0].is_certified_garage).toBe(true);
+    expect(u.rows[0].certified_at).not.toBeNull();
+    expect(await store.failPaymentOrder(g.body.order_id)).toBe(false); // une commande payée ne repasse jamais « refusée »
+
+    expect((await pool.query("SELECT count(*)::int AS n FROM invoices_to_issue")).rows[0].n).toBe(2);
+    expect((await store.listInvoicesToIssue()).map((i) => i.totals.ttc_cents).sort()).toEqual([299, 5000]);
+    const list = await store.listPaymentOrders({ limit: 10 });
+    expect(list.filter((o) => o.username === "AcheteurPG").map((o) => o.status)).toEqual(["COMPLETED", "COMPLETED"]);
+    expect((await store.exportUserData(reg.body.uid)).payments).toHaveLength(2);
+  });
+
   test("usine : numéro attribué sous verrou, une clé = un numéro, lien numéro ↔ clé définitif en SQL", async () => {
     const factory = { Authorization: `Bearer ${signSovereignJwt({ uid: "usine-pg", role: "factory", username: "Usine" })}` };
     const dev = () => {

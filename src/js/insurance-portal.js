@@ -230,7 +230,7 @@ container.innerHTML = `
       }
     }
 
-    const instance = await RevolutCheckout(orderData.order_token, "prod");
+    const instance = await RevolutCheckout(orderData.order_token, orderData.mode || "prod");
     
     // Vider le texte de chargement
     const container = document.getElementById("revolut-pay-button-container");

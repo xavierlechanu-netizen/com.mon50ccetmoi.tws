@@ -74,6 +74,13 @@ services:
       # Caddy remplace cet en-tête (il ignore celui envoyé par le client), il est donc fiable.
       SOVEREIGN_TRUST_PROXY: "1"
       REVOLUT_WEBHOOK_SECRET: ${REVOLUT_WEBHOOK_SECRET:-}
+      # Paiements (server/payments.js) : clé secrète Merchant (sk_…). Vide : « paiement pas encore ouvert ».
+      # REVOLUT_ENV=sandbox pour les essais avec le compte de test Revolut, sinon production.
+      REVOLUT_SECRET_KEY: ${REVOLUT_SECRET_KEY:-}
+      REVOLUT_ENV: ${REVOLUT_ENV:-prod}
+      # Produits en vente, séparés par des virgules. Vide (défaut) : rien en vente, même avec la clé.
+      # Ouvrir le droit d'entrée garage : PAYMENTS_OPEN_PRODUCTS=GARAGE_FEE dans .env (accord de l'utilisateur).
+      PAYMENTS_OPEN_PRODUCTS: ${PAYMENTS_OPEN_PRODUCTS:-}
       # Coffre des preuves : bucket OVHcloud Object Storage créé AVEC Object Lock
       WORM_S3_BUCKET: ${WORM_S3_BUCKET:?Bucket S3 Object Lock requis pour les preuves}
       WORM_S3_ENDPOINT: ${WORM_S3_ENDPOINT:-https://s3.gra.io.cloud.ovh.net}
