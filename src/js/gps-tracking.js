@@ -298,7 +298,7 @@ export async function startGeolocation() {
 
       if (perm.state === "denied") {
         speak(
-          "Le GPS est bloqué. Vérifiez les permissions de l'application.",
+          "Le GPS est bloqué. Vérifiez les autorisations de localisation.",
         );
         showGpsBanner("Permission refusée. Appuyez sur 'Réparer'.", 1);
         return; // Inutile de continuer si explicitement refusé
@@ -335,7 +335,7 @@ export async function startGeolocation() {
 
     // Permission refusée → bannière immédiate
     if (err.code === 1) {
-      speak("Le GPS est bloqué. Vérifiez les permissions.");
+      speak("Le GPS est bloqué. Vérifiez les autorisations de localisation.");
       showGpsBanner(msg, err.code);
       return;
     }

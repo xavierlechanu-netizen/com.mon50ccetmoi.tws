@@ -281,7 +281,7 @@ function showRoute(ticket, route, destination, { reroute = false } = {}) {
   window.lastSpokenFerryIndex = -1;
   if (window.routeFerries.length > 0 && !reroute) later(ticket, 4000, () => speak("ferry_detected"));
 
-  // Recalcul : dit après « Recalcul de l'itinéraire. », sans le couper
+  // Recalcul : dit après « Recalcul de l'itinéraire en cours. », sans le couper
   if (reroute) announce(rerouteMessage(distText, etaText));
   else speak(departureMessage(distText, etaText, { rodage: !!window.isRodageActive }));
 
@@ -423,7 +423,7 @@ export async function searchDestination() {
     }
     const dest = await geocodeOne(query);
     if (!dest) {
-      speak("Destination introuvable.");
+      speak("Destination introuvable. Essayez une autre adresse.");
       return;
     }
     window.currentRouteDestination = dest;
@@ -440,7 +440,7 @@ export async function searchDestination() {
 
   const dest = await geocodeOne(query);
   if (!dest) {
-    speak("Destination introuvable.");
+    speak("Destination introuvable. Essayez une autre adresse.");
     return;
   }
   window.currentRouteDestination = dest;

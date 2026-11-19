@@ -24,10 +24,11 @@ function loadModule({ speak = jest.fn() } = {}) {
   const engine = stripModule(read("map-engine.js"));
   const guidance = stripModule(read("route-guidance.js"));
   const code = stripModule(read("route-planner.js"));
+  const isVoiceBusy = () => !!window.speechSynthesis?.speaking; // voice-engine.js, simulé
   const api = new Function(
-    "speak", "registerAction",
+    "speak", "registerAction", "isVoiceBusy",
     `${engine}\n${guidance}\n${code}\nreturn { ${EXPORTS.join(", ")} };`,
-  )(speak, () => {});
+  )(speak, () => {}, isVoiceBusy);
   return { ...api, speak };
 }
 
@@ -360,7 +361,7 @@ describe("Calcul et affichage de l'itinéraire", () => {
     await flush();
     expect(requests).toHaveLength(1);
     expect(R.speak).not.toHaveBeenCalledWith("Itinéraire annulé.");
-    expect(R.speak).not.toHaveBeenCalledWith("Recalcul de l'itinéraire.");
+    expect(R.speak).not.toHaveBeenCalledWith("Recalcul de l'itinéraire en cours.");
   });
 
   test("sorti du tracé : recalcul depuis la position actuelle, l'ancien tracé reste jusqu'au nouveau", async () => {
@@ -372,7 +373,7 @@ describe("Calcul et affichage de l'itinéraire", () => {
     R.onGpsFix(LILLE.lat, LILLE.lng); // sur le tracé
     window.currentPosition = { lat: 50.6, lng: 3.0 }; // à plusieurs km du tracé
     for (let i = 0; i < 6; i++) R.onGpsFix(50.6, 3.0);
-    expect(R.speak).toHaveBeenCalledWith("Recalcul de l'itinéraire.");
+    expect(R.speak).toHaveBeenCalledWith("Recalcul de l'itinéraire en cours.");
     expect(requests).toHaveLength(2); // un seul recalcul
     expect(requests[1].origin).toMatchObject({ lat: 50.6, lng: 3.0 });
     expect(first.every(visible)).toBe(true);
@@ -476,7 +477,7 @@ describe("Calcul et affichage de l'itinéraire", () => {
       document.getElementById("route-search").value = "Nulle-part-sur-Mer";
       const R = loadModule();
       await R.searchDestination();
-      expect(R.speak).toHaveBeenCalledWith("Destination introuvable.");
+      expect(R.speak).toHaveBeenCalledWith("Destination introuvable. Essayez une autre adresse.");
       expect(requests).toHaveLength(0);
     });
 

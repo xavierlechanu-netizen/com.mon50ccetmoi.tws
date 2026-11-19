@@ -19,14 +19,13 @@ export const PHRASES = {
   "Systèmes opérationnels. Bonne route sur mon 50cc et moi.": { en: "Systems operational. Ride safe with mon 50cc et moi.", es: "Sistemas operativos. Buen viaje con mon 50cc et moi." },
   "L'application nécessite l'accès à votre position pour fonctionner.": { en: "The app needs access to your location to work.", es: "La aplicación necesita acceder a su ubicación para funcionar." },
   "Nouvelle tentative de localisation GPS.": { en: "Retrying GPS location.", es: "Nuevo intento de localización GPS." },
-  "Le GPS est bloqué. Vérifiez les permissions de l'application.": { en: "GPS is blocked. Check the app permissions.", es: "El GPS está bloqueado. Compruebe los permisos de la aplicación." },
-  "Le GPS est bloqué. Vérifiez les permissions.": { en: "GPS is blocked. Check the permissions.", es: "El GPS está bloqueado. Compruebe los permisos." },
+  "Le GPS est bloqué. Vérifiez les autorisations de localisation.": { en: "GPS is blocked. Check the location permissions.", es: "El GPS está bloqueado. Compruebe los permisos de ubicación." },
   "Recherche de votre position GPS. L'itinéraire démarrera automatiquement dès que possible.": { en: "Searching for your GPS position. The route will start automatically as soon as possible.", es: "Buscando su posición GPS. La ruta comenzará automáticamente en cuanto sea posible." },
   "Signal GPS insuffisant pour démarrer l'itinéraire.": { en: "GPS signal too weak to start the route.", es: "Señal GPS insuficiente para iniciar la ruta." },
   "Signal GPS récupéré.": { en: "GPS signal recovered.", es: "Señal GPS recuperada." },
   "Signal perdu. Mode tunnel activé, navigation mathématique en cours.": { en: "Signal lost. Tunnel mode on, estimating your position.", es: "Señal perdida. Modo túnel activado, estimando su posición." },
   "GPS requis pour trouver les garages.": { en: "GPS is needed to find garages.", es: "Se necesita el GPS para encontrar talleres." },
-  "Mode hors-ligne activé.": { en: "Offline mode on.", es: "Modo sin conexión activado." },
+  "Mode hors connexion activé.": { en: "Offline mode on.", es: "Modo sin conexión activado." },
   "Connexion rétablie.": { en: "Connection restored.", es: "Conexión restablecida." },
   "Veuillez vous connecter": { en: "Please sign in", es: "Inicie sesión, por favor" },
   "Carte en cours de chargement, veuillez patienter.": { en: "The map is loading, please wait.", es: "El mapa se está cargando, espere por favor." },
@@ -37,7 +36,7 @@ export const PHRASES = {
 
   // --- Navigation ---
   "Lieu de départ introuvable.": { en: "Starting point not found.", es: "No se encuentra el punto de partida." },
-  "Destination introuvable.": { en: "Destination not found.", es: "Destino no encontrado." },
+  "Destination introuvable. Essayez une autre adresse.": { en: "Destination not found. Try another address.", es: "Destino no encontrado. Pruebe otra dirección." },
   "Erreur de calcul d'itinéraire.": { en: "Route calculation error.", es: "Error al calcular la ruta." },
   "Impossible de calculer l'itinéraire pour le moment. Vérifiez votre connexion.": { en: "Unable to calculate the route right now. Check your connection.", es: "No se puede calcular la ruta por ahora. Compruebe su conexión." },
   "Info trafic désactivée.": { en: "Traffic info off.", es: "Información de tráfico desactivada." },
@@ -64,7 +63,7 @@ export const PHRASES = {
   "Vision nocturne désactivée.": { en: "Night vision off.", es: "Visión nocturna desactivada." },
 
   // --- Guidage pendant le trajet (route-guidance.js, 16/11/2026) ---
-  "Recalcul de l'itinéraire.": { en: "Recalculating the route.", es: "Recalculando la ruta." },
+  "Recalcul de l'itinéraire en cours.": { en: "Recalculating the route.", es: "Recalculando la ruta." },
   "Vous êtes arrivé à destination. Bonne journée.": { en: "You have arrived at your destination. Have a good day.", es: "Ha llegado a su destino. Que tenga un buen día." },
   "Arrivée prévue dans 5 minutes.": { en: "Arriving in 5 minutes.", es: "Llegada prevista en 5 minutos." },
   "Pause conseillée : vous roulez depuis deux heures.": { en: "Time for a break: you have been riding for two hours.", es: "Se aconseja una pausa: lleva dos horas conduciendo." },
@@ -270,7 +269,7 @@ export const PHRASES = {
   "Ange Gardien désactivé. Fin de la surveillance.": { en: "Guardian Angel off. Monitoring stopped.", es: "Ángel Guardián desactivado. Fin de la vigilancia." },
   "ATTENTION : DÉPASSEMENT DANGEREUX DÉTECTÉ.": { en: "CAUTION: DANGEROUS OVERTAKING DETECTED.", es: "ATENCIÓN: ADELANTAMIENTO PELIGROSO DETECTADO." },
   "Attention, cet itinéraire inclut une traversée en ferry.": { en: "Caution, this route includes a ferry crossing.", es: "Atención, esta ruta incluye un trayecto en ferri." },
-  "Traversée en ferry à 1 kilomètre. Préparez-vous à l'embarquement.": { en: "Ferry crossing in 1 kilometre. Get ready to board.", es: "Ferri a 1 kilómetro. Prepárese para embarcar." },
+  "Traversée en ferry à un kilomètre. Préparez-vous à l'embarquement.": { en: "Ferry crossing in one kilometre. Get ready to board.", es: "Ferri a un kilómetro. Prepárese para embarcar." },
 };
 
 /** Phrases avec une partie variable : $1, $2… reprennent la partie variable telle quelle. */

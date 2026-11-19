@@ -7,6 +7,16 @@
  * - vibrate(ms) : vibration, seulement après une première interaction (règle des navigateurs).
  */
 import { voiceLanguage, translateForVoice, personalizeVoiceText } from './voice-phrases.js';
+import { createRecordedVoice } from './recorded-voice.js';
+
+// Phrases lues par de vraies personnes (src/public/voix/), servies par le site : voir recorded-voice.js
+const recordedVoice = createRecordedVoice();
+let speakTicket = 0; // chaque phrase prend un numéro : la plus récente l'emporte
+
+/** Vrai tant que Nexus Atlas parle (voix du téléphone ou enregistrement) : le guidage attend la fin. */
+export function isVoiceBusy() {
+  return (typeof window !== "undefined" && !!window.speechSynthesis?.speaking) || recordedVoice.isPlaying();
+}
 
 /** Pseudo du pilote connecté (vide si personne n'est connecté). */
 export function pilotName() {
@@ -67,7 +77,7 @@ window.OracleEngine = {
         ferry_detected:
           "Attention, cet itinéraire inclut une traversée en ferry.",
         ferry_ahead:
-          "Traversée en ferry à 1 kilomètre. Préparez-vous à l'embarquement.",
+          "Traversée en ferry à un kilomètre. Préparez-vous à l'embarquement.",
       },
       liege: {
         start: "Oufti, l'Oracle est en place, valet ! On décolle ?",
@@ -400,7 +410,8 @@ window.OracleEngine = {
  * @param {{greet?: boolean}} [opts]  greet : commence par « Bonjour <pseudo>. »
  */
 export async function speak(phraseKey, opts = {}) {
-  if (!("speechSynthesis" in window)) return;
+  const canSynthesize = "speechSynthesis" in window;
+  if (!canSynthesize && typeof Audio === "undefined") return;
 
   // Les navigateurs refusent de parler tant que la personne n'a pas touché la page : le
   // message (ex. « Content de vous revoir ») était perdu. On garde le dernier et on le dit
@@ -442,6 +453,18 @@ export async function speak(phraseKey, opts = {}) {
   }
   const targetLang = voiceText.lang;
   const finalMsg = personalizeVoiceText(voiceText.text, targetLang, pilotName(), opts);
+
+  // Voix enregistrée (recorded-voice.js) : la phrase exacte lue par une vraie personne, si elle existe.
+  // Sinon, ou si elle ne peut pas être jouée : voix de synthèse du téléphone, comme avant.
+  const ticket = ++speakTicket;
+  if (canSynthesize) window.speechSynthesis.cancel();
+  recordedVoice.stop();
+  if (targetLang === "fr") {
+    // Une phrase plus récente arrivée pendant la recherche de l'enregistrement : celle-ci se tait.
+    const outdated = () => ticket !== speakTicket;
+    if ((await recordedVoice.play(finalMsg, outdated)) || outdated()) return;
+  }
+  if (!canSynthesize) return;
 
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(finalMsg);

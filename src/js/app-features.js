@@ -338,7 +338,7 @@ function updateOnlineStatus() {
     // eslint-disable-next-line no-restricted-syntax
 toast.innerHTML = '<i class="fa-solid fa-plane"></i> Mode hors-ligne - Navigation limitée';
     document.body.appendChild(toast);
-    speak("Mode hors-ligne activé.");
+    speak("Mode hors connexion activé.");
   } else {
     const toast = document.getElementById("offline-toast");
     if (toast) {

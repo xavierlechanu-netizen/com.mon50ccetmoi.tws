@@ -6,7 +6,7 @@
  * - « Dans 300 m, Tournez à droite sur … » puis « Tournez à droite sur … » au moment du virage ;
  * - « Continuez sur 3 km. » après un virage suivi d'une longue ligne ;
  * - « Il vous reste 12 km, soit environ 20 minutes. » à mi-parcours, « Arrivée prévue dans 5 minutes. » ;
- * - « Recalcul de l'itinéraire. » quand on quitte le tracé, « Vous êtes arrivé à destination. » ;
+ * - « Recalcul de l'itinéraire en cours. » quand on quitte le tracé, « Vous êtes arrivé à destination. » ;
  * - « Pause conseillée … » après 2 h de conduite sans vraie pause (15 min à l'arrêt) ;
  * - « Signal GPS perdu, prudence. » / « Signal GPS récupéré. ».
  *
@@ -19,7 +19,7 @@
  * Les fonctions create* sont pures (testées dans tests/route-guidance.test.js).
  */
 import { readLatLng, distanceMeters, formatDistance } from "./map-engine.js";
-import { speak } from "./voice-engine.js";
+import { speak, isVoiceBusy } from "./voice-engine.js";
 
 /** Annonce « Dans … » : à 300 m du virage (≈ 25 s à 45 km/h). */
 export const FAR_M = 300;
@@ -37,7 +37,7 @@ export const MAX_ACCURACY_M = 50;
 /** Ligne droite annoncée après un virage : 2 km et plus. */
 export const LONG_STEP_M = 2000;
 
-export const PHRASE_RECALCUL = "Recalcul de l'itinéraire.";
+export const PHRASE_RECALCUL = "Recalcul de l'itinéraire en cours.";
 export const PHRASE_ARRIVEE = "Vous êtes arrivé à destination. Bonne journée.";
 export const PHRASE_CINQ_MIN = "Arrivée prévue dans 5 minutes.";
 export const PHRASE_PAUSE = "Pause conseillée : vous roulez depuis deux heures.";
@@ -303,7 +303,8 @@ let wasRiding = false;
 const rideTimer = createRideTimer();
 const gpsWatch = createGpsWatch();
 
-const isSpeaking = () => typeof window !== "undefined" && !!window.speechSynthesis?.speaking;
+// Voix du téléphone ou enregistrement (recorded-voice.js) : on ne coupe ni l'une ni l'autre
+const isSpeaking = () => isVoiceBusy();
 
 function flush(now = Date.now()) {
   queue = queue.filter((m) => m.expires > now);

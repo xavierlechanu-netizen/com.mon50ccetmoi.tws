@@ -17,9 +17,10 @@ const EXPORTS = [
   "PHRASE_GPS_RETROUVE", "PHRASE_ANNULE",
 ];
 
-function loadModule({ speak = jest.fn() } = {}) {
+// isVoiceBusy vient de voice-engine.js : voix du téléphone (simulée ici) ou enregistrement en cours
+function loadModule({ speak = jest.fn(), isVoiceBusy = () => !!window.speechSynthesis?.speaking } = {}) {
   window.__routeGuidanceTimer = true; // pas de minuterie réelle pendant les tests
-  const api = new Function("speak", `${strip(read("map-engine.js"))}\n${strip(read("route-guidance.js"))}\nreturn { ${EXPORTS.join(", ")} };`)(speak);
+  const api = new Function("speak", "isVoiceBusy", `${strip(read("map-engine.js"))}\n${strip(read("route-guidance.js"))}\nreturn { ${EXPORTS.join(", ")} };`)(speak, isVoiceBusy);
   return { ...api, speak };
 }
 
@@ -226,6 +227,20 @@ describe("Branchement : file d'attente de la voix", () => {
     jest.useRealTimers();
   });
 
+  test("un enregistrement qui joue n'est pas coupé : l'annonce suivante attend la fin", () => {
+    jest.useFakeTimers();
+    let recordingPlays = true;
+    const G = loadModule({ isVoiceBusy: () => recordingPlays });
+    G.startGuidance({ leg: { steps: ROUTE.steps }, path: ROUTE.path }, { destination: ROUTE.destination, durationSec: 800 });
+    G.onGpsFix(ROUTE.destination.lat, ROUTE.destination.lng);
+    jest.advanceTimersByTime(3000);
+    expect(G.speak).not.toHaveBeenCalled();
+    recordingPlays = false;
+    jest.advanceTimersByTime(600);
+    expect(G.speak).toHaveBeenCalledWith("Vous êtes arrivé à destination. Bonne journée.");
+    jest.useRealTimers();
+  });
+
   test("arrivée : annonce, fin du guidage, puis plus rien", () => {
     const G = loadModule();
     const onArrive = jest.fn();
@@ -241,7 +256,7 @@ describe("Branchement : file d'attente de la voix", () => {
     expect(G.speak).toHaveBeenCalledTimes(1);
   });
 
-  test("hors du tracé : « Recalcul de l'itinéraire. » et demande de nouvel itinéraire, une fois", () => {
+  test("hors du tracé : « Recalcul de l'itinéraire en cours. » et demande de nouvel itinéraire, une fois", () => {
     const G = loadModule();
     const onReroute = jest.fn();
     G.startGuidance({ leg: { steps: ROUTE.steps }, path: ROUTE.path }, { destination: ROUTE.destination, durationSec: 800, onReroute });
@@ -249,7 +264,7 @@ describe("Branchement : file d'attente de la voix", () => {
     G.onGpsFix(P(400, 0).lat, P(400, 0).lng, { now: t0 });
     for (let i = 1; i <= 6; i++) G.onGpsFix(P(500, 150).lat, P(500, 150).lng, { now: t0 + i * 1000 });
     expect(onReroute).toHaveBeenCalledTimes(1);
-    expect(G.speak).toHaveBeenCalledWith("Recalcul de l'itinéraire.");
+    expect(G.speak).toHaveBeenCalledWith("Recalcul de l'itinéraire en cours.");
   });
 
   test("perte du signal pendant le guidage puis retour", () => {

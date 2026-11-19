@@ -1,0 +1,76 @@
+{
+  "voice": "xavier",
+  "speaker": "Xavier Le Chanu (éditeur de l'appli), voix prêtée le 16/11/2026",
+  "phrases": [
+    {
+      "id": "009",
+      "text": "Vous êtes arrivé à destination. Bonne journée !",
+      "file": "009.m4a"
+    },
+    {
+      "id": "010",
+      "text": "Recalcul de l'itinéraire en cours.",
+      "file": "010.m4a"
+    },
+    {
+      "id": "011",
+      "text": "Destination introuvable. Essayez une autre adresse.",
+      "file": "011.m4a"
+    },
+    {
+      "id": "012",
+      "text": "Lieu de départ introuvable.",
+      "file": "012.m4a"
+    },
+    {
+      "id": "013",
+      "text": "Attention, cet itinéraire inclut une traversée en ferry.",
+      "file": "013.m4a"
+    },
+    {
+      "id": "014",
+      "text": "Traversée en ferry à un kilomètre. Préparez-vous à l'embarquement.",
+      "file": "014.m4a"
+    },
+    {
+      "id": "028",
+      "text": "Vous quittez la zone à faibles émissions.",
+      "file": "028.m4a"
+    },
+    {
+      "id": "029",
+      "text": "Itinéraire annulé.",
+      "file": "029.m4a"
+    },
+    {
+      "id": "032",
+      "text": "Carte en cours de chargement, veuillez patienter.",
+      "file": "032.m4a"
+    },
+    {
+      "id": "033",
+      "text": "Le GPS est bloqué. Vérifiez les autorisations de localisation.",
+      "file": "033.m4a"
+    },
+    {
+      "id": "034",
+      "text": "Nouvelle tentative de localisation GPS.",
+      "file": "034.m4a"
+    },
+    {
+      "id": "035",
+      "text": "Connexion rétablie.",
+      "file": "035.m4a"
+    },
+    {
+      "id": "036",
+      "text": "Mode hors connexion activé.",
+      "file": "036.m4a"
+    },
+    {
+      "id": "039",
+      "text": "Pause conseillée : vous roulez depuis deux heures.",
+      "file": "039.m4a"
+    }
+  ]
+}
