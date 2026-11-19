@@ -155,9 +155,10 @@ choix est gardé sur ce téléphone. Pour revenir : `https://mon50ccetmoi.com/?e
    quoi) et `sovereign-core/deploy/README.md`, étape 11. Il faut le faire **avant** : sinon le serveur
    ne connaît personne. Le refaire juste avant la bascule, pour les derniers inscrits.
 2. **Comptes Google** : en mode `"SOVEREIGN"`, le bouton Google explique qu'il faut se connecter avec
-   l'adresse Gmail et un mot de passe. Ces comptes n'ont pas encore de mot de passe : il faut un
-   moyen d'en choisir un. Gratuit : le leur faire choisir dans l'appli **tant qu'on est encore en
-   mode `"FIREBASE"`**, pour qu'il parte dans l'export.
+   l'adresse Gmail et un mot de passe. **Prêt** (18/11/2026, `src/js/google-password.js`) : après
+   une connexion Google, l'appli propose aux comptes sans mot de passe d'en choisir un (« Plus tard »
+   possible, redemandé 7 jours après). Au nouvel import, leur empreinte est ajoutée sur le serveur
+   (`passwordsAdded` dans le bilan). Comptes importés le 18/11/2026 : 15, dont 4 « Google seul ».
 3. **Administrateurs** : l'import crée tous les comptes avec le rôle « user ». Remettre « admin » à
    la main sur le VPS pour les comptes qui l'ont dans Firestore.
 4. **Clé d'accès (empreinte)** : en mode `"SOVEREIGN"`, elle affiche « revient bientôt ». Elle passait

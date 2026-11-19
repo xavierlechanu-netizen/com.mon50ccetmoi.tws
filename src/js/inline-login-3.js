@@ -1,6 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem, firebase } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { comptes } from './comptes.js';
+import { offerGooglePassword } from './google-password.js';
 
 // Comptes sur "SOVEREIGN" : le serveur souverain ne connaît pas la connexion Google (elle ouvrirait une
 // session Firebase sans lui). Les comptes Google choisissent un mot de passe avant la bascule
@@ -112,6 +113,15 @@ function doLogin() {
           } else {
             profile = doc.data();
             window.reserveOwnUsername?.(user, profile);
+          }
+
+          // Compte « Google seul » : on propose un mot de passe, pour qu'il survive à la fin de la
+          // connexion Google (google-password.js). « Plus tard » est toujours possible.
+          if (typeof offerGooglePassword === "function") {
+            let storage = null;
+            try { storage = window.localStorage; } catch { storage = null; }
+            await offerGooglePassword({ user, firebaseNs: firebase, doc: document, storage, notify: (m) => alert(m) })
+              .catch((e) => console.warn("[Google] Mot de passe non proposé :", e?.message));
           }
 
           secureSetItem("session", JSON.stringify(profile));

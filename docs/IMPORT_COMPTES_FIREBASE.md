@@ -93,4 +93,9 @@ sudo docker compose -f docker-compose.vps.yml exec -T postgres-postgis \
 - **Nouveaux inscrits** : ils n'existent que chez Firebase jusqu'au prochain import. On relance donc
   l'import juste avant la bascule. Le script ignore les comptes déjà présents.
 - **Comptes « Google seul »** : importés sans mot de passe, ils ne peuvent pas se connecter au serveur
-  du VPS. Il faudra leur faire choisir un mot de passe avant la bascule (plan, § 6).
+  du VPS. Après une connexion Google, l'appli leur propose d'en choisir un. Au nouvel import, le bilan
+  indique « dont mot de passe ajouté » : leur empreinte est alors copiée sur le serveur, et seulement
+  pour les comptes encore sans mot de passe.
+
+*Fait le 18/11/2026* : 18 comptes exportés, 15 importés (11 avec mot de passe, 4 « Google seul »),
+3 ignorés (même adresse qu'un compte de test importé). Rôle admin remis à `xavierlechanu@gmail.com`.

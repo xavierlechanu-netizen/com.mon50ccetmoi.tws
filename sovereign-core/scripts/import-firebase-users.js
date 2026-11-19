@@ -48,10 +48,14 @@ function planImport(exportData, existing = {}) {
     const emailOwner = new Map((existing.emails || []).map((e) => [e, undefined]));
     for (const a of accounts) emailOwner.set(a.email, a.firebaseUid || null);
     const firebaseUids = new Set([...(existing.firebaseUids || []), ...accounts.map((a) => a.firebaseUid).filter(Boolean)]);
+    // Comptes déjà importés SANS mot de passe (« Google seul ») : identifiant Firebase → oui
+    const withoutPasswordUids = new Set(accounts.filter((a) => a.firebaseUid && a.hasPassword === false).map((a) => a.firebaseUid));
     const usernames = new Set([...(existing.usernames || []), ...accounts.map((a) => a.username)]);
     const report = { total: 0, toImport: 0, withPassword: 0, withoutPassword: 0,
-        alreadyImported: 0, conflicts: [], skippedNoEmail: [], skippedDisabled: [], skippedInvalid: [] };
+        alreadyImported: 0, passwordsAdded: 0, conflicts: [], skippedNoEmail: [], skippedDisabled: [], skippedInvalid: [] };
     const rows = [];
+    // Mot de passe choisi depuis le dernier import par un compte « Google seul » (google-password.js)
+    const passwordUpdates = [];
 
     const users = exportData && Array.isArray(exportData.users) ? exportData.users : null;
     if (!users) throw new Error("Fichier inattendu : il faut l'export de « firebase auth:export --format=json ».");
@@ -64,7 +68,14 @@ function planImport(exportData, existing = {}) {
         if (!email) { report.skippedNoEmail.push(firebaseUid); continue; }
         if (email.length > 255 || !email.includes("@")) { report.skippedInvalid.push(firebaseUid); continue; }
         if (u.disabled) { report.skippedDisabled.push(firebaseUid); continue; }
-        if (firebaseUids.has(firebaseUid)) { report.alreadyImported++; continue; }
+        if (firebaseUids.has(firebaseUid)) {
+            report.alreadyImported++;
+            if (withoutPasswordUids.has(firebaseUid) && u.passwordHash && u.salt) {
+                passwordUpdates.push({ firebaseUid, passwordHash: firebaseStoredHash(u.salt, u.passwordHash) });
+                report.passwordsAdded++;
+            }
+            continue;
+        }
         if (emailOwner.has(email)) {
             const owner = emailOwner.get(email);
             if (owner === undefined) { report.alreadyImported++; continue; }
@@ -97,7 +108,7 @@ function planImport(exportData, existing = {}) {
         usernames.add(username);
         report.toImport++;
     }
-    return { rows, report };
+    return { rows, report, passwordUpdates };
 }
 
 /**
@@ -112,10 +123,20 @@ async function importUsers(pool, exportData, { apply = false } = {}) {
         await client.query("BEGIN");
         // Personne ne crée de compte pendant l'import (noms et emails restent uniques).
         await client.query("LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE");
-        const { rows: current } = await client.query("SELECT email, username, firebase_uid FROM users");
+        const { rows: current } = await client.query(
+            "SELECT email, username, firebase_uid, password_hash <> '!' AS has_password FROM users"
+        );
         const plan = planImport(exportData, {
-            accounts: current.map((r) => ({ email: r.email, username: r.username, firebaseUid: r.firebase_uid }))
+            accounts: current.map((r) => ({ email: r.email, username: r.username, firebaseUid: r.firebase_uid,
+                hasPassword: r.has_password }))
         });
+        // Seulement les comptes encore sans mot de passe : un mot de passe déjà choisi n'est jamais écrasé
+        for (const p of plan.passwordUpdates) {
+            await client.query(
+                "UPDATE users SET password_hash = $1, updated_at = NOW() WHERE firebase_uid = $2 AND password_hash = '!'",
+                [p.passwordHash, p.firebaseUid]
+            );
+        }
         for (const r of plan.rows) {
             await client.query(
                 `INSERT INTO users (email, username, password_hash, firebase_uid, created_at)
@@ -141,6 +162,7 @@ function printReport(report, apply) {
         `    dont avec mot de passe       : ${report.withPassword}`,
         `    dont connexion Google seule  : ${report.withoutPassword} (devront choisir un mot de passe)`,
         `  Déjà importés (ignorés)        : ${report.alreadyImported}`,
+        `    dont mot de passe ajouté     : ${report.passwordsAdded} (comptes Google qui en ont choisi un)`,
         `  Adresse déjà prise (à vérifier): ${report.conflicts.length}`,
         `  Sans email (ignorés)           : ${report.skippedNoEmail.length}`,
         `  Désactivés (ignorés)           : ${report.skippedDisabled.length}`,

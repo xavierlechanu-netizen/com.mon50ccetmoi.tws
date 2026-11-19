@@ -145,6 +145,21 @@ describe("Préparation de l'import (export « firebase auth:export »)", () => {
     expect(rows.find((r) => r.email === "alice@example.com")).toBeUndefined();
   });
 
+  test("compte « Google seul » déjà importé qui a choisi un mot de passe : son empreinte est ajoutée", () => {
+    const later = { users: [
+      { localId: "fbUidGoogle00000000000000002", email: "bob@gmail.com", passwordHash: FIREBASE_VECTOR.hash, salt: FIREBASE_VECTOR.salt },
+      { localId: "fbUidMotDePasse0000000000001", email: "alice@example.com", passwordHash: FIREBASE_VECTOR.hash, salt: FIREBASE_VECTOR.salt },
+    ] };
+    const { rows, report, passwordUpdates } = planImport(later, { accounts: [
+      { email: "bob@gmail.com", username: "Bob", firebaseUid: "fbUidGoogle00000000000000002", hasPassword: false },
+      // A déjà un mot de passe sur le serveur : jamais écrasé
+      { email: "alice@example.com", username: "Alice", firebaseUid: "fbUidMotDePasse0000000000001", hasPassword: true },
+    ] });
+    expect(rows).toEqual([]);
+    expect(report).toMatchObject({ alreadyImported: 2, passwordsAdded: 1 });
+    expect(passwordUpdates).toEqual([{ firebaseUid: "fbUidGoogle00000000000000002", passwordHash: STORED }]);
+  });
+
   test("un fichier qui n'est pas un export Firebase est refusé", () => {
     expect(() => planImport({})).toThrow(/auth:export/);
     expect(() => planImport(null)).toThrow(/auth:export/);

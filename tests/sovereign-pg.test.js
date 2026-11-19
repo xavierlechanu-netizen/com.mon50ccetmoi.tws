@@ -149,6 +149,19 @@ describe("Serveur souverain sur PostgreSQL", () => {
     expect(after.rows[0].password_hash.startsWith("scrypt$")).toBe(true);
     // Connexion Google seule : aucun mot de passe ne marche
     expect((await call(app, "POST", "/api/v1/auth/login", { email: "google@example.com", password: "!" })).status).toBe(401);
+
+    // Plus tard, le compte Google choisit un mot de passe dans l'appli (google-password.js) : au nouvel
+    // import, son empreinte est ajoutée, et seulement la sienne (celle d'« importe » n'est pas écrasée).
+    const withPassword = { users: exportData.users.map((u) => ({ ...u,
+      passwordHash: "lSrfV15cpx95/sZS2W9c9Kp6i/LVgQNDNC/qzrCnh1SAyZvqmZqAjTdn3aoItz+VHjoZilo78198JAdRuid5lQ==",
+      salt: "42xEC+ixf3L2lw==" })) };
+    expect((await importUsers(pool, withPassword))).toMatchObject({ toImport: 0, passwordsAdded: 1 });
+    expect((await call(app, "POST", "/api/v1/auth/login", { email: "google@example.com", password: "user1password" })).status).toBe(401);
+    expect((await importUsers(pool, withPassword, { apply: true })).passwordsAdded).toBe(1);
+    expect((await call(app, "POST", "/api/v1/auth/login", { email: "google@example.com", password: "user1password" })).status).toBe(200);
+    const kept = await pool.query("SELECT password_hash FROM users WHERE uid = $1", [rows[0].uid]);
+    expect(kept.rows[0].password_hash.startsWith("scrypt$")).toBe(true);
+    expect((await importUsers(pool, withPassword, { apply: true })).passwordsAdded).toBe(0); // relance sans effet
   });
 
   test("jour J : adresse déjà prise par un compte créé sur le serveur → ni importée, ni rattachée", async () => {
