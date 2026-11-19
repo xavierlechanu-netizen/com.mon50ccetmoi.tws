@@ -22,6 +22,8 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const audit = []; // journal d'audit (ajout seul, chaîné : audit-log.js)
     const orders = new Map(); // commandes Revolut, par identifiant Revolut (payments.js)
     const invoices = new Map(); // factures à émettre, par identifiant de commande
+    const firebaseErasures = []; // effacements RGPD à finir dans Firebase (migration 003)
+    let firebaseErasureSeq = 0;
 
     // Utilisateurs pré-enregistrés (tests) : [{ uid, email?, username?, role? }]
     for (const u of users) {
@@ -72,6 +74,9 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
         async anonymizeUser(uid) {
             const u = usersById.get(uid);
             if (!u || u.deletedAt) return false;
+            // Reste à effacer chez Firebase (store-pg.js, même règle)
+            firebaseErasures.push({ id: ++firebaseErasureSeq, email: u.email, firebaseUid: u.firebaseUid || null,
+                requestedAt: new Date().toISOString() });
             usersByEmail.delete(u.email);
             usernames.delete(u.username);
             Object.assign(u, {
@@ -79,12 +84,18 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
                 username: `supprime-${uid}`,
                 passwordHash: "!",
                 braveCoins: 0,
+                firebaseUid: null,
                 hideFromLeaderboard: false,
                 deletedAt: new Date().toISOString(),
             });
             // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
             for (const h of hazards) if (h.uid === uid) h.description = "";
             return true;
+        },
+
+        /** Effacements RGPD à finir dans Firebase, du plus ancien au plus récent. */
+        async listFirebaseErasures() {
+            return firebaseErasures.map((e) => ({ ...e }));
         },
 
         /** Rectification (RGPD art. 16) et opposition au classement (art. 21). */

@@ -160,6 +160,23 @@ describe("Préparation de l'import (export « firebase auth:export »)", () => {
     expect(passwordUpdates).toEqual([{ firebaseUid: "fbUidGoogle00000000000000002", passwordHash: STORED }]);
   });
 
+  test("compte effacé à la demande du pilote (RGPD) : jamais recréé, ni par son identifiant ni par son adresse", () => {
+    const exportData = { users: [
+      // Importé, puis effacé : le serveur ne connaît plus ni son adresse ni son identifiant Firebase
+      { localId: "fbUidEfface00000000000000001", email: "parti@example.com", passwordHash: FIREBASE_VECTOR.hash, salt: FIREBASE_VECTOR.salt },
+      // Inscrit directement sur le serveur (identifiant Firebase inconnu), puis effacé : repéré par l'adresse
+      { localId: "fbUidEfface00000000000000002", email: "Partie@Example.com" },
+      { localId: "fbUidReste000000000000000001", email: "reste@example.com" },
+    ] };
+    const { rows, report } = planImport(exportData, { accounts: [], erased: [
+      { email: "parti@example.com", firebaseUid: "fbUidEfface00000000000000001" },
+      { email: "partie@example.com", firebaseUid: null },
+    ] });
+    expect(rows.map((r) => r.email)).toEqual(["reste@example.com"]);
+    expect(report.skippedErased).toEqual(["fbUidEfface00000000000000001", "fbUidEfface00000000000000002"]);
+    expect(report.toImport).toBe(1);
+  });
+
   test("un fichier qui n'est pas un export Firebase est refusé", () => {
     expect(() => planImport({})).toThrow(/auth:export/);
     expect(() => planImport(null)).toThrow(/auth:export/);

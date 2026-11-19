@@ -104,6 +104,21 @@ if [ "${pending:-0}" -gt 0 ]; then
     fi
 fi
 
+# --- 3 quater. Effacements de compte (RGPD) à finir dans Firebase ------------------
+# Table absente (API pas encore reconstruite) : rien à dire.
+erasures="$(compose exec -T postgres-postgis psql -U "${db_user:-mon50cc_admin}" -d mon50ccetmoi -tA -F ' ' -c \
+    "SELECT count(*), COALESCE(EXTRACT(DAY FROM NOW() - min(demande_le))::int, 0) FROM rgpd_firebase_a_effacer" 2>/dev/null || true)"
+read -r erasures_count erasures_days <<<"$erasures"
+erasures_count="${erasures_count//[^0-9]/}"
+erasures_days="${erasures_days//[^0-9]/}"
+if [ "${erasures_count:-0}" -gt 0 ]; then
+    if [ "${erasures_days:-0}" -ge 25 ]; then
+        bad "$erasures_count effacement(s) de compte à finir dans Firebase, le plus ancien demandé il y a $erasures_days jours (promis : 30 jours au plus) → sudo $CORE_DIR/deploy/rgpd-firebase.sh"
+    else
+        warn "$erasures_count effacement(s) de compte à finir dans Firebase (sous 30 jours, le plus ancien : $erasures_days jour(s)) → sudo $CORE_DIR/deploy/rgpd-firebase.sh"
+    fi
+fi
+
 # --- 4. La base n'est pas exposée sur Internet --------------------------------
 if ! port_5432="$(ss -ltnH 'sport = :5432' 2>&1)"; then
     warn "impossible de vérifier le port 5432 (ss a échoué) : ${port_5432:0:120}"

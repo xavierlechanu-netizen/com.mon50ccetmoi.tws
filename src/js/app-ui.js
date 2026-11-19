@@ -347,31 +347,9 @@ window.closeMood = function () {
 // Désactivation du popup automatique (bloquait les tests)
 // setTimeout(() => document.getElementById('mood-overlay')?.classList.remove('hidden'), 30000);
 
-window.requestAccountDeletion = function () {
-  const confirm1 = confirm(
-    "⚠️ ATTENTION : Voulez-vous vraiment supprimer définitivement votre compte et TOUTES vos données (garage, points, historique) ?",
-  );
-  if (confirm1) {
-    const confirm2 = prompt(
-      "Pour confirmer, tapez 'SUPPRIMER' en majuscules :",
-    );
-    if (confirm2 === "SUPPRIMER") {
-      // Logique de suppression
-      let users = JSON.parse(secureGetItem("users") || "[]");
-      const username = window.session.username;
-      users = users.filter((u) => u.username !== username);
-      secureSetItem("users", JSON.stringify(users));
-
-      // Suppression session locale
-      logout();
-      alert(
-        "Votre compte a été supprimé avec succès. Vos données ont été purgées conformément au RGPD.",
-      );
-    } else {
-      alert("Suppression annulée.");
-    }
-  }
-};
+// Suppression du compte : window.revokeAndEraseData (rgpd-cnil.js). L'ancien
+// window.requestAccountDeletion, appelé nulle part, n'effaçait qu'une liste locale en annonçant
+// « données purgées » : retiré le 19/11/2026.
 
 window.logout = function () {
   if (typeof secureRemoveItem === "function") {

@@ -12,7 +12,8 @@
  * vérifiée grâce aux paramètres FIREBASE_SCRYPT_* du .env, puis convertie au format du serveur à
  * la première connexion (voir server/crypto-auth.js).
  * Le script peut être relancé sans risque : un compte déjà importé (même email ou même identifiant
- * Firebase) est ignoré.
+ * Firebase) est ignoré. Un compte effacé à la demande du pilote (RGPD) aussi, tant que son
+ * effacement chez Firebase n'est pas fini (table rgpd_firebase_a_effacer, deploy/rgpd-firebase.sh).
  */
 "use strict";
 
@@ -38,12 +39,17 @@ function baseUsername(u, email) {
  *
  * @param {{users?: object[]}} exportData contenu de `firebase auth:export --format=json`
  * @param {{accounts?: {email: string, username: string, firebaseUid: string|null}[],
- *          emails?: string[], firebaseUids?: string[], usernames?: string[]}} [existing]
+ *          emails?: string[], firebaseUids?: string[], usernames?: string[],
+ *          erased?: {email: string, firebaseUid: string|null}[]}} [existing]
  *   accounts : les comptes déjà sur le serveur ; emails/firebaseUids/usernames : forme ancienne
- *   (une adresse connue sans son identifiant Firebase compte alors comme déjà importée).
+ *   (une adresse connue sans son identifiant Firebase compte alors comme déjà importée) ;
+ *   erased : comptes effacés à la demande du pilote, à ne jamais recréer (rgpd_firebase_a_effacer).
  */
 function planImport(exportData, existing = {}) {
     const accounts = existing.accounts || [];
+    const erased = existing.erased || [];
+    const erasedEmails = new Set(erased.map((e) => String(e.email || "").trim().toLowerCase()).filter(Boolean));
+    const erasedUids = new Set(erased.map((e) => e.firebaseUid).filter(Boolean));
     // Adresse → identifiant Firebase du compte qui l'a (null : créé sur le serveur ; undefined : inconnu)
     const emailOwner = new Map((existing.emails || []).map((e) => [e, undefined]));
     for (const a of accounts) emailOwner.set(a.email, a.firebaseUid || null);
@@ -52,7 +58,8 @@ function planImport(exportData, existing = {}) {
     const withoutPasswordUids = new Set(accounts.filter((a) => a.firebaseUid && a.hasPassword === false).map((a) => a.firebaseUid));
     const usernames = new Set([...(existing.usernames || []), ...accounts.map((a) => a.username)]);
     const report = { total: 0, toImport: 0, withPassword: 0, withoutPassword: 0,
-        alreadyImported: 0, passwordsAdded: 0, conflicts: [], skippedNoEmail: [], skippedDisabled: [], skippedInvalid: [] };
+        alreadyImported: 0, passwordsAdded: 0, conflicts: [], skippedNoEmail: [], skippedDisabled: [], skippedInvalid: [],
+        skippedErased: [] };
     const rows = [];
     // Mot de passe choisi depuis le dernier import par un compte « Google seul » (google-password.js)
     const passwordUpdates = [];
@@ -65,6 +72,9 @@ function planImport(exportData, existing = {}) {
         const firebaseUid = String(u.localId || "");
         const email = String(u.email || "").trim().toLowerCase();
         if (!firebaseUid || firebaseUid.length > 128) { report.skippedInvalid.push(firebaseUid || "(sans identifiant)"); continue; }
+        // Effacé à sa demande : l'anonymisation a retiré son email et son identifiant Firebase du
+        // serveur, sans cette liste l'import le recréerait.
+        if (erasedUids.has(firebaseUid) || (email && erasedEmails.has(email))) { report.skippedErased.push(firebaseUid); continue; }
         if (!email) { report.skippedNoEmail.push(firebaseUid); continue; }
         if (email.length > 255 || !email.includes("@")) { report.skippedInvalid.push(firebaseUid); continue; }
         if (u.disabled) { report.skippedDisabled.push(firebaseUid); continue; }
@@ -126,9 +136,15 @@ async function importUsers(pool, exportData, { apply = false } = {}) {
         const { rows: current } = await client.query(
             "SELECT email, username, firebase_uid, password_hash <> '!' AS has_password FROM users"
         );
+        // Table créée par la migration 003 au démarrage de l'API ; absente sur une base plus ancienne
+        const { rows: [table] } = await client.query("SELECT to_regclass('rgpd_firebase_a_effacer') AS name");
+        const { rows: erased } = table && table.name
+            ? await client.query("SELECT email, firebase_uid FROM rgpd_firebase_a_effacer")
+            : { rows: [] };
         const plan = planImport(exportData, {
             accounts: current.map((r) => ({ email: r.email, username: r.username, firebaseUid: r.firebase_uid,
-                hasPassword: r.has_password }))
+                hasPassword: r.has_password })),
+            erased: erased.map((r) => ({ email: r.email, firebaseUid: r.firebase_uid }))
         });
         // Seulement les comptes encore sans mot de passe : un mot de passe déjà choisi n'est jamais écrasé
         for (const p of plan.passwordUpdates) {
@@ -164,6 +180,7 @@ function printReport(report, apply) {
         `  Déjà importés (ignorés)        : ${report.alreadyImported}`,
         `    dont mot de passe ajouté     : ${report.passwordsAdded} (comptes Google qui en ont choisi un)`,
         `  Adresse déjà prise (à vérifier): ${report.conflicts.length}`,
+        `  Effacés à leur demande (RGPD)  : ${report.skippedErased.length} (jamais recréés)`,
         `  Sans email (ignorés)           : ${report.skippedNoEmail.length}`,
         `  Désactivés (ignorés)           : ${report.skippedDisabled.length}`,
         `  Invalides (ignorés)            : ${report.skippedInvalid.length}`

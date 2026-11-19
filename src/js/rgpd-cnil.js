@@ -1,5 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { sovereignSession } from './sovereign.js';
+import { createEffacementCompte, EFFACEMENT_TEXTES } from './effacement-compte.js';
 
 /* ═══════════════════════════════════════════════════════════════
    CONFORMITÉ GLOBALE : RGPD, CCPA, PIPL & GOOGLE PLAY CONSOLE
@@ -192,90 +194,43 @@ window.closePrivacyPolicy = function () {
   if (modal) modal.classList.add("hidden");
 };
 
-// ─── Droit à l'effacement (Droit à l'oubli / Protocol Zero) ──
+// ─── Droit à l'effacement (RGPD art. 17) ──
+// Par le serveur du VPS depuis le 19/11/2026 (effacement-compte.js) : la Cloud Function
+// deleteUserAccount est coupée depuis le 14/11/2026. Sans session sur le serveur : demande par e-mail.
+const effacementCompte = createEffacementCompte({ sovereign: sovereignSession, firebaseAuth: auth });
+
 window.revokeAndEraseData = async function () {
-  if (
-    confirm(
-      "ATTENTION : Cette action est IRRÉVERSIBLE. Toutes vos données locales ET sur le serveur Cloud (Firestore) seront détruites. Confirmer ?",
-    )
-  ) {
-    let uid = null;
-    if (window.session && window.session.uid) {
-      uid = window.session.uid;
-    } else {
-      const storedSession = localStorage.getItem("session");
-      if (storedSession) {
-        try {
-          uid = JSON.parse(storedSession).uid;
-        } catch (e) {}
-      }
-    }
+  if (!confirm(EFFACEMENT_TEXTES.confirmation)) return;
 
-    let serverDeletionSuccess = false;
+  const sujet = "Demande d'effacement de mon compte (RGPD art. 17)";
+  const resultat = await effacementCompte.effacer();
 
-    // 1. Déclencher le Protocol Zero (Suppression Backend via Cloud Function sécurisée)
-    try {
-      if (window.ApiClient) {
-        await window.ApiClient.authFetch("deleteUserAccount", {
-          method: "POST",
-          body: { user_id: uid || window.session?.uid },
-          timeoutMs: 30000
-        });
-        serverDeletionSuccess = true;
-      } else {
-        throw new Error("Module API non chargé.");
-      }
-    } catch (e) {
-      console.error("[RGPD] Erreur suppression serveur :", e);
-      // Le droit à l'effacement doit rester exerçable même quand le serveur est en panne
-      // (fonctions Firebase à l'arrêt depuis le 14/11/2026) : demande par e-mail, traitée sous un mois.
-      if (
-        confirm(
-          "La suppression automatique ne répond pas pour le moment (" +
-            (e.message || "erreur réseau") +
-            "). Vos données locales ne sont pas effacées.\n\n" +
-            "Voulez-vous envoyer votre demande d'effacement par e-mail à contact@mon50ccetmoi.com ? " +
-            "Elle sera traitée sous un mois au plus.",
-        )
-      ) {
-        window.location.href = rgpdMailto("Demande d'effacement de mon compte (RGPD art. 17)");
-      }
-      return;
-    }
-
-    if (serverDeletionSuccess) {
-      // 2. Déconnexion Firebase Auth
-      try {
-        if (window.auth && typeof window.auth.signOut === "function") {
-          await window.auth.signOut();
-        }
-      } catch (authErr) {
-        console.warn("[RGPD] Déconnexion locale:", authErr);
-      }
-
-      // 3. Effacer toutes les données locales
-      localStorage.clear();
-      sessionStorage.clear();
-
-      // 4. Effacer le cache Service Worker
-      if ("caches" in window) {
-        caches.keys().then((names) => {
-          names.forEach((name) => caches.delete(name));
-        });
-      }
-
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.getRegistrations().then((regs) => {
-          regs.forEach((reg) => reg.unregister());
-        });
-      }
-
-      alert(
-        "Conformité RGPD Art. 17 validée : toutes vos données (Serveur et Locales) ont été détruites définitivement.",
-      );
-      window.location.href = "login.html";
-    }
+  if (resultat.statut === "sans-session") {
+    if (confirm(EFFACEMENT_TEXTES.sansSession)) window.location.href = rgpdMailto(sujet);
+    return;
   }
+  if (resultat.statut === "erreur") {
+    console.error("[RGPD] Effacement sur le serveur :", resultat.erreur);
+    if (confirm(EFFACEMENT_TEXTES.erreur(resultat.erreur && resultat.erreur.message))) {
+      window.location.href = rgpdMailto(sujet);
+    }
+    return;
+  }
+
+  // Compte effacé sur le serveur (et ce téléphone déconnecté) : on efface aussi tout ce qui reste ici
+  localStorage.clear();
+  sessionStorage.clear();
+  if ("caches" in window) {
+    caches.keys().then((names) => names.forEach((name) => caches.delete(name))).catch(() => {});
+  }
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations()
+      .then((regs) => regs.forEach((reg) => reg.unregister()))
+      .catch(() => {});
+  }
+
+  alert(EFFACEMENT_TEXTES.efface);
+  window.location.href = "login.html";
 };
 
 // ─── Demande par e-mail (droits RGPD) ───────

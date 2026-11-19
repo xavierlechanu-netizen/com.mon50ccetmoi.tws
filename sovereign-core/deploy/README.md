@@ -345,6 +345,54 @@ que le serveur sait vérifier, puis convertit à son propre format à la premiè
 **Retour arrière** : remettre chez Amen.fr les valeurs notées au point 1 ; le site revient sur
 GitHub Pages en quelques minutes (TTL réduit). Rien n'est perdu : rien n'a été effacé.
 
+## 13. Effacements de compte à finir dans Firebase (RGPD)
+
+Quand un pilote efface son compte dans l'appli (Sécurité & RGPD › Effacer toutes mes données), le
+serveur du VPS efface tout de suite ce qu'il garde. Ce qui est encore chez Firebase (compte de
+connexion, profil, signalements…) est à effacer **à la main, sous 30 jours** (promis par la politique de confidentialité) : la
+fonction Firebase qui le faisait est coupée depuis le 14/11/2026. `check.sh` le rappelle (⚠️), et
+passe en ❌ au bout de 25 jours.
+
+La liste est sur le VPS. Elle n'existe qu'après la première reconstruction de l'API qui suit le
+19/11/2026 : c'est l'API qui crée la table en démarrant.
+
+```bash
+sudo /opt/mon50cc/sovereign-core/deploy/rgpd-firebase.sh
+```
+
+Pour chaque ligne (n°, date de la demande, date limite, email, identifiant Firebase) :
+
+1. **Identifiant Firebase** : il est dans la liste pour les comptes importés. Sinon : console
+   Firebase › Authentication › rechercher l'email › copier l'« UID utilisateur ».
+2. **Sur le PC**, dans le dossier du projet (même outil que pour `auth:export`), en remplaçant `UID` :
+
+   ```powershell
+   npx firebase firestore:delete "users/UID" --recursive --force --project mon50ccetmoi
+   ```
+
+   ```powershell
+   npx firebase firestore:delete "gamification_stats/UID" --force --project mon50ccetmoi
+   ```
+
+   ```powershell
+   npx firebase firestore:delete "social_radar/UID" --force --project mon50ccetmoi
+   ```
+
+3. **Le reste** (signalements, roadbooks, annonces de la bourse, pseudo réservé…) : console Firebase ›
+   Firestore › chaque collection › filtrer sur le champ qui porte l'identifiant, puis supprimer les
+   documents trouvés. La liste complète des collections et des champs est celle de l'ancienne fonction
+   (`functions/api/auth.js`, `deleteUserAccount`). Les plus courantes : `hazards` (`authorUid`, `userId`),
+   `usernames` (`uid`), `presence` (`userId`), `roadbooks` (`authorUid`), `exchange_listings` (`userId`).
+4. **En dernier**, console Firebase › Authentication › le compte › ⋮ › **Supprimer le compte**. Une fois
+   supprimé, on ne le retrouve plus par son email : c'est pour ça qu'il passe à la fin.
+5. Sur le VPS, la ligne est rayée de la liste. Plus rien ne mène alors à la personne :
+
+   ```bash
+   sudo /opt/mon50cc/sovereign-core/deploy/rgpd-firebase.sh fait <n°>
+   ```
+
+Tant que la ligne est dans la liste, l'import des comptes (étape 11) ne recrée jamais ce compte.
+
 ## Au quotidien
 
 ### Sauvegardes

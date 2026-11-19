@@ -72,6 +72,8 @@ Le bilan sépare :
 - les comptes à importer (avec mot de passe, ou « Google seul ») ;
 - ceux déjà importés : on peut relancer sans risque, aucun doublon n'est créé ;
 - ceux dont l'**adresse est déjà prise** sur le serveur, à vérifier un par un ;
+- les comptes **effacés à la demande du pilote** (RGPD), jamais recréés tant que leur effacement chez
+  Firebase n'est pas fini (`sovereign-core/deploy/README.md`, étape 13) ;
 - les comptes désactivés ou sans email, ignorés.
 
 ### 6. Le rôle admin

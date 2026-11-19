@@ -180,6 +180,66 @@ describe("Serveur souverain sur PostgreSQL", () => {
     expect(rows[0].password_hash.startsWith("scrypt$")).toBe(true); // empreinte du compte du serveur intacte
   });
 
+  test("RGPD : compte importé puis effacé → noté « à finir dans Firebase », jamais recréé par l'import", async () => {
+    const fbUid = "fbUidEffacePg000000000000001";
+    const exportData = { users: [
+      { localId: fbUid, email: "efface-importe@example.com", displayName: "EffaceImporte",
+        passwordHash: "lSrfV15cpx95/sZS2W9c9Kp6i/LVgQNDNC/qzrCnh1SAyZvqmZqAjTdn3aoItz+VHjoZilo78198JAdRuid5lQ==",
+        salt: "42xEC+ixf3L2lw==" },
+    ] };
+    const onServer = async () => (await pool.query(
+      "SELECT count(*)::int AS n FROM users WHERE firebase_uid = $1 OR email = $2", [fbUid, "efface-importe@example.com"]
+    )).rows[0].n;
+    expect((await importUsers(pool, exportData, { apply: true })).toImport).toBe(1);
+    const login = await call(app, "POST", "/api/v1/auth/login", { email: "efface-importe@example.com", password: "user1password" });
+    expect(login.status).toBe(200);
+
+    expect((await call(app, "DELETE", "/api/v1/rgpd/account", null, { Authorization: `Bearer ${login.body.token}` })).status).toBe(200);
+    expect(await onServer()).toBe(0); // plus rien sur le serveur ne mène à la personne
+
+    const { rows } = await pool.query("SELECT email, firebase_uid, demande_le FROM rgpd_firebase_a_effacer WHERE firebase_uid = $1", [fbUid]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].email).toBe("efface-importe@example.com");
+    expect(await createPgStore({ pool }).listFirebaseErasures()).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: expect.any(Number), email: "efface-importe@example.com", firebaseUid: fbUid,
+        requestedAt: expect.stringMatching(/^\d{4}-\d\d-\d\dT/) }),
+    ]));
+
+    // Relance de l'import alors que le compte Firebase existe encore : ignoré, pas recréé
+    const again = await importUsers(pool, exportData, { apply: true });
+    expect(again).toMatchObject({ toImport: 0, skippedErased: [fbUid] });
+    expect(await onServer()).toBe(0);
+  });
+
+  test("outils du VPS (check.sh, rgpd-firebase.sh) : leurs requêtes SQL marchent sur la vraie base", async () => {
+    const deploy = (f) => fs.readFileSync(path.join(__dirname, "../sovereign-core/deploy", f), "utf8");
+    const check = deploy("check.sh");
+    const tool = deploy("rgpd-firebase.sh");
+    const sqlCheck = check.match(/"(SELECT count\(\*\), COALESCE\(EXTRACT[^"]+)"/)[1];
+    const sqlTable = tool.match(/"(SELECT to_regclass\('rgpd_firebase_a_effacer'\))"/)[1];
+    const sqlList = tool.match(/-c "\s*(SELECT id,[\s\S]+?ORDER BY id)"/)[1];
+    const sqlDone = tool.match(/"(WITH d AS \(DELETE FROM rgpd_firebase_a_effacer[^"]+)"/)[1];
+
+    await pool.query("INSERT INTO rgpd_firebase_a_effacer (email, firebase_uid, demande_le) VALUES ($1, NULL, NOW() - INTERVAL '26 days')",
+      ["ancien@example.com"]);
+    const bilan = (await pool.query({ text: sqlCheck, rowMode: "array" })).rows[0];
+    expect(Number(bilan[0])).toBeGreaterThanOrEqual(2);
+    expect(Number(bilan[1])).toBe(26); // le plus ancien : ❌ dans check.sh au-delà de 25 jours
+
+    expect((await pool.query({ text: sqlTable, rowMode: "array" })).rows[0][0]).toBe("rgpd_firebase_a_effacer");
+
+    const list = (await pool.query({ text: sqlList, rowMode: "array" })).rows;
+    const ancien = list.find((r) => r[3] === "ancien@example.com");
+    expect(ancien[1]).toMatch(/^\d\d\/\d\d\/\d{4}$/); // demandé le
+    expect(ancien[2]).toMatch(/^\d\d\/\d\d\/\d{4}$/); // au plus tard le
+    expect(ancien[4]).toBe("(à lire dans Authentication, par l'email)");
+
+    const done = async (id) => Number((await pool.query({ text: sqlDone.replace("$id", String(id)), rowMode: "array" })).rows[0][0]);
+    expect(await done(ancien[0])).toBe(1);
+    expect(await done(ancien[0])).toBe(0); // déjà fait
+    expect((await pool.query("SELECT count(*)::int AS n FROM rgpd_firebase_a_effacer WHERE email = $1", ["ancien@example.com"])).rows[0].n).toBe(0);
+  });
+
   test("boîtier + télémétrie signée : enregistrée en base, puis immuable", async () => {
     const reg = await call(app, "POST", "/api/v1/auth/register", { email: "rider@example.com", username: "RiderPG", password: "MotDePasse2026!" });
     const userJwt = reg.body.token;

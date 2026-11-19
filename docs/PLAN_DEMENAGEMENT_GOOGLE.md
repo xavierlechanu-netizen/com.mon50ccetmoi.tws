@@ -160,11 +160,15 @@ choix est gardé sur ce téléphone. Pour revenir : `https://mon50ccetmoi.com/?e
    possible, redemandé 7 jours après). Au nouvel import, leur empreinte est ajoutée sur le serveur
    (`passwordsAdded` dans le bilan). Comptes importés le 18/11/2026 : 15, dont 4 « Google seul ».
 3. **Administrateurs** : l'import crée tous les comptes avec le rôle « user ». Remettre « admin » à
-   la main sur le VPS pour les comptes qui l'ont dans Firestore.
+   la main sur le VPS pour les comptes qui l'ont dans Firestore. **Fait** le 18/11/2026.
 4. **Clé d'accès (empreinte)** : en mode `"SOVEREIGN"`, elle affiche « revient bientôt ». Elle passait
    déjà par les Cloud Functions, coupées depuis le 14/11.
-5. **Effacement du compte (RGPD)** : il passe encore par une Cloud Function (coupée). Aujourd'hui, la
-   demande part donc par email. Brancher l'effacement sur `DELETE /api/v1/rgpd/account` du serveur.
+5. **Effacement du compte (RGPD)** : **prêt** (19/11/2026, `src/js/effacement-compte.js`), dans les
+   deux modes. Avec une session sur le serveur du VPS, le bouton passe par `DELETE /api/v1/rgpd/account` :
+   le serveur anonymise le compte tout de suite. Il note aussi ce qui reste chez Firebase dans la table
+   `rgpd_firebase_a_effacer`, que vous effacez à la main sous 30 jours (`deploy/README.md`, étape 13 ;
+   `check.sh` le rappelle). Tant qu'une ligne est dans cette liste, l'import ne recrée pas ce compte.
+   Sans session, il faut se reconnecter, ou la demande part par email, comme avant.
 6. Essai sur un téléphone (ci-dessus), puis bascule : `comptes: "SOVEREIGN"` dans `config.js`,
    `CACHE_NAME` incrémenté dans `src/public/sw.js`, publication du site.
 

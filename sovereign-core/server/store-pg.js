@@ -139,6 +139,13 @@ function createPgStore({ connectionString, pool } = {}) {
             const client = await db.connect();
             try {
                 await client.query("BEGIN");
+                // Reste à effacer chez Firebase tant que le déménagement n'est pas fini (migration 003) :
+                // noté AVANT l'anonymisation, qui retire l'email et l'identifiant Firebase.
+                await client.query(
+                    `INSERT INTO rgpd_firebase_a_effacer (email, firebase_uid)
+                     SELECT email, firebase_uid FROM users WHERE uid = $1 AND deleted_at IS NULL`,
+                    [uid]
+                );
                 const { rowCount } = await client.query(
                     `UPDATE users SET email = $2, username = $3, password_hash = '!', brave_coins = 0, firebase_uid = NULL,
                             is_premium = FALSE, premium_plan = NULL, ban_reason = NULL, hide_from_leaderboard = FALSE,
@@ -162,6 +169,15 @@ function createPgStore({ connectionString, pool } = {}) {
             } finally {
                 client.release();
             }
+        },
+
+        /** Effacements RGPD à finir dans Firebase, du plus ancien au plus récent. */
+        async listFirebaseErasures() {
+            const { rows } = await db.query(
+                "SELECT id, email, firebase_uid, demande_le FROM rgpd_firebase_a_effacer ORDER BY id"
+            );
+            return rows.map((r) => ({ id: Number(r.id), email: r.email, firebaseUid: r.firebase_uid || null,
+                requestedAt: new Date(r.demande_le).toISOString() }));
         },
 
         /** Rectification (RGPD art. 16) et opposition au classement (art. 21). */
