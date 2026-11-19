@@ -36,6 +36,8 @@ const { AUDIT_ACTIONS, verifyAuditChain } = require("./audit-log");
 const { revolutClientFromEnv } = require("./revolut-merchant");
 const { createPaymentsService, openProductsFromEnv, PaymentError } = require("./payments");
 const { invoicesToCsv } = require("../../functions/api/invoicing");
+const { createNexusBrain, llmFromEnv } = require("./nexus-brain");
+const { createNexusVerifier } = require("./nexus-verifier");
 const pointsRules = require("../../functions/api/points-rules");
 
 // Signalement des failles de sécurité (RFC 9116), même texte que src/public/.well-known/security.txt.
@@ -187,6 +189,12 @@ function createSovereignApp(options = {}) {
         store, revolut, audit,
         openProducts: options.paymentsOpenProducts || openProductsFromEnv(),
     });
+
+    // Nexus Atlas : réponses apprises, puis Mistral 7B sur le VPS (NEXUS_LLM_URL) ; jamais pour une urgence
+    const nexusBrain = createNexusBrain({ store, llm: options.nexusLlm !== undefined ? options.nexusLlm : llmFromEnv() });
+    const nexusVerifier = createNexusVerifier({ store, brain: nexusBrain });
+    const nexusLimit = { maxAttempts: 20, windowMs: 10 * 60 * 1000, hits: new Map() };
+    const NEXUS_DECISIONS = { valider: "valide", corriger: "valide", refuser: "refuse" };
 
     function sendPaymentError(res, e) {
         if (!(e instanceof PaymentError)) throw e;
@@ -939,6 +947,74 @@ function createSovereignApp(options = {}) {
             return;
         }
 
+        // 5 quater. NEXUS ATLAS : question du pilote (l'appli a déjà essayé ses commandes et Légifrance).
+        //          Urgence → « SOS » sans jamais passer par Mistral (nexus-brain.js).
+        if (req.method === "POST" && pathname === "/api/v1/nexus/ask") {
+            const authUser = extractBearerUser(req);
+            if (!authUser) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Connectez-vous pour parler à Nexus Atlas." }));
+                return;
+            }
+            if (typeof body.question !== "string" || !body.question.trim() || body.question.length > 2000) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: "Question vide ou trop longue." }));
+                return;
+            }
+            if (isRateLimited(`nexus:${authUser.uid}`, nexusLimit)) {
+                rejectTooManyAttempts(res, nexusLimit);
+                return;
+            }
+            const out = await nexusBrain.ask({ question: body.question, driving: body.driving === true });
+            res.statusCode = 200;
+            res.end(JSON.stringify(out));
+            return;
+        }
+
+        // 5 quinquies. NEXUS ATLAS, administrateur : carnet d'apprentissage (questions les plus posées
+        //              d'abord) et décision (valider, corriger, refuser). Chaque lecture et décision est notée.
+        const nexusEntryMatch = pathname.match(/^\/api\/v1\/admin\/nexus\/carnet(?:\/(\d{1,12}))?$/);
+        if (nexusEntryMatch && (req.method === "GET" || req.method === "POST")) {
+            const authUser = extractBearerUser(req);
+            if (!authUser || authUser.role !== "admin") {
+                res.statusCode = 403;
+                res.end(JSON.stringify({ error: "Réservé aux administrateurs." }));
+                return;
+            }
+            if (req.method === "GET" && !nexusEntryMatch[1]) {
+                const status = url.searchParams.get("status");
+                await audit({ action: AUDIT_ACTIONS.ADMIN_NEXUS_READ, actorUid: authUser.uid, actorRole: authUser.role });
+                res.statusCode = 200;
+                res.end(JSON.stringify({
+                    mistral: nexusBrain.llmConfigured,
+                    enAttente: nexusVerifier.pending(),
+                    entries: await store.listNexusNotebook({ status: status || null, limit: Number(url.searchParams.get("limit")) || 100 }),
+                }));
+                return;
+            }
+            const id = Number(nexusEntryMatch[1]);
+            const decision = NEXUS_DECISIONS[body.decision];
+            const answer = typeof body.answer === "string" ? body.answer.trim() : "";
+            if (req.method !== "POST" || !id || !decision || (body.decision === "corriger" && (!answer || answer.length > 4000))) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: "Décision attendue : valider, corriger (avec la réponse corrigée) ou refuser." }));
+                return;
+            }
+            const updated = await store.updateNexusEntry(id, {
+                status: decision, answer: body.decision === "corriger" ? answer : undefined, reviewedBy: authUser.uid,
+            });
+            if (!updated) {
+                res.statusCode = 404;
+                res.end(JSON.stringify({ error: "Entrée introuvable." }));
+                return;
+            }
+            await audit({ action: AUDIT_ACTIONS.ADMIN_NEXUS_REVIEW, actorUid: authUser.uid, actorRole: authUser.role,
+                targetType: "nexus_entry", targetId: String(id), details: { decision: body.decision } });
+            res.statusCode = 200;
+            res.end(JSON.stringify(updated));
+            return;
+        }
+
         // 5 ter. PAIEMENTS, administrateur : commandes récentes (avec ce qu'il reste à faire à la main)
         //        et factures à émettre (CSV pour Kolecto). Chaque lecture est notée dans le journal.
         if (req.method === "GET" && (pathname === "/api/v1/admin/payments" || pathname === "/api/v1/admin/payments/invoices.csv")) {
@@ -1145,12 +1221,16 @@ function createSovereignApp(options = {}) {
         });
     });
 
-    return { server, store, wormVault, vigilance, payments, handleRequest };
+    return { server, store, wormVault, vigilance, payments, nexusBrain, nexusVerifier, handleRequest };
 }
 
 if (require.main === module) {
     const port = Number(process.env.PORT) || 8080;
-    const { server, store, wormVault, vigilance, payments } = createSovereignApp();
+    const { server, store, wormVault, vigilance, payments, nexusBrain, nexusVerifier } = createSovereignApp();
+    nexusVerifier.start();
+    if (!nexusBrain.llmConfigured) {
+        console.warn("[SovereignCore] NEXUS_LLM_URL absente : Nexus Atlas répond « Réessayez plus tard » au lieu de Mistral.");
+    }
     if (!vigilance.configured) {
         console.warn("[SovereignCore] METEO_FRANCE_API_KEY absente : la vigilance Météo-France répond « indisponible » (deploy/README.md, étape 9 bis).");
     }

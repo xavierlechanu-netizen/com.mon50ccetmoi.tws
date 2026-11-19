@@ -9,6 +9,7 @@
 const crypto = require("crypto");
 const { StoreError } = require("./store-errors");
 const { sealEntry, AUDIT_RETENTION_DAYS } = require("./audit-log");
+const { bestLearnedMatch, VALIDATED } = require("./nexus-brain");
 
 function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const usersById = new Map();
@@ -20,6 +21,8 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const ledger = [];
     const quotas = new Map(); // `${uid}|${jour}` → { motif: points, __unverified: points }
     const audit = []; // journal d'audit (ajout seul, chaîné : audit-log.js)
+    const nexus = new Map(); // carnet d'apprentissage de Nexus Atlas, par numéro
+    let nexusSeq = 0;
     const orders = new Map(); // commandes Revolut, par identifiant Revolut (payments.js)
     const invoices = new Map(); // factures à émettre, par identifiant de commande
     const firebaseErasures = []; // effacements RGPD à finir dans Firebase (migration 003)
@@ -337,6 +340,49 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
         },
         async listInvoicesToIssue() {
             return [...invoices.values()].map((i) => ({ ...i }));
+        },
+
+        // ─── Carnet d'apprentissage de Nexus Atlas (nexus-brain.js) ─────────
+        async recordNexusAnswer({ questionNorm, question, answer }) {
+            const existing = [...nexus.values()].find((e) => e.questionNorm === questionNorm);
+            if (existing) {
+                existing.timesAsked += 1;
+                return { id: existing.id, created: false };
+            }
+            const id = ++nexusSeq;
+            nexus.set(id, { id, questionNorm, question, answer, status: "a_verifier", category: null, timesAsked: 1,
+                reviewNote: null, reviewedBy: null, reviewedAt: null, createdAt: new Date().toISOString() });
+            return { id, created: true };
+        },
+        async findLearnedNexusAnswer(questionNorm) {
+            const validated = [...nexus.values()].filter((e) => VALIDATED.includes(e.status));
+            const hit = bestLearnedMatch(questionNorm, validated);
+            return hit ? { id: hit.id, answer: hit.answer } : null;
+        },
+        async countNexusQuestion(id) {
+            const e = nexus.get(Number(id));
+            if (e) e.timesAsked += 1;
+        },
+        async getNexusEntry(id) {
+            const e = nexus.get(Number(id));
+            return e ? { ...e } : null;
+        },
+        async updateNexusEntry(id, { status, answer, category, reviewNote, reviewedBy } = {}) {
+            const e = nexus.get(Number(id));
+            if (!e) return null;
+            if (status !== undefined) e.status = status;
+            if (answer !== undefined) e.answer = answer;
+            if (category !== undefined) e.category = category;
+            if (reviewNote !== undefined) e.reviewNote = reviewNote;
+            if (reviewedBy !== undefined) { e.reviewedBy = reviewedBy; e.reviewedAt = new Date().toISOString(); }
+            return { ...e };
+        },
+        async listNexusNotebook({ status = null, limit = 100 } = {}) {
+            return [...nexus.values()]
+                .filter((e) => !status || e.status === status)
+                .sort((a, b) => b.timesAsked - a.timesAsked || b.id - a.id)
+                .slice(0, Math.min(Math.max(limit, 1), 500))
+                .map((e) => ({ ...e }));
         },
 
         async topPilots(limit = 10) {

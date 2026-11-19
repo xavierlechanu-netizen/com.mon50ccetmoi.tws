@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <!-- Zero-Trust DOM Security -->
+    <script src="/vendor/dompurify/purify.min.js"></script>
+    <script type="module" src="/js/dom-security.js"></script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carnet de Nexus Atlas - Admin - mon50ccetmoi</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png" />
+    <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css" referrerpolicy="no-referrer" />
+    <style>
+      :root { --fond: #0d0f13; --carte: #16181d; --texte: #e3e3e3; --doux: #9aa0a6; --bord: #2a2d33; --ok: #2ecc71; --non: #ff5c5c; --doute: #f5b041; }
+      body { margin: 0; background: var(--fond); color: var(--texte); font-family: system-ui, sans-serif; }
+      main { max-width: 980px; margin: 0 auto; padding: 16px; }
+      h1 { font-size: 1.3rem; margin: 8px 0 4px; }
+      p.aide { color: var(--doux); margin: 0 0 16px; font-size: .9rem; line-height: 1.4; }
+      .filtres { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+      .filtres button, .actions button { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--bord); background: var(--carte); color: var(--texte); cursor: pointer; }
+      .filtres button[aria-pressed="true"] { border-color: #00c2ff; color: #00c2ff; }
+      .carte { background: var(--carte); border: 1px solid var(--bord); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+      .q { font-weight: bold; margin-bottom: 6px; }
+      .meta { color: var(--doux); font-size: .8rem; margin-bottom: 8px; }
+      .r { white-space: pre-wrap; line-height: 1.45; }
+      .avis { margin-top: 8px; font-size: .85rem; color: var(--doute); }
+      textarea { width: 100%; box-sizing: border-box; min-height: 110px; margin-top: 8px; background: var(--fond); color: var(--texte); border: 1px solid var(--bord); border-radius: 8px; padding: 8px; font: inherit; }
+      .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+      .actions .valider { border-color: var(--ok); color: var(--ok); }
+      .actions .refuser { border-color: var(--non); color: var(--non); }
+      #etat { color: var(--doux); margin: 8px 0 14px; }
+    </style>
+    <script type="module" src="/js/config.js"></script>
+    <script type="module" src="/js/auth.js?v=50018"></script>
+  </head>
+  <body>
+    <main>
+      <h1><i class="fa-solid fa-brain"></i> Carnet d'apprentissage de Nexus Atlas</h1>
+      <p class="aide">
+        Les réponses de Mistral 7B aux questions que Nexus Atlas ne connaissait pas, les plus posées d'abord.
+        L'agent vérificateur a déjà écarté les erreurs évidentes et validé les simples conversations.
+        Ce que vous validez, Nexus Atlas le répète ensuite lui-même, tout de suite. Jamais d'urgence ni de loi ici.
+      </p>
+      <div class="filtres" id="filtres">
+        <button type="button" data-statut="a_verifier" aria-pressed="true">À vérifier</button>
+        <button type="button" data-statut="valide_auto" aria-pressed="false">Validées par l'agent</button>
+        <button type="button" data-statut="valide" aria-pressed="false">Validées par vous</button>
+        <button type="button" data-statut="rejete_auto" aria-pressed="false">Rejetées par l'agent</button>
+        <button type="button" data-statut="refuse" aria-pressed="false">Refusées</button>
+      </div>
+      <div id="etat">Chargement…</div>
+      <div id="liste"></div>
+    </main>
+    <script type="module" src="/js/admin-nexus.js"></script>
+  </body>
+</html>

@@ -11,6 +11,7 @@ const path = require("path");
 const { Pool } = require("pg");
 const { StoreError } = require("./store-errors");
 const { sealEntry, AUDIT_RETENTION_DAYS } = require("./audit-log");
+const { bestLearnedMatch, VALIDATED } = require("./nexus-brain");
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MIGRATIONS_DIR = path.join(__dirname, "../db/migrations");
@@ -33,6 +34,16 @@ function mapUser(r) {
 }
 
 /** Commande Revolut (table revolut_orders), même forme que store-memory.js. */
+/** Entrée du carnet d'apprentissage de Nexus Atlas (table nexus_learning). */
+function mapNexus(r) {
+    if (!r) return null;
+    return {
+        id: Number(r.id), questionNorm: r.question_norm, question: r.question, answer: r.answer, status: r.status,
+        category: r.category, timesAsked: r.times_asked, reviewNote: r.review_note, reviewedBy: r.reviewed_by,
+        reviewedAt: iso(r.reviewed_at) || null, createdAt: iso(r.created_at),
+    };
+}
+
 function mapOrder(r) {
     if (!r) return null;
     return {
@@ -612,6 +623,51 @@ function createPgStore({ connectionString, pool } = {}) {
         },
 
         /** Classement : points GAGNÉS (jamais achetés ni dépensés), comptes anonymisés exclus. */
+        // ─── Carnet d'apprentissage de Nexus Atlas (nexus-brain.js) ─────────
+        async recordNexusAnswer({ questionNorm, question, answer }) {
+            const { rows } = await db.query(
+                `INSERT INTO nexus_learning (question_norm, question, answer) VALUES ($1, $2, $3)
+                 ON CONFLICT (question_norm) DO UPDATE SET times_asked = nexus_learning.times_asked + 1, updated_at = NOW()
+                 RETURNING id, (xmax = 0) AS created`,
+                [String(questionNorm).slice(0, 500), String(question).slice(0, 500), answer]
+            );
+            return { id: Number(rows[0].id), created: rows[0].created };
+        },
+        async findLearnedNexusAnswer(questionNorm) {
+            const { rows } = await db.query(
+                `SELECT id, question_norm, answer FROM nexus_learning WHERE status = ANY($1)
+                  ORDER BY (question_norm = $2) DESC, times_asked DESC LIMIT 500`,
+                [VALIDATED, questionNorm]
+            );
+            const hit = bestLearnedMatch(questionNorm, rows.map((r) => ({ id: Number(r.id), questionNorm: r.question_norm, answer: r.answer })));
+            return hit ? { id: hit.id, answer: hit.answer } : null;
+        },
+        async countNexusQuestion(id) {
+            await db.query("UPDATE nexus_learning SET times_asked = times_asked + 1, updated_at = NOW() WHERE id = $1", [id]);
+        },
+        async getNexusEntry(id) {
+            const { rows } = await db.query("SELECT * FROM nexus_learning WHERE id = $1", [id]);
+            return mapNexus(rows[0]);
+        },
+        async updateNexusEntry(id, { status, answer, category, reviewNote, reviewedBy } = {}) {
+            const { rows } = await db.query(
+                `UPDATE nexus_learning SET status = COALESCE($2, status), answer = COALESCE($3, answer),
+                        category = COALESCE($4, category), review_note = COALESCE($5, review_note),
+                        reviewed_by = COALESCE($6, reviewed_by),
+                        reviewed_at = CASE WHEN $6::text IS NULL THEN reviewed_at ELSE NOW() END, updated_at = NOW()
+                  WHERE id = $1 RETURNING *`,
+                [id, status ?? null, answer ?? null, category ?? null, reviewNote ?? null, reviewedBy ?? null]
+            );
+            return mapNexus(rows[0]);
+        },
+        async listNexusNotebook({ status = null, limit = 100 } = {}) {
+            const max = Math.min(Math.max(Number(limit) || 100, 1), 500);
+            const { rows } = status
+                ? await db.query("SELECT * FROM nexus_learning WHERE status = $1 ORDER BY times_asked DESC, id DESC LIMIT $2", [status, max])
+                : await db.query("SELECT * FROM nexus_learning ORDER BY times_asked DESC, id DESC LIMIT $1", [max]);
+            return rows.map(mapNexus);
+        },
+
         async topPilots(limit = 10) {
             const { rows } = await db.query(
                 `SELECT u.username, SUM(l.delta)::int AS points

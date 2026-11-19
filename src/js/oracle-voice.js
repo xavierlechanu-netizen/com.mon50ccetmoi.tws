@@ -231,13 +231,13 @@ class OracleVoice {
         return;
     }
 
-    // ── NOUVEAU : TENTATIVE VIA L'INTELLIGENCE ARTIFICIELLE GEMINI ──
+    // ── CERVEAU DE NEXUS ATLAS (nexus-brain-local.js) : intégré d'abord, puis Mistral 7B sur le VPS ──
     if (window.NexusAtlasGemini && !window.isLiteMode) {
         try {
             const aiResponse = await window.NexusAtlasGemini.ask(commandText);
             
-            // L'IA a répondu avec succès
-            if (aiResponse.reply) speak(aiResponse.reply);
+            // Réponse de Nexus Atlas (une commande déjà exécutée par lui a déjà été dite à voix haute)
+            if (aiResponse.reply && !aiResponse.executed) speak(aiResponse.reply);
             
             // Exécution de l'action déduite par l'IA
             switch (aiResponse.action) {

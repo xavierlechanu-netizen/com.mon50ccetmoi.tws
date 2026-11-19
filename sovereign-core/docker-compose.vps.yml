@@ -103,6 +103,9 @@ services:
       FIREBASE_SCRYPT_SALT_SEPARATOR: ${FIREBASE_SCRYPT_SALT_SEPARATOR:-}
       FIREBASE_SCRYPT_ROUNDS: ${FIREBASE_SCRYPT_ROUNDS:-8}
       FIREBASE_SCRYPT_MEM_COST: ${FIREBASE_SCRYPT_MEM_COST:-14}
+      # Nexus Atlas : Mistral 7B sur ce VPS (service nexus-ia ci-dessous). Vide : « Réessayez plus tard ».
+      NEXUS_LLM_URL: ${NEXUS_LLM_URL-http://nexus-ia:11434}
+      NEXUS_LLM_MODEL: ${NEXUS_LLM_MODEL:-mistral:7b}
     # « frontend » donne aussi la sortie vers Internet (Object Storage, Revolut).
     networks:
       - backend
@@ -110,6 +113,29 @@ services:
     depends_on:
       postgres-postgis:
         condition: service_healthy
+
+  # Cerveau de Nexus Atlas : Mistral 7B (libre, français) avec Ollama, sur ce VPS, sans service extérieur.
+  # Bornes mesurées à l'essai du 19/11/2026 : 5 Go de mémoire au plus et 3 processeurs, une seule
+  # conversation à la fois ; un processeur reste toujours libre pour l'API et les alertes SOS.
+  # Aucun port publié : seule l'API le joint. Modèle à télécharger une fois :
+  #   docker compose -f docker-compose.vps.yml exec nexus-ia ollama pull mistral:7b
+  nexus-ia:
+    logging: *journaux
+    image: ollama/ollama:0.6.8
+    restart: unless-stopped
+    mem_limit: 5g
+    memswap_limit: 5g
+    cpus: 3
+    environment:
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+      OLLAMA_KEEP_ALIVE: "10m"
+    volumes:
+      - nexus_ia:/root/.ollama
+    # « backend » : joignable par l'API ; « frontend » : téléchargement du modèle.
+    networks:
+      - backend
+      - frontend
 
   caddy:
     logging: *journaux
@@ -144,5 +170,6 @@ networks:
 
 volumes:
   pg_data:
+  nexus_ia:
   caddy_data:
   caddy_config:

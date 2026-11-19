@@ -50,7 +50,9 @@ zone.innerHTML = `
 
             // Appel à l'IA
             if (!window.NexusAtlasGemini) throw new Error("NexusAtlasGemini non chargé");
-            const response = await window.NexusAtlasGemini.ask(prompt);
+            // Lecture de document : jamais d'urgence ni de commande déduite (le texte peut contenir « accident »)
+            const response = await window.NexusAtlasGemini.ask(prompt, { document: true });
+            if (response.source === "indisponible") throw new Error("L'analyse de documents n'est pas encore disponible. Réessayez plus tard.");
 
             // Formatage de la réponse (remplacer les sauts de ligne par des <br>)
             const formattedReply = response.reply.replace(/\n/g, "<br>");

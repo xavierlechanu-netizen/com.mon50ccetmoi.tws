@@ -18,7 +18,7 @@ Gravelines (`sovereign-core/`), commandé le 14/11/2026 ; son installation est p
 | **Données** (Firestore) | ~57 collections lues ou écrites par l'appli, dans 53 fichiers de `src/js/` | le gros du déménagement |
 | **Temps réel** (Firestore `onSnapshot`) | 23 écoutes dans 18 fichiers : cortège, convois, chats d'équipe, radar social, SOS, dangers, bourse d'échange… | à repenser (WebSocket) |
 | **Fonctions serveur** (Cloud Functions) | 33 fonctions : paiements Revolut, points, SOS, Boîte Noire, assureurs, garages, FIDO, météo, Légifrance, Notion, Facebook, copilote Gemini, analyses | à réécrire en routes du serveur |
-| **IA** (Gemini) | Copilote vocal Nexus Atlas (`nexus-atlas-gemini.js`, `functions/api/`) | → Mistral (OVHcloud AI Endpoints) |
+| **IA** (Gemini) | Copilote vocal Nexus Atlas (`nexus-atlas-gemini.js`, `functions/api/`) | **Fait** (19/11/2026) : cerveau mixte, Nexus Atlas d'abord puis Mistral 7B **sur le VPS** (gratuit, sans service extérieur), jamais pour une urgence ; carnet d'apprentissage vérifié (`admin-nexus.html`). Restent sur Gemini : quiz du Code de la route et coach de progression |
 | **Mesure et anti-robot** | Firebase Analytics (2 appels), App Check / reCAPTCHA | **Fait** (19/11/2026) : Analytics retiré, App Check retiré (jamais activé) |
 | **Polices** (Google Fonts) | 17 pages sur 32 chargent leurs polices chez Google (adresse IP des visiteurs transmise à Google) | petit carton, rapide |
 | **Hébergement** (Firebase Hosting) | mon50ccetmoi.web.app | **Éteint** le 19/11/2026 (`firebase hosting:disable`) : le site vit sur le VPS |

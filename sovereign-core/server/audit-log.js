@@ -48,10 +48,13 @@ const AUDIT_ACTIONS = Object.freeze({
     PAYMENT_COMPLETED: "payment.completed",
     PAYMENT_FAILED: "payment.failed",
     ADMIN_PAYMENTS_READ: "admin.payments_read",
+    // Carnet d'apprentissage de Nexus Atlas (nexus-brain.js) : lecture et décision de l'administrateur
+    ADMIN_NEXUS_READ: "admin.nexus_read",
+    ADMIN_NEXUS_REVIEW: "admin.nexus_review",
 });
 const ACTION_SET = new Set(Object.values(AUDIT_ACTIONS));
 const OUTCOMES = new Set(["success", "denied", "failure"]);
-const TARGET_TYPES = new Set(["user", "blackbox_unit", "telemetry_session", "audit_log", "insurer_report", "payment_order"]);
+const TARGET_TYPES = new Set(["user", "blackbox_unit", "telemetry_session", "audit_log", "insurer_report", "payment_order", "nexus_entry"]);
 
 // Durée de conservation du journal : 1 an (recommandation CNIL pour les journaux : 6 mois à 1 an)
 const AUDIT_RETENTION_DAYS = 365;

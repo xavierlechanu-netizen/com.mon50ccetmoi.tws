@@ -463,6 +463,28 @@ describe("Serveur souverain sur PostgreSQL", () => {
     expect((await store.exportUserData(reg.body.uid)).payments).toHaveLength(2);
   });
 
+  test("carnet de Nexus Atlas : une ligne par question, validées seules répétées, statut contrôlé par la base", async () => {
+    const { normalizeQuestion } = require("../sovereign-core/server/nexus-brain");
+    const store = createPgStore({ pool });
+    expect(await store.migrate()).toContain("003-nexus-carnet.sql");
+    const q = "Comment bien entretenir la chaîne de mon scooter ?";
+    const a = await store.recordNexusAnswer({ questionNorm: normalizeQuestion(q), question: q, answer: "Graissez-la." });
+    const b = await store.recordNexusAnswer({ questionNorm: normalizeQuestion(q), question: q, answer: "autre" });
+    expect(a.created).toBe(true);
+    expect(b).toEqual({ id: a.id, created: false });
+    expect((await store.getNexusEntry(a.id))).toMatchObject({ timesAsked: 2, status: "a_verifier", answer: "Graissez-la." });
+    expect(await store.findLearnedNexusAnswer(normalizeQuestion(q))).toBeNull();
+
+    await store.updateNexusEntry(a.id, { status: "valide", answer: "Nettoyez puis graissez tous les 500 km.", reviewedBy: "admin-test" });
+    expect(await store.findLearnedNexusAnswer(normalizeQuestion("Comment entretenir la chaîne de mon scooter ?")))
+      .toEqual({ id: a.id, answer: "Nettoyez puis graissez tous les 500 km." });
+    const after = await store.getNexusEntry(a.id);
+    expect(after.reviewedBy).toBe("admin-test");
+    expect(after.reviewedAt).toBeTruthy();
+    expect((await store.listNexusNotebook({ status: "valide" })).map((e) => e.id)).toEqual([a.id]);
+    await expect(pool.query("UPDATE nexus_learning SET status = 'peut-etre' WHERE id = $1", [a.id])).rejects.toThrow();
+  });
+
   test("usine : numéro attribué sous verrou, une clé = un numéro, lien numéro ↔ clé définitif en SQL", async () => {
     const factory = { Authorization: `Bearer ${signSovereignJwt({ uid: "usine-pg", role: "factory", username: "Usine" })}` };
     const dev = () => {
