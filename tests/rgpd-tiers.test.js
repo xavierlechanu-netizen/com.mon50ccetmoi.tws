@@ -50,19 +50,19 @@ describe("Aucun appel à un tiers non nécessaire", () => {
     expect(fs.existsSync(path.join(SRC, "public/vendor/fontawesome/LICENSE.txt"))).toBe(true);
   });
 
-  test("CSP : Cloudflare retiré, et chaque source de firebase.json est bien séparée", () => {
+  test("CSP : Cloudflare retiré, et chaque source est bien séparée", () => {
     const vite = fs.readFileSync(path.join(ROOT, "vite.config.js"), "utf8");
     const directives = vite.slice(vite.indexOf("const CSP_DIRECTIVES"), vite.indexOf("const CSP_META_CONTENT"));
     expect(directives).not.toContain("cdnjs");
-    const firebase = JSON.stringify(JSON.parse(fs.readFileSync(path.join(ROOT, "firebase.json"), "utf8")));
-    const csp = firebase.match(/default-src[^"]+/)[0];
-    expect(csp).not.toContain("cdnjs");
-    for (const directive of csp.split(";")) {
-      for (const source of directive.trim().split(/\s+/).slice(1)) {
-        // Deux adresses collées (« …/gsi/https://… ») rendaient la seconde inopérante
-        expect(source).not.toMatch(/.+https?:\/\//);
-      }
+    for (const source of directives.match(/'[^']+'/g) || []) {
+      // Deux adresses collées (« …/gsi/https://… ») rendaient la seconde inopérante
+      expect(source.slice(1, -1)).not.toMatch(/.+https?:\/\//);
     }
+  });
+
+  test("hébergement Firebase éteint (19/11/2026) : plus de section « hosting » dans firebase.json", () => {
+    const firebase = JSON.parse(fs.readFileSync(path.join(ROOT, "firebase.json"), "utf8"));
+    expect(firebase.hosting).toBeUndefined();
   });
 
   test("météo et région : position arrondie à ~1 km avant l'envoi (minimisation)", () => {

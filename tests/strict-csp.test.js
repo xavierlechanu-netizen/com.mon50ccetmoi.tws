@@ -60,13 +60,6 @@ describe("CSP stricte : aucun script écrit dans les pages", () => {
     expect(scriptSrc[1]).not.toContain("unsafe-eval");
   });
 
-  test("script-src n'autorise pas 'unsafe-inline' (firebase.json)", () => {
-    const fb = fs.readFileSync(path.join(ROOT, "firebase.json"), "utf8");
-    const scriptSrc = fb.match(/script-src([^;"]*)/);
-    expect(scriptSrc).not.toBeNull();
-    expect(scriptSrc[1]).not.toContain("unsafe-inline");
-  });
-
   // 16/11/2026 : ces sites servent n'importe quel paquet npm (ou une vieille version d'AngularJS) :
   // les autoriser dans script-src suffit à contourner la CSP avec une seule balise injectée.
   // Aucune page ne charge de script chez eux (cdnjs ne sert que les styles Font Awesome).
@@ -83,11 +76,9 @@ describe("CSP stricte : aucun script écrit dans les pages", () => {
   };
   const openHostsIn = (sources) => sources.map(hostOf).filter((h) => h && OPEN_SCRIPT_HOSTS.has(h));
 
-  test("script-src n'autorise aucun CDN public de scripts (vite.config.js et firebase.json)", () => {
+  test("script-src n'autorise aucun CDN public de scripts (vite.config.js)", () => {
     const vite = fs.readFileSync(path.join(ROOT, "vite.config.js"), "utf8").match(/'script-src':\s*\[([\s\S]*?)\]/)[1];
-    const fb = fs.readFileSync(path.join(ROOT, "firebase.json"), "utf8").match(/script-src([^;"]*)/)[1];
     expect(openHostsIn(vite.split(/[\s,]+/))).toEqual([]);
-    expect(openHostsIn(fb.trim().split(/\s+/))).toEqual([]);
   });
 
   test("aucune page ne charge un script depuis un de ces CDN", () => {

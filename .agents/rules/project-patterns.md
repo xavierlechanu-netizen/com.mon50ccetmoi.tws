@@ -28,7 +28,7 @@ Projet racine/
 │       └── ...
 ├── css/
 │   └── design-system.css
-├── dist/               ← Build de production (Firebase Hosting pointe ici)
+├── dist/               ← Build de production (servi par le VPS OVHcloud ; Firebase Hosting éteint le 19/11/2026)
 └── android-app/www/    ← Build mobile (Capacitor/Cordova)
 ```
 
@@ -143,7 +143,7 @@ window.location.href = "app.html";
 | `npm run dev` | Lancement du dev server Vite (port 5000) |
 | `npm run build` | Build production → `dist/` + post-build script |
 | `npm run preview` | Preview du build de production |
-| `firebase deploy --only hosting` | Déploiement vers Firebase Hosting |
+| (retiré) | Firebase Hosting éteint le 19/11/2026 : le site est publié par le VPS (`deploy/auto-update.sh`) |
 | `firebase deploy --only functions` | Déploiement Cloud Functions |
 | `firebase deploy --only firestore:rules` | Mise à jour des règles Firestore |
 

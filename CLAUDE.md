@@ -41,7 +41,7 @@ ssh ubuntu@159.173.138.133 'cd /opt/mon50cc/sovereign-core && sudo docker compos
 ssh ubuntu@159.173.138.133 'sudo /opt/mon50cc/sovereign-core/deploy/check.sh'    # Bilan de santé
 git push repo2 origin/main:refs/heads/main   # Synchronise le dépôt miroir (com.mon50ccetmoi.tws.git)
 # Plus en production : GitHub Pages (garde une copie du site, ne sert plus le domaine) et
-# Firebase Hosting (mon50ccetmoi.web.app). Retour arrière DNS : sovereign-core/deploy/README.md, étape 12.
+# Firebase Hosting (mon50ccetmoi.web.app) : éteint le 19/11/2026. Retour arrière DNS : sovereign-core/deploy/README.md, étape 12.
 ```
 
 ---

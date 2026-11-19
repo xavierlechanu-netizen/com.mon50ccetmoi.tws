@@ -282,10 +282,8 @@ describe("Lecture de la carte par l'appli (vigilance-meteo.js)", () => {
         }
     });
 
-    test("CSP : l'appli peut joindre api.mon50ccetmoi.com (site principal et Firebase Hosting)", () => {
+    test("CSP : l'appli peut joindre api.mon50ccetmoi.com (balise des pages, seule CSP depuis la fin de Firebase Hosting)", () => {
         const vite = fs.readFileSync(path.join(ROOT, "vite.config.js"), "utf8");
         expect(vite).toMatch(/'connect-src':[^\]]*'https:\/\/\*\.mon50ccetmoi\.com'/);
-        const fb = fs.readFileSync(path.join(ROOT, "firebase.json"), "utf8").match(/connect-src([^;"]*)/)[1];
-        expect(fb).toContain("https://api.mon50ccetmoi.com");
     });
 });
