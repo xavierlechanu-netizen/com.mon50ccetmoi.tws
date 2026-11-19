@@ -71,6 +71,56 @@
       "id": "039",
       "text": "Pause conseillée : vous roulez depuis deux heures.",
       "file": "039.m4a"
+    },
+    {
+      "id": "051",
+      "text": "Alerte : vitesse excessive. Ralentissez immédiatement.",
+      "file": "051.m4a"
+    },
+    {
+      "id": "052",
+      "text": "Attention : dépassement dangereux détecté.",
+      "file": "052.m4a"
+    },
+    {
+      "id": "054",
+      "text": "Merci de votre vigilance.",
+      "file": "054.m4a"
+    },
+    {
+      "id": "057",
+      "text": "Mode nuit activé.",
+      "file": "057.m4a"
+    },
+    {
+      "id": "058",
+      "text": "Mode parking activé. Votre scooter est sous surveillance.",
+      "file": "058.m4a"
+    },
+    {
+      "id": "059",
+      "text": "Mode parking désactivé.",
+      "file": "059.m4a"
+    },
+    {
+      "id": "060",
+      "text": "Alerte ! Mouvement suspect détecté sur votre scooter !",
+      "file": "060.m4a"
+    },
+    {
+      "id": "062",
+      "text": "Ange gardien désactivé. Fin de la surveillance.",
+      "file": "062.m4a"
+    },
+    {
+      "id": "066",
+      "text": "Alerte annulée. Reprise de la navigation.",
+      "file": "066.m4a"
+    },
+    {
+      "id": "073",
+      "text": "Mode rodage activé. Ménagez votre moteur.",
+      "file": "073.m4a"
     }
   ]
 }

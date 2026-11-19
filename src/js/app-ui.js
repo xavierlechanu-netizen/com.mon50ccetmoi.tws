@@ -415,7 +415,7 @@ function handleParkingMode(lat, lng) {
 
   if (dist > 30) {
     // Alerte si le scoot bouge de plus de 30m
-    speak("ALERTE ! Mouvement suspect détecté !");
+    speak("Alerte ! Mouvement suspect détecté sur votre scooter !");
     triggerFallAlert(); // Reuse the high-intensity alert UI
     isParkingMode = false;
     document

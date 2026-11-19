@@ -117,7 +117,7 @@ export const PHRASES = {
   "ALERTE : Mouvement suspect détecté. Enregistrement Sentinel activé.": { en: "ALERT: suspicious movement detected. Sentinel recording started.", es: "ALERTA: movimiento sospechoso detectado. Grabación centinela activada." },
   "Mode parking activé. Votre scooter est sous surveillance.": { en: "Parking mode on. Your scooter is being watched.", es: "Modo aparcamiento activado. Su scooter está vigilado." },
   "Mode parking désactivé.": { en: "Parking mode off.", es: "Modo aparcamiento desactivado." },
-  "ALERTE ! Mouvement suspect détecté !": { en: "ALERT! Suspicious movement detected!", es: "¡ALERTA! ¡Movimiento sospechoso detectado!" },
+  "Alerte ! Mouvement suspect détecté sur votre scooter !": { en: "Alert! Suspicious movement detected on your scooter!", es: "¡Alerta! ¡Movimiento sospechoso detectado en su scooter!" },
 
   // --- Dangers et météo ---
   "Merci, signalement mis à jour.": { en: "Thank you, report updated.", es: "Gracias, aviso actualizado." },
