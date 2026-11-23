@@ -197,7 +197,7 @@ window.login = async function (username, password) {
       const session = { ...sessionFromSovereign(compte), lastSeen: Date.now() };
       cacheSetItem("session", JSON.stringify(session));
       window.session = session;
-      window.location.href = session.role === "admin" ? "admin.html" : "app.html";
+      window.location.href = session.role === "admin" ? "admin-nexus.html" : "app.html";
       return;
     }
 
@@ -240,7 +240,7 @@ window.login = async function (username, password) {
     window.session = session;
 
     await sovereignReady; // sinon le changement de page couperait la connexion souveraine
-    window.location.href = session.role === "admin" ? "admin.html" : "app.html";
+    window.location.href = session.role === "admin" ? "admin-nexus.html" : "app.html";
   } catch (error) {
     console.error("Login Error:", error);
     recordAuthEvent('password', 'failure', null, error.code || error.status || error.message);
@@ -506,7 +506,7 @@ window.loginBiometric = async function () {
             const profile = doc.data();
             cacheSetItem("session", JSON.stringify({ ...profile, uid: storedUid }));
             window.session = profile;
-            window.location.href = profile.role === "admin" ? "admin.html" : "app.html";
+            window.location.href = profile.role === "admin" ? "admin-nexus.html" : "app.html";
         } else {
             throw new Error("Profil introuvable dans Firestore.");
         }

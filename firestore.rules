@@ -194,7 +194,8 @@ service cloud.firestore {
 
     // Radar Social (Partage de position GPS temps réel)
     match /social_radar/{userId} {
-      allow read: if isSignedIn();
+      allow get: if isOwner(userId) || (isSignedIn() && resource.data.last_seen >= request.time - duration.value(20, 'm'));
+      allow list: if isSignedIn() && request.query.limit <= 100 && resource.data.last_seen >= request.time - duration.value(20, 'm');
       allow write: if isSignedIn() && isOwner(userId);
     }
 
@@ -219,7 +220,7 @@ service cloud.firestore {
 
     // Partage de position en temps réel (Presence)
     match /presence/{username} {
-      allow read: if isSignedIn(); // Protection de la localisation
+      allow read: if isSignedIn() && getUsername() == username; // Plus de partage automatique : chacun ne lit que sa fiche
       allow write: if isSignedIn() && getUsername() == username;
     }
 
@@ -517,7 +518,7 @@ service cloud.firestore {
     // S.O.S COMMUNAUTAIRE
     // ─────────────────────────────────────────────────────────────
     match /sos_alerts/{alertId} {
-      allow read: if isSignedIn();
+      allow read: if isSignedIn() && (resource.data.isActive == true || resource.data.authorUid == request.auth.uid);
       allow create: if isSignedIn() && request.auth.uid == request.resource.data.authorUid;
       allow update: if isSignedIn() && request.auth.uid == resource.data.authorUid;
       

@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-Disallow: /admin.html
+Disallow: /admin-nexus.html
 Disallow: /banned.html
 Disallow: /_legacy/
 Disallow: /functions/

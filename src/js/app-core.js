@@ -325,7 +325,7 @@ window.startApp = function () {
   if (urlParams.has("shortcut")) {
     const sc = urlParams.get("shortcut");
     setTimeout(() => {
-      if (sc === "garage") showPage("garage");
+      if (sc === "garage") window.VirtualGarage?.openUI();
       if (sc === "danger") toggleHazardMenu();
     }, 1000);
   }
@@ -337,8 +337,6 @@ window.startApp = function () {
       loader.style.opacity = "0";
     }
     updateUILabels();
-    if (typeof renderCommunityMarkers === "function") renderCommunityMarkers();
-    if (typeof simulateLiveFleet === "function") simulateLiveFleet();
   }, 3500);
 
   // Lancement de la géolocalisation
@@ -754,18 +752,6 @@ iconContent.innerHTML = `<div style="background-color: #1a1a1a; color: ${color};
   // --- OFFLINE MAP: Sync Leaflet marker position ---
   if (window.OfflineMapManager) {
     window.OfflineMapManager.updatePosition(lat, lng);
-  }
-
-  // --- CLOUD SYNC: Publish Position (Throttle to 15s) ---
-  if (!window.lastCloudSync || Date.now() - window.lastCloudSync > 15000) {
-    if (typeof publishUserLocation === "function") {
-      publishUserLocation(
-        lat,
-        lng,
-        window.isRiding ? "Sur la route" : "En pause",
-      );
-      window.lastCloudSync = Date.now();
-    }
   }
 }
 

@@ -1,7 +1,5 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
-import { onAuthChange } from './comptes.js';
-import { coarsePosition, recentCutoff, MAX_SHARED_POSITIONS } from './location-privacy.js';
 import { pointsSouverains, signalerAuServeur } from './points.js';
 
 /**
@@ -33,7 +31,6 @@ function initDatabase() {
     // Démarrer l'écoute temps réel des dangers
     syncHazards();
     // Démarrer l'écoute des autres pilotes
-    syncCommunityPositions();
   } catch (e) {
     console.warn("Database init fail :", e);
   }
@@ -117,70 +114,6 @@ window.publishHazardCloud = async function (hazard) {
 // --- SYNCHRONISATION UTILISATEURS ---
 
 // --- PARTAGE DE POSITION (COMMUNAUTÉ LIVE) ---
-
-window.publishUserLocation = async function (lat, lng, status = "Riding") {
-  if (!db || !window.session) return;
-  // Position arrondie à ~100 m : elle est visible par les autres membres (location-privacy.js)
-  const shared = coarsePosition(lat, lng);
-  if (!shared) return;
-  try {
-    const payload = {
-      lat: shared.lat,
-      lng: shared.lng,
-      status,
-      brand: window.session.brand || "Scooter",
-    };
-    // On n'utilise plus cloudEncrypt pour les positions publiques communautaires
-    await db.collection("presence").doc(window.session.username).set({
-      ...payload,
-      username: window.session.username,
-      lastUpdate: firebase.firestore.FieldValue.serverTimestamp(),
-    });
-  } catch (e) {
-    console.warn("Presence sync fail");
-  }
-};
-
-function syncCommunityPositions() {
-  if (!db) return;
-
-  // Only listen to presence if user is authenticated (firestore.rules requires isSignedIn)
-  if (typeof firebase !== "undefined" && firebase.auth()) {
-    onAuthChange((user) => {
-      if (user) {
-        // Membres actifs récemment, en nombre limité (avant : toute la collection, en continu)
-        db.collection("presence")
-          .where("lastUpdate", ">=", recentCutoff())
-          .limit(MAX_SHARED_POSITIONS)
-          .onSnapshot(
-          (snapshot) => {
-            const members = [];
-            snapshot.forEach((doc) => {
-              const data = doc.data();
-              if (data.username !== window.session?.username) {
-                if (data.payload) {
-                  console.log("Ignored legacy encrypted presence");
-                } else {
-                  members.push(data); // Legacy
-                }
-              }
-            });
-
-            window.communityMembers = members;
-            if (typeof renderCommunityMarkers === "function")
-              renderCommunityMarkers();
-          },
-          (error) => {
-            console.warn(
-              "Presence sync error (expected if not logged in):",
-              error,
-            );
-          },
-        );
-      }
-    });
-  }
-}
 
 // --- SOCIAL TICKER SYNC ---
 
@@ -503,7 +436,6 @@ window.isUserBanned = function () {
 registerAction('initDatabase', initDatabase);
 
 registerAction('syncHazards', syncHazards);
-registerAction('syncCommunityPositions', syncCommunityPositions);
 registerAction('syncSocialTicker', syncSocialTicker);
 registerAction('triggerDGCCRFReport', triggerDGCCRFReport);
 registerAction('applyAbuseSanction', applyAbuseSanction);

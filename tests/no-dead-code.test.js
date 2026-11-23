@@ -22,6 +22,7 @@ const pages = [
 // Exceptions assumées : modules prêts et testés, en attente d'activation
 const KEPT_FOR_LATER = {
   "secure-vault.js": "coffre chiffré WebCrypto (Phase 2 de l'audit), testé, à brancher sur le portefeuille",
+  "loot-drops.js": "butins masqués le 23/11/2026 : la base refuse leur récupération, à rebrancher avant de les réafficher",
 };
 
 const jsFiles = fs.readdirSync(JS).filter((f) => f.endsWith(".js") && !KEPT_FOR_LATER[f]);

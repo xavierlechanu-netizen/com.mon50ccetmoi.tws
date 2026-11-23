@@ -149,7 +149,7 @@ test("Bourse et Marketplace : aucun point retiré, aucun faux achat", async ({ p
   });
   expect(retraits).toBe(0);
   expect(dialogs.join(" ")).toContain("Aucun point n'a été retiré");
-  await expect(page.locator("button:disabled", { hasText: "Bientôt disponible" })).toHaveCount(5);
+  await expect(page.locator("button:disabled", { hasText: "Bientôt disponible" })).toHaveCount(2);
   expect(await page.locator('[data-action*="Achat validé"], [data-action*="buyVoiceMode"]').count()).toBe(0);
 });
 

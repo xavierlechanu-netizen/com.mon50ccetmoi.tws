@@ -515,28 +515,6 @@
         </div>
       </div>
 
-      <!-- ─── DOCUMENTS & CONTRATS ─────────────────────────── -->
-      <div class="glass-card section-card animate-fade-in-up delay-2">
-        <div class="card-title"><i class="fa-solid fa-file-contract"></i> Mes Documents & Contrats</div>
-        <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-md);">
-          Faites analyser votre contrat d'assurance par l'IA Nexus Atlas pour savoir ce qui est réellement couvert.
-        </p>
-
-        <div class="contract-upload-zone" id="contract-upload-zone" data-action="if(window.InsuranceScanner) window.InsuranceScanner.startScan()">
-          <i class="fa-solid fa-file-pdf"></i>
-          <div style="font-weight: 600;">Scanner mon contrat (PDF)</div>
-          <div style="font-size: var(--text-xs); color: var(--text-muted); margin-top: 4px;">Nexus Atlas AI Document Scanner</div>
-        </div>
-
-        <!-- Scan Result (hidden by default) -->
-        <div id="contract-scan-result" style="display: none; margin-top: var(--space-md); background: rgba(0, 242, 255, 0.04); border: 1px solid rgba(0, 242, 255, 0.15); padding: var(--space-md); border-radius: var(--radius-md);">
-          <h4 style="margin: 0 0 var(--space-sm) 0; color: var(--neon-cyan); font-size: var(--text-sm);">
-            <i class="fa-solid fa-microchip"></i> Résumé de Couverture (IA)
-          </h4>
-          <div id="contract-scan-content" style="font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6;"></div>
-        </div>
-      </div>
-
       <!-- ─── BADGES & SUCCÈS ──────────────────────────────── -->
       <div class="glass-card section-card animate-fade-in-up delay-3">
         <div class="card-title gold"><i class="fa-solid fa-medal"></i> Mes Badges & Succès</div>
@@ -651,7 +629,6 @@
     <script type="module" src="/js/inline-profile-1.js"></script>
     <script type="module" src="/js/profile.js" charset="utf-8"></script>
     <script type="module" src="/js/nexus-atlas-gemini.js" charset="utf-8"></script>
-    <script type="module" src="/js/insurance-scanner.js" charset="utf-8"></script>
 
     <script type="module" src="/js/inline-profile-2.js"></script>
   </body>

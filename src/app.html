@@ -107,7 +107,6 @@
 
   <!-- Revolut Merchant SDK : chargé à  la demande via app-init.js -->
   <script type="module" defer="" src="/js/vehicle-config.js" charset="utf-8"></script>
-  <script type="module" defer="" src="/js/beyond-maps.js" charset="utf-8"></script>
   <script type="module" defer="" src="/js/self-evolution.js" charset="utf-8"></script>
   <script type="module" defer="" src="/js/gamification.js" charset="utf-8"></script>
   <script type="module" defer="" src="/js/radar-social.js" charset="utf-8"></script>
@@ -116,7 +115,7 @@
 </head>
 
 <body style="margin: 0; padding: 0; background: #000; overflow: hidden">
-  <div id="gamification-hud" class="gami-hud-cyber">
+  <div id="gamification-hud" class="gami-hud-cyber" style="display: none">
     <div>
       <i id="gami-icon" class="fa-solid fa-motorcycle gami-icon" style="color: #a0a0a0;"></i>
     </div>
@@ -148,7 +147,6 @@
 
   <!-- MODULES ADDITIONNELS (defer = chargés après le DOM) -->
   <script type="module" defer="" src="/js/crews-territory.js" charset="utf-8"></script>
-  <script type="module" defer="" src="/js/loot-drops.js" charset="utf-8"></script>
   <script type="module" defer="" src="/js/cortege-mode.js" charset="utf-8"></script>
   <script type="module" defer="" src="/js/safe-ride.js" charset="utf-8"></script>
   <script type="module" defer="" src="/js/garage-market.js" charset="utf-8"></script>
@@ -807,7 +805,6 @@
       "></div>
 
   <!-- CORE MODULES -->
-  <script type="module" src="/js/web4-mining.js" charset="utf-8"></script>
   <script type="module" src="/js/zero-trust.js" charset="utf-8"></script>
   <script type="module" src="/js/esg-telemetry.js" charset="utf-8"></script>
 

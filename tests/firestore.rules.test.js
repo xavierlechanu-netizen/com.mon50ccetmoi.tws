@@ -407,4 +407,29 @@ describe("Règles robustes sans fiche pilote (17/11/2026)", () => {
     await assertFails(anon.collection("users").doc("pilot1").get());
     await assertFails(anon.collection("gamification_stats").doc("pilot1").set({ xp: 999 }));
   });
+
+  it("positions : plus de lecture libre (audit du 23/11/2026)", async () => {
+    await testEnv.withSecurityRulesDisabled(async (c) => {
+      const d = c.firestore();
+      await d.doc("users/alice").set({ username: "alice" });
+      await d.doc("users/bob").set({ username: "bob" });
+      await d.doc("presence/alice").set({ lat: 45, lng: 4, username: "alice" });
+      await d.doc("social_radar/alice").set({ lat: 45, lng: 4, last_seen: new Date() });
+      await d.doc("social_radar/vieux").set({ lat: 45, lng: 4, last_seen: new Date(Date.now() - 3600000) });
+      await d.doc("sos_alerts/actif").set({ authorUid: "alice", isActive: true, createdAt: Date.now() });
+      await d.doc("sos_alerts/clos").set({ authorUid: "alice", isActive: false, createdAt: Date.now() });
+    });
+    const alice = testEnv.authenticatedContext("alice").firestore();
+    const bob = testEnv.authenticatedContext("bob").firestore();
+    await assertFails(bob.doc("presence/alice").get());
+    await assertSucceeds(alice.doc("presence/alice").get());
+    await assertSucceeds(bob.doc("social_radar/alice").get());
+    await assertFails(bob.doc("social_radar/vieux").get());
+    await assertFails(bob.collection("social_radar").where("last_seen", ">=", new Date(Date.now() - 7200000)).limit(30).get());
+    await assertSucceeds(bob.collection("social_radar").where("last_seen", ">=", new Date(Date.now() - 15 * 60000)).limit(30).get());
+    await assertSucceeds(bob.doc("sos_alerts/actif").get());
+    await assertFails(bob.doc("sos_alerts/clos").get());
+    await assertSucceeds(alice.doc("sos_alerts/clos").get());
+    await assertSucceeds(bob.collection("sos_alerts").where("createdAt", ">", Date.now() - 3600000).where("isActive", "==", true).get());
+  });
 });

@@ -45,27 +45,4 @@ function checkNewYearFireworks() {
   }
 }
 
-// Remplace le contenu d'un bouton par une icône Font Awesome + un texte (sans innerHTML)
-function setButtonContent(btn, iconClass, text, iconAfter = false) {
-  const icon = document.createElement("i");
-  icon.className = iconClass;
-  const label = document.createTextNode(text);
-  btn.replaceChildren(...(iconAfter ? [label, icon] : [icon, label]));
-}
-
-// Vérifier si déjà débloqué au chargement
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Feu d'artifice de Janvier
-  checkNewYearFireworks();
-
-  // 2. Déblocage du thème Rose
-  if (localStorage.getItem('unlockedTheme_Pink') === 'true') {
-    const btn = document.getElementById('btn-buy-pink');
-    if(btn) {
-      btn.style.background = 'rgba(0, 230, 118, 0.2)';
-      btn.style.color = 'var(--neon-green)';
-      setButtonContent(btn, "fa-solid fa-check", " Débloqué à vie !");
-      btn.disabled = true;
-    }
-  }
-});
+document.addEventListener('DOMContentLoaded', checkNewYearFireworks);

@@ -156,15 +156,6 @@ window.NexusAtlasEngine = {
         reply: `Activation du balayage social. Recherche de pilotes alliés dans le secteur.`,
       };
     }
-    // Modes de conduite
-    else if (
-      this.matchAny(t, ["sensation", "virage", "sport", "attaque", "balade"])
-    ) {
-      return {
-        action: "SENSATION_MODE",
-        reply: `Mode sensation engagé. Optimisation de l'itinéraire pour le plaisir de conduite.`,
-      };
-    }
     // Diagnostic Moto
     else if (
       this.matchAny(t, [
@@ -330,10 +321,6 @@ window.NexusAtlasEngine = {
       case "SOCIAL_RADAR":
         if (typeof window.toggleSocialRadar === "function")
           window.toggleSocialRadar();
-        break;
-      case "SENSATION_MODE":
-        if (typeof window.toggleSensationMode === "function")
-          window.toggleSensationMode();
         break;
       case "AI_DIAGNOSTIC":
         const modal = document.getElementById("ai-diagnostic-modal");

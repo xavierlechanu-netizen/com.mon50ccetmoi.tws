@@ -1,6 +1,5 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
-import { PAGE_ROUTES } from './page-routes.js';
 import { getSosPosition, sendSosAuto, smsHref, sosText } from './sos-alert.js';
 import { isSovereignSosReady } from './sovereign.js';
 
@@ -103,34 +102,6 @@ setTimeout(() => {
 }, 5000);
 
 document.addEventListener("DOMContentLoaded", () => {});
-
-window.closeScreen = function () {
-  const hud = document.getElementById("hud");
-  if (hud) hud.style.display = "block";
-  document.getElementById("screen-overlay").classList.add("hidden");
-};
-
-window.showPage = function (page) {
-  const hud = document.getElementById("hud");
-  if (hud) hud.style.display = "none";
-  const overlay = document.getElementById("screen-overlay");
-  const content = document.getElementById("screen-content");
-  overlay.classList.remove("hidden");
-  content.classList.remove("page-enter-active");
-  content.classList.add("page-enter");
-  setTimeout(() => content.classList.add("page-enter-active"), 50);
-  if (navigator.vibrate) navigator.vibrate(50);
-  setTimeout(() => content.classList.add("page-enter-active"), 50);
-
-  const t = window.t || ((k) => k);
-  const handler = PAGE_ROUTES[page];
-  if (typeof handler === "function") {
-    handler(content, t);
-  } else {
-    console.warn(`[PageRouter] Route non reconnue : ${page}`);
-  }
-  toggleMenu();
-};
 
 window.shareApp = async function () {
   const shareData = {
@@ -375,18 +346,6 @@ window.addMaintLog = function () {
   const history = JSON.parse(secureGetItem("maint_history") || "[]");
   history.push({ date: new Date().toLocaleDateString(), action });
   secureSetItem("maint_history", JSON.stringify(history));
-  showPage("garage");
-};
-
-window.joinGroup = function () {
-  const code = document.getElementById("group-code").value;
-  if (!code) return;
-  speak(`Connexion au groupe ${code} en cours...`);
-  setTimeout(() => {
-    speak(`Vous avez rejoint le groupe ! Vos amis apparaissent sur la carte.`);
-    closeScreen();
-    if (typeof simulateLiveFleet === "function") simulateLiveFleet();
-  }, 2000);
 };
 
 window.toggleParkingMode = function () {

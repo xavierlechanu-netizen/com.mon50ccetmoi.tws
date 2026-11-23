@@ -361,7 +361,6 @@ window.toggleGuardian = function () {
   const active = secureGetItem("guardian_enabled") === "true";
   secureSetItem("guardian_enabled", !active);
   speak(!active ? "Guardian Mode activé." : "Guardian Mode désactivé.");
-  showPage("security");
 };
 
 // --- SECURITY LOGIC ENGINE ---
@@ -531,35 +530,6 @@ window.toggleRodageHUD = function () {
   }
 };
 
-window.toggleGarageVisibility = function () {
-  window.isGarageVisible = !window.isGarageVisible;
-  speak(
-    window.isGarageVisible
-      ? "Votre garage est maintenant visible des pilotes."
-      : "Visibilité désactivée.",
-  );
-  showPage("pro-space");
-  if (currentPosition) {
-    publishUserLocation(
-      currentPosition.lat,
-      currentPosition.lng,
-      window.isGarageVisible ? `Pro: ${window.garageStatus}` : "Offline",
-    );
-  }
-};
-
-window.updateGarageStatus = function (val) {
-  window.garageStatus = val;
-  speak("Disponibilité de l'atelier mise à jour.");
-  if (window.isGarageVisible && currentPosition) {
-    publishUserLocation(
-      currentPosition.lat,
-      currentPosition.lng,
-      `Pro: ${window.garageStatus}`,
-    );
-  }
-};
-
 window.publishFlashOffer = function () {
   const text = document.getElementById("flash-offer-text").value;
   if (!text) return;
@@ -627,7 +597,6 @@ window.payGarageEntryFee = async function () {
                 clearInterval(checkStatus);
                 if (typeof speak === "function") speak("Paiement validé. Merci !");
                 alert("Paiement validé, merci ! Notre équipe active votre accès Garage Certifié sous 24 h (jours ouvrés).");
-                showPage("home");
               } else if (data && data.paid) {
                 clearInterval(checkStatus);
                 if (typeof speak === "function")
@@ -638,13 +607,11 @@ window.payGarageEntryFee = async function () {
                   window.session.isCertifiedGarage = true;
                   secureSetItem("session", JSON.stringify(window.session));
                 }
-                showPage("pro-space");
               } else if (attempts > 10) {
                 clearInterval(checkStatus);
                 alert(
                   "Le paiement est en cours de traitement par Revolut. Votre accès pro sera activé automatiquement sous peu.",
                 );
-                showPage("home");
               }
             } catch (e) {
               console.error(e);
@@ -978,7 +945,6 @@ window.publishProTip = function () {
     "Votre fiche technique a été publiée avec succès ! Elle est maintenant visible par tous les pilotes.",
   );
   alert("Félicitations ! Votre conseil d'expert est en ligne.");
-  showPage("pro-space");
 };
 window.resetTelemetry = function () {
   maxLeanAngle = 0;
@@ -987,7 +953,6 @@ window.resetTelemetry = function () {
     secureSetItem("session", JSON.stringify(window.session));
   }
   speak("Données de télémétrie réinitialisées.");
-  showPage("garage");
 };
 // --- AUTO-BOOT & FAIL-SAFE ---
 // On s'assure que le mode holographique n'est pas actif au démarrage (Correction Bug Web)
@@ -1194,7 +1159,7 @@ setInterval(() => {
         );
       } else {
         speak(
-          "Vous roulez depuis 45 minutes. Température moteur optimale atteinte, mais attention à la fatigue. Envisagez une pause bientôt.",
+          "Vous roulez depuis 45 minutes. Attention à la fatigue, envisagez une pause bientôt.",
         );
       }
       window.wingmanAlertCount = currentPeriod;
@@ -1205,27 +1170,6 @@ setInterval(() => {
     window.blackIceAlerted = false;
   }
 }, 30000); // Check toutes les 30s
-
-// --- 3. SONAR DE COMMUNAUTÉ ---
-window.triggerCommunitySonar = function () {
-  if (document.body.classList.contains("shadow-mode")) return; // Furtif
-
-  // Animation Sonar Center
-  const sonar = document.createElement("div");
-  sonar.className = "sonar-wave";
-  document.body.appendChild(sonar);
-
-  setTimeout(() => {
-    // Uniquement les membres réellement en ligne (présence des 15 dernières minutes).
-    // Avant (corrigé le 7/11/2026) : un allié imaginaire apparaissait une fois sur quatre.
-    if (Array.isArray(window.communityMembers) && window.communityMembers.length > 0) {
-      speak("Pilote allié détecté dans le secteur.");
-      if (typeof window.renderCommunityMarkers === "function") window.renderCommunityMarkers();
-    }
-    sonar.remove();
-  }, 4000);
-};
-setInterval(window.triggerCommunitySonar, 120000); // Sonar toutes les 2 minutes
 
 // --- 5. EXPLORATION TACTIQUE (ROUTE ALÉATOIRE) ---
 window.generateTacticalExploration = function () {
@@ -1315,54 +1259,6 @@ setTimeout(() => {
     setInterval(window.checkVigilanceRouge, 300000); // 5 minutes
   }
 }, 5000); // Lancement 5 secondes après le chargement de l'app
-
-// ============================================================
-// --- 7. BOÎTE NOIRE (TÉLÉMÉTRIE D'ASSURANCE) ---
-// ============================================================
-// Pas window.BlackBox : ce nom appartient au module Bluetooth (blackbox-ble.js), qui l'écrase
-const phoneTrace = [];
-setInterval(() => {
-  if (window.isRiding && navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const data = {
-          t: new Date().toISOString(),
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          spd: pos.coords.speed ? Math.round(pos.coords.speed * 3.6) : 0,
-          acc: pos.coords.accuracy,
-          w: window.isVigilanceRouge ? "ROUGE" : "NORMAL",
-        };
-        phoneTrace.push(data);
-        if (phoneTrace.length > 300) phoneTrace.shift(); // Garde 5 minutes (300 sec)
-      },
-      () => {},
-      { enableHighAccuracy: true, maximumAge: 0 },
-    );
-  }
-}, 1000);
-
-window.exportBlackBox = function () {
-  if (phoneTrace.length === 0) {
-    alert(
-      "La boîte noire est vide. Vous devez rouler pour enregistrer des données.",
-    );
-    return;
-  }
-  const dataStr =
-    "data:text/json;charset=utf-8," +
-    encodeURIComponent(JSON.stringify(phoneTrace, null, 2));
-  const dlAnchorElem = document.createElement("a");
-  dlAnchorElem.setAttribute("href", dataStr);
-  dlAnchorElem.setAttribute(
-    "download",
-    `Boite_Noire_mon50cc_${new Date().getTime()}.json`,
-  );
-  document.body.appendChild(dlAnchorElem);
-  dlAnchorElem.click();
-  dlAnchorElem.remove();
-  speak("Rapport de boîte noire exporté avec succès.");
-};
 
 // ============================================================
 // --- 8. RADAR CONVOI (ESCOUADE FIRESTORE) ---

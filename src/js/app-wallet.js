@@ -35,7 +35,6 @@ window.CommunityRoadbooks = {
     speak(
       "Itinéraire partagé avec la communauté. Merci pour votre contribution !",
     );
-    showPage("community_roadbooks");
   },
 
   load(id) {
@@ -58,7 +57,6 @@ window.CommunityRoadbooks = {
     rb.ratingCount = (rb.ratingCount || 0) + 1;
     localStorage.setItem("community_roadbooks", JSON.stringify(rbs));
     speak("Merci pour votre note !");
-    showPage("community_roadbooks");
   },
 };
 
