@@ -33,7 +33,7 @@ export const CONFIG = {
   // Retour arrière : remettre "FIREBASE" et republier le site. Ne passer les comptes sur "SOVEREIGN"
   // qu'APRÈS l'import des comptes Firebase sur le serveur (docs/PLAN_DEMENAGEMENT_GOOGLE.md, § 6).
   BACKEND_MODE: {
-    comptes: "FIREBASE",
+    comptes: "SOVEREIGN",
     // Paiements Revolut par le serveur souverain (§ 7 du plan). "SOVEREIGN" seulement une fois la clé
     // Revolut sur le VPS, le webhook redirigé et un achat d'essai réussi. Les acheteurs doivent avoir
     // une session sur le serveur souverain (comptes importés, reconnexion depuis).
@@ -41,7 +41,7 @@ export const CONFIG = {
     // Points, historique et classement par le serveur souverain (§ 8 du plan). "SOVEREIGN" en même
     // temps que les comptes, APRÈS la reprise des soldes (scripts/import-firebase-points.js) : sans
     // session sur le serveur, on ne gagne pas de points.
-    points: "FIREBASE",
+    points: "SOVEREIGN",
   },
   // Comptes sur "SOVEREIGN" : tant que les données sont dans Firestore, la connexion souveraine ouvre
   // aussi une session Firebase (même email, même mot de passe) pour les lire. À couper (false) quand

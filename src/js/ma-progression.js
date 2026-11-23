@@ -231,7 +231,7 @@ content.innerHTML = '';
     if (!window.auth || !window.auth.currentUser) throw new Error('Not auth');
 
     const idToken = await window.auth.currentUser.getIdToken(true);
-    const dataStr = `Conducteur: ${data.displayName}. BVC Points: ${data.bvcPoints}. Contrats actifs ce mois: ${data.contratsActifs}/5. Dangers signalés: ${data.signalementsTotal}. Score de sécurité calculé: ${computeSecurityScore(data)}/100.`;
+    const dataStr = `Conducteur: ${data.displayName}. Points mon50cc: ${data.bvcPoints}. Contrats actifs ce mois: ${data.contratsActifs}/5. Dangers signalés: ${data.signalementsTotal}. Score de sécurité calculé: ${computeSecurityScore(data)}/100.`;
 
     const response = await fetch(PROGRESSION_GEMINI_ENDPOINT, {
       method: 'POST',

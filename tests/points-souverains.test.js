@@ -212,7 +212,7 @@ describe("Branchement dans l'appli", () => {
     expect(src("points.js")).toMatch(/backendMode\('points'\) === 'SOVEREIGN'/);
   });
 
-  test("l'interrupteur reste sur Firebase tant que la bascule n'est pas faite", () => {
-    expect(src("config.js")).toMatch(/points: "FIREBASE"/);
+  test("l'interrupteur des points est sur le VPS depuis la bascule du 23/11/2026", () => {
+    expect(src("config.js")).toMatch(/points: "SOVEREIGN"/);
   });
 });

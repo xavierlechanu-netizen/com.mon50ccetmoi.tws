@@ -464,8 +464,8 @@ describe("Appli : chaque porte d'entrée passe par l'interrupteur", () => {
     }
   });
 
-  test("interrupteur sur FIREBASE dans config.js tant que tout n'est pas vérifié", () => {
+  test("interrupteur des comptes sur le VPS depuis la bascule du 23/11/2026", () => {
     const config = read("config.js");
-    expect(config).toMatch(/BACKEND_MODE:\s*\{\s*comptes:\s*"FIREBASE"/);
+    expect(config).toMatch(/BACKEND_MODE:\s*\{\s*comptes:\s*"SOVEREIGN"/);
   });
 });

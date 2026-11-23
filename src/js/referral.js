@@ -41,7 +41,7 @@ window.ReferralManager = {
     // Si l'utilisateur a un pseudo défini, on l'utilise, sinon on prend l'UID
     const myRefCode = window.session.username || window.session.uid;
     const shareUrl = `https://mon50ccetmoi.app/?ref=${encodeURIComponent(myRefCode)}`;
-    const shareText = `Rejoins mon Crew sur l'app ultime pour pilotes de 50cc ! Utilise mon code ${myRefCode} et on gagne des cryptos BVC ! 🏍️🚀`;
+    const shareText = `Rejoins mon Crew sur l'app ultime pour pilotes de 50cc ! Utilise mon code ${myRefCode} et on gagne des points mon50cc ! 🏍️🚀`;
 
     if (navigator.share) {
       try {
@@ -77,7 +77,7 @@ window.ReferralManager = {
         20,
         50,
         20,
-        "Félicitations, vous avez dépassé les 20 kilomètres. Votre parrain reçoit 50 BVC, et vous gagnez 20 BVC !",
+        "Félicitations, vous avez dépassé les 20 kilomètres. Votre parrain reçoit 50 points mon50cc, et vous gagnez 20 points mon50cc !",
       );
     }
     // Palier 2 : 100 km (Motard Fidèle)
@@ -87,7 +87,7 @@ window.ReferralManager = {
         100,
         100,
         50,
-        "Incroyable, 100 kilomètres atteints ! Vous êtes maintenant un Motard Fidèle. 50 BVC débloqués.",
+        "Incroyable, 100 kilomètres atteints ! Vous êtes maintenant un Motard Fidèle. 50 points mon50cc débloqués.",
       );
     }
     // Palier 3 : 500 km (Pilote Confirmé)

@@ -67,7 +67,7 @@ window.Web4Economy = {
     const bal = window.BVCManager ? window.BVCManager.balance : 0;
     const balanceEl = document.getElementById("crypto-balance");
     if (balanceEl) {
-      balanceEl.innerText = bal.toFixed(2) + " BVC";
+      balanceEl.innerText = bal.toFixed(2) + " points mon50cc";
     }
 
     // Restriction : Bloquer Nexus Atlas Juridique si solde insuffisant
@@ -79,7 +79,7 @@ window.Web4Economy = {
         lawyerBtn.style.filter = "grayscale(100%)";
         // eslint-disable-next-line no-restricted-syntax
 lawyerBtn.innerHTML = '<i class="fa-solid fa-lock" style="filter: drop-shadow(0 0 5px #ff4d4d); color: #ff4d4d;"></i>';
-        lawyerBtn.title = `Nécessite ${lawyerPrice} BVC`;
+        lawyerBtn.title = `Nécessite ${lawyerPrice} points mon50cc`;
       } else {
         lawyerBtn.style.opacity = "1";
         lawyerBtn.style.filter = "none";

@@ -23,7 +23,7 @@ import { registerAction } from './actionRegistry.js';
     { id: 'social', icon: 'fa-ghost', color: '#99aab5', label: 'Radar Social', action: () => { if(window.socialRadarManager) window.socialRadarManager.toggleRadar(); } },
     { id: 'obd', icon: 'fa-bluetooth', iconPrefix: 'fa-brands', color: '#ffaa00', label: 'OBD-II Scanner', action: () => { if(window.ScreenManager) window.ScreenManager.open('obd-hud-screen'); else if(window.obdManager) window.obdManager.connect(); } },
     { id: 'blackbox', icon: 'fa-microchip', color: '#ff3333', label: 'Boîte Noire', action: () => { if(window.ScreenManager) window.ScreenManager.open('blackbox-ui-panel'); } },
-    { id: 'wallet', icon: 'fa-store', color: '#b700ff', label: 'Marketplace BVC', action: () => { if(typeof window.openMarketplaceCheck === 'function') window.openMarketplaceCheck(); } },
+    { id: 'wallet', icon: 'fa-store', color: '#b700ff', label: 'Marketplace mon50cc', action: () => { if(typeof window.openMarketplaceCheck === 'function') window.openMarketplaceCheck(); } },
     { id: 'profile', icon: 'fa-user-circle', color: '#00ff88', label: 'Mon Profil', action: () => { window.location.href = 'profile.html'; } },
     { id: 'radar', icon: 'fa-users-viewfinder', color: '#fff', label: 'Radar Social', action: () => { if(window.RadarSocial) window.RadarSocial.toggleGhostMode(); } }, // avant : toggleSocialRadar, inexistant
     { id: 'sensation', icon: 'fa-route', color: '#b700ff', label: 'Mode Sensation', action: () => { if(typeof window.toggleSensationMode === 'function') window.toggleSensationMode(); } },
