@@ -1,6 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { initialsAvatar } from './avatar.js';
+import { realDashboardData } from './dashboard-data.js';
 
 // ─── Real Data Fetching (Firestore) ─────────────────────
       let currentUser = null;
@@ -28,20 +29,24 @@ import { initialsAvatar } from './avatar.js';
 
           const userRef = db.collection('users').doc(currentUser.uid);
           const docSnap = await userRef.get();
-          let userData = docSnap.data();
+          const userData = docSnap.data() || {};
+          const [weeklySnap, tripsSnap] = await Promise.all([
+            userRef.collection('weekly_stats').orderBy('order').get(),
+            userRef.collection('trips').orderBy('timestamp', 'desc').limit(5).get(),
+          ]);
+          const { score, stats, weekly, trips } = realDashboardData({
+            userData,
+            weekly: weeklySnap.docs.map((d) => d.data()),
+            trips: tripsSnap.docs.map((d) => d.data()),
+          });
 
-          // Si c'est un nouvel utilisateur sans stats, on initialise des données par défaut
-          if (!userData || !userData.stats) {
-            console.log("Initialisation des données réelles par défaut...");
-            userData = await initializeUserData(userRef, userData);
+          // 1. Score : seulement s'il a été calculé sur de vrais trajets
+          if (score !== null) {
+            animateScore(score);
+            document.getElementById('score-badge-text').textContent = 'Score calculé sur vos trajets';
           }
 
-          // 1. Mise à jour du Score BVC
-          const scoreBVC = userData.bvc_score || 85;
-          animateScore(scoreBVC);
-
-          // 2. Mise à jour des Quick Stats
-          const stats = userData.stats || { km: 0, hours: 0, speed: 0, streak: 0 };
+          // 2. Quick Stats
           document.querySelectorAll('[data-count]').forEach(el => {
             const type = el.parentElement.querySelector('.stat-label').textContent.toLowerCase();
             if (type.includes('km')) el.dataset.count = stats.km;
@@ -55,66 +60,21 @@ import { initialsAvatar } from './avatar.js';
           });
           animateCounters();
 
-          // 3. Récupération de l'historique hebdo
-          const weeklyRef = await userRef.collection('weekly_stats').orderBy('order').get();
-          let weeklyData = [];
-          if (weeklyRef.empty) {
-             weeklyData = [
-              { day: "Lun", km: 8, order: 1 }, { day: "Mar", km: 12, order: 2 },
-              { day: "Mer", km: 5, order: 3 }, { day: "Jeu", km: 18, order: 4 },
-              { day: "Ven", km: 24, order: 5 }, { day: "Sam", km: 15, order: 6 },
-              { day: "Dim", km: 4, order: 7 }
-             ];
-             // Sauvegarde des stats hebdos par défaut
-             for(const w of weeklyData) {
-               await userRef.collection('weekly_stats').doc(w.day).set(w);
-             }
-          } else {
-             weeklyRef.forEach(doc => weeklyData.push(doc.data()));
-          }
-          renderWeeklyChart(weeklyData);
-
-          // 4. Récupération des Trajets
-          const tripsRef = await userRef.collection('trips').orderBy('timestamp', 'desc').limit(5).get();
-          let tripsData = [];
-          if (tripsRef.empty) {
-             tripsData = [
-              { route: "Domicile → Lycée Victor Hugo", date: "Aujourd'hui", dist: "4.2 km", time: "12 min", score: 96, quality: "good", timestamp: Date.now() },
-              { route: "Lycée → Centre Commercial", date: "Hier", dist: "6.8 km", time: "19 min", score: 88, quality: "good", timestamp: Date.now() - 86400000 },
-              { route: "Domicile → Garage Mécano Pro", date: "Il y a 2 jours", dist: "12.1 km", time: "28 min", score: 72, quality: "ok", timestamp: Date.now() - (86400000*2) }
-             ];
-             for(const t of tripsData) {
-                await userRef.collection('trips').add(t);
-             }
-          } else {
-             tripsRef.forEach(doc => tripsData.push(doc.data()));
-          }
-          renderTrips(tripsData);
+          renderWeeklyChart(weekly);
+          renderTrips(trips);
 
         } catch (e) {
           console.error('[Dashboard] Erreur lors du chargement Firestore:', e);
         }
       }
 
-      // Initialise les données si manquantes dans la base
-      async function initializeUserData(userRef, existingData) {
-        const newData = {
-          ...existingData,
-          bvc_score: 92,
-          stats: {
-            km: 1247,
-            hours: 86,
-            speed: 34,
-            streak: 12
-          }
-        };
-        await userRef.set(newData, { merge: true });
-        return newData;
-      }
-
       // ─── Render Weekly Chart ────────────────────────────────
       function renderWeeklyChart(weeklyData) {
         const container = document.getElementById('weekly-chart');
+        if (!weeklyData.length) {
+          container.textContent = 'Pas encore de trajet enregistré.';
+          return;
+        }
         const maxKm = Math.max(...weeklyData.map(d => d.km), 1);
         // eslint-disable-next-line no-restricted-syntax
 container.innerHTML = '';
@@ -144,6 +104,11 @@ col.innerHTML = `
         const container = document.getElementById('trips-list');
         // eslint-disable-next-line no-restricted-syntax
 container.innerHTML = '';
+
+        if (!tripsData.length) {
+          container.textContent = 'Pas encore de trajet enregistré.';
+          return;
+        }
 
         tripsData.forEach(trip => {
           const item = document.createElement('div');

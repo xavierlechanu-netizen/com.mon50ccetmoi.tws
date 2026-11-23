@@ -84,7 +84,10 @@ class NexusSemanticAnalyzer {
 
         const isExplicitSuggestion = /\b(id[eé]e|suggestion|proposition)\b/i.test(trimmed);
         const hasSuggestionLength = trimmed.length >= 15;
-        const isSuggestion = (matchCount > 0 || isExplicitSuggestion) && hasSuggestionLength;
+        // « J'aimerais savoir… » ou une question sur sa situation n'est pas une idée pour l'appli
+        const isPlainQuestion = (/\?\s*$/.test(trimmed) || /j['’]aimerais\s+savoir/i.test(trimmed)) &&
+            !/\b(serait|ajout\w*|rajout\w*|id[eé]e|suggestion|propos\w*|faudrait|pourriez|devriez|pourrait|pourquoi\s+pas)\b/i.test(trimmed);
+        const isSuggestion = (matchCount > 0 || isExplicitSuggestion) && hasSuggestionLength && !isPlainQuestion;
 
         if (!isSuggestion) {
             return {

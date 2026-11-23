@@ -54,14 +54,18 @@ window.ExchangeMarket = {
             }
           });
       } else {
-        const localBvc = parseInt(localStorage.getItem("bvc_points")) || 1450;
+        const localBvc = parseInt(localStorage.getItem("bvc_points")) || 0;
         this.userBvc = localBvc;
         this.updateBvcDisplay(localBvc);
       }
     };
 
     if (window.firebase && firebase.auth()) {
-      onAuthChange(() => checkUser());
+      onAuthChange(() => {
+        checkUser();
+        // Le premier essai part souvent avant que la session soit retrouvée : Firestore le refuse
+        this.listenToListings();
+      });
     } else {
       checkUser();
     }
@@ -99,6 +103,12 @@ window.ExchangeMarket = {
         this.applyFiltersAndRender();
       }, (error) => {
         console.error("[ExchangeMarket] Erreur d'écoute Firestore:", error);
+        const container = document.getElementById("exchange-listings-container");
+        if (container) {
+          container.textContent = firebase.auth().currentUser
+            ? "Impossible de charger les annonces pour le moment. Réessayez dans un instant."
+            : "Connectez-vous pour voir les annonces.";
+        }
       });
   },
 

@@ -132,7 +132,7 @@
   </div>
 
   <!-- SOCIAL RADAR & ROADBOOKS BUTTONS -->
-  <div
+  <div id="hud-side-buttons"
     style="position: fixed; top: 110px; right: 15px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;">
     <button id="btn-ghost-mode" data-action="window.RadarSocial.toggleGhostMode()"
       style="background: rgba(0,0,0,0.8); color: white; border: 1px solid #00f0ff; padding: 10px; border-radius: 5px; font-family: monospace; cursor: pointer;">
@@ -327,6 +327,44 @@
 
     #apple-smart-dock button:active {
       transform: scale(0.9);
+    }
+
+    /* Téléphone : ces blocs ont leur position dans style="" et se chevauchaient sous la recherche */
+    @media (max-width: 600px) {
+      #speed-hud-modern {
+        top: 76px !important;
+        left: 12px !important;
+        padding: 4px 14px !important;
+      }
+
+      #speed-hud-modern > :first-child {
+        display: none !important;
+      }
+
+      #gamification-hud {
+        top: 166px !important;
+        left: 12px !important;
+      }
+
+      #weather-hud {
+        top: 76px !important;
+        left: auto !important;
+        right: 12px !important;
+        transform: none !important;
+        max-width: calc(100vw - 170px);
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+      }
+
+      #hud-side-buttons {
+        top: 136px !important;
+        right: 12px !important;
+      }
+
+      .insurer-quick-link {
+        top: 232px !important;
+        right: 12px !important;
+      }
     }
   </style>
 

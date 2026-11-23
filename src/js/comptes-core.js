@@ -43,7 +43,7 @@ export function comptesErrorMessage(error) {
   if (code === "comptes/connexion-google-indisponible") return error.message;
   if (status === 401 || code === "auth/invalid-credential" || code === "auth/wrong-password" ||
       code === "auth/user-not-found" || code === "auth/invalid-login-credentials") {
-    return "Pseudo ou mot de passe incorrect.";
+    return "Pseudo, e-mail ou mot de passe incorrect.";
   }
   if (status === 409 || code === "auth/email-already-in-use") return "Ce pseudo est déjà utilisé. Choisissez-en un autre.";
   if (status === 429 || code === "auth/too-many-requests") return "Trop de tentatives. Réessayez dans quelques minutes.";

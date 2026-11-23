@@ -426,41 +426,13 @@
             </defs>
           </svg>
           <div class="score-inner">
-            <div class="score-number" id="score-value">0</div>
+            <div class="score-number" id="score-value">–</div>
             <div class="score-max">/ 100</div>
           </div>
         </div>
         <div class="score-label">Score de Bonne Conduite</div>
         <div class="score-badge">
-          <span class="badge badge-green">
-            <i class="fa-solid fa-shield-halved"></i> Conduite exemplaire
-          </span>
-        </div>
-      </div>
-
-      <!-- ─── SOCIAL PROOF / COMMUNITY ───────────────────────── -->
-      <div class="glass-card community-section" style="margin-bottom: var(--space-xl); animation: fadeInUp 0.5s ease 0.15s both;">
-        <div class="chart-title">
-          <i class="fa-solid fa-users"></i> Communauté en direct
-        </div>
-        <div class="community-stats" style="display: flex; justify-content: space-between; text-align: center; gap: var(--space-md);">
-          <div style="flex: 1; padding: var(--space-md); background: rgba(255,255,255,0.03); border-radius: var(--radius-md);">
-            <div style="font-size: 1.5rem; font-family: var(--font-display); font-weight: 900; color: var(--neon-cyan);">
-              <span class="pulse-dot" style="display:inline-block; width:8px; height:8px; background:var(--neon-cyan); border-radius:50%; margin-right:5px; animation: pulse 2s infinite;"></span>
-              142
-            </div>
-            <div style="font-size: var(--text-xs); color: var(--text-muted);">VSP en ligne</div>
-          </div>
-          <div style="flex: 1; padding: var(--space-md); background: rgba(255,255,255,0.03); border-radius: var(--radius-md);">
-            <div style="font-size: 1.5rem; font-family: var(--font-display); font-weight: 900; color: var(--neon-gold);">
-              <i class="fa-solid fa-triangle-exclamation" style="font-size: 1rem; margin-right:5px;"></i>
-              38
-            </div>
-            <div style="font-size: var(--text-xs); color: var(--text-muted);">Dangers évités aujourd'hui</div>
-          </div>
-        </div>
-        <div style="margin-top: var(--space-md); font-size: var(--text-xs); color: var(--text-muted); text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: var(--space-sm);">
-          <i class="fa-solid fa-bolt" style="color: var(--neon-purple);"></i> <strong>Mathieu R.</strong> vient de sécuriser un trajet à 2km.
+          <span class="badge badge-green" id="score-badge-text">Pas encore de score</span>
         </div>
       </div>
 
@@ -468,26 +440,23 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon icon-cyan"><i class="fa-solid fa-road"></i></div>
-          <div class="stat-value" data-count="1247">0</div>
+          <div class="stat-value" data-count="0">0</div>
           <div class="stat-label">km parcourus</div>
-          <div class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> +23 cette semaine</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon icon-gold"><i class="fa-solid fa-clock"></i></div>
-          <div class="stat-value" data-count="86">0</div>
+          <div class="stat-value" data-count="0">0</div>
           <div class="stat-label">heures de conduite</div>
-          <div class="stat-trend up"><i class="fa-solid fa-arrow-up"></i> +4.2h cette semaine</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon icon-green"><i class="fa-solid fa-gauge-high"></i></div>
-          <div class="stat-value">34</div>
+          <div class="stat-value">0</div>
           <div class="stat-label">km/h vitesse moy.</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon icon-red"><i class="fa-solid fa-fire"></i></div>
-          <div class="stat-value" data-count="12">0</div>
+          <div class="stat-value" data-count="0">0</div>
           <div class="stat-label">jours consécutifs</div>
-          <div class="stat-trend up"><i class="fa-solid fa-fire"></i> Série en cours !</div>
         </div>
       </div>
 
@@ -538,11 +507,11 @@
             <div class="achievement-icon">🏆</div>
             <div class="achievement-name">Fondateur</div>
           </div>
-          <div class="achievement-item">
+          <div class="achievement-item locked">
             <div class="achievement-icon">🛡️</div>
             <div class="achievement-name">100 km</div>
           </div>
-          <div class="achievement-item">
+          <div class="achievement-item locked">
             <div class="achievement-icon">🔥</div>
             <div class="achievement-name">7j Streak</div>
           </div>

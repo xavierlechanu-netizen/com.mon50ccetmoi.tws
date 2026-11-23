@@ -330,7 +330,7 @@ describe("Comptes sur SOVEREIGN : le serveur souverain juge, Firebase sert de po
     });
     const err = await comptes.seConnecter("alice@mon50cc.internal", "ancien").catch((e) => e);
     expect(err.status).toBe(401);
-    expect(C.comptesErrorMessage(err)).toBe("Pseudo ou mot de passe incorrect.");
+    expect(C.comptesErrorMessage(err)).toBe("Pseudo, e-mail ou mot de passe incorrect.");
     expect(firebaseAuth.calls).toEqual([]);
     expect(comptes.utilisateurActuel()).toBeNull();
   });

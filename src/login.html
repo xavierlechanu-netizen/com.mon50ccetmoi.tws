@@ -133,13 +133,16 @@
         <p class="login-subtitle">La 1ère communauté 50cc</p>
 
         <div id="login-form" class="auth-form">
-          <label for="login-user" class="sr-only">Pseudo</label>
+          <label for="login-user" class="sr-only">Pseudo ou e-mail</label>
           <input
             type="text"
             id="login-user"
             name="username"
-            placeholder="Votre Pseudo"
+            placeholder="Pseudo ou e-mail"
             autocomplete="username"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
           />
           <label for="login-pass" class="sr-only">Mot de passe</label>
           <input

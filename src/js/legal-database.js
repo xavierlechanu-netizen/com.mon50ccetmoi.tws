@@ -23,6 +23,15 @@ window.LegalDatabase = {
     _source: "Légifrance — legifrance.gouv.fr",
     _keywords: ["france", "français", "francais", "légifrance", "legifrance"],
 
+    plaque: {
+      keywords: ["plaque"],
+      title: "🇫🇷 Plaque d'immatriculation — Art. R317-8 Code de la Route",
+      content:
+        "Un cyclomoteur peut ne porter qu'une plaque, <strong>fixée en évidence et de manière inamovible à l'arrière</strong>. Elle doit rester dans un état d'entretien permettant sa lecture.<br><strong>Sanction :</strong> ne pas respecter les règles d'entretien, de caractéristiques ou de pose est puni de l'amende prévue pour les contraventions de la <strong>quatrième classe</strong>, même si la plaque tient encore. L'immobilisation du véhicule peut être prescrite.<br>Refixez-la solidement avant de reprendre la route.",
+      source: "Légifrance — Art. R317-8, version en vigueur depuis le 16/06/2025",
+      url: "legifrance.gouv.fr/codes/article_lc/LEGIARTI000042266062",
+    },
+
     casque: {
       keywords: ["casque", "helmet"],
       title: "🇫🇷 Port du Casque — Art. R431-1 Code de la Route",
@@ -715,21 +724,20 @@ window.LegalDatabase = {
 window.LegalDatabase.search = function (query) {
   const t = query.toLowerCase();
   const results = [];
+  // Début de mot obligatoire : « ue » ne doit pas matcher « quelle », ni « route » une loi étrangère
+  const hasTerm = (term) => new RegExp(
+    "(^|[^\\p{L}\\p{N}])" + String(term).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "u").test(t);
+  const hasWord = (term) => new RegExp(
+    "(^|[^\\p{L}\\p{N}])" + String(term).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "($|[^\\p{L}\\p{N}])", "u").test(t);
 
-  // 1. Identifier le(s) pays ciblé(s)
+  // 1. Pays nommés dans la question ; sinon le droit français, puis européen
   let targetCountries = [];
   for (const [countryKey, country] of Object.entries(this)) {
     if (typeof country !== "object" || countryKey === "search") continue;
-    if (country._keywords && country._keywords.some((kw) => t.includes(kw))) {
-      targetCountries.push(countryKey);
-    }
+    if (country._keywords && country._keywords.some(hasWord)) targetCountries.push(countryKey);
   }
-
-  // Si aucun pays détecté, chercher dans tous
   if (targetCountries.length === 0) {
-    targetCountries = Object.keys(this).filter(
-      (k) => typeof this[k] === "object" && k !== "search",
-    );
+    targetCountries = Object.keys(this).filter((k) => k === "france" || /europ/i.test((this[k] && this[k]._name) || ""));
   }
 
   // 2. Chercher par mots-clés dans les pays ciblés
@@ -744,7 +752,7 @@ window.LegalDatabase.search = function (query) {
         !topic.keywords
       )
         continue;
-      if (topic.keywords.some((kw) => t.includes(kw))) {
+      if (topic.keywords.some(hasTerm)) {
         results.push({
           country: country._name,
           flag: country._flag,
