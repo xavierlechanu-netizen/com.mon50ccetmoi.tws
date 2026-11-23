@@ -245,8 +245,23 @@ async function getJson(fetchFn, url) {
   return resp.json();
 }
 
+// 50 cc et VSP : ni autoroute ni voie rapide (R421-2). « waytype=autoroute » seul laissait passer l'A23 et la N88.
+export const ROUTE_BANS = [
+  { constraintType: "banned", key: "waytype", operator: "=", value: "autoroute" },
+  { constraintType: "banned", key: "nature", operator: "=", value: "type_autoroutier" },
+];
+// Ne pas ajouter cpx_classement_administratif ici : l'IGN répond alors 404 sur presque tous les trajets.
+const ROUTE_ATTRIBUTES = "nature|cpx_classement_administratif|cpx_numero|cpx_toponyme_route_nommee|nom_1_droite|nom_1_gauche";
+
+/** Vrai si ce tronçon IGN est une autoroute ou une voie de type autoroutier. */
+export function isForbiddenFor50cc(step) {
+  const a = (step && step.attributes && (step.attributes.name || step.attributes)) || {};
+  return /autorout/i.test(String(a.nature || "")) || /autorout/i.test(String(a.cpx_classement_administratif || ""));
+}
+
 /**
- * Itinéraire IGN. Les autoroutes sont interdites par défaut (Code de la route R421-2 pour les 50 cc).
+ * Itinéraire IGN. Hors piéton, autoroutes et voies rapides sont toujours interdites, sans option pour
+ * les rouvrir ; un tronçon interdit dans la réponse fait refuser tout l'itinéraire.
  * @returns {Promise<{distanceMeters:number, durationSec:number, path:{lat,lng}[], steps:object[]}>}
  */
 export async function computeRoute(origin, destination, opts = {}, fetchFn = globalThis.fetch) {
@@ -262,15 +277,18 @@ export async function computeRoute(origin, destination, opts = {}, fetchFn = glo
     optimization: "fastest",
     getSteps: "true",
     geometryFormat: "geojson",
+    waysAttributes: ROUTE_ATTRIBUTES,
   });
-  if (opts.avoidHighways !== false && mode !== "WALKING") {
-    params.set("constraints", JSON.stringify({ constraintType: "banned", key: "waytype", operator: "=", value: "autoroute" }));
+  const motorized = mode !== "WALKING";
+  if (motorized) {
+    params.set("constraints", ROUTE_BANS.map((c) => JSON.stringify(c)).join("|"));
   }
   const data = await getJson(fetchFn, `${IGN_BASE}/navigation/itineraire?${params}`);
   if (!data || !data.geometry || !Array.isArray(data.geometry.coordinates)) throw new Error("Aucun itinéraire");
 
   const cap = SPEED_CAP_MS[mode] || SPEED_CAP_MS.DRIVING;
   const ignSteps = (data.portions || []).flatMap((p) => p.steps || []);
+  if (motorized && ignSteps.some(isForbiddenFor50cc)) throw new Error("Aucun itinéraire autorisé aux 50 cc");
   const steps = buildSteps(ignSteps, cap);
   const path = data.geometry.coordinates.map((c) => ({ lat: c[1], lng: c[0] }));
   const distance = Number(data.distance) || steps.reduce((s, x) => s + x.distanceMeters, 0);

@@ -11,7 +11,7 @@ function loadEngine() {
   const src = fs.readFileSync(path.resolve(__dirname, "../src/js/map-engine.js"), "utf8")
     .replace(/^export (const|function|async function) /gm, "$1 ");
   const names = ["readLatLng", "distanceMeters", "bearingDeg", "decodePolyline", "isNearPath", "formatDistance",
-    "formatDuration", "prettyRoadName", "maneuverFromTurn", "buildSteps", "computeRoute", "geocodeAddress",
+    "formatDuration", "prettyRoadName", "maneuverFromTurn", "buildSteps", "computeRoute", "isForbiddenFor50cc", "geocodeAddress",
     "reverseGeocode", "completeAddress", "findNearbyGarages", "SPEED_CAP_MS", "OVERPASS_ENDPOINTS"];
   // eslint-disable-next-line no-new-func
   return new Function(`${src}\nreturn { ${names.join(", ")} };`)();
@@ -129,11 +129,35 @@ describe("Services IGN (réseau simulé)", () => {
     expect(url.hostname).toBe("data.geopf.fr");
     expect(url.searchParams.get("resource")).toBe("bdtopo-pgr");
     expect(url.searchParams.get("start")).toBe("2.35,48.85");
-    expect(JSON.parse(url.searchParams.get("constraints"))).toEqual(
-      { constraintType: "banned", key: "waytype", operator: "=", value: "autoroute" });
+    const bans = url.searchParams.get("constraints").split("|").map((c) => JSON.parse(c));
+    expect(bans).toEqual(expect.arrayContaining([
+      { constraintType: "banned", key: "waytype", operator: "=", value: "autoroute" },
+      { constraintType: "banned", key: "nature", operator: "=", value: "type_autoroutier" },
+    ]));
     expect(r.distanceMeters).toBe(257);
     expect(r.steps).toHaveLength(2);
     expect(r.path[0]).toEqual({ lat: 48.85, lng: 2.35 });
+  });
+
+  test("les interdictions ne peuvent pas être levées par une option", async () => {
+    const f = fakeFetch(ignRoute);
+    await E.computeRoute({ lat: 48.85, lng: 2.35 }, { lat: 48.851, lng: 2.352 }, { avoidHighways: false }, f);
+    expect(new URL(f.calls[0].url).searchParams.get("constraints")).toContain("type_autoroutier");
+  });
+
+  test.each([
+    [{ nature: "Type autoroutier", cpx_numero: "N88" }],
+    [{ nature: "Route à 2 chaussées", cpx_classement_administratif: "Autoroute" }],
+    [{ name: { nature: "Type autoroutier", cpx_numero: "A23" } }],
+  ])("un tronçon interdit renvoyé par l'IGN fait refuser l'itinéraire : %j", async (attributes) => {
+    const route = { ...ignRoute, portions: [{ steps: [{ ...ignRoute.portions[0].steps[0], attributes }] }] };
+    await expect(E.computeRoute({ lat: 48.85, lng: 2.35 }, { lat: 48.851, lng: 2.352 }, {}, fakeFetch(route)))
+      .rejects.toThrow("Aucun itinéraire autorisé");
+  });
+
+  test("une route normale n'est pas refusée", () => {
+    expect(E.isForbiddenFor50cc({ attributes: { nature: "Route à 1 chaussée", cpx_classement_administratif: "Départementale" } })).toBe(false);
+    expect(E.isForbiddenFor50cc({ attributes: { nature: "Rond-point" } })).toBe(false);
   });
 
   test("une réponse sans tracé est une erreur (pas d'itinéraire inventé)", async () => {

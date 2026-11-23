@@ -117,7 +117,8 @@ test("itinéraire sans autoroute : tracé, bandeau de guidage, puis arrêt", asy
 
   // Autoroutes interdites dans la requête envoyée à l'IGN (Code de la route R421-2)
   expect(ignRequests).toHaveLength(1);
-  expect(JSON.parse(ignRequests[0].searchParams.get("constraints"))).toMatchObject({ key: "waytype", value: "autoroute", constraintType: "banned" });
+  expect(ignRequests[0].searchParams.get("constraints")).toContain("type_autoroutier");
+  expect(JSON.parse(ignRequests[0].searchParams.get("constraints").split("|")[0])).toMatchObject({ key: "waytype", value: "autoroute", constraintType: "banned" });
   await expect(page.locator("#nav-info-bar")).toBeVisible();
   await expect(page.locator("#nav-dist")).toHaveText("12,3 km");
   await expect(page.locator("#nav-time")).toHaveText("23 min"); // 32 km/h de moyenne
