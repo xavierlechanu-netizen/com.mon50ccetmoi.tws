@@ -433,3 +433,45 @@ describe("Règles robustes sans fiche pilote (17/11/2026)", () => {
     await assertSucceeds(bob.collection("sos_alerts").where("createdAt", ">", Date.now() - 3600000).where("isActive", "==", true).get());
   });
 });
+
+describe("Positions exactes des groupes (23/11/2026)", () => {
+  const db = (uid) => testEnv.authenticatedContext(uid).firestore();
+
+  beforeEach(async () => {
+    await testEnv.withSecurityRulesDisabled(async (c) => {
+      const d = c.firestore();
+      await d.doc("convoys/ABCD").set({ leaderUid: "chef", members: ["chef", "membre"], status: "active" });
+      await d.doc("convoys/ABCD/positions/membre").set({ lat: 45.123456, lng: 4.123456 });
+      await d.doc("cortege_sessions/s1").set({ leaderId: "chef", code: "1234", isActive: true });
+      await d.doc("cortege_sessions/s1/members/membre").set({ lat: 45.123456, lng: 4.123456, name: "membre" });
+      await d.doc("sos_alerts/a1").set({ authorUid: "pilote", isActive: true, createdAt: Date.now() });
+      await d.doc("sos_alerts/a1/helpers/aidant").set({ name: "aidant", timestamp: Date.now() });
+      await d.doc("sos_alerts/vieux").set({ authorUid: "pilote", isActive: true, createdAt: Date.now() - 3 * 3600000 });
+    });
+  });
+
+  it("convoi : ni un inconnu ne lit, mais le chef et les inscrits oui", async () => {
+    await assertFails(db("inconnu").doc("convoys/ABCD/positions/membre").get());
+    await assertFails(db("inconnu").collection("convoys/ABCD/positions").get());
+    await assertSucceeds(db("membre").collection("convoys/ABCD/positions").get());
+    await assertSucceeds(db("chef").collection("convoys/ABCD/positions").get());
+  });
+
+  it("cortège : le code donne l'accès après inscription, pas avant", async () => {
+    const inconnu = db("inconnu");
+    await assertFails(inconnu.collection("cortege_sessions/s1/members").get());
+    await assertSucceeds(inconnu.collection("cortege_sessions").where("code", "==", "1234").where("isActive", "==", true).limit(1).get());
+    await assertSucceeds(inconnu.doc("cortege_sessions/s1/members/inconnu").set({ lat: 45, lng: 4, name: "inconnu" }));
+    await assertSucceeds(inconnu.collection("cortege_sessions/s1/members").get());
+    await assertSucceeds(db("chef").collection("cortege_sessions/s1/members").get());
+  });
+
+  it("SOS : les aidants restent privés, une vieille alerte n'est plus lisible", async () => {
+    await assertFails(db("inconnu").collection("sos_alerts/a1/helpers").get());
+    await assertSucceeds(db("pilote").collection("sos_alerts/a1/helpers").get());
+    await assertSucceeds(db("aidant").doc("sos_alerts/a1/helpers/aidant").get());
+    await assertFails(db("inconnu").doc("sos_alerts/vieux").get());
+    await assertSucceeds(db("pilote").doc("sos_alerts/vieux").get());
+    await assertSucceeds(db("inconnu").collection("sos_alerts").where("createdAt", ">", Date.now() - 3600000).where("isActive", "==", true).get());
+  });
+});

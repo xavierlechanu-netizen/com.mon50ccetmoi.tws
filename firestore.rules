@@ -499,7 +499,11 @@ service cloud.firestore {
       allow delete: if isSignedIn() && (request.auth.uid == resource.data.leaderId || isAdmin());
       
       match /members/{memberId} {
-        allow read: if isSignedIn();
+        // Positions exactes : seuls le chef et les pilotes déjà inscrits dans ce cortège les voient
+        allow read: if isSignedIn() && (
+          exists(/databases/$(database)/documents/cortege_sessions/$(sessionId)/members/$(request.auth.uid))
+          || get(/databases/$(database)/documents/cortege_sessions/$(sessionId)).data.leaderId == request.auth.uid
+        );
         // OWASP A01 : un membre ne peut écrire que sa propre entrée de position
         allow write: if isSignedIn() && request.auth.uid == memberId;
       }
@@ -518,12 +522,14 @@ service cloud.firestore {
     // S.O.S COMMUNAUTAIRE
     // ─────────────────────────────────────────────────────────────
     match /sos_alerts/{alertId} {
-      allow read: if isSignedIn() && (resource.data.isActive == true || resource.data.authorUid == request.auth.uid);
+      allow read: if isSignedIn() && ((resource.data.isActive == true && resource.data.createdAt > request.time.toMillis() - 7200000) || resource.data.authorUid == request.auth.uid);
       allow create: if isSignedIn() && request.auth.uid == request.resource.data.authorUid;
       allow update: if isSignedIn() && request.auth.uid == resource.data.authorUid;
       
       match /helpers/{helperId} {
-        allow read: if isSignedIn();
+        // Seuls le pilote en détresse et l'aidant lui-même voient qui vient aider
+        allow read: if isSignedIn() && (request.auth.uid == helperId
+          || get(/databases/$(database)/documents/sos_alerts/$(alertId)).data.authorUid == request.auth.uid);
         // OWASP A01 : un helper ne peut écrire que sa propre entrée d'aide
         allow create: if isSignedIn() && request.auth.uid == helperId;
         allow update: if isSignedIn() && request.auth.uid == helperId;
@@ -559,7 +565,12 @@ service cloud.firestore {
       allow delete: if isSignedIn() && (request.auth.uid == resource.data.leaderUid || isAdmin());
 
       match /positions/{memberId} {
-        allow read: if isSignedIn();
+        // Positions exactes : seuls le chef et les pilotes déjà inscrits dans ce convoi les voient
+        allow read: if isSignedIn() && (
+          exists(/databases/$(database)/documents/convoys/$(convoyId)/positions/$(request.auth.uid))
+          || (exists(/databases/$(database)/documents/convoys/$(convoyId))
+              && get(/databases/$(database)/documents/convoys/$(convoyId)).data.leaderUid == request.auth.uid)
+        );
         allow write: if isSignedIn() && request.auth.uid == memberId;
       }
     }

@@ -56,12 +56,26 @@ window.CortegeSystem = {
         return alert("Cortège introuvable ou expiré avec ce code.");
       }
 
-      this.sessionId = snap.docs[0].id;
+      const pos = window.currentPosition;
+      if (!pos) return alert("Position GPS introuvable : active la localisation, puis réessaie.");
+
+      // Les positions du groupe ne sont lisibles qu'une fois inscrit dedans (firestore.rules)
+      const sessionId = snap.docs[0].id;
+      await firebase
+        .firestore()
+        .collection("cortege_sessions")
+        .doc(sessionId)
+        .collection("members")
+        .doc(window.session.uid)
+        .set({ lat: pos.lat, lng: pos.lng, name: window.session.username, lastUpdate: Date.now() });
+
+      this.sessionId = sessionId;
       alert(`Cortège rejoint avec succès !`);
       this.startSharing();
       this.listenToMembers();
     } catch (e) {
       console.error(e);
+      alert("Impossible de rejoindre ce cortège.");
     }
   },
 
