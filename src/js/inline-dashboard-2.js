@@ -2,6 +2,7 @@ import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { initialsAvatar } from './avatar.js';
 import { realDashboardData } from './dashboard-data.js';
+import { sovereignSession } from './sovereign.js';
 
 // ─── Real Data Fetching (Firestore) ─────────────────────
       let currentUser = null;
@@ -132,6 +133,68 @@ item.innerHTML = `
         });
       }
 
+      // ─── Badges personnels et trajets déclarés (serveur du VPS) ─
+      async function loadAchievements() {
+        if (!sovereignSession || !sovereignSession.hasAccount()) return;
+        try {
+          const res = await sovereignSession.client.request('/achievements', { method: 'GET' });
+          renderAchievements(res.achievements || []);
+        } catch (e) {
+          console.warn('[Dashboard] Badges indisponibles :', e && e.message);
+        }
+      }
+
+      function renderAchievements(achievements) {
+        const grid = document.querySelector('.achievement-grid');
+        const trips = document.getElementById('trips-list');
+        for (const a of [...achievements].reverse()) {
+          const badge = document.createElement('div');
+          badge.className = 'achievement-item';
+          const icon = document.createElement('div');
+          icon.className = 'achievement-icon';
+          icon.textContent = a.emoji;
+          const name = document.createElement('div');
+          name.className = 'achievement-name';
+          name.textContent = a.title;
+          badge.append(icon, name);
+          if (grid) grid.prepend(badge);
+          if (a.trip && trips) {
+            if (!trips.children.length) trips.textContent = '';
+            trips.prepend(declaredTripItem(a.trip));
+          }
+        }
+      }
+
+      // Un trajet déclaré n'a ni score ni mesure GPS : il est affiché comme tel
+      function declaredTripItem(trip) {
+        const item = document.createElement('div');
+        item.className = 'trip-item';
+        const icon = document.createElement('div');
+        icon.className = 'trip-icon trip-good';
+        const i = document.createElement('i');
+        i.className = 'fa-solid fa-flag-checkered';
+        icon.append(i);
+        const info = document.createElement('div');
+        info.className = 'trip-info';
+        const route = document.createElement('div');
+        route.className = 'trip-route';
+        route.style.whiteSpace = 'normal';
+        route.textContent = trip.route;
+        const meta = document.createElement('div');
+        meta.className = 'trip-meta';
+        for (const text of [trip.date, trip.distance, trip.duration, 'Non mesuré par GPS']) {
+          const span = document.createElement('span');
+          span.textContent = text;
+          meta.append(span);
+        }
+        info.append(route, meta);
+        const status = document.createElement('div');
+        status.className = 'trip-score good';
+        status.textContent = 'Déclaré';
+        item.append(icon, info, status);
+        return item;
+      }
+
       // ─── Animate BVC Score Ring ──────────────────────────────
       function animateScore(targetScore) {
         const circle = document.getElementById('score-ring-circle');
@@ -183,5 +246,5 @@ item.innerHTML = `
       // ─── Init ───────────────────────────────────────────────
       document.addEventListener('DOMContentLoaded', () => {
         // Lance le chargement des données réelles Firebase
-        loadRealData();
+        loadRealData().finally(loadAchievements);
       });

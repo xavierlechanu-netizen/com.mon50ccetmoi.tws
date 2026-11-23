@@ -170,6 +170,7 @@ function createPgStore({ connectionString, pool } = {}) {
                 }
                 await client.query("DELETE FROM fido_credentials WHERE user_uid = $1", [uid]);
                 await client.query("DELETE FROM fido_challenges WHERE user_uid = $1", [uid]);
+                await client.query("DELETE FROM pilot_achievements WHERE user_uid = $1", [uid]);
                 // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
                 await client.query("UPDATE hazards SET description = '' WHERE user_uid = $1 AND description <> ''", [uid]);
                 await client.query("COMMIT");
@@ -180,6 +181,24 @@ function createPgStore({ connectionString, pool } = {}) {
             } finally {
                 client.release();
             }
+        },
+
+        /** Badge personnel, avec un trajet déclaré facultatif. Faux s'il était déjà attribué. */
+        async grantAchievement({ uid, code, emoji, title, trip = null }) {
+            const { rowCount } = await db.query(
+                `INSERT INTO pilot_achievements (user_uid, code, emoji, title, trip) VALUES ($1, $2, $3, $4, $5)
+                 ON CONFLICT (user_uid, code) DO NOTHING`,
+                [uid, code, emoji, title, trip ? JSON.stringify(trip) : null]
+            );
+            return rowCount === 1;
+        },
+
+        async listAchievements(uid) {
+            if (!UUID_RE.test(String(uid))) return [];
+            const { rows } = await db.query(
+                "SELECT code, emoji, title, trip, granted_at FROM pilot_achievements WHERE user_uid = $1 ORDER BY granted_at", [uid]
+            );
+            return rows.map((r) => ({ code: r.code, emoji: r.emoji, title: r.title, trip: r.trip, grantedAt: iso(r.granted_at) }));
         },
 
         /** Effacements RGPD à finir dans Firebase, du plus ancien au plus récent. */
@@ -219,7 +238,7 @@ function createPgStore({ connectionString, pool } = {}) {
         async exportUserData(uid) {
             const user = await this.findUserById(uid);
             if (!user) return null;
-            const [hz, led, tel, bb, pay] = await Promise.all([
+            const [hz, led, tel, bb, pay, achievements] = await Promise.all([
                 db.query(`SELECT hazard_id, type, lat, lng, description, active, created_at FROM hazards
                            WHERE user_uid = $1 ORDER BY created_at`, [uid]),
                 db.query(`SELECT action, reason, delta, balance_after, created_at FROM points_ledger
@@ -229,6 +248,7 @@ function createPgStore({ connectionString, pool } = {}) {
                            WHERE user_uid = $1 ORDER BY created_at`, [uid]),
                 db.query("SELECT serial, revision, status, created_at FROM blackbox_units WHERE owner_uid = $1 ORDER BY serial", [uid]),
                 db.query("SELECT * FROM revolut_orders WHERE user_uid = $1 ORDER BY created_at", [uid]),
+                this.listAchievements(uid),
             ]);
             return {
                 account: {
@@ -246,6 +266,7 @@ function createPgStore({ connectionString, pool } = {}) {
                 blackboxUnits: bb.rows.map((r) => ({ serial: r.serial, revision: r.revision, status: r.status, createdAt: iso(r.created_at) })),
                 payments: pay.rows.map(mapOrder).map(({ caseId, product, amountCents, currency, status, createdAt, completedAt }) =>
                     ({ caseId, product, amountCents, currency, status, createdAt, completedAt })),
+                achievements,
             };
         },
 

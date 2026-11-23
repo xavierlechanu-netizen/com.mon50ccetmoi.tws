@@ -27,6 +27,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const invoices = new Map(); // factures à émettre, par identifiant de commande
     const firebaseErasures = []; // effacements RGPD à finir dans Firebase (migration 003)
     let firebaseErasureSeq = 0;
+    const achievements = new Map(); // `${uid}|${code}` → badge personnel (migration 004)
 
     // Utilisateurs pré-enregistrés (tests) : [{ uid, email?, username?, role? }]
     for (const u of users) {
@@ -93,7 +94,21 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             });
             // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
             for (const h of hazards) if (h.uid === uid) h.description = "";
+            for (const [k, a] of achievements) if (a.uid === uid) achievements.delete(k);
             return true;
+        },
+
+        /** Badge personnel, avec un trajet déclaré facultatif. Faux s'il était déjà attribué. */
+        async grantAchievement({ uid, code, emoji, title, trip = null }) {
+            const key = `${uid}|${code}`;
+            if (achievements.has(key)) return false;
+            achievements.set(key, { uid, code, emoji, title, trip, grantedAt: new Date().toISOString() });
+            return true;
+        },
+
+        async listAchievements(uid) {
+            return [...achievements.values()].filter((a) => a.uid === uid)
+                .map(({ code, emoji, title, trip, grantedAt }) => ({ code, emoji, title, trip, grantedAt }));
         },
 
         /** Effacements RGPD à finir dans Firebase, du plus ancien au plus récent. */
@@ -148,6 +163,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
                 payments: [...orders.values()].filter((o) => o.uid === uid)
                     .map(({ caseId, product, amountCents, currency, status, createdAt, completedAt }) =>
                         ({ caseId, product, amountCents, currency, status, createdAt, completedAt })),
+                achievements: await this.listAchievements(uid),
             };
         },
 

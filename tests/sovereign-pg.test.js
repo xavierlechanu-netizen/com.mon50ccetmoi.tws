@@ -253,6 +253,21 @@ describe("Serveur souverain sur PostgreSQL", () => {
     expect(spend.body.balance).toBe(20);
   });
 
+  test("badge et trajet déclaré : sans doublon, dans l'export, effacés avec le compte", async () => {
+    // Sans passer par l'inscription : une de plus ferait dépasser la limite anti force brute du test
+    const { rows: [u] } = await pool.query("INSERT INTO users (email, username, password_hash) VALUES ('badge-pg@example.com', 'BadgePG', '!') RETURNING uid");
+    const reg = { body: { uid: u.uid, token: signSovereignJwt({ uid: u.uid, role: "user", username: "BadgePG" }) } };
+    const pg = createPgStore({ pool });
+    const badge = { uid: reg.body.uid, code: "essai", emoji: "🛵", title: "Essai", trip: { route: "A → B", date: "Juillet 2025", distance: "850 km", duration: "48 h" } };
+    expect(await pg.grantAchievement(badge)).toBe(true);
+    expect(await pg.grantAchievement(badge)).toBe(false);
+    const mine = await call(app, "GET", "/api/v1/achievements", null, { Authorization: `Bearer ${reg.body.token}` });
+    expect(mine.body.achievements).toEqual([expect.objectContaining({ code: "essai", emoji: "🛵", trip: badge.trip })]);
+    expect((await pg.exportUserData(reg.body.uid)).achievements).toHaveLength(1);
+    await pg.anonymizeUser(reg.body.uid);
+    expect((await pool.query("SELECT count(*)::int AS n FROM pilot_achievements WHERE user_uid = $1", [reg.body.uid])).rows[0].n).toBe(0);
+  });
+
   test("outils du VPS (check.sh, rgpd-firebase.sh) : leurs requêtes SQL marchent sur la vraie base", async () => {
     const deploy = (f) => fs.readFileSync(path.join(__dirname, "../sovereign-core/deploy", f), "utf8");
     const check = deploy("check.sh");

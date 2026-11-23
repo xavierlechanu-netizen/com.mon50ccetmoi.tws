@@ -891,6 +891,20 @@ function createSovereignApp(options = {}) {
             return;
         }
 
+        // 4d ter. MES BADGES et trajets déclarés : lecture seule, jamais attribués par l'appli
+        if (req.method === "GET" && pathname === "/api/v1/achievements") {
+            const authUser = extractBearerUser(req);
+            const user = authUser ? await store.findUserById(authUser.uid) : null;
+            if (!user) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Authentification requise." }));
+                return;
+            }
+            res.statusCode = 200;
+            res.end(JSON.stringify({ achievements: await store.listAchievements(user.uid) }));
+            return;
+        }
+
         // 4e. CLASSEMENT : pseudo + points gagnés
         if (req.method === "GET" && pathname === "/api/v1/leaderboard") {
             if (!extractBearerUser(req)) {
