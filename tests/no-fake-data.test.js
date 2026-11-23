@@ -42,4 +42,19 @@ describe("Aucune fausse donnée présentée comme réelle", () => {
     expect(demo).toMatch(/PAGE DE DÉMONSTRATION/);
     expect(demo).toMatch(/EXEMPLE FICTIF/);
   });
+
+  test("Marketplace : plus de faux achat ni de faux solde (audit du 23/11/2026)", () => {
+    const html = fs.readFileSync(path.resolve(__dirname, "../src/marketplace.html"), "utf8");
+    expect(html).not.toMatch(/Achat validé|Fonds insuffisants|buyVoiceMode/);
+    expect(html.match(/disabled>Bientôt disponible/g)).toHaveLength(5);
+    expect(read("inline-marketplace-2.js")).not.toMatch(/buyVoiceMode/);
+    expect(read("dashboard-extras.js")).not.toMatch(/acheterThemeRose/);
+  });
+
+  test("Bourse : réserver ne retire jamais de points tant que la réservation n'est pas sûre", () => {
+    const code = read("exchange.js");
+    const fn = code.slice(code.indexOf("reserveListing: async function"), code.indexOf("deleteListing: async function"));
+    expect(fn).not.toMatch(/\.deduct\(/);
+    expect(fn).toMatch(/Aucun point n'a été retiré/);
+  });
 });

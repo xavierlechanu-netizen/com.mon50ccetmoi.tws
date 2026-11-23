@@ -53,22 +53,6 @@ function setButtonContent(btn, iconClass, text, iconAfter = false) {
   btn.replaceChildren(...(iconAfter ? [label, icon] : [icon, label]));
 }
 
-// Fonction pour débloquer le thème Rose définitivement via les points mon50cc
-window.acheterThemeRose = function() {
-  // Simulation de déduction de 500 BVC
-  const btn = document.getElementById('btn-buy-pink');
-  setButtonContent(btn, "fa-solid fa-circle-notch fa-spin", " Traitement...");
-  
-  setTimeout(() => {
-    localStorage.setItem('unlockedTheme_Pink', 'true');
-    btn.style.background = 'rgba(0, 230, 118, 0.2)';
-    btn.style.color = 'var(--neon-green)';
-    setButtonContent(btn, "fa-solid fa-check", " Débloqué à vie !");
-    btn.disabled = true;
-    alert("🎉 Félicitations ! Votre GPS brillera désormais en Rose Néon pour toujours. Merci pour votre soutien !");
-  }, 1000);
-};
-
 // Vérifier si déjà débloqué au chargement
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Feu d'artifice de Janvier

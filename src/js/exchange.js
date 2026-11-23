@@ -353,41 +353,9 @@ window.ExchangeMarket = {
     }
 
     if (priceType === "bvc") {
-      if (this.userBvc < price) {
-        alert(`Solde insuffisant ! Il vous manque ${price - this.userBvc} points mon50cc pour procéder à la réservation.`);
-        return;
-      }
-
-      if (!confirm(`Confirmer la réservation de "${listing.title}" pour ${price} Pts mon50cc ?`)) {
-        return;
-      }
-
-      try {
-        const user = firebase.auth().currentUser;
-        if (!user || !window.db) throw new Error("Utilisateur non connecté");
-        
-        const listingRef = window.db.collection("exchange_listings").doc(listingId);
-
-        // Déduction sécurisée via Cloud Function transactPoints (OWASP ASVS v5.0.0-2.3.3)
-        const deducted = await window.BVCManager.deduct(price, "EXCHANGE_PURCHASE", { listingId });
-        if (!deducted) {
-          throw new Error("Solde insuffisant ou transaction rejetée par le serveur.");
-        }
-
-        await listingRef.update({
-          status: "reserved",
-          buyer: window.session.username,
-          reservedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-
-        // Contacter le vendeur automatiquement
-        await this.contactSeller(listingId, listing.seller, `J'ai réservé ta pièce "${listing.title}" pour ${price} Pts mon50cc ! Merci de me contacter pour la remise.`);
-
-        alert("✅ Réservation confirmée ! Les points mon50cc ont été transférés et le vendeur a été notifié.");
-      } catch (e) {
-        console.error("[ExchangeMarket] Réservation échouée :", e);
-        alert("Erreur lors du traitement de la réservation.");
-      }
+      // Retirer les points avant une réservation que la base refuse les ferait perdre au pilote
+      alert("La réservation avec des points n'est pas encore disponible. Aucun point n'a été retiré. Vous pouvez écrire au vendeur avec le bouton enveloppe.");
+      return;
     } else {
       // Réservation en Euros
       this.contactSeller(listingId, listing.seller, `Bonjour ! Je souhaite acheter ta pièce "${listing.title}" au prix de ${price} €. Discutons des modalités de livraison.`);
@@ -583,9 +551,9 @@ container.innerHTML = `
               : isReserved
               ? `<button class="buy-btn" style="background:#333; color:#777; cursor:not-allowed;" disabled><i class="fa-solid fa-lock"></i> Indisponible</button>`
               : `<div style="display:flex; gap:8px;">
-                  <button class="buy-btn" style="flex:1; background:linear-gradient(135deg, #00f2ff, #0077ff);" data-action="ExchangeMarket.reserveListing('${safeId(listing.id)}', ${safeNumber(listing.price)}, '${isBvc ? "bvc" : "euro"}')">
-                    ${isBvc ? '<i class="fa-solid fa-cart-shopping"></i> Réserver' : '<i class="fa-solid fa-handshake"></i> Acheter'}
-                  </button>
+                  ${isBvc ? `<button class="buy-btn" style="flex:1; background:#333; color:#777; cursor:not-allowed;" disabled><i class="fa-solid fa-lock"></i> Bientôt disponible</button>` : `<button class="buy-btn" style="flex:1; background:linear-gradient(135deg, #00f2ff, #0077ff);" data-action="ExchangeMarket.reserveListing('${safeId(listing.id)}', ${safeNumber(listing.price)}, 'euro')">
+                    <i class="fa-solid fa-handshake"></i> Acheter
+                  </button>`}
                   <button class="buy-btn" style="width:42px; padding:0; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);" data-action="ExchangeMarket.contactSeller('${safeId(listing.id)}', '${escapeHtml(safeActionText(listing.seller))}')" title="Contacter">
                     <i class="fa-solid fa-envelope"></i>
                   </button>
