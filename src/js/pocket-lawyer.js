@@ -663,21 +663,16 @@ tempDiv.innerHTML = htmlContent;
       "Informations ou preuves complémentaires (optionnel) :"
     ) || "";
 
-    // Déduction des 5 points mon50cc pour le recours
-    if (window.BVCManager && typeof window.BVCManager.deduct === "function") {
-      const deducted = await window.BVCManager.deduct(cost);
-      if (!deducted) {
-        alert("Erreur lors de la déduction des points mon50cc.");
-        return;
-      }
-    }
-
     const result = mod ? await mod.requestAppeal(uid, reason.trim(), details.trim(), cost) : { success: false, error: "Module de modération indisponible" };
 
     if (result.success) {
+      // Points retirés seulement une fois la demande enregistrée
+      const paid = window.BVCManager && typeof window.BVCManager.deduct === "function"
+        ? await window.BVCManager.deduct(cost)
+        : false;
       this.addBotMessage(
         `⚖️ <strong>Demande de réexamen transmise avec succès !</strong><br><br>` +
-        `Votre dossier a été transmis à l'équipe de modération pour <strong>vérification humaine</strong> (${cost} points mon50cc utilisés).<br><br>` +
+        `Votre dossier a été transmis à l'équipe de modération pour <strong>vérification humaine</strong>${paid ? ` (${cost} points mon50cc utilisés)` : ""}.<br><br>` +
         `<div style="background: rgba(0,230,118,0.1); border-left: 3px solid #00e676; padding: 12px; border-radius: 8px; margin-top: 8px;">` +
         `<strong>Règle formelle appliquée :</strong><br>` +
         `Si la sanction est ensuite annulée après réexamen :<br>` +

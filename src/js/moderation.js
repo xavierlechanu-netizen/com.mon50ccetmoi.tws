@@ -313,45 +313,54 @@ class ModerationEngine {
     const username = (window.session && window.session.username) ? window.session.username : "Pilote";
     const tempBansCount = currentBan.tempBansCount;
 
+    const notSaved = {
+      success: false,
+      error: "Ta demande n'a pas pu être enregistrée et aucun point n'a été retiré. Écris à contact@mon50ccetmoi.com avec ton pseudo.",
+    };
+    if (typeof firebase === "undefined" || !firebase.firestore) return notSaved;
+    const firestoreDb = firebase.firestore();
+    try {
+      await firestoreDb.collection("mod_appeals").add({
+        uid,
+        username,
+        sanctionType: currentBan.isBanned ? "PERM_BAN" : "TEMP_BAN",
+        tempBansCount,
+        costPoints: cost,
+        compensationIfAccepted: 50,
+        banReason: currentBan.banReason || "Sanction en espace de groupe",
+        appealReason: reason,
+        details,
+        status: "PENDING_HUMAN_REVIEW",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (e) {
+      console.warn("[Moderation Appeal] Demande non enregistrée :", e.message);
+      return notSaved;
+    }
+
     try {
       localStorage.setItem(`appeal_pending_${uid}`, "true");
     } catch (e) {}
 
-    if (typeof firebase !== "undefined" && firebase.firestore) {
-      try {
-        const firestoreDb = firebase.firestore();
-        await firestoreDb.collection("mod_appeals").add({
-          uid,
-          username,
-          sanctionType: currentBan.isBanned ? "PERM_BAN" : "TEMP_BAN",
-          tempBansCount,
-          costPoints: cost,
-          compensationIfAccepted: 50,
-          banReason: currentBan.banReason || "Sanction en espace de groupe",
-          appealReason: reason,
-          details,
-          status: "PENDING_HUMAN_REVIEW",
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+    // Suivi : la demande est déjà enregistrée, un échec ici ne l'annule pas
+    try {
+      await firestoreDb.collection("users").doc(uid).set({
+        appealStatus: "PENDING_HUMAN_REVIEW",
+        appealSubmittedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
 
-        await firestoreDb.collection("users").doc(uid).set({
-          appealStatus: "PENDING_HUMAN_REVIEW",
-          appealSubmittedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        // Trace dans les journaux d'audit (mod_logs)
-        await firestoreDb.collection("mod_logs").add({
-          bot: "Nexus Atlas Juridique",
-          targetUid: uid,
-          targetUsername: username,
-          action: "APPEAL_SUBMITTED",
-          costPoints: cost,
-          reason: `Demande de réexamen soumise via Nexus Atlas Juridique (${cost} points mon50cc) : ${reason}`,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      } catch (e) {
-        console.warn("[Moderation Appeal] Erreur enregistrement Firestore :", e.message);
-      }
+      // Trace dans les journaux d'audit (mod_logs)
+      await firestoreDb.collection("mod_logs").add({
+        bot: "Nexus Atlas Juridique",
+        targetUid: uid,
+        targetUsername: username,
+        action: "APPEAL_SUBMITTED",
+        costPoints: cost,
+        reason: `Demande de réexamen soumise via Nexus Atlas Juridique (${cost} points mon50cc) : ${reason}`,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (e) {
+      console.warn("[Moderation Appeal] Suivi non enregistré :", e.message);
     }
 
     return {

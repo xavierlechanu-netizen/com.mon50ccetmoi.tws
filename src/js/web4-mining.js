@@ -11,8 +11,6 @@ window.Web4Economy = {
   },
 
   init: function () {
-    this.checkYearlyExpiration();
-    
     // Simulation de minage passif (ex: 0.1 BVC par minute de trajet)
     setInterval(() => {
       if (window.isRiding) {
@@ -22,30 +20,6 @@ window.Web4Economy = {
 
     // Synchronisation de l'UI avec BVCManager
     setInterval(() => this.updateUI(), 2000);
-  },
-
-  checkYearlyExpiration: function () {
-    const currentYear = new Date().getFullYear();
-    const lastYear =
-      localStorage.getItem("mon50_bvc_year") || currentYear.toString();
-
-    if (parseInt(currentYear) > parseInt(lastYear)) {
-      if (window.BVCManager && window.BVCManager.balance > 0) {
-        window.BVCManager.deduct(window.BVCManager.balance);
-      }
-      localStorage.setItem("mon50_tokens", "0.00");
-      if (window.NeuralHUD) window.NeuralHUD.tokenBalance = 0;
-
-      // Show alert to user if they open the app
-      setTimeout(
-        () =>
-          alert(
-            "Nouvelle Saison ! Vos points mon50cc (Rouler & Gagner) ont expiré et ont été remis à zéro pour l'année civile en cours.",
-          ),
-        2000,
-      );
-    }
-    localStorage.setItem("mon50_bvc_year", currentYear.toString());
   },
 
   // serverReason : motif du barème serveur (ex. "CHALLENGE_COMPLETED"). Sans motif, affichage local seulement.

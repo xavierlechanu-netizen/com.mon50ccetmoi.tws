@@ -131,7 +131,11 @@ describe('Group Spaces Moderation & Strict Ban System (DSA Art. 16/17 & CGU)', (
         expect(status.tempBansCount).toBe(1);
 
         // 2. L'utilisateur soumet une demande de réexamen via l'Avocat de Poche
+        const firestore = () => ({ collection: () => ({ add: async () => ({}), doc: () => ({ set: async () => ({}) }) }) });
+        firestore.FieldValue = { serverTimestamp: () => "maintenant" };
+        global.firebase = { firestore };
         const appealRes = await Moderation.requestAppeal(uid, "C'était une citation de chanson, pas une insulte", "Contexte musical");
+        delete global.firebase;
         expect(appealRes.success).toBe(true);
         expect(appealRes.compensationIfAccepted).toBe(50);
 
@@ -153,5 +157,19 @@ describe('Group Spaces Moderation & Strict Ban System (DSA Art. 16/17 & CGU)', (
         expect(finalStatus.isTempBanned).toBe(false);
         expect(finalStatus.tempBansCount).toBe(0);
         expect(window.BVCManager.add).not.toHaveBeenCalled();
+    });
+
+    test('Un recours non enregistré le dit et ne reste pas en attente', async () => {
+        const uid = "user_appeal_refuse";
+        Moderation.checkGroupMessage("Putain", { space: "Crew Chat", uid, username: "Rider" });
+        const firestore = () => ({ collection: () => ({ add: async () => { throw new Error("refusé"); } }) });
+        firestore.FieldValue = { serverTimestamp: () => "maintenant" };
+        global.firebase = { firestore };
+        const res = await Moderation.requestAppeal(uid, "Malentendu");
+        delete global.firebase;
+        expect(res.success).toBe(false);
+        expect(res.error).toContain("aucun point n'a été retiré");
+        expect(Moderation.getBanStatus(uid).appealPending).toBeFalsy();
+        expect((await Moderation.requestAppeal(uid, "Sans Firebase")).success).toBe(false);
     });
 });
