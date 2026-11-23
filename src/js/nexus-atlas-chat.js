@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import Moderation from './moderation.js';
 
 /**
  * Nexus Atlas Chat Interface
@@ -48,15 +49,7 @@ window.NexusAtlasChat = {
         const typingId = this.addTypingIndicator();
 
         // 🛡️ Première barrière invisible : Détection de toxicité locale via Dictionnaire
-        let isToxic = false;
-        if (window.FrenchBadWords && Array.isArray(window.FrenchBadWords)) {
-            const lowerText = text.toLowerCase();
-            isToxic = window.FrenchBadWords.some(word => lowerText.includes(word.toLowerCase()));
-        } else {
-            // Fallback si le dictionnaire n'est pas chargé
-            const toxicPatterns = /(connard|salop|pute|encul|fdp|gueule|tg\b|bâtard|merde|chier|tuer|suicide)/i;
-            isToxic = toxicPatterns.test(text);
-        }
+        const isToxic = Moderation.isProfane(text);
 
         if (isToxic) {
             setTimeout(() => {

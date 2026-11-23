@@ -23,8 +23,17 @@ const CORE_BANNED_WORDS = [
 // Mots à tolérance zéro absolue (Entraîne un bannissement définitif immédiat)
 const ZERO_TOLERANCE_WORDS = [
   "nazi", "hitler", "negro", "négro", "bougnoul", "youpin",
-  "terroriste", "égorger", "crever", "viol", "violer", "pédophile"
+  "terroriste", "égorger", "pédophile"
 ];
+// Retirés le 23/11/2026 : « crever » (un pneu), « violer » (le code de la route) et « viol » (une
+// victime qui en parle) valaient un bannissement définitif immédiat.
+
+// Mots du dictionnaire qui sont d'abord du français courant, surtout pour un pilote.
+const MOTS_COURANTS = new Set(["sale", "coche", "epais", "manche", "gourde", "raton", "pet", "minus", "magot",
+  "pedale", "pouf", "crotte", "fumier", "gland", "bougre", "niac", "vier"]);
+
+// Débuts de mots sans homonyme courant : attrapent les conjugaisons absentes du dictionnaire.
+const RACINES_GROSSIERES = ["encul", "connar", "merd", "emmerd", "enfoir", "niqu"];
 
 class ModerationEngine {
   constructor() {
@@ -66,52 +75,62 @@ class ModerationEngine {
   }
 
   /**
+   * Découpe un message en mots. On compare des MOTS ENTIERS : chercher « con » ou « cul » à l'intérieur
+   * du texte bloquait « conduite », « véhicule », « immatriculation », « technique »…
+   * Restent détectés : c.0.n.n.@.r.d (un seul bloc) et c o n n a r d (lettres isolées).
+   */
+  splitWords(text) {
+    const blocs = text.toLowerCase().replace(/cul[\s-]+de[\s-]+sac/g, " ").split(/[\s'’"«»()]+/).filter(Boolean);
+    const mots = [];
+    let lettres = "";
+    const finirLettres = () => {
+      if (lettres.length >= 3) mots.push(lettres);
+      lettres = "";
+    };
+    for (const bloc of blocs) {
+      const net = bloc.replace(/[!?.,;:…]+$/, "");
+      const seul = this.normalizeText(net);
+      if (seul.length === 1) lettres += seul;
+      else finirLettres();
+      mots.push(bloc, net, ...net.split(/[-_.,;:/]+/));
+    }
+    finirLettres();
+    return mots.filter(Boolean);
+  }
+
+  /** Vrai si un mot du texte est dans la liste (formes brute et normalisée, pluriel, féminin). */
+  hasWord(text, list, racines = RACINES_GROSSIERES) {
+    const index = new Set();
+    for (const w of list) {
+      const brut = String(w).toLowerCase();
+      const norm = this.normalizeText(brut);
+      if (MOTS_COURANTS.has(norm) || MOTS_COURANTS.has(norm.replace(/s$/, ""))) continue;
+      index.add(brut);
+      index.add(norm);
+    }
+    return this.splitWords(text).some((mot) => {
+      const norm = this.normalizeText(mot);
+      if (index.has(mot) || index.has(norm)) return true;
+      if (norm.length >= 5 && norm.endsWith("s") && index.has(norm.slice(0, -1))) return true;
+      if (norm.length >= 6 && /es?$/.test(norm) && index.has(norm.replace(/es?$/, ""))) return true;
+      return racines.some((r) => norm.startsWith(r));
+    });
+  }
+
+  /**
    * Vérifie si un texte contient un mot grossier ou illicite
    */
   isProfane(text) {
     if (!text || typeof text !== "string") return false;
-
-    const rawLower = text.toLowerCase();
-    const normalized = this.normalizeText(text);
-    const words = this.getWordList();
-
-    // 1. Détection directe sur mots clés de base
-    for (const w of this.coreBanned) {
-      const lowerW = w.toLowerCase();
-      if (rawLower.includes(lowerW) || normalized.includes(this.normalizeText(w))) {
-        return true;
-      }
-    }
-
-    // 2. Détection sur la base de données exhaustive
-    for (let i = 0; i < words.length; i++) {
-      const word = String(words[i]).toLowerCase();
-      if (word.length >= 3) {
-        if (rawLower.includes(word) || normalized.includes(this.normalizeText(word))) {
-          return true;
-        }
-      }
-    }
-
-    // 3. Détection sur les mots à tolérance zéro
-    for (const zw of this.zeroTolerance) {
-      const lowerZW = zw.toLowerCase();
-      if (rawLower.includes(lowerZW) || normalized.includes(this.normalizeText(zw))) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.hasWord(text, [...this.coreBanned, ...this.getWordList(), ...this.zeroTolerance]);
   }
 
   /**
    * Détecte si le message relève de la Tolérance Zéro (Racisme, Menaces)
    */
   isZeroTolerance(text) {
-    if (!text) return false;
-    const norm = this.normalizeText(text);
-    const rawLower = text.toLowerCase();
-    return this.zeroTolerance.some((zw) => rawLower.includes(zw) || norm.includes(this.normalizeText(zw)));
+    if (!text || typeof text !== "string") return false;
+    return this.hasWord(text, this.zeroTolerance, []);
   }
 
   /**

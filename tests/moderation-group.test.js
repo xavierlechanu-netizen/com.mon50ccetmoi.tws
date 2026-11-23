@@ -50,6 +50,29 @@ describe('Group Spaces Moderation & Strict Ban System (DSA Art. 16/17 & CGU)', (
         expect(Moderation.isProfane("Bonjour à tous sur le cortège !")).toBe(false);
     });
 
+    test('Ne confond plus les mots de tous les jours avec des insultes (vrai dictionnaire)', () => {
+        const dico = {};
+        new Function('window', fs.readFileSync(path.resolve(__dirname, '../src/js/badwords.js'), 'utf8')
+            .replace(/^s*import .*$/gm, ''))(dico);
+        window.FrenchBadWords = dico.FrenchBadWords;
+        for (const q of [
+            "la fixation apparente, quelle est la conformité réglementaire d'un dispositif d'identification dont l'intégrité structurelle est compromise",
+            "Si ma plaque d'immatriculation est mal fixée et risque de tomber, est-ce que je risque une amende même si elle est encore attachée ?",
+            "Je dois passer le contrôle technique de mon véhicule",
+            "Quels sont les conseils de conduite en circulation ?",
+            "La pédale de frein est molle et ma moto est sale",
+            "Je risque de crever un pneu, est-ce violer le code de rouler ainsi ?",
+            "Ma salopette est dans le coffre, cap de la rue, cul-de-sac à droite",
+            "Le cône est tombé, le disque est usé, la manche à air bouge",
+        ]) {
+            expect([q, Moderation.isProfane(q), Moderation.isZeroTolerance(q)]).toEqual([q, false, false]);
+        }
+        for (const q of ["Espèce de con !", "t'es un connard.", "c o n n a r d", "C.0.N.N.@.R.D", "va te faire enculer",
+            "fils-de-pute", "quelle m3rd3", "bande de salopes", "ntm"]) {
+            expect([q, Moderation.isProfane(q)]).toEqual([q, true]);
+        }
+    });
+
     test('Applique la progression stricte : 3 bans temporaires puis ban définitif sans remboursement', () => {
         const uid = "user_infracteur_1";
         const context = { space: "Crew Chat", uid, username: "BadPilot" };
