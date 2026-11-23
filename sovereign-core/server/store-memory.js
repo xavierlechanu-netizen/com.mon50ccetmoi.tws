@@ -272,8 +272,9 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             }
             const delta = t.action === "DEDUCT" ? -t.amount : t.amount;
             user.braveCoins = before + delta;
-            ledger.push({ uid: t.uid, action: t.action, reason: t.reason, delta, balanceAfter: user.braveCoins,
-                idempotencyKey: t.idempotencyKey || null, createdAt: new Date().toISOString() });
+            ledger.push({ uid: t.uid, action: t.action, reason: t.reason, description: t.description || t.reason,
+                delta, balanceAfter: user.braveCoins, idempotencyKey: t.idempotencyKey || null,
+                createdAt: new Date().toISOString() });
             if (t.action === "AWARD") {
                 quota[t.reason] = (quota[t.reason] || 0) + t.amount;
                 if (t.unverified) quota.__unverified = (quota.__unverified || 0) + t.amount;
@@ -340,6 +341,13 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
         },
         async listInvoicesToIssue() {
             return [...invoices.values()].map((i) => ({ ...i }));
+        },
+
+        /** Historique des points d'un pilote, du plus récent au plus ancien (store-pg.js, même forme). */
+        async listPointsHistory(uid, limit = 30) {
+            return ledger.filter((l) => l.uid === uid).slice(-limit).reverse()
+                .map(({ action, reason, description, delta, balanceAfter, createdAt }) =>
+                    ({ action, reason, description: description || reason, delta, balanceAfter, createdAt }));
         },
 
         // ─── Carnet d'apprentissage de Nexus Atlas (nexus-brain.js) ─────────

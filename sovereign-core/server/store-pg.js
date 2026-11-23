@@ -623,6 +623,18 @@ function createPgStore({ connectionString, pool } = {}) {
         },
 
         /** Classement : points GAGNÉS (jamais achetés ni dépensés), comptes anonymisés exclus. */
+        /** Historique des points d'un pilote, du plus récent au plus ancien. */
+        async listPointsHistory(uid, limit = 30) {
+            if (!UUID_RE.test(String(uid))) return [];
+            const { rows } = await db.query(
+                `SELECT action, reason, description, delta, balance_after, created_at FROM points_ledger
+                  WHERE user_uid = $1 ORDER BY created_at DESC, ledger_id DESC LIMIT $2`,
+                [uid, limit]
+            );
+            return rows.map((r) => ({ action: r.action, reason: r.reason, description: r.description, delta: r.delta,
+                balanceAfter: r.balance_after, createdAt: new Date(r.created_at).toISOString() }));
+        },
+
         // ─── Carnet d'apprentissage de Nexus Atlas (nexus-brain.js) ─────────
         async recordNexusAnswer({ questionNorm, question, answer }) {
             const { rows } = await db.query(

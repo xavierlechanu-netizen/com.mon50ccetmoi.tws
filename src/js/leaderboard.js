@@ -1,6 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { escapeHtml } from './html-escape.js';
+import { pointsSouverains } from './points.js';
 
 ﻿// --- LEADERBOARD (King of the Street) ---
 window.Leaderboard = {
@@ -68,6 +69,18 @@ window.Leaderboard = {
   },
 
   fetchLeaderboard: async function () {
+    // Points sur le serveur du VPS : classement général (pseudo + points gagnés), sans département
+    if (pointsSouverains) {
+      if (!pointsSouverains.possible()) return;
+      try {
+        const top = await pointsSouverains.classement();
+        this.topPilots = top.map((p) => ({ username: p.username || "Pilote Anonyme", points: p.points || 0 }));
+        this.checkMyCrown();
+      } catch (e) {
+        console.error("[Leaderboard] Classement du serveur indisponible", e);
+      }
+      return;
+    }
     if (typeof firebase === "undefined") return;
     try {
       // Classement public tenu par le serveur (pseudo + points gagnés) : les profils
@@ -104,8 +117,9 @@ window.Leaderboard = {
 
   checkMyCrown: function () {
     if (!window.session) return;
-    const myRank = this.topPilots.findIndex(
-      (p) => p.uid === window.session.uid,
+    // Le classement du serveur ne donne que le pseudo (jamais l'identifiant des autres pilotes)
+    const myRank = this.topPilots.findIndex((p) =>
+      p.uid ? p.uid === window.session.uid : p.username === window.session.username,
     );
     if (myRank === 0) {
       window.session.crown = "gold";

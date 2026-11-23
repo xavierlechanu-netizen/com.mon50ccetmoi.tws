@@ -876,6 +876,21 @@ function createSovereignApp(options = {}) {
             return;
         }
 
+        // 4d bis. MES POINTS : solde et historique du pilote connecté (remplace getPointsHistory)
+        if (req.method === "GET" && pathname === "/api/v1/points") {
+            const authUser = extractBearerUser(req);
+            const user = authUser ? await store.findUserById(authUser.uid) : null;
+            if (!user) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Authentification requise." }));
+                return;
+            }
+            const limit = Math.min(Math.max(Math.floor(Number(url.searchParams.get("limit"))) || 30, 1), 100);
+            res.statusCode = 200;
+            res.end(JSON.stringify({ balance: user.braveCoins || 0, history: await store.listPointsHistory(user.uid, limit) }));
+            return;
+        }
+
         // 4e. CLASSEMENT : pseudo + points gagnés
         if (req.method === "GET" && pathname === "/api/v1/leaderboard") {
             if (!extractBearerUser(req)) {

@@ -52,7 +52,7 @@ plan OVHcloud) : on bascule un domaine à la fois, et on peut revenir en arrièr
 | **0. Installer le VPS** | Guide `sovereign-core/deploy/README.md` : Object Storage, DNS `api`, installation, `check.sh` | Prêt, attend la livraison |
 | **1. Petits cartons sans risque** | Polices hébergées sur le site (fin de Google Fonts), retrait de Firebase Analytics | Rapide, utile pour le RGPD, ne dépend pas du VPS |
 | **2. Comptes** | Connexion par le serveur souverain ; vérification des mots de passe Firebase (voir § 3) ; comptes Google ; clés d'accès FIDO. **Interrupteur prêt** (18/11/2026, voir § 6) : connexion, inscription, déconnexion et les 11 suivis de session passent par `src/js/comptes.js` ; reste sur `"FIREBASE"` jusqu'à l'import des comptes | Tout le reste en dépend |
-| **3. Dangers, points, classement** | Routes déjà écrites : brancher l'appli dessus | Le cœur de l'appli, déjà prêt côté serveur |
+| **3. Dangers, points, classement** | Routes déjà écrites : brancher l'appli dessus. **Points et classement codés** (19/11/2026, § 8) : interrupteur `points`, reprise des soldes depuis Firebase ; les nouveaux signalements partent aussi sur le serveur. Reste : la carte lit encore les dangers dans Firestore | Le cœur de l'appli, déjà prêt côté serveur |
 | **4. Paiements et assureurs** | Création de commande Revolut, rapports et litiges, abonnements. **Paiements codés** (18/11/2026, § 7) : rien en vente tant que vous ne l'avez pas décidé, droit d'entrée garage d'abord, interrupteur `paiements` sur `"FIREBASE"` | Les paiements sont coupés aujourd'hui : c'est de l'argent qui ne rentre pas |
 | **5. Boîte Noire** | Télémétrie signée (prête), boîtiers, certificats batterie | Indépendant du lancement du boîtier, mais prêt pour lui |
 | **6. Temps réel** | WebSocket sur le VPS (Caddy le gère déjà) : cortège, convois, chats, radar, SOS | Le plus gros chantier technique |
@@ -233,3 +233,35 @@ commission Revolut par paiement, inchangée.
 
 *Écartées* : les liens de paiement Revolut (tout à la main) et la réactivation de la facturation Google
 (une carte bancaire chez Google, au rebours du déménagement).
+
+## 8. Points et classement (19/11/2026)
+
+**Situation** : depuis la coupure des Cloud Functions (14/11), plus aucun point ne se gagne ni ne se
+dépense. L'appli ajoutait les points à l'écran, l'appel à `transactPoints` échouait, et elle les retirait.
+
+### Ce qui est fait
+
+- **Serveur** : `GET /api/v1/points` (solde et historique, remplace `getPointsHistory`), en plus de
+  `POST /api/v1/points/transact` et `GET /api/v1/leaderboard`, qui existaient déjà. Même barème, mêmes
+  preuves et mêmes plafonds qu'avant (`functions/api/points-rules.js`, partagé).
+- **Appli** (`src/js/points-core.js`, branché par `points.js`) : gestionnaire de points (`bvc-manager.js`),
+  classement, page profil. Interrupteur `points` sur `"FIREBASE"` tant que la bascule n'est pas faite.
+- **Signalements** : avec les points sur le VPS, chaque nouveau signalement est AUSSI envoyé au serveur
+  (`database.js`, `danger-zones.js`, `radar-danger.js`). Les 25 points sont accordés sur son identifiant
+  là-bas, seule preuve que le serveur sait vérifier. La carte lit encore les dangers dans Firestore.
+- **Reprise des soldes** : `functions/scripts/export-points-firestore.js` (sur le PC, avec une clé de compte
+  de service) puis `sovereign-core/scripts/import-firebase-points.js` (sur le VPS). Même solde, mêmes points
+  au classement, relance sans effet. Mode d'emploi : `sovereign-core/deploy/README.md`, étape 14.
+- **Tests** : `tests/points-souverains.test.js` (12 cas, contre un vrai serveur souverain) et la reprise sur un
+  vrai PostgreSQL. Vérifié dans l'appli en local : gains, plafond, dépense, historique, classement.
+
+### Pour basculer (avec les comptes, le même jour)
+
+1. Réimporter les comptes (étape 11 du guide du VPS), puis reprendre les points (étape 14).
+2. Essai sur un téléphone : `?essai-souverain=comptes,points`.
+3. `comptes: "SOVEREIGN"` et `points: "SOVEREIGN"` dans `config.js`, `CACHE_NAME` incrémenté. Chaque pilote se
+   reconnecte une fois.
+
+**Reste à faire ensuite** : la carte des dangers lue sur le serveur (fin de `hazards` dans Firestore), les
+compensations de la modération (`moderation.js` écrit encore le solde dans Firestore), le classement
+par département (le serveur ne donne que le classement général).

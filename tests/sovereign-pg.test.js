@@ -16,6 +16,7 @@ const { Pool } = require("pg");
 process.env.FIREBASE_SCRYPT_SIGNER_KEY = "jxspr8Ki0RYycVU8zykbdLGjFQ3McFUH0uiiTvC8pVMXAn210wjLNmdZJzxUECKbm0QsEmYUSDzZvpjeJ9WmXA==";
 process.env.FIREBASE_SCRYPT_SALT_SEPARATOR = "Bw==";
 const { importUsers } = require("../sovereign-core/scripts/import-firebase-users");
+const { importPoints } = require("../sovereign-core/scripts/import-firebase-points");
 
 const { signSovereignJwt } = require("../sovereign-core/server/crypto-auth");
 const { createSovereignApp } = require("../sovereign-core/server/index");
@@ -209,6 +210,47 @@ describe("Serveur souverain sur PostgreSQL", () => {
     const again = await importUsers(pool, exportData, { apply: true });
     expect(again).toMatchObject({ toImport: 0, skippedErased: [fbUid] });
     expect(await onServer()).toBe(0);
+  });
+
+  test("reprise des points de Firebase : même solde, même classement, relance sans effet, puis GET /points", async () => {
+    const fbUid = "fbUidPointsPg000000000000001";
+    expect((await importUsers(pool, { users: [
+      { localId: fbUid, email: "points-pg@example.com", displayName: "RepriseFbPG",
+        passwordHash: "lSrfV15cpx95/sZS2W9c9Kp6i/LVgQNDNC/qzrCnh1SAyZvqmZqAjTdn3aoItz+VHjoZilo78198JAdRuid5lQ==",
+        salt: "42xEC+ixf3L2lw==" },
+    ] }, { apply: true })).toImport).toBe(1);
+    const exportData = { format: "mon50cc-points-firebase-v1", users: [
+      { firebaseUid: fbUid, balance: 40, earned: 50 }, // gagnés 50, dépensés 10 (sous les 61 de « PointsPG »)
+      { firebaseUid: "fbUidInconnuPg00000000000001", balance: 9, earned: 9 },
+    ] };
+
+    const dry = await importPoints(pool, exportData);
+    expect(dry).toMatchObject({ toImport: 1, unknown: ["fbUidInconnuPg00000000000001"] });
+    const solde = async () => (await pool.query("SELECT brave_coins FROM users WHERE firebase_uid = $1", [fbUid])).rows[0].brave_coins;
+    expect(await solde()).toBe(0); // simulation : rien d'écrit
+
+    expect((await importPoints(pool, exportData, { apply: true })).toImport).toBe(1);
+    expect(await solde()).toBe(40);
+    expect(await importPoints(pool, exportData, { apply: true })).toMatchObject({ toImport: 0, alreadyImported: 1 });
+    expect(await solde()).toBe(40);
+
+    const store = createPgStore({ pool });
+    expect(await store.topPilots(50)).toEqual(expect.arrayContaining([{ username: "RepriseFbPG", points: 50 }]));
+
+    // Jeton signé directement : une connexion de plus ferait dépasser la limite anti force brute du test
+    const { rows: [me] } = await pool.query("SELECT uid FROM users WHERE firebase_uid = $1", [fbUid]);
+    const token = signSovereignJwt({ uid: me.uid, role: "user", username: "RepriseFbPG" });
+    const mine = await call(app, "GET", "/api/v1/points?limit=5", null, { Authorization: `Bearer ${token}` });
+    expect(mine.status).toBe(200);
+    expect(mine.body.balance).toBe(40);
+    expect(mine.body.history.map((h) => [h.action, h.delta, h.balanceAfter])).toEqual([["DEDUCT", -10, 40], ["AWARD", 50, 50]]);
+    expect(mine.body.history[0].reason).toBe("IMPORT_FIREBASE");
+
+    // Les points repris se dépensent normalement
+    const spend = await call(app, "POST", "/api/v1/points/transact", { action: "DEDUCT", reason: "GENERIC_SPEND", amount: 20 },
+      { Authorization: `Bearer ${token}` });
+    expect(spend.status).toBe(200);
+    expect(spend.body.balance).toBe(20);
   });
 
   test("outils du VPS (check.sh, rgpd-firebase.sh) : leurs requêtes SQL marchent sur la vraie base", async () => {

@@ -393,6 +393,45 @@ Pour chaque ligne (n°, date de la demande, date limite, email, identifiant Fire
 
 Tant que la ligne est dans la liste, l'import des comptes (étape 11) ne recrée jamais ce compte.
 
+## 14. Reprise des points depuis Firebase (avant la bascule des points)
+
+Les soldes et les points gagnés (classement) sont chez Firebase. Il faut les recopier sur le serveur
+**juste avant** de passer les points sur le VPS (`points: "SOVEREIGN"` dans `src/js/config.js`), sinon
+les pilotes repartiraient de zéro. Seuls des nombres sont recopiés, rangés par identifiant Firebase :
+aucun email, aucun pseudo.
+
+1. **Clé d'accès à Firestore**, dans la console Firebase › ⚙ Paramètres du projet › Comptes de service ›
+   **Générer une nouvelle clé privée**. Un fichier `.json` se télécharge. Il donne tous les droits sur le
+   projet : ne le mettez nulle part ailleurs, et jamais dans le dossier du projet.
+2. **Sur le PC**, dans le dossier du projet (en remplaçant le chemin de la clé) :
+
+   ```powershell
+   npm ci --prefix functions
+   ```
+
+   ```powershell
+   node functions/scripts/export-points-firestore.js C:\Users\xavie\Downloads\cle-firebase.json > points.json
+   ```
+
+   Puis **supprimez la clé** du PC, et révoquez-la dans la même page de la console (⋮ › Supprimer la clé).
+3. **Les comptes d'abord** : refaites l'import des comptes (étape 11) pour les derniers inscrits. Un compte
+   absent du serveur ne reçoit pas ses points (le bilan le dit).
+4. **Sur le VPS** (après `scp points.json ubuntu@IP:/tmp/points.json`), simulation puis reprise :
+
+   ```bash
+   cd /opt/mon50cc/sovereign-core
+   sudo docker compose -f docker-compose.vps.yml exec -T sovereign-api node scripts/import-firebase-points.js - < /tmp/points.json
+   sudo docker compose -f docker-compose.vps.yml exec -T sovereign-api node scripts/import-firebase-points.js - --apply < /tmp/points.json
+   rm /tmp/points.json
+   ```
+
+   Relancer ne recompte rien : un pilote déjà repris est ignoré.
+5. **Essai sur votre téléphone** : `https://mon50ccetmoi.com/login.html?essai-souverain=comptes,points`,
+   connexion, puis vérifier le solde et le classement. Retour : `?essai-souverain=non`.
+6. **Bascule** : `comptes: "SOVEREIGN"` et `points: "SOVEREIGN"` dans `src/js/config.js`, `CACHE_NAME`
+   incrémenté dans `src/public/sw.js`, fusion sur main (le site se republie seul). Chaque pilote se
+   reconnecte **une fois** ; les comptes « Google seul » avec l'adresse Gmail et le mot de passe choisi.
+
 ## Au quotidien
 
 ### Sauvegardes

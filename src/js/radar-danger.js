@@ -1,6 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { HapticNav, NAV_MODES } from './haptic-navigation.js';
+import { signalerAuServeur } from './points.js';
 
 /**
  * radar-danger.js — Page dédiée au Radar de Danger Communautaire & Navigation GPS In-App
@@ -783,6 +784,8 @@ btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Envoi...';
       created_at: firebase.firestore.FieldValue.serverTimestamp(),
       expires_at: firebase.firestore.Timestamp.fromMillis(Date.now() + 2 * 60 * 60 * 1000)
     });
+    // Points sur le VPS : le danger y est aussi enregistré (déménagement des signalements). Sans attente.
+    signalerAuServeur({ type: selectedDangerType, lat: currentPosition.lat, lng: currentPosition.lng });
 
     localStorage.setItem('last_signal_ts', Date.now().toString());
     showToast('✅ Danger signalé ! Merci de protéger la communauté.');

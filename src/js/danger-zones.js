@@ -1,6 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { distanceMeters } from './geo-math.js';
+import { pointsSouverains, signalerAuServeur } from './points.js';
 
 /**
  * ⚠️ DANGER ZONES v2.0 (Signalement Communautaire Temps Réel)
@@ -231,8 +232,12 @@ window.DangerZones = {
     try {
       if (report.authorUid === undefined) delete report.authorUid;
       const ref = await window.db.collection("hazards").add(report);
-      // 25 points, accordés par le serveur après vérification que ce danger existe bien
-      if (window.BVCManager && report.authorUid) {
+      // 25 points, accordés par le serveur après vérification que ce danger existe bien.
+      // Points sur le VPS : le danger y est aussi envoyé, la preuve est son identifiant là-bas.
+      if (pointsSouverains) {
+        const hazardId = await signalerAuServeur({ type: report.type, lat: report.lat, lng: report.lng });
+        if (hazardId && window.BVCManager) window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId });
+      } else if (window.BVCManager && report.authorUid) {
         window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId: ref.id });
       }
     } catch (e) {

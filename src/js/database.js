@@ -2,6 +2,7 @@ import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { onAuthChange } from './comptes.js';
 import { coarsePosition, recentCutoff, MAX_SHARED_POSITIONS } from './location-privacy.js';
+import { pointsSouverains, signalerAuServeur } from './points.js';
 
 /**
  * DATABASE MANAGER - mon50ccetmoi
@@ -96,8 +97,14 @@ window.publishHazardCloud = async function (hazard) {
       author: hazard.author, // Gardé en clair pour la modération par l'Oracle
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
-    // 25 points, accordés par le serveur après vérification que ce danger existe bien
-    if (uid && window.BVCManager) {
+    // 25 points, accordés par le serveur après vérification que ce danger existe bien.
+    // Points sur le VPS : le danger y est aussi envoyé, la preuve est son identifiant là-bas.
+    if (pointsSouverains) {
+      const hazardId = await signalerAuServeur({
+        type: hazard.type, lat: hazard.lat, lng: hazard.lng ?? hazard.lon, description: hazard.description,
+      });
+      if (hazardId && window.BVCManager) window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId });
+    } else if (uid && window.BVCManager) {
       window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId: ref.id });
     }
     return true;

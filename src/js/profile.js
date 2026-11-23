@@ -2,6 +2,7 @@ import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { onAuthChange } from './comptes.js';
 import { initialsAvatar } from './avatar.js';
+import { pointsSouverains } from './points.js';
 
 /**
  * Gestion du Profil Utilisateur & Mode Hôte de Recharge
@@ -41,6 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function loadUserProfile(uid) {
+        // Points sur le serveur du VPS : le solde vient de lui (interrupteur CONFIG.BACKEND_MODE.points)
+        if (pointsSouverains && pointsSouverains.possible() && bvcEl) {
+            pointsSouverains.soldeEtHistorique(1)
+                .then(({ balance }) => { bvcEl.textContent = `${balance} mon50cc`; })
+                .catch((e) => console.warn("[Profil] Solde de points indisponible :", e && e.message));
+        }
         if (!window.db) return;
 
         const userRef = window.db.collection('users').doc(uid);
@@ -50,9 +57,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (doc.exists) {
                 const data = doc.data();
                 
-                // Mettre à jour le solde de points mon50cc
+                // Mettre à jour le solde de points mon50cc (sur le VPS : lu plus bas, une fois)
                 const points = data.bvc !== undefined ? data.bvc : (data.braveCoins !== undefined ? data.braveCoins : (data.points || 0));
-                if (bvcEl) {
+                if (bvcEl && !pointsSouverains) {
                     bvcEl.textContent = `${points} mon50cc`;
                 }
 

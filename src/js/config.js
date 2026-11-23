@@ -38,6 +38,10 @@ export const CONFIG = {
     // Revolut sur le VPS, le webhook redirigé et un achat d'essai réussi. Les acheteurs doivent avoir
     // une session sur le serveur souverain (comptes importés, reconnexion depuis).
     paiements: "FIREBASE",
+    // Points, historique et classement par le serveur souverain (§ 8 du plan). "SOVEREIGN" en même
+    // temps que les comptes, APRÈS la reprise des soldes (scripts/import-firebase-points.js) : sans
+    // session sur le serveur, on ne gagne pas de points.
+    points: "FIREBASE",
   },
   // Comptes sur "SOVEREIGN" : tant que les données sont dans Firestore, la connexion souveraine ouvre
   // aussi une session Firebase (même email, même mot de passe) pour les lire. À couper (false) quand
