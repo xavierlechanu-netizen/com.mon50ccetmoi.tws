@@ -30,6 +30,7 @@ function mapUser(r) {
         isBanned: Boolean(r.is_banned),
         isCertifiedGarage: Boolean(r.is_certified_garage),
         createdAt: iso(r.created_at),
+        passwordChangedAt: iso(r.password_changed_at) || null,
     };
 }
 
@@ -171,6 +172,7 @@ function createPgStore({ connectionString, pool } = {}) {
                 await client.query("DELETE FROM fido_credentials WHERE user_uid = $1", [uid]);
                 await client.query("DELETE FROM fido_challenges WHERE user_uid = $1", [uid]);
                 await client.query("DELETE FROM pilot_achievements WHERE user_uid = $1", [uid]);
+                await client.query("DELETE FROM password_reset_tokens WHERE user_uid = $1", [uid]);
                 // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
                 await client.query("UPDATE hazards SET description = '' WHERE user_uid = $1 AND description <> ''", [uid]);
                 await client.query("COMMIT");
@@ -181,6 +183,27 @@ function createPgStore({ connectionString, pool } = {}) {
             } finally {
                 client.release();
             }
+        },
+
+        /** Mot de passe oublié : un seul lien en cours par pilote. */
+        async createPasswordReset({ uid, tokenHash, expiresAt }) {
+            await db.query(
+                `INSERT INTO password_reset_tokens (user_uid, token_hash, expires_at) VALUES ($1, $2, $3)
+                 ON CONFLICT (user_uid) DO UPDATE SET token_hash = EXCLUDED.token_hash, expires_at = EXCLUDED.expires_at`,
+                [uid, tokenHash, expiresAt]
+            );
+        },
+
+        /** Lien valable : le consomme et change le mot de passe en une seule requête. Sinon null. */
+        async consumePasswordReset(tokenHash, passwordHash) {
+            const { rows } = await db.query(
+                `WITH t AS (DELETE FROM password_reset_tokens WHERE token_hash = $1 AND expires_at > NOW() RETURNING user_uid)
+                 UPDATE users u SET password_hash = $2, password_changed_at = NOW(), updated_at = NOW()
+                 FROM t WHERE u.uid = t.user_uid AND u.deleted_at IS NULL AND u.is_banned IS NOT TRUE
+                 RETURNING u.uid`,
+                [tokenHash, passwordHash]
+            );
+            return rows[0] ? rows[0].uid : null;
         },
 
         /** Badge personnel, avec un trajet déclaré facultatif. Faux s'il était déjà attribué. */

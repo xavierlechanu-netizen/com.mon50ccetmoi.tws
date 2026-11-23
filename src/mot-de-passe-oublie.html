@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Mot de passe oublié - mon50ccetmoi</title>
+    <link rel="icon" type="image/png" href="assets/icons/icon-192x192.png" />
+    <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/css/style.min.css?v=60000" />
+    <style>
+      [hidden] { display: none !important; }
+      .reset-box { display: block; }
+      .reset-box p { color: #ccc; line-height: 1.5; margin: 0 0 16px; }
+      .reset-box a.btn-auth { display: block; text-align: center; text-decoration: none; box-sizing: border-box; }
+      .reset-back { display: block; margin-top: 16px; color: #ffb300; text-align: center; }
+      .reset-rule { font-size: 0.9rem; }
+      .reset-box p.reset-error { color: #ff6b6b; min-height: 1.2em; margin: 8px 0; }
+    </style>
+    <script type="module" src="/js/mot-de-passe-oublie.js"></script>
+  </head>
+  <body>
+    <main class="login-overlay">
+      <div class="login-container glassmorphism">
+        <div class="login-logo"><i class="fa-solid fa-key" aria-hidden="true"></i></div>
+        <h1 class="login-title">Mot de passe oublié</h1>
+
+        <section id="reset-demande" class="reset-box">
+          <p>Écris-nous en indiquant ton pseudo. Après vérification, tu recevras un lien pour choisir un nouveau mot de passe. Il sert une seule fois et reste valable une heure.</p>
+          <a class="btn-auth" href="mailto:contact@mon50ccetmoi.com?subject=Mot%20de%20passe%20oubli%C3%A9&amp;body=Mon%20pseudo%20%3A%20">NOUS ÉCRIRE</a>
+          <a class="reset-back" href="login.html">Retour à la connexion</a>
+        </section>
+
+        <form id="reset-form" class="auth-form reset-box" hidden>
+          <p class="reset-rule">Au moins 1 majuscule, 7 minuscules et 2 caractères spéciaux.</p>
+          <label for="reset-pass" class="sr-only">Nouveau mot de passe</label>
+          <input type="password" id="reset-pass" placeholder="Nouveau mot de passe" autocomplete="new-password" required />
+          <label for="reset-pass2" class="sr-only">Confirmer le mot de passe</label>
+          <input type="password" id="reset-pass2" placeholder="Confirmer le mot de passe" autocomplete="new-password" required />
+          <p id="reset-error" class="reset-error" role="alert"></p>
+          <button id="reset-submit" type="submit" class="btn-auth">ENREGISTRER</button>
+        </form>
+
+        <section id="reset-ok" class="reset-box" hidden>
+          <p role="status">Ton mot de passe est changé. Tu peux te reconnecter.</p>
+          <a class="btn-auth" href="login.html">SE CONNECTER</a>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

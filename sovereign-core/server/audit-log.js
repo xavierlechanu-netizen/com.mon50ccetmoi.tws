@@ -32,6 +32,9 @@ const AUDIT_ACTIONS = Object.freeze({
     AUTH_LOGIN: "auth.login",
     // Seulement quand le compte existe (cible = son identifiant) ; un email inconnu n'est pas noté
     AUTH_LOGIN_FAILED: "auth.login_failed",
+    // Mot de passe oublié : lien créé par l'administrateur, puis nouveau mot de passe choisi
+    AUTH_PASSWORD_RESET_LINK: "auth.password_reset_link",
+    AUTH_PASSWORD_RESET: "auth.password_reset",
     RGPD_EXPORT: "rgpd.export",
     RGPD_RECTIFY: "rgpd.rectify",
     RGPD_ERASE: "rgpd.erase",

@@ -30,6 +30,7 @@ const { resolveWormVault } = require("./storage-worm-s3");
 const { createMemoryStore } = require("./store-memory");
 const { createPgStore } = require("./store-pg");
 const { StoreError } = require("./store-errors");
+const { RESET_TOKEN_RE, hashResetToken, newPasswordError, issuedBeforePasswordChange } = require("./password-reset");
 const { smsClientFromEnv, normalizeFrenchMobile } = require("./sms-ovh");
 const { vigilanceServiceFromEnv } = require("./meteo-vigilance");
 const { AUDIT_ACTIONS, verifyAuditChain } = require("./audit-log");
@@ -426,7 +427,8 @@ function createSovereignApp(options = {}) {
             const verif = authHeader.startsWith("Bearer ") ? verifySovereignJwt(authHeader.slice(7).trim()) : { valid: false };
             const claims = verif.valid && verif.payload.purpose === REFRESH_TOKEN_PURPOSE ? verif.payload : null;
             const user = claims ? await store.findUserById(claims.uid) : null;
-            if (!user || user.isBanned) {
+            // shortcut: un jeton de session déjà émis vit encore 1 h au plus après un changement de mot de passe
+            if (!user || user.isBanned || issuedBeforePasswordChange(claims, user)) {
                 res.statusCode = 401;
                 res.end(JSON.stringify({ error: "Session expirée. Reconnectez-vous." }));
                 return;
@@ -436,12 +438,40 @@ function createSovereignApp(options = {}) {
             return;
         }
 
+        // 3 quater. NOUVEAU MOT DE PASSE avec un lien à usage unique (scripts/lien-mot-de-passe.js)
+        if (req.method === "POST" && pathname === "/api/v1/auth/reset-password") {
+            if (isRateLimited(`reset:${clientIp(req)}`)) {
+                rejectTooManyAttempts(res);
+                return;
+            }
+            const { token, password } = body;
+            // Règle vérifiée d'abord : un mot de passe refusé ne fait pas perdre le lien
+            const ruleError = newPasswordError(password);
+            if (ruleError) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: ruleError }));
+                return;
+            }
+            const uid = typeof token === "string" && RESET_TOKEN_RE.test(token)
+                ? await store.consumePasswordReset(hashResetToken(token), hashPassword(password))
+                : null;
+            if (!uid) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: "Ce lien n'est plus valable. Demandez-en un nouveau à contact@mon50ccetmoi.com." }));
+                return;
+            }
+            await audit({ action: AUDIT_ACTIONS.AUTH_PASSWORD_RESET, actorUid: uid, targetType: "user", targetId: uid });
+            res.statusCode = 200;
+            res.end(JSON.stringify({ ok: true }));
+            return;
+        }
+
         // 3 bis. RENOUVELLEMENT DU JETON SOS (glissant) : avec un jeton SOS ou de session encore valide,
         // et seulement si le compte existe toujours.
         if (req.method === "POST" && pathname === "/api/v1/auth/sos-token") {
             const authUser = extractSosUser(req);
             const user = authUser ? await store.findUserById(authUser.uid) : null;
-            if (!user) {
+            if (!user || issuedBeforePasswordChange(authUser, user)) {
                 res.statusCode = 401;
                 res.end(JSON.stringify({ error: "Reconnectez-vous pour réactiver l'alerte SOS automatique." }));
                 return;

@@ -483,3 +483,17 @@ Une seule machine : si elle tombe, l'appli est coupée le temps de la relancer (
 perdue grâce aux sauvegardes et au coffre des preuves). Quand les revenus le permettront :
 base PostgreSQL gérée par OVHcloud et deux serveurs derrière un répartiteur de charge
 (voir `../CAHIER_DES_CHARGES_OVHCLOUD.md`).
+
+## 15. Mot de passe oublié
+
+Le pilote écrit à contact@mon50ccetmoi.com avec son pseudo. **Vérifiez que c'est bien lui** : ce lien donne
+accès au compte. Puis, sur le VPS (pseudo, ou adresse pour un compte Google) :
+
+```bash
+cd /opt/mon50cc/sovereign-core
+sudo docker compose -f docker-compose.vps.yml exec -T sovereign-api node scripts/lien-mot-de-passe.js PSEUDO
+```
+
+Le lien sert une seule fois et reste valable une heure. Un nouveau lien annule le précédent. Le nouveau mot de
+passe doit contenir au moins 1 majuscule, 7 minuscules et 2 caractères spéciaux. Il ne change que sur le VPS :
+tant que des données sont dans Firestore, ce pilote a un profil réduit (le pont Firebase garde l'ancien).

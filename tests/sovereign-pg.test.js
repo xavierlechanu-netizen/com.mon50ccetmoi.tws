@@ -268,6 +268,22 @@ describe("Serveur souverain sur PostgreSQL", () => {
     expect((await pool.query("SELECT count(*)::int AS n FROM pilot_achievements WHERE user_uid = $1", [reg.body.uid])).rows[0].n).toBe(0);
   });
 
+  test("mot de passe oublié : lien à usage unique, empreinte seule en base, effacé avec le compte", async () => {
+    const { createResetLink, hashResetToken } = require("../sovereign-core/server/password-reset");
+    const { rows: [u] } = await pool.query("INSERT INTO users (email, username, password_hash) VALUES ('oublipg@mon50cc.internal', 'OubliPG', '!') RETURNING uid");
+    const pg = createPgStore({ pool });
+    const token = (await createResetLink(pg, "OubliPG")).url.split("#token=")[1];
+    expect((await pool.query("SELECT token_hash FROM password_reset_tokens WHERE user_uid = $1", [u.uid])).rows[0].token_hash).toBe(hashResetToken(token));
+    expect(await pg.consumePasswordReset(hashResetToken(token), "nouvelle-empreinte")).toBe(u.uid);
+    expect(await pg.consumePasswordReset(hashResetToken(token), "autre")).toBeNull();
+    const after = await pg.findUserById(u.uid);
+    expect(after.passwordHash).toBe("nouvelle-empreinte");
+    expect(after.passwordChangedAt).toEqual(expect.any(String));
+    await createResetLink(pg, "OubliPG");
+    await pg.anonymizeUser(u.uid);
+    expect((await pool.query("SELECT count(*)::int AS n FROM password_reset_tokens WHERE user_uid = $1", [u.uid])).rows[0].n).toBe(0);
+  });
+
   test("outils du VPS (check.sh, rgpd-firebase.sh) : leurs requêtes SQL marchent sur la vraie base", async () => {
     const deploy = (f) => fs.readFileSync(path.join(__dirname, "../sovereign-core/deploy", f), "utf8");
     const check = deploy("check.sh");

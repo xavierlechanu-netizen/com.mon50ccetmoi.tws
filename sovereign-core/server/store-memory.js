@@ -27,6 +27,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const invoices = new Map(); // factures à émettre, par identifiant de commande
     const firebaseErasures = []; // effacements RGPD à finir dans Firebase (migration 003)
     let firebaseErasureSeq = 0;
+    const passwordResets = new Map(); // empreinte du lien → { uid, expiresAt } (migration 005)
     const achievements = new Map(); // `${uid}|${code}` → badge personnel (migration 004)
 
     // Utilisateurs pré-enregistrés (tests) : [{ uid, email?, username?, role? }]
@@ -74,6 +75,24 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             return true;
         },
 
+        /** Mot de passe oublié : un seul lien en cours par pilote. */
+        async createPasswordReset({ uid, tokenHash, expiresAt }) {
+            for (const [k, r] of passwordResets) if (r.uid === uid) passwordResets.delete(k);
+            passwordResets.set(tokenHash, { uid, expiresAt });
+        },
+
+        /** Lien valable : le consomme et change le mot de passe. Renvoie l'identifiant, sinon null. */
+        async consumePasswordReset(tokenHash, passwordHash) {
+            const reset = passwordResets.get(tokenHash);
+            if (!reset || Date.parse(reset.expiresAt) <= Date.now()) return null;
+            passwordResets.delete(tokenHash);
+            const u = usersById.get(reset.uid);
+            if (!u || u.deletedAt || u.isBanned) return null;
+            u.passwordHash = passwordHash;
+            u.passwordChangedAt = new Date().toISOString();
+            return u.uid;
+        },
+
         /** RGPD : identité effacée, preuves conservées sous un identifiant anonyme. */
         async anonymizeUser(uid) {
             const u = usersById.get(uid);
@@ -95,6 +114,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
             for (const h of hazards) if (h.uid === uid) h.description = "";
             for (const [k, a] of achievements) if (a.uid === uid) achievements.delete(k);
+            for (const [k, r] of passwordResets) if (r.uid === uid) passwordResets.delete(k);
             return true;
         },
 
