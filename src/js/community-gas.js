@@ -5,6 +5,14 @@ import { distanceMeters } from './geo-math.js';
 
 ﻿/* --- COMMUNITY GAS RADAR (OpenData Gouv + Firebase) --- */
 
+const GAS_RADIUS_KM = 30;
+
+/** À voix haute, et à l'écran si le pilote est à l'arrêt : sinon un échec passerait inaperçu. */
+function tell(message) {
+  if (typeof speak === "function") speak(message);
+  if (!window.isRiding) alert(message);
+}
+
 window.CommunityGas = {
   stations: [],
 
@@ -14,6 +22,11 @@ window.CommunityGas = {
         "Connexion au flux Open Data du gouvernement et récupération des prix en temps réel.",
       );
 
+    const withoutGps = () => {
+      const pos = window.currentPosition;
+      if (pos && Number.isFinite(pos.lat) && Number.isFinite(pos.lng)) this.fetchGovData(pos.lat, pos.lng);
+      else tell("Position GPS indisponible : impossible de chercher les pompes autour de vous.");
+    };
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) =>
@@ -23,19 +36,18 @@ window.CommunityGas = {
           ),
         (error) => {
           console.warn("Erreur GPS:", error);
-          // Mock coordinates (Paris) for testing if GPS fails
-          this.fetchGovData(48.8566, 2.3522);
+          withoutGps();
         },
       );
     } else {
-      this.fetchGovData(48.8566, 2.3522);
+      withoutGps();
     }
   },
 
   fetchGovData: async function (lat, lon) {
     try {
-      // Requête vers l'API OpenDataSoft du Gouvernement Français (Rayon de 3km)
-      const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=within_distance(geom, geom'POINT(${lon} ${lat})', 3km)&limit=20`;
+      // API du Gouvernement Français : les 20 stations les plus proches, jusqu'à 30 km
+      const url = `https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records?where=within_distance(geom, geom'POINT(${lon} ${lat})', ${GAS_RADIUS_KM}km)&order_by=distance(geom, geom'POINT(${lon} ${lat})')&limit=20`;
       const response = await fetch(url);
       if (!response.ok) throw new Error("Erreur API Gouvernementale");
 
@@ -43,10 +55,7 @@ window.CommunityGas = {
       this.processGovData(data.results, lat, lon);
     } catch (e) {
       console.error(e);
-      if (typeof speak === "function")
-        speak(
-          "Impossible de contacter le serveur gouvernemental. Veuillez réessayer plus tard.",
-        );
+      tell("Impossible de contacter le serveur gouvernemental. Veuillez réessayer plus tard.");
     }
   },
 
@@ -59,10 +68,7 @@ window.CommunityGas = {
     this.stations = [];
 
     if (!records || records.length === 0) {
-      if (typeof speak === "function")
-        speak(
-          "Je ne trouve aucune station service répertoriée dans un rayon de 3 kilomètres.",
-        );
+      tell(`Je ne trouve aucune station service répertoriée dans un rayon de ${GAS_RADIUS_KM} kilomètres.`);
       return;
     }
 
@@ -126,6 +132,11 @@ window.CommunityGas = {
         });
       }
     });
+
+    if (this.stations.length === 0) {
+      tell(`Aucune station avec du SP98 ou de l'E10 dans un rayon de ${GAS_RADIUS_KM} kilomètres.`);
+      return;
+    }
 
     this.stations.sort((a, b) => a.distance - b.distance);
 

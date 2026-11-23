@@ -1,19 +1,29 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { escapeHtml, safeNumber } from './html-escape.js';
+import { distanceMeters } from './geo-math.js';
+import { createFuelTracker, RANGE_MIN_KM, RANGE_MAX_KM } from './fuel-tracker.js';
+
+function localStore() {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+const fuelTracker = createFuelTracker({ storage: localStore(), distance: distanceMeters });
 
 // --- PIT STOPS INTELLIGENCE ---
 window.PitStopSystem = {
   markers: {},
-  isFuelLow: false,
 
   init: function () {
     if (!window.session || !window.session.uid) return;
 
     this.listenToPitStops();
 
-    // Simuler la consommation OBD toutes les minutes
-    setInterval(() => this.simulateOBDFuelCheck(), 60000);
+    // Km depuis le dernier plein déclaré (fuel-tracker.js)
+    setInterval(() => this.trackFuel(), 30000);
   },
 
   listenToPitStops: function () {
@@ -88,7 +98,13 @@ window.PitStopSystem = {
 
     // eslint-disable-next-line no-restricted-syntax
 modal.innerHTML = `
-            <div style="background:#111; border:1px solid #ff0055; border-radius:15px; padding:30px; width:90%; max-width:400px; text-align:center;">
+            <div style="background:#111; border:1px solid #ff0055; border-radius:15px; padding:20px; max-height:90vh; overflow-y:auto; width:90%; max-width:400px; text-align:center;">
+                <h2 style="color:#ffb703; margin:0 0 8px; font-family:'Outfit', sans-serif;">⛽ Pit Stop</h2>
+                <p id="pitstop-fuel-status" style="color:#ccc; margin:0 0 10px; font-size:0.9rem;"></p>
+                <label for="pitstop-range" style="display:block; color:#fff; margin-bottom:5px; font-size:0.9rem;">Autonomie de votre plein (km)</label>
+                <input type="number" id="pitstop-range" inputmode="numeric" min="${RANGE_MIN_KM}" max="${RANGE_MAX_KM}" value="${safeNumber(fuelTracker.rangeKm())}" style="width:100%; box-sizing:border-box; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #444; border-radius:5px;">
+                <button data-action="window.PitStopSystem.declareFill()" style="width:100%; background:#ffb703; color:#000; border:none; padding:12px; border-radius:8px; font-weight:bold; margin-bottom:8px; cursor:pointer;">J'ai fait le plein (+1 point)</button>
+                <button data-action="window.PitStopSystem.findPump()" style="width:100%; background:transparent; color:#ffb703; border:1px solid #ffb703; padding:12px; border-radius:8px; font-weight:bold; margin-bottom:18px; cursor:pointer;">Trouver une pompe (30 km)</button>
                 <h2 style="color:#ff0055; margin-bottom:20px; font-family:'Outfit', sans-serif;">Ajouter un Point d'Intérêt</h2>
                 
                 <select id="pitstop-type" style="width:100%; padding:10px; margin-bottom:10px; background:#222; color:white; border:1px solid #333; border-radius:5px;">
@@ -103,6 +119,7 @@ modal.innerHTML = `
                 <button data-action="document.getElementById('pitstop-modal').style.display='none'" style="width:100%; background:transparent; border:1px solid #aaa; color:#fff; padding:10px; border-radius:20px; cursor:pointer;">Annuler</button>
             </div>
         `;
+    document.getElementById("pitstop-fuel-status").textContent = this.fuelStatusText();
     modal.style.display = "flex";
   },
 
@@ -134,62 +151,59 @@ modal.innerHTML = `
     }
   },
 
-  // Simulateur d'OBD pour faire baisser l'essence et déclencher l'alerte
-  simulateOBDFuelCheck: function () {
-    if (window.obdFuelLevel === undefined) window.obdFuelLevel = 100;
+  trackFuel: function () {
+    if (!window.isRiding) return;
+    fuelTracker.track(window.currentPosition);
+    const fuel = fuelTracker.status();
+    if (!fuel.shouldWarn) return;
+    fuelTracker.markWarned();
+    const message = `Environ ${fuel.kmSince} kilomètres depuis votre dernier plein déclaré. Pensez à vous arrêter à une pompe.`;
+    if (typeof speak === "function") speak(message);
 
-    // Seulement si on roule vraiment (isRiding) ou si on force le check
-    if (window.isRiding || window.forceOBDCheck) {
-      window.obdFuelLevel -= 2; // Baisse de 2%
-      if (window.obdFuelLevel < 0) window.obdFuelLevel = 0;
-
-      if (window.obdFuelLevel <= 15 && !this.isFuelLow) {
-        this.isFuelLow = true;
-        if (typeof speak === "function") {
-          speak(
-            "Alerte O B D. Niveau de carburant critique, inférieur à 15 pourcents. Voulez-vous que je vous guide vers la station la plus proche ?",
-          );
-        }
-
-        // On trouve la station la plus proche sur la carte
-        let closestGas = null;
-        let minDist = 9999999;
-
-        if (window.currentPosition && typeof google !== "undefined") {
-          const myPos = new google.maps.LatLng(
-            window.currentPosition.lat,
-            window.currentPosition.lng,
-          );
-          for (const [id, marker] of Object.entries(this.markers)) {
-            const dist = google.maps.geometry.spherical.computeDistanceBetween(
-              myPos,
-              marker.getPosition(),
-            );
-            if (dist < minDist) {
-              minDist = dist;
-              closestGas = marker;
-            }
-          }
-        }
-
-        const uiHtml = `
-                    <div id="fuel-alert" style="position:fixed; top:80px; left:50%; transform:translateX(-50%); background:rgba(255,165,0,0.95); color:black; padding:15px; border-radius:10px; z-index:99999; text-align:center; font-weight:bold; box-shadow:0 0 20px rgba(255,165,0,0.5);">
-                        <i class="fa-solid fa-gas-pump"></i> CARBURANT CRITIQUE (${window.obdFuelLevel}%)<br>
-                        ${closestGas ? `<button data-action="window.calculateRoute(new google.maps.LatLng(${closestGas.getPosition().lat()}, ${closestGas.getPosition().lng()})); document.getElementById('fuel-alert').remove();" style="margin-top:10px; padding:8px 15px; background:black; color:white; border:none; border-radius:5px; cursor:pointer;">Aller à la station la plus proche</button>` : '<div style="margin-top:10px;">Aucune station communautaire connue autour.</div>'}
-                        <button data-action="document.getElementById('fuel-alert').remove();" style="margin-top:10px; padding:8px 15px; background:transparent; color:black; border:1px solid black; border-radius:5px; cursor:pointer;">Ignorer</button>
-                    </div>
-                `;
-        document.body.insertAdjacentHTML("beforeend", uiHtml);
-      }
-    }
+    document.getElementById("fuel-alert")?.remove();
+    const banner = document.createElement("div");
+    banner.id = "fuel-alert";
+    banner.setAttribute("role", "status");
+    banner.style.cssText = "position:fixed;top:290px;left:50%;transform:translateX(-50%);width:min(90vw,380px);background:#111;border:2px solid #ffb703;color:#fff;padding:12px;border-radius:12px;z-index:9500;text-align:center;";
+    const text = document.createElement("div");
+    text.textContent = `⛽ ${fuel.kmSince} km depuis votre plein (estimation)`;
+    const find = document.createElement("button");
+    find.textContent = "Trouver une pompe";
+    find.style.cssText = "margin:8px 6px 0;padding:8px 12px;background:#ffb703;color:#000;border:none;border-radius:8px;font-weight:bold;";
+    find.addEventListener("click", () => {
+      banner.remove();
+      this.findPump();
+    });
+    const close = document.createElement("button");
+    close.textContent = "Fermer";
+    close.style.cssText = "margin:8px 6px 0;padding:8px 12px;background:#333;color:#fff;border:none;border-radius:8px;";
+    close.addEventListener("click", () => banner.remove());
+    banner.append(text, find, close);
+    document.body.appendChild(banner);
   },
 
-  // Pour Dev : bouton pour forcer la baisse
-  devDrainFuel: function () {
-    window.forceOBDCheck = true;
-    window.obdFuelLevel = 16;
-    this.isFuelLow = false;
-    this.simulateOBDFuelCheck();
+  fuelStatusText: function () {
+    const fuel = fuelTracker.status();
+    if (!fuel.known) return "Aucun plein déclaré pour l'instant.";
+    return `${fuel.kmSince} km depuis votre dernier plein, encore environ ${fuel.remainingKm} km (estimation).`;
+  },
+
+  declareFill: async function () {
+    if (window.isRiding) return alert("Déclarez votre plein à l'arrêt, pas en roulant.");
+    const range = document.getElementById("pitstop-range").value;
+    if (!fuelTracker.declareFill(range)) {
+      return alert(`Indiquez une autonomie entre ${RANGE_MIN_KM} et ${RANGE_MAX_KM} km.`);
+    }
+    document.getElementById("fuel-alert")?.remove();
+    document.getElementById("pitstop-modal").style.display = "none";
+    const gained = window.BVCManager ? await window.BVCManager.add(1, "FUEL_DECLARED") : false;
+    alert(gained ? "⛽ Plein enregistré : +1 point mon50cc !" : "⛽ Plein enregistré. Le point n'a pas été ajouté cette fois.");
+  },
+
+  findPump: function () {
+    const modal = document.getElementById("pitstop-modal");
+    if (modal) modal.style.display = "none";
+    if (window.CommunityGas) window.CommunityGas.compareAndShow();
   },
 };
 

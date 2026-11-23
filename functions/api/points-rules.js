@@ -19,6 +19,7 @@ const REASON_RULES = {
     CODE_QUIZ_COMPLETED: { action: "AWARD", fixedAmount: 20, dailyCap: 40, proof: "none", description: "Quiz du Code de la Route complété" },
     CHALLENGE_COMPLETED: { action: "AWARD", fixedAmount: 5, dailyCap: 5, proof: "none", description: "Défi complété" },
     MAINTENANCE_LOGGED: { action: "AWARD", fixedAmount: 10, dailyCap: 10, proof: "none", description: "Entretien véhicule enregistré" },
+    FUEL_DECLARED: { action: "AWARD", fixedAmount: 1, dailyCap: 2, proof: "none", description: "Plein déclaré (Pit Stop)" },
     RADAR_HAZARD_REPORTED: { action: "AWARD", fixedAmount: 25, dailyCap: 100, proof: "hazard", description: "Signalement de zone de danger" },
     SAFE_RIDER_MILESTONE: { action: "AWARD", proof: "milestone", description: "Palier de conduite prudente atteint" },
     ROUTER_CONTRAT_SIGNED: { action: "AWARD", fixedAmount: 50, proof: "once", description: "Contrat de bonne conduite signé" },
