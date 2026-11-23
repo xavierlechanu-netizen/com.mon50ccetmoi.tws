@@ -607,21 +607,6 @@ function updatePosition(position) {
       hud.style.boxShadow = `0 0 ${20 + glow}px rgba(0, 242, 255, ${0.5 + speedKmh / 200})`;
     }
 
-    // --- NEW: Compass & 3D Navigation Logic ---
-    const heading = position.coords.heading;
-    if (heading !== null) {
-      document.getElementById("compass-needle").style.transform =
-        `rotate(${heading}deg)`;
-      const dirs = ["N", "NE", "E", "SE", "S", "SO", "O", "NO", "N"];
-      const dirIdx = Math.round(heading / 45);
-      document.getElementById("compass-dir").textContent = dirs[dirIdx];
-
-      // AUTO-ROTATE MAP (Navigation Mode)
-      if (window.isRiding && map) {
-        map.setHeading(heading);
-      }
-    }
-
     // DYNAMIC MAP INTELLIGENCE (Auto-Zoom & Tilt)
     if (map) {
       // Update movement time for Guardian

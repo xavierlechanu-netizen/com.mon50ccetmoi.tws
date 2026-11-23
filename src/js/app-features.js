@@ -1319,7 +1319,8 @@ setTimeout(() => {
 // ============================================================
 // --- 7. BOÎTE NOIRE (TÉLÉMÉTRIE D'ASSURANCE) ---
 // ============================================================
-window.BlackBox = [];
+// Pas window.BlackBox : ce nom appartient au module Bluetooth (blackbox-ble.js), qui l'écrase
+const phoneTrace = [];
 setInterval(() => {
   if (window.isRiding && navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -1332,8 +1333,8 @@ setInterval(() => {
           acc: pos.coords.accuracy,
           w: window.isVigilanceRouge ? "ROUGE" : "NORMAL",
         };
-        window.BlackBox.push(data);
-        if (window.BlackBox.length > 300) window.BlackBox.shift(); // Garde 5 minutes (300 sec)
+        phoneTrace.push(data);
+        if (phoneTrace.length > 300) phoneTrace.shift(); // Garde 5 minutes (300 sec)
       },
       () => {},
       { enableHighAccuracy: true, maximumAge: 0 },
@@ -1342,7 +1343,7 @@ setInterval(() => {
 }, 1000);
 
 window.exportBlackBox = function () {
-  if (window.BlackBox.length === 0) {
+  if (phoneTrace.length === 0) {
     alert(
       "La boîte noire est vide. Vous devez rouler pour enregistrer des données.",
     );
@@ -1350,7 +1351,7 @@ window.exportBlackBox = function () {
   }
   const dataStr =
     "data:text/json;charset=utf-8," +
-    encodeURIComponent(JSON.stringify(window.BlackBox, null, 2));
+    encodeURIComponent(JSON.stringify(phoneTrace, null, 2));
   const dlAnchorElem = document.createElement("a");
   dlAnchorElem.setAttribute("href", dataStr);
   dlAnchorElem.setAttribute(

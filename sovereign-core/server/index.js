@@ -62,6 +62,9 @@ const SOS_WINDOW_MS = 10 * 60 * 1000;
 const SOS_MAX_ALERTS_PER_DAY = 10;
 const SOS_DAY_MS = 24 * 3600 * 1000;
 const SOS_DEFAULT_DAILY_SMS_BUDGET = 300;
+// Comptes de moins de 24 h : 10 % du budget au plus, pour que des comptes créés en série ne privent
+// pas les vrais SOS. shortcut: des comptes préparés plus de 24 h à l'avance y échappent, ajouter une vérification du numéro si cela arrive.
+const SOS_NEW_ACCOUNT_BUDGET_SHARE = 0.1;
 // Jeton SOS : n'ouvre QUE l'alerte SOS (jamais une session). Une chute peut arriver des jours après
 // la dernière saisie du mot de passe, alors que le jeton de session ne vit qu'une heure : l'appli
 // garde ce jeton et le renouvelle (POST /api/v1/auth/sos-token) tant qu'elle est utilisée.
@@ -159,7 +162,9 @@ function createSovereignApp(options = {}) {
     // Envoi des SMS d'urgence (OVHcloud) ; null si non configuré : la route SOS répond alors 503.
     const smsClient = options.smsClient !== undefined ? options.smsClient : smsClientFromEnv();
     const sosHits = new Map();
-    // SMS envoyés par le serveur sur 24 h glissantes : [{ t, n }]
+    // Numéros alertés par pilote sur 24 h : uid → Map(numéro → date), pour qu'un compte ne vise pas n'importe qui
+    const sosNumbers = new Map();
+    // SMS envoyés par le serveur sur 24 h glissantes : [{ t, n, isNew }]
     let sosSmsLog = [];
     const sosDailySmsBudget = options.sosDailySmsBudget ||
         Number(process.env.SOS_DAILY_SMS_BUDGET) || SOS_DEFAULT_DAILY_SMS_BUDGET;
@@ -808,6 +813,11 @@ function createSovereignApp(options = {}) {
                 res.end(JSON.stringify({ error: "Compte introuvable ou supprimé.", sent: 0 }));
                 return;
             }
+            if (user.isBanned) {
+                res.statusCode = 403;
+                res.end(JSON.stringify({ error: "Compte suspendu : envoi de SMS impossible. Appelez le 112.", sent: 0 }));
+                return;
+            }
             const now = Date.now();
             const today = (sosHits.get(authUser.uid) || []).filter((t) => now - t < SOS_DAY_MS);
             const recent = today.filter((t) => now - t < SOS_WINDOW_MS);
@@ -816,9 +826,18 @@ function createSovereignApp(options = {}) {
                 res.end(JSON.stringify({ error: "Trop d'alertes SOS rapprochées. Appelez le 112.", sent: 0 }));
                 return;
             }
+            const recentNumbers = new Map([...(sosNumbers.get(authUser.uid) || [])].filter(([, t]) => now - t < SOS_DAY_MS));
+            if (new Set([...recentNumbers.keys(), ...numbers]).size > SOS_MAX_CONTACTS) {
+                res.statusCode = 429;
+                res.end(JSON.stringify({ error: "Trop de numéros différents alertés aujourd'hui. Appelez le 112.", sent: 0 }));
+                return;
+            }
             sosSmsLog = sosSmsLog.filter((e) => now - e.t < SOS_DAY_MS);
             const smsToday = sosSmsLog.reduce((sum, e) => sum + e.n, 0);
-            if (smsToday + numbers.length > sosDailySmsBudget) {
+            const smsFromNewAccounts = sosSmsLog.reduce((sum, e) => sum + (e.isNew ? e.n : 0), 0);
+            const isNewAccount = Boolean(user.createdAt) && now - Date.parse(user.createdAt) < SOS_DAY_MS;
+            if (smsToday + numbers.length > sosDailySmsBudget ||
+                (isNewAccount && smsFromNewAccounts + numbers.length > Math.ceil(sosDailySmsBudget * SOS_NEW_ACCOUNT_BUDGET_SHARE))) {
                 console.error(`[SOS] Budget SMS du jour atteint (${smsToday}/${sosDailySmsBudget}) : abus possible, vérifier les journaux.`);
                 res.statusCode = 429;
                 res.end(JSON.stringify({ error: "Envoi de SMS momentanément indisponible. Appelez le 112 et prévenez vos proches.", sent: 0 }));
@@ -831,9 +850,12 @@ function createSovereignApp(options = {}) {
             }
             today.push(now);
             sosHits.set(authUser.uid, today);
-            sosSmsLog.push({ t: now, n: numbers.length });
+            sosSmsLog.push({ t: now, n: numbers.length, isNew: isNewAccount });
+            numbers.forEach((n) => recentNumbers.set(n, now));
+            sosNumbers.set(authUser.uid, recentNumbers);
 
-            const pseudo = String(user.username || "Un pilote").slice(0, 30);
+            // Lettres, chiffres, _ et - seulement : un pseudo ne doit pas glisser une adresse web dans le SMS
+            const pseudo = String(user.username || "").replace(/[^\p{L}\p{N}_-]/gu, "").slice(0, 30) || "Un pilote";
             const where = `${lat.toFixed(5)},${lng.toFixed(5)}`;
             const precision = Number.isFinite(accuracy) && accuracy > 0 ? ` (precision ${Math.round(accuracy)} m)` : "";
             const message = [

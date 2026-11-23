@@ -185,7 +185,8 @@ describe("Route POST /api/v1/sos", () => {
         test("budget SMS du serveur : au-delà, plus aucun envoi (comptes créés en série), le 112 est proposé", async () => {
             const sms = fakeSms();
             const app = createSovereignApp({
-                users: [{ uid: "a" }, { uid: "b" }, { uid: "c" }], smsClient: sms, sosDailySmsBudget: 4,
+                users: ["a", "b", "c"].map((uid) => ({ uid, createdAt: "2026-01-01T00:00:00Z" })),
+                smsClient: sms, sosDailySmsBudget: 4,
             });
             expect((await invoke(app, "POST", "/api/v1/sos", body, auth("a"))).status).toBe(200); // 2 SMS
             expect((await invoke(app, "POST", "/api/v1/sos", body, auth("b"))).status).toBe(200); // 4 SMS
@@ -197,6 +198,53 @@ describe("Route POST /api/v1/sos", () => {
             now += 24 * 3600 * 1000;
             expect((await invoke(app, "POST", "/api/v1/sos", body, auth("c"))).status).toBe(200);
         });
+
+        // Audit du 23/11/2026 : des comptes créés en série ne doivent pas priver les vrais SOS
+        test("comptes de moins de 24 h : 10 % du budget, le reste reste aux pilotes installés", async () => {
+            const sms = fakeSms();
+            const fresh = new Date(now).toISOString();
+            const app = createSovereignApp({
+                users: [{ uid: "new1", createdAt: fresh }, { uid: "new2", createdAt: fresh },
+                    { uid: "ancien", createdAt: "2026-01-01T00:00:00Z" }],
+                smsClient: sms, sosDailySmsBudget: 20,
+            });
+            expect((await invoke(app, "POST", "/api/v1/sos", body, auth("new1"))).status).toBe(200); // 2 SMS = 10 %
+            const r = await invoke(app, "POST", "/api/v1/sos", body, auth("new2"));
+            expect(r.status).toBe(429);
+            expect(r.body.error).toMatch(/112/);
+            expect((await invoke(app, "POST", "/api/v1/sos", body, auth("ancien"))).status).toBe(200);
+        });
+
+        test("un pilote n'alerte pas plus de 3 numéros différents sur 24 h", async () => {
+            const sms = fakeSms();
+            const app = createSovereignApp({ users: [{ uid: "p", createdAt: "2026-01-01T00:00:00Z" }], smsClient: sms });
+            const send = (contacts) => invoke(app, "POST", "/api/v1/sos", { ...LILLE, contacts }, auth("p"));
+            expect((await send(["0612345671", "0612345672", "0612345673"])).status).toBe(200);
+            now += 11 * 60 * 1000;
+            expect((await send(["0612345671"])).status).toBe(200); // mêmes proches : toujours possible
+            now += 11 * 60 * 1000;
+            const r = await send(["0612345674"]);
+            expect(r.status).toBe(429);
+            expect(r.body.error).toMatch(/112/);
+            expect(sms.calls).toHaveLength(2);
+        });
+    });
+
+    test("un pseudo ne peut pas glisser une adresse web dans le SMS", async () => {
+        const sms = fakeSms();
+        const app = createSovereignApp({ users: [{ uid: "p", username: "bit.ly/piege" }], smsClient: sms });
+        await invoke(app, "POST", "/api/v1/sos", body, auth("p"));
+        expect(sms.calls[0].message).not.toContain("bit.ly");
+        expect(sms.calls[0].message).toContain("bitlypiege a peut-etre chute");
+    });
+
+    test("compte banni : aucun SMS, le 112 est proposé", async () => {
+        const sms = fakeSms();
+        const app = createSovereignApp({ users: [{ uid: "p", isBanned: true }], smsClient: sms });
+        const r = await invoke(app, "POST", "/api/v1/sos", body, auth("p"));
+        expect(r.status).toBe(403);
+        expect(r.body.error).toMatch(/112/);
+        expect(sms.calls).toHaveLength(0);
     });
 });
 
