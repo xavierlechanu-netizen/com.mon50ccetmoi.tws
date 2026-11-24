@@ -1,67 +1,79 @@
 /**
- * Rejoindre un cortège (23/11/2026) : les positions du groupe ne sont lisibles qu'une fois inscrit,
- * donc le pilote écrit sa fiche AVANT d'écouter les autres.
+ * Rejoindre un cortège (24/11/2026, serveur souverain) : le pilote rejoint le groupe en y envoyant
+ * sa position ; la réponse donne les autres membres et leurs signaux rapides.
  */
 const fs = require("fs");
 const path = require("path");
 
-function load({ setFails = false } = {}) {
+function load(reponse) {
   const calls = [];
-  const members = {
-    doc: () => ({
-      set: async () => {
-        calls.push("inscription");
-        if (setFails) throw new Error("refusé");
-      },
-    }),
-    onSnapshot: () => { calls.push("écoute"); return () => {}; },
-  };
-  const sessions = {
-    where() { return this; },
-    limit() { return this; },
-    get: async () => ({ empty: false, docs: [{ id: "s1" }] }),
-    doc: () => ({ collection: () => members }),
-  };
-  global.firebase = { firestore: () => ({ collection: () => sessions }) };
+  const sovereignRequest = jest.fn(async (endpoint, options) => {
+    calls.push([endpoint, options]);
+    return reponse(endpoint, options);
+  });
   window.session = { uid: "pilote", username: "Pilote" };
   window.alert = jest.fn();
   const code = fs.readFileSync(path.join(__dirname, "../src/js/cortege-mode.js"), "utf8").replace(/^import .*$/gm, "");
-  new Function("registerAction", "escapeHtml", code)(() => {}, (t) => t);
+  new Function("registerAction", "escapeHtml", "sovereignRequest", code)(() => {}, (t) => t, sovereignRequest);
   const system = window.CortegeSystem;
+  system.sessionId = null;
+  system.members = {};
   system.startSharing = () => {};
+  system.updateMemberMarker = () => {};
+  system.checkDistances = () => {};
+  system.handleNewSignal = jest.fn();
   return { system, calls };
 }
 
 afterEach(() => {
-  delete global.firebase;
   delete window.currentPosition;
 });
 
 describe("Rejoindre un cortège", () => {
-  test("le pilote s'inscrit d'abord, puis écoute le groupe", async () => {
+  test("le pilote rejoint en envoyant sa position, et voit le groupe", async () => {
     window.currentPosition = { lat: 45, lng: 4 };
-    const { system, calls } = load();
-    await system.joinSession("1234");
-    expect(calls).toEqual(["inscription", "écoute"]);
-    expect(system.sessionId).toBe("s1");
+    const { system, calls } = load(() => ({ members: [{ uid: "ami", name: "Ami", lat: 45.001, lng: 4, signal: null }] }));
+    await system.joinSession(" ab2c ");
+    expect(calls).toEqual([["/groupes/AB2C", { method: "POST", body: { lat: 45, lng: 4 } }]]);
+    expect(system.sessionId).toBe("AB2C");
+    expect(system.members.ami).toMatchObject({ name: "Ami" });
   });
 
   test("sans position GPS, il ne rejoint pas et le sait", async () => {
-    const { system, calls } = load();
-    system.sessionId = null;
-    await system.joinSession("1234");
+    const { system, calls } = load(() => ({ members: [] }));
+    await system.joinSession("AB2C");
     expect(calls).toEqual([]);
     expect(system.sessionId).toBeNull();
     expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("Position GPS"));
   });
 
-  test("inscription refusée : pas d'écoute, et le pilote le voit", async () => {
+  test("code inconnu : pas de cortège, et le pilote le voit", async () => {
     window.currentPosition = { lat: 45, lng: 4 };
-    const { system, calls } = load({ setFails: true });
-    system.sessionId = null;
-    await system.joinSession("1234");
-    expect(calls).toEqual(["inscription"]);
+    const { system } = load(() => { throw Object.assign(new Error("Groupe introuvable"), { status: 404 }); });
+    await system.joinSession("ZZZZ");
     expect(system.sessionId).toBeNull();
-    expect(window.alert).toHaveBeenCalledWith("Impossible de rejoindre ce cortège.");
+    expect(window.alert).toHaveBeenCalledWith("Cortège introuvable ou expiré avec ce code.");
+  });
+
+  test("un signal d'un autre membre est annoncé une seule fois, et un membre parti disparaît", () => {
+    const { system } = load(() => ({}));
+    const essence = { icon: "⛽", text: "Besoin d'essence", time: 1 };
+    system.applyMembers([{ uid: "ami", name: "Ami", lat: 45, lng: 4, signal: null }]);
+    system.applyMembers([{ uid: "ami", name: "Ami", lat: 45, lng: 4, signal: essence }]);
+    system.applyMembers([{ uid: "ami", name: "Ami", lat: 45, lng: 4, signal: essence }]);
+    expect(system.handleNewSignal).toHaveBeenCalledTimes(1);
+    expect(system.handleNewSignal).toHaveBeenCalledWith("Ami", essence);
+    system.applyMembers([]);
+    expect(system.members).toEqual({});
+  });
+
+  test("quitter : le serveur est prévenu et les autres disparaissent de la carte", async () => {
+    window.currentPosition = { lat: 45, lng: 4 };
+    const { system, calls } = load((endpoint, o) => (o.method === "DELETE" ? { ok: true } : { members: [{ uid: "ami", name: "Ami", lat: 45, lng: 4 }] }));
+    await system.joinSession("AB2C");
+    await system.leaveSession();
+    expect(calls[1]).toEqual(["/groupes/AB2C", { method: "DELETE" }]);
+    expect(system.sessionId).toBeNull();
+    expect(system.members).toEqual({});
   });
 });

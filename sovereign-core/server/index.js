@@ -39,6 +39,11 @@ const { createPaymentsService, openProductsFromEnv, PaymentError } = require("./
 const { invoicesToCsv } = require("../../functions/api/invoicing");
 const { createNexusBrain, llmFromEnv } = require("./nexus-brain");
 const { createNexusVerifier } = require("./nexus-verifier");
+const { createLive } = require("./live");
+// Signaux rapides du cortège : texte envoyé par l'appli → icône (rien d'autre n'est accepté)
+const GROUP_SIGNALS = Object.freeze({
+    "Besoin d'essence": "⛽", "Pause demandée": "📸", "Problème technique": "🔧", "Danger signalé": "👮",
+});
 const pointsRules = require("../../functions/api/points-rules");
 
 // Signalement des failles de sécurité (RFC 9116), même texte que src/public/.well-known/security.txt.
@@ -214,6 +219,9 @@ function createSovereignApp(options = {}) {
     // Paiements : 20 commandes par pilote et par 10 min ; suivi d'une commande toutes les 2 s au plus
     const paymentOrderLimit = { maxAttempts: 20, windowMs: 10 * 60 * 1000, hits: new Map() };
     const paymentPollLimit = { maxAttempts: 30, windowMs: 60 * 1000, hits: new Map() };
+    // SOS communautaire et groupes de balade : positions toutes les 5 s, plus quelques gestes
+    const live = options.live || createLive();
+    const liveLimit = { maxAttempts: 40, windowMs: 60 * 1000, hits: new Map() };
     // Liste d'attente (route publique) : 5 inscriptions par adresse IP et par heure
     const waitlistLimit = { maxAttempts: 5, windowMs: 60 * 60 * 1000, hits: new Map() };
 
@@ -831,6 +839,62 @@ function createSovereignApp(options = {}) {
             res.statusCode = result ? 200 : 404;
             res.end(JSON.stringify(result || { error: "Danger introuvable ou déjà retiré." }));
             return;
+        }
+
+        // 4b ter. SOS COMMUNAUTAIRE et GROUPES DE BALADE (cortège, convoi), en mémoire (live.js).
+        const sosMatch = pathname.match(/^\/api\/v1\/sos-communaute(?:\/([0-9a-f-]{36})\/(aide|fin))?$/);
+        const groupMatch = pathname.match(/^\/api\/v1\/groupes(?:\/([A-Z0-9]{4}))?$/);
+        if (sosMatch || groupMatch) {
+            const send = (status, data) => { res.statusCode = status; res.end(JSON.stringify(data)); };
+            const authUser = extractBearerUser(req);
+            if (!authUser) return send(401, { error: "Authentification requise." });
+            if (isRateLimited(`live:${authUser.uid}`, liveLimit)) return rejectTooManyAttempts(res, liveLimit);
+            const user = await store.findUserById(authUser.uid);
+            if (!user) return send(401, { error: "Compte introuvable ou supprimé." });
+            const { uid } = authUser;
+            const name = user.username || "Pilote";
+
+            if (sosMatch && sosMatch[1]) {
+                if (req.method !== "POST") return send(405, { error: "Méthode non autorisée." });
+                const ok = sosMatch[2] === "aide"
+                    ? live.helpSos({ id: sosMatch[1], uid, name })
+                    : live.closeSos({ id: sosMatch[1], uid });
+                return send(ok ? 200 : 404, ok ? { ok } : { error: "Alerte introuvable ou terminée." });
+            }
+            if (sosMatch && req.method === "POST") {
+                const { type, lat, lng } = body;
+                if (!live.SOS_TYPES.includes(type) || !isLat(lat) || !isLng(lng)) {
+                    return send(400, { error: "Type d'alerte ou position invalide." });
+                }
+                const result = live.createSos({ uid, author: name, type, lat, lng });
+                if (result.error) return send(429, { error: "Une alerte SOS toutes les 5 minutes au plus." });
+                return send(201, result);
+            }
+            if (sosMatch && req.method === "GET") {
+                const lat = Number(url.searchParams.get("lat"));
+                const lng = Number(url.searchParams.get("lng"));
+                if (!isLat(lat) || !isLng(lng)) return send(400, { error: "Position invalide (lat, lng)." });
+                return send(200, { alerts: live.sosNear({ uid, lat, lng }) });
+            }
+            if (groupMatch && !groupMatch[1] && req.method === "POST") return send(201, { code: live.createGroup() });
+            if (groupMatch && groupMatch[1] && req.method === "DELETE") {
+                live.leaveGroup({ code: groupMatch[1], uid });
+                return send(200, { ok: true });
+            }
+            if (groupMatch && groupMatch[1] && req.method === "POST") {
+                const { lat, lng, signal } = body;
+                if (!isLat(lat) || !isLng(lng) || (signal !== undefined && !Object.hasOwn(GROUP_SIGNALS, signal))) {
+                    return send(400, { error: "Position ou signal invalide." });
+                }
+                const result = live.updateMember({
+                    code: groupMatch[1], uid, name, lat, lng,
+                    signal: signal ? { text: signal, icon: GROUP_SIGNALS[signal] } : undefined,
+                });
+                if (result.error === "introuvable") return send(404, { error: "Groupe introuvable ou terminé." });
+                if (result.error) return send(409, { error: "Ce groupe est complet (20 pilotes)." });
+                return send(200, result);
+            }
+            return send(405, { error: "Méthode non autorisée." });
         }
 
         // 4c quater. LISTE D'ATTENTE de la Boîte Noire : adresse + consentement, sans compte

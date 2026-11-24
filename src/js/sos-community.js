@@ -1,6 +1,10 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { escapeHtml, safeId } from './html-escape.js';
+import { sovereignRequest } from './sovereign.js';
+
+// Alertes sur le serveur souverain (sovereign-core/server/live.js), relues toutes les 20 s
+const SOS_POLL_MS = 20000;
 
 // --- S.O.S COMMUNAUTAIRE ---
 window.SosSystem = {
@@ -57,26 +61,24 @@ window.SosSystem = {
   },
 
   listenToAlerts: function () {
-    if (typeof firebase === "undefined") return;
-
-    const oneHourAgo = Date.now() - 60 * 60 * 1000;
-    firebase
-      .firestore()
-      .collection("sos_alerts")
-      .where("createdAt", ">", oneHourAgo)
-      .where("isActive", "==", true)
-      .onSnapshot((snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          const data = change.doc.data();
-          const alertId = change.doc.id;
-
-          if (change.type === "added" || change.type === "modified") {
-            this.handleAlert(alertId, data);
-          } else if (change.type === "removed") {
-            this.removeAlert(alertId);
-          }
-        });
+    const refresh = async () => {
+      const pos = window.currentPosition;
+      if (!pos) return;
+      let alerts;
+      try {
+        ({ alerts } = await sovereignRequest(`/sos-communaute?lat=${Number(pos.lat)}&lng=${Number(pos.lng)}`, { method: "GET" }));
+      } catch (e) {
+        return; // serveur muet ou pas de session : on garde les alertes affichées
+      }
+      const ids = new Set(alerts.map((a) => a.id));
+      Object.keys(this.sosMarkers).filter((id) => !ids.has(id)).forEach((id) => this.removeAlert(id));
+      alerts.forEach((a) => {
+        this.handleAlert(a.id, a);
+        if (a.mine) this.announceHelpers(a.id, a.helpers || []);
       });
+    };
+    refresh();
+    setInterval(refresh, SOS_POLL_MS);
   },
 
   handleAlert: function (alertId, data) {
@@ -99,10 +101,7 @@ window.SosSystem = {
       if (!this.sosMarkers[alertId]) return; // Par sécurité si drawAlert échoue
 
       // Si c'est nouveau et que ce n'est pas nous, on prévient vocalement
-      if (
-        data.authorUid !== window.session.uid &&
-        !this.sosMarkers[alertId].warned
-      ) {
+      if (!data.mine && !this.sosMarkers[alertId].warned) {
         this.sosMarkers[alertId].warned = true;
         const distKm = (dist / 1000).toFixed(1);
         this.playSiren();
@@ -118,15 +117,6 @@ window.SosSystem = {
         alert(
           `🚨 SOS DÉTECTÉ 🚨\n\nUn pilote (${data.author}) a signalé une urgence : ${data.type}\nDistance : ${distKm} km.\nRegardez la carte !`,
         );
-      }
-
-      // Si c'est NOTRE alerte, on écoute les sauveurs !
-      if (
-        data.authorUid === window.session.uid &&
-        !this.sosMarkers[alertId].listeningHelpers
-      ) {
-        this.sosMarkers[alertId].listeningHelpers = true;
-        this.listenToHelpers(alertId);
       }
     }
   },
@@ -197,7 +187,7 @@ this.div.innerHTML = `
                         <p style="margin:5px 0;"><b>Pilote :</b> ${escapeHtml(data.author)}</p>
                         <p style="margin:5px 0; color:#000;"><b>Problème :</b> ${escapeHtml(data.type)}</p>
                         ${
-                          data.authorUid === window.session.uid
+                          data.mine
                             ? `<button data-action="window.SosSystem.resolveAlert('${safeId(alertId)}')" style="background:green; color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">Problème Résolu</button>`
                             : `<button data-action="window.SosSystem.volunteerToHelp('${safeId(alertId)}')" style="background:#00d2ff; color:black; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-weight:bold; margin-top:10px;">J'arrive pour aider !</button>`
                         }
@@ -260,16 +250,10 @@ modal.innerHTML = `
     const type = document.getElementById("sos-type").value;
 
     try {
-      await firebase.firestore().collection("sos_alerts").add({
-        type: type,
-        author: window.session.username,
-        authorUid: window.session.uid,
-        lat: window.currentPosition.lat,
-        lng: window.currentPosition.lng,
-        createdAt: Date.now(),
-        isActive: true,
-      });
+      const { lat, lng } = window.currentPosition;
+      const { id } = await sovereignRequest("/sos-communaute", { method: "POST", body: { type, lat, lng } });
       this.lastAlertTime = Date.now();
+      this.handleAlert(id, { id, type, lat, lng, author: window.session.username, mine: true });
       alert(
         "Alerte SOS envoyée ! Restez près de votre scooter, l'aide arrive.",
       );
@@ -278,84 +262,60 @@ modal.innerHTML = `
         speak("Alerte de détresse envoyée à la communauté.");
     } catch (e) {
       console.error(e);
-      alert("Erreur réseau SOS.");
+      alert(e.status === 401 || e.status === 429 ? e.message : "Alerte non envoyée : réseau ou serveur injoignable. En cas d'urgence, appelez le 112.");
     }
   },
 
   resolveAlert: async function (alertId) {
     try {
-      await firebase
-        .firestore()
-        .collection("sos_alerts")
-        .doc(alertId)
-        .update({ isActive: false });
+      await sovereignRequest(`/sos-communaute/${encodeURIComponent(alertId)}/fin`, { method: "POST" });
+      this.removeAlert(alertId);
       alert("S.O.S clôturé. Bon retour sur la route !");
     } catch (e) {
       console.error(e);
+      alert(e.message || "Clôture impossible pour le moment.");
     }
   },
 
   volunteerToHelp: async function (alertId) {
-    if (!window.session || !window.session.uid) return;
+    if (!window.session) return;
     try {
-      await firebase
-        .firestore()
-        .collection("sos_alerts")
-        .doc(alertId)
-        .collection("helpers")
-        .doc(window.session.uid)
-        .set({
-          name: window.session.username,
-          timestamp: Date.now(),
-        });
+      await sovereignRequest(`/sos-communaute/${encodeURIComponent(alertId)}/aide`, { method: "POST" });
       alert(
         "Merci ! Le pilote en détresse a été prévenu que vous êtes en route.",
       );
     } catch (e) {
       console.error(e);
-      alert("Erreur réseau.");
+      alert(e.message || "Erreur réseau.");
     }
   },
 
-  listenToHelpers: function (alertId) {
-    if (typeof firebase === "undefined") return;
+  /** Notre alerte : annonce chaque pilote qui vient d'annoncer son aide (une seule fois). */
+  announceHelpers: function (alertId, helpers) {
+    const entry = this.sosMarkers[alertId];
+    if (!entry) return;
+    entry.helpersSeen = entry.helpersSeen || new Set();
+    helpers.filter((name) => !entry.helpersSeen.has(name)).forEach((name) => {
+      entry.helpersSeen.add(name);
+      if (typeof speak === "function") {
+        speak(`Bonne nouvelle. ${name} est en route pour vous aider.`);
+      }
 
-    firebase
-      .firestore()
-      .collection("sos_alerts")
-      .doc(alertId)
-      .collection("helpers")
-      .onSnapshot((snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === "added") {
-            const helper = change.doc.data();
+      const toast = document.createElement("div");
+      toast.style.cssText =
+        "position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,210,255,0.9);color:#000;padding:15px 25px;border-radius:25px;z-index:99999;font-weight:bold;font-family:'Outfit', sans-serif;box-shadow:0 0 20px rgba(0,210,255,0.5);font-size:1.1rem;opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:10px;";
+      // eslint-disable-next-line no-restricted-syntax
+      toast.innerHTML = `<span style="font-size:1.5rem;">🦸‍♂️ </span> <span><b>${escapeHtml(name)}</b> arrive pour vous aider !</span>`;
+      document.body.appendChild(toast);
 
-            // Ignore si très vieux pour éviter spam au rechargement
-            if (Date.now() - helper.timestamp < 3600000) {
-              if (typeof speak === "function") {
-                speak(
-                  `Bonne nouvelle. ${helper.name} est en route pour vous aider.`,
-                );
-              }
-
-              const toast = document.createElement("div");
-              toast.style.cssText =
-                "position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,210,255,0.9);color:#000;padding:15px 25px;border-radius:25px;z-index:99999;font-weight:bold;font-family:'Outfit', sans-serif;box-shadow:0 0 20px rgba(0,210,255,0.5);font-size:1.1rem;opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:10px;";
-              // eslint-disable-next-line no-restricted-syntax
-toast.innerHTML = `<span style="font-size:1.5rem;">🦸‍♂️ </span> <span><b>${escapeHTML(helper.name)}</b> arrive pour vous aider !</span>`;
-              document.body.appendChild(toast);
-
-              setTimeout(() => {
-                toast.style.opacity = "1";
-              }, 100);
-              setTimeout(() => {
-                toast.style.opacity = "0";
-                setTimeout(() => toast.remove(), 500);
-              }, 8000);
-            }
-          }
-        });
-      });
+      setTimeout(() => {
+        toast.style.opacity = "1";
+      }, 100);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 500);
+      }, 8000);
+    });
   },
 };
 

@@ -1,6 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { escapeHtml } from './html-escape.js';
+import { sovereignRequest } from './sovereign.js';
 
 // --- MODE CORTÈGE (Balade Synchro) ---
 window.CortegeSystem = {
@@ -13,134 +14,75 @@ window.CortegeSystem = {
     if (!window.session || !window.session.uid) return;
   },
 
+  // Groupe sur le serveur souverain (sovereign-core/server/live.js) : chaque envoi de position
+  // (toutes les 5 s) rend aussi les positions et signaux des autres membres.
   createSession: async function () {
     if (!window.session) return;
     try {
-      const joinCode = Math.floor(1000 + Math.random() * 9000).toString(); // Code à 4 chiffres
-
-      const docRef = await firebase
-        .firestore()
-        .collection("cortege_sessions")
-        .add({
-          code: joinCode,
-          leaderId: window.session.uid,
-          leaderName: window.session.username,
-          createdAt: Date.now(),
-          isActive: true,
-        });
-
-      this.sessionId = docRef.id;
-      alert(
-        `Cortège créé ! Le code secret pour rejoindre est : ${joinCode}`,
-      );
-      this.startSharing();
-      this.listenToMembers();
+      const { code } = await sovereignRequest("/groupes", { method: "POST" });
+      await this.joinSession(code, true);
+      if (this.sessionId) alert(`Cortège créé ! Le code secret pour rejoindre est : ${code}`);
     } catch (e) {
       console.error(e);
-      alert("Erreur de création de cortège.");
+      alert(e.status === 401 ? e.message : "Erreur de création de cortège.");
     }
   },
 
-  joinSession: async function (code) {
+  joinSession: async function (code, silent = false) {
     if (!window.session) return;
+    code = String(code || "").trim().toUpperCase();
+    if (!window.currentPosition) return alert("Position GPS introuvable : active la localisation, puis réessaie.");
     try {
-      const snap = await firebase
-        .firestore()
-        .collection("cortege_sessions")
-        .where("code", "==", code)
-        .where("isActive", "==", true)
-        .limit(1)
-        .get();
-
-      if (snap.empty) {
-        return alert("Cortège introuvable ou expiré avec ce code.");
-      }
-
-      const pos = window.currentPosition;
-      if (!pos) return alert("Position GPS introuvable : active la localisation, puis réessaie.");
-
-      // Les positions du groupe ne sont lisibles qu'une fois inscrit dedans (firestore.rules)
-      const sessionId = snap.docs[0].id;
-      await firebase
-        .firestore()
-        .collection("cortege_sessions")
-        .doc(sessionId)
-        .collection("members")
-        .doc(window.session.uid)
-        .set({ lat: pos.lat, lng: pos.lng, name: window.session.username, lastUpdate: Date.now() });
-
-      this.sessionId = sessionId;
-      alert(`Cortège rejoint avec succès !`);
+      this.sessionId = code;
+      await this.sharePosition();
+      if (!silent) alert(`Cortège rejoint avec succès !`);
       this.startSharing();
-      this.listenToMembers();
     } catch (e) {
+      this.sessionId = null;
       console.error(e);
-      alert("Impossible de rejoindre ce cortège.");
+      alert(e.status === 404 ? "Cortège introuvable ou expiré avec ce code." : e.message || "Impossible de rejoindre ce cortège.");
     }
+  },
+
+  /** Envoie notre position (et un signal éventuel), puis met à jour les autres membres. */
+  sharePosition: async function (signal) {
+    const pos = window.currentPosition;
+    if (!pos || !this.sessionId) return;
+    const body = { lat: pos.lat, lng: pos.lng };
+    if (signal) body.signal = signal;
+    const { members } = await sovereignRequest(`/groupes/${encodeURIComponent(this.sessionId)}`, { method: "POST", body });
+    this.applyMembers(members || []);
   },
 
   startSharing: function () {
     if (this.shareInterval) clearInterval(this.shareInterval);
-
-    // Push GPS to session sub-collection every 5 seconds
     this.shareInterval = setInterval(() => {
-      if (window.currentPosition && this.sessionId) {
-        firebase
-          .firestore()
-          .collection("cortege_sessions")
-          .doc(this.sessionId)
-          .collection("members")
-          .doc(window.session.uid)
-          .set({
-            lat: window.currentPosition.lat,
-            lng: window.currentPosition.lng,
-            name: window.session.username,
-            lastUpdate: Date.now(),
-          });
-      }
+      this.sharePosition().catch((e) => console.warn("[CortegeSystem] position non envoyée :", e && e.message));
     }, 5000);
   },
 
-  listenToMembers: function () {
-    if (!this.sessionId || typeof firebase === "undefined") return;
-
-    firebase
-      .firestore()
-      .collection("cortege_sessions")
-      .doc(this.sessionId)
-      .collection("members")
-      .onSnapshot((snap) => {
-        snap.docChanges().forEach((change) => {
-          const data = change.doc.data();
-          const uid = change.doc.id;
-
-          if (change.type === "added" || change.type === "modified") {
-            const oldData = this.members[uid];
-            this.members[uid] = data;
-            this.updateMemberMarker(uid, data);
-
-            // Check for new virtual hand signal
-            if (
-              data.lastSignal &&
-              (!oldData ||
-                !oldData.lastSignal ||
-                oldData.lastSignal.time !== data.lastSignal.time)
-            ) {
-              if (uid !== window.session.uid) {
-                this.handleNewSignal(data.name, data.lastSignal);
-              }
-            }
-          } else if (change.type === "removed") {
-            delete this.members[uid];
-            if (this.markers[uid]) {
-              this.markers[uid].map = null;
-              delete this.markers[uid];
-            }
-          }
-        });
-
-        this.checkDistances();
-      });
+  applyMembers: function (list) {
+    const myUid = window.session && window.session.uid;
+    const seen = new Set();
+    list.forEach((data) => {
+      const uid = data.uid;
+      seen.add(uid);
+      const oldData = this.members[uid];
+      this.members[uid] = { ...data, lastWarned: oldData && oldData.lastWarned };
+      this.updateMemberMarker(uid, data);
+      // Nouveau signal rapide d'un autre membre
+      if (data.signal && (!oldData || !oldData.signal || oldData.signal.time !== data.signal.time) && uid !== myUid && oldData) {
+        this.handleNewSignal(data.name, data.signal);
+      }
+    });
+    Object.keys(this.members).filter((uid) => !seen.has(uid)).forEach((uid) => {
+      delete this.members[uid];
+      if (this.markers[uid]) {
+        this.markers[uid].map = null;
+        delete this.markers[uid];
+      }
+    });
+    this.checkDistances();
   },
 
   updateMemberMarker: function (uid, data) {
@@ -210,7 +152,7 @@ window.CortegeSystem = {
     }
 
     const code = prompt(
-      "CORTÈGE : Entrez le code secret à 4 chiffres d'un ami pour le rejoindre, ou laissez le champ vide et cliquez sur OK pour CRÉER votre propre cortège :",
+      "CORTÈGE : Entrez le code secret à 4 caractères d'un ami pour le rejoindre, ou laissez le champ vide et cliquez sur OK pour CRÉER votre propre cortège :",
     );
     if (code === null) return;
 
@@ -244,44 +186,36 @@ modal.innerHTML = `
                     <button data-action="window.CortegeSystem.sendSignal('👮', 'Danger signalé')" style="background:#111; color:#fff; border:1px solid #ffeb3b; padding:15px; border-radius:10px; font-size:1.1rem; cursor:pointer; font-family:'Outfit', sans-serif;"><i class="fa-solid fa-triangle-exclamation" style="color:#ffeb3b;"></i> Danger</button>
                 </div>
                 
+                <p style="color:#aaa; margin-bottom:10px;">Code du cortège : <b style="color:#00ffcc;">${escapeHtml(this.sessionId)}</b></p>
+                <button data-action="window.CortegeSystem.leaveSession()" style="width:100%; background:transparent; border:1px solid #ff0055; color:#ff0055; padding:10px; border-radius:20px; cursor:pointer; font-family:'Outfit', sans-serif; margin-bottom:10px;">Quitter le cortège</button>
                 <button data-action="document.getElementById('cortege-signals-modal').style.display='none'" style="width:100%; background:transparent; border:1px solid #aaa; color:#fff; padding:10px; border-radius:20px; cursor:pointer; font-family:'Outfit', sans-serif;">Fermer</button>
             </div>
         `;
     modal.style.display = "flex";
   },
 
+  leaveSession: async function () {
+    const code = this.sessionId;
+    if (!code) return;
+    if (this.shareInterval) clearInterval(this.shareInterval);
+    this.sessionId = null;
+    this.applyMembers([]); // retire les marqueurs des autres membres
+    const modal = document.getElementById("cortege-signals-modal");
+    if (modal) modal.style.display = "none";
+    try {
+      await sovereignRequest(`/groupes/${encodeURIComponent(code)}`, { method: "DELETE" });
+    } catch (e) {
+      console.warn("[CortegeSystem] départ non transmis :", e && e.message); // le serveur l'oublie seul après 2 min
+    }
+    if (typeof speak === "function") speak("Vous avez quitté le cortège.");
+  },
+
   sendSignal: async function (icon, text) {
     if (!this.sessionId || !window.session) return;
 
-    // 🛡️ MODÉRATION PROACTIVE DES SIGNAUX DE GROUPE (Tolérance Zéro & Mots Grossiers)
-    if (window.Moderation && typeof window.Moderation.checkGroupMessage === "function") {
-      const modResult = window.Moderation.checkGroupMessage(text, {
-        space: "Cortège",
-        uid: window.session.uid,
-        username: window.session.username
-      });
-
-      if (!modResult.safe) {
-        alert(modResult.userMessage);
-        document.getElementById("cortege-signals-modal").style.display = "none";
-        return;
-      }
-    }
-
+    // Signaux de la liste fixe seulement : le serveur refuse tout autre texte (pas de modération utile)
     try {
-      await firebase
-        .firestore()
-        .collection("cortege_sessions")
-        .doc(this.sessionId)
-        .collection("members")
-        .doc(window.session.uid)
-        .update({
-          lastSignal: {
-            icon: icon,
-            text: text,
-            time: Date.now(),
-          },
-        });
+      await this.sharePosition(text);
       document.getElementById("cortege-signals-modal").style.display = "none";
     } catch (e) {
       console.error("[CortegeSystem] Error sending signal", e);
@@ -293,7 +227,7 @@ modal.innerHTML = `
     toast.style.cssText =
       "position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,255,204,0.9);color:#000;padding:15px 25px;border-radius:25px;z-index:99999;font-weight:bold;font-family:'Outfit', sans-serif;box-shadow:0 0 20px rgba(0,255,204,0.5);font-size:1.1rem;opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:10px;";
     // eslint-disable-next-line no-restricted-syntax
-toast.innerHTML = `<span style="font-size:1.5rem;">${signal.icon}</span> <span><b>${escapeHTML(senderName)}</b> : ${escapeHTML(signal.text)}</span>`;
+toast.innerHTML = `<span style="font-size:1.5rem;">${escapeHtml(signal.icon)}</span> <span><b>${escapeHtml(senderName)}</b> : ${escapeHtml(signal.text)}</span>`;
     document.body.appendChild(toast);
 
     setTimeout(() => {

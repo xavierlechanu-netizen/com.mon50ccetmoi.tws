@@ -61,6 +61,14 @@ export async function sovereignProfile(changes = null) {
   }
 }
 
+/** Appel au serveur souverain avec la session du pilote (SOS communautaire, cortège, convoi). */
+export function sovereignRequest(endpoint, options) {
+  if (!sovereignSession || !sovereignSession.hasAccount()) {
+    return Promise.reject(Object.assign(new Error('Connectez-vous pour utiliser cette fonction.'), { status: 401 }));
+  }
+  return sovereignSession.client.request(endpoint, options);
+}
+
 /** Vrai si ce téléphone peut envoyer l'alerte SOS automatique. */
 export function isSovereignSosReady() {
   return Boolean(sovereignSession && sovereignSession.isReady());

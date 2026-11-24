@@ -90,7 +90,7 @@ describe("safeId, safeNumber, safeImageUrl", () => {
 // Écrans qui affichent des contenus écrits par d'autres membres
 const COMMUNITY_SCREENS = [
   "crew-chat.js", "garage-market.js", "pit-stops.js", "sos-community.js", "social-radar.js",
-  "radar-social.js", "convoy.js", "leaderboard.js", "cortege-mode.js", "exchange.js",
+  "radar-social.js", "leaderboard.js", "cortege-mode.js", "exchange.js",
   "community-gas.js", "garage.js",
 ];
 // Champs écrits par les membres (titre, texte, pseudo…)

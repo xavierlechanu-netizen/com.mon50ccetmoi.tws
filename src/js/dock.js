@@ -19,7 +19,7 @@ import { registerAction } from './actionRegistry.js';
     { id: 'lawyer', icon: 'fa-scale-balanced', color: '#cca300', label: 'Nexus Atlas Juridique', action: () => { if(window.PocketLawyer && typeof window.PocketLawyer.toggleLawyer === 'function') window.PocketLawyer.toggleLawyer(); else if (typeof window.toggleLawyer === 'function') window.toggleLawyer(); } },
     { id: 'ar', icon: 'fa-vr-cardboard', color: '#00ffcc', label: 'Vision AR', action: () => { if(window.arNavigationManager) window.arNavigationManager.toggleAR(); } },
     { id: 'garage', icon: 'fa-motorcycle', color: '#00d2ff', label: 'Garage Virtuel', action: () => { if(window.VirtualGarage) window.VirtualGarage.openUI(); } },
-    { id: 'convoy', icon: 'fa-people-group', color: '#00e676', label: 'Mode Convoi', action: () => { if(window.ConvoyManager) window.ConvoyManager.openUI(); } },
+    { id: 'convoy', icon: 'fa-people-group', color: '#00e676', label: 'Cortège (balade en groupe)', action: () => { if(window.CortegeSystem) window.CortegeSystem.showModal(); } }, // convoi et cortège fusionnés le 24/11/2026
     { id: 'social', bientot: true, icon: 'fa-ghost', color: '#99aab5', label: 'Radar Social', action: () => { if(window.socialRadarManager) window.socialRadarManager.toggleRadar(); } },
     { id: 'obd', icon: 'fa-bluetooth', iconPrefix: 'fa-brands', color: '#ffaa00', label: 'OBD-II Scanner', action: () => { if(window.ScreenManager) window.ScreenManager.open('obd-hud-screen'); else if(window.obdManager) window.obdManager.connect(); } },
     { id: 'blackbox', icon: 'fa-microchip', color: '#ff3333', label: 'Boîte Noire', action: () => { if(window.ScreenManager) window.ScreenManager.open('blackbox-ui-panel'); } },
