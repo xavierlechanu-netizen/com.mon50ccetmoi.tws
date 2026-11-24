@@ -24,6 +24,12 @@ describe("Thèmes de l'année", () => {
     [2027, 7, 12, null], [2027, 7, 14, "14 Juillet"], [2027, 7, 15, null],
     [2027, 10, 30, "Octobre Rose"], [2027, 10, 31, "Halloween"],
     [2027, 12, 19, null], [2027, 12, 25, "Noël"], [2027, 12, 27, null],
+    [2027, 2, 2, "Chandeleur"], [2027, 2, 14, "Saint-Valentin"], [2027, 2, 15, null],
+    [2027, 5, 1, "1er Mai"], [2027, 5, 8, "8 Mai"], [2027, 11, 11, "11 Novembre"],
+    // Fête des mères : dernier dimanche de mai, décalée au 6 juin 2004 (Pentecôte le 30 mai)
+    [2026, 5, 31, "Fête des mères"], [2027, 5, 30, "Fête des mères"], [2004, 5, 30, null], [2004, 6, 6, "Fête des mères"],
+    // Fête des pères : 3e dimanche de juin ; le 21 juin 2026 elle passe avant la Fête de la musique
+    [2027, 6, 20, "Fête des pères"], [2027, 6, 21, "Fête de la musique"], [2026, 6, 21, "Fête des pères"],
   ])("%i-%i-%i : %s", (y, m, d, name) => {
     expect(nameOn(y, m, d)).toBe(name);
   });

@@ -22,6 +22,22 @@ export function easterSunday(year) {
   return new Date(year, month - 1, day);
 }
 
+/** Fête des mères (France) : dernier dimanche de mai, ou 1er dimanche de juin si c'est la Pentecôte. */
+export function mothersDay(year) {
+  const d = new Date(year, 4, 31);
+  d.setDate(31 - d.getDay());
+  const pentecost = easterSunday(year);
+  pentecost.setDate(pentecost.getDate() + 49);
+  if (d.getTime() === pentecost.getTime()) d.setDate(d.getDate() + 7);
+  return d;
+}
+
+/** Fête des pères : 3e dimanche de juin. */
+export function fathersDay(year) {
+  const first = new Date(year, 5, 1);
+  return new Date(year, 5, 1 + ((7 - first.getDay()) % 7) + 14);
+}
+
 /** La fête du jour, ou null. Du vendredi saint au lundi pour Pâques ; l'Épiphanie couvre son dimanche. */
 export function seasonOf(date = new Date()) {
   const month = date.getMonth() + 1;
@@ -32,10 +48,18 @@ export function seasonOf(date = new Date()) {
 
   if (month === 1 && day <= 2) return { name: "Nouvel An", color: null, message: "🎆 Bonne année et bonne route !", fireworks: true };
   if (month === 1 && day <= 8) return { name: "Épiphanie", color: "#e0a800", message: "👑 Bonne Épiphanie ! Qui aura la fève ?" };
+  if (month === 2 && day === 2) return { name: "Chandeleur", color: "#e0a800", message: "🥞 Bonne Chandeleur ! Crêpes à l'arrivée." };
+  if (month === 2 && day === 14) return { name: "Saint-Valentin", color: "#e0245e", message: "💘 Bonne Saint-Valentin ! Roulez prudemment, on vous attend." };
   if (fromEaster >= -2 && fromEaster <= 1) return { name: "Pâques", color: "#2e9e4f", message: "🐣 Joyeuses Pâques et bonne balade !" };
+  if (month === 5 && day === 1) return { name: "1er Mai", color: "#2e9e4f", message: "🌿 Bon 1er Mai ! Un brin de muguet et bonne route." };
+  if (month === 5 && day === 8) return { name: "8 Mai", color: null, message: "🇫🇷 8 mai 1945 : souvenons-nous." };
+  if (today.getTime() === mothersDay(date.getFullYear()).getTime()) return { name: "Fête des mères", color: "#e0245e", message: "💐 Bonne fête à toutes les mamans !" };
+  if (today.getTime() === fathersDay(date.getFullYear()).getTime()) return { name: "Fête des pères", color: "#0055a4", message: "👔 Bonne fête à tous les papas !" };
+  if (month === 6 && day === 21) return { name: "Fête de la musique", color: "#8a2be2", message: "🎶 Bonne Fête de la musique ! Pas d'écouteurs en roulant." };
   if (month === 7 && (day === 13 || day === 14)) return { name: "14 Juillet", color: "#0055a4", message: "🇫🇷 Bonne fête nationale !", fireworks: true };
   if (month === 10 && day === 31) return { name: "Halloween", color: "#ff6a00", message: "🎃 Joyeux Halloween !" };
   if (month === 10) return { name: "Octobre Rose", color: "#ff007f", message: "🎀 Octobre Rose : pensez au dépistage." };
+  if (month === 11 && day === 11) return { name: "11 Novembre", color: null, message: "🇫🇷 11 novembre 1918 : souvenons-nous." };
   if (month === 12 && day >= 20 && day <= 26) return { name: "Noël", color: "#d6001c", message: "🎄 Joyeux Noël et bonne route !" };
   return null;
 }
