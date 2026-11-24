@@ -11,6 +11,9 @@ const { StoreError } = require("./store-errors");
 const { sealEntry, AUDIT_RETENTION_DAYS } = require("./audit-log");
 const { bestLearnedMatch, VALIDATED } = require("./nexus-brain");
 
+/** Un danger disparaît de la carte quand les 👎 dépassent les 👍 de 2. */
+const HAZARD_HIDE_AT = -2;
+
 function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const usersById = new Map();
     const usersByEmail = new Map();
@@ -18,6 +21,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const units = new Map();
     const sessions = [];
     const hazards = [];
+    const hazardVotes = new Map(); // `${hazardId}|${uid}` → 1 ou -1
     const ledger = [];
     const quotas = new Map(); // `${uid}|${jour}` → { motif: points, __unverified: points }
     const audit = []; // journal d'audit (ajout seul, chaîné : audit-log.js)
@@ -114,6 +118,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             });
             // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
             for (const h of hazards) if (h.uid === uid) h.description = "";
+            for (const k of hazardVotes.keys()) if (k.endsWith(`|${uid}`)) hazardVotes.delete(k);
             for (const [k, a] of achievements) if (a.uid === uid) achievements.delete(k);
             profiles.delete(uid);
             for (const [k, r] of passwordResets) if (r.uid === uid) passwordResets.delete(k);
@@ -267,20 +272,28 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
         },
 
         // ─── Dangers ─────────────────────────────────────────────────────────
-        async createHazard({ uid, type, lat, lng, description = "" }) {
-            const h = { hazardId: crypto.randomUUID(), uid, type, lat, lng, description, votes: 0, active: true,
+        async createHazard({ uid, type, lat, lng, description = "", appType = null }) {
+            const h = { hazardId: crypto.randomUUID(), uid, type, appType, lat, lng, description, votes: 0, active: true,
                 createdAt: new Date().toISOString() };
             hazards.push(h);
-            return { hazardId: h.hazardId, type, lat, lng, description, createdAt: h.createdAt };
+            return { hazardId: h.hazardId, type, appType, lat, lng, description, createdAt: h.createdAt };
+        },
+        async voteHazard({ hazardId, uid, vote }) {
+            const h = hazards.find((x) => x.hazardId === hazardId && x.active);
+            if (!h) return null;
+            hazardVotes.set(`${hazardId}|${uid}`, vote);
+            h.votes = [...hazardVotes].filter(([k]) => k.startsWith(`${hazardId}|`)).reduce((n, [, v]) => n + v, 0);
+            h.active = h.votes > HAZARD_HIDE_AT;
+            return { votes: h.votes, active: h.active };
         },
         async countHazardsSince(uid, sinceMs) {
             return hazards.filter((h) => h.uid === uid && Date.parse(h.createdAt) > sinceMs).length;
         },
-        async findHazardsNear({ lat, lng, radiusM, limit = 200 }) {
+        async findHazardsNear({ lat, lng, radiusM, limit = 200, sinceMs = 0 }) {
             const R = 6371000;
             const rad = (d) => (d * Math.PI) / 180;
             return hazards
-                .filter((h) => h.active)
+                .filter((h) => h.active && Date.parse(h.createdAt) > sinceMs)
                 .map((h) => {
                     const a = Math.sin(rad(h.lat - lat) / 2) ** 2 +
                         Math.cos(rad(lat)) * Math.cos(rad(h.lat)) * Math.sin(rad(h.lng - lng) / 2) ** 2;
@@ -289,8 +302,8 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
                 .filter((h) => h.distanceM <= radiusM)
                 .sort((a, b) => a.distanceM - b.distanceM)
                 .slice(0, limit)
-                .map(({ hazardId, type, lat: la, lng: ln, description, votes, createdAt, distanceM }) =>
-                    ({ hazardId, type, lat: la, lng: ln, description, votes, createdAt, distanceM }));
+                .map(({ hazardId, type, appType, lat: la, lng: ln, description, votes, createdAt, distanceM }) =>
+                    ({ hazardId, type, appType: appType || null, lat: la, lng: ln, description, votes, createdAt, distanceM }));
         },
 
         // ─── Points ──────────────────────────────────────────────────────────

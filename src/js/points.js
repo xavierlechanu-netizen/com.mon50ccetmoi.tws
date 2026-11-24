@@ -28,6 +28,22 @@ export async function signalerAuServeur({ type, lat, lng, description }) {
   }
 }
 
+/**
+ * Dangers autour d'un point, lus sur le serveur du VPS. null si les points ne sont pas sur le VPS
+ * (l'appelant lit alors Firestore) ; undefined si pas de session ou serveur muet : l'appelant garde
+ * alors ce qu'il a déjà (alertes de conduite hors réseau).
+ */
+export async function dangersAutour(lat, lng, radiusKm) {
+  if (!pointsSouverains) return null;
+  if (!pointsSouverains.possible() || !Number.isFinite(Number(lat)) || !Number.isFinite(Number(lng))) return undefined;
+  try {
+    return await pointsSouverains.dangersAutour({ lat, lng, radiusKm });
+  } catch (e) {
+    console.warn('[Dangers] Lecture sur le serveur impossible :', e && e.message);
+    return undefined;
+  }
+}
+
 export { messagePoints };
 
 if (typeof window !== 'undefined') {

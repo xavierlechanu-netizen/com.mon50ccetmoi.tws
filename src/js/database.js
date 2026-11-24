@@ -1,6 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
-import { pointsSouverains, signalerAuServeur } from './points.js';
+import { pointsSouverains, signalerAuServeur, dangersAutour } from './points.js';
 
 /**
  * DATABASE MANAGER - mon50ccetmoi
@@ -41,6 +41,20 @@ function initDatabase() {
 // --- SYNCHRONISATION DES DANGERS (COMMUNAUTÉ) ---
 
 function syncHazards() {
+  if (pointsSouverains) {
+    // Dangers sur le VPS : relus toutes les minutes autour du pilote
+    const refresh = async () => {
+      const pos = window.currentPosition;
+      if (!pos) return;
+      const list = await dangersAutour(pos.lat, pos.lng, 25);
+      if (!list) return; // serveur muet : on garde les dangers déjà connus
+      secureSetItem("hazards", JSON.stringify(list));
+      if (typeof loadHazards === "function") loadHazards();
+    };
+    setInterval(refresh, 60000);
+    setTimeout(refresh, 3000); // laisse le GPS donner une première position
+    return;
+  }
   if (!db) return;
 
   // OWASP A11 & Anti-DoS: Limiter strictement aux dangers récents (4h) et max 50 documents
@@ -83,6 +97,15 @@ window.publishHazardCloud = async function (hazard) {
     return false;
   }
 
+  if (pointsSouverains) {
+    // Dangers sur le VPS : plus d'écriture dans Firestore
+    const hazardId = await signalerAuServeur({
+      type: hazard.type, lat: hazard.lat, lng: hazard.lng ?? hazard.lon, description: hazard.description,
+    });
+    if (hazardId && window.BVCManager) window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId });
+    return Boolean(hazardId);
+  }
+
   try {
     // On n'utilise plus cloudEncrypt pour les données publiques communautaires
     // car le E2EE partagé n'a aucun sens. Sécurisé via Firestore Rules.
@@ -95,13 +118,7 @@ window.publishHazardCloud = async function (hazard) {
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
     // 25 points, accordés par le serveur après vérification que ce danger existe bien.
-    // Points sur le VPS : le danger y est aussi envoyé, la preuve est son identifiant là-bas.
-    if (pointsSouverains) {
-      const hazardId = await signalerAuServeur({
-        type: hazard.type, lat: hazard.lat, lng: hazard.lng ?? hazard.lon, description: hazard.description,
-      });
-      if (hazardId && window.BVCManager) window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId });
-    } else if (uid && window.BVCManager) {
+    if (uid && window.BVCManager) {
       window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId: ref.id });
     }
     return true;

@@ -26,7 +26,7 @@ function loadModule(file, names) {
 const { SovereignClient } = loadModule("sovereign-core/client/sovereign-sdk.js", ["SovereignClient"]);
 const S = loadModule("src/js/sovereign-session.js", ["createSovereignSession"]);
 const P = loadModule("src/js/points-core.js",
-  ["createPointsSouverains", "typeDangerServeur", "messagePoints", "TYPES_DANGER_SERVEUR"]);
+  ["createPointsSouverains", "typeDangerServeur", "messagePoints", "TYPES_DANGER_SERVEUR", "dangerPourAppli"]);
 
 const MDP = "MotDePasse-2026";
 const PILOTES = [
@@ -129,6 +129,38 @@ describe("Points par le serveur du VPS", () => {
     expect(r.status).toBe(401);
   });
 
+  test("dangers lus sur le serveur : type de l'appli gardé, votes (un par pilote), retiré à -2", async () => {
+    const [alice, bruno, chloe] = await Promise.all(PILOTES.map((p) => telephone(p.email)));
+    const { hazardId } = await alice.signalerDanger({ type: "animal", lat: 44.2, lng: 4.1 });
+    await alice.signalerDanger({ type: "<b>x</b>", lat: 44.2, lng: 4.1 }); // type trop étrange : gardé côté serveur seulement
+    const autour = await bruno.dangersAutour({ lat: 44.2, lng: 4.1, radiusKm: 1 });
+    expect(autour.map((h) => h.type).sort()).toEqual(["animal", "other"]);
+    const animal = autour.find((h) => h.id === hazardId);
+    expect(animal).toEqual(expect.objectContaining({ lat: 44.2, lng: 4.1, lon: 4.1, status: "active", confirmations: 0 }));
+    expect(Date.parse(animal.date)).toBeGreaterThan(Date.now() - 60000);
+
+    expect(await alice.voterDanger(hazardId, "confirm")).toEqual({ votes: 1, active: true });
+    expect(await alice.voterDanger(hazardId, "confirm")).toEqual({ votes: 1, active: true }); // pas deux fois
+    expect(await bruno.voterDanger(hazardId, "resolve")).toEqual({ votes: 0, active: true });
+    expect(await chloe.voterDanger(hazardId, "resolve")).toEqual({ votes: -1, active: true });
+    expect(await alice.voterDanger(hazardId, "resolve")).toEqual({ votes: -3, active: false }); // change d'avis
+    expect((await bruno.dangersAutour({ lat: 44.2, lng: 4.1, radiusKm: 1 })).map((h) => h.id)).not.toContain(hazardId);
+    expect(await bruno.voterDanger(hazardId, "confirm").catch((e) => e.status)).toBe(404);
+    expect(await bruno.voterDanger(hazardId, "peut-être").catch((e) => e.status)).toBe(400);
+  });
+
+  test("un danger de plus de 24 h n'est plus montré", async () => {
+    const vieux = await store.createHazard({ uid: PILOTES[0].uid, type: "pothole", lat: 43.1, lng: 5.9 });
+    const proches = (sinceMs) => store.findHazardsNear({ lat: 43.1, lng: 5.9, radiusM: 500, sinceMs });
+    expect((await proches(Date.now() - 24 * 3600 * 1000)).map((h) => h.hazardId)).toContain(vieux.hazardId);
+    expect(await proches(Date.now() + 1000)).toEqual([]);
+  });
+
+  test("format de l'appli", () => {
+    expect(P.dangerPourAppli({ hazardId: "h1", type: "police", appType: null, lat: 1, lng: 2, votes: 3, createdAt: "2026-11-24T10:00:00.000Z" }))
+      .toEqual({ id: "h1", type: "police", lat: 1, lng: 2, lon: 2, date: "2026-11-24T10:00:00.000Z", description: "", confirmations: 3, status: "active" });
+  });
+
   test("types de danger de l'appli → types du serveur", () => {
     const cas = {
       POTHOLE: "pothole", "Route Dégradée": "pothole", ACCIDENT: "accident", POLICE: "police", Police: "police",
@@ -203,12 +235,13 @@ describe("Branchement dans l'appli", () => {
   test("gestionnaire de points, classement et signalements passent par points.js quand l'interrupteur le dit", () => {
     expect(src("bvc-manager.js")).toMatch(/import \{ pointsSouverains, messagePoints \} from '\.\/points\.js'/);
     expect(src("leaderboard.js")).toMatch(/pointsSouverains\.classement\(\)/);
-    for (const f of ["database.js", "danger-zones.js"]) {
-      // Avec les points sur le VPS, la preuve est l'identifiant du danger SUR LE SERVEUR
+    for (const f of ["database.js", "danger-zones.js", "radar-danger.js"]) {
+      // Avec les points sur le VPS, les dangers sont écrits et lus SUR LE SERVEUR seulement
       expect(src(f)).toMatch(/signalerAuServeur\(/);
+      expect(src(f)).toMatch(/dangersAutour\(/);
       expect(src(f)).toMatch(/if \(pointsSouverains\) \{/);
     }
-    expect(src("radar-danger.js")).toMatch(/signalerAuServeur\(/);
+    expect(src("hazard-reports.js")).toMatch(/await dangersAutour\(/);
     expect(src("points.js")).toMatch(/backendMode\('points'\) === 'SOVEREIGN'/);
   });
 

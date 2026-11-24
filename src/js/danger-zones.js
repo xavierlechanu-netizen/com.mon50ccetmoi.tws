@@ -1,7 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { distanceMeters } from './geo-math.js';
-import { pointsSouverains, signalerAuServeur } from './points.js';
+import { pointsSouverains, signalerAuServeur, dangersAutour } from './points.js';
 
 /**
  * ⚠️ DANGER ZONES v2.0 (Signalement Communautaire Temps Réel)
@@ -101,6 +101,7 @@ window.DangerZones = {
     this.isMonitoring = false;
     if (this.checkInterval) clearInterval(this.checkInterval);
     if (this.firestoreUnsubscribe) this.firestoreUnsubscribe();
+    if (this.serverPoll) clearInterval(this.serverPoll);
   },
 
   updatePosition: function (lat, lng) {
@@ -108,6 +109,26 @@ window.DangerZones = {
   },
 
   listenToCloudHazards: function () {
+    if (pointsSouverains) {
+      // Dangers sur le VPS : relus toutes les minutes autour du pilote
+      const refresh = async () => {
+        const pos = this.currentPos || window.currentPosition;
+        if (!pos) return;
+        const list = await dangersAutour(pos.lat, pos.lng, 25);
+        if (!list) return; // serveur muet : on garde les dangers déjà affichés
+        const ids = new Set(list.map((h) => h.id));
+        for (const id of Object.keys(this.mapMarkers)) {
+          if (!ids.has(id) && typeof map !== "undefined" && map) map.removeLayer(this.mapMarkers[id]);
+          if (!ids.has(id)) delete this.mapMarkers[id];
+        }
+        list.forEach((h) => this.renderHazardOnMap(h));
+        this.alerts = list;
+      };
+      if (this.serverPoll) clearInterval(this.serverPoll);
+      this.serverPoll = setInterval(refresh, 60000);
+      refresh();
+      return;
+    }
     if (!window.db) return;
 
     if (this.firestoreUnsubscribe) this.firestoreUnsubscribe();
@@ -172,6 +193,20 @@ window.DangerZones = {
   },
 
   voteHazard: async function (hazardId, voteType) {
+    if (pointsSouverains) {
+      try {
+        const { active } = await pointsSouverains.voterDanger(hazardId, voteType === "confirm" ? "confirm" : "resolve");
+        if (!active && this.mapMarkers[hazardId] && typeof map !== "undefined") {
+          map.removeLayer(this.mapMarkers[hazardId]);
+          delete this.mapMarkers[hazardId];
+        }
+        alert(voteType === "confirm" ? "Merci pour votre confirmation !" : "Merci, c'est noté.");
+      } catch (e) {
+        console.error("[DangerZones] Erreur de vote:", e);
+        alert("Vote non enregistré : reconnectez-vous et réessayez.");
+      }
+      return;
+    }
     if (!window.db) return;
     try {
       const ref = window.db.collection("hazards").doc(hazardId);
@@ -228,16 +263,19 @@ window.DangerZones = {
   },
 
   syncToCloud: async function (report) {
+    if (pointsSouverains) {
+      // Dangers sur le VPS : plus d'écriture dans Firestore
+      const hazardId = await signalerAuServeur({ type: report.type, lat: report.lat, lng: report.lng });
+      if (hazardId && window.BVCManager) window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId });
+      else if (!hazardId) alert("Signalement non envoyé : reconnectez-vous pour partager les dangers.");
+      return;
+    }
     if (!window.db) return;
     try {
       if (report.authorUid === undefined) delete report.authorUid;
       const ref = await window.db.collection("hazards").add(report);
       // 25 points, accordés par le serveur après vérification que ce danger existe bien.
-      // Points sur le VPS : le danger y est aussi envoyé, la preuve est son identifiant là-bas.
-      if (pointsSouverains) {
-        const hazardId = await signalerAuServeur({ type: report.type, lat: report.lat, lng: report.lng });
-        if (hazardId && window.BVCManager) window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId });
-      } else if (window.BVCManager && report.authorUid) {
+      if (window.BVCManager && report.authorUid) {
         window.BVCManager.add(25, "RADAR_HAZARD_REPORTED", { hazardId: ref.id });
       }
     } catch (e) {

@@ -32,6 +32,20 @@ export function typeDangerServeur(type) {
   return "other";
 }
 
+/** Danger du serveur → format lu par l'appli (carte, alertes de conduite). */
+export function dangerPourAppli(h) {
+  return {
+    id: h.hazardId, type: h.appType || h.type, lat: h.lat, lng: h.lng, lon: h.lng,
+    date: h.createdAt, description: h.description || "", confirmations: h.votes || 0, status: "active",
+  };
+}
+
+/** Type de l'appli gardé pour l'affichage, s'il est assez simple pour le serveur. */
+function typeAppli(type) {
+  const t = String(type || "").trim();
+  return t.length <= 40 && /^[\p{L}\p{N} _'-]+$/u.test(t) ? t : undefined;
+}
+
 function pointsError(code, message, status) {
   const err = new Error(message);
   err.code = code;
@@ -96,9 +110,23 @@ export function createPointsSouverains({ sovereign }) {
      */
     async signalerDanger({ type, lat, lng, description }) {
       const body = { type: typeDangerServeur(type), lat: Number(lat), lng: Number(lng) };
+      const appType = typeAppli(type);
+      if (appType) body.appType = appType;
       if (description) body.description = String(description).slice(0, 500);
       const res = await appel("/hazards", { method: "POST", body });
       return { hazardId: res.hazardId };
+    },
+
+    /** Dangers des dernières 24 h autour d'un point, au format de l'appli. */
+    async dangersAutour({ lat, lng, radiusKm = 25 }) {
+      const q = `lat=${Number(lat)}&lng=${Number(lng)}&radiusKm=${Number(radiusKm)}`;
+      const res = await appel(`/hazards?${q}`, { method: "GET" });
+      return Array.isArray(res.hazards) ? res.hazards.map(dangerPourAppli) : [];
+    },
+
+    /** Vote : "confirm" (toujours là) ou "resolve" (disparu). Renvoie { votes, active }. */
+    async voterDanger(hazardId, vote) {
+      return appel(`/hazards/${encodeURIComponent(hazardId)}/vote`, { method: "POST", body: { vote } });
     },
   };
 }

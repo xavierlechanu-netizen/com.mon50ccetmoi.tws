@@ -1,7 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { HapticNav, NAV_MODES } from './haptic-navigation.js';
-import { signalerAuServeur } from './points.js';
+import { signalerAuServeur, dangersAutour, pointsSouverains } from './points.js';
 import { routeColor } from './season-theme.js';
 
 /**
@@ -268,12 +268,7 @@ function loadDangers(userGeohash) {
     return; // On ne connecte pas Firestore en mode démo strict
   }
 
-  firestoreUnsubscribe = db.collection('hazards')
-    .where('geohash', '>=', userGeohash)
-    .where('geohash', '<=', userGeohash + '\uf8ff')
-    .where('status', '==', 'active')
-    .limit(100)
-    .onSnapshot(snapshot => {
+  const render = (snapshot) => {
       dangerMarkers.forEach(m => m.setMap(null));
       dangerMarkers = [];
 
@@ -340,7 +335,31 @@ function loadDangers(userGeohash) {
       }
       const countBadge = document.getElementById('signal-count');
       if (countBadge) countBadge.textContent = snapshot.size;
-    }, err => console.error('[Radar Danger] Firestore error:', err));
+  };
+
+  if (pointsSouverains) {
+    // Dangers sur le VPS : relus toutes les minutes autour du pilote, sous la forme d'un instantané Firestore
+    const refresh = async () => {
+      if (!currentPosition) return;
+      const list = await dangersAutour(currentPosition.lat, currentPosition.lng, 25);
+      if (!list) return; // serveur muet : on garde la liste affichée
+      render({
+        size: list.length,
+        forEach: (cb) => list.forEach((h) => cb({ id: h.id, data: () => ({ ...h, created_at: { toMillis: () => Date.parse(h.date) } }) })),
+      });
+    };
+    const timer = setInterval(refresh, 60000);
+    firestoreUnsubscribe = () => clearInterval(timer);
+    refresh();
+    return;
+  }
+
+  firestoreUnsubscribe = db.collection('hazards')
+    .where('geohash', '>=', userGeohash)
+    .where('geohash', '<=', userGeohash + '')
+    .where('status', '==', 'active')
+    .limit(100)
+    .onSnapshot(render, err => console.error('[Radar Danger] Firestore error:', err));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -719,7 +738,7 @@ function toggleVoiceGuidance() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function loadStats() {
-  if (typeof db === 'undefined') return;
+  if (typeof db === 'undefined' || pointsSouverains) return;
   try {
     await db.collection('hazards').where('status', '==', 'active').limit(1).get();
   } catch(e) { /* non bloquant */ }
@@ -735,7 +754,8 @@ function selectDangerType(id) {
 }
 
 async function signalerDanger() {
-  if (!window.auth || !window.auth.currentUser) {
+  const connecte = pointsSouverains ? pointsSouverains.possible() : Boolean(window.auth && window.auth.currentUser);
+  if (!connecte) {
     alert('Tu dois être connecté pour signaler un danger.');
     return;
   }
@@ -753,14 +773,24 @@ async function signalerDanger() {
   // eslint-disable-next-line no-restricted-syntax
 btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Envoi...';
 
-  const uid = window.auth.currentUser.uid;
-
   try {
     const lastSignal = parseInt(localStorage.getItem('last_signal_ts') || '0');
     if (Date.now() - lastSignal < 30000) {
       throw new Error('rate_limit');
     }
 
+    if (pointsSouverains) {
+      // Dangers sur le VPS : plus d'écriture dans Firestore
+      if (!(await signalerAuServeur({ type: selectedDangerType, lat: currentPosition.lat, lng: currentPosition.lng }))) {
+        throw new Error('serveur');
+      }
+      localStorage.setItem('last_signal_ts', Date.now().toString());
+      showToast('✅ Danger signalé ! Merci de protéger la communauté.');
+      closePanelSignal();
+      return;
+    }
+
+    const uid = window.auth.currentUser.uid;
     await db.collection('hazards').add({
       type: selectedDangerType,
       lat: currentPosition.lat,
@@ -772,9 +802,6 @@ btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Envoi...';
       created_at: firebase.firestore.FieldValue.serverTimestamp(),
       expires_at: firebase.firestore.Timestamp.fromMillis(Date.now() + 2 * 60 * 60 * 1000)
     });
-    // Points sur le VPS : le danger y est aussi enregistré (déménagement des signalements). Sans attente.
-    signalerAuServeur({ type: selectedDangerType, lat: currentPosition.lat, lng: currentPosition.lng });
-
     localStorage.setItem('last_signal_ts', Date.now().toString());
     showToast('✅ Danger signalé ! Merci de protéger la communauté.');
     closePanelSignal();

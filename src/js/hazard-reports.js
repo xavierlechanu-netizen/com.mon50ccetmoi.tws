@@ -5,6 +5,7 @@ import { db, secureGetItem, secureSetItem } from "./config.js";
 import { registerAction } from "./actionRegistry.js";
 import * as geofire from "geofire-common";
 import { distanceMeters } from "./geo-math.js";
+import { dangersAutour } from "./points.js";
 
 export const HAZARD_SEARCH_RADIUS_M = 25000;
 export const ANIMAL_TTL_MIN = 30; // un animal sur la route n'y reste pas : signalement oublié après 30 min
@@ -142,23 +143,29 @@ function centerOf(map) {
   return typeof c.lat === "function" ? { lat: c.lat(), lng: c.lng() } : { lat: c.lat, lng: c.lng };
 }
 
+/** Ancienne lecture (points sur Firebase) : dangers Firestore autour du centre, null si erreur. */
+async function firestoreHazardsAround(center) {
+  try {
+    const bounds = geofire.geohashQueryBounds([center.lat, center.lng], HAZARD_SEARCH_RADIUS_M);
+    const snaps = await Promise.all(
+      bounds.map(([start, end]) => db.collection("hazards").orderBy("geohash").startAt(start).endAt(end).get()),
+    );
+    return snaps.flatMap((snap) => snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+  } catch (err) {
+    console.error("[hazard-reports] Lecture des dangers impossible :", err);
+    return null;
+  }
+}
+
 export async function loadHazards() {
   const map = window.map;
   if (!map || typeof google === "undefined" || !google.maps || !window.googleLibraries?.AdvancedMarkerElement) return;
   const center = centerOf(map);
   if (!center) return;
 
-  let records;
-  try {
-    const bounds = geofire.geohashQueryBounds([center.lat, center.lng], HAZARD_SEARCH_RADIUS_M);
-    const snaps = await Promise.all(
-      bounds.map(([start, end]) => db.collection("hazards").orderBy("geohash").startAt(start).endAt(end).get()),
-    );
-    records = snaps.flatMap((snap) => snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-  } catch (err) {
-    console.error("[hazard-reports] Lecture des dangers impossible :", err);
-    return;
-  }
+  let records = await dangersAutour(center.lat, center.lng, HAZARD_SEARCH_RADIUS_M / 1000);
+  if (records === null) records = await firestoreHazardsAround(center);
+  if (!records) return;
 
   (window.hazardMarkers || []).forEach((m) => m.setMap(null));
   window.hazardMarkers = [];

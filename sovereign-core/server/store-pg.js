@@ -90,6 +90,9 @@ function mapUnit(r) {
     };
 }
 
+/** Un danger disparaît de la carte quand les 👎 dépassent les 👍 de 2. */
+const HAZARD_HIDE_AT = -2;
+
 function createPgStore({ connectionString, pool } = {}) {
     const db = pool || new Pool({ connectionString, max: 10, idleTimeoutMillis: 30000 });
 
@@ -176,6 +179,7 @@ function createPgStore({ connectionString, pool } = {}) {
                 await client.query("DELETE FROM password_reset_tokens WHERE user_uid = $1", [uid]);
                 // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
                 await client.query("UPDATE hazards SET description = '' WHERE user_uid = $1 AND description <> ''", [uid]);
+                await client.query("DELETE FROM hazard_votes WHERE user_uid = $1", [uid]);
                 await client.query("COMMIT");
                 return true;
             } catch (e) {
@@ -447,13 +451,44 @@ function createPgStore({ connectionString, pool } = {}) {
 
         // ─── Dangers signalés ───────────────────────────────────────────────
 
-        async createHazard({ uid, type, lat, lng, description = "" }) {
+        async createHazard({ uid, type, lat, lng, description = "", appType = null }) {
             const { rows } = await db.query(
-                `INSERT INTO hazards (user_uid, type, lat, lng, description)
-                 VALUES ($1, $2, $3, $4, $5) RETURNING hazard_id, created_at`,
-                [uid, type, lat, lng, description]
+                `INSERT INTO hazards (user_uid, type, lat, lng, description, app_type)
+                 VALUES ($1, $2, $3, $4, $5, $6) RETURNING hazard_id, created_at`,
+                [uid, type, lat, lng, description, appType]
             );
-            return { hazardId: rows[0].hazard_id, type, lat, lng, description, createdAt: rows[0].created_at.toISOString() };
+            return { hazardId: rows[0].hazard_id, type, appType, lat, lng, description, createdAt: rows[0].created_at.toISOString() };
+        },
+
+        async voteHazard({ hazardId, uid, vote }) {
+            if (!UUID_RE.test(String(hazardId))) return null;
+            const client = await db.connect();
+            try {
+                await client.query("BEGIN");
+                const { rows: [h] } = await client.query("SELECT 1 FROM hazards WHERE hazard_id = $1 AND active FOR UPDATE", [hazardId]);
+                if (!h) {
+                    await client.query("ROLLBACK");
+                    return null;
+                }
+                await client.query(
+                    `INSERT INTO hazard_votes (hazard_id, user_uid, vote) VALUES ($1, $2, $3)
+                     ON CONFLICT (hazard_id, user_uid) DO UPDATE SET vote = EXCLUDED.vote`,
+                    [hazardId, uid, vote]
+                );
+                const { rows: [r] } = await client.query(
+                    `UPDATE hazards SET votes = s.total, active = s.total > $2
+                       FROM (SELECT COALESCE(SUM(vote), 0)::int AS total FROM hazard_votes WHERE hazard_id = $1) s
+                      WHERE hazard_id = $1 RETURNING votes, active`,
+                    [hazardId, HAZARD_HIDE_AT]
+                );
+                await client.query("COMMIT");
+                return { votes: r.votes, active: r.active };
+            } catch (e) {
+                await client.query("ROLLBACK").catch(() => {});
+                throw e;
+            } finally {
+                client.release();
+            }
         },
 
         async countHazardsSince(uid, sinceMs) {
@@ -465,23 +500,24 @@ function createPgStore({ connectionString, pool } = {}) {
         },
 
         /** Dangers actifs dans un rayon (mètres) : pré-filtre par rectangle, puis distance exacte (haversine). */
-        async findHazardsNear({ lat, lng, radiusM, limit = 200 }) {
+        async findHazardsNear({ lat, lng, radiusM, limit = 200, sinceMs = 0 }) {
             const dLat = radiusM / 111320;
             const dLng = radiusM / (111320 * Math.max(Math.cos((lat * Math.PI) / 180), 0.01));
             const { rows } = await db.query(
                 `SELECT * FROM (
-                    SELECT hazard_id, type, lat, lng, description, votes, created_at,
+                    SELECT hazard_id, type, app_type, lat, lng, description, votes, created_at,
                            2 * 6371000 * asin(sqrt(
                                power(sin(radians(lat - $1) / 2), 2) +
                                cos(radians($1)) * cos(radians(lat)) * power(sin(radians(lng - $2) / 2), 2)
                            )) AS distance_m
                       FROM hazards
-                     WHERE active AND lat BETWEEN $1 - $4 AND $1 + $4 AND lng BETWEEN $2 - $5 AND $2 + $5
+                     WHERE active AND created_at > to_timestamp($7 / 1000.0)
+                       AND lat BETWEEN $1 - $4 AND $1 + $4 AND lng BETWEEN $2 - $5 AND $2 + $5
                  ) h WHERE distance_m <= $3 ORDER BY distance_m LIMIT $6`,
-                [lat, lng, radiusM, dLat, dLng, limit]
+                [lat, lng, radiusM, dLat, dLng, limit, sinceMs]
             );
             return rows.map((r) => ({
-                hazardId: r.hazard_id, type: r.type, lat: r.lat, lng: r.lng, description: r.description,
+                hazardId: r.hazard_id, type: r.type, appType: r.app_type || null, lat: r.lat, lng: r.lng, description: r.description,
                 votes: r.votes, createdAt: r.created_at.toISOString(), distanceM: Math.round(r.distance_m),
             }));
         },

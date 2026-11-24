@@ -105,6 +105,9 @@ const UNSAFE_USERNAME_RE = /[<>"'&`\u0000-\u001f\u007f]/;
 
 const HAZARD_TYPES = ["pothole", "accident", "police", "roadwork", "obstacle", "weather", "other"];
 const HAZARDS_PER_DAY = 30;
+const HAZARD_MAX_AGE_MS = 24 * 3600 * 1000; // au-delà, un danger n'est plus montré
+/** Type affiché par l'appli (« Route Dégradée », « animal »…) : texte court, sans balise. */
+const isAppType = (v) => typeof v === "string" && v.length <= 40 && /^[\p{L}\p{N} _'-]+$/u.test(v);
 const isLat = (v) => typeof v === "number" && Number.isFinite(v) && v >= -90 && v <= 90;
 const isLng = (v) => typeof v === "number" && Number.isFinite(v) && v >= -180 && v <= 180;
 const blackboxCore = require("../../functions/api/blackbox-core");
@@ -771,8 +774,8 @@ function createSovereignApp(options = {}) {
                 return;
             }
             if (req.method === "POST") {
-                const { type, lat, lng, description } = body;
-                if (!HAZARD_TYPES.includes(type) || !isLat(lat) || !isLng(lng) ||
+                const { type, lat, lng, description, appType } = body;
+                if (!HAZARD_TYPES.includes(type) || !isLat(lat) || !isLng(lng) || (appType !== undefined && !isAppType(appType)) ||
                     (description !== undefined && (typeof description !== "string" || description.length > 500))) {
                     res.statusCode = 400;
                     res.end(JSON.stringify({ error: "Type de danger, position ou description invalide." }));
@@ -788,7 +791,7 @@ function createSovereignApp(options = {}) {
                     res.end(JSON.stringify({ error: `Limite de ${HAZARDS_PER_DAY} signalements par jour atteinte.` }));
                     return;
                 }
-                const hazard = await store.createHazard({ uid: authUser.uid, type, lat, lng, description: description || "" });
+                const hazard = await store.createHazard({ uid: authUser.uid, type, lat, lng, description: description || "", appType: appType || null });
                 res.statusCode = 201;
                 res.end(JSON.stringify(hazard));
                 return;
@@ -801,9 +804,30 @@ function createSovereignApp(options = {}) {
                 res.end(JSON.stringify({ error: "Position invalide (lat, lng)." }));
                 return;
             }
-            const hazards = await store.findHazardsNear({ lat, lng, radiusM: radiusKm * 1000 });
+            const hazards = await store.findHazardsNear({ lat, lng, radiusM: radiusKm * 1000, sinceMs: Date.now() - HAZARD_MAX_AGE_MS });
             res.statusCode = 200;
             res.end(JSON.stringify({ radiusKm, count: hazards.length, hazards }));
+            return;
+        }
+
+        // 4c ter. VOTE sur un danger : toujours là (1) ou disparu (-1), un vote par pilote
+        const voteMatch = req.method === "POST" && pathname.match(/^\/api\/v1\/hazards\/([0-9a-f-]{36})\/vote$/);
+        if (voteMatch) {
+            const authUser = extractBearerUser(req);
+            if (!authUser || !(await store.findUserById(authUser.uid))) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Authentification requise." }));
+                return;
+            }
+            const vote = { confirm: 1, resolve: -1 }[body.vote];
+            if (!vote) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: "Vote invalide (confirm ou resolve)." }));
+                return;
+            }
+            const result = await store.voteHazard({ hazardId: voteMatch[1], uid: authUser.uid, vote });
+            res.statusCode = result ? 200 : 404;
+            res.end(JSON.stringify(result || { error: "Danger introuvable ou déjà retiré." }));
             return;
         }
 

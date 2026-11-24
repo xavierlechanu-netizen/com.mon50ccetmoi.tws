@@ -10,16 +10,17 @@ const JS = path.resolve(__dirname, "../src/js");
 const read = (f) => fs.readFileSync(path.join(JS, f), "utf8");
 
 // Modules ESM (navigateur) : on retire imports et "export" pour les évaluer ici
-function loadModule({ db = null, store = {} } = {}) {
+// dangersAutour : null = points sur Firebase (lecture Firestore), sinon la liste du serveur
+function loadModule({ db = null, store = {}, dangersAutour = async () => null } = {}) {
   const geo = read("geo-math.js").replace(/^export (const|function) /gm, "$1 ");
   const code = read("hazard-reports.js").replace(/^import .*$/gm, "").replace(/^export (const|function|async function) /gm, "$1 ");
   const secureGetItem = (k) => store[k] ?? null;
   const secureSetItem = (k, v) => { store[k] = v; };
   return new Function(
-    "db", "secureGetItem", "secureSetItem", "registerAction", "geofire",
+    "db", "secureGetItem", "secureSetItem", "registerAction", "geofire", "dangersAutour",
     `${geo}\n${code}\nreturn { HAZARD_SEARCH_RADIUS_M, hazardLabel, hazardColor, hazardPosition, isHazardExpired,
       selectNearbyHazards, hazardInfoContent, toggleHazardMenu, saveHazard, loadHazards };`,
-  )(db, secureGetItem, secureSetItem, () => {}, geofire);
+  )(db, secureGetItem, secureSetItem, () => {}, geofire, dangersAutour);
 }
 
 const LILLE = { lat: 50.6292, lng: 3.0573 };
@@ -172,6 +173,26 @@ describe("loadHazards : affichage sur la carte", () => {
   }
 
   afterEach(() => { delete global.google; });
+
+  test("points sur le VPS : la carte montre les dangers du serveur, sans lire Firestore", async () => {
+    const { markers } = setupMap([]);
+    window.hazardMarkers = [];
+    const dangersAutour = jest.fn(async () => [{ id: "s1", type: "animal", lat: north(300), lng: LILLE.lng, lon: LILLE.lng, date: new Date().toISOString() }]);
+    const H = loadModule({ db: { collection: () => { throw new Error("Firestore lu"); } }, dangersAutour });
+    await H.loadHazards();
+    expect(dangersAutour).toHaveBeenCalledWith(LILLE.lat, LILLE.lng, 25);
+    expect(markers.map((m) => m.opts.position)).toEqual([{ lat: north(300), lng: LILLE.lng }]);
+  });
+
+  test("points sur le VPS, serveur muet (hors réseau, sans session) : les marqueurs restent, Firestore n'est pas lu", async () => {
+    setupMap([]);
+    const old = { setMap: jest.fn() };
+    window.hazardMarkers = [old];
+    const H = loadModule({ db: { collection: () => { throw new Error("Firestore lu"); } }, dangersAutour: async () => undefined });
+    await H.loadHazards();
+    expect(old.setMap).not.toHaveBeenCalled();
+    expect(window.hazardMarkers).toEqual([old]);
+  });
 
   test("un marqueur par danger, y compris au format {pos}, sans doublon", async () => {
     const shared = { id: "a", type: "trou", lat: north(200), lon: LILLE.lng };
