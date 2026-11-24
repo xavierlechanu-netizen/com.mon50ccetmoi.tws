@@ -27,6 +27,12 @@ test("la carte s'affiche et la barre contient ses boutons", async ({ page }) => 
   expect(pageErrors).toEqual([]);
 });
 
+test("le Petit Stop (Garage du Petit Fontenay) est posé sur la carte", async ({ page }) => {
+  const pageErrors = await openApp(page);
+  await expect(page.locator('.petit-stop-marker[title*="Petit Fontenay"]')).toHaveCount(1, { timeout: 15_000 });
+  expect(pageErrors).toEqual([]);
+});
+
 test("l'app reste sur la carte (pas de renvoi vers l'accueil)", async ({ page }) => {
   await openApp(page);
   expect(new URL(page.url()).pathname).toBe("/app.html");
