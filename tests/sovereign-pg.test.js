@@ -284,6 +284,19 @@ describe("Serveur souverain sur PostgreSQL", () => {
     expect((await pool.query("SELECT count(*)::int AS n FROM password_reset_tokens WHERE user_uid = $1", [u.uid])).rows[0].n).toBe(0);
   });
 
+  test("profil repris de Firebase : relance sans doublon, dans l'export, effacé avec le compte", async () => {
+    const { rows: [u] } = await pool.query("INSERT INTO users (email, username, password_hash) VALUES ('profil-pg@mon50cc.internal', 'ProfilPG', '!') RETURNING uid");
+    const pg = createPgStore({ pool });
+    const profil = { brand: "Peugeot", model: "Kisbee", department: "43", ghostMode: true, registeredAt: "2026-01-02T03:04:05.000Z" };
+    await pg.saveProfile(u.uid, { ...profil, model: "Ancien" });
+    await pg.saveProfile(u.uid, profil);
+    expect(await pg.getProfile(u.uid)).toEqual(profil);
+    expect((await pool.query("SELECT count(*)::int AS n FROM pilot_profiles WHERE user_uid = $1", [u.uid])).rows[0].n).toBe(1);
+    expect((await pg.exportUserData(u.uid)).profile).toEqual(profil);
+    await pg.anonymizeUser(u.uid);
+    expect(await pg.getProfile(u.uid)).toBeNull();
+  });
+
   test("outils du VPS (check.sh, rgpd-firebase.sh) : leurs requêtes SQL marchent sur la vraie base", async () => {
     const deploy = (f) => fs.readFileSync(path.join(__dirname, "../sovereign-core/deploy", f), "utf8");
     const check = deploy("check.sh");

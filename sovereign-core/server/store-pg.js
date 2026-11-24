@@ -172,6 +172,7 @@ function createPgStore({ connectionString, pool } = {}) {
                 await client.query("DELETE FROM fido_credentials WHERE user_uid = $1", [uid]);
                 await client.query("DELETE FROM fido_challenges WHERE user_uid = $1", [uid]);
                 await client.query("DELETE FROM pilot_achievements WHERE user_uid = $1", [uid]);
+                await client.query("DELETE FROM pilot_profiles WHERE user_uid = $1", [uid]);
                 await client.query("DELETE FROM password_reset_tokens WHERE user_uid = $1", [uid]);
                 // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
                 await client.query("UPDATE hazards SET description = '' WHERE user_uid = $1 AND description <> ''", [uid]);
@@ -204,6 +205,23 @@ function createPgStore({ connectionString, pool } = {}) {
                 [tokenHash, passwordHash]
             );
             return rows[0] ? rows[0].uid : null;
+        },
+
+        async saveProfile(uid, { brand = null, model = null, department = null, ghostMode = false, registeredAt = null }) {
+            await db.query(
+                `INSERT INTO pilot_profiles (user_uid, brand, model, department, ghost_mode, registered_at)
+                 VALUES ($1, $2, $3, $4, $5, $6)
+                 ON CONFLICT (user_uid) DO UPDATE SET brand = EXCLUDED.brand, model = EXCLUDED.model,
+                   department = EXCLUDED.department, ghost_mode = EXCLUDED.ghost_mode,
+                   registered_at = EXCLUDED.registered_at, updated_at = NOW()`,
+                [uid, brand, model, department, Boolean(ghostMode), registeredAt]
+            );
+        },
+
+        async getProfile(uid) {
+            if (!UUID_RE.test(String(uid))) return null;
+            const { rows: [p] } = await db.query("SELECT * FROM pilot_profiles WHERE user_uid = $1", [uid]);
+            return p ? { brand: p.brand, model: p.model, department: p.department, ghostMode: p.ghost_mode, registeredAt: iso(p.registered_at) } : null;
         },
 
         /** Badge personnel, avec un trajet déclaré facultatif. Faux s'il était déjà attribué. */
@@ -261,7 +279,7 @@ function createPgStore({ connectionString, pool } = {}) {
         async exportUserData(uid) {
             const user = await this.findUserById(uid);
             if (!user) return null;
-            const [hz, led, tel, bb, pay, achievements] = await Promise.all([
+            const [hz, led, tel, bb, pay, achievements, profile] = await Promise.all([
                 db.query(`SELECT hazard_id, type, lat, lng, description, active, created_at FROM hazards
                            WHERE user_uid = $1 ORDER BY created_at`, [uid]),
                 db.query(`SELECT action, reason, delta, balance_after, created_at FROM points_ledger
@@ -272,6 +290,7 @@ function createPgStore({ connectionString, pool } = {}) {
                 db.query("SELECT serial, revision, status, created_at FROM blackbox_units WHERE owner_uid = $1 ORDER BY serial", [uid]),
                 db.query("SELECT * FROM revolut_orders WHERE user_uid = $1 ORDER BY created_at", [uid]),
                 this.listAchievements(uid),
+                this.getProfile(uid),
             ]);
             return {
                 account: {
@@ -290,6 +309,7 @@ function createPgStore({ connectionString, pool } = {}) {
                 payments: pay.rows.map(mapOrder).map(({ caseId, product, amountCents, currency, status, createdAt, completedAt }) =>
                     ({ caseId, product, amountCents, currency, status, createdAt, completedAt })),
                 achievements,
+                profile,
             };
         },
 

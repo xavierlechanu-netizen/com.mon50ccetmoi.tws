@@ -28,6 +28,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const firebaseErasures = []; // effacements RGPD à finir dans Firebase (migration 003)
     let firebaseErasureSeq = 0;
     const passwordResets = new Map(); // empreinte du lien → { uid, expiresAt } (migration 005)
+    const profiles = new Map(); // uid → profil du pilote (migration 006)
     const achievements = new Map(); // `${uid}|${code}` → badge personnel (migration 004)
 
     // Utilisateurs pré-enregistrés (tests) : [{ uid, email?, username?, role? }]
@@ -114,8 +115,18 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
             for (const h of hazards) if (h.uid === uid) h.description = "";
             for (const [k, a] of achievements) if (a.uid === uid) achievements.delete(k);
+            profiles.delete(uid);
             for (const [k, r] of passwordResets) if (r.uid === uid) passwordResets.delete(k);
             return true;
+        },
+
+        async saveProfile(uid, { brand = null, model = null, department = null, ghostMode = false, registeredAt = null }) {
+            profiles.set(uid, { brand, model, department, ghostMode: Boolean(ghostMode), registeredAt });
+        },
+
+        async getProfile(uid) {
+            const p = profiles.get(uid);
+            return p ? { ...p } : null;
         },
 
         /** Badge personnel, avec un trajet déclaré facultatif. Faux s'il était déjà attribué. */
@@ -184,6 +195,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
                     .map(({ caseId, product, amountCents, currency, status, createdAt, completedAt }) =>
                         ({ caseId, product, amountCents, currency, status, createdAt, completedAt })),
                 achievements: await this.listAchievements(uid),
+                profile: await this.getProfile(uid),
             };
         },
 
