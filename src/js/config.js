@@ -9,7 +9,7 @@ import 'firebase/compat/firestore';
 // (points, achat de rapports, envoi de la boîte noire, profil assureur) étaient ignorés en silence.
 import 'firebase/compat/functions';
 import localforage from 'localforage';
-import { installServiceGuard } from './service-guard.js';
+import { installServiceGuard, installFirestorePause } from './service-guard.js';
 import { showCookieBanner } from './cookie-consent.js';
 
 export const CONFIG = {
@@ -47,6 +47,28 @@ export const CONFIG = {
   // aussi une session Firebase (même email, même mot de passe) pour les lire. À couper (false) quand
   // plus rien ne lit Firestore.
   PONT_FIREBASE: import.meta.env?.VITE_PONT_FIREBASE !== "0",
+  // Collections Firestore vides (comptage du 23/11/2026) : leurs fonctions sont « Bientôt
+  // disponible », plus aucune lecture ni écriture (service-guard.js). Pour en rallumer une :
+  // la retirer d'ici… ou mieux, la porter sur le serveur souverain.
+  COLLECTIONS_EN_PAUSE: [
+    // Équipes, territoires et leur messagerie
+    "crews", "territory_sectors", "crew_chats",
+    // Troc, échanges entre membres, Marketplace
+    "exchange_listings", "exchange_messages", "garage_trades", "marketplace",
+    // Roadbooks, butin, parrainage, statistiques de jeu, classement Firestore (le VPS le tient)
+    "roadbooks", "community_roadbooks", "loot_drops", "referral_rewards", "gamification_stats", "leaderboard",
+    // Carnet d'entretien et garages partenaires
+    "maintenance_logs", "garage_registrations", "garage_evaluations", "stats",
+    // Radar social, Pit Stops partagés, sessions OBD, stations signalées
+    "social_radar", "pit_stops", "obd_sessions", "blacklist_stations",
+    // Trajets et semaines du tableau de bord (sous-collections de users)
+    "trips", "weekly_stats",
+    // Litiges et rapports assureurs, ventes et console des boîtiers (aucune vente ouverte)
+    "litigation_previews", "litigation_proposals", "insurer_reports",
+    "payment_confirmations", "blackbox_sales", "blackbox_registry", "blackbox_units",
+    // Inscriptions bêta
+    "beta_testers",
+  ],
 
   // Auth Configuration
   AUTH: {
@@ -109,6 +131,7 @@ installServiceGuard({
   firebaseNs: firebase,
   actif: CONFIG.SERVICES_SERVEUR_ACTIFS,
 });
+installFirestorePause(firebase.firestore, CONFIG.COLLECTIONS_EN_PAUSE);
 
 export const db = firebase.firestore();
 export const auth = firebase.auth();

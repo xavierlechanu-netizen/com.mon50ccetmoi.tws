@@ -133,13 +133,14 @@
   <!-- SOCIAL RADAR & ROADBOOKS BUTTONS -->
   <div id="hud-side-buttons"
     style="position: fixed; top: 110px; right: 15px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;">
-    <button id="btn-ghost-mode" data-action="window.RadarSocial.toggleGhostMode()"
-      style="background: rgba(0,0,0,0.8); color: white; border: 1px solid #00f0ff; padding: 10px; border-radius: 5px; font-family: monospace; cursor: pointer;">
-      <i class="fa-solid fa-ghost"></i> Ghost Mode
+    <!-- Radar social et roadbooks en pause (collections vides, CONFIG.COLLECTIONS_EN_PAUSE) -->
+    <button id="btn-ghost-mode" disabled title="Bientôt disponible"
+      style="background: rgba(0,0,0,0.8); color: white; border: 1px solid #00f0ff; padding: 10px; border-radius: 5px; font-family: monospace; cursor: not-allowed; opacity: 0.5;">
+      <i class="fa-solid fa-ghost"></i> Ghost Mode · Bientôt disponible
     </button>
-    <button id="btn-roadbook-record" data-action="window.Roadbooks.toggleRecording()"
-      style="background: rgba(0,0,0,0.8); color: white; border: 1px solid #00ff00; padding: 10px; border-radius: 5px; font-family: monospace; cursor: pointer;">
-      <i class="fa-solid fa-route"></i> Rec Roadbook
+    <button id="btn-roadbook-record" disabled title="Bientôt disponible"
+      style="background: rgba(0,0,0,0.8); color: white; border: 1px solid #00ff00; padding: 10px; border-radius: 5px; font-family: monospace; cursor: not-allowed; opacity: 0.5;">
+      <i class="fa-solid fa-route"></i> Rec Roadbook · Bientôt disponible
     </button>
   </div>
 

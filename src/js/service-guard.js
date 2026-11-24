@@ -45,3 +45,61 @@ export function installServiceGuard({ win, firebaseNs, actif }) {
   }
   return true;
 }
+
+/**
+ * Collections Firestore en pause (24/11/2026) : les fonctions dont les collections sont vides
+ * (équipes, territoires, troc, roadbooks, parrainage, carnet d'entretien…) passent en
+ * « Bientôt disponible » au lieu d'être portées sur le serveur souverain. Liste : CONFIG
+ * (config.js). Pour ces collections, aucune requête ne part vers Firestore :
+ * les lectures rendent « rien », les écritures échouent avec le message ci-dessous.
+ */
+export const MESSAGE_BIENTOT_DISPONIBLE =
+  "Bientôt disponible : cette fonction revient dès qu'elle sera installée sur nos serveurs en France.";
+
+function resultatVide() {
+  // Sert à la fois de document absent et de liste vide
+  return { empty: true, size: 0, docs: [], exists: false, id: "", data: () => undefined, forEach() {}, docChanges: () => [] };
+}
+
+function referenceEnPause() {
+  const refus = () => Promise.reject(new ServiceIndisponibleError(MESSAGE_BIENTOT_DISPONIBLE));
+  const ref = {
+    id: "",
+    path: "",
+    get: () => Promise.resolve(resultatVide()),
+    onSnapshot(...args) {
+      const suite = args.find((a) => typeof a === "function") || args.map((a) => a && a.next).find(Boolean);
+      if (suite) Promise.resolve().then(() => suite(resultatVide()));
+      return () => {};
+    },
+    add: refus,
+    set: refus,
+    update: refus,
+    delete: refus,
+  };
+  for (const m of ["doc", "collection", "where", "orderBy", "limit", "limitToLast", "startAt", "startAfter", "endAt", "endBefore", "withConverter"]) {
+    ref[m] = () => ref;
+  }
+  return ref;
+}
+
+/**
+ * Met en pause des collections (et sous-collections, par leur nom) pour tout le SDK Firestore compat.
+ * @param {object} firestoreNs  firebase.firestore (les classes Firestore et DocumentReference)
+ * @param {string[]} collections
+ */
+export function installFirestorePause(firestoreNs, collections) {
+  const enPause = new Set(collections || []);
+  if (!firestoreNs || !enPause.size) return false;
+  const filtrer = (proto, methode) => {
+    if (!proto || typeof proto[methode] !== "function") return;
+    const origine = proto[methode];
+    proto[methode] = function (chemin, ...reste) {
+      return enPause.has(String(chemin).split("/")[0]) ? referenceEnPause() : origine.call(this, chemin, ...reste);
+    };
+  };
+  filtrer(firestoreNs.Firestore && firestoreNs.Firestore.prototype, "collection");
+  filtrer(firestoreNs.Firestore && firestoreNs.Firestore.prototype, "collectionGroup");
+  filtrer(firestoreNs.DocumentReference && firestoreNs.DocumentReference.prototype, "collection");
+  return true;
+}

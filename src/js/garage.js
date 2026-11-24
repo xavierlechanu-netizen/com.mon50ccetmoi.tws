@@ -179,6 +179,12 @@ window.GarageClient = {
     const container = document.getElementById('maintenance-logs-container');
     if (!container) return;
 
+    // Carnet d'entretien en pause (collection vide, CONFIG.COLLECTIONS_EN_PAUSE)
+    if ((window.CONFIG?.COLLECTIONS_EN_PAUSE || []).includes('maintenance_logs')) {
+      container.textContent = "Carnet d'entretien : bientôt disponible.";
+      return;
+    }
+
     if (typeof firebase === 'undefined' || !firebase.auth().currentUser || typeof db === 'undefined') {
       // eslint-disable-next-line no-restricted-syntax
 container.innerHTML = `

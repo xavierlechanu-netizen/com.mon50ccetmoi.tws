@@ -61,6 +61,8 @@ function syncHazards() {
   const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000);
 
   const processSnapshot = (snapshot) => {
+    // Hors ligne, Firestore rend une liste vide tirée du cache : ne pas effacer les dangers connus
+    if (snapshot.empty && snapshot.metadata && snapshot.metadata.fromCache) return;
     const hazards = [];
     snapshot.forEach((doc) => {
       const data = doc.data();
