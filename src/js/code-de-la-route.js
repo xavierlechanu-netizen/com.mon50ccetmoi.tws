@@ -91,8 +91,6 @@ class NexusAtlasAI {
     this.meteoContext = null;
     this.systemPrompt = null;
 
-    // Cloud Function Endpoint
-    this.endpoint = "https://europe-west1-mon50ccetmoi.cloudfunctions.net/askNexusAtlasGemini";
   }
 
   async initialize() {
@@ -129,70 +127,9 @@ class NexusAtlasAI {
     return "L'examen est terminé. Retourne à la base.";
   }
 
+  /** Examen en pause (24/11/2026) : l'IA de Google est coupée, Mistral est trop lent pour un examen. */
   async callGeminiAPI() {
-    try {
-      if (!window.auth || !window.auth.currentUser) {
-        return "Erreur : Tu dois être connecté pour discuter avec Nexus Atlas.";
-      }
-
-      // Cache IA (Green AI - économie GPU)
-      const historyStr = JSON.stringify(this.history.map(h => h.parts[0].text));
-      let hash = 0;
-      for (let i = 0; i < historyStr.length; i++) hash = Math.imul(31, hash) + historyStr.charCodeAt(i) | 0;
-      const cacheKey = 'nexus_cache_' + hash;
-      
-      const cached = sessionStorage.getItem(cacheKey);
-      if (cached) {
-        console.log("[Nexus Atlas] Using cached response (Green AI)");
-        this.history.push({ role: "model", parts: [{ text: cached }] });
-        return this.handleGeminiParsed(cached);
-      }
-
-      const idToken = await window.auth.currentUser.getIdToken(true);
-
-      const response = await fetch(this.endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${idToken}`
-        },
-        body: JSON.stringify({
-          history: this.history,
-          systemPrompt: this.systemPrompt || buildSystemPrompt(null, null)
-        })
-      });
-
-      if (response.status === 429) {
-        return "Oups ! L'IA a besoin de souffler un instant (limite de requêtes atteinte). Attends 1 minute et réessaie !";
-      }
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-        const rawText = data.candidates[0].content.parts[0].text;
-        
-        sessionStorage.setItem(cacheKey, rawText); // Sauvegarde en cache
-
-        this.history.push({
-          role: "model",
-          parts: [{ text: rawText }]
-        });
-
-        return this.handleGeminiParsed(rawText);
-      } else {
-        return "Désolé, je n'ai pas pu formuler une réponse. Peux-tu reformuler ?";
-      }
-
-    } catch (error) {
-      console.error("[Nexus Atlas] Gemini API Error:", error);
-      // Service serveur à l'arrêt (service-guard.js) : le dire clairement
-      if (error && error.indisponible) return error.message;
-      return "Une erreur de communication est survenue. Veuillez réessayer.";
-    }
+    return "L'examen de Nexus Atlas est bientôt disponible : il revient sous forme de quiz. Retourne à la base en attendant !";
   }
 
   handleGeminiParsed(rawText) {

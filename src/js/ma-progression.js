@@ -13,32 +13,6 @@ import { onAuthChange } from './comptes.js';
  * - Mode Entraîneur : bilan hebdomadaire pour les parents
  */
 
-const PROGRESSION_GEMINI_ENDPOINT = "https://europe-west1-mon50ccetmoi.cloudfunctions.net/askNexusAtlasGemini";
-
-const ENTRAINEUR_SYSTEM_PROMPT = `
-Tu es Nexus Atlas, assistant de sécurité routière pour l'application mon50ccetmoi.
-Tu dois générer un BILAN HEBDOMADAIRE de conduite pour les parents d'un jeune conducteur de 50cc.
-
-Les données fournies viennent de la boîte noire et de l'application. Tu dois :
-1. Résumer les points positifs (équipement respecté, quiz réussis, signalements communautaires).
-2. Identifier les axes d'amélioration avec des conseils bienveillants.
-3. Donner un score global de sécurité sur 100.
-4. Rappeler les règles prioritaires à travailler.
-
-IMPORTANT :
-- Sois bienveillant et pédagogique. Le but n'est pas de punir le conducteur.
-- Rappelle que tu es une IA d'assistance et que le parent doit dialoguer avec son enfant.
-- N'invente pas de données non fournies.
-
-FORMAT JSON OBLIGATOIRE :
-{
-  "score_global": 75,
-  "resume_positif": "HTML court avec les bons points",
-  "axes_amelioration": "HTML court avec les points à améliorer",
-  "conseil_semaine": "Un conseil personnalisé court et motivant"
-}
-`;
-
 // --- Chargement des données utilisateur ---
 async function loadUserProgression() {
   if (!window.auth || !window.auth.currentUser) return null;
@@ -162,10 +136,10 @@ container.innerHTML = `
       <div class="entraineur-header">
         <div>
           <h3 class="entraineur-title"><i class="fa-solid fa-user-shield"></i> Mode Entraîneur</h3>
-          <p class="entraineur-desc">Génère un bilan hebdomadaire IA pour les parents.</p>
+          <p class="entraineur-desc">Un bilan hebdomadaire pour les parents.</p>
         </div>
-        <button class="btn-bilan" id="btn-bilan" data-action="genererBilanEntraineur()">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> Générer le bilan
+        <button class="btn-bilan" id="btn-bilan" disabled title="Bientôt disponible">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Bientôt disponible
         </button>
       </div>
       <div id="bilan-content" class="bilan-content"></div>
@@ -211,78 +185,11 @@ obj.innerHTML = Math.floor(progress * (end - start + start));
   window.requestAnimationFrame(step);
 }
 
+// Bilan IA pour les parents en pause (24/11/2026) : l'IA de Google est coupée et Mistral, sur le serveur,
+// écrit trop lentement (≈ 4 mots par seconde) et ne rend pas un format fiable.
 async function genererBilanEntraineur() {
-  const btn = document.getElementById('btn-bilan');
   const content = document.getElementById('bilan-content');
-  if (!btn || !content) return;
-
-  if (navigator.vibrate) navigator.vibrate(50); // Haptic feedback (Micro-interaction)
-
-  btn.disabled = true;
-  // eslint-disable-next-line no-restricted-syntax
-btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Analyse en cours...';
-  // eslint-disable-next-line no-restricted-syntax
-content.innerHTML = '';
-
-  try {
-    const data = await loadUserProgression();
-    if (!data) throw new Error('No data');
-
-    if (!window.auth || !window.auth.currentUser) throw new Error('Not auth');
-
-    const idToken = await window.auth.currentUser.getIdToken(true);
-    const dataStr = `Conducteur: ${data.displayName}. Points mon50cc: ${data.bvcPoints}. Contrats actifs ce mois: ${data.contratsActifs}/5. Dangers signalés: ${data.signalementsTotal}. Score de sécurité calculé: ${computeSecurityScore(data)}/100.`;
-
-    const response = await fetch(PROGRESSION_GEMINI_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
-      body: JSON.stringify({
-        systemPrompt: ENTRAINEUR_SYSTEM_PROMPT,
-        history: [{ role: 'user', parts: [{ text: dataStr }] }]
-      })
-    });
-
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const apiData = await response.json();
-    let raw = apiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    if (raw.includes('```json')) raw = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-
-    const bilan = JSON.parse(raw.trim());
-
-    // Sécurité XSS : Assainissement du HTML généré par l'IA
-    const cleanPositif = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(bilan.resume_positif) : bilan.resume_positif;
-    const cleanAmelio = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(bilan.axes_amelioration) : bilan.axes_amelioration;
-    const cleanConseil = typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(bilan.conseil_semaine) : bilan.conseil_semaine;
-
-    // eslint-disable-next-line no-restricted-syntax
-content.innerHTML = `
-      <div class="bilan-score-line">
-        <span>Score IA cette semaine :</span>
-        <span class="bilan-score-val" style="color: ${scoreColor(bilan.score_global)}">${bilan.score_global}/100</span>
-      </div>
-      <div class="bilan-section green">
-        <strong>✅ Points positifs</strong>
-        <div>${cleanPositif}</div>
-      </div>
-      <div class="bilan-section orange">
-        <strong>💡 Axes d'amélioration</strong>
-        <div>${cleanAmelio}</div>
-      </div>
-      <div class="bilan-section cyan">
-        <strong>🎯 Conseil de la semaine</strong>
-        <div>${cleanConseil}</div>
-      </div>
-      <p class="bilan-disclaimer"><i class="fa-solid fa-scale-balanced"></i> Bilan généré par l'IA Nexus Atlas à titre d'assistance uniquement. Discutez-en ensemble !</p>
-    `;
-  } catch (e) {
-    console.error('[Entraîneur] Erreur:', e);
-    // eslint-disable-next-line no-restricted-syntax
-content.innerHTML = `<p class="error-text">Erreur lors de la génération du bilan. Réessaie dans un moment.</p>`;
-  } finally {
-    btn.disabled = false;
-    // eslint-disable-next-line no-restricted-syntax
-btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Générer le bilan';
-  }
+  if (content) content.textContent = "Bientôt disponible : le bilan hebdomadaire pour les parents revient dès qu'il sera prêt.";
 }
 
 // --- Fonctions utilitaires ---
