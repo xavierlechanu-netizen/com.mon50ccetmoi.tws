@@ -1,0 +1,249 @@
+[
+  {
+    "q": "Comment calculer un itinéraire ?",
+    "a": "Sur la carte, tape ta destination et valide : je calcule un itinéraire adapté aux 50 cc, sans autoroute ni voie rapide. Appuie ensuite sur « GO » pour démarrer le guidage.",
+    "statut": "valide"
+  },
+  {
+    "q": "Pourquoi mon itinéraire évite-t-il les autoroutes ?",
+    "a": "Les cyclomoteurs et les voitures sans permis n'ont pas le droit d'y circuler. Mes trajets les évitent toujours, avec des durées prévues pour environ 45 km/h.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment signaler un danger ?",
+    "a": "Ouvre le menu de signalement et choisis le type : nid-de-poule, accident, police, travaux, obstacle, météo… Il apparaît sur la carte des autres pilotes. Tu gagnes 25 points (100 par jour au maximum).",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment confirmer ou retirer un danger signalé ?",
+    "a": "Touche le danger sur la carte : « Toujours là » le confirme, « Disparu » le retire. Chaque pilote a un seul vote. Quand les « Disparu » l'emportent assez, le danger quitte la carte.",
+    "statut": "valide"
+  },
+  {
+    "q": "Combien de temps un danger reste-t-il affiché ?",
+    "a": "24 heures au maximum, et moins si les autres pilotes disent qu'il a disparu.",
+    "statut": "valide"
+  },
+  {
+    "q": "C'est quoi la vignette Crit'Air ?",
+    "a": "Une vignette qui classe les véhicules selon leur pollution. Dans « Mon Véhicule », l'appli calcule ta vignette. Pour la commander, il n'y a qu'un site officiel : certificat-air.gouv.fr. L'appli n'en vend pas.",
+    "statut": "valide"
+  },
+  {
+    "q": "C'est quoi une ZFE ?",
+    "a": "Une zone à faibles émissions : un secteur de grande ville où les véhicules les plus polluants sont limités. L'appli te prévient quand tu y entres et te rappelle de vérifier ta vignette Crit'Air.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment connaître la météo avant de partir ?",
+    "a": "L'appli affiche la vigilance Météo-France du jour. En vigilance orange ou rouge, le plus sûr est de ne pas rouler.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment rejoindre un cortège (une balade en groupe) ?",
+    "a": "Un pilote crée le cortège et reçoit un code à 4 caractères. Les autres saisissent ce code pour rejoindre. Chacun voit les autres sur la carte. Un cortège dure 12 heures au maximum et réunit 20 pilotes au plus.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment installer l'appli sur mon téléphone ?",
+    "a": "Ouvre mon50ccetmoi.com dans le navigateur de ton téléphone, puis ajoute le site à l'écran d'accueil. Il s'ouvre ensuite comme une appli.",
+    "statut": "valide"
+  },
+  {
+    "q": "C'est quoi la Boîte Noire ?",
+    "a": "Un boîtier en préparation, pas encore en vente. Il enregistrera ton trajet et pourra servir de preuve en cas de sinistre. Tu peux t'inscrire sur la liste d'attente avec ton e-mail : nous t'écrirons à sa sortie, et seulement pour ça.",
+    "statut": "valide"
+  },
+  {
+    "q": "L'appli est-elle gratuite ?",
+    "a": "Oui, l'appli est gratuite.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment gagner des points ?",
+    "a": "12 points par trajet terminé (36 par jour au maximum), 25 points par danger signalé (100 par jour), 1 point en déclarant ton plein (2 par jour), et 50 points une seule fois en signant ton Contrat de route.",
+    "statut": "valide"
+  },
+  {
+    "q": "Y a-t-il une limite de points par jour ?",
+    "a": "Oui, un plafond par type de gain : 36 points pour les trajets, 100 pour les dangers signalés, 2 pour les pleins. Ça évite les abus.",
+    "statut": "valide"
+  },
+  {
+    "q": "Mes points peuvent-ils disparaître ?",
+    "a": "Non, tes points ne se perdent pas.",
+    "statut": "valide"
+  },
+  {
+    "q": "À quoi servent mes points ?",
+    "a": "Pour l'instant, ils te placent au classement des pilotes. D'autres usages arrivent bientôt.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment voir le classement ?",
+    "a": "Ouvre le classement (le trophée) : tu y vois les 10 meilleurs pilotes avec leurs points gagnés. Si tu ne veux pas y figurer, tu peux le demander dans Sécurité & RGPD.",
+    "statut": "valide"
+  },
+  {
+    "q": "Je n'ai pas reçu mes points, que faire ?",
+    "a": "Écris à contact@mon50ccetmoi.com avec ton pseudo et ce que tu as fait : nous regardons.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment déclarer mon plein ?",
+    "a": "Dans l'appli, déclare ton plein après être passé à la pompe : tu gagnes 1 point, 2 par jour au maximum.",
+    "statut": "valide"
+  },
+  {
+    "q": "Où sont mes données ?",
+    "a": "Chez OVHcloud, en France. Ton compte et tes points ne passent plus par aucun service américain.",
+    "statut": "valide"
+  },
+  {
+    "q": "J'ai oublié mon mot de passe, comment faire ?",
+    "a": "Va sur « Mot de passe oublié » et écris-nous avec ton pseudo. Après vérification, tu reçois un lien à usage unique, valable une heure, pour choisir un nouveau mot de passe.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment récupérer toutes mes données ?",
+    "a": "Dans l'appli : Sécurité & RGPD, puis « Exporter mes données ».",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment supprimer mon compte ?",
+    "a": "Dans Sécurité & RGPD. Tu peux aussi écrire à contact@mon50ccetmoi.com.",
+    "statut": "valide"
+  },
+  {
+    "q": "Ma position est-elle partagée ?",
+    "a": "Seulement quand l'appli est ouverte et que tu as accepté le partage. Les positions d'un cortège ne sont gardées que pendant la balade, en mémoire, et jamais dans une base de données.",
+    "statut": "valide"
+  },
+  {
+    "q": "Les numéros de mes anges gardiens sont-ils gardés par vos serveurs ?",
+    "a": "Non. Ils restent dans ton téléphone et ne sont transmis qu'au moment d'une alerte SOS, pour envoyer le SMS.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment vous contacter ?",
+    "a": "Par e-mail : contact@mon50ccetmoi.com.",
+    "statut": "valide"
+  },
+  {
+    "q": "À quelle fréquence vérifier la pression des pneus ?",
+    "a": "Au moins une fois par mois, et avant un long trajet, pneus froids. La bonne valeur est dans la notice de ton véhicule.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "Quand changer mes pneus ?",
+    "a": "Quand les témoins d'usure arrivent au niveau de la gomme, quand le caoutchouc est craquelé ou abîmé, ou après une coupure. En cas de doute, fais-les regarder.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "Comment savoir si mes plaquettes de frein sont usées ?",
+    "a": "Un grincement ou un bruit de métal, un levier qui va presque au bout, un freinage moins efficace : fais vérifier tout de suite. Les freins ne se repoussent pas.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "Quand faire la vidange ?",
+    "a": "Suis le carnet d'entretien du constructeur, dans ta notice. En cas de doute sur ton modèle, demande à un garagiste.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "Mon scooter ne démarre pas, que vérifier ?",
+    "a": "Dans l'ordre : il y a de l'essence, le coupe-circuit ou le bouton d'arrêt est bien en position marche, la batterie est chargée, la bougie est en bon état. Si rien ne change, va voir un garagiste.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "Comment entretenir la chaîne ?",
+    "a": "Nettoie-la et graisse-la régulièrement, et vérifie sa tension comme indiqué dans la notice.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "Quand changer la bougie ?",
+    "a": "Selon la notice de ton véhicule, ou plus tôt si le démarrage devient difficile ou si le moteur tourne mal.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "Comment savoir quel mélange mettre dans un 2 temps ?",
+    "a": "Ça dépend du modèle : huile dans l'essence ou graissage séparé. Suis la notice, ne devine pas les proportions.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "Comment ranger mon 50 cc pour l'hiver ?",
+    "a": "Mets-le à l'abri, pneus bien gonflés, batterie chargée ou débranchée. Pour l'essence, suis la notice du constructeur.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "À quoi sert le filtre à air ?",
+    "a": "Il protège le moteur de la poussière. Nettoie-le ou remplace-le selon la notice : un filtre encrassé fait perdre de la puissance et consommer plus.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "Mon éclairage fonctionne-t-il bien ?",
+    "a": "Vérifie régulièrement feu avant, feu arrière, stop et clignotants. Un feu qui ne marche pas, c'est un risque de ne pas être vu.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "À quoi sert la batterie du scooter ?",
+    "a": "Elle alimente le démarreur et l'éclairage. Si elle faiblit, le démarrage devient lent : fais-la tester avant de tomber en panne.",
+    "statut": "a_verifier",
+    "note": "Entretien : à faire valider par un garage partenaire avant d'être répété."
+  },
+  {
+    "q": "Comment rouler sous la pluie ?",
+    "a": "Double ta distance de sécurité, freine plus tôt et en douceur, et évite les lignes blanches, les plaques d'égout et les feuilles mortes : elles glissent.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment rouler de nuit ?",
+    "a": "Vérifie ton éclairage, ajoute des bandes réfléchissantes, nettoie ta visière et ralentis : tu vois moins loin que tu ne le crois.",
+    "statut": "valide"
+  },
+  {
+    "q": "Quel équipement porter ?",
+    "a": "Un casque homologué bien attaché, des gants, un blouson et un pantalon renforcés, des chaussures montantes. Même pour un petit trajet : c'est sur un petit trajet qu'on se croit à l'abri.",
+    "statut": "valide"
+  },
+  {
+    "q": "À quelle fréquence faire une pause ?",
+    "a": "Environ toutes les 2 heures. La fatigue allonge le temps de réaction avant qu'on s'en rende compte.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment éviter l'angle mort des voitures ?",
+    "a": "Place-toi là où le conducteur peut te voir dans ses rétroviseurs. Ne reste pas à côté d'un camion ou d'une voiture, et anticipe les portières qui s'ouvrent.",
+    "statut": "valide"
+  },
+  {
+    "q": "Comment rouler en groupe ?",
+    "a": "Garde tes distances, ne cherche pas à suivre quelqu'un plus rapide que toi, et mets le moins expérimenté devant pour régler l'allure du groupe.",
+    "statut": "valide"
+  },
+  {
+    "q": "Que faire si je suis fatigué ?",
+    "a": "Arrête-toi, bois de l'eau, repose-toi avant de reprendre. Un trajet plus long vaut mieux qu'un accident.",
+    "statut": "valide"
+  },
+  {
+    "q": "Puis-je rouler après avoir bu ?",
+    "a": "Non. L'alcool ralentit les réflexes et fausse l'équilibre. Si tu as bu, ne conduis pas.",
+    "statut": "valide"
+  },
+  {
+    "q": "Que faire si mon 50 cc tombe en panne sur la route ?",
+    "a": "Mets-toi à l'écart de la circulation, mets ton gilet réfléchissant si tu en as un, et préviens quelqu'un. Si tu es en danger, appelle le 112.",
+    "statut": "valide"
+  }
+]

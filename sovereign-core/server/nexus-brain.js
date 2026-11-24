@@ -87,22 +87,44 @@ const VALIDATED = ["valide", "valide_auto"];
  * Réponse apprise pour une question proche : même question normalisée, ou au moins 80 % de mots en
  * commun (questions de 3 mots ou plus). @param {{id, questionNorm, answer}[]} entries validées
  */
+// Mots qui ne disent rien du sujet d'une question (tournures, articles, pronoms) : ignorés pour comparer.
+const MOTS_VIDES = new Set(("comment je tu il on nous vous mon ma mes ton ta tes son sa ses le la les un une des de du d l au aux en y " +
+    "pour que qu quoi quel quelle quels quelles est ce c et a ai as ont suis es sont se s me m te t ca sur dans par puis peux peut " +
+    "faire fait faut fais dois doit si ou mais quand sous avec ne pas plus tres bien").split(" "));
+
+/** Racine grossière : « gagner », « gagne », « gagnes » → « gagn » ; « points » → « point ». Assez pour comparer deux questions. */
+function racine(mot) {
+    const r = mot.replace(/(ement|ent|er|ez|es|e|s|x)$/, "");
+    return r.length >= 3 ? r : mot;
+}
+
+function motsDuSujet(norm) {
+    // « c'est », « l'appli », « d'autoroute » : on coupe à l'apostrophe pour comparer les vrais mots
+    return new Set(norm.replace(/'/g, " ").split(" ").filter((w) => w.length > 1 && !MOTS_VIDES.has(w)).map(racine));
+}
+
+/**
+ * Réponse apprise la plus proche d'une question (texte normalisé), ou null : d'abord la même question mot pour mot,
+ * sinon celle qui partage le plus de mots du sujet (au moins 2, et 60 % des mots des deux questions).
+ * shortcut: comparaison de racines sans IA ; elle rate les reformulations avec d'autres mots, qui passent alors à Mistral.
+ */
 function bestLearnedMatch(norm, entries) {
     const exact = entries.find((e) => e.questionNorm === norm);
     if (exact) return exact;
-    const words = new Set(norm.split(" ").filter((w) => w.length > 1));
-    if (words.size < 3) return null;
+    const words = motsDuSujet(norm);
+    if (!words.size) return null;
     let best = null;
     let bestScore = 0;
     for (const e of entries) {
-        const other = new Set(e.questionNorm.split(" ").filter((w) => w.length > 1));
-        if (other.size < 3) continue;
+        const other = motsDuSujet(e.questionNorm);
         let common = 0;
         for (const w of words) if (other.has(w)) common++;
+        // Un seul mot en commun ne suffit pas (« données », « compte »… sont trop généraux), sauf si chacune n'a que ce mot
+        if (common < (words.size === 1 && other.size === 1 ? 1 : 2)) continue;
         const score = common / (words.size + other.size - common);
         if (score > bestScore) { bestScore = score; best = e; }
     }
-    return bestScore >= 0.8 ? best : null;
+    return bestScore >= 0.6 ? best : null;
 }
 
 /** Retire ce qui pourrait identifier quelqu'un avant de garder une question dans le carnet. */
