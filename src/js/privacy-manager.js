@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { sovereignProfile } from './sovereign.js';
 
 ﻿// --- PRIVACY & RGPD MANAGER ---
 window.PrivacyManager = {
@@ -88,6 +89,8 @@ banner.innerHTML = `
     localStorage.setItem("ghost_mode", this.ghostModeActive ? "true" : "false");
 
     this.updateGhostUI();
+
+    sovereignProfile({ ghostMode: this.ghostModeActive });
 
     // Notify Firebase
     if (

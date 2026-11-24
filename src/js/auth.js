@@ -1,6 +1,8 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem, firebase } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { comptes, onAuthChange, comptesErrorMessage } from './comptes.js';
+import { sovereignProfile } from './sovereign.js';
+import { withSovereignProfile } from './sovereign-session.js';
 
 // Comptes : Firebase ou serveur souverain selon CONFIG.BACKEND_MODE.comptes (comptes-core.js).
 // En "SOVEREIGN", firebaseUser est le « pont » vers les données encore dans Firestore ; il peut
@@ -280,6 +282,7 @@ window.register = async function (username, password, brand, model, { ageConfirm
     // Comptes sur "SOVEREIGN" : compte créé sur le serveur souverain, puis le pont Firebase
     const created = await comptes.creerCompte({ email, username, password });
     user = created.firebaseUser;
+    await sovereignProfile({ brand, model }); // le véhicule, sur le serveur souverain aussi
 
     if (!user) {
       // Pont Firebase indisponible : le compte existe sur le serveur souverain, profil réduit
@@ -567,6 +570,8 @@ window.checkAuth = function (requireAdmin = false) {
           const compte = comptes.mode === "SOVEREIGN" ? comptes.compteSouverain() : null;
           if (compte) session.sovereignUid = compte.uid;
         }
+
+        if (comptes.mode === "SOVEREIGN") session = withSovereignProfile(session, await sovereignProfile());
 
         if (requireAdmin && session.role !== "admin") {
           alert("Accès refusé.");

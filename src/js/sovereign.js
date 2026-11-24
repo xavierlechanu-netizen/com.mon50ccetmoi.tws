@@ -46,6 +46,21 @@ export function forgetSovereign() {
   }
 }
 
+/**
+ * Profil du pilote sur le serveur souverain : sans argument le lit, avec des changements
+ * ({brand, model, department, ghostMode}) les enregistre. null si pas de compte ou serveur muet.
+ */
+export async function sovereignProfile(changes = null) {
+  if (!sovereignSession || !sovereignSession.hasAccount()) return null;
+  try {
+    const res = await sovereignSession.client.request('/profile', changes ? { method: 'PATCH', body: changes } : { method: 'GET' });
+    return res.profile || null;
+  } catch (e) {
+    console.warn('[Profil] serveur souverain :', e?.status || e?.message);
+    return null;
+  }
+}
+
 /** Vrai si ce téléphone peut envoyer l'alerte SOS automatique. */
 export function isSovereignSosReady() {
   return Boolean(sovereignSession && sovereignSession.isReady());

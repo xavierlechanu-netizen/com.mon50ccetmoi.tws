@@ -2,6 +2,7 @@ import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { escapeHtml } from './html-escape.js';
 import { pointsSouverains } from './points.js';
+import { sovereignProfile } from './sovereign.js';
 
 ﻿// --- LEADERBOARD (King of the Street) ---
 window.Leaderboard = {
@@ -46,6 +47,7 @@ window.Leaderboard = {
           }
 
           window.session.department = deptCode;
+          sovereignProfile({ department: deptCode });
 
           // Sauvegarder dans Firestore
           if (typeof firebase !== "undefined") {

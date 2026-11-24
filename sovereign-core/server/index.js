@@ -124,6 +124,29 @@ const SOVEREIGN_CSP = [
     "base-uri 'self'"
 ].join("; ");
 
+/** Champs de profil envoyés par l'appli, vérifiés ; null si un seul est invalide ou inconnu. */
+function profileChanges(body) {
+    const allowed = { brand: 60, model: 60, department: 3, ghostMode: 0 };
+    if (!body || typeof body !== "object" || Array.isArray(body)) return null;
+    const keys = Object.keys(body);
+    if (!keys.length || keys.some((k) => !(k in allowed))) return null;
+    const out = {};
+    for (const k of keys) {
+        const v = body[k];
+        if (k === "ghostMode") {
+            if (typeof v !== "boolean") return null;
+            out[k] = v;
+            continue;
+        }
+        if (v === null || v === "") { out[k] = null; continue; }
+        // eslint-disable-next-line no-control-regex
+        if (typeof v !== "string" || v.trim().length > allowed[k] || /[<>\u0000-\u001f]/.test(v)) return null;
+        out[k] = v.trim() || null;
+    }
+    if (out.department && !/^(0[1-9]|[1-8]\d|9[0-5]|2[AB]|97[1-6])$/.test(out.department)) return null;
+    return out;
+}
+
 function applySecurityHeaders(res) {
     res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
@@ -954,6 +977,32 @@ function createSovereignApp(options = {}) {
             }
             res.statusCode = 200;
             res.end(JSON.stringify({ achievements: await store.listAchievements(user.uid) }));
+            return;
+        }
+
+        // 4d quater. MON PROFIL (véhicule, département, mode fantôme). La date d'inscription (offre
+        // Fondateur) vient de l'import Firebase et ne se modifie jamais depuis l'appli.
+        if (pathname === "/api/v1/profile" && (req.method === "GET" || req.method === "PATCH")) {
+            const authUser = extractBearerUser(req);
+            const user = authUser ? await store.findUserById(authUser.uid) : null;
+            if (!user) {
+                res.statusCode = 401;
+                res.end(JSON.stringify({ error: "Authentification requise." }));
+                return;
+            }
+            const profile = (await store.getProfile(user.uid)) || { brand: null, model: null, department: null, ghostMode: false, registeredAt: null };
+            if (req.method === "PATCH") {
+                const changes = profileChanges(body);
+                if (!changes) {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({ error: "Profil invalide." }));
+                    return;
+                }
+                Object.assign(profile, changes);
+                await store.saveProfile(user.uid, profile);
+            }
+            res.statusCode = 200;
+            res.end(JSON.stringify({ profile }));
             return;
         }
 

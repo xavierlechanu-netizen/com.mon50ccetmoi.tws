@@ -25,6 +25,18 @@ const CONNECT_TIMEOUT_MS = 4000;
  * Dates d'émission et d'expiration d'un jeton (en ms), ou null s'il est illisible.
  * Aucune vérification de signature ici : c'est le serveur qui juge le jeton.
  */
+/** Ajoute à la session ce que le serveur souverain sait du pilote (il fait foi). */
+export function withSovereignProfile(session, p) {
+  if (!p) return session;
+  const out = { ...session };
+  for (const k of ["brand", "model", "department"]) if (p[k]) out[k] = p[k];
+  out.ghostMode = p.ghostMode === true;
+  // Date d'inscription d'origine (offre Fondateur) : la plus ancienne connue
+  const reg = Date.parse(p.registeredAt || "");
+  if (Number.isFinite(reg) && !(out.registrationDate > 1000 && out.registrationDate < reg)) out.registrationDate = reg;
+  return out;
+}
+
 export function tokenTimes(token) {
   try {
     const part = String(token).split(".")[1].replace(/-/g, "+").replace(/_/g, "/");

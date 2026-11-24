@@ -15,7 +15,7 @@ function loadModule(file, names) {
   return new Function(`${code}; return { ${names.join(", ")} };`)();
 }
 
-const S = loadModule("src/js/sovereign-session.js", ["tokenTimes", "createSovereignSession", "SOS_TOKEN_KEY"]);
+const S = loadModule("src/js/sovereign-session.js", ["tokenTimes", "createSovereignSession", "SOS_TOKEN_KEY", "withSovereignProfile"]);
 const { SovereignClient } = loadModule("sovereign-core/client/sovereign-sdk.js", ["SovereignClient"]);
 
 const NOW = 1_800_000_000_000;
@@ -185,4 +185,14 @@ describe("SDK client : l'alerte SOS part avec le jeton SOS", () => {
     const c = new SovereignClient({ apiBaseUrl: "https://api.test/api/v1" });
     await expect(c.uploadBlackboxTelemetry({})).rejects.toMatchObject({ status: 401, message: "Reconnectez-vous" });
   });
+});
+
+test("session : le serveur fait foi, la date d'inscription la plus ancienne gagne", () => {
+  const { withSovereignProfile } = S;
+  const p = { brand: "MBK", model: null, department: "43", ghostMode: true, registeredAt: "2026-01-02T00:00:00.000Z" };
+  const s = withSovereignProfile({ model: "Booster", registrationDate: Date.parse("2026-11-18") }, p);
+  expect(s).toEqual({ brand: "MBK", model: "Booster", department: "43", ghostMode: true, registrationDate: Date.parse("2026-01-02") });
+  expect(withSovereignProfile({ registrationDate: 0 }, p).registrationDate).toBe(Date.parse("2026-01-02"));
+  expect(withSovereignProfile({ registrationDate: Date.parse("2025-07-01") }, p).registrationDate).toBe(Date.parse("2025-07-01"));
+  expect(withSovereignProfile({ a: 1 }, null)).toEqual({ a: 1 });
 });
