@@ -379,9 +379,9 @@ describe("Appli : les paiements suivent l'interrupteur (src/js/api-client.js)", 
     expect(sovereignPaymentRequest("constructor", {})).toBeNull();
   });
 
-  test("interrupteur des paiements sur FIREBASE tant que tout n'est pas vérifié", () => {
+  test("interrupteur des paiements sur le VPS depuis le 24/11/2026 (Cloud Functions coupées)", () => {
     const config = fs.readFileSync(path.join(__dirname, "..", "src", "js", "config.js"), "utf8");
-    expect(config).toMatch(/paiements:\s*"FIREBASE"/);
+    expect(config).toMatch(/paiements:\s*"SOVEREIGN"/);
   });
 
   test("la fenêtre Revolut s'ouvre dans l'environnement annoncé par le serveur (sandbox ou prod)", () => {

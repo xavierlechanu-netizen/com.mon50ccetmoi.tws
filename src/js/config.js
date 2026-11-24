@@ -34,10 +34,10 @@ export const CONFIG = {
   // qu'APRÈS l'import des comptes Firebase sur le serveur (docs/PLAN_DEMENAGEMENT_GOOGLE.md, § 6).
   BACKEND_MODE: {
     comptes: "SOVEREIGN",
-    // Paiements Revolut par le serveur souverain (§ 7 du plan). "SOVEREIGN" seulement une fois la clé
-    // Revolut sur le VPS, le webhook redirigé et un achat d'essai réussi. Les acheteurs doivent avoir
-    // une session sur le serveur souverain (comptes importés, reconnexion depuis).
-    paiements: "FIREBASE",
+    // Paiements Revolut par le serveur souverain (§ 7 du plan), depuis le 24/11/2026 : les Cloud
+    // Functions de paiement sont coupées depuis le 14/11. Rien n'est en vente tant que
+    // PAYMENTS_OPEN_PRODUCTS est vide sur le VPS ; un achat d'essai précédera toute ouverture.
+    paiements: "SOVEREIGN",
     // Points, historique et classement par le serveur souverain (§ 8 du plan). "SOVEREIGN" en même
     // temps que les comptes, APRÈS la reprise des soldes (scripts/import-firebase-points.js) : sans
     // session sur le serveur, on ne gagne pas de points.
