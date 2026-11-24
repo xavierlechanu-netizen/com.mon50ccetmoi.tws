@@ -1,0 +1,26 @@
+# Veille du serveur (24/11/2026) : GitHub vérifie depuis l'extérieur, toutes les 30 minutes, que le site
+# et l'API répondent. Sinon la veille « échoue » et GitHub envoie son e-mail habituel (rien d'autre : pas de
+# sonnerie, la nuit on dort). 3 essais à 90 s : un redémarrage normal de l'API (≈ 90 s) ne déclenche rien.
+# Réglage de l'e-mail : github.com/settings/notifications > Actions (« Failed workflows only », par e-mail).
+# shortcut: GitHub peut retarder les tâches planifiées de quelques minutes ; un service de veille dédié si ça ne suffit plus.
+name: Veille du serveur
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  veille:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Site et API
+        run: |
+          panne=0
+          ok() { curl -fsS -m 15 --retry 2 --retry-delay 90 --retry-all-errors -o /dev/null "$1"; }
+          ok https://mon50ccetmoi.com/ || { echo "::error::Le site ne répond plus"; panne=1; }
+          ok https://api.mon50ccetmoi.com/api/v1/health || { echo "::error::L'API (SOS) ne répond plus"; panne=1; }
+          exit $panne
