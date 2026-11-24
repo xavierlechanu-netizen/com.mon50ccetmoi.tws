@@ -491,6 +491,14 @@ function createPgStore({ connectionString, pool } = {}) {
             }
         },
 
+        /** Liste d'attente de la Boîte Noire : vrai si l'adresse est nouvelle. */
+        async addToWaitlist(email) {
+            const { rowCount } = await db.query(
+                "INSERT INTO blackbox_waitlist (email) VALUES ($1) ON CONFLICT (email) DO NOTHING", [email]
+            );
+            return rowCount === 1;
+        },
+
         async countHazardsSince(uid, sinceMs) {
             const { rows } = await db.query(
                 "SELECT count(*)::int AS n FROM hazards WHERE user_uid = $1 AND created_at > to_timestamp($2 / 1000.0)",

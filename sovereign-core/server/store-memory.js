@@ -21,6 +21,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const units = new Map();
     const sessions = [];
     const hazards = [];
+    const waitlist = new Map(); // email → date d'inscription
     const hazardVotes = new Map(); // `${hazardId}|${uid}` → 1 ou -1
     const ledger = [];
     const quotas = new Map(); // `${uid}|${jour}` → { motif: points, __unverified: points }
@@ -285,6 +286,12 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             h.votes = [...hazardVotes].filter(([k]) => k.startsWith(`${hazardId}|`)).reduce((n, [, v]) => n + v, 0);
             h.active = h.votes > HAZARD_HIDE_AT;
             return { votes: h.votes, active: h.active };
+        },
+        /** Liste d'attente de la Boîte Noire : vrai si l'adresse est nouvelle. */
+        async addToWaitlist(email) {
+            if (waitlist.has(email)) return false;
+            waitlist.set(email, new Date().toISOString());
+            return true;
         },
         async countHazardsSince(uid, sinceMs) {
             return hazards.filter((h) => h.uid === uid && Date.parse(h.createdAt) > sinceMs).length;

@@ -1,6 +1,7 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { chargerVigilance } from './vigilance-meteo.js';
+import { pointsSouverains, messagePoints } from './points.js';
 
 /**
  * Simulateur Cerveau IA - Nexus Atlas (Oracle Code de la Route)
@@ -415,20 +416,16 @@ async function finalizeExam(score, max) {
     desc.textContent = "Tu as un excellent jugement ! Tu connais parfaitement les règles de sécurité essentielles pour toi et les autres.";
     reward.style.display = "block";
 
+    // Points sur le serveur du VPS : montant (20) et plafond du jour fixés par lui
     try {
-      if (typeof window.secureGetItem === 'function') {
-        const sessionStr = await window.secureGetItem('session');
-        if (sessionStr && typeof db !== 'undefined') {
-          const profile = JSON.parse(sessionStr);
-          if (profile.uid) {
-            await db.collection("users").doc(profile.uid).update({
-              bvcPoints: firebase.firestore.FieldValue.increment(5)
-            });
-          }
-        }
+      if (!pointsSouverains || !pointsSouverains.possible()) {
+        reward.textContent = "Connecte-toi pour gagner tes points mon50cc.";
+      } else {
+        const { delta } = await pointsSouverains.mouvement({ action: "AWARD", reason: "CODE_QUIZ_COMPLETED", amount: 20 });
+        reward.textContent = `🪙 +${delta} points mon50cc`;
       }
     } catch (e) {
-      console.warn("[Nexus Atlas] DB Update failed", e);
+      reward.textContent = messagePoints(e);
     }
 
   } else {

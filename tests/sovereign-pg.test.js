@@ -297,6 +297,13 @@ describe("Serveur souverain sur PostgreSQL", () => {
     expect(await pg.getProfile(u.uid)).toBeNull();
   });
 
+  test("liste d'attente de la Boîte Noire : une ligne par adresse", async () => {
+    const pg = createPgStore({ pool });
+    expect(await pg.addToWaitlist("attente-pg@exemple.fr")).toBe(true);
+    expect(await pg.addToWaitlist("attente-pg@exemple.fr")).toBe(false);
+    expect((await pool.query("SELECT count(*)::int AS n FROM blackbox_waitlist WHERE email = 'attente-pg@exemple.fr'")).rows[0].n).toBe(1);
+  });
+
   test("outils du VPS (check.sh, rgpd-firebase.sh) : leurs requêtes SQL marchent sur la vraie base", async () => {
     const deploy = (f) => fs.readFileSync(path.join(__dirname, "../sovereign-core/deploy", f), "utf8");
     const check = deploy("check.sh");

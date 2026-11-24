@@ -1,6 +1,5 @@
-import { db, auth, CONFIG, secureGetItem, secureSetItem, firebase } from './config.js';
 import { registerAction } from './actionRegistry.js';
-import { onAuthChange } from './comptes.js';
+import { pointsSouverains, messagePoints } from './points.js';
 
 /**
  * Contrat de Route — Gamification de la sécurité routière
@@ -52,33 +51,28 @@ const CONTRATS = [
 ];
 
 const signedContrats = new Set();
-let userProfile = null;
+// Signatures gardées sur le téléphone (avant : profil Firestore) : { idDuContrat: date en ms }
+const SIGNES_KEY = "contrats_signes";
+const UN_MOIS_MS = 30 * 24 * 60 * 60 * 1000;
+
+function lireSignatures() {
+  try {
+    return JSON.parse(localStorage.getItem(SIGNES_KEY) || "{}") || {};
+  } catch {
+    return {};
+  }
+}
 
 async function loadSignedContrats() {
-  if (!window.auth || !window.auth.currentUser) return;
-  const uid = window.auth.currentUser.uid;
-  try {
-    const doc = await db.collection("users").doc(uid).get();
-    if (doc.exists && doc.data().contrats_signes) {
-      const signesData = doc.data().contrats_signes;
-      // Vérifier si les contrats ont expiré (renouvellement mensuel)
-      const now = Date.now();
-      for (const [id, data] of Object.entries(signesData)) {
-        const signedAt = data.signed_at?.toMillis ? data.signed_at.toMillis() : 0;
-        const oneMonth = 30 * 24 * 60 * 60 * 1000;
-        if (now - signedAt < oneMonth) {
-          signedContrats.add(id);
-        }
-      }
-    }
-    userProfile = doc.exists ? doc.data() : {};
-  } catch (e) {
-    console.warn("[Contrat de Route] Erreur chargement :", e);
+  // Renouvellement mensuel : une signature de plus de 30 jours ne compte plus
+  const now = Date.now();
+  for (const [id, signedAt] of Object.entries(lireSignatures())) {
+    if (now - Number(signedAt) < UN_MOIS_MS) signedContrats.add(id);
   }
 }
 
 async function signerContrat(contratId) {
-  if (!window.auth || !window.auth.currentUser) {
+  if (!pointsSouverains || !pointsSouverains.possible()) {
     alert("Tu dois être connecté pour signer un Contrat de Route.");
     return;
   }
@@ -91,26 +85,20 @@ async function signerContrat(contratId) {
   const contrat = CONTRATS.find(c => c.id === contratId);
   if (!contrat) return;
 
-  const uid = window.auth.currentUser.uid;
-
   // Animation de signature
   const card = document.getElementById(`card-${contratId}`);
   card.classList.add('signing');
 
   try {
-    // Atomic write dans Firestore
-    const updateData = {
-      [`contrats_signes.${contratId}`]: {
-        signed_at: firebase.firestore.FieldValue.serverTimestamp(),
-        label: contrat.label
-      },
-      bvcPoints: firebase.firestore.FieldValue.increment(contrat.bvcReward)
-    };
-    await db.collection("users").doc(uid).update(updateData);
+    // 50 points sur le serveur du VPS, une seule fois par pilote (les signatures suivantes : 0)
+    const { delta } = await pointsSouverains.mouvement({ action: "AWARD", reason: "ROUTER_CONTRAT_SIGNED", amount: 50 });
+    localStorage.setItem(SIGNES_KEY, JSON.stringify({ ...lireSignatures(), [contratId]: Date.now() }));
 
     signedContrats.add(contratId);
     renderContrats();
-    showToast(`🏆 +${contrat.bvcReward} points mon50cc ! Contrat signé : "${contrat.label}"`);
+    showToast(delta > 0
+      ? `🏆 +${delta} points mon50cc ! Contrat signé : "${contrat.label}"`
+      : `✅ Contrat signé : "${contrat.label}"`);
 
     // Animer le compteur de points
     updatePointsDisplay();
@@ -118,7 +106,7 @@ async function signerContrat(contratId) {
   } catch (e) {
     console.error("[Contrat de Route] Erreur signature :", e);
     card.classList.remove('signing');
-    alert("Erreur lors de la signature. Réessaie.");
+    alert(`Signature non enregistrée : ${messagePoints(e)}`);
   }
 }
 
@@ -143,7 +131,7 @@ grid.innerHTML = CONTRATS.map(c => {
           ${isSigned
             ? `<div class="contrat-signed-badge"><i class="fa-solid fa-circle-check"></i> Signé ce mois-ci</div>`
             : `<button class="btn-signer" data-action="signerContrat('${c.id}')">
-                <i class="fa-solid fa-pen-nib"></i> Signer (+${c.bvcReward} mon50cc)
+                <i class="fa-solid fa-pen-nib"></i> Signer
                </button>`
           }
         </div>
@@ -153,12 +141,11 @@ grid.innerHTML = CONTRATS.map(c => {
 }
 
 async function updatePointsDisplay() {
-  if (!window.auth || !window.auth.currentUser) return;
+  if (!pointsSouverains || !pointsSouverains.possible()) return;
   try {
-    const doc = await db.collection("users").doc(window.auth.currentUser.uid).get();
-    const pts = doc.exists ? (doc.data().bvcPoints || 0) : 0;
+    const { balance } = await pointsSouverains.soldeEtHistorique(1);
     const el = document.getElementById('bvc-points-display');
-    if (el) el.textContent = pts;
+    if (el) el.textContent = balance;
   } catch(e) { /* non bloquant */ }
 }
 
@@ -172,22 +159,9 @@ function showToast(message) {
 
 // --- Initialisation ---
 document.addEventListener("DOMContentLoaded", async () => {
-  // Attendre que Firebase Auth soit prêt
-  if (window.auth) {
-    onAuthChange(async (user) => {
-      if (user) {
-        await loadSignedContrats();
-        updatePointsDisplay();
-        renderContrats();
-      } else {
-        // Mode démo sans compte
-        renderContrats();
-      }
-    });
-  } else {
-    // Affichage sans auth (aperçu)
-    renderContrats();
-  }
+  await loadSignedContrats();
+  renderContrats();
+  updatePointsDisplay();
 });
 
 // --- Action Registry (ESM) ---

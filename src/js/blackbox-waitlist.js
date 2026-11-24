@@ -3,8 +3,8 @@
  *
  * Le boîtier n'est pas encore fabriqué (sortie dans 6 mois au plus tôt) : on ne le vend pas,
  * on propose seulement d'être prévenu par email à sa sortie. Aucun paiement.
- * Enregistrement dans Firestore « blackbox_waitlist » : création seule, lecture réservée
- * aux administrateurs (firestore.rules). Mêmes contrôles côté client et dans les règles.
+ * Enregistrement sur le serveur souverain (POST /api/v1/waitlist, table blackbox_waitlist) depuis
+ * le 24/11/2026 ; avant, dans Firestore. Mêmes contrôles côté client et sur le serveur.
  */
 
 // Même motif que dans firestore.rules (adresse déjà mise en minuscules).
@@ -66,11 +66,16 @@ export function initBlackboxWaitlist(doc, save, serverTimestamp) {
   return true;
 }
 
+/** Envoi au serveur souverain ; rejette si le serveur refuse ou ne répond pas. */
+export async function saveToServer(entry, fetchFn = fetch, apiUrl = (window.CONFIG && window.CONFIG.SOVEREIGN && window.CONFIG.SOVEREIGN.API_URL) || "https://api.mon50ccetmoi.com/api/v1") {
+  const res = await fetchFn(`${apiUrl}/waitlist`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: entry.email, consent: entry.consent === true }),
+  });
+  if (!res.ok) throw new Error(`Serveur : ${res.status}`);
+}
+
 if (typeof document !== "undefined" && document.getElementById("bb-waitlist-form")) {
-  const firestore = () => window.db;
-  initBlackboxWaitlist(
-    document,
-    (entry) => firestore().collection(WAITLIST_COLLECTION).add(entry),
-    () => window.firebase.firestore.FieldValue.serverTimestamp()
-  );
+  initBlackboxWaitlist(document, (entry) => saveToServer(entry), () => new Date().toISOString());
 }
