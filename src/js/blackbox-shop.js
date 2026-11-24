@@ -13,6 +13,55 @@
 
 import { db } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import './api-client.js'; // window.ApiClient : la page Boutique ne le chargeait pas
+
+export const POINTS_WAIVER_TEXT =
+  "Je demande que mes points soient crédités immédiatement et je renonce expressément à mon droit de rétractation de 14 jours.";
+
+/** Art. L. 221-28 13° C. conso : l'accord doit être un geste exprès, donc une case jamais pré-cochée. */
+function askPointsWaiver(summary) {
+  return new Promise((resolve) => {
+    const dialog = document.createElement("dialog");
+    dialog.style.cssText = "max-width:min(92vw,440px);padding:20px;border:1px solid #555;border-radius:12px;background:#14141c;color:#fff;";
+
+    const text = document.createElement("p");
+    text.style.whiteSpace = "pre-line";
+    text.textContent = summary;
+
+    const label = document.createElement("label");
+    label.style.cssText = "display:flex;gap:10px;align-items:flex-start;margin:16px 0;cursor:pointer;";
+    const box = document.createElement("input");
+    box.type = "checkbox";
+    box.style.cssText = "width:22px;height:22px;flex:none;";
+    label.append(box, document.createTextNode(POINTS_WAIVER_TEXT));
+
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.textContent = "Annuler";
+    cancel.style.cssText = "flex:1;padding:12px;border-radius:8px;";
+    const pay = document.createElement("button");
+    pay.type = "button";
+    pay.textContent = "Payer";
+    pay.disabled = true;
+    pay.style.cssText = "flex:1;padding:12px;border-radius:8px;font-weight:700;";
+    const actions = document.createElement("div");
+    actions.style.cssText = "display:flex;gap:10px;";
+    actions.append(cancel, pay);
+
+    box.addEventListener("change", () => { pay.disabled = !box.checked; });
+    cancel.addEventListener("click", () => dialog.close());
+    pay.addEventListener("click", () => dialog.close("pay"));
+    dialog.addEventListener("close", () => {
+      const accepted = dialog.returnValue === "pay" && box.checked;
+      dialog.remove();
+      resolve(accepted);
+    });
+
+    dialog.append(text, label, actions);
+    document.body.append(dialog);
+    dialog.showModal();
+  });
+}
 
 export const BlackBoxShop = {
   // Le boîtier n'est pas encore fabriqué : il n'est pas vendu (liste d'attente, js/blackbox-waitlist.js).
@@ -139,10 +188,10 @@ export const BlackBoxShop = {
 
     const msg = `Recharger ${pack.points} Points mon50cc${bonusText}\n` +
       `Formule : ${pack.name}\n` +
-      `Montant : ${pack.price.toFixed(2).replace('.', ',')} € TTC\n\n` +
-      `Procéder au paiement sécurisé via Revolut Pay / Carte Bancaire ?`;
+      `Montant : ${pack.price.toFixed(2).replace('.', ',')} € TTC\n` +
+      `Paiement sécurisé via Revolut Pay / Carte Bancaire.`;
 
-    if (confirm(msg)) {
+    if (await askPointsWaiver(msg)) {
       await this.processRevolutPayment(pack.id, `${pack.name} (${pack.points} PTS)`);
     }
   },
