@@ -1,22 +1,10 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem, firebase } from './config.js';
 import { registerAction } from './actionRegistry.js';
-import { comptes } from './comptes.js';
-import { offerGooglePassword } from './google-password.js';
-
-// Comptes sur "SOVEREIGN" : le serveur souverain ne connaît pas la connexion Google (elle ouvrirait une
-// session Firebase sans lui). Les comptes Google choisissent un mot de passe avant la bascule
-// (docs/PLAN_DEMENAGEMENT_GOOGLE.md, § 6).
-const GOOGLE_UNAVAILABLE_MESSAGE =
-  "La connexion avec Google n'est plus proposée. Connectez-vous avec l'adresse email de votre compte Google " +
-  "et votre mot de passe mon50ccetmoi. Pas encore de mot de passe ? Écrivez à contact@mon50ccetmoi.com.";
 
 // Âge (RGPD art. 8 ; loi Informatique et Libertés art. 45 : 15 ans en France). La réponse est
 // gardée dans le profil (ageConfirmed, ageConfirmedAt) pour pouvoir montrer qu'elle a été demandée.
 const AGE_REQUIRED_MESSAGE =
   "Pour créer un compte, il faut avoir 15 ans ou plus, ou l'accord d'un de vos parents (ou de votre représentant légal).";
-const AGE_GOOGLE_QUESTION =
-  "Création de votre compte : avez-vous 15 ans ou plus, ou l'accord d'un de vos parents " +
-  "(ou de votre représentant légal) pour utiliser l'application ?";
 
 function toggleForm(formType) {
         document.getElementById("login-form").classList.add("hidden");
@@ -62,88 +50,7 @@ function doLogin() {
         }
       });
 
-      // --- NEW: Google Login Callback via Firebase ---
-      async function handleCredentialResponse(response) {
-        console.log("Tentative de connexion Google via Firebase...");
-        if (!response || !response.credential) {
-          console.warn("Credential Google manquant.");
-          return;
-        }
-        if (comptes.mode === "SOVEREIGN") {
-          alert(GOOGLE_UNAVAILABLE_MESSAGE);
-          return;
-        }
-        const credential = firebase.auth.GoogleAuthProvider.credential(
-          response.credential,
-        );
-        try {
-          const userCredential = await firebase
-            .auth()
-            .signInWithCredential(credential);
-          const user = userCredential.user;
-
-          if (typeof window.recordAuthEvent === 'function') {
-            window.recordAuthEvent('google', 'success', user.uid);
-          }
-
-          // Vérifier si le profil Firestore existe
-          const doc = await firebase
-            .firestore()
-            .collection("users")
-            .doc(user.uid)
-            .get();
-          let profile;
-          if (!doc.exists) {
-            // Création du compte : même question d'âge que le formulaire d'inscription.
-            // Refus → rien n'est enregistré (compte Google tout juste créé supprimé).
-            if (!window.confirm(AGE_GOOGLE_QUESTION)) {
-              if (userCredential.additionalUserInfo?.isNewUser) await user.delete().catch(() => {});
-              await firebase.auth().signOut().catch(() => {});
-              alert(AGE_REQUIRED_MESSAGE);
-              return;
-            }
-            // Pseudo unique dérivé du nom Google (« Jean Dupont » → « JeanDupont », puis
-            // « JeanDupont-1234 » s'il est pris). Plus de champ « points » : il faisait
-            // refuser le profil, et seules les fonctions serveur attribuent des points.
-            profile = await window.createProfileWithAvailableUsername(
-              user,
-              user.displayName || (user.email || "").split("@")[0],
-              { brand: "Google Pilot", ageConfirmed: true, ageConfirmedAt: Date.now() },
-            );
-          } else {
-            profile = doc.data();
-            window.reserveOwnUsername?.(user, profile);
-          }
-
-          // Compte « Google seul » : on propose un mot de passe, pour qu'il survive à la fin de la
-          // connexion Google (google-password.js). « Plus tard » est toujours possible.
-          if (typeof offerGooglePassword === "function") {
-            let storage = null;
-            try { storage = window.localStorage; } catch { storage = null; }
-            await offerGooglePassword({ user, firebaseNs: firebase, doc: document, storage, notify: (m) => alert(m) })
-              .catch((e) => console.warn("[Google] Mot de passe non proposé :", e?.message));
-          }
-
-          secureSetItem("session", JSON.stringify(profile));
-          window.location.href = "app.html";
-        } catch (error) {
-          console.error("Google Auth Error:", error);
-          if (typeof window.recordAuthEvent === 'function') {
-            window.recordAuthEvent('google', 'failure', null, error.code || error.message);
-          }
-          alert("Erreur Google Auth : " + error.message);
-        }
-      }
-
-      // Attacher le callback Google réel
       if (typeof window !== 'undefined') {
-        window._handleCredentialResponseReal = handleCredentialResponse;
-        window.handleCredentialResponse = handleCredentialResponse;
-        if (window._pendingGoogleResponse) {
-          const pending = window._pendingGoogleResponse;
-          delete window._pendingGoogleResponse;
-          handleCredentialResponse(pending);
-        }
         window.doLogin = doLogin;
         window.doRegister = doRegister;
         window.toggleForm = toggleForm;
@@ -162,5 +69,4 @@ function doLogin() {
 registerAction('toggleForm', toggleForm);
 registerAction('doLogin', doLogin);
 registerAction('doRegister', doRegister);
-registerAction('handleCredentialResponse', handleCredentialResponse);
 

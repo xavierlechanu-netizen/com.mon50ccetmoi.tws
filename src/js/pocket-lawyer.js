@@ -448,41 +448,10 @@ tempDiv.innerHTML = htmlContent;
       return "<strong>Refus d'obtempérer / Délit de fuite</strong><br>Cumuler ces délits entraîne des peines de prison fermes, des amendes colossales et une interdiction de passer le permis. Ne fuyez jamais un contrôle de police.";
     }
 
-    const safeText = window.escapeHTML ? window.escapeHTML(text) : text;
-    let baseMsg = `Je consulte la base de jurisprudence (Légifrance via PISTE)...<br><br>`;
-    
-    // Appel à la Cloud Function searchLegifrancePiste
-    try {
-      if (typeof window.session !== "undefined" && window.session.token) {
-        const response = await fetch("https://europe-west1-mon50ccetmoi.cloudfunctions.net/searchLegifrancePiste", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${window.session.token}`
-            },
-            body: JSON.stringify({ query: text })
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            if (data.results && data.results.length > 0) {
-                const res = data.results[0];
-                baseMsg = `<strong>${res.title}</strong><br>${res.content}<br><br><em style="color:#888; font-size:0.8em;">Source : ${res.source}</em>`;
-            } else {
-                baseMsg = `Aucun texte de loi précis trouvé sur Légifrance pour "${safeText}".<br><br>
-                <a href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=${encodeURIComponent(text)}" target="_blank" style="display:inline-block; padding:10px 15px; background:rgba(0, 51, 153, 0.3); border:1px solid #0055ff; color:#88bbff; border-radius:15px; text-decoration:none; margin-top:10px;"><i class="fa-solid fa-magnifying-glass"></i> Chercher sur le site Légifrance</a>`;
-            }
-        } else {
-            baseMsg = `Service Légifrance indisponible. <a href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=${encodeURIComponent(text)}" target="_blank" style="display:inline-block; padding:10px 15px; background:rgba(0, 51, 153, 0.3); border:1px solid #0055ff; color:#88bbff; border-radius:15px; text-decoration:none; margin-top:10px;"><i class="fa-solid fa-magnifying-glass"></i> Chercher sur Légifrance</a>`;
-        }
-      } else {
-          baseMsg = `Vous devez être connecté pour interroger la base Légifrance PISTE en direct. <br><br>
-          <a href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=${encodeURIComponent(text)}" target="_blank" style="display:inline-block; padding:10px 15px; background:rgba(0, 51, 153, 0.3); border:1px solid #0055ff; color:#88bbff; border-radius:15px; text-decoration:none; margin-top:10px;"><i class="fa-solid fa-magnifying-glass"></i> Chercher sur Légifrance</a>`;
-      }
-    } catch (e) {
-        console.error(e);
-        baseMsg = `Erreur de connexion à la base de données gouvernementale. <a href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=${encodeURIComponent(text)}" target="_blank" style="display:inline-block; padding:10px 15px; background:rgba(0, 51, 153, 0.3); border:1px solid #0055ff; color:#88bbff; border-radius:15px; text-decoration:none; margin-top:10px;"><i class="fa-solid fa-magnifying-glass"></i> Chercher sur Légifrance</a>`;
-    }
+    // La recherche Légifrance en direct passait par une fonction Google, coupée depuis le 14/11/2026 :
+    // on ne répond qu'avec les textes officiels de la base ci-dessus, sinon on renvoie vers le site officiel.
+    let baseMsg = `Cette question n'est pas encore dans ma base de textes officiels.<br><br>
+      <a href="https://www.legifrance.gouv.fr/search/all?tab_selection=all&searchField=ALL&query=${encodeURIComponent(text)}" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:10px 15px; background:rgba(0, 51, 153, 0.3); border:1px solid #0055ff; color:#88bbff; border-radius:15px; text-decoration:none; margin-top:10px;"><i class="fa-solid fa-magnifying-glass"></i> Chercher sur Légifrance</a>`;
 
     if (t.includes("accident") || t.includes("litige") || t.includes("assurance") || t.includes("accrochage") || t.includes("constat") || t.includes("sinistre")) {
       baseMsg += `<br><br><div style="background:rgba(255, 51, 51, 0.1); border:1px solid #ff3333; border-radius:10px; padding:10px; margin-top:10px;">

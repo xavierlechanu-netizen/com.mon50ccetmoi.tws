@@ -332,18 +332,6 @@ window.logout = async function () {
 
 // Removed loginAsGuest and loginAsInvestor (Backdoors)
 
-window.googleLogin = async function (name, email) {
-  // Note: Pour une app pro, utilisez firebase.auth.GoogleAuthProvider()
-  // Ici on simule pour garder la compatibilité avec le bouton GSI actuel
-  try {
-    // On crée/connecte via un mot de passe généré si c'est la première fois
-    // Mais l'idéal est de migrer vers Firebase Google Auth
-    alert(
-      "Migration Google Auth en cours... Utilisez la connexion classique pour l'instant.",
-    );
-  } catch (e) {}
-};
-
 // --- FIDO2 / WEBAUTHN (BIOMETRIC LOGIN) ---
 
 // Fonction utilitaire pour convertir ArrayBuffer en Base64
@@ -647,7 +635,6 @@ if (typeof window !== 'undefined') {
   if (window.logout) registerAction('logout', window.logout);
   if (window.loginBiometric) registerAction('loginBiometric', window.loginBiometric);
   if (window.registerBiometric) registerAction('registerBiometric', window.registerBiometric);
-  if (window.googleLogin) registerAction('googleLogin', window.googleLogin);
   if (window.checkAuth) registerAction('checkAuth', window.checkAuth);
 }
 
