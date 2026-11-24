@@ -13,6 +13,21 @@
 
 const FRESH_MS = 2 * 60 * 1000;
 
+const FALL_G = 4.5;
+const GPS_FRESH_MS = 15 * 1000;
+const RIDING_RECENT_MS = 30 * 1000;
+
+/**
+ * Vrai si ce choc doit lancer l'alerte de chute. Dans le doute (pas de GPS récent), on alerte :
+ * seule une position récente montrant un arrêt depuis plus de 30 s écarte le choc (téléphone posé ou tombé).
+ */
+export function isFallImpact(acc, { lastGpsFixAt = 0, lastRidingAt = 0, now = Date.now() } = {}) {
+  if (!acc) return false;
+  const g = Math.sqrt((acc.x || 0) ** 2 + (acc.y || 0) ** 2 + (acc.z || 0) ** 2) / 9.81;
+  if (g <= FALL_G) return false;
+  return now - lastGpsFixAt > GPS_FRESH_MS || now - lastRidingAt <= RIDING_RECENT_MS;
+}
+
 /** Lien de carte (OpenStreetMap) vers une position. */
 export function mapLink(pos) {
   const lat = pos.lat.toFixed(5);

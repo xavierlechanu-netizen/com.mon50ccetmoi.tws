@@ -459,6 +459,7 @@ const getSmoothedSpeed = createSpeedSmoother(5);
 function updatePosition(position) {
   // Arrêt du mode basse précision si on récupère un signal GPS correct (< 100 m)
   stopLowAccuracyFallback(position.coords.accuracy);
+  window.lastGpsFixAt = Date.now();
   const lat = position.coords.latitude;
   const lng = position.coords.longitude;
   const speed = position.coords.speed;
@@ -610,6 +611,7 @@ function updatePosition(position) {
       // Update movement time for Guardian
       if (speedKmh > 5) {
         lastMovementTime = Date.now();
+        window.lastRidingAt = lastMovementTime;
         if (isGuardianPromptActive) dismissGuardian();
       }
 

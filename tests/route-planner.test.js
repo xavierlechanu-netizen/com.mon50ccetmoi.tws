@@ -26,9 +26,9 @@ function loadModule({ speak = jest.fn() } = {}) {
   const code = stripModule(read("route-planner.js"));
   const isVoiceBusy = () => !!window.speechSynthesis?.speaking; // voice-engine.js, simulé
   const api = new Function(
-    "speak", "registerAction", "isVoiceBusy",
+    "speak", "registerAction", "isVoiceBusy", "routeColor",
     `${engine}\n${guidance}\n${code}\nreturn { ${EXPORTS.join(", ")} };`,
-  )(speak, () => {}, isVoiceBusy);
+  )(speak, () => {}, isVoiceBusy, (fallback) => fallback);
   return { ...api, speak };
 }
 

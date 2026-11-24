@@ -43,6 +43,10 @@ describe("Aucune fausse donnée présentée comme réelle", () => {
     expect(html.match(/disabled>Bientôt disponible/g)).toHaveLength(2);
     expect(read("inline-marketplace-2.js")).not.toMatch(/buyVoiceMode/);
     expect(read("dashboard-extras.js")).not.toMatch(/acheterThemeRose/);
+    // Les thèmes donnent une âme à l'appli : ils restent visibles, sans achat factice
+    const dash = fs.readFileSync(path.resolve(__dirname, "../src/dashboard.html"), "utf8");
+    expect(dash).toMatch(/id="btn-buy-pink"[^>]*disabled>Bientôt disponible/);
+    expect(html).not.toMatch(/<div hidden class="animate-fade-in-up delay-5"/);
   });
 
   test("Bourse : réserver ne retire jamais de points tant que la réservation n'est pas sûre", () => {

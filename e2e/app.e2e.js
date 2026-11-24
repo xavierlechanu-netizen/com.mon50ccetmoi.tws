@@ -188,10 +188,13 @@ test("en roulant avec un cap GPS : guidage, danger, ZFE et compteur fonctionnent
   const points = [];
   for (let i = 0; i <= 16; i++) points.push([45.764 + i * 0.00025, 4.8357, 0]);
   for (let i = 1; i <= 24; i++) points.push([45.768, 4.8357 + i * 0.00025, 90]);
-  for (const [latitude, longitude, heading] of points) {
+  let midDist = "";
+  for (const [i, [latitude, longitude, heading]] of points.entries()) {
     await cdp.send("Emulation.setGeolocationOverride", { latitude, longitude, accuracy: 5, speed: 9, heading });
     await page.waitForTimeout(250);
+    if (i === 8) midDist = await page.locator("#next-step-dist").textContent();
   }
+  expect(midDist).not.toBe("445 m"); // le bandeau suit le trajet
 
   expect(pageErrors).toEqual([]);
   const state = await page.evaluate(() => ({ distance: window.session.totalDistance, voix: window.__voix.join(" | ") }));

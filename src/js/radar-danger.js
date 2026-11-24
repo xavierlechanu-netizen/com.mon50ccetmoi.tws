@@ -2,6 +2,7 @@ import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { HapticNav, NAV_MODES } from './haptic-navigation.js';
 import { signalerAuServeur } from './points.js';
+import { routeColor } from './season-theme.js';
 
 /**
  * radar-danger.js — Page dédiée au Radar de Danger Communautaire & Navigation GPS In-App
@@ -81,26 +82,13 @@ function initMap() {
     styles: darkMapStyle()
   });
 
-  // --- Logique "Octobre Rose", "Halloween" & Déblocage par points mon50cc ---
-  const currentDate = new Date();
-  const isHalloween = (currentDate.getMonth() === 9 && currentDate.getDate() === 31);
-  const isOctober = (currentDate.getMonth() === 9 && !isHalloween); // 9 = Octobre
-  const hasUnlockedPinkTheme = localStorage.getItem('unlockedTheme_Pink') === 'true';
-  
-  let routeColor = '#00f0ff'; // Défaut (Cyan)
-  if (isHalloween) {
-    routeColor = '#ff6a00'; // Orange Citrouille (31 Octobre)
-  } else if (isOctober || hasUnlockedPinkTheme) {
-    routeColor = '#ff007f'; // Rose Néon (Octobre ou débloqué)
-  }
-
   // Services Google Directions pour le Turn-by-Turn
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer({
     map: map,
     suppressMarkers: false,
     polylineOptions: {
-      strokeColor: routeColor,
+      strokeColor: routeColor('#00f0ff'),
       strokeWeight: 6,
       strokeOpacity: 0.85
     }

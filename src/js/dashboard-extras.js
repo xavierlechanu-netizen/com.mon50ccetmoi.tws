@@ -3,7 +3,9 @@
  * Auparavant écrit en ligne dans dashboard.html (incompatible avec une CSP stricte).
  * (Un module s'exécute avant l'événement DOMContentLoaded : l'écouteur ci-dessous reste valable.)
  */
-// --- ANIMATION FEU D'ARTIFICE (1er et 2 Janvier) ---
+import { seasonOf } from './season-theme.js';
+
+// --- ANIMATION FEU D'ARTIFICE (Nouvel An et 14 Juillet) ---
 function createFirework() {
   const firework = document.createElement('div');
   firework.style.position = 'fixed';
@@ -30,10 +32,15 @@ function createFirework() {
   setTimeout(() => firework.remove(), 2000);
 }
 
-function checkNewYearFireworks() {
-  const today = new Date();
-  // getMonth() === 0 -> Janvier. getDate() <= 2 -> Le 1er ou le 2.
-  if (today.getMonth() === 0 && (today.getDate() === 1 || today.getDate() === 2)) {
+function showSeason() {
+  const season = seasonOf();
+  if (!season) return;
+  const banner = document.getElementById('season-banner');
+  if (banner) {
+    banner.textContent = season.message;
+    banner.hidden = false;
+  }
+  if (season.fireworks && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
     // Lancer quelques feux d'artifice au chargement
     let count = 0;
     const interval = setInterval(() => {
@@ -45,4 +52,27 @@ function checkNewYearFireworks() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', checkNewYearFireworks);
+// Remplace le contenu d'un bouton par une icône Font Awesome + un texte (sans innerHTML)
+function setButtonContent(btn, iconClass, text, iconAfter = false) {
+  const icon = document.createElement("i");
+  icon.className = iconClass;
+  const label = document.createTextNode(text);
+  btn.replaceChildren(...(iconAfter ? [label, icon] : [icon, label]));
+}
+
+// Vérifier si déjà débloqué au chargement
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Fête du jour : message, et feu d'artifice le cas échéant
+  showSeason();
+
+  // 2. Déblocage du thème Rose
+  if (localStorage.getItem('unlockedTheme_Pink') === 'true') {
+    const btn = document.getElementById('btn-buy-pink');
+    if(btn) {
+      btn.style.background = 'rgba(0, 230, 118, 0.2)';
+      btn.style.color = 'var(--neon-green)';
+      setButtonContent(btn, "fa-solid fa-check", " Débloqué à vie !");
+      btn.disabled = true;
+    }
+  }
+});

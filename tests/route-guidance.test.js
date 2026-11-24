@@ -293,3 +293,22 @@ describe("Traductions anglaise et espagnole", () => {
     expect(missing).toEqual([]);
   });
 });
+
+describe("Bandeau de guidage pendant le trajet", () => {
+  const G = loadModule();
+  const A = { lat: 45.764, lng: 4.8357 }, B = { lat: 45.768, lng: 4.8357 }, C = { lat: 45.768, lng: 4.8417 };
+  const steps = [
+    { instructions: "Partez", distanceMeters: 445, start_location: A },
+    { instructions: "Tournez à droite", maneuver: "turn-right", distanceMeters: 465, start_location: B },
+  ];
+  test("la distance baisse, puis la consigne suivante devient la destination", () => {
+    const g = G.createGuidance({ steps, path: [A, B, C], destination: C, durationSec: 80 });
+    const before = g.progress(A), mid = g.progress({ lat: 45.766, lng: 4.8357 });
+    expect(before.stepIndex).toBe(1);
+    expect(mid.toNextM).toBeLessThan(before.toNextM);
+    g.update(B, 1000);
+    const after = g.progress({ lat: 45.768, lng: 4.839 });
+    expect(after.stepIndex).toBeNull();
+    expect(after.toNextM).toBeLessThan(250);
+  });
+});

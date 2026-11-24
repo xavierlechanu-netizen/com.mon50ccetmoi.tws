@@ -242,7 +242,16 @@ export function createGuidance({ steps = [], path = [], destination, durationSec
     return out;
   }
 
-  return { update, state };
+  /** Ce que le bandeau doit afficher : prochaine consigne (null = destination) et distances. */
+  function progress(position) {
+    const p = readLatLng(position);
+    const hasNext = state.next < st.length && Boolean(st[state.next].at);
+    const target = hasNext ? st[state.next].at : dest;
+    if (!p || !target) return null;
+    return { stepIndex: hasNext ? state.next : null, toNextM: distanceMeters(p, target), remainingM: remainingMeters(p) };
+  }
+
+  return { update, progress, state };
 }
 
 /**
@@ -323,11 +332,12 @@ function say(text, kind, now) {
  * @param {object} route { path, leg } (route-planner.js)
  * @param {object} handlers { onReroute(), onArrive() } ; options de createGuidance (destination, durationSec, quietUntil)
  */
-export function startGuidance(route, { destination, durationSec, quietUntil = 0, textOf, onReroute, onArrive } = {}) {
+export function startGuidance(route, { destination, durationSec, quietUntil = 0, textOf, onReroute, onArrive, onProgress } = {}) {
   active = {
     guidance: createGuidance({ steps: route?.leg?.steps, path: route?.path, destination, durationSec, quietUntil, textOf }),
     onReroute,
     onArrive,
+    onProgress,
   };
 }
 
@@ -361,6 +371,10 @@ export function onGpsFix(lat, lng, { moving = false, accuracy = 0, now = Date.no
         active = null;
         current.onArrive?.();
       }
+    }
+    if (active === current) {
+      const shown = current.guidance.progress({ lat, lng });
+      if (shown) current.onProgress?.(shown);
     }
   }
 

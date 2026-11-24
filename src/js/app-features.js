@@ -365,19 +365,6 @@ window.toggleGuardian = function () {
 
 // --- SECURITY LOGIC ENGINE ---
 
-// 1. IMPACT DETECTION (Accelerometer)
-if (window.DeviceMotionEvent) {
-  window.addEventListener("devicemotion", (event) => {
-    const acc = event.accelerationIncludingGravity;
-    if (!acc) return;
-    const totalG = Math.sqrt(acc.x ** 2 + acc.y ** 2 + acc.z ** 2) / 9.81;
-    if (totalG > 4.5) {
-      // Impact massif détecté
-      triggerFallAlert();
-    }
-  });
-}
-
 // 2. GUARDIAN HEARTBEAT
 setInterval(() => {
   const isGuardian = secureGetItem("guardian_enabled") === "true";

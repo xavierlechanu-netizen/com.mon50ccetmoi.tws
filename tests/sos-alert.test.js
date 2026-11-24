@@ -10,9 +10,28 @@ const SRC = path.join(__dirname, "../src/js");
 const code = fs.readFileSync(path.join(SRC, "sos-alert.js"), "utf8").replace(/^export /gm, "");
 // Même méthode que les autres tests du projet pour charger un module ES sans transpilation
 // eslint-disable-next-line no-new-func
-const M = new Function(`${code}; return { mapLink, sosText, cleanNumbers, smsHref, getSosPosition, sendSosAuto };`)();
+const M = new Function(`${code}; return { isFallImpact, mapLink, sosText, cleanNumbers, smsHref, getSosPosition, sendSosAuto };`)();
 
 const POS = { lat: 50.6292, lng: 3.0573, accuracy: 12 };
+
+describe("Détection de chute : pas d'alerte pour un téléphone posé, jamais de chute ignorée dans le doute", () => {
+  const CHOC = { x: 50, y: 0, z: 0 };
+  const now = 1_000_000;
+  test("secousse à l'arrêt, GPS récent : pas d'alerte", () => {
+    expect(M.isFallImpact(CHOC, { lastGpsFixAt: now - 2000, lastRidingAt: now - 60000, now })).toBe(false);
+  });
+  test("choc juste après avoir roulé : alerte", () => {
+    expect(M.isFallImpact(CHOC, { lastGpsFixAt: now - 2000, lastRidingAt: now - 5000, now })).toBe(true);
+  });
+  test("pas de GPS récent (tunnel, GPS coupé) : alerte par prudence", () => {
+    expect(M.isFallImpact(CHOC, { lastGpsFixAt: now - 60000, lastRidingAt: now - 120000, now })).toBe(true);
+    expect(M.isFallImpact(CHOC, { now })).toBe(true);
+  });
+  test("mouvement normal : pas d'alerte", () => {
+    expect(M.isFallImpact({ x: 12, y: 3, z: 9 }, { now })).toBe(false);
+    expect(M.isFallImpact(null, { now })).toBe(false);
+  });
+});
 
 describe("Contenu de l'alerte", () => {
   test("lien de carte et texte avec la vraie position", () => {

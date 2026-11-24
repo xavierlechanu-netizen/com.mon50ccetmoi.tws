@@ -1,6 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
-import { getSosPosition, sendSosAuto, smsHref, sosText } from './sos-alert.js';
+import { getSosPosition, isFallImpact, sendSosAuto, smsHref, sosText } from './sos-alert.js';
 import { isSovereignSosReady } from './sovereign.js';
 
 // --- SYSTEM STARTUP ---
@@ -144,11 +144,7 @@ res.innerHTML = `<div style="background:rgba(255,183,3,0.1); padding:15px; borde
 
 // --- DÉTECTEUR DE CHUTE ---
 window.addEventListener("devicemotion", (e) => {
-  const acc = e.accelerationIncludingGravity;
-  if (!acc) return;
-  const force = Math.sqrt(acc.x ** 2 + acc.y ** 2 + acc.z ** 2);
-  if (force > 45) {
-    // Seuil d'impact (G-force importante)
+  if (isFallImpact(e.accelerationIncludingGravity, { lastGpsFixAt: window.lastGpsFixAt, lastRidingAt: window.lastRidingAt })) {
     triggerFallAlert();
   }
 });
