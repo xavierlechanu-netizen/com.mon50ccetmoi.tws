@@ -43,10 +43,9 @@ export const CONFIG = {
     // session sur le serveur, on ne gagne pas de points.
     points: "SOVEREIGN",
   },
-  // Comptes sur "SOVEREIGN" : tant que les données sont dans Firestore, la connexion souveraine ouvre
-  // aussi une session Firebase (même email, même mot de passe) pour les lire. À couper (false) quand
-  // plus rien ne lit Firestore.
-  PONT_FIREBASE: import.meta.env?.VITE_PONT_FIREBASE !== "0",
+  // Pont Firebase (session Firebase ouverte en plus de la session souveraine) : coupé le 24/11/2026,
+  // plus rien d'utile ne lit Firestore. Pour le rallumer le temps d'un essai : VITE_PONT_FIREBASE=1.
+  PONT_FIREBASE: import.meta.env?.VITE_PONT_FIREBASE === "1",
   // Collections Firestore vides (comptage du 23/11/2026) : leurs fonctions sont « Bientôt
   // disponible », plus aucune lecture ni écriture (service-guard.js). Pour en rallumer une :
   // la retirer d'ici… ou mieux, la porter sur le serveur souverain.

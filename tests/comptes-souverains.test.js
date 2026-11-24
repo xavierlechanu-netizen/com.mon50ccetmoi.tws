@@ -468,4 +468,9 @@ describe("Appli : chaque porte d'entrée passe par l'interrupteur", () => {
     const config = read("config.js");
     expect(config).toMatch(/BACKEND_MODE:\s*\{\s*comptes:\s*"SOVEREIGN"/);
   });
+
+  test("pont Firebase coupé le 24/11/2026 : éteint par défaut, firebase.auth().currentUser = le pilote du serveur", () => {
+    expect(read("config.js")).toMatch(/PONT_FIREBASE:\s*import\.meta\.env\?\.VITE_PONT_FIREBASE === "1"/);
+    expect(read("comptes.js")).toMatch(/defineProperty\(auth, 'currentUser'[^)]*\)?[^;]*utilisateurActuel\(\)/);
+  });
 });

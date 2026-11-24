@@ -22,6 +22,12 @@ if (comptes.mode === 'SOVEREIGN') {
   console.info(`[Comptes] Connexion par le serveur souverain${comptes.pontFirebase ? ' (pont Firebase pour les données)' : ''}.`);
 }
 
+// Pont coupé : firebase.auth().currentUser devient le pilote du serveur souverain (mêmes champs :
+// uid, displayName, getIdToken…) pour les écrans qui le lisent encore directement.
+if (comptes.mode === 'SOVEREIGN' && !comptes.pontFirebase && auth) {
+  Object.defineProperty(auth, 'currentUser', { configurable: true, get: () => comptes.utilisateurActuel() });
+}
+
 export const onAuthChange = (callback) => comptes.onAuthChange(callback);
 export { comptesErrorMessage };
 

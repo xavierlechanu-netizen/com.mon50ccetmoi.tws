@@ -15,7 +15,12 @@ import { sovereignSession } from './sovereign.js';
         }
 
         try {
-          currentUser = JSON.parse(sessionRaw);
+          // Session rangée par cacheSetItem (auth.js) : encodée en base64, sinon en clair (anciennes versions)
+          try {
+            currentUser = JSON.parse(sessionRaw);
+          } catch {
+            currentUser = JSON.parse(decodeURIComponent(atob(sessionRaw)));
+          }
           if (!currentUser || !currentUser.uid) return;
           
           // Mise à jour de l'UI avec les infos du profil
@@ -23,10 +28,8 @@ import { sovereignSession } from './sovereign.js';
           const avatarUrl = initialsAvatar(currentUser.username || 'Pilote', '#ffffff'); // local, plus d'envoi à ui-avatars.com
           document.getElementById('dash-avatar-img').src = avatarUrl;
 
-          if (typeof db === 'undefined') {
-            console.warn("Firestore (db) n'est pas initialisé");
-            return;
-          }
+          // Pont Firebase coupé (24/11/2026) : trajets et statistiques ne sont plus lus dans Firestore
+          if (typeof db === 'undefined' || !(window.CONFIG && window.CONFIG.PONT_FIREBASE)) return;
 
           const userRef = db.collection('users').doc(currentUser.uid);
           const docSnap = await userRef.get();
