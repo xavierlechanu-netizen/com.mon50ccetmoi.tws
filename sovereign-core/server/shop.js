@@ -13,8 +13,8 @@
 // Règle de prix : un article qui fait un don à une association coûte 550 points (dont le don).
 const SHOP_ITEMS = Object.freeze({
     // Thème de soutien à la lutte contre le cancer du sein : pour chacun, mon50ccetmoi verse 1 € à
-    // l'association Ruban Rose (de ses propres fonds ; total dû : GET /api/v1/admin/payments)
-    THEME_PINK: { label: "Thème Rose", price: 550, available: true, donation: { association: "Ruban Rose", euros: 1 } },
+    // une association contre le cancer du sein, nommée seulement après son accord (de ses propres fonds ; total dû : GET /api/v1/admin/payments)
+    THEME_PINK: { label: "Thème Rose", price: 550, available: true, donation: { association: "Cancer du sein (association à confirmer)", euros: 1 } },
     VOICE_CYBERPUNK: { label: "Voix Cyberpunk", price: 1000, available: false },
     VOICE_RALLYE: { label: "Voix Pilote de Rallye", price: 1000, available: false },
 });

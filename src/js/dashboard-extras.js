@@ -82,9 +82,9 @@ function rememberPink() {
   showPinkOwned();
 }
 
-/** Thème Rose : 550 points, achat sur le serveur (shop.js), 1 € reversé à Ruban Rose par mon50ccetmoi. */
+/** Thème Rose : 550 points, achat sur le serveur (shop.js), 1 € reversé à une association contre le cancer du sein par mon50ccetmoi. */
 async function buyPinkTheme() {
-  if (!confirm("Débloquer le thème GPS Rose pour 550 points ?\n\nPour chaque thème débloqué, 1 € est reversé à l'association Ruban Rose par mon50ccetmoi.")) return;
+  if (!confirm("Débloquer le thème GPS Rose pour 550 points ?\n\nPour chaque thème débloqué, 1 € est reversé à une association de lutte contre le cancer du sein par mon50ccetmoi.")) return;
   try {
     await sovereignRequest('/shop/buy', { method: 'POST', body: { item: "THEME_PINK" } });
     rememberPink();

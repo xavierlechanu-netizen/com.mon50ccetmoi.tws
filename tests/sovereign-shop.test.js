@@ -2,7 +2,7 @@
  * @jest-environment node
  *
  * Boutique des points (sovereign-core/server/shop.js, 25/11/2026) : thème Rose à 550 points, avec
- * 1 € versé à Ruban Rose par thème débloqué ; voix à 1000 points, pas encore en vente.
+ * 1 € versé à une association contre le cancer du sein par thème débloqué ; voix à 1000 points, pas encore en vente.
  * Le prix vient du serveur, un article ne se paie qu'une fois, l'appli ne peut pas imiter l'achat.
  */
 const fs = require("fs");
@@ -35,8 +35,8 @@ function call(app, method, url, { body, uid, role = "user" } = {}) {
 }
 
 describe("Boutique des points", () => {
-  test("prix : thème Rose 550 points (don de 1 € à Ruban Rose), voix 1000 points pas encore en vente", () => {
-    expect(SHOP_ITEMS.THEME_PINK).toMatchObject({ price: 550, available: true, donation: { association: "Ruban Rose", euros: 1 } });
+  test("prix : thème Rose 550 points (don de 1 € à une association), voix 1000 points pas encore en vente", () => {
+    expect(SHOP_ITEMS.THEME_PINK).toMatchObject({ price: 550, available: true, donation: { association: "Cancer du sein (association à confirmer)", euros: 1 } });
     expect(SHOP_ITEMS.VOICE_CYBERPUNK).toMatchObject({ price: 1000, available: false });
     expect(SHOP_ITEMS.VOICE_RALLYE).toMatchObject({ price: 1000, available: false });
   });
@@ -71,18 +71,20 @@ describe("Boutique des points", () => {
     expect((await call(app, "GET", "/api/v1/shop", { uid: RICHE })).body.items.find((i) => i.id === "THEME_PINK").owned).toBe(false);
   });
 
-  test("administrateur : total des dons dus à Ruban Rose", async () => {
+  test("administrateur : total des dons dus à l'association", async () => {
     const { app } = setup();
     await call(app, "POST", "/api/v1/shop/buy", { uid: RICHE, body: { item: "THEME_PINK" } });
     const r = await call(app, "GET", "/api/v1/admin/payments", { uid: ADMIN, role: "admin" });
-    expect(r.body.dons).toEqual([{ article: "THEME_PINK", association: "Ruban Rose", achats: 1, euros: 1 }]);
+    expect(r.body.dons).toEqual([{ article: "THEME_PINK", association: "Cancer du sein (association à confirmer)", achats: 1, euros: 1 }]);
   });
 
   test("les écrans affichent les prix du serveur et le don", () => {
     const read = (f) => fs.readFileSync(path.join(__dirname, "../src", f), "utf8");
     const dash = read("dashboard.html");
     expect(dash).toMatch(/550 points/);
-    expect(dash).toMatch(/1 € reversé à l'association Ruban Rose/);
+    expect(dash).toMatch(/1 € reversé à une association qui lutte contre ce cancer/);
+    // Nom d'une association affiché seulement après son accord écrit
+    for (const f of ["dashboard.html", "marketplace.html", "cgv.html", "js/dashboard-extras.js"]) expect(read(f)).not.toMatch(/Ruban Rose/);
     expect(dash).not.toMatch(/Octobre Rose/);
     const shopPage = read("marketplace.html");
     expect((shopPage.match(/price-main">1 000 points/g) || []).length).toBe(2);
