@@ -17,7 +17,9 @@ test("page de connexion : rien de faux sur la sécurité ni sur les fonctions", 
     expect(login).not.toContain(faux);
   }
   expect(login).toContain("Données hébergées en France (OVHcloud)");
-  expect(login).toContain("tes proches sont prévenus par SMS");
+  // La détection de chute ne marche qu'appli ouverte (l'AAB ne demande pas la position en arrière-plan)
+  expect(login).toContain("Appli ouverte pendant ton trajet, la détection de chute prévient tes proches par SMS");
+  expect(read("src/index.html")).toContain("tant que l'application est ouverte pendant le trajet");
 });
 
 test("page d'accueil : plus de clé d'accès ni de migration en cours", () => {
