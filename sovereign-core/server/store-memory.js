@@ -492,7 +492,7 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
                 x.status === "PENDING" && x.orderToken && Date.parse(x.createdAt) > sinceMs);
             return o ? { ...o } : null;
         },
-        async completePaymentOrder(revolutOrderId, { pointsToCredit = 0, certifyGarage = false, invoice = null } = {}) {
+        async completePaymentOrder(revolutOrderId, { pointsToCredit = 0, certifyGarage = false, goldDays = 0, invoice = null } = {}) {
             const o = orders.get(revolutOrderId);
             if (!o) return { notFound: true };
             if (o.status === "COMPLETED") return { alreadyProcessed: true, order: { ...o } };
@@ -509,6 +509,10 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             if (certifyGarage && user) {
                 user.isCertifiedGarage = true;
                 user.certifiedAt = user.certifiedAt || o.completedAt;
+            }
+            if (goldDays > 0 && user) {
+                const from = Math.max(Date.parse(user.premiumUntil || 0) || 0, Date.now());
+                user.premiumUntil = new Date(from + goldDays * 86400000).toISOString();
             }
             if (invoice && !invoices.has(revolutOrderId)) invoices.set(revolutOrderId, { ...invoice, paid_at: o.completedAt });
             return { processed: true, balance, order: { ...o } };

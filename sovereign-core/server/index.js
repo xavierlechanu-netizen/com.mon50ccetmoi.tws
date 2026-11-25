@@ -86,6 +86,18 @@ const REFRESH_TOKEN_PURPOSE = "refresh";
 const REFRESH_TOKEN_TTL_SEC = 30 * 24 * 3600;
 const issueRefreshToken = (uid) => signSovereignJwt({ uid, purpose: REFRESH_TOKEN_PURPOSE }, { expiresInSec: REFRESH_TOKEN_TTL_SEC });
 
+// Freemium (25/11/2026) : GPS et sécurité gratuits, le reste demande GOLD. Les comptes inscrits avant
+// cette date sont « Fondateurs » : GOLD gratuit à vie (promesse faite aux premiers inscrits).
+const FOUNDER_CUTOFF_MS = Date.parse("2026-11-26T00:00:00+01:00");
+
+/** Compte GOLD : Fondateur, ou abonnement payé encore en cours. */
+function goldStatus(user, now = Date.now()) {
+    const created = Date.parse(user.createdAt || "");
+    const founder = Number.isFinite(created) && created < FOUNDER_CUTOFF_MS;
+    const until = user.premiumUntil && Date.parse(user.premiumUntil) > now ? user.premiumUntil : null;
+    return { gold: founder || Boolean(until), founder, goldUntil: founder ? null : until };
+}
+
 /** Réponse commune de l'inscription, de la connexion et du renouvellement de session. */
 function sessionResponse(user) {
     return {
@@ -95,6 +107,7 @@ function sessionResponse(user) {
         role: user.role,
         braveCoins: user.braveCoins || 0,
         createdAt: user.createdAt || null,
+        ...goldStatus(user),
         token: signSovereignJwt({ uid: user.uid, role: user.role, username: user.username }),
         refreshToken: issueRefreshToken(user.uid),
         sosToken: issueSosToken(user.uid)
@@ -1128,7 +1141,7 @@ function createSovereignApp(options = {}) {
                 await store.saveProfile(user.uid, profile);
             }
             res.statusCode = 200;
-            res.end(JSON.stringify({ profile }));
+            res.end(JSON.stringify({ profile: { ...profile, ...goldStatus(user) } }));
             return;
         }
 

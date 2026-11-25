@@ -80,18 +80,6 @@ function updateUILabels() {
 }
 window.updateUILabels = updateUILabels;
 
-function checkTrialExpiration() {
-  if (!window.session) return;
-
-  // On récupère les infos calculées par auth.js
-  if (window.session && window.session.isTrialExpired) {
-    const overlay = document.getElementById("sub-overlay");
-    if (overlay) overlay.classList.remove("hidden");
-    if (navigator.vibrate) navigator.vibrate(50);
-    speak("Alerte abonnement : Votre période d'essai gratuite est terminée.");
-  }
-}
-
 // Style Cyberpunk Dark Neon pour Google Maps
 // gmaps-compat.js n'utilise « styles » que pour activer le thème sombre de la carte (liste non vide)
 const DARK_MAP_STYLE = [{ theme: "dark" }];
@@ -278,7 +266,6 @@ window.startApp = function () {
 
   if (typeof runCinematicStartup === "function") runCinematicStartup();
 
-  checkTrialExpiration();
   updateUILabels();
   if (window.session && document.getElementById("mileage-hud")) {
     document.getElementById("mileage-hud").textContent =
@@ -855,7 +842,6 @@ if (!window.watchChannel) {
 
 // --- Action Registry (ESM) ---
 registerAction('updateUILabels', updateUILabels);
-registerAction('checkTrialExpiration', checkTrialExpiration);
 registerAction('requestWakeLock', requestWakeLock);
 registerAction('hasLocationConsent', hasLocationConsent);
 registerAction('checkLegalConsent', checkLegalConsent);

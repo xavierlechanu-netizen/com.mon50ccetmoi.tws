@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { goldOnly } from './gold-gate.js';
 
 /**
  * dock.js — Générateur data-driven du Smart Dock
@@ -57,8 +58,11 @@ import { registerAction } from './actionRegistry.js';
    * Fonction en pause (collections vides, CONFIG.COLLECTIONS_EN_PAUSE) : bouton grisé qui annonce
    * « Bientôt disponible » au lieu d'ouvrir la fonction.
    */
+  // Freemium : gratuits pour toujours, la sécurité et le compte. Tout le reste demande GOLD (gold-gate.js).
+  const FREE_BUTTONS = new Set(['sos', 'sos-hud-btn', 'profile', 'security', 'privacy-settings-btn', 'ghost-mode-btn']);
+
   function actionOuBientot(el, btn) {
-    if (!btn.bientot) return btn.action;
+    if (!btn.bientot) return FREE_BUTTONS.has(btn.id) ? btn.action : goldOnly(btn.label || btn.text || 'Cette option', btn.action);
     const message = `${btn.label || btn.text} : bientôt disponible`;
     el.style.opacity = '0.4';
     el.setAttribute('aria-disabled', 'true');

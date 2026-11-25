@@ -191,7 +191,11 @@ test("session : le serveur fait foi, la date d'inscription la plus ancienne gagn
   const { withSovereignProfile } = S;
   const p = { brand: "MBK", model: null, department: "43", ghostMode: true, registeredAt: "2026-01-02T00:00:00.000Z" };
   const s = withSovereignProfile({ model: "Booster", registrationDate: Date.parse("2026-11-18") }, p);
-  expect(s).toEqual({ brand: "MBK", model: "Booster", department: "43", ghostMode: true, registrationDate: Date.parse("2026-01-02") });
+  expect(s).toEqual({ brand: "MBK", model: "Booster", department: "43", ghostMode: true, registrationDate: Date.parse("2026-01-02"),
+    isGold: false, isFoundingMember: false, goldUntil: null });
+  // GOLD : seul le serveur le dit
+  expect(withSovereignProfile({}, { gold: true, founder: true, goldUntil: null })).toMatchObject({ isGold: true, isFoundingMember: true });
+  expect(withSovereignProfile({ isGold: true }, { gold: false })).toMatchObject({ isGold: false });
   expect(withSovereignProfile({ registrationDate: 0 }, p).registrationDate).toBe(Date.parse("2026-01-02"));
   expect(withSovereignProfile({ registrationDate: Date.parse("2025-07-01") }, p).registrationDate).toBe(Date.parse("2025-07-01"));
   expect(withSovereignProfile({ a: 1 }, null)).toEqual({ a: 1 });

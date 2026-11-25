@@ -16,6 +16,7 @@
  * - points : grand livre du serveur, mouvement « PURCHASE » (les points achetés ne comptent pas
  *   dans le classement, qui ne compte que les points gagnés) ;
  * - garage : compte marqué « garage certifié » sur le serveur, qui ouvre l'espace garage (garages.js) ;
+ * - GOLD : compte GOLD prolongé d'un an (premium_until), à partir de la fin de la période en cours ;
  * - une facture à émettre (invoicing.js, export CSV pour Kolecto).
  *
  * Testé : tests/sovereign-payments.test.js (mémoire, Revolut simulé) et tests/sovereign-pg.test.js.
@@ -29,12 +30,13 @@ const { AUDIT_ACTIONS } = require("./audit-log");
 const { ORDER_ID_RE } = require("./revolut-merchant");
 
 // Ce que ce serveur sait livrer aujourd'hui (les autres produits restent refusés)
-const DELIVERABLE_CATEGORIES = new Set([CATEGORIES.GARAGE, CATEGORIES.POINTS]);
+const DELIVERABLE_CATEGORIES = new Set([CATEGORIES.GARAGE, CATEGORIES.POINTS, CATEGORIES.GOLD]);
 // Charte des garages partenaires (src/charte-garages.html) : acceptée avant le droit d'entrée,
 // sa version est gardée avec la commande (migration 010). Nouvelle version : changer les deux.
 const GARAGE_CHARTER_VERSION = "2026-11-25";
 // Après paiement sur la page Revolut (Revolut Pay, carte, Apple Pay, Google Pay), le garage revient ici
 const GARAGE_RETURN_PAGE = "https://mon50ccetmoi.com/garage-dashboard.html";
+const GOLD_RETURN_PAGE = "https://mon50ccetmoi.com/app.html";
 // Rien n'est en vente tant que l'utilisateur ne l'a pas décidé (PAYMENTS_OPEN_PRODUCTS sur le VPS),
 // même si la clé Revolut est déjà en place. Premier produit prévu : GARAGE_FEE. Les packs de points
 // attendent que l'appli lise le solde sur ce serveur (domaine « points » de CONFIG.BACKEND_MODE).
@@ -102,6 +104,7 @@ function createPaymentsService({ store, revolut, audit, openProducts = DEFAULT_O
         const result = await store.completePaymentOrder(order.revolutOrderId, {
             pointsToCredit: item && item.category === CATEGORIES.POINTS ? item.points || 0 : 0,
             certifyGarage: Boolean(item && item.category === CATEGORIES.GARAGE),
+            goldDays: item && item.category === CATEGORIES.GOLD ? item.gold_days || 0 : 0,
             invoice,
         });
         if (result.processed) {
@@ -191,6 +194,8 @@ function createPaymentsService({ store, revolut, audit, openProducts = DEFAULT_O
                         ...(charterVersion ? { charte: charterVersion } : {}) },
                     ...(item.category === CATEGORIES.GARAGE
                         ? { redirectUrl: `${GARAGE_RETURN_PAGE}?paiement=${encodeURIComponent(caseId)}` } : {}),
+                    ...(item.category === CATEGORIES.GOLD
+                        ? { redirectUrl: `${GOLD_RETURN_PAGE}?paiement=${encodeURIComponent(caseId)}` } : {}),
                 });
             } catch (e) {
                 console.error("[Paiements] Création de la commande Revolut impossible :", e.message);

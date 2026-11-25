@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS users (
     brave_coins         INTEGER NOT NULL DEFAULT 0 CHECK (brave_coins >= 0),
     is_premium          BOOLEAN NOT NULL DEFAULT FALSE,
     premium_plan        VARCHAR(64),
+    premium_until       TIMESTAMPTZ,  -- fin du compte GOLD payé (migration 012)
     premium_since       TIMESTAMPTZ,
     is_certified_garage BOOLEAN NOT NULL DEFAULT FALSE,
     certified_at        TIMESTAMPTZ,

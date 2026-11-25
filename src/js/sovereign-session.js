@@ -31,6 +31,10 @@ export function withSovereignProfile(session, p) {
   const out = { ...session };
   for (const k of ["brand", "model", "department"]) if (p[k]) out[k] = p[k];
   out.ghostMode = p.ghostMode === true;
+  // Compte GOLD décidé par le serveur (abonnement payé ou Fondateur) : jamais calculé ici
+  out.isGold = p.gold === true;
+  out.isFoundingMember = p.founder === true;
+  out.goldUntil = p.goldUntil || null;
   // Date d'inscription d'origine (offre Fondateur) : la plus ancienne connue
   const reg = Date.parse(p.registeredAt || "");
   if (Number.isFinite(reg) && !(out.registrationDate > 1000 && out.registrationDate < reg)) out.registrationDate = reg;

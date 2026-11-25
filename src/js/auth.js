@@ -567,17 +567,9 @@ window.checkAuth = function (requireAdmin = false) {
           return resolve(null);
         }
 
-        // Gestion de l'expiration d'essai (Trial Logic)
-        const PUB_DATE = new Date("2027-04-18").getTime();
-        const regTime = session.registrationDate || 0;
-
-        if (regTime < PUB_DATE && regTime > 1000) {
-          session.isTrialExpired = false;
-          session.isFoundingMember = true;
-        } else {
-          const oneYearLater = regTime + 365 * 24 * 60 * 60 * 1000;
-          session.isTrialExpired = Date.now() > oneYearLater;
-        }
+        // Compte GOLD : le serveur souverain le dit (withSovereignProfile). Plus d'« essai d'un an » :
+        // le GPS et la sécurité sont gratuits pour toujours, le reste demande GOLD (gold-gate.js).
+        session.isGold = session.isGold === true;
 
         if (session.isPermanentlyBanned) {
           window.location.href = "banned.html";

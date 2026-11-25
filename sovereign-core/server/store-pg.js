@@ -29,6 +29,7 @@ function mapUser(r) {
         hideFromLeaderboard: Boolean(r.hide_from_leaderboard),
         isBanned: Boolean(r.is_banned),
         isCertifiedGarage: Boolean(r.is_certified_garage),
+        premiumUntil: iso(r.premium_until) || null,
         createdAt: iso(r.created_at),
         passwordChangedAt: iso(r.password_changed_at) || null,
     };
@@ -791,9 +792,9 @@ function createPgStore({ connectionString, pool } = {}) {
         /**
          * Commande payée : passage à COMPLETED et livraison dans la même transaction, une seule fois.
          * @param {string} revolutOrderId
-         * @param {{pointsToCredit?: number, certifyGarage?: boolean, invoice?: object}} delivery
+         * @param {{pointsToCredit?: number, certifyGarage?: boolean, goldDays?: number, invoice?: object}} delivery
          */
-        async completePaymentOrder(revolutOrderId, { pointsToCredit = 0, certifyGarage = false, invoice = null } = {}) {
+        async completePaymentOrder(revolutOrderId, { pointsToCredit = 0, certifyGarage = false, goldDays = 0, invoice = null } = {}) {
             const client = await db.connect();
             try {
                 await client.query("BEGIN");
@@ -829,6 +830,15 @@ function createPgStore({ connectionString, pool } = {}) {
                     await client.query(
                         `UPDATE users SET is_certified_garage = TRUE, certified_at = COALESCE(certified_at, NOW()), updated_at = NOW()
                           WHERE uid = $1`, [order.user_uid]
+                    );
+                }
+                if (goldDays > 0) {
+                    // Prolonge à partir de la fin de la période en cours (un rachat anticipé ne perd aucun jour)
+                    await client.query(
+                        `UPDATE users SET is_premium = TRUE, premium_plan = 'GOLD',
+                                premium_until = GREATEST(COALESCE(premium_until, NOW()), NOW()) + make_interval(days => $2),
+                                updated_at = NOW()
+                          WHERE uid = $1`, [order.user_uid, goldDays]
                     );
                 }
                 if (invoice) {

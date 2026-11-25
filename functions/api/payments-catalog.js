@@ -13,7 +13,8 @@ const CATEGORIES = {
     BLACKBOX_SUB: "BLACKBOX_SUB",
     GARAGE: "GARAGE",
     POINTS: "POINTS",
-    DIAGNOSTIC: "DIAGNOSTIC"
+    DIAGNOSTIC: "DIAGNOSTIC",
+    GOLD: "GOLD"
 };
 
 const CATALOG = {
@@ -69,6 +70,16 @@ const CATALOG = {
         price_cents: 5000,
         category: CATEGORIES.BLACKBOX_SUB,
         label: "Abonnement Boîte Noire+ (Annuel)"
+    },
+
+    // Compte GOLD (freemium, 25/11/2026) : toutes les options en plus du GPS et de la sécurité, Boîte
+    // Noire+ comprise (quand le boîtier existera). Vendu sur le site web seulement (pas dans l'appli
+    // Play Store : règles de facturation Google). Sans renouvellement automatique.
+    'GOLD_ANNUAL': {
+        price_cents: 2900,
+        category: CATEGORIES.GOLD,
+        gold_days: 365,
+        label: "Compte GOLD mon 50cc et moi — 1 an"
     },
 
     // Packs de Points mon50cc (BVC Coins)

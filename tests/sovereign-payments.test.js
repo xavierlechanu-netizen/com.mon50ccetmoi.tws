@@ -60,7 +60,7 @@ function fakeRevolutApi() {
   };
 }
 
-function setup({ open = ["GARAGE_FEE", "POINTS_100"], withRevolut = true, mode = "prod" } = {}) {
+function setup({ open = ["GARAGE_FEE", "POINTS_100"], withRevolut = true, mode = "prod", extraUsers = [] } = {}) {
   const api = fakeRevolutApi();
   const store = createMemoryStore({
     users: [
@@ -68,6 +68,7 @@ function setup({ open = ["GARAGE_FEE", "POINTS_100"], withRevolut = true, mode =
       { uid: AUTRE, email: "autre@mon50cc.internal", username: "Autre" },
       { uid: ADMIN, email: "admin@exemple.fr", username: "Admin", role: "admin" },
       { uid: GARAGE_DEJA, email: "garage@exemple.fr", username: "GarageDeja", isCertifiedGarage: true },
+      ...extraUsers,
     ],
   });
   const revolut = withRevolut ? createRevolutClient({ secretKey: "sk_test_simule", mode, fetchImpl: api.fetchImpl }) : null;
@@ -315,6 +316,34 @@ describe("Paiement confirmé : livré une seule fois, et seulement si Revolut le
     const actions = (await store.listAudit({ limit: 100 })).map((e) => e.action);
     expect(actions).toEqual(expect.arrayContaining(["payment.order_created", "payment.completed"]));
     expect(actions.filter((a) => a === "payment.completed")).toHaveLength(1);
+  });
+
+  test("compte GOLD : 29 € pour 1 an, prolongé à partir de la fin en cours ; profil GOLD ; Fondateurs gratuits", async () => {
+    const NOUVEAU = "00000000-0000-4000-8000-0000000000aa";
+    const FONDATEUR = "00000000-0000-4000-8000-0000000000bb";
+    const { app, api, store } = setup({ open: ["GOLD_ANNUAL"], extraUsers: [
+      { uid: NOUVEAU, email: "nouveau@mon50cc.internal", username: "Nouveau", createdAt: "2027-01-10T10:00:00Z" },
+      { uid: FONDATEUR, email: "fondateur@mon50cc.internal", username: "Fondateur", createdAt: "2026-11-20T10:00:00Z" },
+    ] });
+    const profile = async (uid) => (await call(app, "GET", "/api/v1/profile", { auth: token(uid) })).body.profile;
+
+    expect(await profile(NOUVEAU)).toMatchObject({ gold: false, founder: false, goldUntil: null });
+    expect(await profile(FONDATEUR)).toMatchObject({ gold: true, founder: true });
+
+    const o = await order(app, "GOLD_ANNUAL", NOUVEAU);
+    expect(o.body.amount).toBe(2900);
+    expect(api.calls.find((c) => c.method === "POST").body.redirect_url).toMatch(/^https:\/\/mon50ccetmoi\.com\/app\.html\?paiement=/);
+    api.setState(o.body.order_id, "completed");
+    await webhook(app, { event: "ORDER_COMPLETED", order_id: o.body.order_id });
+    const first = Date.parse((await store.findUserById(NOUVEAU)).premiumUntil);
+    expect(first - Date.now()).toBeGreaterThan(364 * 86400000);
+    expect(await profile(NOUVEAU)).toMatchObject({ gold: true, founder: false });
+
+    // Rachat avant la fin : 1 an de plus après la fin en cours, aucun jour perdu
+    const o2 = await order(app, "GOLD_ANNUAL", NOUVEAU);
+    api.setState(o2.body.order_id, "completed");
+    await webhook(app, { event: "ORDER_COMPLETED", order_id: o2.body.order_id });
+    expect(Date.parse((await store.findUserById(NOUVEAU)).premiumUntil) - first).toBe(365 * 86400000);
   });
 
   test("pack de points : livré par le suivi même sans webhook ; une seule fois ; hors classement", async () => {
