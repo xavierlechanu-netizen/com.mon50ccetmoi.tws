@@ -31,17 +31,21 @@ export function fold(text) {
   return String(text).toLowerCase().replace(/[À-ſ]/g, (c) => c.normalize("NFD")[0]).replace(/[’`]/g, "'");
 }
 
-/** Phrase autour d'une position, pour citer le contrat. */
+/** Phrase (ou ligne, pour une liste de garanties) autour d'une position, pour citer le contrat. */
 function sentenceAround(text, index, max = 220) {
-  const before = text.lastIndexOf(".", index);
-  let start = before === -1 ? 0 : before + 1;
-  let end = text.indexOf(".", index);
-  end = end === -1 ? text.length : end + 1;
+  const before = Math.max(text.lastIndexOf(".", index), text.lastIndexOf("\n", index));
+  let start = before + 1;
+  const stops = [text.indexOf(".", index), text.indexOf("\n", index)].filter((i) => i !== -1);
+  let end = stops.length ? Math.min(...stops) + 1 : text.length;
+  let cut = false;
   if (end - start > max) {
     start = Math.max(start, index - max / 2);
     end = Math.min(end, start + max);
+    cut = true;
   }
-  return text.slice(start, end).replace(/\s+/g, " ").trim();
+  let quote = text.slice(start, end).replace(/\s+/g, " ").trim();
+  if (cut) quote = `… ${quote.replace(/^\S*\s/, "").replace(/\s\S*$/, "")} …`; // jamais un mot coupé
+  return quote;
 }
 
 /** Montants de franchise cités (« franchise de 150 € »). */
@@ -55,20 +59,46 @@ export function findDeductibles(text) {
 }
 
 /**
- * Analyse le texte d'un contrat.
- * @returns {{readable: boolean, items: Array<{key, label, status: "trouve"|"a_verifier"|"absent", quote: string|null}>, deductibles: string[], zeroKm: boolean}}
+ * Cases « Accident : OUI », « Véhicule de remplacement : NON GARANTIE » (mémo, attestation) :
+ * [{ label, yes }] sans doublon, dans l'ordre du document.
+ */
+export function findYesNo(text) {
+  const raw = String(text || "");
+  const re = /([A-Za-zÀ-ÿ'][A-Za-zÀ-ÿ' -]{2,40}?)\s*:\s*(NON GARANTIE|NON GARANTI|GARANTIE|GARANTI|OUI|NON)\b/g;
+  const seen = new Map();
+  let m;
+  while ((m = re.exec(raw))) {
+    const label = m[1].replace(/^[-–•\s]+/, "").trim();
+    const k = fold(label);
+    if (!seen.has(k)) seen.set(k, { label, yes: !/^non/i.test(m[2]) });
+  }
+  return [...seen.values()];
+}
+
+// Attestation, carte verte, mémo : la preuve de l'assurance obligatoire, pas le contrat lui-même
+const ATTESTATION_RE = /attestation d'?\s?assurance|certificat d'?\s?assurance|carte internationale d'?\s?assurance|memo vehicule assure/;
+
+/**
+ * Analyse le texte d'un contrat (ou d'une attestation).
+ * @returns {{readable: boolean, attestation: boolean, items: Array<{key, label, status: "trouve"|"a_verifier"|"absent", quote: string|null}>, yesNo: Array<{label, yes}>, deductibles: string[], zeroKm: boolean}}
  */
 export function analyseContract(text) {
   const raw = String(text || "");
   const t = fold(raw);
   const readable = t.replace(/\s/g, "").length >= 200;
+  const attestation = readable && ATTESTATION_RE.test(t);
   const items = GUARANTEES.map(({ key, label, re }) => {
     const m = readable ? re.exec(t) : null;
-    if (!m) return { key, label, status: "absent", quote: null };
+    if (!m) {
+      // L'attestation n'existe que pour l'assurance obligatoire : la responsabilité civile (L211-1)
+      if (key === "rc" && attestation) return { key, label, status: "trouve", quote: "Attestation d'assurance : elle prouve l'assurance obligatoire (responsabilité civile)." };
+      return { key, label, status: "absent", quote: null };
+    }
     const quote = sentenceAround(raw, m.index);
     return { key, label, status: CAUTION_RE.test(fold(quote)) ? "a_verifier" : "trouve", quote };
   });
-  return { readable, items, deductibles: readable ? findDeductibles(raw) : [], zeroKm: readable && /\b0 ?km\b|kilometre zero|des le domicile/.test(t) };
+  return { readable, attestation, items, yesNo: readable ? findYesNo(raw) : [], deductibles: readable ? findDeductibles(raw) : [],
+    zeroKm: readable && /\b0 ?km\b|kilometre zero|des le domicile/.test(t) };
 }
 
 /** Réponse de Nexus, en texte simple (affichée avec textContent). */
@@ -77,6 +107,12 @@ export function contractSummary(result) {
     return "Je n'arrive pas à lire ce PDF : c'est sans doute un scan (une image). Téléchargez plutôt le PDF de vos conditions particulières depuis l'espace client de votre assureur. La lecture des photos arrive bientôt.";
   }
   const lines = ["Voici ce que j'ai trouvé dans votre contrat. Je cite le texte : vérifiez toujours avec votre assureur, c'est lui qui fait foi.", ""];
+  if (result.attestation) {
+    lines.push("ℹ️ Ce document est une attestation d'assurance, pas votre contrat : il ne liste pas toutes vos garanties. Pour tout savoir, demandez vos « Conditions particulières » à votre assureur ou à votre courtier (souvent dans votre espace client).", "");
+  }
+  if (result.yesNo?.length) {
+    lines.push("📋 Le document indique :", ...result.yesNo.map((y) => `   ${y.yes ? "✅" : "❌"} ${y.label} : ${y.yes ? "oui" : "non"}`), "");
+  }
   for (const it of result.items) {
     if (it.status === "trouve") lines.push(`✅ ${it.label}\n   « ${it.quote} »`);
     else if (it.status === "a_verifier") lines.push(`⚠️ ${it.label} : le contrat en parle, peut-être pour la limiter ou l'exclure\n   « ${it.quote} »`);
@@ -96,7 +132,7 @@ export async function readPdfText(file, maxPages = 60) {
   const pages = [];
   for (let i = 1; i <= Math.min(doc.numPages, maxPages); i++) {
     const content = await (await doc.getPage(i)).getTextContent();
-    pages.push(content.items.map((x) => x.str).join(" "));
+    pages.push(content.items.map((x) => x.str + (x.hasEOL ? "\n" : " ")).join("")); // garde les lignes : citations propres
   }
   await doc.destroy();
   return pages.join("\n");
