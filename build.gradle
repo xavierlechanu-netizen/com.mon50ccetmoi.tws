@@ -25,8 +25,9 @@ buildscript {
     //  - Netty, Bouncy Castle, protobuf, commons-lang3, httpclient : outils de test sur appareil
     //    d'Android (configurations _internal-unified-test-platform-*), jamais lancés ici ;
     //  - Bouncy Castle, jdom2, jose4j, commons-lang3, Guava : outils de compilation (plugin Android).
-    // Non traité : kotlin-gradle-plugin (seul correctif publié : une bêta) ; la faille vise un
-    // cache de compilation Kotlin partagé, que ce projet n'utilise pas.
+    //  - kotlin-gradle-plugin (25/11/2026, alerte n° 65, CVE-2026-53914) : désérialisation non sûre
+    //    du cache de compilation Kotlin. Apporté par le plugin Android en 2.2.10 ; correctif stable
+    //    depuis 2.4.20 (2.4.21 ici). Les autres modules Kotlin suivent par résolution de conflit.
     ext.versionsMinimales = { details ->
         def demande = details.requested
         def version = demande.version
@@ -60,6 +61,8 @@ buildscript {
             cible = '3.22.0'
         } else if (groupe == 'org.apache.httpcomponents' && nom == 'httpclient') {
             cible = '4.5.14'
+        } else if (groupe == 'org.jetbrains.kotlin' && nom == 'kotlin-gradle-plugin') {
+            cible = '2.4.21'
         }
         if (cible && plusAncienne(version, cible)) {
             details.useVersion cible
