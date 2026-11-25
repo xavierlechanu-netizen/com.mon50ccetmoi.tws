@@ -53,10 +53,11 @@ CREATE TABLE IF NOT EXISTS maintenance_logs (
 CREATE INDEX IF NOT EXISTS maintenance_logs_pilot_idx ON maintenance_logs (pilot_uid, created_at DESC);
 CREATE INDEX IF NOT EXISTS maintenance_logs_garage_idx ON maintenance_logs (garage_uid, created_at DESC);
 
--- Intervention d'un garage : ni UPDATE, ni DELETE (une note du pilote reste effaçable avec son compte)
+-- Intervention d'un garage : ni UPDATE, ni DELETE avant 5 ans (effacée ensuite par le serveur,
+-- store-pg.js purgeExpiredProofs) ; une note du pilote reste effaçable avec son compte
 CREATE OR REPLACE FUNCTION protect_sealed_maintenance() RETURNS trigger AS $$
 BEGIN
-    IF TG_OP = 'UPDATE' OR OLD.garage_uid IS NOT NULL THEN
+    IF TG_OP = 'UPDATE' OR (OLD.garage_uid IS NOT NULL AND OLD.created_at >= NOW() - INTERVAL '5 years') THEN
         RAISE EXCEPTION 'INTÉGRITÉ : l''intervention % est scellée par un garage, ni modifiable ni effaçable', OLD.id;
     END IF;
     RETURN OLD;

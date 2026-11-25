@@ -495,6 +495,15 @@ function createPgStore({ connectionString, pool } = {}) {
             return rowCount;
         },
 
+        /** Preuves de plus de 5 ans (Boîte Noire, interventions de garage) : effacées (migrations 009 et 011). */
+        async purgeExpiredProofs() {
+            const tel = await db.query("DELETE FROM telemetry_sessions WHERE created_at < NOW() - INTERVAL '5 years'");
+            const mnt = await db.query(
+                "DELETE FROM maintenance_logs WHERE garage_uid IS NOT NULL AND created_at < NOW() - INTERVAL '5 years'"
+            );
+            return { telemetry: tel.rowCount, maintenance: mnt.rowCount };
+        },
+
         /** Migrations db/migrations/*.sql, rejouables sans effet, appliquées au démarrage. */
         async migrate(dir = MIGRATIONS_DIR) {
             const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /^\d+.*\.sql$/.test(f)).sort() : [];

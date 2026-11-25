@@ -191,4 +191,17 @@ describe("Espace garage", () => {
     // La preuve reste, sous l'identifiant devenu anonyme ; la note du pilote est effacée
     expect((await store.listMaintenanceByPilot(PILOTE)).map((l) => [l.category, l.certified])).toEqual([["Vidange", true]]);
   });
+  test("preuves de plus de 5 ans effacées chaque jour ; plus récentes et notes du pilote gardées", async () => {
+    const { app, store } = setup();
+    await lier(app);
+    await call(app, "POST", "/api/v1/garage/maintenance", { uid: GARAGE, body: { pilotUid: PILOTE, category: "Vidange", km: 9000 } });
+    await store.addMaintenanceLog({ pilotUid: PILOTE, category: "Note perso", km: 9100 });
+    await store.insertTelemetrySession({ uid: PILOTE, sessionId: "s1", sealedAt: new Date().toISOString() });
+    expect(await store.purgeExpiredProofs()).toEqual({ telemetry: 0, maintenance: 0 });
+    const dans5ans = new Date();
+    dans5ans.setFullYear(dans5ans.getFullYear() + 5);
+    dans5ans.setDate(dans5ans.getDate() + 1);
+    expect(await store.purgeExpiredProofs(dans5ans.getTime())).toEqual({ telemetry: 1, maintenance: 1 });
+    expect((await store.listMaintenanceByPilot(PILOTE)).map((l) => l.category)).toEqual(["Note perso"]);
+  });
 });

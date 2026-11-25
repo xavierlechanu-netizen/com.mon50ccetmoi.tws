@@ -667,4 +667,28 @@ const carnet = (await call(app, "GET", "/api/v1/maintenance", null, auth(pilote)
     expect(rows.map((r) => r.category)).toEqual(["Pneus"]);
     expect((await call(app, "GET", "/api/v1/garage/dashboard", null, auth(garage))).body.clients).toEqual([]);
   });
+  test("preuves de plus de 5 ans : effaçables et effacées par la purge ; plus récentes toujours verrouillées", async () => {
+    const store = createPgStore({ pool });
+    const uid = (await store.createUser({ uid: crypto.randomUUID(), email: "purge@example.com", username: "PurgePG", passwordHash: "!" })).uid;
+    const ins = (age) => pool.query(
+      `INSERT INTO telemetry_sessions (user_uid, hardware_id, frame_count, worm_storage_path, worm_sha256_hex, created_at)
+       VALUES ($1, 'BB-PURGE', 1, 'worm://x', $2, NOW() - $3::interval) RETURNING session_id`, [uid, "a".repeat(64), age]);
+    const { rows: [vieille] } = await ins("5 years 1 day");
+    const { rows: [recente] } = await ins("4 years 11 months");
+    await pool.query(
+      `INSERT INTO maintenance_logs (pilot_uid, garage_uid, category, worm_storage_path, worm_sha256_hex, created_at)
+       VALUES ($1, $1, 'Vidange', 'worm://y', $2, NOW() - INTERVAL '5 years 1 day'),
+              ($1, $1, 'Pneus', 'worm://z', $2, NOW() - INTERVAL '1 year')`, [uid, "b".repeat(64)]);
+
+    await expect(pool.query("DELETE FROM telemetry_sessions WHERE session_id = $1", [recente.session_id])).rejects.toThrow(/moins de 5 ans/);
+    await expect(pool.query("UPDATE telemetry_sessions SET frame_count = 2 WHERE session_id = $1", [vieille.session_id])).rejects.toThrow(/INTÉGRITÉ/);
+
+    const purge = await store.purgeExpiredProofs();
+    expect(purge.telemetry).toBeGreaterThanOrEqual(1);
+    expect(purge.maintenance).toBeGreaterThanOrEqual(1);
+    const restes = await pool.query("SELECT session_id FROM telemetry_sessions WHERE user_uid = $1", [uid]);
+    expect(restes.rows.map((r) => r.session_id)).toEqual([recente.session_id]);
+    const carnet = await pool.query("SELECT category FROM maintenance_logs WHERE pilot_uid = $1", [uid]);
+    expect(carnet.rows.map((r) => r.category)).toEqual(["Pneus"]);
+  });
 });

@@ -321,6 +321,19 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
                 .slice(0, Math.min(Math.max(limit, 1), 1000))
                 .map((e) => ({ ...e, details: { ...e.details } }));
         },
+        /** Preuves de plus de 5 ans (Boîte Noire, interventions de garage) : effacées (store-pg.js, même règle). */
+        async purgeExpiredProofs(now = Date.now()) {
+            const limit = new Date(now);
+            limit.setFullYear(limit.getFullYear() - 5);
+            const old = (d) => Boolean(d) && Date.parse(d) < limit.getTime();
+            const before = [sessions.length, maintenance.length];
+            for (let i = sessions.length - 1; i >= 0; i--) if (old(sessions[i].sealedAt)) sessions.splice(i, 1);
+            for (let i = maintenance.length - 1; i >= 0; i--) {
+                if (maintenance[i].garageUid && old(maintenance[i].createdAt)) maintenance.splice(i, 1);
+            }
+            return { telemetry: before[0] - sessions.length, maintenance: before[1] - maintenance.length };
+        },
+
         async purgeAudit(now = Date.now()) {
             const limit = now - AUDIT_RETENTION_DAYS * 24 * 3600 * 1000;
             let n = 0;

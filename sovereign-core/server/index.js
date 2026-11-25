@@ -1520,11 +1520,20 @@ if (require.main === module) {
         console.log(`[SovereignCore] Serveur actif sur le port ${port} — stockage : ${store.kind === "postgres" ? "PostgreSQL" : "MÉMOIRE (développement uniquement)"} — preuves : ${wormVault.kind || "fichiers locaux (développement uniquement)"}`);
     }));
 
-    // Chaque jour : purge du journal d'audit au-delà d'un an, puis sceau de la tête de la chaîne
+    // Chaque jour : effacement des preuves de plus de 5 ans (politique de confidentialité), purge du
+    // journal d'audit au-delà d'un an, puis sceau de la tête de la chaîne
     // dans le coffre des preuves (Object Lock 5 ans). Réécrire le journal en base se verrait alors
     // en comparant la chaîne avec ces sceaux.
     let lastSealedSeq = 0;
     const dailyAuditCare = async () => {
+        try {
+            const p = await store.purgeExpiredProofs();
+            if (p.telemetry || p.maintenance) {
+                console.log(`[Preuves] Plus de 5 ans, effacées de la base : ${p.telemetry} session(s) Boîte Noire, ${p.maintenance} intervention(s) de garage.`);
+            }
+        } catch (e) {
+            console.error("[Preuves] Effacement des preuves de plus de 5 ans impossible :", e.message);
+        }
         try {
             await store.purgeAudit();
             const all = [];
