@@ -43,6 +43,36 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://mon50ccetmoi.com/garage</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mon50ccetmoi.com/radar-danger</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mon50ccetmoi.com/code-de-la-route</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mon50ccetmoi.com/contrat-de-route</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mon50ccetmoi.com/beta</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://mon50ccetmoi.com/mentions-legales</loc>
     <lastmod>2026-07-31</lastmod>
     <changefreq>yearly</changefreq>
