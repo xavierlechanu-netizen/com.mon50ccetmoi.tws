@@ -1,0 +1,19 @@
+# mon 50cc et moi
+
+> Application gratuite, française, pour les conducteurs de scooters et cyclomoteurs 50 cc et de voitures sans permis (VSP) : GPS qui évite les autoroutes et voies rapides, vignette Crit'Air, zones à faibles émissions, dangers signalés par la communauté et alerte SOS aux proches.
+
+Née d'un voyage Bruges → Aurec-sur-Loire en 50 cc en juillet 2025. Données hébergées en France (OVHcloud), cartes et itinéraires de l'IGN.
+
+## Pour les conducteurs
+- [L'application](https://mon50ccetmoi.com/app): gratuite, sur le web et Android. Itinéraires interdits aux autoroutes et voies rapides (Code de la route, art. R421-2), durées calculées à 45 km/h.
+- [Radar des dangers](https://mon50ccetmoi.com/radar-danger): dangers signalés par les pilotes.
+- [Code de la route](https://mon50ccetmoi.com/code-de-la-route): révision du code pour 50 cc et VSP.
+- [Contrat de route](https://mon50ccetmoi.com/contrat-de-route): engagement mensuel de conduite prudente, qui rapporte des points.
+
+## Pour les garages
+- [Garages partenaires](https://mon50ccetmoi.com/garage): fiche sur la carte des pilotes, carnet d'entretien numérique et tableau de bord. Droit d'entrée de 50 € TTC payé une seule fois, sans abonnement.
+
+## Informations
+- [Mentions légales](https://mon50ccetmoi.com/mentions-legales)
+- [Conditions générales de vente](https://mon50ccetmoi.com/cgv)
+- [Confidentialité](https://mon50ccetmoi.com/privacy)
