@@ -7,7 +7,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const PAGES = ["cgv", "terms", "privacy", "mentions-legales", "cookies", "moderation"];
+const PAGES = ["cgv", "terms", "privacy", "mentions-legales", "cookies", "moderation", "banned"];
 const read = (p) => fs.readFileSync(path.join(__dirname, "../src", `${p}.html`), "utf8");
 
 describe("Pages légales fidèles au service réel", () => {
@@ -15,7 +15,7 @@ describe("Pages légales fidèles au service réel", () => {
     const html = read(p);
     expect(html).not.toMatch(/GitHub Pages/);
     expect(html).not.toMatch(/adresses? (IP )?(et )?MAC/i);
-    expect(html).not.toMatch(/en utilisant ses points mon50cc/);
+    expect(html).not.toMatch(/en utilisant (ses|vos) points mon50cc/);
     expect(html).not.toMatch(/sans intervention humaine/);
     expect(html).not.toMatch(/Sentinel Care|CCPA|PIPL|Indonésie|marque déposée/i);
     // Parrainage : personne n'est puni pour les actes d'un autre (clause abusive, C. conso. L. 212-1)

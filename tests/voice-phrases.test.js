@@ -67,7 +67,7 @@ describe("Voix de Nexus Atlas : dictionnaire intégré", () => {
   });
 
   test("l'inventaire trouve bien les phrases du site", () => {
-    expect(literals.length).toBeGreaterThan(120); // 149 après retrait du code mort (7/11/2026)
+    expect(literals.length).toBeGreaterThan(100); // 149 après retrait du code mort (7/11/2026), 119 sans l'ancien code garage (25/11/2026)
     expect(templates.length).toBeGreaterThan(12); // 14 après la fusion du convoi dans le cortège (24/11/2026)
   });
 

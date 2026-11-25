@@ -268,7 +268,8 @@ describe("Paiement confirmé : livré une seule fois, et seulement si Revolut le
     expect((await store.findUserById(PILOTE)).isCertifiedGarage).toBe(true);
 
     const s = await status(app, o.body.case_id);
-    expect(s.body).toMatchObject({ paid: true, status: "COMPLETED", report_type: "GARAGE_FEE", garage_activation: "manual" });
+    expect(s.body).toMatchObject({ paid: true, status: "COMPLETED", report_type: "GARAGE_FEE" });
+    expect(s.body.garage_activation).toBeUndefined();
 
     const invoices = await store.listInvoicesToIssue();
     expect(invoices).toHaveLength(1);
@@ -345,10 +346,7 @@ describe("Administrateur et RGPD", () => {
     const list = await call(app, "GET", "/api/v1/admin/payments", { auth: token(ADMIN, "admin") });
     expect(list.status).toBe(200);
     expect(list.body).toMatchObject({ configured: true, mode: "prod", openProducts: ["GARAGE_FEE", "POINTS_100"] });
-    expect(list.body.orders[0]).toMatchObject({ status: "COMPLETED", username: "Pilote", product: "GARAGE_FEE" });
-    expect(list.body.orders[0].todo).toMatch(/isCertifiedGarage/);
-
-    const csv = await call(app, "GET", "/api/v1/admin/payments/invoices.csv", { auth: token(ADMIN, "admin") });
+    expect(list.body.orders[0]).toMatchObject({ status: "COMPLETED", username: "Pilote", product: "GARAGE_FEE" });const csv = await call(app, "GET", "/api/v1/admin/payments/invoices.csv", { auth: token(ADMIN, "admin") });
     expect(csv.status).toBe(200);
     expect(csv.headers["content-type"]).toMatch(/text\/csv/);
     expect(csv.body).toContain("Droit d'entrée Garage Partenaire Certifié");
@@ -385,17 +383,21 @@ describe("Appli : les paiements suivent l'interrupteur (src/js/api-client.js)", 
   });
 
   test("la fenêtre Revolut s'ouvre dans l'environnement annoncé par le serveur (sandbox ou prod)", () => {
-    for (const f of ["app-features.js", "assureur.js", "blackbox-shop.js", "insurance-portal.js"]) {
+    for (const f of ["garage-dashboard.js", "assureur.js", "blackbox-shop.js", "insurance-portal.js"]) {
       const src = fs.readFileSync(path.join(__dirname, "..", "src", "js", f), "utf8");
       expect(src).not.toMatch(/RevolutCheckout\([^)]*,\s*"prod"\)/);
     }
   });
 
-  test("garage : plus d'ancien prix affiché (19,99 € / 49,99 €) différent de celui encaissé", () => {
-    const src = fs.readFileSync(path.join(__dirname, "..", "src", "js", "app-features.js"), "utf8");
-    const fn = src.slice(src.indexOf("window.payGarageEntryFee"), src.indexOf("window.applyPartnerExemption"))
-      .replace(/^\s*\/\/.*$/gm, ""); // les commentaires peuvent citer les anciens prix
-    expect(fn).not.toMatch(/19,99|49,99|amountCents = /);
+  test("garage : un seul prix, 50 € TTC, et le montant affiché au paiement est celui de la commande", () => {
+    const read = (f) => fs.readFileSync(path.join(__dirname, "..", "src", f), "utf8");
+    for (const f of ["garage.html", "garage-dashboard.html", "js/garage-pro.js", "js/garage-dashboard.js"]) {
+      expect([f, /19[,.]99|49[,.]99|à vie|Pionnier/i.test(read(f))]).toEqual([f, false]);
+    }
+    expect(read("garage.html")).toMatch(/50,00 € <span class="price-unit">TTC/);
+    const src = read("js/garage-dashboard.js");
+    const fn = src.slice(src.indexOf("async function payGarageEntryFee"), src.indexOf("async function logoutGarage"));
     expect(fn).toMatch(/orderData\.amount/);
+    expect(computeAmounts(getCatalogItem("GARAGE_FEE")).ttc_cents).toBe(5000);
   });
 });

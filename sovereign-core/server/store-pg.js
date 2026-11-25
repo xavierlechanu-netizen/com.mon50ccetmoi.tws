@@ -177,6 +177,12 @@ function createPgStore({ connectionString, pool } = {}) {
                 await client.query("DELETE FROM pilot_achievements WHERE user_uid = $1", [uid]);
                 await client.query("DELETE FROM pilot_profiles WHERE user_uid = $1", [uid]);
                 await client.query("DELETE FROM password_reset_tokens WHERE user_uid = $1", [uid]);
+                // Carnet et espace garage (migration 009) : les notes du pilote sont effacées ; les
+                // interventions scellées par un garage sont des preuves et restent (art. 17.3.e).
+                await client.query("DELETE FROM maintenance_logs WHERE pilot_uid = $1 AND garage_uid IS NULL", [uid]);
+                await client.query("DELETE FROM garage_clients WHERE pilot_uid = $1 OR garage_uid = $1", [uid]);
+                await client.query("DELETE FROM garage_access_codes WHERE pilot_uid = $1", [uid]);
+                await client.query("DELETE FROM garage_profiles WHERE user_uid = $1", [uid]);
                 // Texte libre des signalements (il peut identifier) : effacé ; le danger reste signalé
                 await client.query("UPDATE hazards SET description = '' WHERE user_uid = $1 AND description <> ''", [uid]);
                 await client.query("DELETE FROM hazard_votes WHERE user_uid = $1", [uid]);
@@ -226,6 +232,130 @@ function createPgStore({ connectionString, pool } = {}) {
             if (!UUID_RE.test(String(uid))) return null;
             const { rows: [p] } = await db.query("SELECT * FROM pilot_profiles WHERE user_uid = $1", [uid]);
             return p ? { brand: p.brand, model: p.model, department: p.department, ghostMode: p.ghost_mode, registeredAt: iso(p.registered_at) } : null;
+        },
+
+        // ─── Espace garage et carnet d'entretien (migration 009, garages.js) ─
+        async saveGarageProfile(uid, { name, address, phone = null, lat, lng }) {
+            await db.query(
+                `INSERT INTO garage_profiles (user_uid, name, address, phone, lat, lng) VALUES ($1, $2, $3, $4, $5, $6)
+                 ON CONFLICT (user_uid) DO UPDATE SET name = EXCLUDED.name, address = EXCLUDED.address,
+                   phone = EXCLUDED.phone, lat = EXCLUDED.lat, lng = EXCLUDED.lng, updated_at = NOW()`,
+                [uid, name, address, phone, lat, lng]
+            );
+        },
+
+        async getGarageProfile(uid) {
+            if (!UUID_RE.test(String(uid))) return null;
+            const { rows: [p] } = await db.query("SELECT name, address, phone, lat, lng FROM garage_profiles WHERE user_uid = $1", [uid]);
+            return p ? { name: p.name, address: p.address, phone: p.phone, lat: p.lat, lng: p.lng } : null;
+        },
+
+        async listCertifiedGarages() {
+            const { rows } = await db.query(
+                `SELECT g.name, g.address, g.phone, g.lat, g.lng FROM garage_profiles g JOIN users u ON u.uid = g.user_uid
+                  WHERE u.is_certified_garage AND u.deleted_at IS NULL AND u.is_banned IS NOT TRUE ORDER BY g.name`
+            );
+            return rows.map((p) => ({ name: p.name, address: p.address, phone: p.phone, lat: p.lat, lng: p.lng }));
+        },
+
+        /** Faux si ce code est déjà pris par un autre pilote (le service en tire un autre). */
+        async saveGarageCode({ pilotUid, codeHash, km = null, expiresAt }) {
+            try {
+                await db.query(
+                    `INSERT INTO garage_access_codes (pilot_uid, code_hash, km, expires_at) VALUES ($1, $2, $3, $4)
+                     ON CONFLICT (pilot_uid) DO UPDATE SET code_hash = EXCLUDED.code_hash, km = EXCLUDED.km, expires_at = EXCLUDED.expires_at`,
+                    [pilotUid, codeHash, km, expiresAt]
+                );
+                return true;
+            } catch (e) {
+                if (e.code === "23505") return false;
+                throw e;
+            }
+        },
+
+        async consumeGarageCode(codeHash) {
+            const { rows: [c] } = await db.query(
+                `WITH c AS (DELETE FROM garage_access_codes WHERE code_hash = $1 RETURNING pilot_uid, km, expires_at)
+                 SELECT c.pilot_uid, c.km FROM c JOIN users u ON u.uid = c.pilot_uid
+                  WHERE c.expires_at > NOW() AND u.deleted_at IS NULL`,
+                [codeHash]
+            );
+            return c ? { pilotUid: c.pilot_uid, km: c.km } : null;
+        },
+
+        async linkGarageClient({ garageUid, pilotUid, km = null }) {
+            await db.query(
+                `INSERT INTO garage_clients (garage_uid, pilot_uid, km) VALUES ($1, $2, $3)
+                 ON CONFLICT (garage_uid, pilot_uid) DO UPDATE SET km = GREATEST(garage_clients.km, EXCLUDED.km)`,
+                [garageUid, pilotUid, km]
+            );
+        },
+
+        async unlinkGarageClient(garageUid, pilotUid) {
+            if (!UUID_RE.test(String(garageUid)) || !UUID_RE.test(String(pilotUid))) return false;
+            const { rowCount } = await db.query("DELETE FROM garage_clients WHERE garage_uid = $1 AND pilot_uid = $2", [garageUid, pilotUid]);
+            return rowCount === 1;
+        },
+
+        async isGarageClient(garageUid, pilotUid) {
+            if (!UUID_RE.test(String(garageUid)) || !UUID_RE.test(String(pilotUid))) return false;
+            const { rowCount } = await db.query("SELECT 1 FROM garage_clients WHERE garage_uid = $1 AND pilot_uid = $2", [garageUid, pilotUid]);
+            return rowCount === 1;
+        },
+
+        async listGarageClients(garageUid) {
+            const { rows } = await db.query(
+                `SELECT c.pilot_uid, u.username, p.brand, p.model, c.km, c.linked_at FROM garage_clients c
+                   JOIN users u ON u.uid = c.pilot_uid LEFT JOIN pilot_profiles p ON p.user_uid = c.pilot_uid
+                  WHERE c.garage_uid = $1 AND u.deleted_at IS NULL ORDER BY c.linked_at DESC`,
+                [garageUid]
+            );
+            return rows.map((r) => ({ pilotUid: r.pilot_uid, username: r.username, brand: r.brand, model: r.model,
+                km: r.km, linkedAt: iso(r.linked_at) }));
+        },
+
+        async listPilotGarages(pilotUid) {
+            const { rows } = await db.query(
+                `SELECT c.garage_uid, g.name, c.linked_at FROM garage_clients c LEFT JOIN garage_profiles g ON g.user_uid = c.garage_uid
+                  WHERE c.pilot_uid = $1 ORDER BY c.linked_at`,
+                [pilotUid]
+            );
+            return rows.map((r) => ({ garageId: r.garage_uid, name: r.name || "Garage", linkedAt: iso(r.linked_at) }));
+        },
+
+        async addMaintenanceLog({ pilotUid, garageUid = null, category, description = "", km = null, wormStoragePath = null, wormSha256Hex = null }) {
+            const { rows: [m] } = await db.query(
+                `INSERT INTO maintenance_logs (pilot_uid, garage_uid, category, description, km, worm_storage_path, worm_sha256_hex)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, created_at`,
+                [pilotUid, garageUid, category, description, km, wormStoragePath, wormSha256Hex]
+            );
+            if (garageUid && Number.isInteger(km)) await this.linkGarageClient({ garageUid, pilotUid, km });
+            return { id: Number(m.id), category, description, km, createdAt: iso(m.created_at), certified: Boolean(garageUid),
+                proofSha256: wormSha256Hex };
+        },
+
+        async listMaintenanceByPilot(pilotUid, limit = 100) {
+            if (!UUID_RE.test(String(pilotUid))) return [];
+            const { rows } = await db.query(
+                `SELECT m.id, m.category, m.description, m.km, m.created_at, m.garage_uid, m.worm_sha256_hex, g.name AS garage_name
+                   FROM maintenance_logs m LEFT JOIN garage_profiles g ON g.user_uid = m.garage_uid
+                  WHERE m.pilot_uid = $1 ORDER BY m.created_at DESC, m.id DESC LIMIT $2`,
+                [pilotUid, limit]
+            );
+            return rows.map((r) => ({ id: Number(r.id), category: r.category, description: r.description, km: r.km,
+                createdAt: iso(r.created_at), certified: Boolean(r.garage_uid), garageName: r.garage_uid ? (r.garage_name || "Garage") : null,
+                proofSha256: r.worm_sha256_hex || null }));
+        },
+
+        async listMaintenanceByGarage(garageUid, limit = 200) {
+            const { rows } = await db.query(
+                `SELECT m.id, m.pilot_uid, u.username, m.category, m.description, m.km, m.created_at
+                   FROM maintenance_logs m JOIN users u ON u.uid = m.pilot_uid
+                  WHERE m.garage_uid = $1 AND u.deleted_at IS NULL ORDER BY m.created_at DESC, m.id DESC LIMIT $2`,
+                [garageUid, limit]
+            );
+            return rows.map((r) => ({ id: Number(r.id), pilotUid: r.pilot_uid, clientName: r.username, category: r.category,
+                description: r.description, km: r.km, createdAt: iso(r.created_at) }));
         },
 
         /** Badge personnel, avec un trajet déclaré facultatif. Faux s'il était déjà attribué. */
@@ -314,6 +444,9 @@ function createPgStore({ connectionString, pool } = {}) {
                     ({ caseId, product, amountCents, currency, status, createdAt, completedAt })),
                 achievements,
                 profile,
+                maintenance: await this.listMaintenanceByPilot(uid, 10000),
+                garagesAuthorized: await this.listPilotGarages(uid),
+                garageProfile: await this.getGarageProfile(uid),
             };
         },
 

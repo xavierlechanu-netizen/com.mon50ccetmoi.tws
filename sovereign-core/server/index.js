@@ -36,6 +36,7 @@ const { vigilanceServiceFromEnv } = require("./meteo-vigilance");
 const { AUDIT_ACTIONS, verifyAuditChain } = require("./audit-log");
 const { revolutClientFromEnv } = require("./revolut-merchant");
 const { createPaymentsService, openProductsFromEnv, PaymentError } = require("./payments");
+const { createGaragesService, GarageError } = require("./garages");
 const { invoicesToCsv } = require("../../functions/api/invoicing");
 const { createNexusBrain, llmFromEnv } = require("./nexus-brain");
 const { createNexusVerifier } = require("./nexus-verifier");
@@ -237,6 +238,19 @@ function createSovereignApp(options = {}) {
     const nexusVerifier = createNexusVerifier({ store, brain: nexusBrain });
     const nexusLimit = { maxAttempts: 20, windowMs: 10 * 60 * 1000, hits: new Map() };
     const NEXUS_DECISIONS = { valider: "valide", corriger: "valide", refuser: "refuse" };
+
+    // Espace garage et carnet d'entretien (garages.js). Codes d'accord : 10 essais par heure et par garage.
+    const garages = createGaragesService({ store, wormVault });
+    const garageCodeLimit = { maxAttempts: 10, windowMs: 60 * 60 * 1000, hits: new Map() };
+    const GARAGE_ROUTES = {
+        "GET /api/v1/garages": (u) => garages.publicList(u),
+        "GET /api/v1/garage/dashboard": (u) => garages.dashboard(u),
+        "PATCH /api/v1/garage/profile": (u, body) => garages.saveProfile(u, body),
+        "POST /api/v1/garage/clients": (u, body) => garages.linkClient(u, body),
+        "POST /api/v1/garage/maintenance": (u, body) => garages.addGarageLog(u, body),
+        "GET /api/v1/maintenance": (u) => garages.pilotCarnet(u),"POST /api/v1/maintenance/code": (u, body) => garages.createCode(u, body),
+        "DELETE /api/v1/maintenance/garages": (u, body, url) => garages.revokeGarage(u, url.searchParams.get("garage")),
+    };
 
     function sendPaymentError(res, e) {
         if (!(e instanceof PaymentError)) throw e;
@@ -1111,6 +1125,28 @@ function createSovereignApp(options = {}) {
             }
             res.statusCode = 200;
             res.end(JSON.stringify({ profile }));
+            return;
+        }
+
+        // 4d quinquies. ESPACE GARAGE ET CARNET D'ENTRETIEN (garages.js). Seule la carte des garages
+        // certifiés est publique ; tout le reste demande d'être connecté.
+        const garageRoute = GARAGE_ROUTES[`${req.method} ${pathname}`];
+        if (garageRoute) {
+            const authUser = extractBearerUser(req);
+            if (pathname === "/api/v1/garage/clients" && authUser && isRateLimited(`garage-code:${authUser.uid}`, garageCodeLimit)) {
+                rejectTooManyAttempts(res, garageCodeLimit);
+                return;
+            }
+            try {
+                const result = await garageRoute(authUser, body || {}, url);
+                res.statusCode = 200;
+                if (pathname === "/api/v1/garages") res.setHeader("Cache-Control", "public, max-age=300");
+                res.end(JSON.stringify(result));
+            } catch (e) {
+                if (!(e instanceof GarageError)) throw e;
+                res.statusCode = e.status;
+                res.end(JSON.stringify({ error: e.message }));
+            }
             return;
         }
 

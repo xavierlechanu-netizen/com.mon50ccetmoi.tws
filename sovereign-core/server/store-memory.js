@@ -35,6 +35,13 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
     const passwordResets = new Map(); // empreinte du lien → { uid, expiresAt } (migration 005)
     const profiles = new Map(); // uid → profil du pilote (migration 006)
     const achievements = new Map(); // `${uid}|${code}` → badge personnel (migration 004)
+    // Espace garage et carnet d'entretien (migration 009, garages.js)
+    const garageProfiles = new Map(); // uid du garage → fiche
+    const garageCodes = new Map(); // empreinte du code → { pilotUid, km, expiresAt }
+    const garageClients = new Map(); // `${garageUid}|${pilotUid}` → { garageUid, pilotUid, km, linkedAt }
+    const maintenance = [];
+    let maintenanceSeq = 0;
+    const activeUser = (uid) => { const u = usersById.get(uid); return u && !u.deletedAt ? u : null; };
 
     // Utilisateurs pré-enregistrés (tests) : [{ uid, email?, username?, role? }]
     for (const u of users) {
@@ -123,7 +130,101 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             for (const [k, a] of achievements) if (a.uid === uid) achievements.delete(k);
             profiles.delete(uid);
             for (const [k, r] of passwordResets) if (r.uid === uid) passwordResets.delete(k);
+            // Carnet et espace garage (store-pg.js, même règle)
+            garageProfiles.delete(uid);
+            for (const [k, c] of garageCodes) if (c.pilotUid === uid) garageCodes.delete(k);
+            for (const [k, c] of garageClients) if (c.pilotUid === uid || c.garageUid === uid) garageClients.delete(k);
+            // Interventions scellées par un garage : des preuves, gardées (art. 17.3.e)
+            for (let i = maintenance.length - 1; i >= 0; i--) {
+                if (maintenance[i].pilotUid === uid && !maintenance[i].garageUid) maintenance.splice(i, 1);
+            }
             return true;
+        },
+
+        // ─── Espace garage et carnet d'entretien (migration 009) ────────────
+        async saveGarageProfile(uid, { name, address, phone = null, lat, lng }) {
+            garageProfiles.set(uid, { name, address, phone, lat, lng });
+        },
+
+        async getGarageProfile(uid) {
+            const p = garageProfiles.get(uid);
+            return p ? { ...p } : null;
+        },
+
+        async listCertifiedGarages() {
+            return [...garageProfiles.entries()]
+                .filter(([uid]) => { const u = activeUser(uid); return u && u.isCertifiedGarage && !u.isBanned; })
+                .map(([, p]) => ({ ...p }))
+                .sort((a, b) => a.name.localeCompare(b.name));
+        },
+
+        /** Faux si ce code est déjà pris par un autre pilote (le service en tire un autre). */
+        async saveGarageCode({ pilotUid, codeHash, km = null, expiresAt }) {
+            const other = garageCodes.get(codeHash);
+            if (other && other.pilotUid !== pilotUid) return false;
+            for (const [k, c] of garageCodes) if (c.pilotUid === pilotUid) garageCodes.delete(k);
+            garageCodes.set(codeHash, { pilotUid, km, expiresAt });
+            return true;
+        },
+
+        async consumeGarageCode(codeHash) {
+            const c = garageCodes.get(codeHash);
+            garageCodes.delete(codeHash);
+            return c && Date.parse(c.expiresAt) > Date.now() && activeUser(c.pilotUid)
+                ? { pilotUid: c.pilotUid, km: c.km } : null;
+        },
+
+        async linkGarageClient({ garageUid, pilotUid, km = null }) {
+            const key = `${garageUid}|${pilotUid}`;
+            const old = garageClients.get(key);
+            const best = [old && old.km, km].filter((x) => Number.isInteger(x));
+            garageClients.set(key, { garageUid, pilotUid, km: best.length ? Math.max(...best) : null,
+                linkedAt: old ? old.linkedAt : new Date().toISOString() });
+        },
+
+        async unlinkGarageClient(garageUid, pilotUid) {
+            return garageClients.delete(`${garageUid}|${pilotUid}`);
+        },
+
+        async isGarageClient(garageUid, pilotUid) {
+            return garageClients.has(`${garageUid}|${pilotUid}`);
+        },
+
+        async listGarageClients(garageUid) {
+            return [...garageClients.values()].filter((c) => c.garageUid === garageUid && activeUser(c.pilotUid))
+                .map((c) => {
+                    const p = profiles.get(c.pilotUid) || {};
+                    return { pilotUid: c.pilotUid, username: activeUser(c.pilotUid).username, brand: p.brand || null,
+                        model: p.model || null, km: c.km, linkedAt: c.linkedAt };
+                });
+        },
+
+        async listPilotGarages(pilotUid) {
+            return [...garageClients.values()].filter((c) => c.pilotUid === pilotUid)
+                .map((c) => ({ garageId: c.garageUid, name: (garageProfiles.get(c.garageUid) || {}).name || "Garage", linkedAt: c.linkedAt }));
+        },
+
+        async addMaintenanceLog({ pilotUid, garageUid = null, category, description = "", km = null, wormStoragePath = null, wormSha256Hex = null }) {
+            if (garageUid && !(wormStoragePath && wormSha256Hex)) throw new Error("Intervention de garage sans preuve scellée");
+            const log = { id: ++maintenanceSeq, pilotUid, garageUid, category, description, km, wormStoragePath, wormSha256Hex,
+                createdAt: new Date().toISOString() };
+            maintenance.push(log);
+            if (garageUid && Number.isInteger(km)) await this.linkGarageClient({ garageUid, pilotUid, km });
+            return { id: log.id, category, description, km, createdAt: log.createdAt, certified: Boolean(garageUid), proofSha256: wormSha256Hex };
+        },
+
+        async listMaintenanceByPilot(pilotUid, limit = 100) {
+            return maintenance.filter((m) => m.pilotUid === pilotUid).reverse().slice(0, limit)
+                .map((m) => ({ id: m.id, category: m.category, description: m.description, km: m.km, createdAt: m.createdAt,
+                    certified: Boolean(m.garageUid),
+                    garageName: m.garageUid ? ((garageProfiles.get(m.garageUid) || {}).name || "Garage") : null,
+                    proofSha256: m.wormSha256Hex }));
+        },
+
+        async listMaintenanceByGarage(garageUid, limit = 200) {
+            return maintenance.filter((m) => m.garageUid === garageUid && activeUser(m.pilotUid)).reverse().slice(0, limit)
+                .map((m) => ({ id: m.id, pilotUid: m.pilotUid, clientName: activeUser(m.pilotUid).username,
+                    category: m.category, description: m.description, km: m.km, createdAt: m.createdAt }));
         },
 
         async saveProfile(uid, { brand = null, model = null, department = null, ghostMode = false, registeredAt = null }) {
@@ -202,6 +303,9 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
                         ({ caseId, product, amountCents, currency, status, createdAt, completedAt })),
                 achievements: await this.listAchievements(uid),
                 profile: await this.getProfile(uid),
+                maintenance: await this.listMaintenanceByPilot(uid, 10000),
+                garagesAuthorized: await this.listPilotGarages(uid),
+                garageProfile: await this.getGarageProfile(uid),
             };
         },
 

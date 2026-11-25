@@ -1,6 +1,6 @@
-import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
-import { escapeHtml } from './html-escape.js';
+import { escapeHtml, safeId } from './html-escape.js';
+import { sovereignRequest } from './sovereign.js';
 
 /**
  * 🏍️ GARAGE VIRTUEL
@@ -174,76 +174,87 @@ document.addEventListener("DOMContentLoaded", () => {
   VirtualGarage.init();
 });
 
+/**
+ * Carnet d'entretien du pilote (serveur souverain, sovereign-core/server/garages.js, 25/11/2026).
+ * Le pilote donne accès à son garage en lui montrant un code à 6 chiffres (15 minutes) et peut
+ * retirer cet accès ; les interventions scellées par le garage restent dans son carnet.
+ */
+const card = (inner, color = "#333") =>
+  `<div style="text-align:center; padding:20px; color:#aaa; border:1px dashed ${color}; border-radius:10px; font-size:0.9rem;">${inner}</div>`;
+
 window.GarageClient = {
-  loadMaintenanceLogs: async function() {
+  loadMaintenanceLogs: async function () {
     const container = document.getElementById('maintenance-logs-container');
     if (!container) return;
-
-    // Carnet d'entretien en pause (collection vide, CONFIG.COLLECTIONS_EN_PAUSE)
-    if ((window.CONFIG?.COLLECTIONS_EN_PAUSE || []).includes('maintenance_logs')) {
-      container.textContent = "Carnet d'entretien : bientôt disponible.";
-      return;
-    }
-
-    if (typeof firebase === 'undefined' || !firebase.auth().currentUser || typeof db === 'undefined') {
-      // eslint-disable-next-line no-restricted-syntax
-container.innerHTML = `
-        <div style="text-align:center; padding:20px; color:#ff3333; border:1px dashed #333; border-radius:10px; font-size:0.9rem;">
-          <i class="fa-solid fa-triangle-exclamation"></i> Connexion requise pour consulter votre carnet d'entretien.
-        </div>
-      `;
-      return;
-    }
-
+    let data;
     try {
-      const uid = firebase.auth().currentUser.uid;
-      const snapshot = await db.collection('maintenance_logs')
-                               .where('vehicleOwnerUid', '==', uid)
-                               .orderBy('timestamp', 'desc')
-                               .get();
-
-      if (snapshot.empty) {
-        // eslint-disable-next-line no-restricted-syntax
-container.innerHTML = `
-          <div style="text-align:center; padding:20px; color:#888; border:1px dashed #333; border-radius:10px; font-size:0.9rem;">
-            Aucun entretien certifié n'a encore été scellé pour votre véhicule.
-          </div>
-        `;
-        return;
-      }
-
-      let html = '';
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const dateStr = data.timestamp ? data.timestamp.toDate().toLocaleDateString('fr-FR') : 'Date inconnue';
-        
-        html += `
-          <div style="background: rgba(255,255,255,0.05); border: 1px solid ${data.certified ? '#00ff88' : '#333'}; border-radius: 10px; padding: 15px; position:relative;">
-            ${data.certified ? '<div style="position:absolute; top:-10px; right:10px; background:#00ff88; color:#000; font-weight:bold; font-size:0.6rem; padding:3px 8px; border-radius:10px; text-transform:uppercase;"><i class="fa-solid fa-check-circle"></i> Certifié</div>' : ''}
-            <div style="color: #aaa; font-size: 0.8rem; margin-bottom: 5px;">
-              <i class="fa-regular fa-calendar"></i> ${dateStr} &nbsp;&nbsp;|&nbsp;&nbsp; 
-              <i class="fa-solid fa-gauge-high"></i> ${escapeHtml(data.mileage)} km
-            </div>
-            <strong style="color: #fff; font-size: 1rem; display:block; margin-bottom: 5px;">${escapeHtml(data.category)}</strong>
-            <p style="color: #ccc; font-size: 0.85rem; line-height: 1.4; margin: 0;">${escapeHtml(data.description)}</p>
-          </div>
-        `;
-      });
-      // eslint-disable-next-line no-restricted-syntax
-container.innerHTML = html;
-
+      data = await sovereignRequest('/maintenance', { method: 'GET' });
     } catch (e) {
-      console.error("Erreur de récupération du carnet", e);
       // eslint-disable-next-line no-restricted-syntax
-container.innerHTML = `
-        <div style="text-align:center; padding:20px; color:#ff3333; border:1px dashed #333; border-radius:10px; font-size:0.9rem;">
-          <i class="fa-solid fa-triangle-exclamation"></i> Impossible de synchroniser avec la base de données.
-        </div>
-      `;
+      container.innerHTML = card(e && e.status === 401
+        ? '<i class="fa-solid fa-triangle-exclamation"></i> Connectez-vous pour consulter votre carnet d\'entretien.'
+        : '<i class="fa-solid fa-triangle-exclamation"></i> Carnet indisponible pour le moment.', '#ff3333');
+      return;
+    }
+
+    let html = `<button data-action="GarageClient.giveAccess()" style="background:#00ff88; color:#000; font-weight:bold; border:none; border-radius:8px; padding:10px; cursor:pointer;">
+        <i class="fa-solid fa-key"></i> Donner accès à mon garage</button>
+      <div id="garage-access-code" role="status" aria-live="polite"></div>`;
+
+    for (const g of data.garages) {
+      const id = safeId(g.garageId);
+      if (!id) continue;
+      html += `<div style="display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:0.85rem; color:#ccc;">
+          <span><i class="fa-solid fa-wrench"></i> ${escapeHtml(g.name)} a accès à votre carnet</span>
+          <button data-action="GarageClient.revoke('${id}')" style="background:transparent; border:1px solid #ff4d4d; color:#ff4d4d; border-radius:5px; padding:4px 8px; cursor:pointer;">Retirer</button>
+        </div>`;
+    }
+
+    if (data.logs.length === 0) {
+      html += card("Aucun entretien noté pour l'instant.");
+    }
+    for (const log of data.logs) {
+      html += `
+          <div style="background: rgba(255,255,255,0.05); border: 1px solid ${log.certified ? '#00ff88' : '#333'}; border-radius: 10px; padding: 15px; position:relative;">
+            ${log.certified ? `<div style="position:absolute; top:-10px; right:10px; background:#00ff88; color:#000; font-weight:bold; font-size:0.6rem; padding:3px 8px; border-radius:10px; text-transform:uppercase;"><i class="fa-solid fa-check-circle"></i> ${escapeHtml(log.garageName)}</div>` : ''}
+            <div style="color: #aaa; font-size: 0.8rem; margin-bottom: 5px;">
+              <i class="fa-regular fa-calendar"></i> ${escapeHtml(new Date(log.createdAt).toLocaleDateString('fr-FR'))}
+              ${log.km === null ? '' : `&nbsp;|&nbsp; <i class="fa-solid fa-gauge-high"></i> ${escapeHtml(log.km.toLocaleString('fr-FR'))} km`}
+            </div>
+            <strong style="color: #fff; font-size: 1rem; display:block; margin-bottom: 5px;">${escapeHtml(log.category)}</strong>
+            <p style="color: #ccc; font-size: 0.85rem; line-height: 1.4; margin: 0;">${escapeHtml(log.description)}</p>
+          </div>`;
+    }
+    // eslint-disable-next-line no-restricted-syntax
+    container.innerHTML = html;
+  },
+
+  /** Code à montrer au garage ; le kilométrage au compteur sert à ses rappels d'entretien. */
+  giveAccess: async function () {
+    const answer = prompt("Votre garage pourra noter ses interventions dans votre carnet. Chacune est gardée 5 ans comme preuve : elle ne pourra plus être modifiée ni effacée, même si vous supprimez votre compte.\n\nKilométrage au compteur (facultatif, pour les rappels d'entretien) :", "");
+    if (answer === null) return;
+    const km = answer.replace(/\s/g, "");
+    try {
+      const res = await sovereignRequest('/maintenance/code', { method: 'POST', body: { km: km === "" ? null : Number(km) } });
+      const box = document.getElementById('garage-access-code');
+      if (box) {
+        box.textContent = `Code pour votre garage : ${res.code} (valable 15 minutes, une seule fois). Il pourra noter ses interventions dans votre carnet.`;
+      }
+    } catch (e) {
+      alert(e?.message || "Code indisponible pour le moment.");
     }
   },
 
-  generatePDF: function() {
-    alert("🖨️ Génération du PDF en cours...\n(Fonctionnalité simulée : ce bouton compilera prochainement vos certificats d'entretien sous forme d'un document officiel pour la revente).");
-  }
+  revoke: async function (garageId) {
+    if (!confirm("Retirer l'accès de ce garage à votre carnet ? Les interventions déjà notées restent dans votre carnet.")) return;
+    try {
+      await sovereignRequest(`/maintenance/garages?garage=${encodeURIComponent(garageId)}`, { method: 'DELETE' });
+    } catch (e) {
+      alert(e?.message || "Accès non retiré.");
+    }
+    await this.loadMaintenanceLogs();
+  },
 };
+
+registerAction('GarageClient.giveAccess', () => window.GarageClient.giveAccess());
+registerAction('GarageClient.revoke', (id) => window.GarageClient.revoke(id));

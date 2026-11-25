@@ -624,4 +624,46 @@ describe("Serveur souverain sur PostgreSQL", () => {
     // Le statut (stock, vendu, activé…) reste modifiable : seul le lien est figé
     await pool.query("UPDATE blackbox_units SET status = 'SOLD' WHERE serial = $1", [ra.body.serial]);
   });
+  test("espace garage et carnet d'entretien : accord du pilote, carte, effacement RGPD", async () => {
+    // Comptes créés en base (la route d'inscription est limitée par adresse IP, déjà utilisée plus haut)
+    const reg = async (username) => (await createPgStore({ pool }).createUser({
+      uid: crypto.randomUUID(), email: `${username.toLowerCase()}@example.com`, username, passwordHash: "!" })).uid;
+    const pilote = await reg("CarnetPG");
+    const garage = await reg("GaragePG");
+    await pool.query("UPDATE users SET is_certified_garage = TRUE WHERE uid = $1", [garage]);
+    const auth = (uid) => ({ Authorization: `Bearer ${signSovereignJwt({ uid, role: "user", username: "x" })}` });
+
+    const fiche = { name: "Garage PG", address: "1 rue du Test, 43110 Aurec-sur-Loire", phone: null, lat: 45.37, lng: 4.2 };
+    expect((await call(app, "PATCH", "/api/v1/garage/profile", fiche, auth(pilote))).status).toBe(403);
+    expect((await call(app, "PATCH", "/api/v1/garage/profile", fiche, auth(garage))).status).toBe(200);
+    expect((await call(app, "GET", "/api/v1/garages")).body.garages).toContainEqual(fiche);
+
+    const code = (await call(app, "POST", "/api/v1/maintenance/code", { km: 5000 }, auth(pilote))).body.code;
+    expect((await call(app, "POST", "/api/v1/garage/clients", { code }, auth(garage))).body.client)
+      .toMatchObject({ pilotUid: pilote, username: "CarnetPG", km: 5000 });
+    expect((await call(app, "POST", "/api/v1/garage/clients", { code }, auth(garage))).status).toBe(404);
+    expect((await call(app, "POST", "/api/v1/garage/maintenance",
+      { pilotUid: pilote, category: "Pneus", description: "Avant", km: 5200 }, auth(garage))).status).toBe(200);    await createPgStore({ pool }).addMaintenanceLog({ pilotUid: pilote, category: "Vidange", km: 5300 });
+const carnet = (await call(app, "GET", "/api/v1/maintenance", null, auth(pilote))).body;
+    expect(carnet.logs.map((l) => [l.category, l.certified, l.garageName])).toEqual([["Vidange", false, null], ["Pneus", true, "Garage PG"]]);
+    const tableau = (await call(app, "GET", "/api/v1/garage/dashboard", null, auth(garage))).body;
+    expect(tableau.clients[0].km).toBe(5200);
+    expect(tableau.logs).toHaveLength(1);
+
+    const store = createPgStore({ pool });
+    expect((await store.exportUserData(pilote)).maintenance).toHaveLength(2);
+    // Intervention du garage = preuve : scellée dans le coffre, ni modifiable ni effaçable en SQL
+    const { rows: [scellee] } = await pool.query(
+      "SELECT id, worm_storage_path, worm_sha256_hex FROM maintenance_logs WHERE pilot_uid = $1 AND garage_uid IS NOT NULL", [pilote]);
+    expect(scellee.worm_storage_path).toMatch(/^worm:\/\//);
+    expect(scellee.worm_sha256_hex).toMatch(/^[0-9a-f]{64}$/);
+    await expect(pool.query("UPDATE maintenance_logs SET description = 'x' WHERE id = $1", [scellee.id])).rejects.toThrow(/scellée/);
+    await expect(pool.query("DELETE FROM maintenance_logs WHERE id = $1", [scellee.id])).rejects.toThrow(/scellée/);
+
+    // Compte supprimé : la note du pilote part, la preuve reste (identifiant devenu anonyme)
+    await store.anonymizeUser(pilote);
+    const { rows } = await pool.query("SELECT category FROM maintenance_logs WHERE pilot_uid = $1", [pilote]);
+    expect(rows.map((r) => r.category)).toEqual(["Pneus"]);
+    expect((await call(app, "GET", "/api/v1/garage/dashboard", null, auth(garage))).body.clients).toEqual([]);
+  });
 });

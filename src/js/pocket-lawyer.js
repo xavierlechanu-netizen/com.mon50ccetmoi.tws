@@ -586,75 +586,19 @@ tempDiv.innerHTML = htmlContent;
   },
 
   /**
-   * Recours et demande de réexamen d'un bannissement temporaire pour vérification humaine
-   * L'utilisateur utilise 5 points mon50cc. Si la sanction est annulée, levée immédiate + 50 points mon50cc de compensation.
+   * Recours contre une sanction : gratuit, réexaminé par une personne (DSA art. 20, CGU art. 8).
+   * Par e-mail : la demande dans l'appli s'enregistrait dans Firebase, fermé le 24/11/2026.
    */
-  appealBan: async function () {
-    const uid = (window.session && window.session.uid) ? window.session.uid : (typeof firebase !== "undefined" && firebase.auth ? firebase.auth().currentUser?.uid : null);
-    if (!uid) {
-      alert("Veuillez vous connecter pour introduire un recours.");
-      return;
-    }
-
-    const mod = window.Moderation;
-    const banStatus = mod ? mod.getBanStatus(uid) : { isBanned: false, isTempBanned: false, tempBansCount: 0 };
-
-    if (!banStatus.isBanned && !banStatus.isTempBanned && banStatus.tempBansCount === 0) {
-      this.addBotMessage(
-        "⚖️ <strong>Aucune sanction active</strong> détectée sur votre compte.<br>Votre dossier est vierge ou votre sanction a déjà été purgée ou levée."
-      );
-      return;
-    }
-
-    const cost = 5;
-    const userBalance = window.BVCManager ? window.BVCManager.balance : 0;
-    if (userBalance < cost) {
-      alert(`Points mon50cc insuffisants ! Vous avez besoin de ${cost} points mon50cc pour demander une vérification humaine.`);
-      return;
-    }
-
-    const proceed = confirm(
-      `Demander une vérification humaine pour contester un bannissement utilise ${cost} points mon50cc.\n\n` +
-      `Si la sanction est ensuite annulée après réexamen :\n` +
-      `• Votre interdiction sera levée immédiatement\n` +
-      `• Votre compteur de sanctions sera réinitialisé à zéro\n` +
-      `• Vous recevrez 50 points mon50cc en guise de compensation !\n\n` +
-      `Voulez-vous continuer ?`
+  appealBan: function () {
+    const pseudo = (window.session && window.session.username) || "";
+    const sujet = "Recours contre une sanction" + (pseudo ? " - " + pseudo : "");
+    const corps = `Pseudo : ${pseudo}\nSanction contestée (date, espace) :\nPourquoi je la conteste :\n`;
+    const lien = `mailto:contact@mon50ccetmoi.com?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
+    this.addBotMessage(
+      `⚖️ <strong>Le recours est gratuit.</strong> Vous avez 6 mois après la sanction pour le demander ; une personne la réexamine.<br><br>` +
+      `<a href="${lien}" style="color:#ffaa00;font-weight:bold;">✉️ Écrire à contact@mon50ccetmoi.com</a><br><br>` +
+      `Si la sanction est annulée : interdiction levée, compteur de sanctions remis à zéro et 50 points mon50cc de compensation.`
     );
-    if (!proceed) return;
-
-    const reason = prompt(
-      "Contestation de sanction (Vérification Humaine)\n\nExpliquez les raisons pour lesquelles vous demandez le réexamen de votre sanction (ex: malentendu, citation, compte partagé) :"
-    );
-    if (!reason || !reason.trim()) return;
-
-    const details = prompt(
-      "Informations ou preuves complémentaires (optionnel) :"
-    ) || "";
-
-    const result = mod ? await mod.requestAppeal(uid, reason.trim(), details.trim(), cost) : { success: false, error: "Module de modération indisponible" };
-
-    if (result.success) {
-      // Points retirés seulement une fois la demande enregistrée
-      const paid = window.BVCManager && typeof window.BVCManager.deduct === "function"
-        ? await window.BVCManager.deduct(cost)
-        : false;
-      this.addBotMessage(
-        `⚖️ <strong>Demande de réexamen transmise avec succès !</strong><br><br>` +
-        `Votre dossier a été transmis à l'équipe de modération pour <strong>vérification humaine</strong>${paid ? ` (${cost} points mon50cc utilisés)` : ""}.<br><br>` +
-        `<div style="background: rgba(0,230,118,0.1); border-left: 3px solid #00e676; padding: 12px; border-radius: 8px; margin-top: 8px;">` +
-        `<strong>Règle formelle appliquée :</strong><br>` +
-        `Si la sanction est ensuite annulée après réexamen :<br>` +
-        `• Votre interdiction sera <strong>levée immédiatement</strong>.<br>` +
-        `• Votre compteur de sanctions sera <strong>réinitialisé à zéro (0)</strong>.<br>` +
-        `• Vous recevrez <strong>cinquante (50) points mon50cc</strong> en guise de compensation.` +
-        `</div>`
-      );
-    } else {
-      this.addBotMessage(
-        `⚠️ <em>${result.error || "Une erreur est survenue lors de l'enregistrement de votre demande."}</em>`
-      );
-    }
   }
 };
 

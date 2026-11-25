@@ -24,36 +24,14 @@ describe("Points jamais perdus", () => {
     }
   });
 
-  describe("recours contre une sanction", () => {
-    let calls, lawyer;
-    const setup = (success) => {
-      calls = [];
-      window.session = { uid: "pilote", username: "Pilote" };
-      window.confirm = () => true;
-      window.prompt = () => "Malentendu";
-      window.BVCManager = { balance: 10, deduct: jest.fn(async () => { calls.push("retrait"); return true; }) };
-      window.Moderation = {
-        getBanStatus: () => ({ isBanned: false, isTempBanned: true, tempBansCount: 1 }),
-        requestAppeal: jest.fn(async () => {
-          calls.push("demande");
-          return success ? { success: true } : { success: false, error: "Demande non enregistrée" };
-        }),
-      };
-      lawyer = loadLawyer();
-    };
-
-    test("demande refusée : aucun point retiré, et le pilote le voit", async () => {
-      setup(false);
-      await lawyer.appealBan();
-      expect(calls).toEqual(["demande"]);
-      expect(lawyer.messages.join(" ")).toContain("Demande non enregistrée");
-    });
-
-    test("demande enregistrée : les points sont retirés une seule fois, après", async () => {
-      setup(true);
-      await lawyer.appealBan();
-      expect(calls).toEqual(["demande", "retrait"]);
-      expect(lawyer.messages.join(" ")).toContain("5 points mon50cc utilisés");
-    });
+  test("recours contre une sanction : gratuit (DSA art. 20), par e-mail, aucun point retiré", () => {
+    window.session = { uid: "pilote", username: "Pilote <b>" };
+    window.BVCManager = { balance: 0, deduct: jest.fn() };
+    const lawyer = loadLawyer();
+    lawyer.appealBan();
+    const msg = lawyer.messages.join(" ");
+    expect(window.BVCManager.deduct).not.toHaveBeenCalled();
+    expect(msg).toContain("gratuit");
+    expect(msg).toContain('href="mailto:contact@mon50ccetmoi.com?subject=Recours%20contre%20une%20sanction%20-%20Pilote%20%3Cb%3E');
   });
 });

@@ -1,164 +1,55 @@
-import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
 import { comptes, comptesErrorMessage } from './comptes.js';
 
 /**
- * GARAGE PRO - Logique Métier
- * Inscription, Tarification Dynamique et Cahier d'Entretien
+ * Inscription d'un garage (serveur souverain) : création du compte, puis le tableau de bord
+ * propose le droit d'entrée (50 € TTC, prix venu du serveur) et ouvre l'espace une fois payé.
  */
-
 window.GaragePro = {
-  // Configuration
-  pricing: {
-    first50: 19.99,
-    standard: 49.99,
-    maxPromotionalGarages: 50
-  },
-  
-  registeredCount: 0,
-
-  /**
-   * Initialise le flux d'inscription en récupérant le compteur Firestore
-   */
-  initRegistration: async function() {
-    try {
-      if (typeof db !== "undefined") {
-        const statsRef = db.collection("stats").doc("garage_registrations");
-        const doc = await statsRef.get();
-        if (doc.exists) {
-          this.registeredCount = doc.data().count || 0;
-        } else {
-          // Lecture uniquement. La création se fera via Admin SDK / Cloud Function.
-          this.registeredCount = 0;
-        }
-      } else {
-        this.registeredCount = parseInt(localStorage.getItem('sim_garage_count') || '0');
-      }
-      this.showRegistrationModal();
-    } catch (e) {
-      console.warn("Erreur chargement stats Garages", e);
-      this.showRegistrationModal(); // Fallback
-    }
-  },
-
-  /**
-   * Affiche la modale d'inscription avec le bon prix
-   */
-  showRegistrationModal: function() {
-    const isPromo = this.registeredCount < this.pricing.maxPromotionalGarages;
-    const currentPrice = isPromo ? this.pricing.first50 : this.pricing.standard;
-    const remaining = Math.max(0, this.pricing.maxPromotionalGarages - this.registeredCount);
-
-    const title = isPromo ? `Offre Pionnier (-60%)` : `Inscription Garage Pro`;
-    const subtitle = isPromo ? `Il reste ${remaining} places au tarif préférentiel de lancement.` : `Rejoignez le réseau national de garages certifiés.`;
-
+  showRegistrationModal: function () {
+    if (document.getElementById("garage-reg-modal")) return;
     const html = `
-      <div id="garage-reg-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; display:flex; align-items:center; justify-content:center;">
-        <div style="background:#141414; border:1px solid #ffb703; border-radius:12px; padding:30px; width:400px; text-align:center; color:#fff;">
+      <div id="garage-reg-modal" role="dialog" aria-modal="true" aria-labelledby="garage-reg-title" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; display:flex; align-items:center; justify-content:center; padding:16px;">
+        <div style="background:#141414; border:1px solid #ffb703; border-radius:12px; padding:30px; width:100%; max-width:400px; box-sizing:border-box; text-align:center; color:#fff;">
           <i class="fa-solid fa-wrench" style="font-size:3rem; color:#ffb703; margin-bottom:15px;"></i>
-          <h2>${title}</h2>
-          <p style="color:#888; font-size:0.9rem; margin:10px 0 20px;">${subtitle}</p>
-          
-          <div style="font-size:2.5rem; font-weight:bold; color:#00ff88; margin-bottom:20px;">
-            ${currentPrice} € <span style="font-size:0.8rem; color:#888;">(HT)</span>
-          </div>
-
-          <input type="email" id="garage-reg-email" placeholder="Email du garage" style="width:100%; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #333; background:#000; color:#fff;" />
-          <input type="password" id="garage-reg-pwd" placeholder="Mot de passe" style="width:100%; padding:10px; margin-bottom:20px; border-radius:5px; border:1px solid #333; background:#000; color:#fff;" />
-          
-          <button data-action="GaragePro.processPaymentAndRegister(${isPromo}, ${currentPrice})" style="width:100%; padding:12px; background:#ffb703; color:#000; font-weight:bold; border:none; border-radius:5px; cursor:pointer; margin-bottom:10px;">
-            <i class="fa-solid fa-lock"></i> Payer l'accès à vie
+          <h2 id="garage-reg-title">Inscrire mon garage</h2>
+          <p style="color:#aaa; font-size:0.9rem; margin:10px 0 20px;">Créez le compte du garage. Le droit d'entrée de <strong>50,00 € TTC</strong>, payé une seule fois, vous sera ensuite proposé.</p>
+          <input type="email" id="garage-reg-email" placeholder="Email du garage" autocomplete="email" style="width:100%; box-sizing:border-box; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #333; background:#000; color:#fff;" />
+          <input type="password" id="garage-reg-pwd" placeholder="Mot de passe (8 caractères au moins)" autocomplete="new-password" style="width:100%; box-sizing:border-box; padding:10px; margin-bottom:20px; border-radius:5px; border:1px solid #333; background:#000; color:#fff;" />
+          <button data-action="GaragePro.register()" style="width:100%; padding:12px; background:#ffb703; color:#000; font-weight:bold; border:none; border-radius:5px; cursor:pointer; margin-bottom:10px;">
+            Créer le compte du garage
           </button>
-          <button data-action="document.getElementById('garage-reg-modal').remove()" style="width:100%; padding:12px; background:transparent; color:#888; border:1px solid #333; border-radius:5px; cursor:pointer;">
+          <button data-action="GaragePro.closeModal()" style="width:100%; padding:12px; background:transparent; color:#aaa; border:1px solid #333; border-radius:5px; cursor:pointer;">
             Annuler
           </button>
         </div>
-      </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', html);
+      </div>`;
+    document.body.insertAdjacentHTML("beforeend", html);
   },
 
-  /**
-   * Traite le paiement et enregistre le garage
-   */
-  processPaymentAndRegister: async function(isPromo, amount) {
+  closeModal: function () {
+    document.getElementById("garage-reg-modal")?.remove();
+  },
+
+  register: async function () {
     const email = document.getElementById("garage-reg-email").value.trim();
     const pwd = document.getElementById("garage-reg-pwd").value;
-
-    if (!email || !pwd || pwd.length < 6) {
-      alert("Veuillez saisir un email valide et un mot de passe (min 6 caractères).");
+    if (!email || !pwd) {
+      alert("Saisissez l'email du garage et un mot de passe.");
       return;
     }
-
-    // Création du compte utilisateur puis redirection vers le flux de paiement officiel Revolut
     try {
-      if (typeof firebase !== "undefined" && firebase.auth) {
-        // Firebase ou serveur souverain selon CONFIG.BACKEND_MODE.comptes (comptes.js). Le serveur
-        // souverain demande un pseudonyme : tiré de l'email du garage.
-        const local = email.split("@")[0].replace(/[^A-Za-z0-9_.-]/g, "").slice(0, 40);
-        const created = await comptes.creerCompte({ email, username: `garage-${local || "pro"}`, password: pwd });
-        const uid = created.firebaseUser ? created.firebaseUser.uid : created.compte.uid;
-        if (typeof window.session !== "undefined") {
-          window.session = { uid, email, role: "user" };
-        }
-        document.getElementById('garage-reg-modal')?.remove();
-        alert("Compte garage initialisé. Redirection vers la finalisation du règlement Revolut sécurisé...");
-        if (typeof window.buyGaragePass === "function") {
-          window.buyGaragePass();
-        } else {
-          alert("Veuillez finaliser l'adhésion depuis l'espace garage via le paiement sécurisé.");
-        }
-      } else {
-        alert("Service d'authentification temporairement indisponible.");
-      }
+      // Le serveur demande un pseudonyme : tiré de l'email du garage (le nom affiché est celui de la fiche)
+      const local = email.split("@")[0].replace(/[^A-Za-z0-9_.-]/g, "").slice(0, 40);
+      await comptes.creerCompte({ email, username: `garage-${local || "pro"}`, password: pwd });
+      window.location.href = "garage-dashboard.html";
     } catch (e) {
       console.error("Erreur inscription garage", e);
-      alert("Erreur lors de l'inscription : " + comptesErrorMessage(e));
+      alert("Inscription impossible : " + comptesErrorMessage(e));
     }
   },
-
-  /**
-   * Envoi d'un rapport d'entretien
-   */
-  submitMaintenanceLog: async function() {
-    const clientUid = document.getElementById("maint-client-uid").value.trim();
-    const category = document.getElementById("maint-category").value;
-    const mileage = document.getElementById("maint-mileage").value;
-    const description = document.getElementById("maint-desc").value.trim();
-
-    if (!clientUid || !category || !mileage || !description) {
-      alert("Veuillez remplir tous les champs du rapport d'entretien.");
-      return;
-    }
-
-    if (!confirm("Voulez-vous sceller ce rapport dans le carnet d'entretien numérique du client ?\n\n⚠️ Cette action est IRRÉVERSIBLE (Technologie Blockchain/Firestore Immuable).")) {
-      return;
-    }
-
-    try {
-      if (typeof db !== "undefined") {
-        const garageUid = firebase.auth().currentUser.uid;
-        
-        await db.collection("maintenance_logs").add({
-          vehicleOwnerUid: clientUid,
-          garageUid: garageUid,
-          certified: true,
-          category: category,
-          mileage: parseInt(mileage),
-          description: description,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }
-      
-      alert("✅ Rapport scellé avec succès ! Le client le verra apparaître dans son application.");
-      // Reset form
-      document.getElementById("maint-client-uid").value = "";
-      document.getElementById("maint-mileage").value = "";
-      document.getElementById("maint-desc").value = "";
-
-    } catch (e) {
-      console.error("Erreur rapport", e);
-      alert("Erreur de certification : " + e.message);
-    }
-  }
 };
+
+registerAction("GaragePro.showRegistrationModal", () => window.GaragePro.showRegistrationModal());
+registerAction("GaragePro.closeModal", () => window.GaragePro.closeModal());
+registerAction("GaragePro.register", () => window.GaragePro.register());

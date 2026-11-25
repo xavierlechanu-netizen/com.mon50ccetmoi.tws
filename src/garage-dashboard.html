@@ -13,8 +13,8 @@
     <link rel="stylesheet" href="/fonts/fonts.css" />
     <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css" />
 
-    <!-- Firebase SDK -->
     <script type="module" src="/js/config.js"></script>
+    <script src="https://merchant.revolut.com/embed.js" async charset="utf-8"></script>
     <script type="module" src="/js/inline-garage-dashboard-1.js"></script>
 
     <!-- Design System -->
@@ -216,7 +216,14 @@
         .dash-header { flex-direction: column; align-items: flex-start; gap: var(--space-md); }
       }
       
-      /* Toast */
+      /* Toast */      [hidden] { display: none !important; }
+      .garage-form { display: grid; gap: var(--space-sm); margin-top: var(--space-md); }
+      .garage-form input, .garage-form select {
+        width: 100%; box-sizing: border-box; padding: 10px; border-radius: var(--radius-sm);
+        border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4); color: var(--text-primary);
+      }
+      .garage-section { margin-bottom: var(--space-lg); padding: var(--space-lg); }
+      .garage-error { background: rgba(255,51,51,0.12); border: 1px solid #ff3333; color: #ff8080; padding: 12px; border-radius: var(--radius-sm); margin-bottom: var(--space-lg); }
       .toast {
         position: fixed;
         bottom: 20px;
@@ -250,10 +257,58 @@
           <p id="garage-name">Chargement de votre atelier...</p>
         </div>
         <div class="header-actions">
-          <button class="btn-outline" data-action="generateDemoData()"><i class="fa-solid fa-flask"></i> Générer Démo</button>
           <button class="btn-outline" data-action="logoutGarage()"><i class="fa-solid fa-power-off"></i> Déconnexion</button>
         </div>
       </header>
+
+      <div id="garage-error" class="garage-error" role="alert" hidden></div>
+
+      <!-- Compte pas encore certifié : droit d'entrée -->
+      <section id="join-panel" class="glass-card garage-section" hidden>
+        <h2><i class="fa-solid fa-certificate"></i> Devenir garage certifié</h2>
+        <p>Droit d'entrée unique de <strong>50,00 € TTC</strong> (paiement Revolut ou carte). Il ouvre :</p>
+        <ul>
+          <li>votre fiche sur la carte des garages certifiés, visible par les pilotes ;</li>
+          <li>le carnet d'entretien : vous y scellez vos interventions, avec l'accord du pilote (code à 6 chiffres), gardées 5 ans comme preuve ;</li>
+          <li>ce tableau de bord : clients, interventions et rappels d'entretien au kilométrage.</li>
+        </ul>
+        <button class="btn btn-primary" data-action="payGarageEntryFee()"><i class="fa-solid fa-lock"></i> Payer 50,00 € TTC</button>
+        <p style="font-size: var(--text-sm); color: var(--text-muted);">Achat professionnel : <a href="cgv.html">CGV</a>, article 5 ter.</p>
+      </section>
+
+      <div id="garage-space" hidden>
+
+      <!-- FICHE PUBLIQUE -->
+      <section class="glass-card garage-section">
+        <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-map-location-dot"></i> Ma fiche sur la carte</h2>
+        <div class="garage-form">
+          <input id="profile-name" maxlength="80" placeholder="Nom du garage" autocomplete="organization" />
+          <input id="profile-address" maxlength="160" placeholder="Adresse (numéro, rue, ville)" autocomplete="street-address" />
+          <input id="profile-phone" maxlength="20" placeholder="Téléphone (facultatif)" autocomplete="tel" inputmode="tel" />
+          <button class="btn btn-primary" data-action="saveGarageProfile()"><i class="fa-solid fa-floppy-disk"></i> Enregistrer ma fiche</button>
+        </div>
+      </section>
+
+      <!-- CLIENTS ET INTERVENTIONS -->
+      <section class="glass-card garage-section">
+        <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-user-plus"></i> Ajouter un client</h2>
+        <p style="color: var(--text-muted);">Le pilote affiche un code dans son appli (Mon Véhicule &gt; Carnet d'entretien &gt; Donner accès à mon garage). Il vaut 15 minutes.</p>
+        <div class="garage-form">
+          <input id="client-code" inputmode="numeric" maxlength="6" placeholder="Code à 6 chiffres" autocomplete="off" />
+          <button class="btn-outline" data-action="addClientByCode()"><i class="fa-solid fa-link"></i> Ajouter</button>
+        </div>
+        <div id="maint-form" class="garage-form" hidden>
+          <h3 style="margin: var(--space-md) 0 0;"><i class="fa-solid fa-wrench"></i> Sceller une intervention</h3>
+          <select id="maint-client" aria-label="Client"></select>
+          <select id="maint-category" aria-label="Catégorie">
+            <option>Révision</option><option>Vidange</option><option>Courroie &amp; galets</option>
+            <option>Pneus</option><option>Freins</option><option>Carburation</option><option>Électricité</option><option>Autre</option>
+          </select>
+          <input id="maint-desc" maxlength="300" placeholder="Détail de l'intervention" />
+          <input id="maint-km" inputmode="numeric" placeholder="Kilométrage au compteur" />
+          <button class="btn btn-primary" data-action="submitMaintenance()"><i class="fa-solid fa-lock"></i> Sceller dans le carnet</button>
+        </div>
+      </section>
 
       <!-- KPI -->
       <div class="kpi-grid">
@@ -274,7 +329,7 @@
       <!-- MAINTENANCE PREDICTIVE -->
       <section class="predictive-section">
         <div class="section-header">
-          <h2><i class="fa-solid fa-calculator"></i> Algorithme de Maintenance Prédictive</h2>
+          <h2><i class="fa-solid fa-calculator"></i> Rappels d'entretien</h2>
           <span class="badge" style="background: rgba(255,183,3,0.1); color: var(--neon-gold);">Basé sur KM</span>
         </div>
         
@@ -297,7 +352,7 @@
                 <th>Date</th>
                 <th>Client / Véhicule</th>
                 <th>Intervention</th>
-                <th>Statut</th>
+                <th>Kilométrage</th>
               </tr>
             </thead>
             <tbody id="logs-tbody">
@@ -307,10 +362,9 @@
         </div>
       </section>
 
-    </div>
+      </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"><i class="fa-solid fa-check"></i> Promotion envoyée avec succès !</div>
+    </div>
 
     <!-- Scripts -->
     <script type="module" src="/js/crypto-native.js"></script>

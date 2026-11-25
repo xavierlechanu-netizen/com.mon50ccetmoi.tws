@@ -15,8 +15,7 @@
  * Livraison :
  * - points : grand livre du serveur, mouvement « PURCHASE » (les points achetés ne comptent pas
  *   dans le classement, qui ne compte que les points gagnés) ;
- * - garage : compte marqué « garage certifié » sur le serveur. Tant que l'espace garage lit
- *   Firestore, l'administrateur recopie ce statut à la main (GET /api/v1/admin/payments) ;
+ * - garage : compte marqué « garage certifié » sur le serveur, qui ouvre l'espace garage (garages.js) ;
  * - une facture à émettre (invoicing.js, export CSV pour Kolecto).
  *
  * Testé : tests/sovereign-payments.test.js (mémoire, Revolut simulé) et tests/sovereign-pg.test.js.
@@ -223,10 +222,7 @@ function createPaymentsService({ store, revolut, audit, openProducts = DEFAULT_O
                 report_type: order.product,
                 category: order.category,
                 ...(paid && item && item.category === CATEGORIES.POINTS
-                    ? { points_credited: item.points, balance: user ? user.braveCoins : null } : {}),
-                // L'espace garage lit encore Firestore : l'équipe y recopie le statut (listForAdmin)
-                ...(paid && item && item.category === CATEGORIES.GARAGE ? { garage_activation: "manual" } : {}),
-            };
+                    ? { points_credited: item.points, balance: user ? user.braveCoins : null } : {}),};
         },
 
         /**
@@ -256,15 +252,9 @@ function createPaymentsService({ store, revolut, audit, openProducts = DEFAULT_O
             return { status: 200, body: { ignored: true } };
         },
 
-        /** Administrateur : dernières commandes, avec ce qu'il reste à faire à la main. */
+        /** Administrateur : dernières commandes. */
         async listForAdmin(limit = 100) {
-            const orders = await store.listPaymentOrders({ limit });
-            return orders.map((o) => ({
-                ...o,
-                todo: o.status === "COMPLETED" && o.category === CATEGORIES.GARAGE
-                    ? "Recopier « garage certifié » (isCertifiedGarage) dans Firestore, fiche users/<firebaseUid>"
-                    : null,
-            }));
+            return store.listPaymentOrders({ limit });
         },
     };
 }
