@@ -4,6 +4,10 @@
  * (Un module s'exécute avant l'événement DOMContentLoaded : l'écouteur ci-dessous reste valable.)
  */
 import { seasonOf } from './season-theme.js';
+import { registerAction } from './actionRegistry.js';
+import { sovereignRequest } from './sovereign.js';
+
+const PINK_KEY = 'unlockedTheme_Pink'; // lu aussi par season-theme.js (couleur du trajet)
 
 // --- ANIMATION FEU D'ARTIFICE (Nouvel An et 14 Juillet) ---
 function createFirework() {
@@ -60,19 +64,45 @@ function setButtonContent(btn, iconClass, text, iconAfter = false) {
   btn.replaceChildren(...(iconAfter ? [label, icon] : [icon, label]));
 }
 
+function pinkUnlocked() {
+  try { return localStorage.getItem(PINK_KEY) === 'true'; } catch { return false; }
+}
+
+function showPinkOwned() {
+  const btn = document.getElementById('btn-buy-pink');
+  if (!btn) return;
+  btn.style.background = 'rgba(0, 230, 118, 0.2)';
+  btn.style.color = 'var(--neon-green)';
+  setButtonContent(btn, "fa-solid fa-check", " Débloqué à vie !");
+  btn.disabled = true;
+}
+
+function rememberPink() {
+  try { localStorage.setItem(PINK_KEY, 'true'); } catch { /* stockage local indisponible : le serveur le sait */ }
+  showPinkOwned();
+}
+
+/** Thème Rose : 550 points, achat sur le serveur (shop.js), 1 € reversé à Ruban Rose par mon50ccetmoi. */
+async function buyPinkTheme() {
+  if (!confirm("Débloquer le thème GPS Rose pour 550 points ?\n\nPour chaque thème débloqué, 1 € est reversé à l'association Ruban Rose par mon50ccetmoi.")) return;
+  try {
+    await sovereignRequest('/shop/buy', { method: 'POST', body: { item: "THEME_PINK" } });
+    rememberPink();
+    if (window.BVCManager && typeof window.BVCManager.sync === 'function') window.BVCManager.sync();
+  } catch (e) {
+    alert(e?.message || "Achat impossible pour le moment.");
+  }
+}
+registerAction('buyPinkTheme', buyPinkTheme);
+
 // Vérifier si déjà débloqué au chargement
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Fête du jour : message, et feu d'artifice le cas échéant
   showSeason();
 
-  // 2. Déblocage du thème Rose
-  if (localStorage.getItem('unlockedTheme_Pink') === 'true') {
-    const btn = document.getElementById('btn-buy-pink');
-    if(btn) {
-      btn.style.background = 'rgba(0, 230, 118, 0.2)';
-      btn.style.color = 'var(--neon-green)';
-      setButtonContent(btn, "fa-solid fa-check", " Débloqué à vie !");
-      btn.disabled = true;
-    }
-  }
+  // 2. Thème Rose : déjà débloqué sur ce téléphone, ou acheté sur un autre (le serveur fait foi)
+  if (pinkUnlocked()) showPinkOwned();
+  sovereignRequest('/shop', { method: 'GET' })
+    .then(({ items }) => { if (items.some((i) => i.id === "THEME_PINK" && i.owned)) rememberPink(); })
+    .catch(() => { /* pas connecté ou serveur muet : l'état local reste */ });
 });

@@ -530,6 +530,16 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
         },
 
         /** Historique des points d'un pilote, du plus récent au plus ancien (store-pg.js, même forme). */
+        /** Articles de la boutique achetés (store-pg.js, même règle). */
+        async listShopPurchases(uid) {
+            return ledger.filter((l) => l.uid === uid && l.reason === "SHOP_PURCHASE" && String(l.idempotencyKey).startsWith("shop:"))
+                .map((l) => l.idempotencyKey.slice(5));
+        },
+
+        async countShopPurchases(item) {
+            return ledger.filter((l) => l.reason === "SHOP_PURCHASE" && l.idempotencyKey === `shop:${item}`).length;
+        },
+
         async listPointsHistory(uid, limit = 30) {
             return ledger.filter((l) => l.uid === uid).slice(-limit).reverse()
                 .map(({ action, reason, description, delta, balanceAfter, createdAt }) =>

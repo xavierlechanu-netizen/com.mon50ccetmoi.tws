@@ -876,6 +876,23 @@ function createPgStore({ connectionString, pool } = {}) {
 
         /** Classement : points GAGNÉS (jamais achetés ni dépensés), comptes anonymisés exclus. */
         /** Historique des points d'un pilote, du plus récent au plus ancien. */
+        /** Articles de la boutique achetés (shop.js) : la ligne du grand livre est la preuve d'achat. */
+        async listShopPurchases(uid) {
+            if (!UUID_RE.test(String(uid))) return [];
+            const { rows } = await db.query(
+                `SELECT substr(idempotency_key, 6) AS item FROM points_ledger
+                  WHERE user_uid = $1 AND reason = 'SHOP_PURCHASE' AND idempotency_key LIKE 'shop:%'`, [uid]
+            );
+            return rows.map((r) => r.item);
+        },
+
+        async countShopPurchases(item) {
+            const { rows } = await db.query(
+                "SELECT COUNT(*)::int AS n FROM points_ledger WHERE reason = 'SHOP_PURCHASE' AND idempotency_key = $1", [`shop:${item}`]
+            );
+            return rows[0].n;
+        },
+
         async listPointsHistory(uid, limit = 30) {
             if (!UUID_RE.test(String(uid))) return [];
             const { rows } = await db.query(

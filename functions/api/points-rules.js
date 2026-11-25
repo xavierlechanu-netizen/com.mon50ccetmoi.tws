@@ -35,6 +35,8 @@ const REASON_RULES = {
     EXCHANGE_PURCHASE: { action: "DEDUCT", maxPerCall: 5000, description: "Échange de points contre récompense" },
     WEB4_MINING_STAKE: { action: "DEDUCT", maxPerCall: 1000, description: "Stake Web4 de points" },
     GENERIC_SPEND: { action: "DEDUCT", maxPerCall: 1000, description: "Utilisation de points" },
+    // Boutique (sovereign-core/server/shop.js) : prix du catalogue, mouvement fait par le serveur seul
+    SHOP_PURCHASE: { action: "DEDUCT", maxPerCall: 5000, serverOnly: true, description: "Achat dans la boutique" },
 };
 
 /** Paliers de conduite prudente (km → points), alignés sur src/js/safe-rider.js. */

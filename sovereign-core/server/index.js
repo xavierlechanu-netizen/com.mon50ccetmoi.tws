@@ -37,6 +37,7 @@ const { AUDIT_ACTIONS, verifyAuditChain } = require("./audit-log");
 const { revolutClientFromEnv } = require("./revolut-merchant");
 const { createPaymentsService, openProductsFromEnv, PaymentError } = require("./payments");
 const { createGaragesService, GarageError } = require("./garages");
+const { createShopService, ShopError } = require("./shop");
 const { invoicesToCsv } = require("../../functions/api/invoicing");
 const { createNexusBrain, llmFromEnv } = require("./nexus-brain");
 const { createNexusVerifier } = require("./nexus-verifier");
@@ -241,6 +242,7 @@ function createSovereignApp(options = {}) {
 
     // Espace garage et carnet d'entretien (garages.js). Codes d'accord : 3 erreurs → 7 minutes de verrou (garages.js).
     const garages = createGaragesService({ store, wormVault });
+    const shop = createShopService({ store });
     const GARAGE_ROUTES = {
         "GET /api/v1/garages": (u) => garages.publicList(u),
         "GET /api/v1/garage/dashboard": (u) => garages.dashboard(u),
@@ -249,6 +251,9 @@ function createSovereignApp(options = {}) {
         "POST /api/v1/garage/maintenance": (u, body) => garages.addGarageLog(u, body),
         "GET /api/v1/maintenance": (u) => garages.pilotCarnet(u),"POST /api/v1/maintenance/code": (u, body) => garages.createCode(u, body),
         "DELETE /api/v1/maintenance/garages": (u, body, url) => garages.revokeGarage(u, url.searchParams.get("garage")),
+        // Boutique des points (shop.js)
+        "GET /api/v1/shop": (u) => shop.catalog(u),
+        "POST /api/v1/shop/buy": (u, body) => shop.buy(u, body),
     };
 
     function sendPaymentError(res, e) {
@@ -1138,7 +1143,12 @@ function createSovereignApp(options = {}) {
                 if (pathname === "/api/v1/garages") res.setHeader("Cache-Control", "public, max-age=300");
                 res.end(JSON.stringify(result));
             } catch (e) {
-                if (!(e instanceof GarageError)) throw e;
+                if (e instanceof StoreError) {
+                    res.statusCode = { USER_NOT_FOUND: 404, BANNED: 403, INSUFFICIENT_FUNDS: 402 }[e.code] || 400;
+                    res.end(JSON.stringify({ error: e.message }));
+                    return;
+                }
+                if (!(e instanceof GarageError) && !(e instanceof ShopError)) throw e;
                 res.statusCode = e.status;
                 res.end(JSON.stringify({ error: e.message }));
             }
@@ -1309,6 +1319,7 @@ function createSovereignApp(options = {}) {
                 mode: revolut ? revolut.mode : null,
                 openProducts: payments.openProducts,
                 orders: await payments.listForAdmin(Number(url.searchParams.get("limit")) || 100),
+                dons: await shop.donations(),
             }));
             return;
         }
