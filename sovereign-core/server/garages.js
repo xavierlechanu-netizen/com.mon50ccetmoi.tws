@@ -15,6 +15,9 @@
 const crypto = require("crypto");
 
 const CODE_TTL_MS = 15 * 60 * 1000;
+// Charte des garages partenaires, article 6 : après 3 codes erronés, ajout de client verrouillé 7 minutes
+const CODE_MAX_ERRORS = 3;
+const CODE_LOCK_MS = 7 * 60 * 1000;
 const CODE_RE = /^\d{6}$/;
 // Texte d'une ligne : ni caractère de contrôle, ni chevron (le texte est affiché chez d'autres)
 // eslint-disable-next-line no-control-regex -- les caractères de contrôle sont justement ceux qu'on refuse
@@ -62,6 +65,7 @@ function logFromBody(body) {
 }
 
 function createGaragesService({ store, wormVault, now = () => Date.now() }) {
+    const codeErrors = new Map(); // uid du garage → { count, lockedUntil } (codes erronés à la suite)
     async function connectedUser(authUser) {
         const user = authUser ? await store.findUserById(authUser.uid) : null;
         if (!user) throw new GarageError(401, "Connectez-vous pour continuer.");
@@ -103,9 +107,23 @@ function createGaragesService({ store, wormVault, now = () => Date.now() }) {
         /** Le garage saisit le code montré par le pilote : il devient son garage. */
         async linkClient(authUser, body = {}) {
             const garage = await certifiedGarage(authUser);
+            const prev = codeErrors.get(garage.uid);
+            if (prev && prev.lockedUntil > now()) {
+                const minutes = Math.ceil((prev.lockedUntil - now()) / 60000);
+                throw new GarageError(429, `Trois codes erronés : ajout de client verrouillé, réessayez dans ${minutes} min.`);
+            }
             const code = String(body.code || "").trim();
             const grant = CODE_RE.test(code) ? await store.consumeGarageCode(hashCode(code)) : null;
-            if (!grant) throw new GarageError(404, "Code inconnu ou expiré : demandez au pilote d'en afficher un nouveau.");
+            if (!grant) {
+                const count = (prev && !prev.lockedUntil ? prev.count : 0) + 1;
+                if (count >= CODE_MAX_ERRORS) {
+                    codeErrors.set(garage.uid, { count: 0, lockedUntil: now() + CODE_LOCK_MS });
+                    throw new GarageError(429, "Trois codes erronés : ajout de client verrouillé 7 minutes.");
+                }
+                codeErrors.set(garage.uid, { count, lockedUntil: 0 });
+                throw new GarageError(404, "Code inconnu ou expiré : demandez au pilote d'en afficher un nouveau.");
+            }
+            codeErrors.delete(garage.uid);
             if (grant.pilotUid === garage.uid) throw new GarageError(400, "Ce code est le vôtre.");
             await store.linkGarageClient({ garageUid: garage.uid, pilotUid: grant.pilotUid, km: grant.km });
             const client = (await store.listGarageClients(garage.uid)).find((c) => c.pilotUid === grant.pilotUid);
@@ -161,4 +179,4 @@ function createGaragesService({ store, wormVault, now = () => Date.now() }) {
     };
 }
 
-module.exports = { createGaragesService, GarageError, hashCode, CODE_TTL_MS };
+module.exports = { createGaragesService, GarageError, hashCode, CODE_TTL_MS, CODE_MAX_ERRORS, CODE_LOCK_MS };

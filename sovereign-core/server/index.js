@@ -239,9 +239,8 @@ function createSovereignApp(options = {}) {
     const nexusLimit = { maxAttempts: 20, windowMs: 10 * 60 * 1000, hits: new Map() };
     const NEXUS_DECISIONS = { valider: "valide", corriger: "valide", refuser: "refuse" };
 
-    // Espace garage et carnet d'entretien (garages.js). Codes d'accord : 10 essais par heure et par garage.
+    // Espace garage et carnet d'entretien (garages.js). Codes d'accord : 3 erreurs → 7 minutes de verrou (garages.js).
     const garages = createGaragesService({ store, wormVault });
-    const garageCodeLimit = { maxAttempts: 10, windowMs: 60 * 60 * 1000, hits: new Map() };
     const GARAGE_ROUTES = {
         "GET /api/v1/garages": (u) => garages.publicList(u),
         "GET /api/v1/garage/dashboard": (u) => garages.dashboard(u),
@@ -1133,10 +1132,6 @@ function createSovereignApp(options = {}) {
         const garageRoute = GARAGE_ROUTES[`${req.method} ${pathname}`];
         if (garageRoute) {
             const authUser = extractBearerUser(req);
-            if (pathname === "/api/v1/garage/clients" && authUser && isRateLimited(`garage-code:${authUser.uid}`, garageCodeLimit)) {
-                rejectTooManyAttempts(res, garageCodeLimit);
-                return;
-            }
             try {
                 const result = await garageRoute(authUser, body || {}, url);
                 res.statusCode = 200;

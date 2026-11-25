@@ -59,6 +59,7 @@ function mapOrder(r) {
         orderToken: r.order_token,
         createdAt: iso(r.created_at),
         completedAt: iso(r.completed_at) || null,
+        charterVersion: r.charter_version || null,
     };
 }
 
@@ -748,9 +749,10 @@ function createPgStore({ connectionString, pool } = {}) {
         async createPaymentOrder(o) {
             const { rows } = await db.query(
                 `INSERT INTO revolut_orders (revolut_order_id, case_id, user_uid, report_type, category, amount_cents,
-                                             currency, status, order_token)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, 'PENDING', $8) RETURNING *`,
-                [o.revolutOrderId, o.caseId, o.uid, o.product, o.category, o.amountCents, o.currency || "EUR", o.orderToken]
+                                             currency, status, order_token, charter_version)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, 'PENDING', $8, $9) RETURNING *`,
+                [o.revolutOrderId, o.caseId, o.uid, o.product, o.category, o.amountCents, o.currency || "EUR", o.orderToken,
+                    o.charterVersion || null]
             );
             return mapOrder(rows[0]);
         },

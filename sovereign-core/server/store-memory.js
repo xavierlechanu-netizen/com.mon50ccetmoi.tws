@@ -461,7 +461,8 @@ function createMemoryStore({ blackboxUnits = [], users = [] } = {}) {
             }
             const order = { revolutOrderId: o.revolutOrderId, caseId: o.caseId, uid: o.uid, product: o.product,
                 category: o.category, amountCents: o.amountCents, currency: o.currency || "EUR", status: "PENDING",
-                orderToken: o.orderToken, createdAt: new Date().toISOString(), completedAt: null };
+                orderToken: o.orderToken, createdAt: new Date().toISOString(), completedAt: null,
+                charterVersion: o.charterVersion || null };
             orders.set(order.revolutOrderId, order);
             return { ...order };
         },

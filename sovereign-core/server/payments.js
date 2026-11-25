@@ -30,6 +30,9 @@ const { ORDER_ID_RE } = require("./revolut-merchant");
 
 // Ce que ce serveur sait livrer aujourd'hui (les autres produits restent refusés)
 const DELIVERABLE_CATEGORIES = new Set([CATEGORIES.GARAGE, CATEGORIES.POINTS]);
+// Charte des garages partenaires (src/charte-garages.html) : acceptée avant le droit d'entrée,
+// sa version est gardée avec la commande (migration 010). Nouvelle version : changer les deux.
+const GARAGE_CHARTER_VERSION = "2026-11-25";
 // Rien n'est en vente tant que l'utilisateur ne l'a pas décidé (PAYMENTS_OPEN_PRODUCTS sur le VPS),
 // même si la clé Revolut est déjà en place. Premier produit prévu : GARAGE_FEE. Les packs de points
 // attendent que l'appli lise le solde sur ce serveur (domaine « points » de CONFIG.BACKEND_MODE).
@@ -155,6 +158,10 @@ function createPaymentsService({ store, revolut, audit, openProducts = DEFAULT_O
             if (item.category === CATEGORIES.GARAGE && user.isCertifiedGarage) {
                 throw new PaymentError(409, "Votre garage est déjà certifié.");
             }
+            const charterVersion = item.category === CATEGORIES.GARAGE ? GARAGE_CHARTER_VERSION : null;
+            if (charterVersion && body.charte !== charterVersion) {
+                throw new PaymentError(400, "Lisez et acceptez la charte des garages partenaires avant de payer.");
+            }
 
             const pending = await store.findReusablePendingOrder(user.uid, product, now() - REUSE_PENDING_MS);
             if (pending) return publicOrder(pending, { reused: true });
@@ -178,7 +185,8 @@ function createPaymentsService({ store, revolut, audit, openProducts = DEFAULT_O
                     currency: "EUR",
                     description: `${item.label} — ${caseId}`,
                     reference: caseId,
-                    metadata: { case_id: caseId, user_uid: user.uid, product, app: "mon50ccetmoi" },
+                    metadata: { case_id: caseId, user_uid: user.uid, product, app: "mon50ccetmoi",
+                        ...(charterVersion ? { charte: charterVersion } : {}) },
                 });
             } catch (e) {
                 console.error("[Paiements] Création de la commande Revolut impossible :", e.message);
@@ -186,10 +194,11 @@ function createPaymentsService({ store, revolut, audit, openProducts = DEFAULT_O
             }
             const order = await store.createPaymentOrder({
                 revolutOrderId: remote.id, caseId, uid: user.uid, product, category: item.category,
-                amountCents, currency: "EUR", orderToken: remote.token,
+                amountCents, currency: "EUR", orderToken: remote.token, charterVersion,
             });
             await audit({ action: AUDIT_ACTIONS.PAYMENT_ORDER_CREATED, actorUid: user.uid, actorRole: user.role,
-                targetType: "payment_order", targetId: remote.id, details: { product, amountCents } });
+                targetType: "payment_order", targetId: remote.id,
+                details: { product, amountCents, ...(charterVersion ? { charte: charterVersion } : {}) } });
             return publicOrder(order);
         },
 
@@ -259,4 +268,5 @@ function createPaymentsService({ store, revolut, audit, openProducts = DEFAULT_O
     };
 }
 
-module.exports = { createPaymentsService, openProductsFromEnv, PaymentError, DEFAULT_OPEN_PRODUCTS, DELIVERABLE_CATEGORIES };
+module.exports = { createPaymentsService, openProductsFromEnv, PaymentError, DEFAULT_OPEN_PRODUCTS, DELIVERABLE_CATEGORIES,
+    GARAGE_CHARTER_VERSION };

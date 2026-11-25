@@ -128,14 +128,35 @@ describe("Espace garage", () => {
     expect((await call(app, "GET", "/api/v1/maintenance", { uid: PILOTE })).body.logs).toHaveLength(1);
   });
 
-  test("code expiré refusé ; 10 essais de code par heure et par garage", async () => {
+  test("code expiré refusé", async () => {
     const { app, store } = setup();
     const c = await call(app, "POST", "/api/v1/maintenance/code", { uid: PILOTE, body: {} });
     const { hashCode } = require("../sovereign-core/server/garages");
     await store.saveGarageCode({ pilotUid: PILOTE, codeHash: hashCode(c.body.code), km: null, expiresAt: new Date(Date.now() - 1000).toISOString() });
     expect((await call(app, "POST", "/api/v1/garage/clients", { uid: GARAGE, body: { code: c.body.code } })).status).toBe(404);
-    for (let i = 0; i < 9; i++) await call(app, "POST", "/api/v1/garage/clients", { uid: GARAGE, body: { code: "000000" } });
-    expect((await call(app, "POST", "/api/v1/garage/clients", { uid: GARAGE, body: { code: "000000" } })).status).toBe(429);
+  });
+
+  test("charte, article 6 : 3 codes erronés → ajout de client verrouillé 7 minutes, même avec le bon code", async () => {
+    const { createGaragesService, CODE_MAX_ERRORS, CODE_LOCK_MS } = require("../sovereign-core/server/garages");
+    expect([CODE_MAX_ERRORS, CODE_LOCK_MS]).toEqual([3, 7 * 60 * 1000]);
+    const { store, vault } = setup();
+    let t = Date.now();
+    const svc = createGaragesService({ store, wormVault: vault, now: () => t });
+    const garage = { uid: GARAGE };
+    const essai = (code) => svc.linkClient(garage, { code }).then(() => 200, (e) => e.status);
+
+    expect(await essai("111111")).toBe(404);
+    expect(await essai("pas un code")).toBe(404);
+    expect(await essai("222222")).toBe(429); // 3e erreur : verrouillé
+    const { code } = await svc.createCode({ uid: PILOTE }, {});
+    expect(await essai(code)).toBe(429); // même le bon code attend la fin du verrou
+    t += CODE_LOCK_MS - 1000;
+    expect(await essai(code)).toBe(429);
+    t += 2000;
+    expect(await essai(code)).toBe(200); // 7 minutes passées : le bon code passe, le compteur repart à zéro
+    expect(await essai("333333")).toBe(404);
+    expect(await essai("444444")).toBe(404);
+    expect(await essai("555555")).toBe(429);
   });
 
   test("intervention scellée dans le coffre avant d'être écrite ; coffre en panne : rien n'est écrit", async () => {

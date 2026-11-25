@@ -7,7 +7,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const PAGES = ["cgv", "terms", "privacy", "mentions-legales", "cookies", "moderation", "banned"];
+const PAGES = ["cgv", "terms", "privacy", "mentions-legales", "cookies", "moderation", "banned", "charte-garages"];
 const read = (p) => fs.readFileSync(path.join(__dirname, "../src", `${p}.html`), "utf8");
 
 describe("Pages légales fidèles au service réel", () => {

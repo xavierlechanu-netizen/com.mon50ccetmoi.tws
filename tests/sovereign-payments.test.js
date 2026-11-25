@@ -18,7 +18,7 @@ const { createSovereignApp } = require("../sovereign-core/server/index");
 const { createMemoryStore } = require("../sovereign-core/server/store-memory");
 const { signSovereignJwt } = require("../sovereign-core/server/crypto-auth");
 const { createRevolutClient, revolutClientFromEnv, API_BASES } = require("../sovereign-core/server/revolut-merchant");
-const { openProductsFromEnv } = require("../sovereign-core/server/payments");
+const { openProductsFromEnv, GARAGE_CHARTER_VERSION } = require("../sovereign-core/server/payments");
 const { computeAmounts, getCatalogItem } = require("../functions/api/payments-catalog");
 
 const WEBHOOK_SECRET = "wsk_test_secret_paiements";
@@ -105,8 +105,10 @@ function webhook(app, event, { secret = WEBHOOK_SECRET } = {}) {
   });
 }
 
+// Droit d'entrée garage : la charte des garages partenaires est acceptée (sauf si le test dit le contraire)
 const order = (app, product, uid = PILOTE, extra = {}) =>
-  call(app, "POST", "/api/v1/payments/orders", { auth: token(uid), body: { report_type: product, ...extra } });
+  call(app, "POST", "/api/v1/payments/orders", { auth: token(uid), body: {
+    report_type: product, ...(product === "GARAGE_FEE" ? { charte: GARAGE_CHARTER_VERSION } : {}), ...extra } });
 const status = (app, caseId, uid = PILOTE) =>
   call(app, "GET", `/api/v1/payments/orders?case_id=${encodeURIComponent(caseId)}`, { auth: token(uid) });
 
@@ -173,7 +175,30 @@ describe("Commande", () => {
     expect(c.headers["Revolut-Api-Version"]).toBeTruthy();
     expect(c.body).toMatchObject({ amount: 5000, currency: "EUR", capture_mode: "automatic",
       merchant_order_ext_ref: "GARAGE-1763480000000" });
-    expect(c.body.metadata).toMatchObject({ user_uid: PILOTE, product: "GARAGE_FEE" });
+    expect(c.body.metadata).toMatchObject({ user_uid: PILOTE, product: "GARAGE_FEE", charte: GARAGE_CHARTER_VERSION });
+  });
+
+  test("droit d'entrée garage : refusé sans la charte acceptée, version gardée avec la commande", async () => {
+    const { app, store, api } = setup();
+    for (const charte of [undefined, "2020-01-01"]) {
+      const r = await order(app, "GARAGE_FEE", PILOTE, { charte });
+      expect(r.status).toBe(400);
+      expect(r.body.error).toMatch(/charte des garages partenaires/);
+    }
+    expect(api.calls).toHaveLength(0); // rien n'est demandé à Revolut
+    const ok = await order(app, "GARAGE_FEE");
+    expect(ok.status).toBe(200);
+    expect((await store.findPaymentOrder(ok.body.order_id)).charterVersion).toBe(GARAGE_CHARTER_VERSION);
+    // Les points ne demandent pas de charte
+    expect((await order(app, "POINTS_100")).status).toBe(200);
+  });
+
+  test("la charte publiée et le tableau de bord du garage portent la même version que le serveur", () => {
+    const read = (f) => fs.readFileSync(path.join(__dirname, "..", "src", f), "utf8");
+    const [y, m, d] = GARAGE_CHARTER_VERSION.split("-").map(Number);
+    const mois = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+    expect(read("charte-garages.html")).toContain(`Version du <strong>${d} ${mois[m - 1]} ${y}</strong>`);
+    expect(read("js/garage-dashboard.js")).toContain(`const CHARTE_GARAGES = "${GARAGE_CHARTER_VERSION}"`);
   });
 
   test("mode sandbox : l'appli ouvre la fenêtre de paiement de test", async () => {

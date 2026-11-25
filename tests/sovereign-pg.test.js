@@ -550,7 +550,8 @@ describe("Serveur souverain sur PostgreSQL", () => {
     expect((await store.topPilots(50)).find((p) => p.username === "AcheteurPG")).toBeUndefined();
 
     // Droit d'entrée garage : livré par le webhook signé, une seule fois
-    const g = await call(payApp, "POST", "/api/v1/payments/orders", { report_type: "GARAGE_FEE" }, auth);
+    const g = await call(payApp, "POST", "/api/v1/payments/orders",
+      { report_type: "GARAGE_FEE", charte: require("../sovereign-core/server/payments").GARAGE_CHARTER_VERSION }, auth);
     remote.get(g.body.order_id).state = "completed";
     const raw = JSON.stringify({ event: "ORDER_COMPLETED", order_id: g.body.order_id });
     const ts = String(Date.now());

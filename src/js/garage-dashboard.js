@@ -13,6 +13,8 @@ import { escapeHtml } from './html-escape.js';
  */
 
 let state = { profile: null, clients: [], logs: [] };
+// Version de la charte des garages partenaires (charte-garages.html), la même que le serveur (payments.js)
+const CHARTE_GARAGES = "2026-11-25";
 
 const $ = (id) => document.getElementById(id);
 
@@ -231,8 +233,12 @@ async function submitMaintenance() {
 
 /** Droit d'entrée : le montant affiché est celui de la commande créée par le serveur (catalogue). */
 async function payGarageEntryFee() {
+  if (!$("charte-ok").checked) {
+    showError("Lisez et acceptez la charte des garages partenaires avant de payer.");
+    return;
+  }
   try {
-    const orderData = await authFetch("createRevolutOrder", { method: "POST", body: { report_type: "GARAGE_FEE" } });
+    const orderData = await authFetch("createRevolutOrder", { method: "POST", body: { report_type: "GARAGE_FEE", charte: CHARTE_GARAGES } });
     const priceStr = Number.isFinite(orderData.amount) ? (orderData.amount / 100).toFixed(2).replace(".", ",") + " €" : null;
     if (!priceStr || !confirm(`Payer le droit d'entrée de ${priceStr} TTC pour devenir garage certifié ?`)) return;
     const instance = await window.RevolutCheckout(orderData.order_token, orderData.mode || "prod");
