@@ -20,6 +20,7 @@ import { readLatLng, formatDistance, formatDuration } from "./map-engine.js";
 import { speak } from "./voice-engine.js";
 import { routeColor } from "./season-theme.js";
 import { departureMessage, rerouteMessage, startGuidance, stopGuidance, isGuiding, announce } from "./route-guidance.js";
+import { HapticNav, HAPTIC_PATTERNS } from "./haptic-navigation.js";
 
 /** Vitesse moyenne réaliste d'un 50 cc, arrêts compris (32 km/h). */
 export const AVG_SPEED_MS = 32 / 3.6;
@@ -295,6 +296,10 @@ function showRoute(ticket, route, destination, { reroute = false } = {}) {
     durationSec,
     quietUntil: Date.now() + (reroute ? 0 : 9000), // laisse finir les annonces de départ
     textOf: instructionText,
+    kindOf: maneuverKind,
+    // Gauche 2 pulsations, droite 3, rond-point 2 + 1 longue… (haptic-navigation.js). Android seulement :
+    // Safari sur iPhone ne sait pas faire vibrer.
+    onBuzz: (dir) => HapticNav.vibratePattern(HAPTIC_PATTERNS[dir.toUpperCase()]),
     onReroute: () => rerouteFromHere(destination),
     onArrive: () => cancelRoute({ silent: true }),
     onProgress: ({ stepIndex, toNextM, remainingM }) => {

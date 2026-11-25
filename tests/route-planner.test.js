@@ -25,11 +25,13 @@ function loadModule({ speak = jest.fn() } = {}) {
   const guidance = stripModule(read("route-guidance.js"));
   const code = stripModule(read("route-planner.js"));
   const isVoiceBusy = () => !!window.speechSynthesis?.speaking; // voice-engine.js, simulé
+  const HapticNav = { vibratePattern: jest.fn() }; // haptic-navigation.js, simulé
+  const HAPTIC_PATTERNS = { LEFT: [1], RIGHT: [2], ROUNDABOUT: [3], UTURN: [4], STRAIGHT: [5], DESTINATION: [6] };
   const api = new Function(
-    "speak", "registerAction", "isVoiceBusy", "routeColor",
+    "speak", "registerAction", "isVoiceBusy", "routeColor", "HapticNav", "HAPTIC_PATTERNS",
     `${engine}\n${guidance}\n${code}\nreturn { ${EXPORTS.join(", ")} };`,
-  )(speak, () => {}, isVoiceBusy, (fallback) => fallback);
-  return { ...api, speak };
+  )(speak, () => {}, isVoiceBusy, (fallback) => fallback, HapticNav, HAPTIC_PATTERNS);
+  return { ...api, speak, HapticNav };
 }
 
 const LILLE = { lat: 50.6292, lng: 3.0573 };
@@ -353,6 +355,7 @@ describe("Calcul et affichage de l'itinéraire", () => {
     await R.calculateRouteSansAutoroute(LILLE, ROUBAIX);
     R.onGpsFix(ROUBAIX.lat, ROUBAIX.lng);
     expect(R.speak).toHaveBeenLastCalledWith("Vous êtes arrivé à destination. Bonne journée.");
+    expect(R.HapticNav.vibratePattern).toHaveBeenLastCalledWith([6]); // séquence d'arrivée
     expect(R.isGuiding()).toBe(false);
     expect(layers.some(visible)).toBe(false);
     expect(document.getElementById("nav-info-bar").style.display).toBe("none");

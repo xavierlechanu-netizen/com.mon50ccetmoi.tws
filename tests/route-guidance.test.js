@@ -208,6 +208,25 @@ describe("Pause et signal GPS", () => {
   });
 });
 
+describe("Guidage par vibrations (sans le son)", () => {
+  test("virage à gauche : vibre à 300 m et au virage, même voix occupée ; puis l'arrivée ; jamais la ligne droite", () => {
+    const G = loadModule({ isVoiceBusy: () => true });
+    const onBuzz = jest.fn();
+    const kindOf = (s) => (s.maneuver.includes("left") ? "left" : "straight");
+    G.startGuidance({ leg: { steps: ROUTE.steps }, path: ROUTE.path }, { destination: ROUTE.destination, durationSec: 800, kindOf, onBuzz });
+    drive().forEach((p, i) => G.onGpsFix(p.lat, p.lng, { now: i * 1000 }));
+    expect(onBuzz.mock.calls.map((c) => c[0])).toEqual(["left", "left", "destination"]);
+  });
+
+  test("sans kindOf (ancienne page) : aucune vibration, annonces inchangées", () => {
+    const G = loadModule({ isVoiceBusy: () => true });
+    const onBuzz = jest.fn();
+    G.startGuidance({ leg: { steps: ROUTE.steps }, path: ROUTE.path }, { destination: ROUTE.destination, durationSec: 800, onBuzz });
+    G.onGpsFix(P(700, 0).lat, P(700, 0).lng, { now: 0 });
+    expect(onBuzz).not.toHaveBeenCalled();
+  });
+});
+
 describe("Branchement : file d'attente de la voix", () => {
   afterEach(() => {
     delete window.speechSynthesis;

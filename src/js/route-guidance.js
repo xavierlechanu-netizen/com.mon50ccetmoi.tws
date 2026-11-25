@@ -125,12 +125,13 @@ export function distanceToPath(p, path) {
  * @param {number} [o.quietUntil] pas d'annonce de virage avant cet instant (annonces de départ en cours)
  * @param {(step:object)=>string} [o.textOf] texte d'une consigne
  */
-export function createGuidance({ steps = [], path = [], destination, durationSec = 0, quietUntil = 0, textOf } = {}) {
+export function createGuidance({ steps = [], path = [], destination, durationSec = 0, quietUntil = 0, textOf, kindOf } = {}) {
   const text = textOf || ((s) => String(s?.instructions || "").trim());
   const pts = (path || []).map(readLatLng).filter(Boolean);
   const dest = readLatLng(destination) || pts[pts.length - 1] || null;
   const st = (steps || []).map((s) => ({
     text: text(s),
+    dir: kindOf?.(s), // « left », « right », « roundabout »… : la vibration du virage (route-planner.js)
     straight: !s.maneuver || s.maneuver === "straight",
     length: Number(s.distanceMeters) || 0,
     at: readLatLng(s.start_location),
@@ -213,12 +214,12 @@ export function createGuidance({ steps = [], path = [], destination, durationSec
       const d = distanceMeters(p, s.at);
       if (state.farAt === null && d <= FAR_M && d > NEAR_M) {
         state.farAt = d;
-        out.push({ kind: "maneuver", text: `Dans ${spokenDistance(d)}, ${s.text}.` });
+        out.push({ kind: "maneuver", text: `Dans ${spokenDistance(d)}, ${s.text}.`, dir: s.dir });
       } else if (!state.nearSaid && d <= NEAR_M) {
         state.nearSaid = true;
         // déjà annoncé tout près (étape courte) ou simple « continuez » : pas de deuxième annonce
         const justSaid = state.farAt !== null && state.farAt < 150;
-        if (!justSaid && !s.straight) out.push({ kind: "maneuver", text: `${s.text}.` });
+        if (!justSaid && !s.straight) out.push({ kind: "maneuver", text: `${s.text}.`, dir: s.dir });
         if (state.farAt === null) state.farAt = d;
       }
     }
@@ -332,12 +333,13 @@ function say(text, kind, now) {
  * @param {object} route { path, leg } (route-planner.js)
  * @param {object} handlers { onReroute(), onArrive() } ; options de createGuidance (destination, durationSec, quietUntil)
  */
-export function startGuidance(route, { destination, durationSec, quietUntil = 0, textOf, onReroute, onArrive, onProgress } = {}) {
+export function startGuidance(route, { destination, durationSec, quietUntil = 0, textOf, kindOf, onReroute, onArrive, onProgress, onBuzz } = {}) {
   active = {
-    guidance: createGuidance({ steps: route?.leg?.steps, path: route?.path, destination, durationSec, quietUntil, textOf }),
+    guidance: createGuidance({ steps: route?.leg?.steps, path: route?.path, destination, durationSec, quietUntil, textOf, kindOf }),
     onReroute,
     onArrive,
     onProgress,
+    onBuzz, // vibration du téléphone : guidage sans le son (conducteurs sourds ou malentendants)
   };
 }
 
@@ -365,6 +367,9 @@ export function onGpsFix(lat, lng, { moving = false, accuracy = 0, now = Date.no
     const current = active;
     for (const ev of current.guidance.update({ lat, lng }, now, { accuracy })) {
       if (ev.kind === "arrive") queue = []; // plus aucune consigne de virage après l'arrivée
+      // Vibre tout de suite, même si la voix est occupée : la vibration ne fait pas la queue
+      if (ev.kind === "arrive") current.onBuzz?.("destination");
+      else if (ev.dir && ev.dir !== "straight") current.onBuzz?.(ev.dir);
       say(ev.text, ev.kind, now);
       if (ev.kind === "reroute") current.onReroute?.();
       if (ev.kind === "arrive") {
