@@ -18,6 +18,8 @@ describe("Pages légales fidèles au service réel", () => {
     expect(html).not.toMatch(/en utilisant ses points mon50cc/);
     expect(html).not.toMatch(/sans intervention humaine/);
     expect(html).not.toMatch(/Sentinel Care|CCPA|PIPL|Indonésie|marque déposée/i);
+    // Parrainage : personne n'est puni pour les actes d'un autre (clause abusive, C. conso. L. 212-1)
+    expect(html).not.toMatch(/Responsabilité Solidaire|5e avertissement/i);
   });
 
   test("l'hébergeur indiqué dans les CGU et les mentions légales est OVHcloud", () => {
