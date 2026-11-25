@@ -231,6 +231,23 @@ async function submitMaintenance() {
   }
 }
 
+/** Attend que le serveur confirme le paiement (webhook Revolut ou vérification directe). */
+function waitGaragePayment(caseId) {
+  let attempts = 0;
+  const timer = setInterval(async () => {
+    attempts++;
+    const data = await authFetch("checkPaymentStatus", { method: "GET", query: { case_id: caseId } }).catch(() => null);
+    if (data && data.paid) {
+      clearInterval(timer);
+      alert("Paiement validé : votre espace garage est ouvert.");
+      loadGarageData();
+    } else if (attempts > 15) {
+      clearInterval(timer);
+      alert("Paiement en cours de confirmation par Revolut : rechargez la page dans quelques minutes.");
+    }
+  }, 2000);
+}
+
 /** Droit d'entrée : le montant affiché est celui de la commande créée par le serveur (catalogue). */
 async function payGarageEntryFee() {
   if (!$("charte-ok").checked) {
@@ -241,23 +258,15 @@ async function payGarageEntryFee() {
     const orderData = await authFetch("createRevolutOrder", { method: "POST", body: { report_type: "GARAGE_FEE", charte: CHARTE_GARAGES } });
     const priceStr = Number.isFinite(orderData.amount) ? (orderData.amount / 100).toFixed(2).replace(".", ",") + " €" : null;
     if (!priceStr || !confirm(`Payer le droit d'entrée de ${priceStr} TTC pour devenir garage certifié ?`)) return;
+    // Page de paiement Revolut : Revolut Pay, carte, Apple Pay, Google Pay ; retour ici avec ?paiement=
+    if (orderData.checkout_url) {
+      window.location.href = orderData.checkout_url;
+      return;
+    }
+    // Commande reprise (créée il y a quelques minutes) : pas d'adresse de page, fenêtre carte
     const instance = await window.RevolutCheckout(orderData.order_token, orderData.mode || "prod");
     instance.payWithPopup({
-      onSuccess: () => {
-        let attempts = 0;
-        const timer = setInterval(async () => {
-          attempts++;
-          const data = await authFetch("checkPaymentStatus", { method: "GET", query: { case_id: orderData.case_id } }).catch(() => null);
-          if (data && data.paid) {
-            clearInterval(timer);
-            alert("Paiement validé : votre espace garage est ouvert.");
-            loadGarageData();
-          } else if (attempts > 15) {
-            clearInterval(timer);
-            alert("Paiement en cours de confirmation par Revolut : rechargez la page dans quelques minutes.");
-          }
-        }, 2000);
-      },
+      onSuccess: () => waitGaragePayment(orderData.case_id),
       onError: (message) => alert("Erreur lors du paiement : " + message),
       onCancel: () => {},
     });
@@ -279,6 +288,12 @@ registerAction('payGarageEntryFee', payGarageEntryFee);
 registerAction('logoutGarage', logoutGarage);
 
 if (typeof document !== 'undefined') {
+  // Retour de la page de paiement Revolut : on attend la confirmation du serveur
+  const retourPaiement = new URLSearchParams(window.location.search).get("paiement");
+  if (retourPaiement) {
+    window.history.replaceState(null, "", window.location.pathname);
+    waitGaragePayment(retourPaiement);
+  }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", loadGarageData);
   else loadGarageData();
 }

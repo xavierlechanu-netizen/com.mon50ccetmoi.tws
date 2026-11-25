@@ -33,6 +33,8 @@ const DELIVERABLE_CATEGORIES = new Set([CATEGORIES.GARAGE, CATEGORIES.POINTS]);
 // Charte des garages partenaires (src/charte-garages.html) : acceptée avant le droit d'entrée,
 // sa version est gardée avec la commande (migration 010). Nouvelle version : changer les deux.
 const GARAGE_CHARTER_VERSION = "2026-11-25";
+// Après paiement sur la page Revolut (Revolut Pay, carte, Apple Pay, Google Pay), le garage revient ici
+const GARAGE_RETURN_PAGE = "https://mon50ccetmoi.com/garage-dashboard.html";
 // Rien n'est en vente tant que l'utilisateur ne l'a pas décidé (PAYMENTS_OPEN_PRODUCTS sur le VPS),
 // même si la clé Revolut est déjà en place. Premier produit prévu : GARAGE_FEE. Les packs de points
 // attendent que l'appli lise le solde sur ce serveur (domaine « points » de CONFIG.BACKEND_MODE).
@@ -187,6 +189,8 @@ function createPaymentsService({ store, revolut, audit, openProducts = DEFAULT_O
                     reference: caseId,
                     metadata: { case_id: caseId, user_uid: user.uid, product, app: "mon50ccetmoi",
                         ...(charterVersion ? { charte: charterVersion } : {}) },
+                    ...(item.category === CATEGORIES.GARAGE
+                        ? { redirectUrl: `${GARAGE_RETURN_PAGE}?paiement=${encodeURIComponent(caseId)}` } : {}),
                 });
             } catch (e) {
                 console.error("[Paiements] Création de la commande Revolut impossible :", e.message);
@@ -199,7 +203,7 @@ function createPaymentsService({ store, revolut, audit, openProducts = DEFAULT_O
             await audit({ action: AUDIT_ACTIONS.PAYMENT_ORDER_CREATED, actorUid: user.uid, actorRole: user.role,
                 targetType: "payment_order", targetId: remote.id,
                 details: { product, amountCents, ...(charterVersion ? { charte: charterVersion } : {}) } });
-            return publicOrder(order);
+            return publicOrder(order, { checkout_url: remote.checkoutUrl });
         },
 
         /** Suivi d'une commande par son acheteur (remplace checkPaymentStatus). */

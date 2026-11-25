@@ -72,16 +72,18 @@ function createRevolutClient({ secretKey, mode = "prod", apiVersion = DEFAULT_AP
         const amount = typeof o.amount === "number" ? o.amount
             : (o.order_amount && typeof o.order_amount.value === "number" ? o.order_amount.value : null);
         const currency = o.currency || (o.order_amount && o.order_amount.currency) || null;
-        return { id: o.id, token: o.token || o.public_id || null, state: String(o.state || "").toUpperCase(), amount, currency };
+        return { id: o.id, token: o.token || o.public_id || null, state: String(o.state || "").toUpperCase(), amount, currency,
+            checkoutUrl: o.checkout_url || null };
     }
 
     return {
         mode: mode === "sandbox" ? "sandbox" : "prod",
 
         /**
-         * @param {{amountCents: number, currency: string, description: string, reference: string, metadata: object}} order
+         * @param {{amountCents: number, currency: string, description: string, reference: string, metadata: object, redirectUrl?: string}} order
+         *   redirectUrl : page où Revolut renvoie le client après un paiement réussi sur sa page de paiement
          */
-        async createOrder({ amountCents, currency, description, reference, metadata }) {
+        async createOrder({ amountCents, currency, description, reference, metadata, redirectUrl }) {
             const o = normalize(await call("POST", "/orders", {
                 amount: amountCents,
                 currency,
@@ -89,6 +91,7 @@ function createRevolutClient({ secretKey, mode = "prod", apiVersion = DEFAULT_AP
                 merchant_order_ext_ref: reference,
                 description,
                 metadata,
+                ...(redirectUrl ? { redirect_url: redirectUrl } : {}),
             }));
             if (!o.id || !o.token) throw new RevolutError("Réponse de Revolut incomplète.", 502);
             return o;

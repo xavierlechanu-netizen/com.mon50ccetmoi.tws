@@ -42,6 +42,7 @@ function fakeRevolutApi() {
     if (init.method === "POST" && u.pathname.endsWith("/orders")) {
       n += 1;
       const o = { id: `ord-${String(n).padStart(6, "0")}`, token: `tok_public_${n}`, state: "pending",
+        checkout_url: `https://checkout.revolut.com/payment-link/tok_public_${n}`,
         amount: body.amount, currency: body.currency, metadata: body.metadata };
       orders.set(o.id, o);
       return reply(201, o);
@@ -167,6 +168,8 @@ describe("Commande", () => {
     expect(expected).toBe(5000);
     expect(r.body).toMatchObject({ amount: 5000, currency: "EUR", status: "PENDING", case_id: "GARAGE-1763480000000",
       mode: "prod", order_token: "tok_public_1" });
+    // Page de paiement Revolut (Revolut Pay, carte…)
+    expect(r.body.checkout_url).toBe("https://checkout.revolut.com/payment-link/tok_public_1");
 
     const [c] = api.calls;
     expect(c.url).toBe(`${API_BASES.prod}/orders`);
@@ -176,6 +179,8 @@ describe("Commande", () => {
     expect(c.body).toMatchObject({ amount: 5000, currency: "EUR", capture_mode: "automatic",
       merchant_order_ext_ref: "GARAGE-1763480000000" });
     expect(c.body.metadata).toMatchObject({ user_uid: PILOTE, product: "GARAGE_FEE", charte: GARAGE_CHARTER_VERSION });
+    // Après paiement réussi, Revolut renvoie le garage sur son tableau de bord
+    expect(c.body.redirect_url).toBe("https://mon50ccetmoi.com/garage-dashboard.html?paiement=GARAGE-1763480000000");
   });
 
   test("droit d'entrée garage : refusé sans la charte acceptée, version gardée avec la commande", async () => {
@@ -191,6 +196,7 @@ describe("Commande", () => {
     expect((await store.findPaymentOrder(ok.body.order_id)).charterVersion).toBe(GARAGE_CHARTER_VERSION);
     // Les points ne demandent pas de charte
     expect((await order(app, "POINTS_100")).status).toBe(200);
+    expect(api.calls.at(-1).body.redirect_url).toBeUndefined();
   });
 
   test("la charte publiée et le tableau de bord du garage portent la même version que le serveur", () => {
