@@ -1,5 +1,6 @@
 import { db, auth, CONFIG, secureGetItem, secureSetItem } from './config.js';
 import { registerAction } from './actionRegistry.js';
+import { analyseContract, contractSummary, readPdfText } from './contract-reader.js';
 
 /**
  * ⚖️ NEXUS ATLAS JURIDIQUE - MODULE D'INFORMATION JURIDIQUE
@@ -135,6 +136,7 @@ overlay.innerHTML = `
                 <button data-action="PocketLawyer.sendMessage()" style="background: #cca300; color: #000; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
             
+            <button data-action="PocketLawyer.readContract()" style="margin-bottom: 15px; background: #cca300; border: none; color: #000; font-weight: bold; padding: 10px 20px; border-radius: 20px; cursor: pointer;"><i class="fa-solid fa-file-contract"></i> Lire mon contrat d'assurance (PDF)</button>
             <button data-action="PocketLawyer.startGPSScan()" style="margin-bottom: 15px; background: transparent; border: 1px solid #cca300; color: #cca300; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-location-dot"></i> Vérifier mon stationnement</button>
             <button data-action="PocketLawyer.appealBan()" style="margin-bottom: 15px; background: rgba(231, 76, 60, 0.15); border: 1px solid #e74c3c; color: #e74c3c; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-scale-balanced"></i> Contester un Bannissement Temporaire (Vérification Humaine)</button>
             <button data-action="PocketLawyer.reportInsurer()" style="margin-bottom: 15px; background: rgba(255,51,51,0.1); border: 1px solid #ff3333; color: #ff3333; padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: 0.2s;"><i class="fa-solid fa-bullhorn"></i> Signaler un litige assureur (+15 mon50cc)</button>
@@ -308,6 +310,40 @@ typingMsg.innerHTML = '<i class="fa-solid fa-ellipsis fa-fade"></i> Analyse en c
       this.addBotMessage("Désolé, une erreur s'est produite lors de la recherche.");
       console.error(e);
     }
+  },
+
+  /** Texte brut dans une bulle de Nexus (jamais de HTML : le texte vient d'un document de l'utilisateur). */
+  addBotText: function (text) {
+    const chatBox = document.getElementById("lawyer-chat-box");
+    if (!chatBox) return;
+    const msg = document.createElement("div");
+    msg.style = "background: rgba(204,163,0,0.1); padding: 10px 15px; border-radius: 15px; align-self: flex-start; max-width: 92%; border-left: 3px solid #cca300; line-height: 1.4; color: #fff; white-space: pre-wrap;";
+    msg.textContent = text;
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  },
+
+  /** Nexus lit un contrat d'assurance en PDF, dans le téléphone : rien n'est envoyé (contract-reader.js). */
+  readContract: function () {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/pdf,.pdf";
+    input.addEventListener("change", async () => {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      if (file.size > 20 * 1024 * 1024) {
+        this.addBotText("Ce fichier est trop lourd (plus de 20 Mo). Prenez seulement les conditions particulières de votre contrat.");
+        return;
+      }
+      this.addBotText(`📄 Je lis « ${file.name} » dans votre téléphone. Il n'est envoyé nulle part.`);
+      try {
+        this.addBotText(contractSummary(analyseContract(await readPdfText(file))));
+      } catch (e) {
+        console.warn("[PocketLawyer] Lecture du contrat :", e);
+        this.addBotText("Je n'arrive pas à ouvrir ce fichier. Vérifiez que c'est bien un PDF, sans mot de passe.");
+      }
+    });
+    input.click();
   },
 
   addBotMessage: function (htmlContent) {
